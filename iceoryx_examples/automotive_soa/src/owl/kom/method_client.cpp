@@ -37,7 +37,7 @@ MethodClient::~MethodClient() noexcept
     {
         std::this_thread::yield();
     }
-    std::lock_guard<iox::posix::mutex> guard(m_mutex);
+    std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 }
 
 // If we call the operator() twice shortly after each other, once the response of the first request has not yet
@@ -73,7 +73,7 @@ Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint6
     // Typically you would e.g. use a worker pool here, for simplicity we use a plain thread
     std::thread(
         [&](Promise<AddResponse>&& promise) {
-            std::lock_guard<iox::posix::mutex> guard(m_mutex);
+            std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 
             auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 

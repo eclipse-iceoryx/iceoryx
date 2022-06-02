@@ -76,7 +76,7 @@ class Runtime
   private:
     explicit Runtime() noexcept = default;
 
-    bool verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::ProxyHandleType>& container) noexcept;
+    bool verifyThatServiceIsComplete(const kom::ServiceHandleContainer<kom::ProxyHandleType>& container) noexcept;
 
     static void invokeCallback(iox::runtime::ServiceDiscovery*, Runtime* self) noexcept;
 

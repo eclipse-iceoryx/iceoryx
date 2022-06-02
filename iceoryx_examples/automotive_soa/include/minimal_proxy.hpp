@@ -25,11 +25,12 @@
 #include "owl/runtime.hpp"
 #include "owl/types.hpp"
 
+/// @note Proxy classes are typically generated
 /// @note Once a handler has been set with 'EnableFindServiceCallback', calling 'FindService' is not thread-safe!
 class MinimalProxy
 {
   public:
-    static constexpr char m_serviceIdentifier[] = "ExampleSkeleton";
+    static constexpr char SERVICE_IDENTIFIER[] = "ExampleSkeleton";
 
     MinimalProxy(const owl::kom::ProxyHandleType& handle) noexcept;
     ~MinimalProxy() noexcept = default;
@@ -49,9 +50,9 @@ class MinimalProxy
     FindService(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
 
     const owl::kom::InstanceIdentifier m_instanceIdentifier;
-    owl::kom::EventSubscriber<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
-    owl::kom::FieldSubscriber<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field"};
-    owl::kom::MethodClient computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
+    owl::kom::EventSubscriber<TimestampTopic1Byte> m_event{SERVICE_IDENTIFIER, m_instanceIdentifier, "Event"};
+    owl::kom::FieldSubscriber<Topic> m_field{SERVICE_IDENTIFIER, m_instanceIdentifier, "Field"};
+    owl::kom::MethodClient computeSum{SERVICE_IDENTIFIER, m_instanceIdentifier, "Method"};
 };
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_PROXY_HPP

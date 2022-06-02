@@ -24,10 +24,11 @@
 #include "owl/kom/method_server.hpp"
 #include "owl/types.hpp"
 
+/// @note Skeleton classes are typically generated
 class MinimalSkeleton
 {
   public:
-    static constexpr char m_serviceIdentifier[] = "ExampleSkeleton";
+    static constexpr char SERVICE_IDENTIFIER[] = "ExampleSkeleton";
 
     MinimalSkeleton(const owl::kom::InstanceIdentifier& instanceIdentifier) noexcept;
     ~MinimalSkeleton() noexcept;
@@ -41,10 +42,10 @@ class MinimalSkeleton
     void StopOffer() noexcept;
 
     const owl::kom::InstanceIdentifier m_instanceIdentifier;
-    owl::kom::EventPublisher<TimestampTopic1Byte> m_event{m_serviceIdentifier, m_instanceIdentifier, "Event"};
+    owl::kom::EventPublisher<TimestampTopic1Byte> m_event{SERVICE_IDENTIFIER, m_instanceIdentifier, "Event"};
     static constexpr Topic initalFieldValue{4242};
-    owl::kom::FieldPublisher<Topic> m_field{m_serviceIdentifier, m_instanceIdentifier, "Field", initalFieldValue};
-    owl::kom::MethodServer computeSum{m_serviceIdentifier, m_instanceIdentifier, "Method"};
+    owl::kom::FieldPublisher<Topic> m_field{SERVICE_IDENTIFIER, m_instanceIdentifier, "Field", initalFieldValue};
+    owl::kom::MethodServer computeSum{SERVICE_IDENTIFIER, m_instanceIdentifier, "Method"};
 };
 
 #endif // IOX_EXAMPLES_AUTOMOTIVE_SOA_MINIMAL_SKELETON_HPP

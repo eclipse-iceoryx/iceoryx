@@ -43,7 +43,7 @@ int main()
 
     //! [synchronous discovery]
     kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "ExampleInstance");
-    std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
+    std::cout << "Searching for instances of '" << MinimalProxy::SERVICE_IDENTIFIER << "' called '"
               << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
     auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
     //! [synchronous discovery]
@@ -53,7 +53,7 @@ int main()
         //! [create proxy]
         for (auto& handle : handleContainer)
         {
-            std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+            std::cout << "  Found instance of service: '" << MinimalProxy::SERVICE_IDENTIFIER << "', '"
                       << handle.GetInstanceId().c_str() << "'" << std::endl;
             maybeProxy->emplace(handle);
             break;
@@ -70,7 +70,7 @@ int main()
             if (container.empty())
             {
                 std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
-                          << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
+                          << MinimalProxy::SERVICE_IDENTIFIER << "' has disappeared." << std::endl;
                 maybeProxy->value().m_event.UnsetReceiveCallback();
                 maybeProxy->reset();
                 return;
@@ -82,7 +82,7 @@ int main()
             {
                 if (!maybeProxy->has_value())
                 {
-                    std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+                    std::cout << "  Found instance of service: '" << MinimalProxy::SERVICE_IDENTIFIER << "', '"
                               << proxyHandle.GetInstanceId().c_str() << "'" << std::endl;
                     maybeProxy->emplace(proxyHandle);
                     break;

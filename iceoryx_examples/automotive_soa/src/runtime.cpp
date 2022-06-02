@@ -110,7 +110,7 @@ void Runtime::DisableFindServiceCallback(const kom::FindServiceCallbackHandle ha
     }
 }
 
-bool Runtime::verifyThatServiceIsComplete(kom::ServiceHandleContainer<kom::ProxyHandleType>& container) noexcept
+bool Runtime::verifyThatServiceIsComplete(const kom::ServiceHandleContainer<kom::ProxyHandleType>& container) noexcept
 {
     // The service level of AUTOSAR Adaptive is not available in iceoryx, instead every publisher and server is
     // considered as a service. A ara::com binding implementer would typically query the AUTOSAR meta model here, to

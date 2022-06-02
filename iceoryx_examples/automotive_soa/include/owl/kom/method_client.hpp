@@ -49,7 +49,7 @@ class MethodClient
     std::atomic<int64_t> m_sequenceId{0};
     iox::popo::WaitSet<> m_waitset;
     static constexpr bool IS_RECURSIVE{true};
-    iox::posix::mutex m_mutex{IS_RECURSIVE};
+    iox::posix::mutex m_onlyOneThreadRunningMutex{IS_RECURSIVE};
     std::atomic<uint32_t> m_threadsRunning{0};
     //! [MethodClient members]
 };

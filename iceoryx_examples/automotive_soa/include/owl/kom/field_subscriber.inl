@@ -43,7 +43,7 @@ inline FieldSubscriber<T>::~FieldSubscriber() noexcept
     {
         std::this_thread::yield();
     }
-    std::lock_guard<iox::posix::mutex> guard(m_mutex);
+    std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 }
 
 template <typename T>
@@ -132,7 +132,7 @@ inline Future<T> FieldSubscriber<T>::receiveResponse()
     std::thread(
         [&](Promise<FieldType>&& promise) {
             //! [FieldSubscriber receive response]
-            std::lock_guard<iox::posix::mutex> guard(m_mutex);
+            std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 
             auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 

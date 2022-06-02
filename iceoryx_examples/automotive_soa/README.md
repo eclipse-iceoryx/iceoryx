@@ -130,7 +130,7 @@ performed.
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/iox_automotive_proxy.cpp] [synchronous discovery] -->
 ```cpp
 kom::InstanceIdentifier exampleInstanceSearchQuery(TruncateToCapacity, "ExampleInstance");
-std::cout << "Searching for instances of '" << MinimalProxy::m_serviceIdentifier << "' called '"
+std::cout << "Searching for instances of '" << MinimalProxy::SERVICE_IDENTIFIER << "' called '"
           << exampleInstanceSearchQuery.c_str() << "':" << std::endl;
 auto handleContainer = MinimalProxy::FindService(exampleInstanceSearchQuery);
 ```
@@ -141,7 +141,7 @@ If the skeleton application was already started, the `maybeProxy` is initialized
 ```cpp
 for (auto& handle : handleContainer)
 {
-    std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+    std::cout << "  Found instance of service: '" << MinimalProxy::SERVICE_IDENTIFIER << "', '"
               << handle.GetInstanceId().c_str() << "'" << std::endl;
     maybeProxy->emplace(handle);
     break;
@@ -165,7 +165,7 @@ for (auto& proxyHandle : container)
 {
     if (!maybeProxy->has_value())
     {
-        std::cout << "  Found instance of service: '" << MinimalProxy::m_serviceIdentifier << "', '"
+        std::cout << "  Found instance of service: '" << MinimalProxy::SERVICE_IDENTIFIER << "', '"
                   << proxyHandle.GetInstanceId().c_str() << "'" << std::endl;
         maybeProxy->emplace(proxyHandle);
         break;
@@ -180,7 +180,7 @@ and respectively destroy the `MinimalProxy` when the once available service beco
 if (container.empty())
 {
     std::cout << "  Instance '" << maybeProxy->value().m_instanceIdentifier.c_str() << "' of service '"
-              << MinimalProxy::m_serviceIdentifier << "' has disappeared." << std::endl;
+              << MinimalProxy::SERVICE_IDENTIFIER << "' has disappeared." << std::endl;
     maybeProxy->value().m_event.UnsetReceiveCallback();
     maybeProxy->reset();
     return;
@@ -447,13 +447,7 @@ philosophy for defined behaviour, terminates if an empty object is dereferenced.
 template <typename SampleType>
 inline SampleType& SamplePointer<SampleType>::operator*() noexcept
 {
-    if (!this->has_value())
-    {
-        // We don't allow undefined behaviour
-        std::cerr << "Trying to access an empty sample, terminating!" << std::endl;
-        std::exit(EXIT_FAILURE);
-    }
-    return *(this->value().get());
+    return *this->operator->();
 }
 ```
 
@@ -514,9 +508,9 @@ template <typename T>
 inline void FieldPublisher<T>::onRequestReceived(iox::popo::Server<iox::cxx::optional<FieldType>, FieldType>* server,
                                                  FieldPublisher<FieldType>* self) noexcept
 {
-    if (self == nullptr)
+    if (server == nullptr || self == nullptr)
     {
-        std::cerr << "Callback was invoked with FieldPublisher* being a nullptr!" << std::endl;
+        std::cerr << "Callback was invoked with server or self being a nullptr!" << std::endl;
         return;
     }
 
@@ -649,7 +643,7 @@ iox::popo::Client<iox::cxx::optional<FieldType>, FieldType> m_client;
 std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
 static constexpr bool IS_RECURSIVE{true};
-iox::posix::mutex m_mutex{IS_RECURSIVE};
+iox::posix::mutex m_onlyOneThreadRunningMutex{IS_RECURSIVE};
 std::atomic<uint32_t> m_threadsRunning{0};
 ```
 
@@ -666,10 +660,7 @@ m_client.loan()
             std::cerr << "Could not send Request! Error: " << error << std::endl;
         });
     })
-    .or_else([&](auto& error) {
-        std::cerr << "Could not allocate Request! Error: " << error << std::endl;
-        requestSuccessfullySent = false;
-    });
+    .or_else([&](auto& error) { std::cerr << "Could not allocate Request! Error: " << error << std::endl; });
 
 if (!requestSuccessfullySent)
 {
@@ -693,7 +684,7 @@ Both methods call `receiveResponse()` at the very end, which will receive the re
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/include/owl/kom/field_subscriber.inl] [FieldSubscriber receive response] -->
 ```cpp
-std::lock_guard<iox::posix::mutex> guard(m_mutex);
+std::lock_guard<iox::posix::mutex> guard(m_onlyOneThreadRunningMutex);
 
 auto notificationVector = m_waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
@@ -725,7 +716,7 @@ for (auto& notification : notificationVector)
         }
     }
 }
-m_threadsRunning--;
+--m_threadsRunning;
 ```
 
 Here, the expected sequence identifier is compared with the received one. In the end, the response
@@ -743,7 +734,7 @@ iox::popo::Client<AddRequest, AddResponse> m_client;
 std::atomic<int64_t> m_sequenceId{0};
 iox::popo::WaitSet<> m_waitset;
 static constexpr bool IS_RECURSIVE{true};
-iox::posix::mutex m_mutex{IS_RECURSIVE};
+iox::posix::mutex m_onlyOneThreadRunningMutex{IS_RECURSIVE};
 std::atomic<uint32_t> m_threadsRunning{0};
 ```
 
@@ -755,7 +746,7 @@ The request part of `operator()()` is implemented as follows
 
 <!-- [geoffrey] [iceoryx_examples/automotive_soa/src/owl/kom/method_client.cpp] [MethodClient send request] -->
 ```cpp
-Future<AddResponse> MethodClient::operator()(uint64_t addend1, uint64_t addend2)
+Future<AddResponse> MethodClient::operator()(const uint64_t addend1, const uint64_t addend2)
 {
     bool requestSuccessfullySent{false};
     m_client.loan()
