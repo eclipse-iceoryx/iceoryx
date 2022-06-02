@@ -50,7 +50,7 @@ inline T OptionManager::defineOption(T& referenceToMember,
                                      const OptionType optionType,
                                      T defaultArgumentValue)
 {
-    m_optionSet.addOption(OptionDetails{
+    m_optionSet.addOption(OptionWithDetails{
         {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
         description,
         optionType,
@@ -71,7 +71,7 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
                                         const OptionType optionType,
                                         bool defaultArgumentValue)
 {
-    m_optionSet.addOption(OptionDetails{
+    m_optionSet.addOption(OptionWithDetails{
         {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
         description,
         optionType,

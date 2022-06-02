@@ -88,9 +88,18 @@ bool Option::operator<(const Option& rhs) const noexcept
     return longOption < rhs.longOption;
 }
 
-bool OptionDetails::operator<(const OptionDetails& rhs) const noexcept
+OptionWithDetails::OptionWithDetails(const Option& option,
+                                     const OptionDescription_t& description,
+                                     const OptionType type,
+                                     const TypeName_t& typeName) noexcept
+    : Option{option}
+    , details{description, type, typeName}
 {
-    return option < rhs.option;
+}
+
+bool OptionWithDetails::operator<(const OptionWithDetails& rhs) const noexcept
+{
+    return Option::operator<(rhs);
 }
 } // namespace cli
 } // namespace iox

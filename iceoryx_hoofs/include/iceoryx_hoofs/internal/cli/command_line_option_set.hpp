@@ -82,19 +82,19 @@ class CommandLineOptionSet
   private:
     friend class OptionManager;
     friend class CommandLineArgumentParser;
-    friend std::ostream& operator<<(std::ostream&, const OptionDetails&) noexcept;
+    friend std::ostream& operator<<(std::ostream&, const OptionWithDetails&) noexcept;
 
     void sortAvailableOptions() noexcept;
-    CommandLineOptionSet& addOption(const OptionDetails& option) noexcept;
-    cxx::optional<OptionDetails> getOption(const OptionName_t& name) const noexcept;
+    CommandLineOptionSet& addOption(const OptionWithDetails& option) noexcept;
+    cxx::optional<OptionWithDetails> getOption(const OptionName_t& name) const noexcept;
 
   private:
     OptionDescription_t m_programDescription;
-    cxx::vector<OptionDetails, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    cxx::vector<OptionWithDetails, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
 };
 
-std::ostream& operator<<(std::ostream& stream, const OptionDetails& value) noexcept;
+std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& value) noexcept;
 } // namespace internal
 } // namespace cli
 } // namespace iox

@@ -75,14 +75,21 @@ struct Option
     Argument_t value;
 };
 
-struct OptionDetails
+struct OptionWithDetails : public Option
 {
-    bool operator<(const OptionDetails& rhs) const noexcept;
+    OptionWithDetails(const Option& option,
+                      const OptionDescription_t& description,
+                      const OptionType type,
+                      const TypeName_t& typeName) noexcept;
 
-    Option option;
-    OptionDescription_t description;
-    OptionType type = OptionType::SWITCH;
-    TypeName_t typeName;
+    bool operator<(const OptionWithDetails& rhs) const noexcept;
+
+    struct
+    {
+        OptionDescription_t description;
+        OptionType type = OptionType::SWITCH;
+        TypeName_t typeName;
+    } details;
 };
 
 } // namespace cli
