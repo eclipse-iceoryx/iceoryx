@@ -21,6 +21,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::cli;
 using namespace iox::cli::internal;
 
 template <typename T>
@@ -284,6 +285,48 @@ TYPED_TEST(OptionTest, setupLongOptionHasLongOption)
     auto sut = this->createEmpty();
     sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "MozartHadASon");
     EXPECT_TRUE(sut.hasLongOption());
+}
+
+TYPED_TEST(OptionTest, lessOperatorWorksWithTwoShortOptions)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f189b3b3-818d-4044-a7ba-1a23395d52fd");
+
+    auto sut1 = this->createEmpty();
+    sut1.shortOption = '1';
+
+    auto sut2 = this->createEmpty();
+    sut2.shortOption = '2';
+
+    EXPECT_TRUE(sut1 < sut2);
+    EXPECT_FALSE(sut2 < sut1);
+}
+
+TYPED_TEST(OptionTest, lessOperatorWorksWithMixedOptionTypes)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dee26761-b9b4-4d82-ba26-fb36605d4d0d");
+
+    auto sut1 = this->createEmpty();
+    sut1.shortOption = '3';
+
+    auto sut2 = this->createEmpty();
+    sut2.longOption = "444";
+
+    EXPECT_TRUE(sut1 < sut2);
+    EXPECT_FALSE(sut2 < sut1);
+}
+
+TYPED_TEST(OptionTest, lessOperatorWorksWithTwoLongOptions)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "db398659-37d4-4df9-98ec-b06fddb533cb");
+
+    auto sut1 = this->createEmpty();
+    sut1.longOption = "555";
+
+    auto sut2 = this->createEmpty();
+    sut2.longOption = "666";
+
+    EXPECT_TRUE(sut1 < sut2);
+    EXPECT_FALSE(sut2 < sut1);
 }
 
 } // namespace

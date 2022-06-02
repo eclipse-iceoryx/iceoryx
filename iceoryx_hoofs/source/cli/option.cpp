@@ -42,11 +42,6 @@ bool Option::shortOptionNameIsEqualDash() const noexcept
     return shortOption == '-';
 }
 
-bool Option::hasOptionName(const OptionName_t& name) const noexcept
-{
-    return hasLongOptionName(name) || (name.size() == 1 && hasShortOptionName(name[0]));
-}
-
 bool Option::hasLongOptionName(const OptionName_t& value) const noexcept
 {
     return (!longOption.empty() && longOption == value);
@@ -55,6 +50,11 @@ bool Option::hasLongOptionName(const OptionName_t& value) const noexcept
 bool Option::hasShortOptionName(const char value) const noexcept
 {
     return (shortOption != NO_SHORT_OPTION && shortOption == value);
+}
+
+bool Option::hasOptionName(const OptionName_t& name) const noexcept
+{
+    return hasLongOptionName(name) || (name.size() == 1 && hasShortOptionName(name[0]));
 }
 
 bool Option::isSameOption(const Option& rhs) const noexcept
@@ -78,7 +78,7 @@ bool Option::operator<(const Option& rhs) const noexcept
     {
         return shortOption < rhs.shortOption;
     }
-    else if (!longOption.empty() && shortOption != NO_SHORT_OPTION)
+    else if (!longOption.empty() && rhs.shortOption != NO_SHORT_OPTION)
     {
         return longOption.c_str()[0] < rhs.shortOption;
     }
