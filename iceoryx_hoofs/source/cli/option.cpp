@@ -14,11 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cli/types.hpp"
+#include "iceoryx_hoofs/internal/cli/option.hpp"
 
 namespace iox
 {
 namespace cli
+{
+namespace internal
 {
 bool Option::isSwitch() const noexcept
 {
@@ -101,5 +103,6 @@ bool OptionWithDetails::operator<(const OptionWithDetails& rhs) const noexcept
 {
     return Option::operator<(rhs);
 }
+} // namespace internal
 } // namespace cli
 } // namespace iox

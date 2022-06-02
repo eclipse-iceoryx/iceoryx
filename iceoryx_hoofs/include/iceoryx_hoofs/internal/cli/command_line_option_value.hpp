@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/cli/option.hpp"
 
 namespace iox
 {

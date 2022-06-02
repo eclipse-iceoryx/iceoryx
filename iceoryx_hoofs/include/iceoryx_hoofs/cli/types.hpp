@@ -56,42 +56,6 @@ using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
 using BinaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
 using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
 
-struct Option
-{
-    bool isSwitch() const noexcept;
-    bool hasOptionName(const OptionName_t& name) const noexcept;
-    bool isSameOption(const Option& rhs) const noexcept;
-    bool operator<(const Option& rhs) const noexcept;
-    bool isEmpty() const noexcept;
-    bool longOptionNameDoesStartWithDash() const noexcept;
-    bool shortOptionNameIsEqualDash() const noexcept;
-    bool hasLongOptionName(const OptionName_t& value) const noexcept;
-    bool hasShortOptionName(const char value) const noexcept;
-    bool hasShortOption() const noexcept;
-    bool hasLongOption() const noexcept;
-
-    char shortOption = NO_SHORT_OPTION;
-    OptionName_t longOption;
-    Argument_t value;
-};
-
-struct OptionWithDetails : public Option
-{
-    OptionWithDetails(const Option& option,
-                      const OptionDescription_t& description,
-                      const OptionType type,
-                      const TypeName_t& typeName) noexcept;
-
-    bool operator<(const OptionWithDetails& rhs) const noexcept;
-
-    struct
-    {
-        OptionDescription_t description;
-        OptionType type = OptionType::SWITCH;
-        TypeName_t typeName;
-    } details;
-};
-
 } // namespace cli
 } // namespace iox
 #endif
