@@ -653,10 +653,10 @@ bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answ
 // this is the callback for the m_keepAliveTimer
 void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
 {
-    if (!m_ipcChannelInterface.sendKeepalive())
-    {
-        LogWarn() << "Error in sending keep alive";
-    }
+    // if (!m_ipcChannelInterface.sendKeepalive())
+    // {
+    //     LogWarn() << "Error in sending keep alive";
+    // }
 
     // this is not the nicest solution, but we cannot send this in the signal handler where m_shutdownRequested is
     // usually set; luckily the runtime already has a thread running and therefore this thread is used to unblock the

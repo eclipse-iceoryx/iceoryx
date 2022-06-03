@@ -56,12 +56,12 @@ class RouDi
     struct RoudiStartupParameters
     {
         RoudiStartupParameters(
-            const roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::ON,
+            const roudi::MonitoringMode,
             const bool killProcessesInDestructor = true,
             const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
             const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
-            : m_monitoringMode(monitoringMode)
+            : m_monitoringMode(roudi::MonitoringMode::OFF)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
