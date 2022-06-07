@@ -370,3 +370,6 @@ int main()
   parameter this could be replaced by `Logger::init(LogLevel::WARN)`,
   `Logger::initFromEnvOr(LogLevel::WARN)` and a builder like
   `Logger::customize().logLevelFromEnvOr(LogLevel::WARN).init()`
+- wrap `__FILE__`, `__LINE__` and `__FUNCTION__` into a `source_location` struct
+  - where should this struct be placed
+  - could also be used by `Expects`, `Ensures`
