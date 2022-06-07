@@ -359,3 +359,7 @@ int main()
 - shall the TestingLogger register signals to catch SIGTERM, etc. and print the
   log messages when the signal is raised? It might be necessary to wait for the
   error handling refactoring before this can be done
+- instead of having the `Logger::init()` static function with hidden default
+  parameter this could be replaced by `Logger::init(LogLevel::WARN)`,
+  `Logger::initFromEnvOr(LogLevel::WARN)` and a builder like
+  `Logger::customize().logLevelFromEnvOr(LogLevel::WARN).init()`
