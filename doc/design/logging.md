@@ -12,7 +12,7 @@ forwarded in order to have a single logging infrastructure.
 The logging should also be performant and not allocate memory. Ideally it should
 be possible to disable it at compile time and let the compiler optimize it away.
 
-It shall also be possible to alter the behavior of the logging via environment
+It should also be possible to alter the behavior of the logging via environment
 variables, e.g. the log level.
 
 ## Terminology
@@ -21,15 +21,15 @@ variables, e.g. the log level.
 
 | LogLevel | Usage |
 |----------|-------|
-| FATAL    | For fatal an non-recoverable errors which essentially leads to a termination of the program. |
+| FATAL    | For fatal and non-recoverable errors which essentially lead to termination of the program. |
 | ERROR    | For severe but recoverable errors. |
-| WARN     | For cases when something unintentional happens but not considered as severe error. |
+| WARN     | For cases when something unintentional happens which is not considered a severe error. |
 | INFO     | For important status information a user should be aware of. |
 | DEBUG    | Anything that is helpful for debugging. |
 | TRACE    | Any comment could be replaced by logging call with log level trace. |
 
-The log levels `FATAL`, `ERROR` and `WARN` should not be used independent but in
-combination with the error handler.
+The log levels `FATAL`, `ERROR` and `WARN` should not be used independently but
+in combination with the error handler.
 
 ## Design
 
@@ -45,10 +45,10 @@ combination with the error handler.
 
 3. To have a minimal runtime overhead, string formatting shall only happen when
    the log level is above the output threshold. This lazy evaluation shall also
-   apply to other potentially expensive operations like the result of a function
-   call.
+   apply to other potentially expensive operations like the execution of a
+   function call.
 
-4. Additionally, the minimal log level should be configurable by a compile time
+4. Additionally, the minimal log level shall be configurable by a compile time
    switch and everything below this log level should be compiled to no-ops. With
    this, developer can make excessive use of the most verbose log level and
    disable it by default. When debugging, this can be turned on and help to find
@@ -65,8 +65,8 @@ combination with the error handler.
    logged in the new and old logger and the error handler shall be called with a
    moderate error level.
 
-7. The default logger can be replaced via the platform abstraction in order to
-   use the dedicated logger for log messages which are emitted before it could
+7. The default logger shall be replaceable via the platform abstraction in order
+   to use the dedicated logger for log messages which are emitted before it could
    be replaced at runtime, e.g. from global objects before `main`.
 
 8. Additionally, there shall be a compile time option to forward all log messages
@@ -99,7 +99,7 @@ threshold. This is accomplished by a macro with an incomplete if-statement.
 LAZY() expensiveFunctionCall();
 ```
 
-In the example above `expensiveFunctionCall` is only executed when `cond` is `true`.
+In the example above `expensiveFunctionCall` is only executed if `cond` is `true`.
 If `cond` is a compile time constant set to `false`, the whole statement is compiled
 to a no-op and optimized away.
 
@@ -144,6 +144,10 @@ is used with `LogLevel::INFO`. It is up to the implementation of the default
 logger what to do with these messages. For iceoryx the default logger is the
 `ConsoleLogger` (this can be changed via the platform abstraction) which will
 print the log messages to the console.
+
+Although it is possible to use the logger without calling `initLogger`, this is
+not recommended. This behaviour is only intended to catch important log messages
+from pre-main logger calls.
 
 #### Replacing the logger at runtime
 
@@ -217,9 +221,9 @@ This is the sequence diagram of the setup of the testing logger:
 
 The behavior of the logger can be altered via environment variables and the
 `initLogger` function. Calling this function without arguments, it will check
-whether the environment variable `IOX_LOG_LEVEL` is set or use `LogLevel::INFO`
-as log level. To have a different fallback log level, the `logLevelFromEnvOr`
-function can be used, e.g.
+whether the environment variable `IOX_LOG_LEVEL` is set and use that value or
+`LogLevel::INFO` if the environment variable is not set. To have a different
+fallback log level, the `logLevelFromEnvOr` function can be used, e.g.
 
 ```cpp
 iox::log::initLogger(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
@@ -290,6 +294,9 @@ int main()
 
 #### Creating a custom logger
 
+This is a simple custom logger which prints the log level as emoji and ignores
+the file, line number and function name.
+
 ```cpp
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
@@ -332,8 +339,8 @@ class MyLogger : public iox::log::Logger
     }
 
     void flush() override {
-        puts(m_buffer);
-        m_bufferWriteIndex = 0;
+        puts(iox::log::Logger::buffer());
+        iox::log::Logger::assumePushed();
     }
 };
 
