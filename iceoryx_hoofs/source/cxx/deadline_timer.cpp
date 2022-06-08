@@ -45,7 +45,7 @@ void DeadlineTimer::reset(const iox::units::Duration timeToWait) noexcept
 
 iox::units::Duration DeadlineTimer::remainingTime() const noexcept
 {
-    auto currentTime = getCurrentMonotonicTime();
+    const auto currentTime = getCurrentMonotonicTime();
     if (m_endTime > currentTime)
     {
         return m_endTime - currentTime;
@@ -55,7 +55,7 @@ iox::units::Duration DeadlineTimer::remainingTime() const noexcept
 
 iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
 {
-    iox::units::Duration currentTime(std::chrono::steady_clock::now().time_since_epoch());
+    const iox::units::Duration currentTime(std::chrono::steady_clock::now().time_since_epoch());
     return currentTime;
 }
 
