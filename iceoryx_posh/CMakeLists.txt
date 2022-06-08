@@ -48,11 +48,33 @@ iox_make_unique_includedir()
 
 include(cmake/iceoryxversions.cmake)
 
+########## Multiple libraries are exported, the setup and installation is done
+#          manually without the iox_* macros
+#
+########## set variables for library export ##########
+#
+setup_package_name_and_create_files(
+    NAME ${PROJECT_NAME}
+    NAMESPACE iceoryx_posh
+    PROJECT_PREFIX ${PREFIX}
+)
+
+#
+########## find_package in source tree ##########
+#
+set(${PROJECT_NAME}_DIR ${CMAKE_CURRENT_LIST_DIR}/cmake
+    CACHE FILEPATH
+    "${PROJECT_NAME}Config.cmake to make find_package(${PROJECT_NAME}) work in source tree!"
+    FORCE
+)
+
 #
 ########## posh core lib ##########
 #
-
 iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
+    NO_FIND_PACKAGE_SUPPORT
     TARGET                  iceoryx_posh    # @todo iox-#590 Rename this to iceoryx_posh_core
     NAMESPACE               iceoryx_posh    # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
                                             # and include both iceoryx_posh_core and iceoryx_posh_runtime
@@ -141,9 +163,12 @@ iox_add_library(
 ########## posh lib for gateway support ##########
 #
 iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
     NO_FIND_PACKAGE_SUPPORT
     TARGET              iceoryx_posh_gateway
     NAMESPACE           iceoryx_posh
+    PROJECT_PREFIX      ${PREFIX}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
                         ${CMAKE_BINARY_DIR}/generated/iceoryx/include
                         ${CMAKE_BINARY_DIR}/dependencies/install/include
@@ -158,10 +183,13 @@ iox_add_library(
 ########## posh roudi lib ##########
 #
 iox_add_library(
+    NO_EXPORT
+    NO_PACKAGE_SETUP
     NO_FIND_PACKAGE_SUPPORT
     TARGET              iceoryx_posh_roudi
     NAMESPACE           iceoryx_posh
-    PUBLIC_LIBS         iceoryx_posh::iceoryx_posh
+    PROJECT_PREFIX      ${PREFIX}
+    PUBLIC_LIBS         iceoryx_posh::iceoryx_posh # @todo iox-#590 Only link against iceoryx_posh_core
     PRIVATE_LIBS        iceoryx_hoofs::iceoryx_hoofs
     PRIVATE_INCLUDES    source/runtime
                         source/version
@@ -199,9 +227,12 @@ if(TOML_CONFIG)
     ######### posh config lib ##########
     #
     iox_add_library(
+        NO_EXPORT
+        NO_PACKAGE_SETUP
         NO_FIND_PACKAGE_SUPPORT
         TARGET              iceoryx_posh_config
         NAMESPACE           iceoryx_posh
+        PROJECT_PREFIX      ${PREFIX}
         PRIVATE_LIBS        iceoryx_posh::iceoryx_posh
                             iceoryx_hoofs::iceoryx_hoofs
                             iceoryx_posh::iceoryx_posh_roudi
@@ -256,11 +287,15 @@ install(
 )
 
 # install deployment file to make posh config accessible by other packages
-
 install(
     FILES 
         cmake/IceoryxPoshDeployment.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
+)
+
+setup_install_directories_and_export_package(
+    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_gateway ${ROUDI_EXPORT}
+    INCLUDE_DIRECTORY include/
 )
 
 if(ROUDI_ENVIRONMENT OR BUILD_TEST)
@@ -271,6 +306,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
         STATIC
         TARGET                  iceoryx_posh_testing
         NAMESPACE               iceoryx_posh_testing
+        PROJECT_PREFIX          ${PREFIX}
         BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/testing/include
         INSTALL_INTERFACE       include/${PREFIX}
         PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
