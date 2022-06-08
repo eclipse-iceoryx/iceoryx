@@ -51,16 +51,8 @@ include(cmake/iceoryxversions.cmake)
 #
 ########## posh core lib ##########
 #
-# TODO: iox-#1287 cleanup this, it sets DESTINATION_INCLUDEDIR and
-# DESTINATION_CONFIGDIR which are used later in this scope
-setup_package_name_and_create_files(
-    NAME ${PROJECT_NAME}
-    NAMESPACE iceoryx_posh
-    PROJECT_PREFIX ${PREFIX}
-)
 
 iox_add_library(
-    NO_EXPORT
     TARGET                  iceoryx_posh    # @todo iox-#590 Rename this to iceoryx_posh_core
     NAMESPACE               iceoryx_posh    # @todo iox-#590 Name of iceoryx_posh should stay to be backwards compatible
                                             # and include both iceoryx_posh_core and iceoryx_posh_runtime
@@ -149,8 +141,6 @@ iox_add_library(
 ########## posh lib for gateway support ##########
 #
 iox_add_library(
-    NO_EXPORT
-    NO_PACKAGE_SETUP
     NO_FIND_PACKAGE_SUPPORT
     TARGET              iceoryx_posh_gateway
     NAMESPACE           iceoryx_posh
@@ -168,8 +158,6 @@ iox_add_library(
 ########## posh roudi lib ##########
 #
 iox_add_library(
-    NO_EXPORT
-    NO_PACKAGE_SETUP
     NO_FIND_PACKAGE_SUPPORT
     TARGET              iceoryx_posh_roudi
     NAMESPACE           iceoryx_posh
@@ -181,6 +169,8 @@ iox_add_library(
                         source/capro
                         source/roudi
     PRIVATE_LIBS_QNX    socket
+    BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    INSTALL_INTERFACE   include/${PREFIX}
     FILES
         source/roudi/application/iceoryx_roudi_app.cpp
         source/roudi/application/roudi_app.cpp
@@ -209,8 +199,6 @@ if(TOML_CONFIG)
     ######### posh config lib ##########
     #
     iox_add_library(
-        NO_EXPORT
-        NO_PACKAGE_SETUP
         NO_FIND_PACKAGE_SUPPORT
         TARGET              iceoryx_posh_config
         NAMESPACE           iceoryx_posh
@@ -257,11 +245,6 @@ endif()
 if(TOML_CONFIG)
     set(ROUDI_EXPORT iceoryx_posh_config iox-roudi)
 endif()
-
-setup_install_directories_and_export_package(
-    TARGETS iceoryx_posh iceoryx_posh_roudi iceoryx_posh_gateway ${ROUDI_EXPORT}
-    INCLUDE_DIRECTORY include/
-)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
   "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
