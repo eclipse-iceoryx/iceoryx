@@ -120,7 +120,6 @@ class ChunkDistributor_test : public Test
 
     static constexpr iox::units::Duration DEADLOCK_TIMEOUT{2_s};
     Watchdog deadlockWatchdog{DEADLOCK_TIMEOUT};
-    ;
 };
 template <typename PolicyType>
 constexpr std::chrono::milliseconds ChunkDistributor_test<PolicyType>::BLOCKING_DURATION;

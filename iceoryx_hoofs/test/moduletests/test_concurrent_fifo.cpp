@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <stdlib.h>
+
+#include <cstdint>
 
 namespace
 {
 using namespace testing;
 using namespace iox::concurrent;
 
-constexpr size_t FIFO_CAPACITY = 10;
+constexpr uint64_t FIFO_CAPACITY = 10;
 
 class FiFo_Test : public Test
 {
@@ -39,7 +40,7 @@ class FiFo_Test : public Test
     {
     }
 
-    FiFo<int, FIFO_CAPACITY> sut;
+    FiFo<uint64_t, FIFO_CAPACITY> sut;
 };
 
 TEST_F(FiFo_Test, SinglePopSinglePush)
@@ -48,7 +49,7 @@ TEST_F(FiFo_Test, SinglePopSinglePush)
     EXPECT_THAT(sut.push(25), Eq(true));
     auto result = sut.pop();
     EXPECT_THAT(result.has_value(), Eq(true));
-    EXPECT_THAT(result.value(), Eq(25));
+    EXPECT_THAT(result.value(), Eq(25U));
 }
 
 TEST_F(FiFo_Test, PopFailsWhenEmpty)
@@ -61,7 +62,7 @@ TEST_F(FiFo_Test, PopFailsWhenEmpty)
 TEST_F(FiFo_Test, PushFailsWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8d492e83-c0c3-47bd-b745-9f56e20199e9");
-    for (size_t k = 0; k < FIFO_CAPACITY; ++k)
+    for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
     {
         EXPECT_THAT(sut.push(k), Eq(true));
     }
@@ -71,11 +72,11 @@ TEST_F(FiFo_Test, PushFailsWhenFull)
 TEST_F(FiFo_Test, IsEmptyWhenPopReturnsNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "81a538c8-f366-4625-8aad-d83ab1d5ecf4");
-    for (size_t k = 0; k < FIFO_CAPACITY; ++k)
+    for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
     {
         EXPECT_THAT(sut.push(k), Eq(true));
     }
-    for (size_t k = 0; k < FIFO_CAPACITY; ++k)
+    for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
     {
         EXPECT_THAT(sut.pop().has_value(), Eq(true));
     }
@@ -87,7 +88,7 @@ TEST_F(FiFo_Test, IsEmptyWhenPopReturnsNullopt)
 TEST_F(FiFo_Test, OverflowTestWithPushPopAlternation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ea65156-ca3f-42fc-b199-1119696023c1");
-    for (size_t k = 0; k < 100 * FIFO_CAPACITY; ++k)
+    for (uint64_t k = 0; k < 100 * FIFO_CAPACITY; ++k)
     {
         EXPECT_THAT(sut.push(k), Eq(true));
         auto result = sut.pop();
@@ -99,16 +100,16 @@ TEST_F(FiFo_Test, OverflowTestWithPushPopAlternation)
 TEST_F(FiFo_Test, OverflowFromFullToEmptyRepetition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "33a8c03f-5538-46b4-846e-9dec4badab0b");
-    size_t m = 0;
+    uint64_t m = 0;
 
-    for (size_t repetition = 0; repetition < 10; ++repetition)
+    for (uint64_t repetition = 0; repetition < 10; ++repetition)
     {
-        for (size_t k = 0; k < FIFO_CAPACITY; ++k, ++m)
+        for (uint64_t k = 0; k < FIFO_CAPACITY; ++k, ++m)
         {
             EXPECT_THAT(sut.push(m), Eq(true));
         }
 
-        for (size_t k = 0; k < FIFO_CAPACITY; ++k)
+        for (uint64_t k = 0; k < FIFO_CAPACITY; ++k)
         {
             auto result = sut.pop();
             EXPECT_THAT(result.has_value(), Eq(true));

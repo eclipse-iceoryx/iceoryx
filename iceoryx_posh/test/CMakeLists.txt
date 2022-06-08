@@ -83,10 +83,8 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
 
 # TODO: iox-#1287 fix conversion warnings
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS})
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    set(TEST_CXX_FLAGS ${ICEORYX_WARNINGS} /bigobj)
+else()
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 endif()
 

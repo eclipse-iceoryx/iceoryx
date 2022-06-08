@@ -48,14 +48,10 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
 )
 
 ## TODO: iox-#1287 remove those compiler warning exceptions
-if(LINUX)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)  # -Wpedantic results in errors at the time mocks
-elseif(QNX)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
-elseif(APPLE)
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
-elseif(WIN32)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
+else()
+    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
 endif()
 
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
