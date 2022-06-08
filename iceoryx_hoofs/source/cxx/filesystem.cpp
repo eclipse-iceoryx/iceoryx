@@ -22,6 +22,7 @@ namespace iox
 {
 namespace cxx
 {
+// AXIVION Next Line AutosarC++19_03-M5.17.1 : corresponding assignment version of operator<< not required.
 template <typename StreamType>
 StreamType& operator<<(StreamType& stream, perms value) noexcept
 {
@@ -32,7 +33,8 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
     }
 
     bool hasPrecedingEntry = false;
-    auto outputToStream = [&](const char* text) {
+    
+    const auto outputToStream = [&hasPrecedingEntry, &stream](const char* text) {
         if (hasPrecedingEntry)
         {
             stream << ", ";
@@ -41,8 +43,8 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
 
         stream << text;
     };
-
-    auto finishEntry = [&](bool isLastEntry = false) {
+   
+    const auto finishEntry = [&hasPrecedingEntry, &stream](bool isLastEntry = false) {
         if (hasPrecedingEntry)
         {
             stream << "}";

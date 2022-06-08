@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 #include <iostream>
+#include <cstdint>
 
 namespace iox
 {
@@ -26,8 +27,9 @@ namespace cxx
 {
 namespace internal
 {
+// AXIVION Next Line  AutosarC++19_03-A3.3.1 : The function is declared with in the namespace
 void Require(
-    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
+    const bool condition, const int8_t* file, const int32_t line, const int8_t* function, const int8_t* conditionString) noexcept
 {
     if (!condition)
     {
