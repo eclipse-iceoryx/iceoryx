@@ -23,55 +23,26 @@ namespace iox
 {
 namespace posix
 {
-void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept
-{
-    posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
-        // String length limit is ensured through cxx::string
-        // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
-        std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
-        cxx::Ensures(false && "internal logic error");
-    });
-}
-
-// ThreadName_t getThreadName(pthread_t thread) noexcept
-//{
-// char tempName[MAX_THREAD_NAME_LENGTH + 1U];
-
-// posixCall(pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
-//.successReturnValue(0)
-//.evaluate()
-//.or_else([](auto& r) {
-//// String length limit is ensured through MAX_THREAD_NAME_LENGTH
-//// ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-// std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
-// cxx::Ensures(false && "internal logic error");
-//});
-
-// return ThreadName_t(cxx::TruncateToCapacity, tempName);
-//}
 
 thread::~thread() noexcept
 {
-    if (m_destroy)
+    if (m_isJoinable)
     {
-        if (m_isJoinable)
+        /// @todo replace nullptr?
+        auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+        if (joinResult.has_error())
         {
-            /// @todo replace nullptr?
-            auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
-            if (joinResult.has_error())
+            switch (joinResult.get_error().errnum)
             {
-                switch (joinResult.get_error().errnum)
-                {
-                case EDEADLK:
-                    LogError() << "A deadlock was detected when attempting to join the thread.";
-                    break;
-                default:
-                    LogError() << "This should never happen. An unknown error occurred.";
-                    break;
-                }
+            case EDEADLK:
+                LogError() << "A deadlock was detected when attempting to join the thread.";
+                break;
+            default:
+                LogError() << "This should never happen. An unknown error occurred.";
+                break;
             }
-            m_isJoinable = false;
         }
+        m_isJoinable = false;
     }
 }
 
@@ -109,7 +80,6 @@ ThreadName_t thread::getThreadName() noexcept
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }
 
-/// @todo write tests
 bool thread::joinable() const noexcept
 {
     return m_isJoinable;

@@ -63,47 +63,12 @@ class Thread_test : public Test
 };
 
 #if !defined(__APPLE__)
-// TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
-//{
-//::testing::Test::RecordProperty("TEST_ID", "b805a0a6-29c0-41df-b5b7-3f66499d151a");
-// ThreadName_t emptyString = "";
-
-// setThreadName(m_thread->native_handle(), emptyString);
-// auto getResult = getThreadName(m_thread->native_handle());
-
-// EXPECT_THAT(getResult, StrEq(emptyString));
-//}
-
-// TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
-//{
-//::testing::Test::RecordProperty("TEST_ID", "115cf4e9-4c7a-4fcc-8df8-65e3b3b547d1");
-// ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
-// EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
-
-// setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
-// auto getResult = getThreadName(m_thread->native_handle());
-
-// EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
-//}
-
-// TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
-//{
-//::testing::Test::RecordProperty("TEST_ID", "d6c2d0b5-a6ee-43e6-8870-053feb6de845");
-// char stringShorterThanThreadNameCapacitiy[] = "I'm short";
-
-// setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);
-// auto getResult = getThreadName(m_thread->native_handle());
-
-// EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
-//}
-
-/////////////////
-TEST(pthreadWrapper_test, CreateThread)
+TEST(pthreadWrapper_test, CreateJoinableThread)
 {
     optional<thread> sut;
-    function<void()> callable = []() { std::cout << "fffff" << std::endl; };
+    function<void()> callable = []() { std::cout << "Bleib sauber, Kpt. Blaubaer" << std::endl; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    EXPECT_TRUE(sut->joinable());
 }
 
 TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
@@ -117,14 +82,18 @@ TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
     optional<thread> sut2;
     callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut2, callable).has_error());
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 TEST(pthreadWrapper_test, CreateDetachedThread)
 {
     optional<thread> sut;
-    function<void()> callable = []() { std::cout << "fffff" << std::endl; };
-    ASSERT_FALSE(ThreadBuilder().detached(true).create(sut, callable).has_error());
+    function<void()> callable = []() {
+        std::cout << "Set the controls for ... " << std::endl;
+        std::cout << "... the heart of the sun" << std::endl;
+    };
+    auto result = ThreadBuilder().detached(true).create(sut, callable);
+    ASSERT_FALSE(result.has_error());
+    EXPECT_FALSE(sut->joinable());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 

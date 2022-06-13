@@ -43,9 +43,6 @@ enum class ThreadError
     UNDEFINED
 };
 
-void setThreadName(pthread_t thread, const ThreadName_t& name) noexcept;
-// ThreadName_t getThreadName(pthread_t thread) noexcept;
-
 class thread
 {
   public:
@@ -77,12 +74,10 @@ class thread
     pthread_t m_threadHandle;
     callable_t m_callable;
     bool m_isJoinable{true};
-    bool m_destroy{true};
 };
 
 class ThreadBuilder
 {
-    /// @todo set m_isJoinable directly?
     IOX_BUILDER_PARAMETER(bool, detached, false)
 
   public:

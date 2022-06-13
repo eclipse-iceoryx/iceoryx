@@ -26,7 +26,7 @@ inline cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<thread>& u
     auto initResult = posixCall(pthread_attr_init)(&attr).successReturnValue(0).evaluate();
     if (initResult.has_error())
     {
-        uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
+        uninitializedThread->m_isJoinable = false;
         uninitializedThread.reset();
         return cxx::error<ThreadError>(thread::errnoToEnum(initResult.get_error().errnum));
     }
@@ -37,7 +37,7 @@ inline cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<thread>& u
             .evaluate();
     if (setDetachStateResult.has_error())
     {
-        uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
+        uninitializedThread->m_isJoinable = false;
         uninitializedThread.reset();
         std::cerr << "Something went wrong when setting the detach state. This should never happen!" << std::endl;
         return cxx::error<ThreadError>(thread::errnoToEnum(setDetachStateResult.get_error().errnum));
@@ -54,7 +54,7 @@ inline cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<thread>& u
     }); /// @todo not clear if pthread_attr_destroy can fail, specifications differ. Do we have to care if it fails?
     if (createResult.has_error())
     {
-        uninitializedThread->m_destroy = false; /// @todo replace with m_isJoinable?
+        uninitializedThread->m_isJoinable = false;
         uninitializedThread.reset();
         return cxx::error<ThreadError>(thread::errnoToEnum(createResult.get_error().errnum));
     }
