@@ -222,12 +222,9 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
     sut.reset();
 
     // should fail since the previous sut was deleted and had the ownership
-    ASSERT_TRUE(NamedSemaphoreBuilder()
-                    .name(sutName)
-                    .initialValue(0U)
-                    .openMode(OpenMode::OPEN_EXISTING)
-                    .create(sut)
-                    .has_error());
+    auto result = NamedSemaphoreBuilder().name(sutName).initialValue(0U).openMode(OpenMode::OPEN_EXISTING).create(sut);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
 }
 
 // Windows does not support this since the named semaphore is automatically deleted

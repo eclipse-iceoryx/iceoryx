@@ -31,7 +31,7 @@ static cxx::expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) 
         switch (result.get_error().errnum)
         {
         case EACCES:
-            LogError() << "You don't have permission to remove to remove the semaphore \"" << name << "\"";
+            LogError() << "You don't have permission to remove the semaphore \"" << name << "\"";
             return cxx::error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
         default:
             LogError() << "This should never happen. An unknown error occurred while creating the semaphore \"" << name

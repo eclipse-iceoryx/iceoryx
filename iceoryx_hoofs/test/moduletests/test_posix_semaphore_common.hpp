@@ -38,6 +38,7 @@ inline bool isSemaphoreValueEqualTo(SemaphoreType& semaphore, const uint32_t exp
     }
     hasSuccess = (count == expectedValue);
 
+    // restore previous semaphore value
     for (uint32_t i = 0U; i < count; ++i)
     {
         if (semaphore.post().has_error())
