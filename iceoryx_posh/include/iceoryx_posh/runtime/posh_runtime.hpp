@@ -161,7 +161,7 @@ class PoshRuntime
 
     /// @brief sets runtime factory, terminates if given factory is empty
     ///
-    /// @param[in] factory std::function to which the runtime factory should be set
+    /// @param[in] factory function pointer to which the runtime factory should be set
     static void setRuntimeFactory(const factory_t& factory) noexcept;
 
     /// @brief creates the runtime or returns the already existing one -> Singleton

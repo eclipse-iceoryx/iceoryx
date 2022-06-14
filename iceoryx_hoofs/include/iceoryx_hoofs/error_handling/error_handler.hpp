@@ -21,8 +21,8 @@
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 
-#include <functional>
 #include <iostream>
 
 namespace iox
@@ -116,7 +116,7 @@ enum class ErrorLevel : uint32_t
 template <typename Error>
 void errorHandler(const Error error, const ErrorLevel level = ErrorLevel::FATAL) noexcept;
 
-using HandlerFunction = std::function<void(const uint32_t, const char*, const ErrorLevel)>;
+using HandlerFunction = cxx::function<void(const uint32_t, const char*, const ErrorLevel)>;
 
 /// @brief Converts an error into its index assuming the enum starts with 'NO_ERROR'
 /// @tparam[in] Error type which is used to report the error (typically an enum)

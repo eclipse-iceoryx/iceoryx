@@ -22,7 +22,6 @@
 #include <atomic>
 #include <cstdint>
 #include <cstring>
-#include <functional>
 
 namespace iox
 {
