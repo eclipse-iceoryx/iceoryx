@@ -232,7 +232,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
 #if !defined(_WIN32)
 TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "07ef3fdf-0e22-45f8-bb6b-68647f1211b6");
+    ::testing::Test::RecordProperty("TEST_ID", "4b9d055c-b980-4ed6-941b-f93b3810e0e5");
 
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)

@@ -122,7 +122,7 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
 
 TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "02e478ba-9197-4007-b19b-2f570a836707");
+    ::testing::Test::RecordProperty("TEST_ID", "2228bfb0-e954-4531-8f4e-08b88b500896");
     uint32_t INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX) + 1;
 
     auto result = this->createSutWithInitialValue(INITIAL_VALUE);
