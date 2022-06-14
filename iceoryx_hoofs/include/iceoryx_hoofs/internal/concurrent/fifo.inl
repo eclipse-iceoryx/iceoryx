@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ inline bool FiFo<ValueType, Capacity>::empty() const noexcept
 template <class ValueType, uint64_t Capacity>
 inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
 {
-    auto currentReadPos = m_read_pos.load(std::memory_order_relaxed);
+    auto currentReadPos = m_read_pos.load(std::memory_order_acquire);
     bool isEmpty = (currentReadPos ==
                     // we are not allowed to use the empty method since we have to sync with
                     // the producer pop - this is done here
@@ -87,7 +87,7 @@ inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
         // m_read_pos must be increased after reading the pop'ed value otherwise
         // it is possible that the pop'ed value is overwritten by push while it is read.
         // Implementing a single consumer fifo here allows us to use store.
-        m_read_pos.store(currentReadPos + 1, std::memory_order_relaxed);
+        m_read_pos.store(currentReadPos + 1, std::memory_order_release);
         return out;
     }
 }
