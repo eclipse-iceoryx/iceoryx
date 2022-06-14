@@ -62,4 +62,20 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OPEN_EXISTING), Eq(0));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, INVALID_OPEN_MODE), Eq(0));
 }
+
+TEST(TypesTest, OpenModeAsStringLiteral)
+{
+    EXPECT_THAT(asStringLiteral(OpenMode::EXCLUSIVE_CREATE), Eq("OpenMode::EXCLUSIVE_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::PURGE_AND_CREATE), Eq("OpenMode::PURGE_AND_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_OR_CREATE), Eq("OpenMode::OPEN_OR_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_EXISTING), Eq("OpenMode::OPEN_EXISTING"));
+    EXPECT_THAT(asStringLiteral(INVALID_OPEN_MODE), Eq("OpenMode::UNDEFINED_VALUE"));
+}
+
+TEST(TypesTest, AccessModeAsStringLiteral)
+{
+    EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), Eq("AccessMode::READ_ONLY"));
+    EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), Eq("AccessMode::READ_WRITE"));
+    EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), Eq("AccessMode::UNDEFINED_VALUE"));
+}
 } // namespace

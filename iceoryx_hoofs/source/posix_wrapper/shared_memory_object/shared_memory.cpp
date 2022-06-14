@@ -45,8 +45,8 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
 {
     auto printError = [this] {
         std::cerr << "Unable to create shared memory with the following properties [ name = " << m_name
-                  << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
-                  << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)]
+                  << ", access mode = " << asStringLiteral(m_accessMode)
+                  << ", open mode = " << asStringLiteral(m_openMode)
                   << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions))
                   << ", sizeInBytes = " << m_size << " ]" << std::endl;
     };

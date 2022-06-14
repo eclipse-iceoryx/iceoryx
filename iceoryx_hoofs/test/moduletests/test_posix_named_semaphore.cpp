@@ -49,7 +49,7 @@ TEST_F(NamedSemaphoreTest, DefaultInitialValueIsZero)
                      .permissions(sutPermission)
                      .create(sut)
                      .has_error());
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 0U));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, 0U));
 }
 
 TEST_F(NamedSemaphoreTest, InitialValueIsSetOnCreation)
@@ -65,10 +65,10 @@ TEST_F(NamedSemaphoreTest, InitialValueIsSetOnCreation)
                      .create(sut)
                      .has_error());
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, INITIAL_VALUE));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, INITIAL_VALUE));
 }
 
-TEST_F(NamedSemaphoreTest, InitialValueIsNotSetWhenOpeningExistingSemaphore)
+TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreDoesNotOverrideInitialValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08100ca3-86eb-436b-aa63-32957c2cf849");
 
@@ -89,7 +89,7 @@ TEST_F(NamedSemaphoreTest, InitialValueIsNotSetWhenOpeningExistingSemaphore)
                          .initialValue(INITIAL_VALUE + 512)
                          .create(sut2)
                          .has_error());
-        EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+        EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
     }
 }
 
@@ -109,18 +109,20 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
     {
         iox::cxx::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
-        EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+        EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
+        ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
 
     // if the dtor of sut2 unlinks the semaphore we should be unable to open it again
     {
         iox::cxx::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
-        EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+        EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
+        ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
 
     // verify that the original semaphore which has the ownership still works
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, INITIAL_VALUE));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, INITIAL_VALUE));
 }
 
 TEST_F(NamedSemaphoreTest, OpenNonExistingSemaphoreFails)
@@ -188,7 +190,8 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
                          .create(sut2)
                          .has_error());
         // value should be INITIAL_VALUE since we opened an existing semaphore
-        EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+        EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
+        ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
 
     // if the dtor of sut2 unlinks the semaphore we should be unable to open it again
@@ -201,11 +204,12 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
                          .create(sut2)
                          .has_error());
         // value should be INITIAL_VALUE since we opened an existing semaphore
-        EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+        EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
+        ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
     }
 
     // verify that the original semaphore which has the ownership still works
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, INITIAL_VALUE));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, INITIAL_VALUE));
 }
 
 TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
@@ -234,11 +238,12 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4b9d055c-b980-4ed6-941b-f93b3810e0e5");
 
+    constexpr uint32_t FIRST_INITIAL_VALUE = 891U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)
                      .openMode(OpenMode::PURGE_AND_CREATE)
                      .permissions(sutPermission)
-                     .initialValue(0U)
+                     .initialValue(FIRST_INITIAL_VALUE)
                      .create(sut)
                      .has_error());
 
@@ -253,11 +258,11 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
                      .has_error());
 
     // the newly created semaphore should have the INITIAL_VALUE
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut2, INITIAL_VALUE));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
 
     // the original semaphore cannot be opened anymore but the current open handle should
     // still be valid
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 0U));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, FIRST_INITIAL_VALUE));
 }
 #endif
 } // namespace

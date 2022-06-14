@@ -25,7 +25,7 @@ namespace posix
 {
 static cxx::string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const NamedSemaphore::Name_t& name)
 {
-    cxx::string<NamedSemaphore::Name_t::capacity() + 1> nameWithSlash = name;
+    cxx::string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH> nameWithSlash = name;
     nameWithSlash.insert(0, "/", 1);
     return nameWithSlash;
 }
@@ -86,7 +86,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
     {
         auto result = posixCall(iox_sem_open)(nameWithSlash.c_str(), 0)
                           .failureReturnValue(IOX_SEM_FAILED)
-                          .ignoreErrnos(ENOENT, EINVAL)
+                          .ignoreErrnos(ENOENT)
                           .evaluate();
 
         if (result.has_error())

@@ -33,7 +33,8 @@ namespace posix
 class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
 {
   public:
-    using Name_t = cxx::string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH>;
+    static constexpr uint64_t LENGTH_OF_SEMAPHORE_SLASH_PREFIX = 1U;
+    using Name_t = cxx::string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH - LENGTH_OF_SEMAPHORE_SLASH_PREFIX>;
 
     NamedSemaphore(const NamedSemaphore&) noexcept = delete;
     NamedSemaphore(NamedSemaphore&&) noexcept = delete;

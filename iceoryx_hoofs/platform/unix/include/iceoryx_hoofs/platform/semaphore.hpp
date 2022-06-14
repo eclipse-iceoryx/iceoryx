@@ -69,8 +69,6 @@ inline iox_sem_t* iox_sem_open(const char* name, int oflag)
     return sem_open(name, oflag);
 }
 
-#include <fcntl.h>
-
 inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
 {
     return sem_open(name, oflag, mode, value);

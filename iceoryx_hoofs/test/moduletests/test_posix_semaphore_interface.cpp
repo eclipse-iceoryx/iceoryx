@@ -117,7 +117,7 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
 
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, INITIAL_VALUE));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, INITIAL_VALUE));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
@@ -160,7 +160,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->post().has_error());
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, NUMBER_OF_INCREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
@@ -178,7 +178,7 @@ TYPED_TEST(SemaphoreInterfaceTest, WaitDecreasesSemaphoreValue)
         ASSERT_FALSE(this->sut->wait().has_error());
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
@@ -198,7 +198,7 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTryWaitDecreasesSemaphoreValue)
         ASSERT_THAT(*call, Eq(true));
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
@@ -213,7 +213,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTryWaitDoesNotChangeSemaphoreValue)
         ASSERT_THAT(*call, Eq(false));
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, 0U));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, 0U));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
@@ -235,7 +235,7 @@ TYPED_TEST(SemaphoreInterfaceTest, SuccessfulTimedWaitDecreasesSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, NUMBER_OF_INCREMENTS - NUMBER_OF_DECREMENTS));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
@@ -251,7 +251,7 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::TIMEOUT);
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*this->sut, 0U));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*this->sut, 0U));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, TryWaitAfterPostIsSuccessful)

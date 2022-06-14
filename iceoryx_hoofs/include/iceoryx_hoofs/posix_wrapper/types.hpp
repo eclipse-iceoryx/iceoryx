@@ -27,7 +27,6 @@ enum class AccessMode : uint64_t
     READ_ONLY = 0U,
     READ_WRITE = 1U
 };
-static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
 
 /// @brief describes how the shared memory is opened or created
 enum class OpenMode : uint64_t
@@ -41,8 +40,14 @@ enum class OpenMode : uint64_t
     /// @brief opens the shared memory, if it does not exist it will fail
     OPEN_EXISTING = 3U
 };
-static constexpr const char* OPEN_MODE_STRING[] = {
-    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::OPEN_OR_CREATE", "OpenMode::OPEN_EXISTING"};
+
+/// @brief converts OpenMode into a string literal
+/// @return string literal of the OpenMode value
+constexpr const char* asStringLiteral(const OpenMode mode) noexcept;
+
+/// @brief converts AccessMode into a string literal
+/// @return string literal of the AccessMode value
+constexpr const char* asStringLiteral(const AccessMode mode) noexcept;
 
 /// @brief converts the AccessMode into the corresponding O_** flags.
 /// @param[in] accessMode the accessMode which should be converted
@@ -59,5 +64,7 @@ int convertToOflags(const AccessMode accessMode, const OpenMode openMode) noexce
 
 } // namespace posix
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/posix_wrapper/types.inl"
 
 #endif

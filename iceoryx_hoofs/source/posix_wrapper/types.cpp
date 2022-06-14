@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
-
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 
 namespace iox
@@ -32,6 +32,7 @@ int convertToOflags(const AccessMode accessMode) noexcept
         return O_RDWR;
     }
 
+    LogError() << "Unable to convert to O_ flag since an undefined iox::posix::AccessMode was provided";
     return 0;
 }
 
@@ -49,6 +50,7 @@ int convertToOflags(const OpenMode openMode) noexcept
         return O_CREAT | O_EXCL;
     }
 
+    LogError() << "Unable to convert to O_ flag since an undefined iox::posix::OpenMode was provided";
     return 0;
 }
 

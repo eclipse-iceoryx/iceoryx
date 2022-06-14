@@ -164,7 +164,7 @@ TEST_P(Semaphore_test, PostIncreasesSemaphoreValue)
         ASSERT_FALSE(sut->post().has_error());
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 12));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, 12));
 }
 
 TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
@@ -179,7 +179,7 @@ TEST_P(Semaphore_test, WaitDecreasesSemaphoreValue)
         ASSERT_FALSE(sut->wait().has_error());
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 11));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, 11));
 }
 
 TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
@@ -196,7 +196,7 @@ TEST_P(Semaphore_test, SuccessfulTryWaitDecreasesSemaphoreValue)
         ASSERT_THAT(*call, Eq(true));
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 6));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, 6));
 }
 
 TEST_P(Semaphore_test, FailingTryWaitDoesNotChangeSemaphoreValue)
@@ -230,7 +230,7 @@ TEST_P(Semaphore_test, SuccessfulTimedWaitDecreasesSemaphoreValue)
         ASSERT_TRUE(call.value() == iox::posix::SemaphoreWaitState::NO_TIMEOUT);
     }
 
-    EXPECT_TRUE(isSemaphoreValueEqualTo(*sut, 7));
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut, 7));
 }
 
 TEST_P(Semaphore_test, FailingTimedWaitDoesNotChangeSemaphoreValue)

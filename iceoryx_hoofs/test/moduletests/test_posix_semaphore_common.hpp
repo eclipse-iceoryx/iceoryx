@@ -17,14 +17,14 @@
 #ifndef IOX_HOOFS_MODULETESTS_TEST_POSIX_SEMAPHORE_COMMON_HPP
 #define IOX_HOOFS_MODULETESTS_TEST_POSIX_SEMAPHORE_COMMON_HPP
 
+#include "iceoryx_hoofs/platform/semaphore.hpp"
 #include "test.hpp"
 
 template <typename SemaphoreType>
-inline bool isSemaphoreValueEqualTo(SemaphoreType& semaphore, const uint32_t expectedValue)
+inline bool setSemaphoreToZeroAndVerifyValue(SemaphoreType& semaphore, const uint32_t expectedValue)
 {
-    bool hasSuccess = true;
     uint32_t count = 0U;
-    for (;; ++count)
+    for (; count + 1 < IOX_SEM_VALUE_MAX; ++count)
     {
         auto result = semaphore.tryWait();
         if (result.has_error())
@@ -36,16 +36,20 @@ inline bool isSemaphoreValueEqualTo(SemaphoreType& semaphore, const uint32_t exp
             break;
         }
     }
-    hasSuccess = (count == expectedValue);
+    return (count == expectedValue);
+}
 
-    // restore previous semaphore value
-    for (uint32_t i = 0U; i < count; ++i)
+template <typename SemaphoreType>
+inline bool setSemaphoreValueTo(SemaphoreType& semaphore, const uint32_t value)
+{
+    for (uint32_t i = 0U; i < value; ++i)
     {
-        if (semaphore.post().has_error())
+        auto result = semaphore.post();
+        if (result.has_error())
         {
             return false;
         }
     }
-    return hasSuccess;
+    return true;
 }
 #endif
