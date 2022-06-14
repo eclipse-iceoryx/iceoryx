@@ -23,9 +23,19 @@ namespace iox
 {
 namespace posix
 {
+static cxx::string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const NamedSemaphore::Name_t& name)
+{
+    cxx::string<NamedSemaphore::Name_t::capacity() + 1> nameWithSlash = name;
+    nameWithSlash.insert(0, "/", 1);
+    return nameWithSlash;
+}
+
 static cxx::expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
 {
-    auto result = posixCall(iox_sem_unlink)(name.c_str()).failureReturnValue(-1).ignoreErrnos(ENOENT).evaluate();
+    auto result = posixCall(iox_sem_unlink)(createNameWithSlash(name).c_str())
+                      .failureReturnValue(-1)
+                      .ignoreErrnos(ENOENT)
+                      .evaluate();
     if (result.has_error())
     {
         switch (result.get_error().errnum)
@@ -45,7 +55,7 @@ static cxx::expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) 
 cxx::expected<SemaphoreError>
 NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) noexcept
 {
-    if (!cxx::isValidFilePath(m_name))
+    if (!cxx::isValidFileName(m_name))
     {
         LogError() << "The name \"" << m_name << "\" is not a valid semaphore name.";
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_NAME);
@@ -69,10 +79,12 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
 
     bool hasOwnership = false;
 
+    auto nameWithSlash = createNameWithSlash(m_name);
+
     /// BEGIN: try to open existing semaphore
     if (m_openMode == OpenMode::OPEN_OR_CREATE || m_openMode == OpenMode::OPEN_EXISTING)
     {
-        auto result = posixCall(iox_sem_open)(m_name.c_str(), 0)
+        auto result = posixCall(iox_sem_open)(nameWithSlash.c_str(), 0)
                           .failureReturnValue(IOX_SEM_FAILED)
                           .ignoreErrnos(ENOENT, EINVAL)
                           .evaluate();
@@ -119,7 +131,7 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
 
     /// BEGIN: create semaphore
     hasOwnership = true;
-    auto result = posixCall(iox_sem_open_ext)(m_name.c_str(),
+    auto result = posixCall(iox_sem_open_ext)(nameWithSlash.c_str(),
                                               convertToOflags(m_openMode),
                                               static_cast<mode_t>(m_permissions),
                                               static_cast<unsigned int>(m_initialValue))
