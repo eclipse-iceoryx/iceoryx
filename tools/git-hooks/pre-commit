@@ -53,7 +53,7 @@ fi
 ## unique test IDs
 notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
 if [[ -n "$notUniqueIds" ]]; then
-    echo -e "\e[37;41mThe following test IDs are not unique!\e[m"
+    echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
     echo "$notUniqueIds"
     exit 1
 fi
