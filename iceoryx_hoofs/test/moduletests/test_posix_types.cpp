@@ -28,6 +28,7 @@ constexpr OpenMode INVALID_OPEN_MODE = static_cast<OpenMode>(std::numeric_limits
 
 TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9eb74e8c-7498-4400-9248-92aa6bd15142");
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY), Eq(O_RDONLY));
     EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE), Eq(O_RDWR));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE), Eq(0U));
@@ -35,6 +36,7 @@ TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
 
 TEST(TypesTest, ConvertToOflagFromOpenModeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "95fa55c9-2d64-4296-8bbb-41ff3c9dac3f");
     EXPECT_THAT(convertToOflags(OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(OpenMode::OPEN_OR_CREATE), Eq(O_CREAT));
@@ -44,6 +46,7 @@ TEST(TypesTest, ConvertToOflagFromOpenModeWorks)
 
 TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4ea6823c-2ecd-48a5-bcea-0ea0585bee72");
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::EXCLUSIVE_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::PURGE_AND_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE), Eq(O_RDONLY | O_CREAT));
@@ -65,6 +68,7 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
 
 TEST(TypesTest, OpenModeAsStringLiteral)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "830756de-b3c9-4285-b42a-e0c6c5a315a9");
     EXPECT_THAT(asStringLiteral(OpenMode::EXCLUSIVE_CREATE), Eq("OpenMode::EXCLUSIVE_CREATE"));
     EXPECT_THAT(asStringLiteral(OpenMode::PURGE_AND_CREATE), Eq("OpenMode::PURGE_AND_CREATE"));
     EXPECT_THAT(asStringLiteral(OpenMode::OPEN_OR_CREATE), Eq("OpenMode::OPEN_OR_CREATE"));
@@ -74,6 +78,7 @@ TEST(TypesTest, OpenModeAsStringLiteral)
 
 TEST(TypesTest, AccessModeAsStringLiteral)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c5a09ee7-df2c-4a28-929c-7de743f1e423");
     EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), Eq("AccessMode::READ_ONLY"));
     EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), Eq("AccessMode::READ_WRITE"));
     EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), Eq("AccessMode::UNDEFINED_VALUE"));
