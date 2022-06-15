@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,39 +41,45 @@ namespace cxx
 ///     // destructor
 /// }
 /// @endcode
-class GenericRAII
+template <uint64_t CleanupCapacity = DEFAULT_FUNCTION_CAPACITY>
+class GenericRAIIWithVariableCapacity
 {
   public:
     /// @brief constructor which creates GenericRAII that calls only the cleanupFunction on destruction
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    explicit GenericRAII(const function<void()>& cleanupFunction) noexcept;
+    explicit GenericRAIIWithVariableCapacity(const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
 
     /// @brief constructor which calls initFunction and stores the cleanupFunction which will be
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    GenericRAII(const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept;
+    GenericRAIIWithVariableCapacity(const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
-    ~GenericRAII() noexcept;
+    ~GenericRAIIWithVariableCapacity() noexcept;
 
-    GenericRAII(const GenericRAII&) = delete;
-    GenericRAII& operator=(const GenericRAII&) = delete;
+    GenericRAIIWithVariableCapacity(const GenericRAIIWithVariableCapacity&) = delete;
+    GenericRAIIWithVariableCapacity& operator=(const GenericRAIIWithVariableCapacity&) = delete;
 
     /// @brief move constructor which moves a generic raii object without calling the cleanupFunction
-    GenericRAII(GenericRAII&& rhs) noexcept;
+    GenericRAIIWithVariableCapacity(GenericRAIIWithVariableCapacity&& rhs) noexcept;
 
     /// @brief move assignment which moves a generic raii object without calling the cleanupFunction
-    GenericRAII& operator=(GenericRAII&& rhs) noexcept;
+    GenericRAIIWithVariableCapacity& operator=(GenericRAIIWithVariableCapacity&& rhs) noexcept;
 
   private:
     void destroy() noexcept;
 
   private:
-    function<void()> m_cleanupFunction;
+    function<void(), CleanupCapacity> m_cleanupFunction;
 };
+
+// This alias can be removed with C++17 and class template argument deduction
+using GenericRAII = GenericRAIIWithVariableCapacity<>;
 
 } // namespace cxx
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/cxx/generic_raii.inl"
 
 #endif // IOX_HOOFS_CXX_GENERIC_RAII_HPP

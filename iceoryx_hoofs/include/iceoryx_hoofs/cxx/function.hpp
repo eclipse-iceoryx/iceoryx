@@ -24,6 +24,8 @@ namespace iox
 {
 namespace cxx
 {
+constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
+
 /// @brief A static memory replacement for std::function
 ///        Allows storing a callable with a given signature if its size does not exceed a limit.
 ///        This limit can be adjusted by changing the Bytes parameter.
@@ -42,7 +44,8 @@ namespace cxx
 ///
 /// @note  If the static storage is insufficient to store the callable we get a compile time error.
 ///
-template <typename Signature, uint64_t Capacity = 128U>
+
+template <typename Signature, uint64_t Capacity = DEFAULT_FUNCTION_CAPACITY>
 using function = storable_function<static_storage<Capacity>, Signature>;
 
 
