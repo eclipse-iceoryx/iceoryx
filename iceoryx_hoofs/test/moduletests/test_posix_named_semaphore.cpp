@@ -231,6 +231,27 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
     EXPECT_THAT(result.get_error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
 }
 
+TEST_F(NamedSemaphoreTest, WhenOwningSemaphoreIsClosedBeforeOpenedSemaphoreTheOpenedSemaphoreRemainsUsable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "077fff6c-97d8-4888-b28f-cd45d5289be8");
+
+    constexpr uint32_t INITIAL_VALUE = 84U;
+    ASSERT_FALSE(NamedSemaphoreBuilder()
+                     .name(sutName)
+                     .openMode(OpenMode::EXCLUSIVE_CREATE)
+                     .permissions(sutPermission)
+                     .initialValue(INITIAL_VALUE)
+                     .create(sut)
+                     .has_error());
+
+    iox::cxx::optional<NamedSemaphore> sut2;
+    ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
+
+    sut.reset();
+
+    EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
+}
+
 // Windows does not support this since the named semaphore is automatically deleted
 // as soon as the last handle was closed with CloseHandle
 #if !defined(_WIN32)
