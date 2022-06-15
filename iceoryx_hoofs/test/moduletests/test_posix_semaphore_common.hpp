@@ -23,7 +23,7 @@
 template <typename SemaphoreType>
 inline bool setSemaphoreToZeroAndVerifyValue(SemaphoreType& semaphore, const uint32_t expectedValue)
 {
-    uint32_t count = 0U;
+    uint64_t count = 0U;
     for (; count + 1 < IOX_SEM_VALUE_MAX; ++count)
     {
         auto result = semaphore.tryWait();
@@ -33,10 +33,10 @@ inline bool setSemaphoreToZeroAndVerifyValue(SemaphoreType& semaphore, const uin
         }
         if (*result == false)
         {
-            break;
+            return (count == expectedValue);
         }
     }
-    return (count == expectedValue);
+    return false;
 }
 
 template <typename SemaphoreType>

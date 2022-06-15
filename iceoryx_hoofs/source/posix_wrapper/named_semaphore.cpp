@@ -163,7 +163,11 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
 
     if (m_openMode == OpenMode::OPEN_EXISTING)
     {
-        auto result = IOX_TRY(tryOpenExistingSemaphore(uninitializedSemaphore, m_name), result);
+        auto result = tryOpenExistingSemaphore(uninitializedSemaphore, m_name);
+        if (result.has_error())
+        {
+            return result;
+        }
 
         if (!result.value())
         {
@@ -174,7 +178,11 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
     }
     else if (m_openMode == OpenMode::OPEN_OR_CREATE)
     {
-        auto result = IOX_TRY(tryOpenExistingSemaphore(uninitializedSemaphore, m_name), result);
+        auto result = tryOpenExistingSemaphore(uninitializedSemaphore, m_name);
+        if (result.has_error())
+        {
+            return result;
+        }
 
         if (result.value())
         {
@@ -189,7 +197,11 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
     }
 
     // if OpenMode::PURGE_AND_CREATE, written outside of if statement to avoid no return value warning
-    IOX_TRY(unlink(m_name));
+    auto result = unlink(m_name);
+    if (result.has_error())
+    {
+        return result;
+    }
     return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);
 }
 

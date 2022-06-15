@@ -73,6 +73,7 @@ int iox_sem_post(iox_sem_t* sem)
     else
     {
         pthread_mutex_lock(&sem->m_handle.condition.mtx);
+        static_assert(IOX_SEM_VALUE_MAX > 0, "IOX_SEM_VALUE_MAX must be greater 0");
         if (sem->m_value.load() > IOX_SEM_VALUE_MAX - 1)
         {
             errno = EOVERFLOW;
