@@ -17,9 +17,6 @@
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "test.hpp"
 
-#include <atomic>
-#include <thread>
-
 namespace
 {
 using namespace ::testing;
@@ -35,71 +32,41 @@ class Thread_test : public Test
 
     void SetUp()
     {
-        m_run = true;
-        m_thread = new std::thread(&Thread_test::threadFunc, this);
     }
 
     void TearDown()
     {
-        m_run = false;
-        m_thread->join();
-        delete m_thread;
     }
 
     ~Thread_test()
     {
     }
 
-    void threadFunc()
+    uint32_t test_function(const uint32_t val)
     {
-        while (m_run)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    };
+        return val;
+    }
 
-    std::atomic_bool m_run{true};
-    std::thread* m_thread;
+    optional<Thread> sut;
 };
 
-#if !defined(__APPLE__)
-TEST(pthreadWrapper_test, CreateJoinableThread)
+TEST_F(Thread_test, CreateThread)
 {
-    optional<thread> sut;
-    function<void()> callable = []() { std::cout << "Bleib sauber, Kpt. Blaubaer" << std::endl; };
+    constexpr uint64_t MY_FAVORITE_UINT = 13;
+    function<void()> callable = [&] { EXPECT_THAT(test_function(MY_FAVORITE_UINT), Eq(MY_FAVORITE_UINT)); };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
-    EXPECT_TRUE(sut->joinable());
 }
 
-TEST(pthreadWrapper_test, CreateThreadWithEmptyCallable)
+TEST_F(Thread_test, CreateThreadWithEmptyCallable)
 {
-    optional<thread> sut1;
     function<void()> callable;
-    auto result = ThreadBuilder().create(sut1, callable);
+    auto result = ThreadBuilder().create(sut, callable);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
-
-    optional<thread> sut2;
-    callable = []() {};
-    ASSERT_FALSE(ThreadBuilder().create(sut2, callable).has_error());
 }
 
-TEST(pthreadWrapper_test, CreateDetachedThread)
+TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
-    optional<thread> sut;
-    function<void()> callable = []() {
-        std::cout << "Set the controls for ... " << std::endl;
-        std::cout << "... the heart of the sun" << std::endl;
-    };
-    auto result = ThreadBuilder().detached(true).create(sut, callable);
-    ASSERT_FALSE(result.has_error());
-    EXPECT_FALSE(sut->joinable());
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-}
-
-TEST(pthreadWrapper_test, SetAndGetWithEmptyThreadNameIsWorking)
-{
-    optional<thread> sut;
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     ThreadName_t emptyString = "";
@@ -110,9 +77,8 @@ TEST(pthreadWrapper_test, SetAndGetWithEmptyThreadNameIsWorking)
     EXPECT_THAT(getResult, StrEq(emptyString));
 }
 
-TEST(pthreadWrapper_test, SetAndGetWithThreadNameCapacityIsWorking)
+TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
-    optional<thread> sut;
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
@@ -124,9 +90,8 @@ TEST(pthreadWrapper_test, SetAndGetWithThreadNameCapacityIsWorking)
     EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
 }
 
-TEST(pthreadWrapper_test, SetAndGetSmallStringIsWorking)
+TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
-    optional<thread> sut;
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
@@ -136,5 +101,4 @@ TEST(pthreadWrapper_test, SetAndGetSmallStringIsWorking)
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
-#endif
 } // namespace

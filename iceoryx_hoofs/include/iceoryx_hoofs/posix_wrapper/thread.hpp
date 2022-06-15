@@ -43,33 +43,32 @@ enum class ThreadError
     UNDEFINED
 };
 
-class thread
+class Thread
 {
   public:
-    using callable_t = cxx::function<void(), sizeof(cxx::function<void()>) + alignof(cxx::function<void()>)>;
+    using callable_t = cxx::function<void()>;
 
-    thread(const thread&) = delete;
-    thread& operator=(const thread&) = delete;
-    thread(thread&& other) = delete;
-    thread& operator=(thread&& rhs) = delete;
+    Thread(const Thread&) = delete;
+    Thread& operator=(const Thread&) = delete;
+    Thread(Thread&& other) = delete;
+    Thread& operator=(Thread&& rhs) = delete;
 
-    ~thread() noexcept;
+    ~Thread() noexcept;
 
+    // @todo set name during creation and remove method
     void setThreadName(const ThreadName_t& name) noexcept;
 
     ThreadName_t getThreadName() noexcept;
 
-    bool joinable() const noexcept;
-
     friend class ThreadBuilder;
-    friend class cxx::optional<thread>;
+    friend class cxx::optional<Thread>;
 
   private:
-    thread() noexcept = default;
+    Thread() noexcept = default;
 
     static ThreadError errnoToEnum(const int errnoValue) noexcept;
 
-    static void* cbk(void* callable);
+    static void* startRoutine(void* callable);
 
     pthread_t m_threadHandle;
     callable_t m_callable;
@@ -78,18 +77,12 @@ class thread
 
 class ThreadBuilder
 {
-    IOX_BUILDER_PARAMETER(bool, detached, false)
-
   public:
-    template <typename Signature, typename... CallableArgs>
-    cxx::expected<ThreadError> create(cxx::optional<thread>& uninitializedThread,
-                                      const cxx::function<Signature>& callable,
-                                      CallableArgs&&... args) noexcept;
+    cxx::expected<ThreadError> create(cxx::optional<Thread>& uninitializedThread,
+                                      const cxx::function<void()>& callable) noexcept;
 };
 
 } // namespace posix
 } // namespace iox
-
-#include "iceoryx_hoofs/internal/posix_wrapper/thread.inl"
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP

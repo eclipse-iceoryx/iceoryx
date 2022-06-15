@@ -23,12 +23,40 @@ namespace iox
 {
 namespace posix
 {
+cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
+                                                 const cxx::function<void()>& callable) noexcept
+{
+    if (!callable)
+    {
+        std::cerr << "The thread cannot be created with an empty callable." << std::endl;
+        return cxx::error<ThreadError>(ThreadError::EMPTY_CALLABLE);
+    }
 
-thread::~thread() noexcept
+    uninitializedThread.emplace();
+    uninitializedThread->m_callable = callable;
+
+    const pthread_attr_t* threadAttributes = nullptr;
+
+    auto createResult = posixCall(pthread_create)(&uninitializedThread->m_threadHandle,
+                                                  threadAttributes,
+                                                  Thread::startRoutine,
+                                                  &uninitializedThread->m_callable)
+                            .successReturnValue(0)
+                            .evaluate();
+    if (createResult.has_error())
+    {
+        uninitializedThread->m_isJoinable = false;
+        uninitializedThread.reset();
+        return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
+    }
+
+    return cxx::success<>();
+}
+
+Thread::~Thread() noexcept
 {
     if (m_isJoinable)
     {
-        /// @todo replace nullptr?
         auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
@@ -46,7 +74,7 @@ thread::~thread() noexcept
     }
 }
 
-void thread::setThreadName(const ThreadName_t& name) noexcept
+void Thread::setThreadName(const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
         .successReturnValue(0)
@@ -61,7 +89,7 @@ void thread::setThreadName(const ThreadName_t& name) noexcept
         });
 }
 
-ThreadName_t thread::getThreadName() noexcept
+ThreadName_t Thread::getThreadName() noexcept
 {
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
@@ -80,12 +108,7 @@ ThreadName_t thread::getThreadName() noexcept
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }
 
-bool thread::joinable() const noexcept
-{
-    return m_isJoinable;
-}
-
-ThreadError thread::errnoToEnum(const int errnoValue) noexcept
+ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 {
     switch (errnoValue)
     {
@@ -108,9 +131,8 @@ ThreadError thread::errnoToEnum(const int errnoValue) noexcept
     }
 }
 
-void* thread::cbk(void* callable)
+void* Thread::startRoutine(void* callable)
 {
-    // necessary because the callback signature for pthread_create is void*(void*)
     callable_t f = *static_cast<callable_t*>(callable);
     f();
     return nullptr;
