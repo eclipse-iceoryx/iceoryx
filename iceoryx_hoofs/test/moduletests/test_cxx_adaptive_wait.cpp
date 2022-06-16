@@ -19,6 +19,7 @@ using namespace ::testing;
 
 #include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 
+#include <atomic>
 #include <thread>
 
 using namespace iox::cxx::internal;
