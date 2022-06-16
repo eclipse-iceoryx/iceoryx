@@ -27,7 +27,7 @@ CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDes
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
-    std::move(*this).addOption({{'h', {"help"}, ""}, {"Display help."}, OptionType::SWITCH, {""}});
+    std::move(*this).addOption({{'h', {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
 }
 
 cxx::optional<OptionWithDetails> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept

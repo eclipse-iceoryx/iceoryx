@@ -139,6 +139,14 @@ TYPED_TEST(OptionTest, shortOptionWithDashIsDetected)
     EXPECT_TRUE(sut.shortOptionNameIsEqualDash());
 }
 
+TYPED_TEST(OptionTest, shortOptionWithNonDashIsHandledCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "51163561-5933-4dae-93f2-d2d394b7e82c");
+    auto sut = this->createEmpty();
+    sut.shortOption = 'c';
+    EXPECT_FALSE(sut.shortOptionNameIsEqualDash());
+}
+
 TYPED_TEST(OptionTest, hasSameLongOptionNameFailsWithWhenBothAreEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8c92dbf-fef7-4766-917a-9bd9f5dece7b");
