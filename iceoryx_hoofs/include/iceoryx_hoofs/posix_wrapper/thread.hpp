@@ -50,8 +50,8 @@ class Thread
 
     Thread(const Thread&) = delete;
     Thread& operator=(const Thread&) = delete;
-    Thread(Thread&& other) = delete;
-    Thread& operator=(Thread&& rhs) = delete;
+    Thread(Thread&&) = delete;
+    Thread& operator=(Thread&&) = delete;
 
     ~Thread() noexcept;
 

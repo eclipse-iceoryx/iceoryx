@@ -42,23 +42,20 @@ class Thread_test : public Test
     {
     }
 
-    uint32_t test_function(const uint32_t val)
-    {
-        return val;
-    }
-
     optional<Thread> sut;
 };
 
-TEST_F(Thread_test, CreateThread)
+TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");
-    constexpr uint64_t MY_FAVORITE_UINT = 13;
-    function<void()> callable = [&] { EXPECT_THAT(test_function(MY_FAVORITE_UINT), Eq(MY_FAVORITE_UINT)); };
+    bool callableWasCalled = false;
+    function<void()> callable = [&] { callableWasCalled = true; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    sut.reset();
+    EXPECT_TRUE(callableWasCalled);
 }
 
-TEST_F(Thread_test, CreateThreadWithEmptyCallable)
+TEST_F(Thread_test, CreateThreadWithEmptyCallableFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8058c282-ce33-42eb-80ed-4421ebac5652");
     function<void()> callable;
