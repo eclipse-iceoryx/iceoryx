@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ class Thread_test : public Test
 
 TEST_F(Thread_test, CreateThread)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");
     constexpr uint64_t MY_FAVORITE_UINT = 13;
     function<void()> callable = [&] { EXPECT_THAT(test_function(MY_FAVORITE_UINT), Eq(MY_FAVORITE_UINT)); };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
@@ -59,6 +60,7 @@ TEST_F(Thread_test, CreateThread)
 
 TEST_F(Thread_test, CreateThreadWithEmptyCallable)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8058c282-ce33-42eb-80ed-4421ebac5652");
     function<void()> callable;
     auto result = ThreadBuilder().create(sut, callable);
     ASSERT_TRUE(result.has_error());
@@ -67,6 +69,7 @@ TEST_F(Thread_test, CreateThreadWithEmptyCallable)
 
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "ba2ed4d9-f051-4ad1-a2df-6741134c494f");
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     ThreadName_t emptyString = "";
@@ -79,6 +82,7 @@ TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a67128fe-a779-4bdb-a849-3bcbfed4b20f");
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
@@ -92,6 +96,7 @@ TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 
 TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b5141d3c-2721-478c-b3d1-f35fb3321117");
     function<void()> callable = []() {};
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
