@@ -26,6 +26,7 @@ namespace posix
 {
 enum class SemaphoreError
 {
+    INVALID_NAME,
     INVALID_SEMAPHORE_HANDLE,
     SEMAPHORE_OVERFLOW,
     INTERRUPTED_BY_SIGNAL_HANDLER,
