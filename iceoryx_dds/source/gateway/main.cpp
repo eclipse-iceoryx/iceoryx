@@ -21,46 +21,13 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/platform/signal.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
-class ShutdownManager
-{
-  public:
-    static void scheduleShutdown(int num)
-    {
-        char reason = '\0';
-        psignal(num, &reason);
-        s_semaphore.post().or_else([](auto) {
-            std::cerr << "failed to call post on shutdown semaphore" << std::endl;
-            std::terminate();
-        });
-    }
-    static void waitUntilShutdown()
-    {
-        s_semaphore.wait().or_else([](auto) {
-            std::cerr << "failed to call wait on shutdown semaphore" << std::endl;
-            std::terminate();
-        });
-    }
-
-  private:
-    static iox::posix::Semaphore s_semaphore;
-    ShutdownManager() = default;
-};
-iox::posix::Semaphore ShutdownManager::s_semaphore =
-    iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0u).value();
-
 int main()
 {
-    // Set OS signal handlers
-    auto signalGuardInt = iox::posix::registerSignalHandler(iox::posix::Signal::INT, ShutdownManager::scheduleShutdown);
-    auto signalGuardTerm =
-        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, ShutdownManager::scheduleShutdown);
-
     // Start application
     iox::runtime::PoshRuntime::initRuntime("iox-dds-gateway");
 
@@ -84,7 +51,7 @@ int main()
     dds2ioxGateway.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
-    ShutdownManager::waitUntilShutdown();
+    iox::posix::waitForTerminationRequest();
 
     return 0;
 }
