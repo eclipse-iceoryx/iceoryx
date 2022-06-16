@@ -16,6 +16,14 @@ jobs:
       - uses: actions/checkout@v3
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
+      - name: Check unique test IDs
+        run: |
+          notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
+          if [[ -n "$notUniqueIds" ]]; then
+              echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
+              echo "$notUniqueIds"
+              false
+          fi
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-latest

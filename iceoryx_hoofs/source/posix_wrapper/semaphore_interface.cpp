@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
@@ -35,7 +36,7 @@ cxx::error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
         LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
     case EOVERFLOW:
-        LogError() << "Semaphore overflow.";
+        LogError() << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
         return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     case EINTR:
         LogError() << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
@@ -64,20 +65,6 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcep
     }
 
     return cxx::success<>();
-}
-
-template <typename SemaphoreChild>
-cxx::expected<uint32_t, SemaphoreError> SemaphoreInterface<SemaphoreChild>::getValue() noexcept
-{
-    int value = 0;
-    auto result = posixCall(iox_sem_getvalue)(getHandle(), &value).failureReturnValue(-1).evaluate();
-
-    if (result.has_error())
-    {
-        return createErrorFromErrno(result.get_error().errnum);
-    }
-
-    return cxx::success<uint32_t>(static_cast<uint32_t>(std::max(0, value)));
 }
 
 template <typename SemaphoreChild>
@@ -126,6 +113,7 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcep
 }
 
 template class SemaphoreInterface<UnnamedSemaphore>;
+template class SemaphoreInterface<NamedSemaphore>;
 } // namespace internal
 } // namespace posix
 } // namespace iox

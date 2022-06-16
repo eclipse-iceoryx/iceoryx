@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
+#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
 #include <cstdint>
 
@@ -30,28 +31,6 @@ namespace iox
 namespace posix
 {
 class SharedMemoryObject;
-enum class AccessMode : uint64_t
-{
-    READ_ONLY = 0U,
-    READ_WRITE = 1U
-};
-static constexpr const char* ACCESS_MODE_STRING[] = {"AccessMode::READ_ONLY", "AccessMode::READ_WRITE"};
-
-/// @brief describes how the shared memory is opened or created
-enum class OpenMode : uint64_t
-{
-    /// @brief creates the shared memory, if it exists already the construction will fail
-    EXCLUSIVE_CREATE = 0U,
-    /// @brief creates the shared memory, if it exists it will be deleted and recreated
-    PURGE_AND_CREATE = 1U,
-    /// @brief creates the shared memory, if it does not exist otherwise it opens it
-    OPEN_OR_CREATE = 2U,
-    /// @brief opens the shared memory, if it does not exist it will fail
-    OPEN_EXISTING = 3U
-};
-static constexpr const char* OPEN_MODE_STRING[] = {
-    "OpenMode::EXCLUSIVE_CREATE", "OpenMode::PURGE_AND_CREATE", "OpenMode::OPEN_OR_CREATE", "OpenMode::OPEN_EXISTING"};
-
 enum class SharedMemoryError
 {
     EMPTY_NAME,

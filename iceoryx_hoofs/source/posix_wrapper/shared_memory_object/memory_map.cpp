@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
 #include <bitset>
 
@@ -58,7 +59,7 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
     auto flags = std::cerr.flags();
     std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
               << m_baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << m_fileDescriptor
-              << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
+              << ", access mode = " << asStringLiteral(m_accessMode)
               << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
               << m_offset << std::dec << " ]" << std::endl;
     std::cerr.setf(flags);

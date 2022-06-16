@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 #include <semaphore.h>
 
 using iox_sem_t = sem_t;
+
+#define IOX_SEM_FAILED SEM_FAILED
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
 
 inline int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {
@@ -61,10 +64,14 @@ inline int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value)
     return sem_init(sem, pshared, value);
 }
 
-template <typename... Targs>
-inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+inline iox_sem_t* iox_sem_open(const char* name, int oflag)
 {
-    return sem_open(name, oflag, args...);
+    return sem_open(name, oflag);
+}
+
+inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return sem_open(name, oflag, mode, value);
 }
 
 inline int iox_sem_unlink(const char* name)

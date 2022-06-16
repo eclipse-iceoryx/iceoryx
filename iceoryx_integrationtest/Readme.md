@@ -7,7 +7,7 @@ test level of the respective components. Additionally, we need to make sure that
 and software integration specifications are fulfilled. Test focus is here on SWE.5 according to ASPICE.
 
 For that purpose we bring in tests which simulate customer behavior to have automatic testing of (Mis)Use-cases.
-As testing framework we use the [launch_testing](https://github.com/ros2/launch/tree/master/launch_testing) framework from ROS 2.
+As testing framework we use the [launch_testing](https://github.com/ros2/launch/blob/humble/launch_testing/README.md) framework from ROS 2.
 The tests are stored in a ROS 2 CMake package where the test executables are built and launched/tested by python scripts.
 In these scripts the testing is currently done by evaluating the stdout output of the processes and the exit codes.
 
