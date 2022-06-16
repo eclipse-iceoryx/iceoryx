@@ -18,8 +18,9 @@
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 
-#include <iostream>
+#include <cstring>
 #include <utility>
 
 namespace iox

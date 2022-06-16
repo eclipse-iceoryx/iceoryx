@@ -37,7 +37,9 @@ inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 
     if (!(*static_cast<const Derived*>(this)))
     {
-        std::cout << msg << std::endl;
+        // it is possible that expect is called inside an error handler therefore we
+        // use write
+        IOX_DISCARD_RESULT(write(STDERR_FILENO, &msg[0], strlen(&msg[0])));
         Ensures(false);
     }
 }
@@ -53,7 +55,9 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& 
 
     if (!(*derivedThis))
     {
-        std::cout << msg << std::endl;
+        // it is possible that expect is called inside an error handler therefore we
+        // use write
+        IOX_DISCARD_RESULT(write(STDERR_FILENO, &msg[0], strlen(&msg[0])));
         Ensures(false);
     }
 
