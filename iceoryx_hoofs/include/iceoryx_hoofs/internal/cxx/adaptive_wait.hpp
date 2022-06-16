@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 
-#include <atomic>
 #include <cstdint>
 
 namespace iox

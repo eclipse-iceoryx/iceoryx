@@ -108,5 +108,7 @@ TEST(AdaptiveWaitTest, wait_loopWaitsAtLeastAsLongAsTheConditionsReturnsTrue)
 
     EXPECT_THAT(std::chrono::nanoseconds(end - start).count(),
                 Ge(iox::units::Duration::fromMilliseconds(waitTime.count()).toNanoseconds()));
+
+    waitThread.join();
 }
 } // namespace
