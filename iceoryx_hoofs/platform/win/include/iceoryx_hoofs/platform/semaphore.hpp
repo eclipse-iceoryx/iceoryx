@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@
 #include <time.h>
 #include <type_traits>
 
-#define SEM_FAILED 0
+#define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
 // win32 API page talks about maximum allowed value without defining it or how to obtain.
-// We use the SEM_VALUE_MAX from linux which is INT_MAX
-#define SEM_VALUE_MAX INT_MAX
+// We use the IOX_SEM_VALUE_MAX from linux which is INT_MAX
+#define IOX_SEM_VALUE_MAX INT_MAX
 
 struct iox_sem_t
 {
@@ -42,8 +42,6 @@ struct iox_sem_t
     bool isInterprocessSemaphore{false};
     UniqueSystemId uniqueId;
 };
-static constexpr LONG MAX_SEMAPHORE_VALUE = LONG_MAX;
-static constexpr int MAX_SEMAPHORE_NAME_LENGTH = 128;
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
 int iox_sem_post(iox_sem_t* sem);
@@ -56,10 +54,14 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
 int iox_sem_unlink(const char* name);
 
-template <typename... Targs>
-inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+inline iox_sem_t* iox_sem_open(const char* name, int oflag)
 {
-    return iox_sem_open_impl(name, oflag, args...);
+    return iox_sem_open_impl(name, oflag);
+}
+
+inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return iox_sem_open_impl(name, oflag, mode, value);
 }
 
 #endif // IOX_HOOFS_WIN_PLATFORM_SEMAPHORE_HPP

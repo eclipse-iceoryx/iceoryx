@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,10 @@ class NamedPipe;
 
 namespace platform
 {
+/// defined so that it is consistent to linux
+constexpr uint64_t IOX_MAX_SEMAPHORE_NAME_LENGTH = 251U;
+constexpr bool IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION = true;
+
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
 constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = 255U;
 // yes, windows has two possible path separators!

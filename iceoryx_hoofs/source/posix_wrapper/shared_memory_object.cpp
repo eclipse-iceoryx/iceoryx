@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
 #include <bitset>
 #include <cstdlib>
@@ -50,9 +51,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 {
     auto printErrorDetails = [this] {
         LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
-                   << ", sizeInBytes = " << m_memorySizeInBytes
-                   << ", access mode = " << ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)]
-                   << ", open mode = " << OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)] << ", baseAddressHint = "
+                   << ", sizeInBytes = " << m_memorySizeInBytes << ", access mode = " << asStringLiteral(m_accessMode)
+                   << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
                    << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
                                            : log::HexFormat(static_cast<uint64_t>(0U)))
                    << ((m_baseAddressHint) ? "" : " (no hint set)")
@@ -111,8 +111,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                 "currently available in the system.\n",
                 m_name.c_str(),
                 static_cast<unsigned long long>(m_memorySizeInBytes),
-                ACCESS_MODE_STRING[static_cast<uint64_t>(m_accessMode)],
-                OPEN_MODE_STRING[static_cast<uint64_t>(m_openMode)],
+                asStringLiteral(m_accessMode),
+                asStringLiteral(m_openMode),
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
                 std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong());
 

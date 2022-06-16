@@ -68,10 +68,13 @@ namespace cxx
 // On APPLE we are using C++17 which makes the keyword [[fallthrough]] available
 // NOLINTNEXTLINE
 #define IOX_FALLTHROUGH [[fallthrough]]
-#elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
+// with C++17 fallthrough was introduced and we can use it
+#elif __cplusplus >= 201703L
 // clang prints a warning therefore we exclude it here
 // NOLINTNEXTLINE
 #define IOX_FALLTHROUGH [[fallthrough]]
+#elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
+#define IOX_FALLTHROUGH [[gnu::fallthrough]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_FALLTHROUGH

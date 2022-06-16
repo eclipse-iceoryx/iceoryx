@@ -75,6 +75,7 @@ iox_add_library(
         source/posix_wrapper/message_queue.cpp
         source/posix_wrapper/mutex.cpp
         source/posix_wrapper/named_pipe.cpp
+        source/posix_wrapper/named_semaphore.cpp
         source/posix_wrapper/posix_access_rights.cpp
         source/posix_wrapper/semaphore.cpp
         source/posix_wrapper/semaphore_interface.cpp
@@ -86,8 +87,9 @@ iox_add_library(
         source/posix_wrapper/signal_watcher.cpp
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
-        source/posix_wrapper/unix_domain_socket.cpp
+        source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
+        source/posix_wrapper/unix_domain_socket.cpp
         source/relocatable_pointer/base_relative_pointer.cpp
         source/relocatable_pointer/relative_pointer_data.cpp
         source/units/duration.cpp

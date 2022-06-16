@@ -27,6 +27,13 @@ namespace posix
 cxx::expected<SemaphoreError>
 UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) noexcept
 {
+    if (m_initialValue > IOX_SEM_VALUE_MAX)
+    {
+        LogError() << "The unnamed semaphore initial value of " << m_initialValue
+                   << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
+        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+    }
+
     uninitializedSemaphore.emplace();
 
     auto result = posixCall(iox_sem_init)(&uninitializedSemaphore.value().m_handle,
@@ -43,7 +50,7 @@ UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSe
         switch (result.get_error().errnum)
         {
         case EINVAL:
-            LogError() << "The initial value of " << m_initialValue << " exceeds " << SEM_VALUE_MAX;
+            LogError() << "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX;
             break;
         case ENOSYS:
             LogError() << "The system does not support process-shared semaphores";

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@
 #include <atomic>
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
+
+#define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
+#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
 
 struct iox_sem_t
 {
@@ -43,7 +46,7 @@ struct iox_sem_t
     } m_handle;
 
     bool m_hasPosixHandle{true};
-    std::atomic<int> m_value{0};
+    std::atomic<uint32_t> m_value{0U};
 };
 
 int iox_sem_getvalue(iox_sem_t* sem, int* sval);
@@ -57,10 +60,14 @@ int iox_sem_init(iox_sem_t* sem, int pshared, unsigned int value);
 int iox_sem_unlink(const char* name);
 iox_sem_t* iox_sem_open_impl(const char* name, int oflag, ...);
 
-template <typename... Targs>
-inline iox_sem_t* iox_sem_open(const char* name, int oflag, Targs... args)
+inline iox_sem_t* iox_sem_open(const char* name, int oflag)
 {
-    return iox_sem_open_impl(name, oflag, args...);
+    return iox_sem_open_impl(name, oflag);
+}
+
+inline iox_sem_t* iox_sem_open_ext(const char* name, int oflag, mode_t mode, unsigned int value)
+{
+    return iox_sem_open_impl(name, oflag, mode, value);
 }
 
 #endif // IOX_HOOFS_MAC_PLATFORM_SEMAPHORE_HPP

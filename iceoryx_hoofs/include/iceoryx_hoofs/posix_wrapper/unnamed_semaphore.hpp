@@ -57,6 +57,10 @@ class UnnamedSemaphoreBuilder
     IOX_BUILDER_PARAMETER(bool, isInterProcessCapable, true)
 
   public:
+    /// @brief create an unnamed semaphore
+    /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
+    ///            memory to store the semaphore into - packed in an optional
+    /// @return an error describing the failure or success
     cxx::expected<SemaphoreError> create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) noexcept;
 };
 } // namespace posix
