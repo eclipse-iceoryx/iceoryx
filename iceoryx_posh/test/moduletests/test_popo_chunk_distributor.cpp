@@ -620,16 +620,17 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
     }
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool isThreadStarted{false};
     auto chunk = this->allocateChunk(7373);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted = true;
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
         wasChunkDelivered = true;
     });
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
 
@@ -737,15 +738,16 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 0U).has_error());
     sut.deliverToAllStoredQueues(this->allocateChunk(155U));
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool isThreadStarted{false};
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted = true;
         sut.deliverToAllStoredQueues(this->allocateChunk(152U));
         wasChunkDelivered = true;
     });
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
 
@@ -783,15 +785,16 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
 
     sut.deliverToAllStoredQueues(this->allocateChunk(425U));
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
+    std::atomic_bool isThreadStarted{false};
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.store(true);
         sut.deliverToAllStoredQueues(this->allocateChunk(1152U));
         wasChunkDelivered = true;
     });
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
 

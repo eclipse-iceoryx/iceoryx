@@ -19,6 +19,8 @@ using namespace ::testing;
 
 #include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 
+#include <thread>
+
 using namespace iox::cxx::internal;
 
 namespace
@@ -73,5 +75,38 @@ TEST(AdaptiveWaitTest, waitWaitsAtLeastFINAL_WAITING_TIMEafterINITIAL_REPETITION
     EXPECT_THAT(
         std::chrono::nanoseconds(end - start).count(),
         Ge(iox::units::Duration::fromMilliseconds(AdaptiveWaitSut::FINAL_WAITING_TIME.count()).toNanoseconds()));
+}
+
+TEST(AdaptiveWaitTest, wait_loopWaitsAtLeastAsLongAsTheConditionsReturnsTrue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c44e9315-fed4-4681-ba0c-2d25bce4459b");
+    class AdaptiveWaitSut : public adaptive_wait
+    {
+      public:
+        using adaptive_wait::FINAL_WAITING_TIME;
+        using adaptive_wait::INITIAL_REPETITIONS;
+    };
+
+    std::atomic_bool continueToWait{true};
+    std::atomic_bool threadIsStarted{false};
+    std::thread waitThread{[&] {
+        threadIsStarted = true;
+        AdaptiveWaitSut().wait_loop([&] { return continueToWait.load(); });
+    }};
+
+    while (!threadIsStarted.load())
+    {
+        std::this_thread::yield();
+    }
+
+    auto start = std::chrono::steady_clock::now();
+    const std::chrono::milliseconds waitTime(100);
+    std::this_thread::sleep_for(waitTime);
+    auto end = std::chrono::steady_clock::now();
+
+    continueToWait.store(false);
+
+    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(),
+                Ge(iox::units::Duration::fromMilliseconds(waitTime.count()).toNanoseconds()));
 }
 } // namespace

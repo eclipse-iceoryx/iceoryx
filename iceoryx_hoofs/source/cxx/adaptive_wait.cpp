@@ -46,6 +46,19 @@ void adaptive_wait::wait() noexcept
         std::this_thread::sleep_for(FINAL_WAITING_TIME);
     }
 }
+
+void adaptive_wait::wait_loop(const function_ref<bool()>& continueToWait) noexcept
+{
+    if (!continueToWait)
+    {
+        return;
+    }
+
+    while (continueToWait())
+    {
+        wait();
+    }
+}
 } // namespace internal
 } // namespace cxx
 } // namespace iox

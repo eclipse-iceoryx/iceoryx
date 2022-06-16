@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "test.hpp"
@@ -98,10 +99,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
         });
     }
 
-    while (isThreadStarted.load() != numberOfWaiters)
-    {
-        std::this_thread::yield();
-    }
+    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
 
     std::this_thread::sleep_for(test.waitingTime);
 
