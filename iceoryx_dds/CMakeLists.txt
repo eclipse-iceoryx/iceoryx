@@ -50,6 +50,7 @@ iox_add_library(
     NO_FIND_PACKAGE_SUPPORT
     TARGET                  iceoryx_dds
     NAMESPACE               iceoryx_dds
+    PROJECT_PREFIX          ${PREFIX}
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
                             ${CMAKE_BINARY_DIR}/dependencies/install/include
     INSTALL_INTERFACE       include/${PREFIX}
