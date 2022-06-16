@@ -73,6 +73,8 @@ namespace cxx
 // clang prints a warning therefore we exclude it here
 // NOLINTNEXTLINE
 #define IOX_FALLTHROUGH [[fallthrough]]
+#elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
+#define IOX_FALLTHROUGH [[gnu::fallthrough]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
 #define IOX_FALLTHROUGH
