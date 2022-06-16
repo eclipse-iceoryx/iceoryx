@@ -111,7 +111,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     m_isInitialized = true;
     if (m_sharedMemory->hasOwnership())
     {
-        new (m_data) NamedPipeData(m_isInitialized, m_errorValue, maxMsgNumber);
+        new (m_data) NamedPipeData(m_isInitialized, m_errorValue, static_cast<uint32_t>(maxMsgNumber));
     }
     else
     {
@@ -324,7 +324,7 @@ cxx::expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units:
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init) semaphores are initalized via placementCreate call
 NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
                                         IpcChannelError& error,
-                                        const uint64_t maxMsgNumber) noexcept
+                                        const uint32_t maxMsgNumber) noexcept
 {
     auto signalError = [&](const char* name) {
         std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
@@ -332,8 +332,10 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
         error = IpcChannelError::INTERNAL_LOGIC_ERROR;
     };
 
-    Semaphore::placementCreate(
-        &semaphores[SEND_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, static_cast<unsigned int>(maxMsgNumber))
+    UnnamedSemaphoreBuilder()
+        .initialValue(maxMsgNumber)
+        .isInterProcessCapable(true)
+        .create(semaphores[SEND_SEMAPHORE])
         .or_else([&](auto) { signalError("send"); });
 
     if (!isInitialized)
@@ -341,7 +343,10 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
         return;
     }
 
-    Semaphore::placementCreate(&semaphores[RECEIVE_SEMAPHORE], CreateUnnamedSharedMemorySemaphore, 0U)
+    UnnamedSemaphoreBuilder()
+        .initialValue(0U)
+        .isInterProcessCapable(true)
+        .create(semaphores[RECEIVE_SEMAPHORE])
         .or_else([&](auto) { signalError("receive"); });
 
     if (!isInitialized)
@@ -352,23 +357,14 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
     initializationGuard.store(VALID_DATA);
 }
 
-NamedPipe::NamedPipeData::~NamedPipeData() noexcept
+UnnamedSemaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
 {
-    if (hasValidState())
-    {
-        sendSemaphore().~Semaphore();
-        receiveSemaphore().~Semaphore();
-    }
+    return *semaphores[SEND_SEMAPHORE];
 }
 
-Semaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
+UnnamedSemaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
 {
-    return reinterpret_cast<Semaphore&>(semaphores[SEND_SEMAPHORE]);
-}
-
-Semaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
-{
-    return reinterpret_cast<Semaphore&>(semaphores[RECEIVE_SEMAPHORE]);
+    return *semaphores[RECEIVE_SEMAPHORE];
 }
 
 bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept

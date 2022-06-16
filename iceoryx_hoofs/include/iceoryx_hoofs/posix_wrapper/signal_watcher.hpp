@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
 #include <atomic>
 
@@ -69,7 +69,7 @@ class SignalWatcher
   private:
     friend void internalSignalHandler(int) noexcept;
     mutable std::atomic<uint64_t> m_numberOfWaiters{0U};
-    mutable Semaphore m_semaphore;
+    mutable cxx::optional<UnnamedSemaphore> m_semaphore;
 
     std::atomic_bool m_hasSignalOccurred{false};
     SignalGuard m_sigTermGuard;

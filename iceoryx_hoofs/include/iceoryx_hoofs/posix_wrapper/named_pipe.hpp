@@ -22,7 +22,8 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/platform/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
 #include <cstdint>
 
@@ -36,7 +37,10 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     // no system restrictions at all, except available memory. MAX_MESSAGE_SIZE and MAX_NUMBER_OF_MESSAGES can be
     // increased as long as there is enough memory available
     static constexpr uint64_t MAX_MESSAGE_SIZE = 4U * 1024U;
-    static constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10U;
+    static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = 10U;
+    static_assert(
+        MAX_NUMBER_OF_MESSAGES < 51,
+        "The maximum number of supported messages must be less or equal to the maximum allowed semaphore value");
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
@@ -122,16 +126,15 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     class NamedPipeData
     {
       public:
-        NamedPipeData(bool& isInitialized, IpcChannelError& error, const uint64_t maxMsgNumber) noexcept;
+        NamedPipeData(bool& isInitialized, IpcChannelError& error, const uint32_t maxMsgNumber) noexcept;
         NamedPipeData(const NamedPipeData&) = delete;
         NamedPipeData(NamedPipeData&& rhs) = delete;
-        ~NamedPipeData() noexcept;
 
         NamedPipeData& operator=(const NamedPipeData&) = delete;
         NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
 
-        Semaphore& sendSemaphore() noexcept;
-        Semaphore& receiveSemaphore() noexcept;
+        UnnamedSemaphore& sendSemaphore() noexcept;
+        UnnamedSemaphore& receiveSemaphore() noexcept;
 
         bool waitForInitialization() const noexcept;
         bool hasValidState() const noexcept;
@@ -148,8 +151,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        using semaphoreMemory_t = uint8_t[sizeof(Semaphore)];
-        alignas(Semaphore) semaphoreMemory_t semaphores[2U];
+        cxx::optional<UnnamedSemaphore> semaphores[2U];
     };
 
 

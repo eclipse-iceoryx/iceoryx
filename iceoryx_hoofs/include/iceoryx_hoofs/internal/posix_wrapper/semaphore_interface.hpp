@@ -19,12 +19,34 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 namespace iox
 {
 namespace posix
 {
+enum class SemaphoreError
+{
+    CREATION_FAILED,
+    NAME_TOO_LONG,
+    UNABLE_TO_OPEN_HANDLE,
+    INVALID_SEMAPHORE_HANDLE,
+    SEMAPHORE_OVERFLOW,
+    INTERRUPTED_BY_SIGNAL_HANDLER,
+    INVALID_NAME,
+    PERMISSION_DENIED,
+    ALREADY_EXIST,
+    FILE_DESCRIPTOR_LIMIT_REACHED,
+    NO_SEMAPHORE_WITH_THAT_NAME_EXISTS,
+    OUT_OF_MEMORY,
+    UNDEFINED
+};
+
+enum class SemaphoreWaitState
+{
+    TIMEOUT,
+    NO_TIMEOUT,
+};
+
 namespace internal
 {
 /// @brief Defines the interface of a named and unnamed semaphore.

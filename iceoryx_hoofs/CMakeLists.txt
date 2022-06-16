@@ -71,7 +71,6 @@ iox_add_library(
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/named_semaphore.cpp
         source/posix_wrapper/posix_access_rights.cpp
-        source/posix_wrapper/semaphore.cpp
         source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/allocator.cpp
