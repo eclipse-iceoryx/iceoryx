@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/scoped_static.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 
@@ -48,7 +49,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                                 RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                 m_compatibilityCheckLevel,
                                                                 m_processKillDelay});
-        waitForSignal();
+        iox::posix::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;
 }

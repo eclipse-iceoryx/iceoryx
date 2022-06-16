@@ -18,7 +18,6 @@
 #define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
 #include "iceoryx_hoofs/log/logcommon.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -35,9 +34,6 @@ namespace roudi
 class RouDiApp
 {
   public:
-    /// @brief Method passed to the OS signal handler
-    static void roudiSigHandler(int32_t signal) noexcept;
-
     /// @brief C'tor with command line parser, which has already parsed the command line parameters
     /// @param[in] cmdLineParser reference to a command line parser object
     /// @param[in] config the configuration to use
@@ -50,23 +46,16 @@ class RouDiApp
     virtual uint8_t run() noexcept = 0;
 
   protected:
-    /// @brief Tells the OS which signals shall be hooked
-    void registerSigHandler() noexcept;
-
     /// @brief waits for the next signal to RouDi daemon
-    bool waitForSignal() noexcept;
+    [[deprecated(
+        "use iox::posix::waitForTerminationRequest() from 'iceoryx_hoofs/posix_wrapper/signal_watcher.hpp'")]] bool
+    waitForSignal() noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     bool m_run{true};
     RouDiConfig_t m_config;
 
-    posix::Semaphore m_semaphore =
-        std::move(posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0u)
-                      .or_else([](posix::SemaphoreError&) {
-                          errorHandler(PoshError::ROUDI_APP__FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
-                      })
-                      .value());
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 

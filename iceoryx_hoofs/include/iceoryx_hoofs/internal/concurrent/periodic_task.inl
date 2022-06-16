@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_INL
 #define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_INL
 
+#include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
+
 namespace iox
 {
 namespace concurrent
@@ -29,6 +31,8 @@ inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
 {
+    posix::UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(false).create(m_stop).expect(
+        "Unable to create semaphore for periodic task");
 }
 
 template <typename T>
@@ -62,7 +66,7 @@ inline void PeriodicTask<T>::stop() noexcept
 {
     if (m_taskExecutor.joinable())
     {
-        cxx::Expects(!m_stop.post().has_error());
+        cxx::Expects(!m_stop->post().has_error());
         m_taskExecutor.join();
     }
 }
@@ -82,7 +86,7 @@ inline void PeriodicTask<T>::run() noexcept
         IOX_DISCARD_RESULT(m_callable());
 
         /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
-        auto waitResult = m_stop.timedWait(m_interval);
+        auto waitResult = m_stop->timedWait(m_interval);
         cxx::Expects(!waitResult.has_error());
 
         waitState = waitResult.value();
