@@ -67,7 +67,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     // run the threads
     cxx::function<void()> callable(*this, &RouDi::monitorAndDiscoveryUpdate);
     posix::ThreadBuilder().create(m_monitoringAndDiscoveryThread, callable).expect("RouDi : Failed to create thread");
-    m_monitoringAndDiscoveryThread->setThreadName("Mon+Discover");
+    m_monitoringAndDiscoveryThread->setName("Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -86,7 +86,7 @@ void RouDi::startProcessRuntimeMessagesThread() noexcept
     posix::ThreadBuilder()
         .create(m_handleRuntimeMessageThread, callable)
         .expect("RouDi::startProcessRuntimeMessagesThread : Failed to create thread");
-    m_handleRuntimeMessageThread->setThreadName("IPC-msg-process");
+    m_handleRuntimeMessageThread->setName("IPC-msg-process");
 }
 
 void RouDi::shutdown() noexcept

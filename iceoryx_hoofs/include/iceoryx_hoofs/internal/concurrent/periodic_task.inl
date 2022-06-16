@@ -59,7 +59,7 @@ inline void PeriodicTask<T>::start(const units::Duration interval) noexcept
     m_interval = interval;
     cxx::function<void()> callable(*this, &PeriodicTask::run);
     posix::ThreadBuilder().create(m_taskExecutor, callable).expect("PeriodicTask::start : Failed to create thread");
-    m_taskExecutor->setThreadName(m_taskName);
+    m_taskExecutor->setName(m_taskName);
 }
 
 template <typename T>

@@ -56,9 +56,9 @@ class Thread
     ~Thread() noexcept;
 
     // @todo set name during creation and remove method
-    void setThreadName(const ThreadName_t& name) noexcept;
+    void setName(const ThreadName_t& name) noexcept;
 
-    ThreadName_t getThreadName() noexcept;
+    ThreadName_t getName() noexcept;
 
     friend class ThreadBuilder;
     friend class cxx::optional<Thread>;
@@ -72,7 +72,7 @@ class Thread
 
     pthread_t m_threadHandle;
     callable_t m_callable;
-    bool m_isJoinable{true};
+    bool m_isThreadConstructed{false};
 };
 
 class ThreadBuilder

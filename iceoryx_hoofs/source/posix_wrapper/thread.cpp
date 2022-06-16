@@ -43,9 +43,9 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
                                                   &uninitializedThread->m_callable)
                             .successReturnValue(0)
                             .evaluate();
-    if (createResult.has_error())
+    uninitializedThread->m_isThreadConstructed = !createResult.has_error();
+    if (!uninitializedThread->m_isThreadConstructed)
     {
-        uninitializedThread->m_isJoinable = false;
         uninitializedThread.reset();
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
@@ -55,7 +55,7 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
 
 Thread::~Thread() noexcept
 {
-    if (m_isJoinable)
+    if (m_isThreadConstructed)
     {
         auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
@@ -70,40 +70,29 @@ Thread::~Thread() noexcept
                 break;
             }
         }
-        m_isJoinable = false;
     }
 }
 
-void Thread::setThreadName(const ThreadName_t& name) noexcept
+void Thread::setName(const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
         .successReturnValue(0)
         .evaluate()
-        .or_else([](auto& r) {
-            // String length limit is ensured through cxx::string
-            // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
-            LogError() << "This should never happen! " << r.getHumanReadableErrnum();
-            cxx::Ensures(false && "internal logic error");
-            /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-            /// and errors possible for open(2) can be retrieved. Handle them here?
-        });
+        .expect("This should never happen! Failed to set thread name.");
+    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// and errors possible for open(2) can be retrieved. Handle them here?
 }
 
-ThreadName_t Thread::getThreadName() noexcept
+ThreadName_t Thread::getName() noexcept
 {
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
     posixCall(pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
-        .or_else([](auto& r) {
-            // String length limit is ensured through MAX_THREAD_NAME_LENGTH
-            // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-            LogError() << "This should never happen! " << r.getHumanReadableErrnum();
-            cxx::Ensures(false && "internal logic error");
-            /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-            /// and errors possible for open(2) can be retrieved. Handle them here?
-        });
+        .expect("This should never happen! Failed to retrieve the thread name.");
+    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// and errors possible for open(2) can be retrieved. Handle them here?
 
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }

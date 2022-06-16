@@ -74,8 +74,8 @@ TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     ThreadName_t emptyString = "";
 
-    sut->setThreadName(emptyString);
-    auto getResult = sut->getThreadName();
+    sut->setName(emptyString);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(emptyString));
 }
@@ -88,8 +88,8 @@ TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
     EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
 
-    sut->setThreadName(stringEqualToThreadNameCapacitiy);
-    auto getResult = sut->getThreadName();
+    sut->setName(stringEqualToThreadNameCapacitiy);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
 }
@@ -101,8 +101,8 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
 
-    sut->setThreadName(stringShorterThanThreadNameCapacitiy);
-    auto getResult = sut->getThreadName();
+    sut->setName(stringShorterThanThreadNameCapacitiy);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
