@@ -69,18 +69,18 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
 TEST(TypesTest, OpenModeAsStringLiteral)
 {
     ::testing::Test::RecordProperty("TEST_ID", "830756de-b3c9-4285-b42a-e0c6c5a315a9");
-    EXPECT_THAT(asStringLiteral(OpenMode::EXCLUSIVE_CREATE), Eq("OpenMode::EXCLUSIVE_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::PURGE_AND_CREATE), Eq("OpenMode::PURGE_AND_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_OR_CREATE), Eq("OpenMode::OPEN_OR_CREATE"));
-    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_EXISTING), Eq("OpenMode::OPEN_EXISTING"));
-    EXPECT_THAT(asStringLiteral(INVALID_OPEN_MODE), Eq("OpenMode::UNDEFINED_VALUE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::EXCLUSIVE_CREATE), StrEq("OpenMode::EXCLUSIVE_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::PURGE_AND_CREATE), StrEq("OpenMode::PURGE_AND_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_OR_CREATE), StrEq("OpenMode::OPEN_OR_CREATE"));
+    EXPECT_THAT(asStringLiteral(OpenMode::OPEN_EXISTING), StrEq("OpenMode::OPEN_EXISTING"));
+    EXPECT_THAT(asStringLiteral(INVALID_OPEN_MODE), StrEq("OpenMode::UNDEFINED_VALUE"));
 }
 
 TEST(TypesTest, AccessModeAsStringLiteral)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5a09ee7-df2c-4a28-929c-7de743f1e423");
-    EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), Eq("AccessMode::READ_ONLY"));
-    EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), Eq("AccessMode::READ_WRITE"));
-    EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), Eq("AccessMode::UNDEFINED_VALUE"));
+    EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), StrEq("AccessMode::READ_ONLY"));
+    EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), StrEq("AccessMode::READ_WRITE"));
+    EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), StrEq("AccessMode::UNDEFINED_VALUE"));
 }
 } // namespace
