@@ -81,58 +81,61 @@
     #include "iceoryx_hoofs/design_pattern/builder.hpp"
     ```
 
-3. Replace `Semaphore` with `NamedSemaphore` and `UnnamedSemaphore`
+3. `UnnamedSemaphore` replaces `Semaphore` with `CreateUnnamed*` option
 
     ```cpp
     // before
-        #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+    #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
-        // named semaphore
-        auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore,
-                                                   "mySemaphoreName",
-                                                   S_IRUSR | S_IWUSR,
-                                                   0);
-
-        // unnamed semaphore
-        auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
 
     // after
-        // named semaphore
-        #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+    #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
-        iox::cxx::optional<iox::posix::NamedSemaphore> semaphore;
-        auto result = iox::posix::NamedSemaphoreBuilder()
-                        .name("mySemaphoreName")
-                        .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
-                        .permissions(iox::cxx::perms::owner_all)
-                        .initialValue(0U)
-                        .create(semaphore);
-
-        // unnamed semaphore
-        #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
-
-        iox::cxx::optional<iox::posix::UnnamedSemaphore> semaphore;
-        auto result = iox::posix::UnnamedSemaphoreBuilder()
-                        .initialValue(0U)
-                        .isInterProcessCapable(true)
-                        .create(semaphore);
+    iox::cxx::optional<iox::posix::UnnamedSemaphore> semaphore;
+    auto result = iox::posix::UnnamedSemaphoreBuilder()
+                    .initialValue(0U)
+                    .isInterProcessCapable(true)
+                    .create(semaphore);
     ```
 
-4. `RoudiApp::waitForSignal` is deprecated
+4. `NamedSemaphore` replaces `Semaphore` with `CreateNamedSemaphore` option
+
     ```cpp
     // before
-        // in my custom roudi app implementation
-        uint8_t MyCustomRoudiApp::run() noexcept {
-            // ...
+    #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
-            waitForSignal();
-        }
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore,
+                                               "mySemaphoreName",
+                                               S_IRUSR | S_IWUSR,
+                                                   0);
+    // after
+    #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+
+    iox::cxx::optional<iox::posix::NamedSemaphore> semaphore;
+    auto result = iox::posix::NamedSemaphoreBuilder()
+                    .name("mySemaphoreName")
+                    .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
+                    .permissions(iox::cxx::perms::owner_all)
+                    .initialValue(0U)
+                    .create(semaphore);
+    ```
+
+5. `RoudiApp::waitForSignal` is deprecated
+    ```cpp
+    // before
+    //// in my custom roudi app implementation
+    uint8_t MyCustomRoudiApp::run() noexcept {
+        // ...
+
+        waitForSignal();
+    }
 
     // after
-        // in my custom roudi app implementation
-        uint8_t MyCustomRoudiApp::run() noexcept {
-            // ...
+    //// in my custom roudi app implementation
+    uint8_t MyCustomRoudiApp::run() noexcept {
+        // ...
 
-            iox::posix::waitForTerminationRequest();
-        }
+        iox::posix::waitForTerminationRequest();
+    }
     ```

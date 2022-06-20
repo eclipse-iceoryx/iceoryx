@@ -53,7 +53,7 @@ void ConditionListener::destroy() noexcept
 
 bool ConditionListener::wasNotified() const noexcept
 {
-    return getMembers()->wasNotified.load(std::memory_order_relaxed);
+    return getMembers()->m_wasNotified.load(std::memory_order_relaxed);
 }
 
 ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
@@ -110,7 +110,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
 void ConditionListener::reset(const uint64_t index) noexcept
 {
     getMembers()->m_activeNotifications[index].store(false, std::memory_order_relaxed);
-    getMembers()->wasNotified.store(false, std::memory_order_relaxed);
+    getMembers()->m_wasNotified.store(false, std::memory_order_relaxed);
 }
 
 const ConditionVariableData* ConditionListener::getMembers() const noexcept

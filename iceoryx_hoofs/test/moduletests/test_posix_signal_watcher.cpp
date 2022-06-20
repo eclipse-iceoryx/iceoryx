@@ -99,7 +99,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
         });
     }
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    iox::cxx::internal::adaptive_wait().wait_loop([&] { return (isThreadStarted != numberOfWaiters); });
 
     std::this_thread::sleep_for(test.waitingTime);
 

@@ -37,7 +37,7 @@ ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, cons
 void ConditionNotifier::notify() noexcept
 {
     getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
-    getMembers()->wasNotified.store(true, std::memory_order_relaxed);
+    getMembers()->m_wasNotified.store(true, std::memory_order_relaxed);
     getMembers()->semaphore->post().or_else(
         [](auto) { errorHandler(PoshError::POPO__CONDITION_NOTIFIER_SEMAPHORE_CORRUPT_IN_NOTIFY, ErrorLevel::FATAL); });
 }
