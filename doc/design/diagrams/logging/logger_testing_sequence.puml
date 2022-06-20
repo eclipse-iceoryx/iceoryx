@@ -2,7 +2,7 @@
 
 participant User
 participant TestingLogger << static >>
-participant "iox::log" as logFreeFunction << free function >>
+participant Logger << static >>
 participant "logger : TestingLogger" as testingLoggerInstance
 participant LogPrinter
 participant gTest
@@ -11,9 +11,9 @@ participant TestEventListener
 
 User -> TestingLogger ++ : init
 TestingLogger -> testingLoggerInstance **
-TestingLogger -> logFreeFunction ++: setActiveLogger
+TestingLogger -> Logger ++: setActiveLogger
 return
-TestingLogger -> logFreeFunction ++: initLogger
+TestingLogger -> Logger ++: init
 return
 TestingLogger -> UnitTest ++ : listeners
 return
@@ -24,14 +24,14 @@ return
 User -> gTest ++ : RUN_ALL_TESTS
 
 gTest -> LogPrinter ++ : OnTestStart
-LogPrinter -> logFreeFunction ++: getLogger
+LogPrinter -> Logger ++: get
 return
 LogPrinter -> testingLoggerInstance ++ : clearLogBuffer
 return
 return
 
 gTest -> LogPrinter ++ : OnTestPartResult
-LogPrinter -> logFreeFunction ++: getLogger
+LogPrinter -> Logger ++: get
 return
 LogPrinter -> testingLoggerInstance ++ : printLogBuffer
 return

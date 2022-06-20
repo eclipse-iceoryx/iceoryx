@@ -2,14 +2,12 @@
 
 participant User
 participant LogStream
-participant "iox::log" as logFreeFunction << free function >>
 participant Logger << static >>
-participant "logger : DefaultLogger" as DefaultLogger
+participant "logger : Logger" as loggerInstance
 
 User -> LogStream ** : IOX_LOG(...)
 activate LogStream
-LogStream -> logFreeFunction ++ : getLogger
-logFreeFunction -> Logger ++ : get <<private>>
+LogStream -> Logger ++ : get
 Logger -> Logger ++ : activeLogger()
 note right
   activeLogger is only called
@@ -19,24 +17,23 @@ note right
 end note
 
 Logger -> Logger : std::lock
-Logger -> DefaultLogger **
+Logger -> loggerInstance **
 
 return
 return
-return
 
-LogStream -> DefaultLogger ++ : setupNewLogMessage
+LogStream -> loggerInstance ++ : setupNewLogMessage
 return
 
 return
 
 User -> LogStream ++ : << Hello World
-LogStream -> DefaultLogger ++ : logString
+LogStream -> loggerInstance ++ : logString
 return
 return
 
 User -> LogStream ++ : dTor via ; on temporary
-LogStream -> DefaultLogger ++ : flush
+LogStream -> loggerInstance ++ : flush
 return
 return
 destroy LogStream

@@ -1,16 +1,15 @@
 @startuml
 
 participant User
-participant "iox::log" as logFreeFunction << free function >>
-participant Logger << static functions >>
-participant "logger : DefaultLogger" as defaultLoggerInstance
+participant Logger << static >>
+participant "logger : Logger" as loggerInstance
 
-User -> logFreeFunction ++ : initLogger
+User -> Logger ++ : init
 
-logFreeFunction -> Logger ++ : getLogger <<private>>
+Logger -> Logger ++ : get
 Logger -> Logger ++ : activeLogger
-Logger -> defaultLoggerInstance **
-note over defaultLoggerInstance
+Logger -> loggerInstance **
+note over loggerInstance
   the default logger
   is configured via
   the alias in
@@ -19,8 +18,8 @@ end note
 return
 return
 
-logFreeFunction -> defaultLoggerInstance ++ : Logger::initLogger <<private>>
-defaultLoggerInstance -> defaultLoggerInstance ++ : initiLoggerHook
+Logger -> loggerInstance ++ : initLoggerInternal
+loggerInstance -> loggerInstance ++ : initiLogger
 return
 return
 

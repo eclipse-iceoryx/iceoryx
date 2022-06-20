@@ -6,8 +6,8 @@ Logging is a crucial part of a framework since it informs the developer and
 user of the framework about anomalies and helps with debugging by providing
 contextual information.
 
-Additionally, when integrated into a separate framework, the logging should be
-forwarded in order to have a single logging infrastructure.
+Additionally, when integrated into a separate framework, the log messages should
+be forwarded in order to have a single logging infrastructure.
 
 The logging should also be performant and not allocate memory. Ideally it should
 be possible to disable it at compile time and let the compiler optimize it away.
@@ -84,6 +84,9 @@ in combination with the error handler.
 
 ![logging class diagram](../website/images/logging_classes.svg)
 
+The logger can be customized at compile time and at runtime. The former is done
+by the `Impl` template parameter and the latter by deriving from the logger.
+
 #### Logging with LogStream
 
 ![logging with logstream](../website/images/logging_with_logstream.svg)
@@ -115,10 +118,10 @@ This is the log macro with lazy evaluation
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
 ```
 
-With `minimalLogLevel` and `ignoreActiveLogLevel` being static constexpr functions
+With `minimalLogLevel` and `ignoreLogLevel` being static constexpr functions
 the compiler will optimize this either to `if (false) iox::log::LogStream(...)`
 and finally completely away or
-`if ((level) <= iox::log::Logger::activeLogLevel()) iox::log::LogStream(...)`.
+`if ((level) <= iox::log::Logger::getLogLevel()) iox::log::LogStream(...)`.
 The minimal log level check is intended to fully optimize away a log statement
 and the ignore active log level check to always forward the log message to the
 logger, independent of the active log level.
@@ -137,15 +140,15 @@ Although the macro contains an incomplete if-statement, the `LogStream` object a
 the end makes it safe to use since the compiler will complain if something else
 than a streaming operator or semicolon is used.
 
-#### Behavior before calling initLogger
+#### Behavior before calling Logger::init
 
-In order to have log messages before `initLogger` is called, the default logger
+In order to have log messages before `Logger::init` is called, the default logger
 is used with `LogLevel::INFO`. It is up to the implementation of the default
 logger what to do with these messages. For iceoryx the default logger is the
 `ConsoleLogger` (this can be changed via the platform abstraction) which will
 print the log messages to the console.
 
-Although it is possible to use the logger without calling `initLogger`, this is
+Although it is possible to use the logger without calling `Logger::init`, this is
 not recommended. This behaviour is only intended to catch important log messages
 from pre-main logger calls.
 
@@ -160,7 +163,7 @@ must be activated by calling the static `Logger::activeLogger` function and
 passing the new logger as argument to the function. The logger must have a static
 lifetime and should therefore be placed in the data segment.
 
-The call to `iox::log::initLogger` will finalize the option to replace the logger
+The call to `iox::log::Logger::init` will finalize the option to replace the logger
 at runtime. Further efforts to replace the logger will call the error handler
 with a `MODERATE` error level and a log message to the old and new logger
 
@@ -176,28 +179,46 @@ header.
 ```cpp
 using LogLevel = pbb::LogLevel;
 using pbb::asStringLiteral;
+using pbb::logLevelFromEnvOr;
 
-using Logger = pbb::Logger;
-using DefaultLogger = pbb::ConsoleLogger;
-using TestingLoggerBase = pbb::ConsoleLogger;
+using Logger = pbb::Logger<pbb::ConsoleLogger>;
+using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
 ```
 
 With `LogLevel` enum being the log level enum with the values defined in the
 [class diagram](#class-diagram). The `Logger` must be a class specifying the
-interface from the class diagram and `DefaultLogger` and `TestingLoggerBase`
-are the actual implementations which are used by default in the library and for
-the tests.
+interface from the class diagram. It is recommended to provide a custom
+implementation via the template parameter instead of implementing everything
+from scratch. The `pbb::ConsoleLogger` is an example of such an implementation
+and can also be a base for customization.
 
-It is recommended to derive from `pbb::Logger` to create a custom
-logger but it would also be possible to recreate it from scratch as long as the
-interface is satisfied.
+The `Impl` part of the logger must fulfil the following interface
 
-The implementation of a custom default logger is similar to the logger which
-can be replaced at runtime, except the static `init` function. Since the default
-logger must be initialized by the `iox::log::initLogger` call, it is not
-recommended to provide a public init function. If some initialization is needed,
-the `initLoggerHook` virtual function can be overloaded. This is called after
-the base logger is initialized.
+```cpp
+public:
+  static LogLevel getLogLevel();
+  void setLogLevel(LogLevel logLevel);
+protected:
+  virtual void initLogger(LogLevel logLevel);
+  virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel);
+  virtual void flush();
+  std::tuple<const char*, uint64_t> getLogBuffer() const;
+  void assumeFlushed();
+  void LogString(const char* message);
+  void logI64Dec(const int64_t value);
+  void logU64Dec(const uint64_t value);
+  void logU64Hex(const uint64_t value);
+  void logU64Oct(const uint64_t value);
+  void logBool(const bool value);
+  void logFloat(const float value);
+  void logDouble(const double value);
+  void logLongDouble(const long double value);
+```
+
+Tests should be silent and not flood the console with expected error messages.
+`TestingLoggerBase` will be used as base class for the testing logger to suppress
+the output for passed tests. This class must also be derived from `Logger` in
+order to replace the logger at runtime.
 
 ![logger compile time replacement](../website/images/logger_compile_time_replacement.svg)
 
@@ -220,16 +241,16 @@ This is the sequence diagram of the setup of the testing logger:
 #### Environment variables
 
 The behavior of the logger can be altered via environment variables and the
-`initLogger` function. Calling this function without arguments, it will check
+`Logger::init` function. Calling this function without arguments, it will check
 whether the environment variable `IOX_LOG_LEVEL` is set and use that value or
 `LogLevel::INFO` if the environment variable is not set. To have a different
 fallback log level, the `logLevelFromEnvOr` function can be used, e.g.
 
 ```cpp
-iox::log::initLogger(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
+iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
 ```
 
-If the logger shall not be altered via environment variables, `initLogger` must
+If the logger shall not be altered via environment variables, `Logger::init` must
 be called with the fitting log level.
 
 For the `TestingLogger` there is an additional environment variable called
@@ -256,7 +277,7 @@ re-implemented via the platform abstraction.
 
 int main()
 {
-    iox::log::initLogger(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
+    iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
 
     IOX_LOG(DEBUG) << "Hello World";
 
@@ -308,7 +329,7 @@ class MyLogger : public iox::log::Logger
     {
         static MyLogger myLogger;
         iox::log::setActiveLogger(&myLogger);
-        iox::log::initLogger(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
+        iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
     }
 
   private:
@@ -361,7 +382,7 @@ int main()
 
 ## Open issues
 
-- do we need to change the log level after `initLogger`
+- do we need to change the log level after `Logger::init`
 - do we want a `IOX_LOG_IF(cond, level)` macro
 - shall the TestingLogger register signals to catch SIGTERM, etc. and print the
   log messages when the signal is raised? It might be necessary to wait for the

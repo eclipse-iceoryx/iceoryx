@@ -12,15 +12,25 @@ enum LogLevel {
     TRACE,
 }
 
-class Logger {
+class Logger <Impl> {
   + {static} void init(constLogLevel logLevel = LogLevelFromEnvOr(LogLevel::Info))
+  + {static} Logger& get()
   + {static} LogLevel minimalLogLevel()
   + {static} bool ignoreLogLevel()
+  + {static} Logger* setActiveLogger(Logger* newLogger)
+  - void initLoggerInternal(LogLevel logLevel)
+  - {static} Logger* activeLogger<T>(Logger* newLogger = nullptr)
+}
+
+class ConsoleLogger {
   + {static} LogLevel getLogLevel()
   + void setLogLevel(LogLevel logLevel)
-  # {abstract} void initLoggerHook(LogLevel logLevel)
+  # ConsoleLogger()
+  # {abstract} void initLogger(LogLevel logLevel)
   # {abstract} void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
   # {abstract} void flush()
+  # std::tuple<const char*, uint64_t> getLogBuffer() const
+  # void assumeFlushed()
   # void LogString(const char* message)
   # void logI64Dec(const int64_t value)
   # void logU64Dec(const uint64_t value)
@@ -30,15 +40,6 @@ class Logger {
   # void logFloat(const float value)
   # void logDouble(const double value)
   # void logLongDouble(const long double value)
-  - void initLogger(LogLevel logLevel)
-  - {static} Logger& get<T>()
-  - {static} Logger* activeLogger<T>(Logger* newLogger = nullptr)
-}
-
-class ConsoleLogger {
-  # ConsoleLogger()
-  # void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
-  # void flush()
 }
 
 }
@@ -76,8 +77,8 @@ class LogStream {
 
 }
 
-ConsoleLogger --|> Logger
 TestingLogger --|> ConsoleLogger
+ConsoleLogger <|-- Logger : via Impl
 Logger <.. LogStream : <<friend>>
 LogStream .> LogHex : <<friend>>
 LogStream .> LogOct : <<friend>>

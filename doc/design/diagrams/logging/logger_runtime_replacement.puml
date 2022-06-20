@@ -2,15 +2,14 @@
 
 participant User
 participant MyLogger << static >>
-participant "iox::log" as logFreeFunction << free function >>
-participant Logger
+participant Logger << static >>
+participant "logger : Logger" as loggerInstance
 participant "myLogger : MyLogger" as myLoggerInstance
-participant "logger : DefaultLogger" as DefaultLogger
 
 User -> MyLogger ++ : init
 MyLogger -> myLoggerInstance **
-MyLogger -> logFreeFunction ++ : setActiveLogger(&myLogger)
-logFreeFunction -> Logger ++ : activeLogger(&myLogger)
+MyLogger -> Logger ++ : setActiveLogger(&myLogger)
+Logger -> Logger ++ : activeLogger(&myLogger)
 note left Logger
   the static pointer
   to the active logger
@@ -18,8 +17,8 @@ note left Logger
   myLogger
 end note
 
-Logger -> DefaultLogger **
-note over DefaultLogger
+Logger -> loggerInstance **
+note over loggerInstance
   calling activeLogger
   without parameter
   will create this anyway
@@ -34,13 +33,13 @@ end note
 return
 return
 
-MyLogger -> logFreeFunction ++ : initLogger
-logFreeFunction -> Logger ++ : getLogger <<private>>
+MyLogger -> Logger ++ : init
+Logger -> Logger ++ : get
 Logger -> Logger ++ : activeLogger()
 return
 return
-logFreeFunction -> myLoggerInstance ++ : Logger::initLogger <<private>>
-myLoggerInstance -> myLoggerInstance ++ : initiLoggerHook
+Logger -> loggerInstance ++ : initLoggerInternal
+loggerInstance -> myLoggerInstance ++ : initiLogger
 return
 return
 return
