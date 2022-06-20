@@ -37,7 +37,7 @@ This ensures data transmissions with constant latency, regardless of the size of
 </p>
 
 You're right, middleware is a cluttered term and can somehow be all or nothing. To get a better impression what
-this means for iceoryx, please have a loot at our [goals and non-goals](doc/goals-non-goals.md).
+this means for iceoryx, please have a look at our [goals and non-goals](doc/goals-non-goals.md).
 
 Don't get too frightened of the API when strolling through the examples. Think of the untyped C++ and the C API as a
 "plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
