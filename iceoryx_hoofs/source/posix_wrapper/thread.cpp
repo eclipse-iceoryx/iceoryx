@@ -122,8 +122,7 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 
 void* Thread::startRoutine(void* callable)
 {
-    callable_t f = *static_cast<callable_t*>(callable);
-    f();
+    (*static_cast<callable_t*>(callable))();
     return nullptr;
 }
 } // namespace posix
