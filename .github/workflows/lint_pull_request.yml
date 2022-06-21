@@ -29,3 +29,14 @@ jobs:
           for diff_file in ${{ steps.changed_files.outputs.added }}; do
             ./tools/scripts/clang_tidy_check.sh ci_pull_request ${diff_file}
           done
+
+  verify-links-in-markdown-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.4.1
+        with:
+          fail: true
+          args: --verbose --no-progress './**/*.md'

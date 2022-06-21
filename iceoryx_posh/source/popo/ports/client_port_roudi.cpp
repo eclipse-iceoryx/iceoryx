@@ -136,6 +136,7 @@ ClientPortRouDi::handleCaProMessageForStateNotConnected(const capro::CaproMessag
     case capro::CaproMessageType::OFFER:
         return cxx::nullopt;
     default:
+        // handle capro protocol violation outside of switch statement
         break;
     }
 
@@ -161,6 +162,7 @@ ClientPortRouDi::handleCaProMessageForStateConnectRequested(const capro::CaproMe
         getMembers()->m_connectionState.store(ConnectionState::WAIT_FOR_OFFER, std::memory_order_relaxed);
         return cxx::nullopt;
     default:
+        // handle capro protocol violation outside of switch statement
         break;
     }
 
@@ -188,6 +190,7 @@ ClientPortRouDi::handleCaProMessageForStateWaitForOffer(const capro::CaproMessag
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
         return cxx::nullopt;
     default:
+        // handle capro protocol violation outside of switch statement
         break;
     }
 
@@ -216,6 +219,7 @@ ClientPortRouDi::handleCaProMessageForStateConnected(const capro::CaproMessage& 
         return cxx::make_optional<capro::CaproMessage>(caproMessage);
     }
     default:
+        // handle capro protocol violation outside of switch statement
         break;
     }
 
@@ -234,6 +238,7 @@ ClientPortRouDi::handleCaProMessageForStateDisconnectRequested(const capro::Capr
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
         return cxx::nullopt;
     default:
+        // handle capro protocol violation outside of switch statement
         break;
     }
 
