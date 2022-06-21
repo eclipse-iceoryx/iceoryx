@@ -51,6 +51,7 @@ iox_add_library(
         source/cxx/adaptive_wait.cpp
         source/cxx/deadline_timer.cpp
         source/cxx/filesystem.cpp
+        source/cxx/functional_interface.cpp
         source/cxx/helplets.cpp
         source/cxx/requires.cpp
         source/cxx/unique_id.cpp

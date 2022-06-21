@@ -56,6 +56,8 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 {
 };
 
+void print_expect_message(const char* message) noexcept;
+
 template <typename Derived>
 struct Expect
 {
