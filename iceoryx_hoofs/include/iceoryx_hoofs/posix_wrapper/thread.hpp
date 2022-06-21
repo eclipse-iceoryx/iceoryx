@@ -58,6 +58,8 @@ class Thread
     // @todo set name during creation and remove method
     void setName(const ThreadName_t& name) noexcept;
 
+    /// @brief Returns the name of the thread
+    /// @return An iox::cxx::string containing the name of the thread
     ThreadName_t getName() noexcept;
 
     friend class ThreadBuilder;
@@ -78,8 +80,12 @@ class Thread
 class ThreadBuilder
 {
   public:
+    /// @brief Creates a thread
+    /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored
+    /// @param[in] callable is the callable that is invoked by the thread
+    /// @return an error describing the failure or success
     cxx::expected<ThreadError> create(cxx::optional<Thread>& uninitializedThread,
-                                      const cxx::function<void()>& callable) noexcept;
+                                      const Thread::callable_t& callable) noexcept;
 };
 
 } // namespace posix

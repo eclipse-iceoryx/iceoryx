@@ -24,7 +24,7 @@ namespace iox
 namespace posix
 {
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
-                                                 const cxx::function<void()>& callable) noexcept
+                                                 const Thread::callable_t& callable) noexcept
 {
     if (!callable)
     {
