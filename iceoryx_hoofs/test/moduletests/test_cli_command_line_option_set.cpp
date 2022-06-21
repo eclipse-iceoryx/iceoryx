@@ -180,7 +180,7 @@ TEST_F(CommandLineOptionSet_test, AddingOptionalWithEmptyShortAndLongOptionLeads
 
 TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithEmptyShortAndLongOptionLeadsToFailure)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
+    ::testing::Test::RecordProperty("TEST_ID", "bf33281b-de11-4482-8bc4-1e443c5b3bc1");
     CommandLineOptionSet optionSet("", errorCallback);
     optionSet.addRequired(NO_SHORT_OPTION, "", "", "");
 
