@@ -53,7 +53,8 @@ class GenericRAIIWithVariableCapacity
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    GenericRAIIWithVariableCapacity(const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept;
+    GenericRAIIWithVariableCapacity(const function_ref<void()>& initFunction,
+                                    const function<void()>& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~GenericRAIIWithVariableCapacity() noexcept;

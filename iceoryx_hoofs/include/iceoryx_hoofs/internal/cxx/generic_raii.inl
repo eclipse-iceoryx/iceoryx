@@ -25,14 +25,15 @@ namespace iox
 namespace cxx
 {
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(const cxx::function<void(), Capacity>& cleanupFunction) noexcept
+inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
+    const cxx::function<void(), Capacity>& cleanupFunction) noexcept
     : GenericRAIIWithVariableCapacity(function_ref<void()>(), cleanupFunction)
 {
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(const function_ref<void()>& initFunction,
-                                          const function<void()>& cleanupFunction) noexcept
+inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
+    const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
     if (initFunction)
@@ -48,13 +49,15 @@ inline GenericRAIIWithVariableCapacity<Capacity>::~GenericRAIIWithVariableCapaci
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(GenericRAIIWithVariableCapacity&& rhs) noexcept
+inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
+    GenericRAIIWithVariableCapacity&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>& GenericRAIIWithVariableCapacity<Capacity>::operator=(GenericRAIIWithVariableCapacity<Capacity>&& rhs) noexcept
+inline GenericRAIIWithVariableCapacity<Capacity>&
+GenericRAIIWithVariableCapacity<Capacity>::operator=(GenericRAIIWithVariableCapacity<Capacity>&& rhs) noexcept
 {
     if (this != &rhs)
     {

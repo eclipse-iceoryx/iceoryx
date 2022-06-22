@@ -19,9 +19,9 @@
 
 #include <thread>
 
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
 #include "iceoryx_hoofs/internal/concurrent/trigger_queue.hpp"
-#include "iceoryx_hoofs/cxx/function.hpp"
 
 namespace iox
 {
