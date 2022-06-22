@@ -26,7 +26,7 @@ ICEORYX_PATH=$(git rev-parse --show-toplevel)
 COLOR_RESET='\033[0m'
 COLOR_GREEN='\033[1;32m'
 COLOR_CYAN='\033[1;34m'
-COLOR_WHITE='\033[1;37m'
+FONT_BOLD='\033[1m'
 COLOR_RED='\033[1;31m'
 
 install_cmake() {
@@ -69,21 +69,21 @@ start_docker_session() {
 
 help() {
     echo
-    echo -e "${COLOR_WHITE}iceoryx development environment help${COLOR_RESET}"
+    echo -e "${FONT_BOLD}iceoryx development environment help${COLOR_RESET}"
     echo
     echo -e "  $0 ${COLOR_CYAN}[ACTION] ${COLOR_RESET}(optional)${COLOR_CYAN}[OS_VERSION]"
     echo
     echo -e "${COLOR_CYAN}ACTION:${COLOR_RESET}"
-    echo -e "  ${COLOR_WHITE}start${COLOR_RESET}          - start iceoryx development environment"
-    echo -e "  ${COLOR_WHITE}stop${COLOR_RESET}           - stops the iceoryx development environment"
-    echo -e "  ${COLOR_WHITE}stop_all${COLOR_RESET}       - stop all iceoryx development environments"
-    echo -e "  ${COLOR_WHITE}enter${COLOR_RESET}          - enters the iceoryx development environment, if it is"
+    echo -e "  ${FONT_BOLD}start${COLOR_RESET}          - start iceoryx development environment"
+    echo -e "  ${FONT_BOLD}stop${COLOR_RESET}           - stops the iceoryx development environment"
+    echo -e "  ${FONT_BOLD}stop_all${COLOR_RESET}       - stop all iceoryx development environments"
+    echo -e "  ${FONT_BOLD}enter${COLOR_RESET}          - enters the iceoryx development environment, if it is"
     echo -e "                   not running it will be started first"
-    echo -e "  ${COLOR_WHITE}drop${COLOR_RESET}           - remove the iceoryx environment docker container with the"
+    echo -e "  ${FONT_BOLD}drop${COLOR_RESET}           - remove the iceoryx environment docker container with the"
     echo -e "                   specified OS_VERSION"
-    echo -e "  ${COLOR_WHITE}drop_all${COLOR_RESET}       - remove all iceoryx environment docker containers"
-    echo -e "  ${COLOR_WHITE}list${COLOR_RESET}           - list all locally iceoryx environment docker containers"
-    echo -e "  ${COLOR_WHITE}list_running${COLOR_RESET}   - list all running iceoryx environment docker containers"
+    echo -e "  ${FONT_BOLD}drop_all${COLOR_RESET}       - remove all iceoryx environment docker containers"
+    echo -e "  ${FONT_BOLD}list${COLOR_RESET}           - list all locally iceoryx environment docker containers"
+    echo -e "  ${FONT_BOLD}list_running${COLOR_RESET}   - list all running iceoryx environment docker containers"
     echo
     echo -e "${COLOR_CYAN}OS_VERSION:${COLOR_RESET}"
     echo "  A string which will be forwarded to \"-t\" in the docker command."
@@ -101,19 +101,19 @@ help() {
 }
 
 create_docker() {
-    echo -e "  ${COLOR_CYAN}create iceoryx development environment docker container${COLOR_RESET} [${COLOR_WHITE}$CONTAINER_NAME${COLOR_RESET}]"
+    echo -e "  ${COLOR_CYAN}create iceoryx development environment docker container${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
     docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
                --hostname ${OS_VERSION} \
                -dt --memory $CONTAINER_MEMORY_SIZE \
                --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
-    echo -e "  ${COLOR_CYAN}setting up iceoryx development environment${COLOR_RESET} [${COLOR_WHITE}$CONTAINER_NAME${COLOR_RESET}]"
+    echo -e "  ${COLOR_CYAN}setting up iceoryx development environment${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
 
     docker exec -it $CONTAINER_NAME /iceoryx/$(git rev-parse --show-prefix)/$0 setup $OS_VERSION
 }
 
 startup_docker() {
-    echo -en "         start iceoryx development environment docker container [${COLOR_WHITE}$CONTAINER_NAME${COLOR_RESET}]"
+    echo -en "         start iceoryx development environment docker container [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
     docker start $CONTAINER_NAME > /dev/null
     echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
 }
@@ -141,20 +141,20 @@ start_docker() {
     echo -e "  ${COLOR_CYAN}iceoryx development environment setup and started${COLOR_RESET}"
     echo -e "  #################################################"
     echo
-    echo -e "    container name..........: ${COLOR_WHITE}${CONTAINER_NAME}${COLOR_RESET}"
-    echo -e "    OS-Version..............: ${COLOR_WHITE}${OS_VERSION}${COLOR_RESET}"
-    echo -e "    memory..................: ${COLOR_WHITE}${CONTAINER_MEMORY_SIZE}${COLOR_RESET}"
-    echo -e "    shared memory...........: ${COLOR_WHITE}${CONTAINER_SHM_MEMORY_SIZE}${COLOR_RESET}"
-    echo -e "    iceoryx-path............: ${COLOR_WHITE}${ICEORYX_PATH}${COLOR_RESET}"
+    echo -e "    container name..........: ${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}"
+    echo -e "    OS-Version..............: ${FONT_BOLD}${OS_VERSION}${COLOR_RESET}"
+    echo -e "    memory..................: ${FONT_BOLD}${CONTAINER_MEMORY_SIZE}${COLOR_RESET}"
+    echo -e "    shared memory...........: ${FONT_BOLD}${CONTAINER_SHM_MEMORY_SIZE}${COLOR_RESET}"
+    echo -e "    iceoryx-path............: ${FONT_BOLD}${ICEORYX_PATH}${COLOR_RESET}"
     echo
-    echo -e "  A custom cmake version was installed in ${COLOR_WHITE}${CMAKE_VERSION}/bin/cmake${COLOR_RESET}."
+    echo -e "  A custom cmake version was installed in ${FONT_BOLD}${CMAKE_VERSION}/bin/cmake${COLOR_RESET}."
     echo "  This can be used when the cmake version in the image is out-of-date."
     echo
 }
 
 stop_docker() {
     if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME) == "true" ]]; then
-        echo -en "         stopping iceoryx development environment docker [${COLOR_WHITE}${CONTAINER_NAME}${COLOR_RESET}] container"
+        echo -en "         stopping iceoryx development environment docker [${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}] container"
         docker container stop $CONTAINER_NAME > /dev/null
         echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
     fi
@@ -170,7 +170,7 @@ stop_all_docker() {
 
 drop_docker() {
     stop_docker
-    echo -en "         removing iceoryx development environment docker [${COLOR_WHITE}${CONTAINER_NAME}${COLOR_RESET}] container"
+    echo -en "         removing iceoryx development environment docker [${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}] container"
     docker rm $CONTAINER_NAME > /dev/null
     echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
 }
