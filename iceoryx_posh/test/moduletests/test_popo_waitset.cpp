@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,24 +141,24 @@ class WaitSet_test : public Test
 
         iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied() const noexcept
         {
-            return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
-                                    : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::function<bool()>()
+                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
-                                    : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::function<bool()>()
+                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::ConstMethodCallback<bool>()
-                                    : iox::cxx::ConstMethodCallback<bool>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::function<bool()>()
+                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
         }
 
         bool hasTriggered() const

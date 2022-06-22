@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
@@ -76,8 +76,8 @@ class Trigger
     template <typename T, typename UserType>
     Trigger(StateBasedTrigger_t,
             T* const stateOrigin,
-            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const cxx::function<bool()>& hasTriggeredCallback,
+            const cxx::function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
@@ -98,7 +98,7 @@ class Trigger
     template <typename T, typename UserType>
     Trigger(EventBasedTrigger_t,
             T* const notificationOrigin,
-            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const cxx::function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
@@ -142,11 +142,6 @@ class Trigger
                           const uint64_t originTriggerType,
                           const uint64_t originTriggerTypeHash) const noexcept;
 
-    /// @brief sets a new origin of the trigger
-    /// @param[in] newOrigin reference to the new origin
-    template <typename T>
-    void updateOrigin(T& newOrigin) noexcept;
-
     /// @brief returns the NotificationInfo
     const NotificationInfo& getNotificationInfo() const noexcept;
 
@@ -156,8 +151,8 @@ class Trigger
   private:
     template <typename T, typename ContextDataType>
     Trigger(T* const notificationOrigin,
-            const cxx::ConstMethodCallback<bool>& hasTriggeredCallback,
-            const cxx::MethodCallback<void, uint64_t>& resetCallback,
+            const cxx::function<bool()>& hasTriggeredCallback,
+            const cxx::function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, ContextDataType>& callback,
             const uint64_t uniqueId,
@@ -168,8 +163,8 @@ class Trigger
   private:
     NotificationInfo m_notificationInfo;
 
-    cxx::ConstMethodCallback<bool> m_hasTriggeredCallback;
-    cxx::MethodCallback<void, uint64_t> m_resetCallback;
+    cxx::function<bool()> m_hasTriggeredCallback;
+    cxx::function<void(uint64_t)> m_resetCallback;
     uint64_t m_uniqueId = INVALID_TRIGGER_ID;
 
     TriggerType m_triggerType = TriggerType::STATE_BASED;

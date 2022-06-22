@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 #define IOX_POSH_POPO_TRIGGER_HANDLE_HPP
 
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 
@@ -46,7 +46,7 @@ class TriggerHandle
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
     TriggerHandle(ConditionVariableData& conditionVariableData,
-                  const cxx::MethodCallback<void, uint64_t> resetCallback,
+                  const cxx::function<void(uint64_t)> resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
     TriggerHandle& operator=(const TriggerHandle&) = delete;
@@ -86,7 +86,7 @@ class TriggerHandle
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
-    cxx::MethodCallback<void, uint64_t> m_resetCallback;
+    cxx::function<void(uint64_t)> m_resetCallback;
     uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
     mutable std::recursive_mutex m_mutex;
 };

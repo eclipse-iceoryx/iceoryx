@@ -277,7 +277,7 @@ TYPED_TEST(BaseClient_test, GetCallbackForIsStateConditionSatisfiedReturnsCallba
 
     constexpr bool HAS_RESPONSES{true};
     EXPECT_CALL(this->sut->port(), hasNewResponses).WillOnce(Return(HAS_RESPONSES));
-    EXPECT_FALSE(callback().has_error());
+    EXPECT_TRUE(callback());
 }
 
 TYPED_TEST(BaseClient_test, DisableStateCallsUnderlyingPortAndTriggerHandle)

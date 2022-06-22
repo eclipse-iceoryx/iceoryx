@@ -54,7 +54,6 @@ class should be used.
 |`GenericRAII`        |   |   | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `GenericRAII` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`helplets`           |   |   | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
 |`list`               |   |   | Heap and exception free, relocatable implementation of `std::list` |
-|`MethodCallback`     |   | X | Constructs a callback from a pointer to a specific object and a pointer to a method of that object, also as `ConstMethodCallback` available |
 |`NewType<T, Policies>`|   |   | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype). |
 |`optional`           |   |   | C++11 implementation of the C++17 feature `std::optional` |
 |`pair`               | i | X | Simplistic re-implementation of an `std::pair`. |

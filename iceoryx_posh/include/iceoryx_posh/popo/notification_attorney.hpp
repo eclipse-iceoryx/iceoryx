@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
 #define IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
 
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <cstdint>
@@ -50,7 +49,7 @@ class NotificationAttorney
     static void disableState(T& stateOrigin, Targs&&... args) noexcept;
 
     template <typename T>
-    static cxx::MethodCallback<void, uint64_t> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
+    static cxx::function<void(uint64_t)> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
 
     template <typename T, typename... Targs>
     static WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied(T& eventOrigin,

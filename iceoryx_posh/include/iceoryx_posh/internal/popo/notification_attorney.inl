@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 -2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,10 +53,9 @@ NotificationAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin, Ta
 }
 
 template <typename T>
-inline cxx::MethodCallback<void, uint64_t> NotificationAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
+inline cxx::function<void(uint64_t)> NotificationAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
 {
-    return cxx::MethodCallback<void, uint64_t>(
-        eventOrigin, static_cast<cxx::MethodCallback<void, uint64_t>::MethodPointer<T>>(&T::invalidateTrigger));
+    return cxx::function<void(uint64_t)>(eventOrigin, static_cast<void (T::*)(uint64_t)>(&T::invalidateTrigger));
 }
 
 } // namespace popo

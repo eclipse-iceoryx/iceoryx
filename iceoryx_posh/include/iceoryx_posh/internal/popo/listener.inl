@@ -126,7 +126,7 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
                                  const uint64_t eventTypeHash,
                                  internal::GenericCallbackRef_t callback,
                                  internal::TranslationCallbackRef_t translationCallback,
-                                 const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
+                                 const cxx::function<void(uint64_t)> invalidationCallback) noexcept
 {
     std::lock_guard<std::mutex> lock(m_addEventMutex);
 
