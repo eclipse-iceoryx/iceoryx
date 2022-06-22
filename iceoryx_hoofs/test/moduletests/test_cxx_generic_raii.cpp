@@ -39,7 +39,7 @@ TEST_F(GenericRAII_test, InitFunctionIsCalledInCtorWhenSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9314e17c-5f02-4e5b-8d46-e324aa2cb88f");
     int hasCalledInit = 0;
-    GenericRAII sut([&] { ++hasCalledInit; }, std::function<void()>());
+    GenericRAII sut([&] { ++hasCalledInit; }, function<void()>());
     EXPECT_THAT(hasCalledInit, Eq(1));
 }
 
