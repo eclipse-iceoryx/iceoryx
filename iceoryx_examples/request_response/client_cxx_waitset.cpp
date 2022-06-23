@@ -17,16 +17,19 @@
 //! [iceoryx includes]
 #include "request_and_response_types.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 //! [iceoryx includes]
 
+#include <atomic>
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
-
+std::atomic_bool keepRunning = {true};
+iox::cxx::optional<iox::popo::WaitSet<>> waitset;
 
 //! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData
@@ -38,8 +41,17 @@ struct ContextData
 };
 //! [context data to store Fibonacci numbers and sequence ids]
 
+void signalHandler(int)
+{
+    keepRunning = false;
+    waitset.and_then([&](auto& w) { w.markForDestruction(); });
+}
+
 int main()
 {
+    auto sigTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, signalHandler);
+    auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, signalHandler);
+
     //! [initialize runtime]
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
     //! [initialize runtime]
@@ -47,7 +59,7 @@ int main()
     ContextData ctx;
 
     //! [create waitset]
-    iox::popo::WaitSet<> waitset;
+    waitset.emplace();
 
     //! [create client]
     iox::popo::ClientOptions options;
@@ -56,14 +68,14 @@ int main()
     //! [create client]
 
     // attach client to waitset
-    waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
+    waitset->attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
         std::cerr << "failed to attach client" << std::endl;
         std::exit(EXIT_FAILURE);
     });
     //! [create waitset]
 
     //! [mainloop]
-    while (!iox::posix::hasTerminationRequested())
+    while (keepRunning)
     {
         //! [send request]
         client.loan()
@@ -84,7 +96,7 @@ int main()
 
         // We block and wait for samples to arrive, when the time is up we send the request again
         //! [wait and check if the client triggered]
-        auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
+        auto notificationVector = waitset->timedWait(iox::units::Duration::fromSeconds(5));
 
         for (auto& notification : notificationVector)
         {
@@ -117,6 +129,7 @@ int main()
     }
     //! [mainloop]
 
+    waitset.reset();
     std::cout << "shutting down" << std::endl;
 
     return (EXIT_SUCCESS);

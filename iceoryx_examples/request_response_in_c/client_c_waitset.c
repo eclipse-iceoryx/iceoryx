@@ -59,7 +59,7 @@ int main()
     int64_t expectedResponseSequenceId = requestSequenceId;
 
     //! [create waitset and attach client]
-    iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+    waitset = iox_ws_init(&waitsetStorage);
 
     if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
     {
@@ -136,11 +136,8 @@ int main()
         }
         //! [process responses]
 
-        if (keepRunning)
-        {
-            const uint32_t SLEEP_TIME_IN_MS = 950U;
-            sleep_for(SLEEP_TIME_IN_MS);
-        }
+        const uint32_t SLEEP_TIME_IN_MS = 950U;
+        sleep_for(SLEEP_TIME_IN_MS);
     }
 
     //! [cleanup]
