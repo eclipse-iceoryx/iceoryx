@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ void ConditionListener::resetSemaphore() noexcept
     bool hasFatalError = false;
     while (!hasFatalError
            && getMembers()
-                  ->semaphore->tryWait()
+                  ->m_semaphore->tryWait()
                   .or_else([&](posix::SemaphoreError) {
                       errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_RESET, ErrorLevel::FATAL);
                       hasFatalError = true;
@@ -46,7 +46,7 @@ void ConditionListener::resetSemaphore() noexcept
 void ConditionListener::destroy() noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
-    getMembers()->semaphore->post().or_else([](auto) {
+    getMembers()->m_semaphore->post().or_else([](auto) {
         errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_DESTROY, ErrorLevel::FATAL);
     });
 }
@@ -59,7 +59,7 @@ bool ConditionListener::wasNotified() const noexcept
 ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
 {
     return waitImpl([this]() -> bool {
-        if (this->getMembers()->semaphore->wait().has_error())
+        if (this->getMembers()->m_semaphore->wait().has_error())
         {
             errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_WAIT, ErrorLevel::FATAL);
             return false;
@@ -71,7 +71,7 @@ ConditionListener::NotificationVector_t ConditionListener::wait() noexcept
 ConditionListener::NotificationVector_t ConditionListener::timedWait(const units::Duration& timeToWait) noexcept
 {
     return waitImpl([this, timeToWait]() -> bool {
-        if (this->getMembers()->semaphore->timedWait(timeToWait).has_error())
+        if (this->getMembers()->m_semaphore->timedWait(timeToWait).has_error())
         {
             errorHandler(PoshError::POPO__CONDITION_LISTENER_SEMAPHORE_CORRUPTED_IN_TIMED_WAIT, ErrorLevel::FATAL);
         }
@@ -92,7 +92,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
         {
             if (getMembers()->m_activeNotifications[i].load(std::memory_order_relaxed))
             {
-                reset(i);
+                resetUnchecked(i);
                 activeNotifications.emplace_back(i);
             }
         }
@@ -107,7 +107,7 @@ ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::f
     return activeNotifications;
 }
 
-void ConditionListener::reset(const uint64_t index) noexcept
+void ConditionListener::resetUnchecked(const uint64_t index) noexcept
 {
     getMembers()->m_activeNotifications[index].store(false, std::memory_order_relaxed);
     getMembers()->m_wasNotified.store(false, std::memory_order_relaxed);

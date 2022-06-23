@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ void ConditionNotifier::notify() noexcept
 {
     getMembers()->m_activeNotifications[m_notificationIndex].store(true, std::memory_order_release);
     getMembers()->m_wasNotified.store(true, std::memory_order_relaxed);
-    getMembers()->semaphore->post().or_else(
+    getMembers()->m_semaphore->post().or_else(
         [](auto) { errorHandler(PoshError::POPO__CONDITION_NOTIFIER_SEMAPHORE_CORRUPT_IN_NOTIFY, ErrorLevel::FATAL); });
 }
 

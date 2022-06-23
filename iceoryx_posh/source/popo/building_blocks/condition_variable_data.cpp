@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ ConditionVariableData::ConditionVariableData() noexcept
 ConditionVariableData::ConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     : m_runtimeName(runtimeName)
 {
-    posix::UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(semaphore).or_else([](auto) {
+    posix::UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_semaphore).or_else([](auto) {
         errorHandler(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
     });
 

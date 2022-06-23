@@ -21,7 +21,6 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 
-#include <cstring>
 #include <utility>
 
 namespace iox

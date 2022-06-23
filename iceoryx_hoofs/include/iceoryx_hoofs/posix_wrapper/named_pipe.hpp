@@ -38,9 +38,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     // increased as long as there is enough memory available
     static constexpr uint64_t MAX_MESSAGE_SIZE = 4U * 1024U;
     static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = 10U;
-    static_assert(
-        MAX_NUMBER_OF_MESSAGES < IOX_SEM_VALUE_MAX,
-        "The maximum number of supported messages must be less or equal to the maximum allowed semaphore value");
+    static_assert(MAX_NUMBER_OF_MESSAGES < IOX_SEM_VALUE_MAX,
+                  "The maximum number of supported messages must be less to the maximum allowed semaphore value");
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);

@@ -35,8 +35,9 @@ void internalSignalHandler(int) noexcept
             // we use write since internalSignalHandler can be called from within a
             // signal handler and write is signal safe
             constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
-            auto result = write(STDERR_FILENO, &MSG[0], strlen(&MSG[0]));
+            auto result = write(STDERR_FILENO, MSG, strlen(MSG));
             IOX_DISCARD_RESULT(result);
+            std::abort();
         }
     }
 }
