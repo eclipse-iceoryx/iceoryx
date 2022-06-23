@@ -1,8 +1,9 @@
 #pragma once
 
-#include "error_codes.hpp"  // this must be provided by the module
-#include "error_levels.hpp" // do we want this dependency?
+#include "error_code.hpp"
 #include "location.hpp"
+#include "platform/error_levels.hpp"
+#include "platform/report.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -12,43 +13,6 @@
 
 namespace eh
 {
-void terminate()
-{
-    std::cout << "TERMINATE" << std::endl;
-}
-
-template <class T>
-struct is_fatal
-{
-    static constexpr bool value = std::is_same<T, Fatal_t>::value;
-};
-
-// alternatively map to default error code
-template <class Level>
-void report(const SourceLocation& location, Level level)
-{
-    auto name = error_level_to_name(level);
-    std::cout << name << "@" << location.file << " " << location.line << " " << location.function << std::endl;
-}
-
-template <class Level, class Code>
-void report(const SourceLocation& location, Level level, Code code)
-{
-    auto levelName = error_level_to_name(level);
-    auto codeName = error_code_to_name(code);
-    std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
-              << codeName << std::endl;
-}
-
-template <class Level>
-void report(const SourceLocation& location, Level level, error_code_t code)
-{
-    auto levelName = error_level_to_name(level);
-    auto codeName = error_code_to_name(code);
-    std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
-              << codeName << std::endl;
-}
-
 template <class Level>
 struct ErrorProxy
 {
@@ -59,7 +23,8 @@ struct ErrorProxy
     ErrorProxy(const SourceLocation& location, Level level)
         : location(location)
         , level(level)
-        , code(0) // fix magic number for no code
+        , code(0) // TODO: fix the no-error code
+        , module(0)
     {
         error = true;
     }
@@ -68,7 +33,7 @@ struct ErrorProxy
     ErrorProxy(const SourceLocation& location, Level level, Code code)
         : location(location)
         , level(level)
-        , code(error_code_to_num(code))
+        , code(code.code())
     {
         error = true;
     }
@@ -86,7 +51,7 @@ struct ErrorProxy
             // can be compile time dispatched later
             if (code > 0)
             {
-                report(location, level, code);
+                report(location, level, code, module);
                 // we need our own stream to do this, likely bounded
                 std::cout << stream.str();
             }
@@ -123,7 +88,71 @@ struct ErrorProxy
     SourceLocation location;
     Level level;
     error_code_t code;
+    module_id_t module;
     bool error{false};
+
+    // temporary solution (LogStream?)
+    std::stringstream stream;
+};
+
+// TODO: rename, consolidate
+template <class Level, class Error>
+struct ErrorProxy2
+{
+    ErrorProxy2()
+    {
+    }
+    ErrorProxy2(const SourceLocation& location, Level level, Error error)
+        : location(location)
+        , level(level)
+        , error(error)
+    {
+        hasError = true;
+    }
+
+    ErrorProxy2(ErrorProxy2&&)
+    {
+        // should not be used (exists for RVO in C++14)
+        std::terminate();
+    }
+
+    ~ErrorProxy2()
+    {
+        if (hasError)
+        {
+            report(location, level, error);
+            // we need our own stream to do this, likely bounded
+            std::cout << stream.str();
+
+            if (is_fatal<Level>::value)
+            {
+                terminate();
+            }
+        }
+    }
+
+    template <class F, class... Args>
+    ErrorProxy2& and_call(const F& f, Args&&... args)
+    {
+        if (hasError)
+        {
+            f(std::forward<Args>(args)...);
+        }
+        return *this;
+    }
+
+    template <class T>
+    ErrorProxy2& operator<<(const T& msg)
+    {
+        stream << msg;
+        return *this;
+    }
+
+  private:
+    SourceLocation location;
+    Level level;
+    Error error;
+    bool hasError{false};
 
     // temporary solution (LogStream?)
     std::stringstream stream;

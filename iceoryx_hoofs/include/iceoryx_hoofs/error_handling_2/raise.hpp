@@ -5,78 +5,42 @@
 #include <iostream>
 #include <type_traits>
 
-// rename raise.hpp
-
 namespace eh
 {
-
-#if 0
 template <class Level>
-void raise(const SourceLocation& location, Level level)
+auto raise(const SourceLocation& location, Level level)
 {
-    report(location, level);
-    // TODO: check whether it is a compile time if as expected
-    // could be constexpr explicitly with C++17 but should be optimized like this anyway
-    if (is_fatal<Level>::value)
+    if (!requires_handling(level))
     {
-        terminate();
+        return ErrorProxy<Level>();
     }
-}
 
-template <class Level, class Code>
-void raise(const SourceLocation& location, Level level, Code code)
-{
-    report(location, level, code);
-    if (is_fatal<Level>::value)
-    {
-        terminate();
-    }
-}
-template <class Expr, class Level>
-void raise_if(const SourceLocation& location, const Expr& expr, Level level)
-{
-    // it is possible to add a compile time condition that causes expr() never to be evaluated
-    // (e.g. for certain error levels)
-    if (expr())
-    {
-        report(location, level);
-        if (is_fatal<Level>::value)
-        {
-            terminate();
-        }
-    }
-}
-
-template <class Expr, class Level, class Code>
-void raise_if(const SourceLocation& location, const Expr& expr, Level level, Code code)
-{
-    // it is possible to add a compile time condition that causes expr() never to be evaluated
-    // (e.g. for certain error levels)
-    if (expr())
-    {
-        report(location, level, code);
-        if (is_fatal<Level>::value)
-        {
-            terminate();
-        }
-    }
-}
-#else
-template <class Level>
-ErrorProxy<Level> raise(const SourceLocation& location, Level level)
-{        
     return ErrorProxy<Level>(location, level);
 }
 
-template <class Level, class Code>
-ErrorProxy<Level> raise(const SourceLocation& location, Level level, Code code)
-{    
-    return ErrorProxy<Level>(location, level, code);
+// this will increase the binary size too much since each error has its own class
+// (it is ok for level, of which we will have few)
+template <class Level, class Error>
+auto raise(const SourceLocation& location, Level level, Error error)
+{
+    if (!requires_handling(level))
+    {
+        auto e = create_error(error);
+        return ErrorProxy2<Level, decltype(e)>();
+    }
+
+    auto e = create_error(error);
+    return ErrorProxy2<Level, decltype(e)>(location, level, e);
 }
 
 template <class Expr, class Level>
-ErrorProxy<Level> raise_if(const SourceLocation& location, const Expr& expr, Level level)
-{    
+auto raise_if(const SourceLocation& location, const Expr& expr, Level level)
+{
+    if (!requires_handling(level))
+    {
+        return ErrorProxy<Level>();
+    }
+
     if (expr())
     {
         return ErrorProxy<Level>(location, level);
@@ -86,17 +50,25 @@ ErrorProxy<Level> raise_if(const SourceLocation& location, const Expr& expr, Lev
     return ErrorProxy<Level>();
 }
 
-template <class Expr, class Level, class Code>
-ErrorProxy<Level> raise_if(const SourceLocation& location, const Expr& expr, Level level, Code code)
-{    
+template <class Expr, class Level, class Error>
+auto raise_if(const SourceLocation& location, const Expr& expr, Level level, Error error)
+{
+    if (!requires_handling(level))
+    {
+        auto e = create_error(error);
+        return ErrorProxy2<Level, decltype(e)>();
+    }
+
     if (expr())
     {
-        return ErrorProxy<Level>(location, level, code);
+        // TODO: create only if needed
+        auto e = create_error(error);
+        return ErrorProxy2<Level, decltype(e)>(location, level, e);
     }
 
     // always created, bad
-    return ErrorProxy<Level>();
+    auto e = create_error(error);
+    return ErrorProxy2<Level, decltype(e)>();
 }
-#endif
 
 } // namespace eh
