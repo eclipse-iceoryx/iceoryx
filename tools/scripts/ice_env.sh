@@ -16,11 +16,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-CONTAINER_NAME="ice_env"
+CONTAINER_NAME_PREFIX="ice_env_"
 CONTAINER_MEMORY_SIZE="6g"
 CONTAINER_SHM_MEMORY_SIZE="2g"
 DEFAULT_OS_VERSION="ubuntu:20.04"
 CMAKE_VERSION="cmake-3.23.1-linux-x86_64"
+ICEORYX_PATH=$(git rev-parse --show-toplevel)
+
+COLOR_RESET='\033[0m'
+COLOR_GREEN='\033[1;32m'
+COLOR_CYAN='\033[1;34m'
+FONT_BOLD='\033[1m'
+COLOR_RED='\033[1;31m'
 
 install_cmake() {
     cd /
@@ -42,7 +49,7 @@ setup_docker_image() {
         pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm wget ncurses
         install_cmake
     else
-        echo Please install the following packages to have a working iceoryx environment
+        echo Please install the following packages to have a working iceoryx environment:
         echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
     fi
 
@@ -62,17 +69,23 @@ start_docker_session() {
 
 help() {
     echo
-    echo "iceoryx development environment help"
+    echo -e "${FONT_BOLD}iceoryx development environment help${COLOR_RESET}"
     echo
-    echo "  $0 [ACTION] (optional)[OS_VERSION]"
+    echo -e "  $0 ${COLOR_CYAN}[ACTION] ${COLOR_RESET}(optional)${COLOR_CYAN}[OS_VERSION]"
     echo
-    echo "ACTION:"
-    echo "  start          - start iceoryx development environment"
-    echo "  stop           - stops the iceoryx development environment"
-    echo "  enter          - enters the iceoryx development environment, if it is"
-    echo "                   not running it will be started first"
+    echo -e "${COLOR_CYAN}ACTION:${COLOR_RESET}"
+    echo -e "  ${FONT_BOLD}start${COLOR_RESET}          - start iceoryx development environment"
+    echo -e "  ${FONT_BOLD}stop${COLOR_RESET}           - stops the iceoryx development environment"
+    echo -e "  ${FONT_BOLD}stop_all${COLOR_RESET}       - stop all iceoryx development environments"
+    echo -e "  ${FONT_BOLD}enter${COLOR_RESET}          - enters the iceoryx development environment, if it is"
+    echo -e "                   not running it will be started first"
+    echo -e "  ${FONT_BOLD}drop${COLOR_RESET}           - remove the iceoryx environment docker container with the"
+    echo -e "                   specified OS_VERSION"
+    echo -e "  ${FONT_BOLD}drop_all${COLOR_RESET}       - remove all iceoryx environment docker containers"
+    echo -e "  ${FONT_BOLD}list${COLOR_RESET}           - list all locally iceoryx environment docker containers"
+    echo -e "  ${FONT_BOLD}list_running${COLOR_RESET}   - list all running iceoryx environment docker containers"
     echo
-    echo "OS_VERSION:"
+    echo -e "${COLOR_CYAN}OS_VERSION:${COLOR_RESET}"
     echo "  A string which will be forwarded to \"-t\" in the docker command."
     echo "  The version of operating system to load. Default value is ${DEFAULT_OS_VERSION}."
     echo "  Other possibilities (not all) are:"
@@ -80,64 +93,108 @@ help() {
     echo "    ubuntu:18.04"
     echo "    archlinux"
     echo
-    echo "Example:"
+    echo -e "${COLOR_CYAN}Example:${COLOR_RESET}"
     echo "  $0 start archlinux     # starts iceoryx environment with archlinux docker container"
     echo "  $0 enter ubuntu:18.04  # enters (and starts if not running) iceoryx environment with ubuntu"
     echo
     exit
 }
 
-start_docker() {
-    local ICEORYX_PATH=$(git rev-parse --show-toplevel)
-    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME 2>/dev/null) == "true" ]]; then
-        echo iceoryx development environment already running \(docker container: $CONTAINER_NAME\)
-        exit
-    fi
-
+create_docker() {
+    echo -e "  ${COLOR_CYAN}create iceoryx development environment docker container${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
     docker run --name $CONTAINER_NAME \
                --mount type=bind,source=${ICEORYX_PATH},target=/iceoryx \
                --hostname ${OS_VERSION} \
                -dt --memory $CONTAINER_MEMORY_SIZE \
                --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
-    echo iceoryx development environment started
+    echo -e "  ${COLOR_CYAN}setting up iceoryx development environment${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
 
     docker exec -it $CONTAINER_NAME /iceoryx/$(git rev-parse --show-prefix)/$0 setup $OS_VERSION
+}
+
+startup_docker() {
+    echo -en "         start iceoryx development environment docker container [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
+    docker start $CONTAINER_NAME > /dev/null
+    echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
+}
+
+list_docker() {
+    docker container ls -a | sed -n "s/.*\(ice_env_.*\)/  \1/p"
+}
+
+list_running_docker() {
+    docker container ls | sed -n "s/.*\(ice_env_.*\)/  \1/p"
+}
+
+start_docker() {
+    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME 2> /dev/null) == "true" ]]; then
+        return
+    fi
+
+    if [[ $(list_docker | grep ${CONTAINER_NAME} | wc -l) == "0" ]]; then
+        create_docker
+    else
+        startup_docker
+    fi
 
     echo
-    echo "  iceoryx development environment setup and started"
-    echo "  #################################################"
+    echo -e "  ${COLOR_CYAN}iceoryx development environment setup and started${COLOR_RESET}"
+    echo -e "  #################################################"
     echo
-    echo "    container name..........: ${CONTAINER_NAME}"
-    echo "    OS-Version..............: ${OS_VERSION}"
-    echo "    memory..................: ${CONTAINER_MEMORY_SIZE}"
-    echo "    shared memory...........: ${CONTAINER_SHM_MEMORY_SIZE}"
-    echo "    iceoryx-path............: ${ICEORYX_PATH}"
+    echo -e "    container name..........: ${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}"
+    echo -e "    OS-Version..............: ${FONT_BOLD}${OS_VERSION}${COLOR_RESET}"
+    echo -e "    memory..................: ${FONT_BOLD}${CONTAINER_MEMORY_SIZE}${COLOR_RESET}"
+    echo -e "    shared memory...........: ${FONT_BOLD}${CONTAINER_SHM_MEMORY_SIZE}${COLOR_RESET}"
+    echo -e "    iceoryx-path............: ${FONT_BOLD}${ICEORYX_PATH}${COLOR_RESET}"
     echo
-    echo "  A custom cmake version was installed in ${CMAKE_VERSION}/bin/cmake."
+    echo -e "  A custom cmake version was installed in ${FONT_BOLD}${CMAKE_VERSION}/bin/cmake${COLOR_RESET}."
     echo "  This can be used when the cmake version in the image is out-of-date."
     echo
 }
 
 stop_docker() {
-    docker container stop $CONTAINER_NAME > /dev/null
+    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME) == "true" ]]; then
+        echo -en "         stopping iceoryx development environment docker [${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}] container"
+        docker container stop $CONTAINER_NAME > /dev/null
+        echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
+    fi
+}
+
+stop_all_docker() {
+    echo -e "${COLOR_CYAN}stopping all iceoryx environment docker containers${COLOR_RESET}"
+    for DOCKER in $(list_running_docker); do
+        CONTAINER_NAME=$DOCKER
+        stop_docker
+    done
+}
+
+drop_docker() {
+    stop_docker
+    echo -en "         removing iceoryx development environment docker [${FONT_BOLD}${CONTAINER_NAME}${COLOR_RESET}] container"
     docker rm $CONTAINER_NAME > /dev/null
-    echo iceoryx development environment stopped
+    echo -e "\r  [${COLOR_GREEN}done${COLOR_RESET}]"
+}
+
+drop_all_docker() {
+    echo -e "${COLOR_RED}removing all iceoryx environment docker containers${COLOR_RESET}"
+    for DOCKER in $(list_docker); do
+        CONTAINER_NAME=$DOCKER
+        drop_docker
+    done
 }
 
 enter_docker() {
-    if [[ $(docker container inspect -f '{{.State.Running}}' $CONTAINER_NAME) != "true" ]]; then
-        start_docker
-    fi
+    start_docker
 
     # we use eval here since we would like to evaluate the expression inside of the docker
     # container and not right away in this script
     docker exec -it $CONTAINER_NAME fish -c "
     echo
-    eval 'echo \"  gcc version..............: \"(gcc --version | head -1 )'
-    eval 'echo \"  g++ version..............: \"(g++ --version | head -1 )'
-    eval 'echo \"  clang version............: \"(clang --version | head -1 )'
-    eval 'echo \"  clang++ version..........: \"(clang++ --version | head -1 )'
-    eval 'echo \"  cmake version............: \"(cmake --version | head -1 )'
+    eval 'echo -e \"  gcc version..............: \"\\033\[1\;37m(gcc --version | head -1 )\\033\[0m'
+    eval 'echo -e \"  g++ version..............: \"\\033\[1\;37m(g++ --version | head -1 )\\033\[0m'
+    eval 'echo -e \"  clang version............: \"\\033\[1\;37m(clang --version | head -1 )\\033\[0m'
+    eval 'echo -e \"  clang++ version..........: \"\\033\[1\;37m(clang++ --version | head -1 )\\033\[0m'
+    eval 'echo -e \"  cmake version............: \"\\033\[1\;37m(cmake --version | head -1 )\\033\[0m'
     echo
     cd /iceoryx
     fish"
@@ -147,11 +204,11 @@ enter_docker() {
     if [[ $? -ne 0 ]]; then
         docker exec -it $CONTAINER_NAME bash -c "
         echo
-        eval 'echo \"  gcc version..............: \"\$(gcc --version | head -1 )'
-        eval 'echo \"  g++ version..............: \"\$(g++ --version | head -1 )'
-        eval 'echo \"  clang version............: \"\$(clang --version | head -1 )'
-        eval 'echo \"  clang++ version..........: \"\$(clang++ --version | head -1 )'
-        eval 'echo \"  cmake version............: \"\$(cmake --version | head -1 )'
+        eval 'echo \"  gcc version..............: \"\\033\[1\;37m(gcc --version | head -1 )\\033\[0m'
+        eval 'echo \"  g++ version..............: \"\\033\[1\;37m(g++ --version | head -1 )\\033\[0m'
+        eval 'echo \"  clang version............: \"\\033\[1\;37m(clang --version | head -1 )\\033\[0m'
+        eval 'echo \"  clang++ version..........: \"\\033\[1\;37m(clang++ --version | head -1 )\\033\[0m'
+        eval 'echo \"  cmake version............: \"\\033\[1\;37m(cmake --version | head -1 )\\033\[0m'
         echo
         cd /iceoryx
         bash
@@ -166,14 +223,26 @@ if [[ -z $OS_VERSION ]]; then
     OS_VERSION=$DEFAULT_OS_VERSION
 fi
 
+CONTAINER_NAME=${CONTAINER_NAME_PREFIX}$(echo ${OS_VERSION} | tr : .)
+
 if [[ $ACTION == "start" ]]; then
     start_docker
 elif [[ $ACTION == "stop" ]]; then
     stop_docker
+elif [[ $ACTION == "stop_all" ]]; then
+    stop_all_docker
+elif [[ $ACTION == "drop" ]]; then
+    drop_docker
+elif [[ $ACTION == "drop_all" ]]; then
+    drop_all_docker
 elif [[ $ACTION == "enter" ]]; then
     enter_docker
 elif [[ $ACTION == "setup" ]]; then
     setup_docker_image
+elif [[ $ACTION == "list" ]]; then
+    list_docker
+elif [[ $ACTION == "list_running" ]]; then
+    list_running_docker
 else
     help
 fi
