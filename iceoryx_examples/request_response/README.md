@@ -35,6 +35,7 @@ At first, the includes for the client port, request-response types, WaitSet, and
 ```cpp
 #include "request_and_response_types.hpp"
 
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
@@ -70,14 +71,14 @@ full or the server is too slow. The `ClientOptions` are similar to `PublisherOpt
 
 <!--[geoffrey][iceoryx_examples/request_response/client_cxx_waitset.cpp][create waitset]-->
 ```cpp
-iox::popo::WaitSet<> waitset;
+waitset.emplace();
 
 iox::popo::ClientOptions options;
 options.responseQueueCapacity = 2U;
 iox::popo::Client<AddRequest, AddResponse> client({"Example", "Request-Response", "Add"}, options);
 
 // attach client to waitset
-waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
+waitset->attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
     std::cerr << "failed to attach client" << std::endl;
     std::exit(EXIT_FAILURE);
 });
@@ -131,7 +132,7 @@ Once the request has been sent, we block and wait for samples to arrive. Then we
 iterate over the notification vector to check if we were triggered from our client:
 <!-- [geoffrey] [iceoryx_examples/request_response/client_cxx_waitset.cpp] [[wait and check if the client triggered]] -->
 ```cpp
-auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
+auto notificationVector = waitset->timedWait(iox::units::Duration::fromSeconds(5));
 
 for (auto& notification : notificationVector)
 {
