@@ -595,14 +595,14 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     EXPECT_FALSE(publisher->publishCopyOf("second hypnotoad ate it").has_error());
 
     std::atomic_bool wasSampleDelivered{false};
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         EXPECT_FALSE(publisher->publishCopyOf("third a tiny black hole smells like butter").has_error());
         wasSampleDelivered.store(true);
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     t1.join();
     EXPECT_TRUE(wasSampleDelivered.load());
 
@@ -665,16 +665,16 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
 
     std::atomic_bool wasSampleDelivered{false};
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         EXPECT_FALSE(publisherBlocking->publishCopyOf("chucky is the only one who can ride the hypnotoad").has_error());
         wasSampleDelivered.store(true);
     });
 
     constexpr int64_t TIMEOUT_IN_MS = 100;
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
     EXPECT_FALSE(wasSampleDelivered.load());
 
