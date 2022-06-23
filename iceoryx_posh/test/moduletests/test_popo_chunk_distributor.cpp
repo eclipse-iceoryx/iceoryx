@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -620,16 +621,16 @@ TYPED_TEST(ChunkDistributor_test, DeliverToQueueWithBlockingOptionBlocksDelivery
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
     }
 
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     auto chunk = this->allocateChunk(7373);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         ASSERT_FALSE(sut.deliverToQueue(queueData->m_uniqueId, EXPECTED_QUEUE_INDEX, chunk).has_error());
         wasChunkDelivered = true;
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
@@ -738,15 +739,15 @@ TYPED_TEST(ChunkDistributor_test, DeliverToSingleQueueBlocksWhenOptionsAreSetToB
     ASSERT_FALSE(sut.tryAddQueue(queueData.get(), 0U).has_error());
     sut.deliverToAllStoredQueues(this->allocateChunk(155U));
 
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(152U));
         wasChunkDelivered = true;
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));
@@ -785,15 +786,15 @@ TYPED_TEST(ChunkDistributor_test, MultipleBlockingQueuesWillBeFilledWhenThereBec
 
     sut.deliverToAllStoredQueues(this->allocateChunk(425U));
 
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::atomic_bool wasChunkDelivered{false};
     std::thread t1([&] {
-        isThreadStarted.store(true);
+        isThreadStarted.notify();
         sut.deliverToAllStoredQueues(this->allocateChunk(1152U));
         wasChunkDelivered = true;
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(this->BLOCKING_DURATION);
     EXPECT_THAT(wasChunkDelivered.load(), Eq(false));

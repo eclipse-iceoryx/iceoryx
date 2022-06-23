@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "test.hpp"
 #include <atomic>
@@ -85,7 +85,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
                                            const uint64_t numberOfWaiters,
                                            const std::function<void()>& wait)
 {
-    std::atomic<uint64_t> isThreadStarted{0};
+    Barrier isThreadStarted(numberOfWaiters);
     std::atomic<uint64_t> isThreadFinished{0};
 
     std::vector<std::thread> threads;
@@ -93,13 +93,13 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
     for (uint64_t i = 0; i < numberOfWaiters; ++i)
     {
         threads.emplace_back([&] {
-            ++isThreadStarted;
+            isThreadStarted.notify();
             wait();
             ++isThreadFinished;
         });
     }
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return (isThreadStarted != numberOfWaiters); });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(test.waitingTime);
 

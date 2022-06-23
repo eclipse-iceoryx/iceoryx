@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
@@ -117,14 +117,14 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThread
 {
     ::testing::Test::RecordProperty("TEST_ID", "39b40c73-3dcc-4af6-9682-b62816c69854");
     std::atomic<int> counter{0};
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        isThreadStarted = true;
+        isThreadStarted.notify();
         m_waiter.wait();
         EXPECT_THAT(counter, Eq(1));
     });
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     counter++;
     m_signaler.notify();
@@ -366,18 +366,18 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::atomic_bool hasWaited{false};
 
     std::thread waiter([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
@@ -409,9 +409,9 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     Watchdog watchdogSecondWait(m_timeToWait);
     watchdogSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
 
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread waiter([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
@@ -422,7 +422,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
         }
     });
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted; });
+    isThreadStarted.wait();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));

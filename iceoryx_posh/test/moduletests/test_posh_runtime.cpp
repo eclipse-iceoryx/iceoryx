@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -957,15 +957,15 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread blockingPublisher([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
         wasSampleSent = true;
     });
 
     // wait some time to check if the publisher is blocked
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasSampleSent.load(), Eq(false));
@@ -1005,7 +1005,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread blockingClient([&] {
         auto sendRequest = [&](bool expectError) {
             auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
@@ -1026,7 +1026,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
         }
 
         // signal that an blocking send is expected
-        isThreadStarted = true;
+        isThreadStarted.notify();
         constexpr bool EXPECT_ERROR_INDICATOR{true};
         sendRequest(EXPECT_ERROR_INDICATOR);
         wasRequestSent = true;
@@ -1034,7 +1034,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 
     // wait some time to check if the client is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
 
@@ -1081,7 +1081,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread blockingServer([&] {
         auto processRequest = [&](bool expectError) {
             auto takeResult = server.take();
@@ -1103,7 +1103,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
             processRequest(EXPECT_ERROR_INDICATOR);
         }
 
-        isThreadStarted = true;
+        isThreadStarted.notify();
         constexpr bool EXPECT_ERROR_INDICATOR{true};
         processRequest(EXPECT_ERROR_INDICATOR);
         wasResponseSent = true;
@@ -1111,7 +1111,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 
     // wait some time to check if the server is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
 

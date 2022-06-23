@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
 
 namespace iox_test_roudi_portmanager
@@ -842,18 +843,18 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread blockingPublisher([&] {
         auto maybeChunk = publisher.tryAllocateChunk(42U, 8U);
         ASSERT_FALSE(maybeChunk.has_error());
-        isThreadStarted = true;
+        isThreadStarted.notify();
         publisher.sendChunk(maybeChunk.value());
         wasChunkSent = true;
     });
 
     // wait some time to check if the publisher is blocked
     constexpr int64_t SLEEP_IN_MS = 100;
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
     EXPECT_THAT(wasChunkSent.load(), Eq(false));
 

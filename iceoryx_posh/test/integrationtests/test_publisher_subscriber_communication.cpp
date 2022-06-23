@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
@@ -551,16 +552,16 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     EXPECT_FALSE(publisher->publishCopyOf("and hypnotoad will smile back").has_error());
 
     std::atomic_bool wasSampleDelivered{false};
-    std::atomic_bool isThreadStarted{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        isThreadStarted = true;
+        isThreadStarted.notify();
         EXPECT_FALSE(publisher->publishCopyOf("oh no hypnotoad is staring at me").has_error());
         wasSampleDelivered.store(true);
     });
 
     constexpr int64_t TIMEOUT_IN_MS = 100;
 
-    iox::cxx::internal::adaptive_wait().wait_loop([&] { return !isThreadStarted.load(); });
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
     EXPECT_FALSE(wasSampleDelivered.load());
 
