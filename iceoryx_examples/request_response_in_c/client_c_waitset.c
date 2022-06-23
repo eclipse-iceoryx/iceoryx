@@ -27,7 +27,10 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
+
+#if !defined(_WIN32)
 #include <unistd.h>
+#endif
 
 #define NUMBER_OF_NOTIFICATIONS 1
 
