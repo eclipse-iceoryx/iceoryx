@@ -139,3 +139,13 @@
         iox::posix::waitForTerminationRequest();
     }
     ```
+
+6. It is not possible to delete a class which is derived from `FunctionalInterface`
+   via a pointer to `FunctionalInterface`
+
+   ```cpp
+   iox::cxx::FunctionalInterface<iox::cxx::optional<MyClass>, MyClass, void>* soSmart =
+       new iox::cxx::optional<MyClass>{};
+
+   delete soSmart; // <- not possible anymore
+   ```
