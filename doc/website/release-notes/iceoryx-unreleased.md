@@ -150,3 +150,36 @@
 
    delete soSmart; // <- not possible anymore
    ```
+7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
+
+   ```cpp
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+
+   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+
+   delete soSmart; // <- not possible anymore
+   ```
+
+8. It is not possible to use the `NewType` to create type aliases. This was not recommended and is now enforced
+
+   ```cpp
+   // before
+   // for the compiler Foo and Bar are the same type
+   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+
+   // after
+   // compile time error when Foo and Bar are mixed up
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+
+   struct Bar : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+   ```
