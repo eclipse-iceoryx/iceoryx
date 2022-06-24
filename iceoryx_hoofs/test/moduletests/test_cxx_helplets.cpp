@@ -516,6 +516,48 @@ TEST(Helplets_test_isValidFilePath, EmptyFilePathIsInvalid)
     EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("")));
 }
 
+TEST(Helplets_test_doesEndWithPathSeparator, EmptyPathDoesNotEndWithPathSeparator)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fe0be1e0-fdd5-4d56-841c-83826c40c3d2");
+    EXPECT_FALSE(doesEndWithPathSeparator(string<FILE_PATH_LENGTH>("")));
+}
+
+TEST(Helplets_test_doesEndWithPathSeparator, NonEmptyPathWithNoPathSeparatorAtTheEndDoesNotEndWithPathSeparator)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a6d10202-aea0-4b1c-b9d9-704545102a2e");
+
+    string<FILE_PATH_LENGTH> sut = "isThereOnlyOneHypnotoad";
+    EXPECT_FALSE(doesEndWithPathSeparator(sut));
+
+    sut.unsafe_append(iox::platform::IOX_PATH_SEPARATORS);
+    sut.unsafe_append("thereIsOnlyOne");
+    EXPECT_FALSE(doesEndWithPathSeparator(sut));
+}
+
+TEST(Helplets_test_doesEndWithPathSeparator, SingleCharacterStringOnlyWithPathSeparatorAsOneAtTheEnd)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "18bf45aa-9b65-4351-956a-8ddc98fa0296");
+
+    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    {
+        string<FILE_PATH_LENGTH> sut = " ";
+        sut[0] = iox::platform::IOX_PATH_SEPARATORS[i];
+        EXPECT_TRUE(doesEndWithPathSeparator(sut));
+    }
+}
+
+TEST(Helplets_test_doesEndWithPathSeparator, MultiCharacterStringEndingWithPathSeparatorAsOneAtTheEnd)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c702ec34-8f7f-4220-b50e-6b231ac4e736");
+
+    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    {
+        string<FILE_PATH_LENGTH> sut = "HypnotoadAteTheSpagettiMonster";
+        ASSERT_TRUE(sut.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[i]));
+        EXPECT_TRUE(doesEndWithPathSeparator(sut));
+    }
+}
+
 TEST(Helplets_test_from, fromWorksAsConstexpr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b7cac32-c0ef-4f29-8314-59ed8850d1f5");
