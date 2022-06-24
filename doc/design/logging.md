@@ -9,7 +9,7 @@ contextual information.
 Additionally, when integrated into a separate framework, the log messages should
 be forwarded in order to have a single logging infrastructure.
 
-The logging should also be performant and not allocate memory. Ideally it should
+The logging should also be performant and not allocate memory. Ideally, it should
 be possible to disable it at compile time and let the compiler optimize it away.
 
 It should also be possible to alter the behavior of the logging via environment
@@ -61,9 +61,9 @@ in combination with the error handler.
 6. Since iceoryx is often used as transport layer in a higher level framework, it
    shall be possible to replace the default logger at runtime and delegate the
    log messages to the logger of such a framework. To prevent misuse, this can
-   only be done up to a specific time. Afterwards an error message shall be
-   logged in the new and old logger and the error handler shall be called with a
-   moderate error level.
+   only be done during the initialization phase. Afterwards an error message shall
+   be logged in the new and old logger and the error handler shall be called with
+   a moderate error level.
 
 7. The default logger shall be replaceable via the platform abstraction in order
    to use the dedicated logger for log messages which are emitted before it could
@@ -73,9 +73,9 @@ in combination with the error handler.
    independent of the log level threshold for cases where the logger framework
    does the filtering itself.
 
-9. For tests the default logger shall be replaced to suppress the log messages in
+9. For tests, the default logger shall be replaced to suppress the log messages in
    passed tests but output them for failed tests. This keeps the noise low but
-   still provides useful information when needed. Additionally there shall be an
+   still provides useful information when needed. Additionally, there shall be an
    environment variable to circumvent the suppression when desired.
 
 ### Solution
@@ -118,7 +118,7 @@ This is the log macro with lazy evaluation
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
 ```
 
-With `minimalLogLevel` and `ignoreLogLevel` being static constexpr functions
+With `minimalLogLevel` and `ignoreLogLevel` being static `constexpr` functions
 the compiler will optimize this either to `if (false) iox::log::LogStream(...)`
 and finally completely away or
 `if ((level) <= iox::log::Logger::getLogLevel()) iox::log::LogStream(...)`.
@@ -148,7 +148,7 @@ logger what to do with these messages. For iceoryx the default logger is the
 `ConsoleLogger` (this can be changed via the platform abstraction) which will
 print the log messages to the console.
 
-Although it is possible to use the logger without calling `Logger::init`, this is
+Although, it is possible to use the logger without calling `Logger::init`, this is
 not recommended. This behaviour is only intended to catch important log messages
 from pre-main logger calls.
 
@@ -165,7 +165,7 @@ lifetime and should therefore be placed in the data segment.
 
 The call to `iox::log::Logger::init` will finalize the option to replace the logger
 at runtime. Further efforts to replace the logger will call the error handler
-with a `MODERATE` error level and a log message to the old and new logger
+with a `MODERATE` error level and a log message to the old and new logger.
 
 See also the code example to [create a custom logger](#creating-a-custom-logger).
 

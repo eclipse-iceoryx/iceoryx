@@ -39,7 +39,7 @@ Logger -> Logger ++ : activeLogger()
 return
 return
 Logger -> loggerInstance ++ : initLoggerInternal
-loggerInstance -> myLoggerInstance ++ : initiLogger
+loggerInstance -> myLoggerInstance ++ : initLogger
 return
 return
 return

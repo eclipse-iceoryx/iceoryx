@@ -19,7 +19,7 @@ return
 return
 
 Logger -> loggerInstance ++ : initLoggerInternal
-loggerInstance -> loggerInstance ++ : initiLogger
+loggerInstance -> loggerInstance ++ : initLogger
 return
 return
 
