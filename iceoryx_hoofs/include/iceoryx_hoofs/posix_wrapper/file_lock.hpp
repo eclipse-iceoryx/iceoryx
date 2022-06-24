@@ -29,8 +29,7 @@ namespace posix
 enum class FileLockError
 {
     INVALID_FILE_NAME,
-    INVALID_FILE_PATH,
-    FILE_PATH_TOO_LONG,
+    INVALID_PATH,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,
     QUOTA_EXHAUSTED,
@@ -51,14 +50,11 @@ enum class FileLockError
 ///        if the process crashes with a segfault or using SIGKILL. 'lslocks' can be used to display all system-wide
 ///        locks (see man page)
 /// @code
-///    iox::posix::FileLock::create(nameOfmyLock)
-///        .and_then([] { std::cout << "We aquired the lock!" << std::endl; })
-///        .or_else([](auto& error) {
-///            if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
-///            {
-///                std::cout << "Some other process is running and holds the lock!" << std::endl;
-///            }
-///        });
+///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
+///                                                .path("/tmp")
+///                                                .permissions(iox::cxx::perms::owner_all)
+///                                                .create()
+///                                                .expect("Oh no I couldn't create the lock");
 /// @endcode
 class FileLock
 {
@@ -97,19 +93,23 @@ class FileLock
     void invalidate() noexcept;
 
     static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
-    static cxx::expected<FileLockError> closeFileDescriptor(const int32_t fileDescriptor,
-                                                            const FilePath_t& fileLockPath) noexcept;
+    cxx::expected<FileLockError> closeFileDescriptor(const int32_t fileDescriptor) noexcept;
 };
 
 class FileLockBuilder
 {
+    /// @brief Defines the file name of the lock
     IOX_BUILDER_PARAMETER(FileLock::FileName_t, name, "")
 
+    /// @brief Defines the path where the lock is stored
     IOX_BUILDER_PARAMETER(FileLock::PathName_t, path, platform::IOX_LOCK_FILE_PATH_PREFIX)
 
+    /// @brief Defines the access permissions of the file lock
     IOX_BUILDER_PARAMETER(cxx::perms, permission, cxx::perms::none)
 
   public:
+    /// @brief Creates a file lock
+    /// @return a valid file lock or an FileLockError describing the error
     cxx::expected<FileLock, FileLockError> create() noexcept;
 };
 } // namespace posix

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,6 +69,24 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
     EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
 }
 
+TEST_F(FileLock_test, InvalidNameLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fdd79413-35ac-467e-80b8-1c81b29f62ec");
+
+    auto sut2 = iox::posix::FileLockBuilder().name("///").create();
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
+}
+
+TEST_F(FileLock_test, InvalidPathLeadsToError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7bc2a1b1-1d40-43fa-98c2-605881f3645b");
+
+    auto sut2 = iox::posix::FileLockBuilder().name("woho").path(".....").create();
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_PATH));
+}
+
 TEST_F(FileLock_test, MaxStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cf3418d-51d1-4ead-9001-e0d8e61617f0");
@@ -117,7 +135,7 @@ TEST_F(FileLock_test, MoveAssignTransfersLock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cd9ee3d0-4f57-44e1-b01c-f892610e805a");
     auto movedSut = std::move(m_sut.value());
-    auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).create();
+    auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::cxx::perms::owner_all).create();
     ASSERT_TRUE(anotherLock.has_error());
     EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }

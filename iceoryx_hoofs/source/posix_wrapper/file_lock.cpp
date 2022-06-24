@@ -43,7 +43,7 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
     if (!cxx::isValidPath(m_path))
     {
         LogError() << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
-        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_PATH);
+        return cxx::error<FileLockError>(FileLockError::INVALID_PATH);
     }
 
     FileLock::FilePath_t fileLockPath = m_path;
@@ -76,10 +76,13 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (lockCall.has_error())
     {
-        FileLock::closeFileDescriptor(fileDescriptor, fileLockPath).or_else([](auto) {
-            LogError() << "Unable to close file lock in error related cleanup during initialization.";
+        posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
+            LogError() << "Unable to close file lock \"" << fileLockPath
+                       << "\" in error related cleanup during initialization.";
         });
-        // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
+
+        //  possible errors in iox_close() are masked and we inform the user about the actual error
         return cxx::error<FileLockError>(
             FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
     }
@@ -102,7 +105,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        if (closeFileDescriptor(m_fd, m_fileLockPath).has_error())
+        if (closeFileDescriptor(m_fd).has_error())
         {
             LogError() << "Unable to cleanup file lock \"" << m_fileLockPath
                        << "\" in the move constructor/move assingment operator";
@@ -119,14 +122,13 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
 
 FileLock::~FileLock() noexcept
 {
-    if (closeFileDescriptor(m_fd, m_fileLockPath).has_error())
+    if (closeFileDescriptor(m_fd).has_error())
     {
         LogError() << "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor";
     }
 }
 
-cxx::expected<FileLockError> FileLock::closeFileDescriptor(const int32_t fileDescriptor,
-                                                           const FilePath_t& fileLockPath) noexcept
+cxx::expected<FileLockError> FileLock::closeFileDescriptor(const int32_t fileDescriptor) noexcept
 {
     if (fileDescriptor != INVALID_FD)
     {
@@ -137,20 +139,20 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor(const int32_t fileDes
             .evaluate()
             .or_else([&](auto& result) {
                 cleanupFailed = true;
-                IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
-                LogError() << "Unable to unlock the file lock \"" << fileLockPath << "\"";
+                IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+                LogError() << "Unable to unlock the file lock \"" << m_fileLockPath << "\"";
             });
 
         posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
-            LogError() << "Unable to close the file handle to the file lock \"" << fileLockPath << "\"";
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+            LogError() << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"";
         });
 
-        posixCall(remove)(fileLockPath.c_str()).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(remove)(m_fileLockPath.c_str()).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
-            LogError() << "Unable to remove the file lock \"" << fileLockPath << "\"";
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+            LogError() << "Unable to remove the file lock \"" << m_fileLockPath << "\"";
         });
 
         if (cleanupFailed)
