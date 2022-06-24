@@ -17,8 +17,10 @@
 #define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
+#include "iceoryx_hoofs/design_pattern/builder.hpp"
+#include "iceoryx_hoofs/platform/file.hpp"
 
 namespace iox
 {
@@ -27,10 +29,11 @@ namespace posix
 enum class FileLockError
 {
     INVALID_FILE_NAME,
+    INVALID_FILE_PATH,
+    FILE_PATH_TOO_LONG,
     LOCKED_BY_OTHER_PROCESS,
     ACCESS_DENIED,
     QUOTA_EXHAUSTED,
-    INVALID_CHARACTERS_IN_FILE_NAME,
     SYSTEM_LIMIT,
     PROCESS_LIMIT,
     NO_SUCH_DIRECTORY,
@@ -57,10 +60,9 @@ enum class FileLockError
 ///            }
 ///        });
 /// @endcode
-class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
+class FileLock
 {
   public:
-    static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
     static constexpr const char LOCK_FILE_SUFFIX[] = ".lock";
     static constexpr uint64_t FILENAME_LENGTH = platform::IOX_MAX_FILENAME_LENGTH
@@ -68,7 +70,8 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
                                                 - sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
 
     using FileName_t = cxx::string<FILENAME_LENGTH>;
-    using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+    using FilePath_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+    using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH - FILENAME_LENGTH - 1>;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
@@ -78,21 +81,36 @@ class FileLock : public DesignPattern::Creation<FileLock, FileLockError>
     ~FileLock() noexcept;
 
   private:
-    int32_t m_fd{INVALID_FD};
-    FileName_t m_name;
-    PathName_t m_fileLockPath;
+    enum class LockOperation : int32_t
+    {
+        LOCK = LOCK_EX | LOCK_NB,
+        UNLOCK = LOCK_UN
+    };
 
-    /// @brief c'tor
-    /// @param[in] name of the created file lock in PATH_PREFIX
-    explicit FileLock(const FileName_t& name) noexcept;
+    int32_t m_fd{INVALID_FD};
+    FilePath_t m_fileLockPath;
+
+  private:
+    friend class FileLockBuilder;
+    FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept;
 
     void invalidate() noexcept;
 
-    cxx::expected<FileLockError> initializeFileLock() noexcept;
-    FileLockError convertErrnoToFileLockError(const int32_t errnum) const noexcept;
-    cxx::expected<FileLockError> closeFileDescriptor() noexcept;
+    static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
+    static cxx::expected<FileLockError> closeFileDescriptor(const int32_t fileDescriptor,
+                                                            const FilePath_t& fileLockPath) noexcept;
+};
 
-    friend class DesignPattern::Creation<FileLock, FileLockError>;
+class FileLockBuilder
+{
+    IOX_BUILDER_PARAMETER(FileLock::FileName_t, name, "")
+
+    IOX_BUILDER_PARAMETER(FileLock::PathName_t, path, platform::IOX_LOCK_FILE_PATH_PREFIX)
+
+    IOX_BUILDER_PARAMETER(cxx::perms, permission, cxx::perms::none)
+
+  public:
+    cxx::expected<FileLock, FileLockError> create() noexcept;
 };
 } // namespace posix
 } // namespace iox

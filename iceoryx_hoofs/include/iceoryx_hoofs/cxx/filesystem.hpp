@@ -29,7 +29,7 @@ namespace cxx
 ///        The enum satisfies also all requirements of the BitmaskType, this means
 ///        the operators `|`, `&`, `^`, `~`, `|=`, `&=` and `^=` are implemented as
 ///        free functions as C++17 requires it.
-enum class perms : uint64_t
+enum class perms : uint32_t
 {
     /// @brief Deny everything
     none = 0,
