@@ -4,8 +4,8 @@
 
 namespace eh
 {
-// define which levels shall exist, Fatal is mandatory
-
+// define which levels shall exist, Fatal is mandatory and already exists (with code 0)
+// codes are currently unused as we can rely on the C++ type system
 struct Error
 {
     operator error_level_t()

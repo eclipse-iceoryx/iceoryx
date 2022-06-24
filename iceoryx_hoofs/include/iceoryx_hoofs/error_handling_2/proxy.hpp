@@ -2,8 +2,8 @@
 
 #include "error_code.hpp"
 #include "location.hpp"
+#include "platform/error_handling.hpp"
 #include "platform/error_levels.hpp"
-#include "platform/report.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -51,13 +51,13 @@ struct ErrorProxy
             // can be compile time dispatched later
             if (code > 0)
             {
-                report(location, level, code, module);
+                handle(location, level, code, module);
                 // we need our own stream to do this, likely bounded
                 std::cout << stream.str();
             }
             else
             {
-                report(location, level);
+                handle(location, level);
                 std::cout << stream.str();
             }
             if (is_fatal<Level>::value)
@@ -120,7 +120,7 @@ struct ErrorProxy2
     {
         if (hasError)
         {
-            report(location, level, error);
+            handle(location, level, error);
             // we need our own stream to do this, likely bounded
             std::cout << stream.str();
 

@@ -15,12 +15,12 @@ void report(const SourceLocation& location, Level level)
     std::cout << name << "@" << location.file << " " << location.line << " " << location.function << std::endl;
 }
 
-template <class Level, class Code>
-void report(const SourceLocation& location, Level level, Code code)
+template <class Level, class Error>
+void report(const SourceLocation& location, Level level, Error error)
 {
     auto levelName = level.name;
-    auto codeName = code.name();
-    auto module = code.module();
+    auto codeName = error.name();
+    auto module = error.module();
     std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
               << codeName << " in module " << module << std::endl;
 }
@@ -34,8 +34,4 @@ void report(const SourceLocation& location, Level level, error_code_t code, modu
               << codeName << " in module " << module << std::endl;
 }
 
-void terminate()
-{
-    std::cout << "TERMINATE" << std::endl;
-}
 } // namespace eh

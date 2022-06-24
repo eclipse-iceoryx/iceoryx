@@ -14,6 +14,7 @@ enum class ErrorCode : error_code_t
     OutOfBounds = 2
 };
 
+// each module must have exactly one ID
 static constexpr module_id_t MODULE_ID = 42;
 
 static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
