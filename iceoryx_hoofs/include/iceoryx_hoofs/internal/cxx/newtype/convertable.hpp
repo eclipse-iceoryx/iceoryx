@@ -26,6 +26,8 @@ namespace newtype
 template <typename T>
 struct Convertable
 {
+  protected:
+    ~Convertable() = default;
 };
 
 } // namespace newtype

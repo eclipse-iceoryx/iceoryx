@@ -36,6 +36,9 @@ struct Comparable
     {
         return !(lhs == rhs);
     }
+
+  protected:
+    ~Comparable() = default;
 };
 
 } // namespace newtype

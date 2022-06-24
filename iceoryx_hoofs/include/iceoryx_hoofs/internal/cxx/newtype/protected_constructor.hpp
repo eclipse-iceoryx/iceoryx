@@ -26,6 +26,8 @@ namespace newtype
 template <typename T>
 struct ProtectedConstructByValueCopy
 {
+  protected:
+    ~ProtectedConstructByValueCopy() = default;
 };
 } // namespace newtype
 } // namespace cxx

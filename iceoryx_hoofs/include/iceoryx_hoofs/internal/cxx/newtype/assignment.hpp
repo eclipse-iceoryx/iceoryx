@@ -26,21 +26,29 @@ namespace newtype
 template <typename T>
 struct CopyAssignable
 {
+  protected:
+    ~CopyAssignable() = default;
 };
 
 template <typename T>
 struct MoveAssignable
 {
+  protected:
+    ~MoveAssignable() = default;
 };
 
 template <typename T>
 struct AssignByValueCopy
 {
+  protected:
+    ~AssignByValueCopy() = default;
 };
 
 template <typename T>
 struct AssignByValueMove
 {
+  protected:
+    ~AssignByValueMove() = default;
 };
 
 } // namespace newtype

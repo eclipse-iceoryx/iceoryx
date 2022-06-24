@@ -26,21 +26,29 @@ namespace newtype
 template <typename T>
 struct CopyConstructable
 {
+  protected:
+    ~CopyConstructable() = default;
 };
 
 template <typename T>
 struct MoveConstructable
 {
+  protected:
+    ~MoveConstructable() = default;
 };
 
 template <typename T>
 struct ConstructByValueCopy
 {
+  protected:
+    ~ConstructByValueCopy() = default;
 };
 
 template <typename T>
 struct DefaultConstructable
 {
+  protected:
+    ~DefaultConstructable() = default;
 };
 } // namespace newtype
 } // namespace cxx

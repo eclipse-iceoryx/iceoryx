@@ -46,6 +46,9 @@ struct Sortable
     {
         return internal::newTypeAccessor(lhs) >= internal::newTypeAccessor(rhs);
     }
+
+  protected:
+    ~Sortable() = default;
 };
 
 } // namespace newtype

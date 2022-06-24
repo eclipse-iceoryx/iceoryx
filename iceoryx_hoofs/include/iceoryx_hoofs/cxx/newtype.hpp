@@ -75,6 +75,11 @@ class NewType : public Policies<NewType<T, Policies...>>...
   protected:
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
+    /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
+    /// in `Foo` and `Bar` being the same type, this enforces the creation of the
+    /// new type by inheritance
+    ~NewType() = default;
+
   public:
     /// @brief the type of *this
     using ThisType = NewType<T, Policies...>;
