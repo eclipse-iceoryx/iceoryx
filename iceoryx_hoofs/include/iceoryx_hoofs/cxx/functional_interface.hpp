@@ -280,12 +280,16 @@ struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
                                  public AndThenWithValue<Derived, ValueType>,
                                  public OrElseWithValue<Derived, ErrorType>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived>
 struct FunctionalInterfaceImpl<Derived, void, void>
     : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -294,12 +298,16 @@ struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValu
                                                            public AndThenWithValue<Derived, ValueType>,
                                                            public OrElse<Derived>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ErrorType>
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
     : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 } // namespace internal
 
