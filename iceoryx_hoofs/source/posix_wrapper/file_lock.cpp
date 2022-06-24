@@ -45,14 +45,10 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     FileLock::FilePath_t fileLockPath = m_path;
 
-
-    // todo: add to filesystem: does end with path separator
-    //       add path separator
-    //       add PATH_SEPARATOR_LENGTH to platform
-    //    if (!m_path.empty() && m_path[m_path.size() - 1U] != iox::platform::IOX_PATH_SEPARATORS)
-    //    {
-    //    }
-
+    if (!cxx::doesEndWithPathSeparator(fileLockPath))
+    {
+        fileLockPath.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[0]);
+    }
 
     fileLockPath.unsafe_append(m_name);
     fileLockPath.unsafe_append(FileLock::LOCK_FILE_SUFFIX);

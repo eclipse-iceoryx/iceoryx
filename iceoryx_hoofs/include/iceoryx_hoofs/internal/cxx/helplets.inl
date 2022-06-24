@@ -127,15 +127,35 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
     return false;
 }
 
+template <uint64_t StringCapacity>
+inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    char lastCharacter = name[name.size() - 1U];
+
+    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    {
+        if (lastCharacter == iox::platform::IOX_PATH_SEPARATORS[i])
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 template <typename F, typename T>
-constexpr T from(const F) noexcept
+inline constexpr T from(const F) noexcept
 {
     static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
     Please specialize `template <typename F, typename T> constexpr T from(const F) noexcept`!");
 }
 
 template <typename T, typename F>
-constexpr T into(const F e) noexcept
+inline constexpr T into(const F e) noexcept
 {
     return from<F, T>(e);
 }
