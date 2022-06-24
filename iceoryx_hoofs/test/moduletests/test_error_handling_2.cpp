@@ -21,6 +21,11 @@ TEST(EH_test, raise)
 
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
     IOX_RAISE(FATAL, B_Code::OutOfMemory);
+
+    auto a = GenericError(A_Code::OutOfBounds);
+    auto b = GenericError(B_Code::OutOfBounds);
+    EXPECT_EQ(a, a);
+    EXPECT_NE(b, a);
 }
 
 TEST(EH_test, fatal)

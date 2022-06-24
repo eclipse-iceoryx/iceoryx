@@ -8,6 +8,7 @@
 
 namespace eh
 {
+// TODO: overwrite at runtime?
 template <class Level>
 void report(const SourceLocation& location, Level level)
 {
@@ -21,6 +22,7 @@ void report(const SourceLocation& location, Level level, Error error)
     auto levelName = level.name;
     auto codeName = error.name();
     auto module = error.module();
+
     std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
               << codeName << " in module " << module << std::endl;
 }
