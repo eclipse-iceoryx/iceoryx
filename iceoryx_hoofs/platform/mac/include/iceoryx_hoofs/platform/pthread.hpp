@@ -19,9 +19,29 @@
 
 #include <pthread.h>
 
-inline int iox_pthread_setname_np(pthread_t, const char*)
+using iox_pthread_t = pthread_t;
+using iox_pthread_attr_t = pthread_attr_t;
+
+inline int iox_pthread_setname_np(iox_pthread_t, const char*)
 {
     // Not implemeted due to missing functionality in MacOS
+    return 0;
+}
+
+inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
+{
+    // Not implemeted due to missing functionality in MacOS
+    return 0;
+}
+
+inline int
+iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+{
+    return 0;
+}
+
+inline int iox_pthread_join(iox_pthread_t, void**)
+{
     return 0;
 }
 

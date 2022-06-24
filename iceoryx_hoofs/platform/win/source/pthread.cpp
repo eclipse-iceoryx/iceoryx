@@ -22,7 +22,7 @@
 #include <cwchar>
 #include <vector>
 
-int iox_pthread_setname_np(pthread_t thread, const char* name)
+int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
     DWORD threadId = Win32Call(GetThreadId, static_cast<HANDLE>(thread)).value;
 
@@ -34,7 +34,7 @@ int iox_pthread_setname_np(pthread_t thread, const char* name)
     return Win32Call(SetThreadDescription, static_cast<HANDLE>(thread), wName.data()).error;
 }
 
-int pthread_getname_np(pthread_t thread, char* name, size_t len)
+int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
     wchar_t* wName;
     auto result = Win32Call(GetThreadDescription, static_cast<HANDLE>(thread), &wName).error;
@@ -45,6 +45,16 @@ int pthread_getname_np(pthread_t thread, char* name, size_t len)
     }
 
     return result;
+}
+
+int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*start_routine)(void*), void*)
+{
+    return 0;
+}
+
+int iox_pthread_join(iox_pthread_t, void**)
+{
+    return 0;
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)

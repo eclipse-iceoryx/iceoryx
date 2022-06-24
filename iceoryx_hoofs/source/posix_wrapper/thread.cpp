@@ -35,12 +35,12 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     uninitializedThread.emplace();
     uninitializedThread->m_callable = callable;
 
-    const pthread_attr_t* threadAttributes = nullptr;
+    const iox_pthread_attr_t* threadAttributes = nullptr;
 
-    auto createResult = posixCall(pthread_create)(&uninitializedThread->m_threadHandle,
-                                                  threadAttributes,
-                                                  Thread::startRoutine,
-                                                  &uninitializedThread->m_callable)
+    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_threadHandle,
+                                                      threadAttributes,
+                                                      Thread::startRoutine,
+                                                      &uninitializedThread->m_callable)
                             .successReturnValue(0)
                             .evaluate();
     uninitializedThread->m_isThreadConstructed = !createResult.has_error();
@@ -57,7 +57,7 @@ Thread::~Thread() noexcept
 {
     if (m_isThreadConstructed)
     {
-        auto joinResult = posixCall(pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+        auto joinResult = posixCall(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
             switch (joinResult.get_error().errnum)
@@ -81,18 +81,20 @@ void Thread::setName(const ThreadName_t& name) noexcept
         .expect("This should never happen! Failed to set thread name.");
     /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
+    /// @todo Do we really want to terminate here?
 }
 
 ThreadName_t Thread::getName() noexcept
 {
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
-    posixCall(pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+    posixCall(iox_pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to retrieve the thread name.");
     /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
+    /// @todo Do we really want to terminate here?
 
     return ThreadName_t(cxx::TruncateToCapacity, tempName);
 }
@@ -102,6 +104,8 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
     switch (errnoValue)
     {
     case EAGAIN:
+        /// @todo add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both, the name of
+        /// the new thread and the name of the thread which created the new one
         LogError() << "insufficient resources to create another thread";
         return ThreadError::INSUFFICIENT_RESOURCES;
     case EINVAL:

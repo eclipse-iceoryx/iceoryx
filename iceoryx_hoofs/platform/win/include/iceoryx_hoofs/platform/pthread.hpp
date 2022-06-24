@@ -55,7 +55,12 @@ int pthread_mutex_lock(pthread_mutex_t* mutex);
 int pthread_mutex_trylock(pthread_mutex_t* mutex);
 int pthread_mutex_unlock(pthread_mutex_t* mutex);
 
-int iox_pthread_setname_np(pthread_t thread, const char* name);
-int pthread_getname_np(pthread_t thread, char* name, size_t len);
+using iox_pthread_t = pthread_t;
+using iox_pthread_attr_t = void;
+
+int iox_pthread_setname_np(iox_pthread_t thread, const char* name);
+int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len);
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg);
+int iox_pthread_join(iox_pthread_t thread, void** retval);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP

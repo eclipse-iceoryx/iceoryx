@@ -72,7 +72,7 @@ class Thread
 
     static void* startRoutine(void* callable);
 
-    pthread_t m_threadHandle;
+    iox_pthread_t m_threadHandle;
     callable_t m_callable;
     bool m_isThreadConstructed{false};
 };
