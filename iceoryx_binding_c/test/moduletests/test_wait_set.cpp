@@ -796,7 +796,7 @@ void notifyClient(ClientPortData& portData)
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
     iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingClientEventWorks)
@@ -928,7 +928,7 @@ void notifyServer(ServerPortData& portData)
 {
     iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, AttachingServerEventWorks)
@@ -1140,7 +1140,7 @@ void notifyServiceDiscovery(SubscriberPortData& portData)
 {
     iox::popo::ChunkQueuePusher<SubscriberChunkReceiverData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWorks)

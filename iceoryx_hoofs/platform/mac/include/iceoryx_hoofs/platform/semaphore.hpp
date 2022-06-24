@@ -18,11 +18,12 @@
 #define IOX_HOOFS_MAC_PLATFORM_SEMAPHORE_HPP
 
 #include <atomic>
+#include <cstdint>
 #include <dispatch/dispatch.h>
 #include <semaphore.h>
 
 #define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
-#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
+constexpr uint32_t IOX_SEM_VALUE_MAX = SEM_VALUE_MAX;
 
 struct iox_sem_t
 {

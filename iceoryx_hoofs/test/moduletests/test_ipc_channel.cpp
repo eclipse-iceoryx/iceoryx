@@ -65,7 +65,7 @@ class IpcChannel_test : public Test
         auto serverResult = IpcChannelType::create(goodName, IpcChannelSide::SERVER, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
-        internal::CaptureStderr();
+        ::testing::internal::CaptureStderr();
 
         auto clientResult = IpcChannelType::create(goodName, IpcChannelSide::CLIENT, MaxMsgSize, MaxMsgNumber);
         ASSERT_THAT(clientResult.has_error(), Eq(false));
@@ -74,7 +74,7 @@ class IpcChannel_test : public Test
 
     void TearDown()
     {
-        std::string output = internal::GetCapturedStderr();
+        std::string output = ::testing::internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;

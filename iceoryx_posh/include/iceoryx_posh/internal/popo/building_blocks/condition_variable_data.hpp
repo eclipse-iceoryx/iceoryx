@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_VARIABLE_DATA_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -38,16 +38,11 @@ struct ConditionVariableData
     ConditionVariableData& operator=(ConditionVariableData&& rhs) = delete;
     ~ConditionVariableData() noexcept = default;
 
-    posix::Semaphore m_semaphore = std::move(
-        posix::Semaphore::create(posix::CreateUnnamedSharedMemorySemaphore, 0U)
-            .or_else([](posix::SemaphoreError&) {
-                errorHandler(PoshError::POPO__CONDITION_VARIABLE_DATA_FAILED_TO_CREATE_SEMAPHORE, ErrorLevel::FATAL);
-            })
-            .value());
-
+    cxx::optional<posix::UnnamedSemaphore> m_semaphore;
     RuntimeName_t m_runtimeName;
     std::atomic_bool m_toBeDestroyed{false};
     std::atomic_bool m_activeNotifications[MAX_NUMBER_OF_NOTIFIERS];
+    std::atomic_bool m_wasNotified{false};
 };
 
 } // namespace popo

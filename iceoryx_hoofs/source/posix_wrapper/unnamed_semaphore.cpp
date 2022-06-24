@@ -37,7 +37,7 @@ UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSe
     uninitializedSemaphore.emplace();
 
     auto result = posixCall(iox_sem_init)(&uninitializedSemaphore.value().m_handle,
-                                          (m_isInterProcessCapable) ? 0 : 1,
+                                          (m_isInterProcessCapable) ? 1 : 0,
                                           static_cast<unsigned int>(m_initialValue))
                       .failureReturnValue(-1)
                       .evaluate();

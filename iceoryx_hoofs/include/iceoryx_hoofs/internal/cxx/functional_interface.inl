@@ -37,7 +37,7 @@ inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 
     if (!(*static_cast<const Derived*>(this)))
     {
-        std::cout << msg << std::endl;
+        print_expect_message(&msg[0]);
         Ensures(false);
     }
 }
@@ -53,7 +53,7 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& 
 
     if (!(*derivedThis))
     {
-        std::cout << msg << std::endl;
+        print_expect_message(&msg[0]);
         Ensures(false);
     }
 

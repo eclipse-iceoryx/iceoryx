@@ -18,7 +18,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -156,7 +156,7 @@ iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
 iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeDetached;
 std::array<TriggerSourceAndCount, iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER> g_triggerCallbackArg;
 uint64_t g_triggerCallbackRuntimeInMs = 0U;
-iox::cxx::optional<iox::posix::Semaphore> g_callbackBlocker;
+iox::cxx::optional<iox::posix::UnnamedSemaphore> g_callbackBlocker;
 
 class Listener_test : public Test
 {
@@ -227,8 +227,11 @@ class Listener_test : public Test
 
     void activateTriggerCallbackBlocker() noexcept
     {
-        g_callbackBlocker.emplace(
-            iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value());
+        iox::posix::UnnamedSemaphoreBuilder()
+            .initialValue(0U)
+            .isInterProcessCapable(false)
+            .create(g_callbackBlocker)
+            .expect("Unable to create callback blocker semaphore");
     }
 
     void unblockTriggerCallback(const uint64_t numberOfUnblocks) noexcept

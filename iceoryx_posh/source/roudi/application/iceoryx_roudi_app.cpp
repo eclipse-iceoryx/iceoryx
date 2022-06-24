@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2019 - 2020 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/scoped_static.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 
@@ -48,7 +49,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                                 RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
                                                                 m_compatibilityCheckLevel,
                                                                 m_processKillDelay});
-        waitForSignal();
+        iox::posix::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;
 }

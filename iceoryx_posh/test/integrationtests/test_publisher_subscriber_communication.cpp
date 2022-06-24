@@ -21,7 +21,7 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
@@ -551,18 +551,17 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
     EXPECT_FALSE(publisher->publishCopyOf("start your day with a smile").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("and hypnotoad will smile back").has_error());
 
-    auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
-
     std::atomic_bool wasSampleDelivered{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         EXPECT_FALSE(publisher->publishCopyOf("oh no hypnotoad is staring at me").has_error());
         wasSampleDelivered.store(true);
     });
 
     constexpr int64_t TIMEOUT_IN_MS = 100;
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
     EXPECT_FALSE(wasSampleDelivered.load());
 
@@ -595,16 +594,15 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
     EXPECT_FALSE(publisher->publishCopyOf("first there was a blubb named mantua").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("second hypnotoad ate it").has_error());
 
-    auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
-
     std::atomic_bool wasSampleDelivered{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         EXPECT_FALSE(publisher->publishCopyOf("third a tiny black hole smells like butter").has_error());
         wasSampleDelivered.store(true);
     });
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     t1.join();
     EXPECT_TRUE(wasSampleDelivered.load());
 
@@ -666,18 +664,17 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
     EXPECT_FALSE(publisherNonBlocking->publishCopyOf("hypnotoad has a sister named hypnoodle").has_error());
 
-    auto threadSyncSemaphore = posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U);
-
     std::atomic_bool wasSampleDelivered{false};
+    Barrier isThreadStarted(1U);
     std::thread t1([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         EXPECT_FALSE(publisherBlocking->publishCopyOf("chucky is the only one who can ride the hypnotoad").has_error());
         wasSampleDelivered.store(true);
     });
 
     constexpr int64_t TIMEOUT_IN_MS = 100;
 
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(TIMEOUT_IN_MS));
     EXPECT_FALSE(wasSampleDelivered.load());
 

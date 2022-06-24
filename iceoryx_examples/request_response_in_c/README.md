@@ -159,8 +159,7 @@ Afterwards we create our waitset and attach the client state `ClientState_HAS_RE
 to it.
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][create waitset and attach client]-->
 ```c
-iox_ws_storage_t waitsetStorage;
-iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+waitset = iox_ws_init(&waitsetStorage);
 
 if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
 {

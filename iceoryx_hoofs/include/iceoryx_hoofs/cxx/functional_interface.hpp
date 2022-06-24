@@ -16,10 +16,11 @@
 #ifndef IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 #define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 
-#include <iostream>
 #include <utility>
 
 namespace iox
@@ -53,6 +54,8 @@ template <typename Derived>
 struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().get_error())>> : std::true_type
 {
 };
+
+void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
 struct Expect

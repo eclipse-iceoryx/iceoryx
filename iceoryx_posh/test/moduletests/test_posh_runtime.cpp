@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -949,7 +950,6 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     // send samples to fill subscriber queue
     ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasSampleSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
@@ -957,15 +957,16 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingPublisher)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingPublisher([&] {
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         ASSERT_FALSE(publisher.publishCopyOf(42U).has_error());
         wasSampleSent = true;
     });
 
     // wait some time to check if the publisher is blocked
+    isThreadStarted.wait();
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasSampleSent.load(), Eq(false));
 
@@ -997,7 +998,6 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasRequestSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
@@ -1005,6 +1005,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingClient([&] {
         auto sendRequest = [&](bool expectError) {
             auto clientLoanResult = client.loan(sizeof(uint64_t), alignof(uint64_t));
@@ -1025,7 +1026,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
         }
 
         // signal that an blocking send is expected
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         constexpr bool EXPECT_ERROR_INDICATOR{true};
         sendRequest(EXPECT_ERROR_INDICATOR);
         wasRequestSent = true;
@@ -1033,7 +1034,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
 
     // wait some time to check if the client is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
 
@@ -1073,7 +1074,6 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
         EXPECT_FALSE(client.send(clientLoanResult.value()).has_error());
     }
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasResponseSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
@@ -1081,6 +1081,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingServer([&] {
         auto processRequest = [&](bool expectError) {
             auto takeResult = server.take();
@@ -1102,7 +1103,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
             processRequest(EXPECT_ERROR_INDICATOR);
         }
 
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         constexpr bool EXPECT_ERROR_INDICATOR{true};
         processRequest(EXPECT_ERROR_INDICATOR);
         wasResponseSent = true;
@@ -1110,7 +1111,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
 
     // wait some time to check if the server is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
 

@@ -24,6 +24,7 @@
 #include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
 #include "iceoryx_hoofs/platform/windows.hpp"
 
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <map>
@@ -34,7 +35,7 @@
 #define IOX_SEM_FAILED static_cast<iox_sem_t*>(nullptr)
 // win32 API page talks about maximum allowed value without defining it or how to obtain.
 // We use the IOX_SEM_VALUE_MAX from linux which is INT_MAX
-#define IOX_SEM_VALUE_MAX INT_MAX
+constexpr uint32_t IOX_SEM_VALUE_MAX = INT_MAX;
 
 struct iox_sem_t
 {
