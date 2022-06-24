@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_INL
 #define IOX_HOOFS_CXX_HELPLETS_INL
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -64,23 +66,20 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 template <uint64_t StringCapacity>
 inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
 {
-    if (name.empty())
+    if (doesEndWithPathSeparator(name))
     {
         return false;
     }
 
-    uint64_t nameSize = name.size();
+    return isValidPath(name);
+}
 
-    // a file path ends with the filename and not the path separator, only a
-    // directory can end with a path separator
-    auto numberOfPathSeparators = strlen(platform::IOX_PATH_SEPARATORS);
-    for (uint64_t i = 0; i < numberOfPathSeparators; ++i)
+template <uint64_t StringCapacity>
+inline bool isValidPath(const string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
     {
-        const char lastCharacter = name.c_str()[nameSize - 1U];
-        if (lastCharacter == platform::IOX_PATH_SEPARATORS[i])
-        {
-            return false;
-        }
+        return false;
     }
 
     auto temp = name;
@@ -124,7 +123,7 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
         }
     }
 
-    return false;
+    return true;
 }
 
 template <uint64_t StringCapacity>

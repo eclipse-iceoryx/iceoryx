@@ -259,6 +259,10 @@ bool isValidFileName(const string<StringCapacity>& name) noexcept;
 template <uint64_t StringCapacity>
 bool isValidFilePath(const string<StringCapacity>& name) noexcept;
 
+/// @brief returns true if the provided name is a valid path, otherwise false
+template <uint64_t StringCapacity>
+bool isValidPath(const string<StringCapacity>& name) noexcept;
+
 /// @brief returns true if the provided name ends with a path separator, otherwise false
 template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;

@@ -454,7 +454,13 @@ TEST(Helplets_test_isValidFilePath, PathWhichContainsAllValidCharactersIsValid)
         string<FILE_PATH_LENGTH>("/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_")));
 }
 
-TEST(Helplets_test_isValidFilePath, WhenOneInvalidCharacterIsContainedPathIsInvalid)
+TEST(Helplets_test_isValidFilePath, EmptyFilePathIsInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a045581c-3a66-4d0e-b2e2-6ed5a97d4f89");
+    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("")));
+}
+
+TEST(Helplets_test_isValidFilePath_and_isValidPath, WhenOneInvalidCharacterIsContainedPathIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a764cff3-2607-47bb-952b-4ca75f326721");
     std::string validPath1 = "/hello";
@@ -507,13 +513,121 @@ TEST(Helplets_test_isValidFilePath, WhenOneInvalidCharacterIsContainedPathIsInva
         EXPECT_FALSE(isValidFilePath(invalidCharacterFrontTest));
         EXPECT_FALSE(isValidFilePath(invalidCharacterMiddleTest));
         EXPECT_FALSE(isValidFilePath(invalidCharacterEndTest));
+
+        EXPECT_FALSE(isValidPath(invalidCharacterFrontTest));
+        EXPECT_FALSE(isValidPath(invalidCharacterMiddleTest));
+        EXPECT_FALSE(isValidPath(invalidCharacterEndTest));
     }
 }
 
-TEST(Helplets_test_isValidFilePath, EmptyFilePathIsInvalid)
+TEST(Helplets_test_isValidPath, MultipleSlashsAreValidPath)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "a045581c-3a66-4d0e-b2e2-6ed5a97d4f89");
-    EXPECT_FALSE(isValidFilePath(string<FILE_PATH_LENGTH>("")));
+    ::testing::Test::RecordProperty("TEST_ID", "14c6f67f-486a-4b08-a91a-6ef30af84cce");
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("//beginning/double/slash")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("//beginning/double/slash//")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/middle//double/slash")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("middle//double/slash")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("middle//double/slash//")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/multi////slash")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/multi////slash////")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("////multi/slash")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("//multi///slash////hypno")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("//multi///slash////hypno////")));
+}
+
+TEST(Helplets_test_isValidPath, RelativePathElementsAreValid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "97c215ca-7f67-4ec1-9b17-d98b219a804d");
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../some.file")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../some.dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./another_file")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./another_dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./dir/../../fuu-bar")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./dir/../../fuu-bar/dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./././gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./././gimme-blubb/dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./../.././gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./../.././gimme-blubb/dir/")));
+}
+
+TEST(Helplets_test_isValidPath, RelativePathBeginningFromRootIsValid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6d2b2656-19ad-4ea0-9ade-77419af849ba");
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/./././gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/./././gimme-blubb/dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/../../../gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/../../../gimme-blubb/dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/../some/dir/gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/../some/dir/gimme-blubb/./dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/./blubb/dir/gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/./blubb/dir/gimme-blubb/../dir/")));
+}
+
+TEST(Helplets_test_isValidPath, SingleEntryIsValidPath)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6983ab77-d658-408d-97aa-bd1d218560fb");
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("gimme-blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("gimme-blubb/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("a")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("a/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("fuu:blubb")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("fuu:blubb/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/blarbi")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/blarbi/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/x")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/x/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu:-012")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu:-012/")));
+}
+
+TEST(Helplets_test_isValidPath, ValidPathsWithNoRelativeComponentAreValid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bf7a0a75-c59e-46a8-96f1-1f848e1c3e43");
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu/bla/blubb/balaa")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu/bla/blubb/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/a/b/c/d/1/2/4")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/a/b/c/d/1/2/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("asd/fuu/asdaaas/1")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("asd/fuu/asdaaas/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("123/456")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("123/456/")));
+}
+
+TEST(Helplets_test_isValidPath, EndingWithRelativePathComponentIsInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "506f9823-39cc-4cbc-b064-84d45b2311e8");
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/..")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("./..")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("../.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("some/path/to/..")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/another/path/to/.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("../bla/fuu/../blubb/.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
+}
+
+TEST(Helplets_test_isValidPath, FilePathsWithEndingDotsAreInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f79660e6-12b5-4ad0-bc26-766da34898b8");
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("a.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/asda.")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/bla/../fuu/asda..")));
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/bla/./.././xa..")));
+}
+
+TEST(Helplets_test_isValidPath, PathWhichContainsAllValidCharactersIsValid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8052b601-c9ad-4cb8-9a87-c301f213d8c4");
+    EXPECT_TRUE(isValidPath(
+        string<FILE_PATH_LENGTH>("/abcdefghijklmnopqrstuvwxyz/ABCDEFGHIJKLMNOPQRSTUVWXYZ/0123456789/-.:_")));
+    EXPECT_TRUE(
+        isValidPath(string<FILE_PATH_LENGTH>("/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_")));
+}
+
+TEST(Helplets_test_isValidPath, EmptyPathIsInvalid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9724b52e-2e5a-425f-853d-a0b43e553f8b");
+    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("")));
 }
 
 TEST(Helplets_test_doesEndWithPathSeparator, EmptyPathDoesNotEndWithPathSeparator)
