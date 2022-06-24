@@ -65,9 +65,8 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
 
     // run the threads
-    cxx::function<void()> callable(*this, &RouDi::monitorAndDiscoveryUpdate);
-    posix::ThreadBuilder().create(m_monitoringAndDiscoveryThread, callable).expect("RouDi : Failed to create thread");
-    m_monitoringAndDiscoveryThread->setName("Mon+Discover");
+    m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
+    posix::setThreadName(m_monitoringAndDiscoveryThread.native_handle(), "Mon+Discover");
 
     if (roudiStartupParameters.m_runtimesMessagesThreadStart == RuntimeMessagesThreadStart::IMMEDIATE)
     {
@@ -82,11 +81,8 @@ RouDi::~RouDi() noexcept
 
 void RouDi::startProcessRuntimeMessagesThread() noexcept
 {
-    cxx::function<void()> callable(*this, &RouDi::processRuntimeMessages);
-    posix::ThreadBuilder()
-        .create(m_handleRuntimeMessageThread, callable)
-        .expect("RouDi::startProcessRuntimeMessagesThread : Failed to create thread");
-    m_handleRuntimeMessageThread->setName("IPC-msg-process");
+    m_handleRuntimeMessageThread = std::thread(&RouDi::processRuntimeMessages, this);
+    posix::setThreadName(m_handleRuntimeMessageThread.native_handle(), "IPC-msg-process");
 }
 
 void RouDi::shutdown() noexcept
@@ -96,9 +92,12 @@ void RouDi::shutdown() noexcept
 
     // stop the process management thread in order to prevent application to register while shutting down
     m_runMonitoringAndDiscoveryThread = false;
-    LogDebug() << "Joining 'Mon+Discover' thread...";
-    m_monitoringAndDiscoveryThread.reset();
-    LogDebug() << "...'Mon+Discover' thread joined.";
+    if (m_monitoringAndDiscoveryThread.joinable())
+    {
+        LogDebug() << "Joining 'Mon+Discover' thread...";
+        m_monitoringAndDiscoveryThread.join();
+        LogDebug() << "...'Mon+Discover' thread joined.";
+    }
 
     if (m_killProcessesInDestructor)
     {
@@ -136,9 +135,12 @@ void RouDi::shutdown() noexcept
     // Postpone the IpcChannelThread in order to receive TERMINATION
     m_runHandleRuntimeMessageThread = false;
 
-    LogDebug() << "Joining 'IPC-msg-process' thread...";
-    m_handleRuntimeMessageThread.reset();
-    LogDebug() << "...'IPC-msg-process' thread joined.";
+    if (m_handleRuntimeMessageThread.joinable())
+    {
+        LogDebug() << "Joining 'IPC-msg-process' thread...";
+        m_handleRuntimeMessageThread.join();
+        LogDebug() << "...'IPC-msg-process' thread joined.";
+    }
 }
 
 void RouDi::cyclicUpdateHook() noexcept

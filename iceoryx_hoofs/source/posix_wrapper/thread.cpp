@@ -23,6 +23,33 @@ namespace iox
 {
 namespace posix
 {
+void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
+{
+    posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
+        // String length limit is ensured through cxx::string
+        // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
+        std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
+        cxx::Ensures(false && "internal logic error");
+    });
+}
+
+ThreadName_t getThreadName(iox_pthread_t thread) noexcept
+{
+    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
+
+    posixCall(iox_pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([](auto& r) {
+            // String length limit is ensured through MAX_THREAD_NAME_LENGTH
+            // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
+            std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
+            cxx::Ensures(false && "internal logic error");
+        });
+
+    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+}
+
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
                                                  const Thread::callable_t& callable) noexcept
 {

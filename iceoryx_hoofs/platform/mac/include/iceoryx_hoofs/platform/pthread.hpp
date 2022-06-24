@@ -34,8 +34,7 @@ inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
     return 0;
 }
 
-inline int
-iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+inline int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*)(void*), void*)
 {
     return 0;
 }

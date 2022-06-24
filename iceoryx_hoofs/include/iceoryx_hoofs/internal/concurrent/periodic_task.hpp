@@ -122,7 +122,7 @@ class PeriodicTask
     posix::ThreadName_t m_taskName;
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
     cxx::optional<posix::UnnamedSemaphore> m_stop;
-    cxx::optional<posix::Thread> m_taskExecutor;
+    std::thread m_taskExecutor;
 };
 
 } // namespace concurrent
