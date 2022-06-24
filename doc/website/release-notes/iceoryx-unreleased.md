@@ -21,6 +21,8 @@
 - Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend `unsafe_append` and `append` methods of `iox::cxx::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
+- Use builder pattern in FileLock [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+    - Add the ability to adjust path and file permissions of the file lock
 
 **Bugfixes:**
 
@@ -138,4 +140,18 @@
 
         iox::posix::waitForTerminationRequest();
     }
+    ```
+
+6. `FileLock` uses the builder pattern. Path and permissions can now be set.
+    ```cpp
+    // before
+    auto fileLock = iox::posix::FileLock::create("lockFileName")
+                        .expect("Oh no I couldn't create the lock file");
+
+    // after
+    auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
+                                                 .path("/Now/I/Can/Add/A/Path")
+                                                 .permissions(iox::cxx::perms::owner_all)
+                                                 .create()
+                                                 .expect("Oh no I couldn't create the lock file");
     ```
