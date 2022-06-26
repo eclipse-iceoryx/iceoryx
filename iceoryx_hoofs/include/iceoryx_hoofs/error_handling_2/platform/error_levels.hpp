@@ -4,8 +4,9 @@
 
 namespace eh
 {
-// define which levels shall exist, Fatal is mandatory and already exists (with code 0)
-// codes are currently unused as we can rely on the C++ type system
+// define which levels shall exist for the platform, Fatal is mandatory and already exists (with code 0)
+// codes are currently unused as we can rely on the C++ type system instead (which has advantages
+// for e.g. compile time dispatch)
 struct Error
 {
     operator error_level_t()
@@ -47,7 +48,8 @@ bool constexpr requires_handling<Warning>(Warning)
 
 } // namespace eh
 
-// convenience
+// for convenience, beware of ambiguity (not much of a problem with only one platform defined for
+// any given binary)
 #define FATAL eh::fatal
 #define ERROR eh::error
 #define WARNING eh::warning

@@ -14,6 +14,8 @@ using namespace ::testing;
 using std::cout;
 using std::endl;
 
+#ifndef TEST_HANDLER
+#if 0
 TEST(EH_test, raise)
 {
     // unspecific error
@@ -75,5 +77,55 @@ TEST(EH_test, msg)
     // and_call will not work if this is opimized away naively
     IOX_DEBUG_ASSERT(false).and_call(f, 76);
 }
+#else
+
+
+TEST(EH_test, verify_error)
+{
+    IOX_RAISE(FATAL, B_Code::OutOfMemory) << "some error message\n";
+}
+#endif
+#else
+
+// currently we throw in the proxy dtor which will terminate,
+// we need a trick to use the operator<< and handle the error after the output
+TEST(EH_test, verify_error)
+{
+    auto expectedError = GenericError(B_Code::OutOfMemory);
+    try
+    {
+        // calling f which raises multiple errors would be a problem
+        // with the exception verification technique
+        // but this can only happen if destructors raise errors
+        // (which is bad, as with exceptions)
+        IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    }
+    // TODO: lacks elegance but works (with limitations of double exception)
+    //       note: we can also check it with a testhandler that does not require
+    //       exceptions
+    catch (B_Error& e)
+    {
+        std::cout << "caught1 " << e.name() << " in module " << e.module() << std::endl;
+
+        // we have no comparison operator for the concrete errors (but could have)
+        EXPECT_EQ(expectedError, GenericError(e.module(), e.code()));
+        return;
+    }
+    catch (GenericError& e)
+    {
+        // should not be needed if we know the concrete error
+        std::cout << "caught2 " << e.code() << " in module " << e.module() << std::endl;
+        EXPECT_EQ(expectedError, e);
+        return;
+    }
+    catch (...)
+    {
+        // needed
+        std::cout << "caught ..." << std::endl;
+    }
+    FAIL();
+}
+
+#endif
 
 } // namespace

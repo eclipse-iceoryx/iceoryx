@@ -1,11 +1,13 @@
 #pragma once
 
+#include <stdint.h>
+
 namespace eh
 {
 struct SourceLocation
 {
     const char* file{nullptr};
-    unsigned line{0};
+    uint32_t line{0};
     const char* function{nullptr};
 };
 

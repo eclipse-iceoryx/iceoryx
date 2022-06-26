@@ -14,13 +14,13 @@
 namespace eh
 {
 template <class Level>
-struct ErrorProxy
+struct UnspecificErrorProxy
 {
-    ErrorProxy()
+    UnspecificErrorProxy()
     {
     }
 
-    ErrorProxy(const SourceLocation& location, Level level)
+    UnspecificErrorProxy(const SourceLocation& location, Level level)
         : location(location)
         , level(level)
         , code(0) // TODO: fix the no-error code
@@ -30,7 +30,7 @@ struct ErrorProxy
     }
 
     template <class Code>
-    ErrorProxy(const SourceLocation& location, Level level, Code code)
+    UnspecificErrorProxy(const SourceLocation& location, Level level, Code code)
         : location(location)
         , level(level)
         , code(code.code())
@@ -38,13 +38,13 @@ struct ErrorProxy
         error = true;
     }
 
-    ErrorProxy(ErrorProxy&&)
+    UnspecificErrorProxy(UnspecificErrorProxy&&)
     {
         // should not be used (exists for RVO in C++14)
         std::terminate();
     }
 
-    ~ErrorProxy()
+    ~UnspecificErrorProxy() noexcept(false)
     {
         if (error)
         {
@@ -68,7 +68,7 @@ struct ErrorProxy
     }
 
     template <class F, class... Args>
-    ErrorProxy& and_call(const F& f, Args&&... args)
+    UnspecificErrorProxy& and_call(const F& f, Args&&... args)
     {
         if (error)
         {
@@ -78,7 +78,7 @@ struct ErrorProxy
     }
 
     template <class T>
-    ErrorProxy& operator<<(const T& msg)
+    UnspecificErrorProxy& operator<<(const T& msg)
     {
         stream << msg;
         return *this;
@@ -95,14 +95,13 @@ struct ErrorProxy
     std::stringstream stream;
 };
 
-// TODO: rename, consolidate
 template <class Level, class Error>
-struct ErrorProxy2
+struct ErrorProxy
 {
-    ErrorProxy2()
+    ErrorProxy()
     {
     }
-    ErrorProxy2(const SourceLocation& location, Level level, Error error)
+    ErrorProxy(const SourceLocation& location, Level level, Error error)
         : location(location)
         , level(level)
         , error(error)
@@ -110,29 +109,29 @@ struct ErrorProxy2
         hasError = true;
     }
 
-    ErrorProxy2(ErrorProxy2&&)
+    ErrorProxy(ErrorProxy&&)
     {
         // should not be used (exists for RVO in C++14)
         std::terminate();
     }
 
-    ~ErrorProxy2()
-    {
-        if (hasError)
-        {
-            handle(location, level, error);
-            // we need our own stream to do this, likely bounded
-            std::cout << stream.str();
+    // it may throw if the user defined handler does
+    // this is dangerous (if used incorrectly) but well-defined: if a destructor throws
+    // while an exception is propagated, terminate is called
+    // immediately and no further propagation takes place
+    //
+    // this is no prolem for us since we do not use exceptions in our
+    // handler and even if we do during testing (ONLY!) we should not have
+    // a problem as long as we never use IOX_RAISE in dtors
+    // for non-fatal errors
 
-            if (is_fatal<Level>::value)
-            {
-                terminate();
-            }
-        }
+    ~ErrorProxy() noexcept(false)
+    {
+        raise();
     }
 
     template <class F, class... Args>
-    ErrorProxy2& and_call(const F& f, Args&&... args)
+    ErrorProxy& and_call(const F& f, Args&&... args)
     {
         if (hasError)
         {
@@ -142,7 +141,7 @@ struct ErrorProxy2
     }
 
     template <class T>
-    ErrorProxy2& operator<<(const T& msg)
+    ErrorProxy& operator<<(const T& msg)
     {
         stream << msg;
         return *this;
@@ -156,6 +155,22 @@ struct ErrorProxy2
 
     // temporary solution (LogStream?)
     std::stringstream stream;
+
+    void raise()
+    {
+        if (hasError)
+        {
+            handle(location, level, error);
+            // we need our own stream to do this, likely bounded
+            // TODO: abstract logstream and propagate to handle
+            std::cout << stream.str();
+
+            if (is_fatal<Level>::value)
+            {
+                terminate();
+            }
+        }
+    }
 };
 
 } // namespace eh

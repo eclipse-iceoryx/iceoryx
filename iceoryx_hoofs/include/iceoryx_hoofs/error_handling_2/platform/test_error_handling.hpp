@@ -10,37 +10,31 @@
 
 namespace eh
 {
-// platform specific handling
-// this implementation redirects to reporting which reports to console
+// implementation of the test platform handler
 
-// handle unspecific error
+// if the mechanism to check for an error with exceptions or some error stack works
+// (the latter should always work), there is no reason to implement a more costly runtime dispatch
+// for the handling
+
 template <class Level>
 void handle(const SourceLocation& location, Level level)
 {
     report(location, level);
+    throw GenericError();
 }
 
-// handle concrete error
 template <class Level, class Error>
 void handle(const SourceLocation& location, Level level, const Error& error)
 {
     report(location, level, error);
+    throw Error(error);
 }
 
-// overload for fatal errors - can be done for any defined error level
-template <class Error>
-void handle(const SourceLocation& location, Fatal level, const Error& error)
-{
-    std::cout << "FATAL ERROR occurred" << std::endl;
-    report(location, level, error);
-}
-
-// handle generic error where only the code and module id is known
-// (only required if the proxy will not store the error type)
 template <class Level>
 void handle(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
     report(location, level, code, module);
+    throw GenericError(module, code);
 }
 
 // platform specific termination
