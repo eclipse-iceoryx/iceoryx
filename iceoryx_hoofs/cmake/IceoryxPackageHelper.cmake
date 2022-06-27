@@ -338,6 +338,8 @@ Macro(iox_add_library)
         VERSION ${PROJECT_VERSION}
     )
 
+    set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
+
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
     target_include_directories(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_INCLUDES} PRIVATE ${IOX_PRIVATE_INCLUDES})
