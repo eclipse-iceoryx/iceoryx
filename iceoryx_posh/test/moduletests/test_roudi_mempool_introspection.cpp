@@ -249,6 +249,7 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
 }
 
 TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "7112cf26-31e6-4ca4-bc8f-43fede7e456f");
     EXPECT_CALL(callChecker(), offer()).Times(1);
 
     MemPoolIntrospectionAccess introspectionAccess(
