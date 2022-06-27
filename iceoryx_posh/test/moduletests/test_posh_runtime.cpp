@@ -148,25 +148,12 @@ TEST_F(PoshRuntime_test, NoAppName)
 }
 
 // To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
-TEST(PoshRuntime, LeadingSlashAppName)
+TEST(PoshRuntime, LeadingSlashAppNameLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "77542d11-6230-4c1e-94b2-6cf3b8fa9c6e");
-    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
-
     const iox::RuntimeName_t invalidAppName = "/miau";
 
-    auto errorHandlerCalled{false};
-    iox::PoshError receivedError{iox::PoshError::NO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&errorHandlerCalled, &receivedError](const auto error, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
-        });
-
-    PoshRuntime::initRuntime(invalidAppName);
-
-    EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::PoshError::POSH__RUNTIME_LEADING_SLASH_PROVIDED));
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "");
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
