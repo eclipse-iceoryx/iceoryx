@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,21 +26,29 @@ namespace newtype
 template <typename T>
 struct CopyConstructable
 {
+  protected:
+    ~CopyConstructable() = default;
 };
 
 template <typename T>
 struct MoveConstructable
 {
+  protected:
+    ~MoveConstructable() = default;
 };
 
 template <typename T>
 struct ConstructByValueCopy
 {
+  protected:
+    ~ConstructByValueCopy() = default;
 };
 
 template <typename T>
 struct DefaultConstructable
 {
+  protected:
+    ~DefaultConstructable() = default;
 };
 } // namespace newtype
 } // namespace cxx
