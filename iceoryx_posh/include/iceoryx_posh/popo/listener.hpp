@@ -176,14 +176,13 @@ class ListenerImpl
     class Event_t;
 
     void threadLoop() noexcept;
-    cxx::expected<uint32_t, ListenerError>
-    addEvent(void* const origin,
-             void* const userType,
-             const uint64_t eventType,
-             const uint64_t eventTypeHash,
-             internal::GenericCallbackRef_t callback,
-             internal::TranslationCallbackRef_t translationCallback,
-             const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
+    cxx::expected<uint32_t, ListenerError> addEvent(void* const origin,
+                                                    void* const userType,
+                                                    const uint64_t eventType,
+                                                    const uint64_t eventTypeHash,
+                                                    internal::GenericCallbackRef_t callback,
+                                                    internal::TranslationCallbackRef_t translationCallback,
+                                                    const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 

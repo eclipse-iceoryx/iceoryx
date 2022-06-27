@@ -219,6 +219,18 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
+    {
+        concurrent::PeriodicTask<cxx::function<void()>> sut(
+            PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
+
+        std::this_thread::sleep_for(SLEEP_TIME);
+    }
+
+    EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
+});
+
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");
     auto start = std::chrono::steady_clock::now();
