@@ -66,6 +66,9 @@ struct Expect
     /// @param[in] msg Message which will be printed when the object is invalid
     template <typename StringType>
     void expect(const StringType& msg) const noexcept;
+
+  protected:
+    ~Expect() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -102,6 +105,9 @@ struct ExpectWithValue
     /// @return const rvalue reference to the contained value
     template <typename StringType>
     const ValueType&& expect(const StringType& msg) const&& noexcept;
+
+  protected:
+    ~ExpectWithValue() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -124,6 +130,9 @@ struct ValueOr
     ///         with alternative as constructor argument
     template <typename U>
     ValueType value_or(U&& alternative) && noexcept;
+
+  protected:
+    ~ValueOr() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -168,6 +177,9 @@ struct AndThenWithValue
     /// @return const rvalue reference to *this
     template <typename Functor>
     const Derived&& and_then(const Functor& callable) const&& noexcept;
+
+  protected:
+    ~AndThenWithValue() = default;
 };
 
 template <typename Derived>
@@ -198,6 +210,9 @@ struct AndThen
     /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
     const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
+
+  protected:
+    ~AndThen() = default;
 };
 
 template <typename Derived, typename ErrorType>
@@ -242,6 +257,9 @@ struct OrElseWithValue
     /// @return const rvalue reference to *this
     template <typename Functor>
     const Derived&& or_else(const Functor& callable) const&& noexcept;
+
+  protected:
+    ~OrElseWithValue() = default;
 };
 
 template <typename Derived>
@@ -272,6 +290,9 @@ struct OrElse
     /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
     const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
+
+  protected:
+    ~OrElse() = default;
 };
 
 template <typename Derived, typename ValueType, typename ErrorType>
