@@ -52,7 +52,7 @@ enum class FileLockError
 /// @code
 ///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
 ///                                                .path("/tmp")
-///                                                .permissions(iox::cxx::perms::owner_all)
+///                                                .permission(iox::cxx::perms::owner_all)
 ///                                                .create()
 ///                                                .expect("Oh no I couldn't create the lock");
 /// @endcode
@@ -65,8 +65,14 @@ class FileLock
                                                 - sizeof(platform::IOX_LOCK_FILE_PATH_PREFIX) / sizeof(char)
                                                 - sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
 
+    /// @brief A file name without any containing slash (path separator)
+    ///        For instance "myLock.lock"
     using FileName_t = cxx::string<FILENAME_LENGTH>;
+    /// @brief The full path to the file, including the file
+    ///        For instance "/path/to/myLock.lock"
     using FilePath_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+    /// @brief The directory to the file
+    ///        For instance "/path/to/"
     using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH - FILENAME_LENGTH - 1>;
 
     FileLock(const FileLock&) = delete;
@@ -93,7 +99,7 @@ class FileLock
     void invalidate() noexcept;
 
     static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
-    cxx::expected<FileLockError> closeFileDescriptor(const int32_t fileDescriptor) noexcept;
+    cxx::expected<FileLockError> closeFileDescriptor() noexcept;
 };
 
 class FileLockBuilder

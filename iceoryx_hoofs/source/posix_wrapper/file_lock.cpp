@@ -105,7 +105,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        if (closeFileDescriptor(m_fd).has_error())
+        if (closeFileDescriptor().has_error())
         {
             LogError() << "Unable to cleanup file lock \"" << m_fileLockPath
                        << "\" in the move constructor/move assingment operator";
@@ -122,18 +122,18 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
 
 FileLock::~FileLock() noexcept
 {
-    if (closeFileDescriptor(m_fd).has_error())
+    if (closeFileDescriptor().has_error())
     {
         LogError() << "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor";
     }
 }
 
-cxx::expected<FileLockError> FileLock::closeFileDescriptor(const int32_t fileDescriptor) noexcept
+cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 {
-    if (fileDescriptor != INVALID_FD)
+    if (m_fd != INVALID_FD)
     {
         bool cleanupFailed = false;
-        posixCall(iox_flock)(fileDescriptor, static_cast<int>(LockOperation::UNLOCK))
+        posixCall(iox_flock)(m_fd, static_cast<int>(LockOperation::UNLOCK))
             .failureReturnValue(-1)
             .suppressErrorMessagesForErrnos(EWOULDBLOCK)
             .evaluate()
@@ -143,7 +143,7 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor(const int32_t fileDes
                 LogError() << "Unable to unlock the file lock \"" << m_fileLockPath << "\"";
             });
 
-        posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(iox_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
             LogError() << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"";

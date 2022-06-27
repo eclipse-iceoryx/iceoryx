@@ -151,7 +151,7 @@
     // after
     auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
                                                  .path("/Now/I/Can/Add/A/Path")
-                                                 .permissions(iox::cxx::perms::owner_all)
+                                                 .permission(iox::cxx::perms::owner_all)
                                                  .create()
                                                  .expect("Oh no I couldn't create the lock file");
     ```
