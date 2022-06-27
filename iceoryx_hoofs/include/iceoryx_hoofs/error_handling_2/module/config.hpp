@@ -8,3 +8,6 @@
 
 #include "codes_A.hpp"
 #include "codes_B.hpp"
+
+// we can in principle have codes from multiple module in a configuration
+// all these codes can be used in a type-safe way in the compilation unit

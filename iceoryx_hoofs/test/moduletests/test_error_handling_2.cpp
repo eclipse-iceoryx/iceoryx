@@ -23,7 +23,7 @@ TEST(EH_test, raise)
     IOX_RAISE(WARNING);
 
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
-    IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    IOX_RAISE(FATAL, B_Code::OutOfBounds);
 }
 
 #if 0
