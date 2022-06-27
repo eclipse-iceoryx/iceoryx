@@ -13,8 +13,7 @@ struct SourceLocation
 
 } // namespace eh
 
-#define SOURCE_LOCATION                                                                                                \
-    eh::SourceLocation                                                                                                 \
-    {                                                                                                                  \
-        __FILE__, __LINE__, __func__                                                                                   \
-    }
+// clang-format off
+#define SOURCE_LOCATION \
+    eh::SourceLocation{ __FILE__, __LINE__, __func__}
+// clang-format on

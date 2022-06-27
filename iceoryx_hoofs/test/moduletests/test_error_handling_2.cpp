@@ -14,7 +14,9 @@ using namespace ::testing;
 using std::cout;
 using std::endl;
 
-#if 1
+using namespace eh;
+
+
 TEST(EH_test, raise)
 {
     // unspecific error
@@ -22,13 +24,9 @@ TEST(EH_test, raise)
 
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
     IOX_RAISE(FATAL, B_Code::OutOfMemory);
-
-    auto a = GenericError(A_Code::OutOfBounds);
-    auto b = GenericError(B_Code::OutOfBounds);
-    EXPECT_EQ(a, a);
-    EXPECT_NE(b, a);
 }
 
+#if 0
 TEST(EH_test, fatal)
 {
     IOX_FATAL();
@@ -76,7 +74,7 @@ TEST(EH_test, msg)
     // and_call will not work if this is opimized away naively
     IOX_DEBUG_ASSERT(false).and_call(f, 76);
 }
-#else
+
 
 
 TEST(EH_test, debug_assert)

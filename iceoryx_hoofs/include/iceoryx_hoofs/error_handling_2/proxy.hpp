@@ -22,8 +22,8 @@ struct UnspecificErrorProxy
     UnspecificErrorProxy(const SourceLocation& location, Level level)
         : location(location)
         , level(level)
-        , code(0) // TODO: fix the no-error code
-        , module(0)
+        , code(0)
+        , module(eh::INVALID_MODULE)
     {
         error = true;
     }
@@ -90,7 +90,7 @@ struct UnspecificErrorProxy
     module_id_t module;
     bool error{false};
 
-    // TODO: logstream
+    // TODO: logstream abstraction, propagate to handler?
     // temporary solution (LogStream?)
     std::stringstream stream;
 };
@@ -120,7 +120,7 @@ struct ErrorProxy
     // while an exception is propagated, terminate is called
     // immediately and no further propagation takes place
     //
-    // this is no prolem for us since we do not use exceptions in our
+    // this is no problem for us since we do not use exceptions in our
     // handler and even if we do during testing (ONLY!) we should not have
     // a problem as long as we never use IOX_RAISE in dtors
     // for non-fatal errors
@@ -175,7 +175,7 @@ struct ErrorProxy
 
 // does nothing but is required for syntax of operator . and <<
 // (otherwise compilation fails)
-// should be largely optimized away (?)
+// should be largely optimized away (verified wit toy example in godbolt)
 struct EmptyProxy
 {
     EmptyProxy()

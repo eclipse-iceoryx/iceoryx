@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stdint.h>
-
-using error_code_t = uint32_t;
-using module_id_t = uint32_t;
+#include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 
 namespace module_A
 {
+using error_code_t = eh::error_code_t;
+using module_id_t = eh::module_id_t;
+
 enum class ErrorCode : error_code_t
 {
     Unknown = 0, // more like default/unspecific
@@ -14,7 +14,7 @@ enum class ErrorCode : error_code_t
     OutOfBounds = 2
 };
 
-static constexpr module_id_t MODULE_ID = 73;
+static constexpr eh::module_id_t MODULE_ID = 73;
 
 // could be a static in Error
 static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
