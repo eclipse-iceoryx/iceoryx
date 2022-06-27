@@ -25,7 +25,7 @@ struct UnspecificErrorProxy
         , code(0)
         , module(eh::INVALID_MODULE)
     {
-        error = true;
+        hasError = true;
     }
 
     template <class Code>
@@ -34,7 +34,7 @@ struct UnspecificErrorProxy
         , level(level)
         , code(code.code())
     {
-        error = true;
+        hasError = true;
     }
 
     UnspecificErrorProxy(UnspecificErrorProxy&&)
@@ -45,31 +45,15 @@ struct UnspecificErrorProxy
 
     ~UnspecificErrorProxy() noexcept(false)
     {
-        if (error)
-        {
-            // can be compile time dispatched later
-            if (code > 0)
-            {
-                handle(location, level, code, module);
-                // we need our own stream to do this, likely bounded
-                std::cout << stream.str();
-            }
-            else
-            {
-                handle(location, level);
-                std::cout << stream.str();
-            }
-            if (is_fatal<Level>::value)
-            {
-                terminate();
-            }
-        }
+        raise();
     }
 
+    // TODO: consider a slightly different WITH_ERROR(Proxy&, args) call in addition
+    //       consider syntax (case etc.)
     template <class F, class... Args>
-    UnspecificErrorProxy& and_call(const F& f, Args&&... args)
+    UnspecificErrorProxy& IF_ERROR(const F& f, Args&&... args)
     {
-        if (error)
+        if (hasError)
         {
             f(*this, std::forward<Args>(args)...);
         }
@@ -79,7 +63,10 @@ struct UnspecificErrorProxy
     template <class T>
     UnspecificErrorProxy& operator<<(const T& msg)
     {
-        stream << msg;
+        if (hasError)
+        {
+            stream << msg;
+        }
         return *this;
     }
 
@@ -88,11 +75,36 @@ struct UnspecificErrorProxy
     Level level;
     error_code_t code;
     module_id_t module;
-    bool error{false};
+    bool hasError{false};
 
-    // TODO: logstream abstraction, propagate to handler?
+    // TODO: logstream abstraction, propagate to handler code
     // temporary solution (LogStream?)
     std::stringstream stream;
+
+    void raise()
+    {
+        if (hasError)
+        {
+            // can be compile time dispatched later
+            if (module != INVALID_MODULE)
+            {
+                // generic error
+                handle(location, level, code, module);
+                // we need our own stream to do this, likely bounded
+                std::cout << stream.str();
+            }
+            else
+            {
+                // unknown error code (none provided)
+                handle(location, level);
+                std::cout << stream.str();
+            }
+            if (is_fatal<Level>::value)
+            {
+                terminate();
+            }
+        }
+    }
 };
 
 template <class Level, class Error>
@@ -131,7 +143,7 @@ struct ErrorProxy
     }
 
     template <class F, class... Args>
-    ErrorProxy& and_call(const F& f, Args&&... args)
+    ErrorProxy& IF_ERROR(const F& f, Args&&... args)
     {
         if (hasError)
         {
@@ -143,7 +155,10 @@ struct ErrorProxy
     template <class T>
     ErrorProxy& operator<<(const T& msg)
     {
-        stream << msg;
+        if (hasError)
+        {
+            stream << msg;
+        }
         return *this;
     }
 
@@ -189,7 +204,7 @@ struct EmptyProxy
     }
 
     template <class F, class... Args>
-    EmptyProxy& and_call(const F&, Args&&...)
+    EmptyProxy& IF_ERROR(const F&, Args&&...)
     {
         return *this;
     }

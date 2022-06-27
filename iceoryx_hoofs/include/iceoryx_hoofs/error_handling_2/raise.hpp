@@ -8,7 +8,7 @@
 namespace eh
 {
 // false type overloads discard arguments and create an EmptyProxy
-// true type overlads create a real proxy
+// true type overloads create a real proxy
 // This is needed for compile-time dispatch (determines return type) and cannot be
 // done with constexpr if (due to different return types on different branches).
 //
@@ -56,7 +56,7 @@ auto create_proxy(const SourceLocation&, Level, const Error&, std::false_type)
 }
 
 template <class Expr, class Level, class Error>
-auto create_proxy(const SourceLocation& location, const Expr& expr, Level level, const Error& error, std::true_type)
+auto create_proxy(const Expr& expr, const SourceLocation& location, Level level, const Error& error, std::true_type)
 {
     auto e = create_error(error);
     if (expr())
@@ -67,13 +67,15 @@ auto create_proxy(const SourceLocation& location, const Expr& expr, Level level,
 }
 
 template <class Expr, class Level, class Error>
-auto create_proxy(const SourceLocation&, const Expr&, Level, const Error&, std::false_type)
+auto create_proxy(const Expr&, const SourceLocation&, Level, const Error&, std::false_type)
 {
     return EmptyProxy();
 }
 
 // raising the error creates the proxy based on static dispatch (determines the proxy type)
 // raise_if also uses dynamic dispatch on expr (to determine the proxy ctor to be called)
+//
+// note that the Error type raised is generic, but we will usually use lightweight codes (enum class).
 
 template <class Level>
 auto raise(const SourceLocation& location, Level level)
@@ -100,7 +102,7 @@ template <class Expr, class Level, class Error>
 auto raise_if(const SourceLocation& location, const Expr& expr, Level level, Error error)
 {
     constexpr std::integral_constant<bool, requires_handling(level)> rh;
-    return create_proxy(location, expr, level, error, rh);
+    return create_proxy(expr, location, level, error, rh);
 }
 
 } // namespace eh

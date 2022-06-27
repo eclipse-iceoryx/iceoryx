@@ -35,12 +35,12 @@ struct Error
         return MODULE_ID;
     }
 
-    error_code_t code()
+    error_code_t code() const
     {
         return (error_code_t)code_;
     }
 
-    const char* name()
+    const char* name() const
     {
         return errorNames[(error_code_t)code_];
     }

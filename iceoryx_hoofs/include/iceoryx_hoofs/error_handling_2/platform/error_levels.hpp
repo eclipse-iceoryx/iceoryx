@@ -53,7 +53,7 @@ template <>
 bool constexpr requires_handling<Error>(Error)
 {
     // return false;
-    return true; // explicit, same in primary template
+    return true; // explicit, same as in primary template
 }
 
 } // namespace eh

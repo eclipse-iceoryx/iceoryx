@@ -8,6 +8,9 @@
 // note that we can always decide to not allow variadic versions
 // which and then always require a concrete error (code)
 
+// define somewhere reasonable
+#define DEBUG
+
 // clang-format off
 #define IOX_RAISE(...) eh::raise(SOURCE_LOCATION, ##__VA_ARGS__)
 
@@ -17,9 +20,6 @@
 #define IOX_RAISE_IF(expr, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool { return expr; }, ##__VA_ARGS__)
 
 #define IOX_ASSERT(expr, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool {return !(expr);}, FATAL, ##__VA_ARGS__)
-
-// define somewhere reasonable
-// #define DEBUG
 
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, ...) IOX_ASSERT(expr, ##__VA_ARGS__)

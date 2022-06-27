@@ -1,6 +1,7 @@
 #pragma once
 
 #include "error_levels.hpp"
+#include "iceoryx_hoofs/error_handling_2/error.hpp"
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
 

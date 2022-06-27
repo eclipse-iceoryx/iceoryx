@@ -11,6 +11,7 @@ Location of the folders platform and module is preliminary and for structuring p
 ## platform
 
 - defined once for a compilation unit
+- all compilation units linked together to one library should probably always share the platform (not strictly required though)
 - requires implementation of error_handling.hpp and error_levels.hpp (with some constraints)
 - error_levels.hpp defines the error levels used by the platform
 - error_handling.hpp defines the reaction for all error levels
