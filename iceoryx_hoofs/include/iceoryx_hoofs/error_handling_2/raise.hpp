@@ -7,64 +7,100 @@
 
 namespace eh
 {
+// false type overloads discard arguments and create an EmptyProxy
+// true type overlads create a real proxy
+// This is needed for compile-time dispatch (determines return type) and cannot be
+// done with constexpr if (due to different return types on different branches).
+//
+// the goal is to
+
+template <class Level>
+auto create_proxy(const SourceLocation& location, Level level, std::true_type)
+{
+    return UnspecificErrorProxy<Level>(location, level);
+}
+
+template <class Level>
+auto create_proxy(const SourceLocation&, Level, std::false_type)
+{
+    return EmptyProxy();
+}
+
+template <class Expr, class Level>
+auto create_proxy(const Expr& expr, const SourceLocation& location, Level level, std::true_type)
+{
+    if (expr())
+    {
+        return UnspecificErrorProxy<Level>(location, level);
+    }
+    return UnspecificErrorProxy<Level>();
+}
+
+template <class Expr, class Level>
+auto create_proxy(const Expr&, const SourceLocation&, Level, std::false_type)
+{
+    return EmptyProxy();
+}
+
+template <class Level, class Error>
+auto create_proxy(const SourceLocation& location, Level level, const Error& error, std::true_type)
+{
+    auto e = create_error(error);
+    return ErrorProxy<Level, decltype(e)>(location, level, e);
+}
+
+template <class Level, class Error>
+auto create_proxy(const SourceLocation&, Level, const Error&, std::false_type)
+{
+    return EmptyProxy();
+}
+
+template <class Expr, class Level, class Error>
+auto create_proxy(const SourceLocation& location, const Expr& expr, Level level, const Error& error, std::true_type)
+{
+    auto e = create_error(error);
+    if (expr())
+    {
+        return ErrorProxy<Level, decltype(e)>(location, level, e);
+    }
+    return ErrorProxy<Level, decltype(e)>();
+}
+
+template <class Expr, class Level, class Error>
+auto create_proxy(const SourceLocation&, const Expr&, Level, const Error&, std::false_type)
+{
+    return EmptyProxy();
+}
+
+// raising the error creates the proxy based on static dispatch (determines the proxy type)
+// raise_if also uses dynamic dispatch on expr (to determine the proxy ctor to be called)
+
 template <class Level>
 auto raise(const SourceLocation& location, Level level)
 {
-    if (!requires_handling(level))
-    {
-        return UnspecificErrorProxy<Level>();
-    }
-
-    return UnspecificErrorProxy<Level>(location, level);
+    constexpr std::integral_constant<bool, requires_handling(level)> rh;
+    return create_proxy(location, level, rh);
 }
 
 template <class Level, class Error>
 auto raise(const SourceLocation& location, Level level, Error error)
 {
-    if (!requires_handling(level))
-    {
-        auto e = create_error(error);
-        return ErrorProxy<Level, decltype(e)>();
-    }
-
-    auto e = create_error(error);
-    return ErrorProxy<Level, decltype(e)>(location, level, e);
+    constexpr std::integral_constant<bool, requires_handling(level)> rh;
+    return create_proxy(location, level, error, rh);
 }
 
 template <class Expr, class Level>
 auto raise_if(const SourceLocation& location, const Expr& expr, Level level)
 {
-    if (!requires_handling(level))
-    {
-        return UnspecificErrorProxy<Level>();
-    }
-
-    if (expr())
-    {
-        return UnspecificErrorProxy<Level>(location, level);
-    }
-
-    return UnspecificErrorProxy<Level>();
+    constexpr std::integral_constant<bool, requires_handling(level)> rh;
+    return create_proxy(expr, location, level, rh);
 }
 
 template <class Expr, class Level, class Error>
 auto raise_if(const SourceLocation& location, const Expr& expr, Level level, Error error)
 {
-    if (!requires_handling(level))
-    {
-        auto e = create_error(error);
-        return ErrorProxy<Level, decltype(e)>();
-    }
-
-    if (expr())
-    {
-        // TODO: create only if needed
-        auto e = create_error(error);
-        return ErrorProxy<Level, decltype(e)>(location, level, e);
-    }
-
-    auto e = create_error(error);
-    return ErrorProxy<Level, decltype(e)>();
+    constexpr std::integral_constant<bool, requires_handling(level)> rh;
+    return create_proxy(location, expr, level, error, rh);
 }
 
 } // namespace eh

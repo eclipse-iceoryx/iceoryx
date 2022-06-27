@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iceoryx_hoofs/error_handling_2/level.hpp"
+#include "iceoryx_hoofs/error_handling_2/error_level.hpp"
 
 namespace eh
 {
@@ -33,6 +33,9 @@ constexpr Warning warning{};
 
 // define which levels shall be handled
 // could be done in the types themselves with static functions
+//
+// Could also define type traits but constexpr functions are more convenient here
+
 template <class Level>
 bool constexpr requires_handling(Level)
 {
@@ -44,6 +47,13 @@ template <>
 bool constexpr requires_handling<Warning>(Warning)
 {
     return false;
+}
+
+template <>
+bool constexpr requires_handling<Error>(Error)
+{
+    // return false;
+    return true; // explicit, same in primary template
 }
 
 } // namespace eh

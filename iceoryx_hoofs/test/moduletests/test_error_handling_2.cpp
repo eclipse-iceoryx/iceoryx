@@ -14,8 +14,7 @@ using namespace ::testing;
 using std::cout;
 using std::endl;
 
-#ifndef TEST_HANDLER
-#if 0
+#if 1
 TEST(EH_test, raise)
 {
     // unspecific error
@@ -40,7 +39,7 @@ TEST(EH_test, raise_if)
 {
     int x = 11;
     IOX_RAISE_IF(x > 10, WARNING, A_Code::OutOfBounds);
-    IOX_RAISE_IF(x > 20, WARNING, A_Code::OutOfBounds);
+    IOX_RAISE_IF(x > 20, ERROR, A_Code::OutOfBounds);
 
     auto f = [] { return true; };
     IOX_RAISE_IF(f, FATAL);
@@ -56,7 +55,7 @@ TEST(EH_test, assert)
 TEST(EH_test, debug_assert)
 {
     int x = 11;
-    IOX_DEBUG_ASSERT(x < 10, A_Code::OutOfBounds);
+    IOX_DEBUG_ASSERT(x < 10, A_Code::OutOfBounds) << "message";
     IOX_DEBUG_ASSERT(x < 10);
 }
 
@@ -80,13 +79,19 @@ TEST(EH_test, msg)
 #else
 
 
-TEST(EH_test, verify_error)
+TEST(EH_test, debug_assert)
 {
+    IOX_RAISE(WARNING);
     IOX_RAISE(FATAL, B_Code::OutOfMemory) << "some error message\n";
+
+    // int x = 0;
+
+    // // need an empty proxy
+    // IOX_DEBUG_ASSERT(x > 0) << "debug assert message\n";
 }
 #endif
-#else
 
+#if 0
 // currently we throw in the proxy dtor which will terminate,
 // we need a trick to use the operator<< and handle the error after the output
 TEST(EH_test, verify_error)
@@ -125,7 +130,5 @@ TEST(EH_test, verify_error)
     }
     FAIL();
 }
-
 #endif
-
 } // namespace

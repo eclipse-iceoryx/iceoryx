@@ -8,7 +8,6 @@
 
 namespace eh
 {
-// TODO: overwrite at runtime?
 template <class Level>
 void report(const SourceLocation& location, Level level)
 {
@@ -30,10 +29,12 @@ void report(const SourceLocation& location, Level level, Error error)
 template <class Level>
 void report(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
+    // we cannot identify the code by name in this way (we do not get the enum type back from the
+    // module_id - maybe with some meta-programming)
+    // note that this is not required with typed reporting with concrete Error type
     auto levelName = level.name;
-    auto codeName = error_name(code);
-    std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
-              << codeName << " in module " << module << std::endl;
+    std::cout << levelName << "@" << location.file << " " << location.line << " " << location.function << " : " << code
+              << " in module " << module << std::endl;
 }
 
 } // namespace eh

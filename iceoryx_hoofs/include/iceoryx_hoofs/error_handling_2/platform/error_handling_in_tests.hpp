@@ -8,6 +8,8 @@
 
 #include <iostream>
 
+// note: this file needs to replace the platform specific "error_handling.hpp"
+
 namespace eh
 {
 // implementation of the test platform handler

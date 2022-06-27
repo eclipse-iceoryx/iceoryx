@@ -3,7 +3,6 @@
 #include "error_code.hpp"
 #include "location.hpp"
 #include "platform/error_handling.hpp"
-#include "platform/error_levels.hpp"
 
 #include <iostream>
 #include <type_traits>
@@ -72,7 +71,7 @@ struct UnspecificErrorProxy
     {
         if (error)
         {
-            f(std::forward<Args>(args)...);
+            f(*this, std::forward<Args>(args)...);
         }
         return *this;
     }
@@ -91,6 +90,7 @@ struct UnspecificErrorProxy
     module_id_t module;
     bool error{false};
 
+    // TODO: logstream
     // temporary solution (LogStream?)
     std::stringstream stream;
 };
@@ -170,6 +170,34 @@ struct ErrorProxy
                 terminate();
             }
         }
+    }
+};
+
+// does nothing but is required for syntax of operator . and <<
+// (otherwise compilation fails)
+// should be largely optimized away (?)
+struct EmptyProxy
+{
+    EmptyProxy()
+    {
+    }
+
+    EmptyProxy(EmptyProxy&&)
+    {
+        // should not be used (exists for RVO in C++14)
+        std::terminate();
+    }
+
+    template <class F, class... Args>
+    EmptyProxy& and_call(const F&, Args&&...)
+    {
+        return *this;
+    }
+
+    template <class T>
+    EmptyProxy& operator<<(const T&)
+    {
+        return *this;
     }
 };
 
