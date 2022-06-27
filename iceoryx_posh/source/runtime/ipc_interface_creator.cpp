@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,9 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
     , m_fileLock(std::move(
-          posix::FileLock::create(runtimeName)
+          posix::FileLockBuilder()
+              .name(runtimeName)
+              .create()
               .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {

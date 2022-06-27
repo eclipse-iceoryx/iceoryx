@@ -1,5 +1,5 @@
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,7 +60,9 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     // in order to prevent a second RouDi to cleanup the memory resources of a running RouDi, this resources are
     // protected by a file lock
     posix::FileLock fileLock = std::move(
-        posix::FileLock::create(ROUDI_LOCK_NAME)
+        posix::FileLockBuilder()
+            .name(ROUDI_LOCK_NAME)
+            .create()
             .or_else([](auto& error) {
                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                 {
