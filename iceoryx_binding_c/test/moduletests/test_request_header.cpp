@@ -55,6 +55,7 @@ class iox_request_header_test : public Test
 
 TEST_F(iox_request_header_test, createRequestHeaderFromPayloadWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fe54a86a-167c-442e-b64c-7bf5b6c590de");
     ASSERT_THAT(sut, Ne(nullptr));
     ASSERT_THAT(sutConst, Ne(nullptr));
 
@@ -64,6 +65,7 @@ TEST_F(iox_request_header_test, createRequestHeaderFromPayloadWorks)
 
 TEST_F(iox_request_header_test, setSequenceIdWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "68a34b83-77aa-42c1-87ae-52c21aab809e");
     constexpr int64_t SOME_LUCKY_SEQUENCE_ID = 182673231;
     EXPECT_THAT(iox_request_header_get_sequence_id(sut), Eq(0U));
     EXPECT_THAT(iox_request_header_get_sequence_id_const(sutConst), Eq(0U));
@@ -76,18 +78,21 @@ TEST_F(iox_request_header_test, setSequenceIdWorks)
 
 TEST_F(iox_request_header_test, rpcHeaderVersionIsSetCorrectly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "81424891-1f62-4d9f-8886-a8ba80d58e0b");
     EXPECT_THAT(iox_request_header_get_rpc_header_version(sut), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
     EXPECT_THAT(iox_request_header_get_rpc_header_version_const(sutConst), Eq(RpcBaseHeader::RPC_HEADER_VERSION));
 }
 
 TEST_F(iox_request_header_test, getUserPayloadWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "29672d68-2d09-44a1-9461-81338146d59b");
     EXPECT_THAT(iox_request_header_get_user_payload(sut), Eq(payload));
     EXPECT_THAT(iox_request_header_get_user_payload_const(sutConst), Eq(constPayload));
 }
 
 TEST_F(iox_request_header_test, getChunkHeaderWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "bc2ebd2e-ca45-4f93-b3f9-a843fdea6315");
     EXPECT_THAT(reinterpret_cast<iox::mepoo::ChunkHeader*>(iox_request_header_get_chunk_header(sut)),
                 Eq(baseHeader->getChunkHeader()));
     EXPECT_THAT(reinterpret_cast<const iox::mepoo::ChunkHeader*>(iox_request_header_get_chunk_header_const(sutConst)),

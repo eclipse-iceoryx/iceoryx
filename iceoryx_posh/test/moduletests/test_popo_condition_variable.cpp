@@ -234,6 +234,7 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsAllNotifiedIndices)
 }
 
 TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "c755aec9-43c3-4bf4-bec4-5672c76561ef");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
     std::atomic_bool hasWaited{false};
@@ -252,6 +253,7 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&
 })
 
 TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "b2999ddd-d072-4c9f-975e-fc8acc31397d");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
     std::atomic_bool hasWaited{false};
@@ -362,6 +364,7 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 }
 
 TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "09d9ad43-ba97-4331-9a6b-ca22d2dbddb8");
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 5U;
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
@@ -388,6 +391,7 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
 })
 
 TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "dcbd55ee-e401-42cb-bbf2-a266058c2e76");
     constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 2U;
     constexpr Type_t SECOND_EVENT_INDEX = 0U;
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);

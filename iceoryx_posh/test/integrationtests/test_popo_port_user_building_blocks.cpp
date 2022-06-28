@@ -318,6 +318,7 @@ class PortUser_IntegrationTest : public Test
 };
 
 TIMING_TEST_F(PortUser_IntegrationTest, SingleProducer, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "bb62ac02-2b7d-4d1c-8699-9f5ba4d9bd5a");
     constexpr uint32_t NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER = 1U;
     constexpr uint32_t INDEX_OF_PUBLISHER_SINGLE_PRODUCER = 0U;
 
@@ -347,6 +348,7 @@ TIMING_TEST_F(PortUser_IntegrationTest, SingleProducer, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "d27279d3-26c0-4489-9208-bd361120525a");
     std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortMultiProducer>,
                                             this,
                                             NUMBER_OF_PUBLISHERS,

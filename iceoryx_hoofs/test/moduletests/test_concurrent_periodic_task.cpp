@@ -159,6 +159,7 @@ TEST_F(PeriodicTask_test, PeriodicTaskWhichIsInactiveDoesNotExecuteTheCallable)
 }
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstructor, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "7c54027c-19fe-446b-a1f2-6f6b3f22e99b");
     {
         concurrent::PeriodicTask<PeriodicTaskTestType> sut(PeriodicTaskAutoStart, INTERVAL, "Test");
 
@@ -169,6 +170,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstru
 });
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWithArguments, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "be2b7225-344d-4700-974d-830d7ade60e3");
     constexpr uint64_t CALL_COUNTER_OFFSET{1000ULL * 1000ULL * 1000ULL * 1000ULL};
     {
         concurrent::PeriodicTask<PeriodicTaskTestType> sut(
@@ -182,6 +184,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWit
 });
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "dfc65bfa-ce9b-432f-af1a-07948e776f31");
     {
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<PeriodicTaskTestType&> sut(PeriodicTaskAutoStart, INTERVAL, "Test", testType);
@@ -193,6 +196,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repea
 });
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "71b34fd4-4b2b-43e5-a574-9261460cca7c");
     {
         concurrent::PeriodicTask<cxx::function_ref<void()>> sut(
             PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
@@ -204,6 +208,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3
 });
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "2939849e-c0c6-49ba-8cde-24fc84336ee6");
     {
         concurrent::PeriodicTask<std::function<void()>> sut(
             PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
@@ -218,6 +223,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
 // due to the `()` enclosing the lambda, clang-format is messing this up
 // the `()` are needed since the `TIMING_TEST_F` macro is messing up the forwarding to the MethodCallback c'tor
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithMethodCallback, Repeat(3), ([&] {
+  ::testing::Test::RecordProperty("TEST_ID", "69736fff-5f48-4641-a1ee-ffde3df06a8d");
     {
         PeriodicTaskTestType testType;
         concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{PeriodicTaskAutoStart,
@@ -231,6 +237,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithMethodCallback, Repeat(3
 // clang-format on
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");
     auto start = std::chrono::steady_clock::now();
     {
         constexpr units::Duration WAY_TOO_LARGE_INTERVAL{10 * MAX_RUNS * INTERVAL};
@@ -248,6 +255,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
 });
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlockingOnStop, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "4a4db536-3691-4a73-aeb0-09cd37009b9e");
     auto start = std::chrono::steady_clock::now();
     concurrent::PeriodicTask<cxx::function_ref<void()>> sut(
         PeriodicTaskAutoStart, INTERVAL, "Test", [] { std::this_thread::sleep_for(SLEEP_TIME); });

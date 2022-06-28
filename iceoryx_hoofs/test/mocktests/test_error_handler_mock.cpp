@@ -58,6 +58,7 @@ const char* asStringLiteral(const UnknownError error) noexcept
 
 TEST(ErrorHandlerMock_test, UnsettingTemporaryErrorHandlerWithKnownModuleWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "5b8e3974-42d3-45d9-88bd-07b5213c5b57");
     {
         auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>(
             [&](const auto, const iox::ErrorLevel) { GTEST_FAIL() << "Temporary ErrorHandler shall not be called"; });
@@ -67,6 +68,7 @@ TEST(ErrorHandlerMock_test, UnsettingTemporaryErrorHandlerWithKnownModuleWorks)
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultLevelIsCaught)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "988401f2-9eb0-4246-868c-3057dd6c2560");
     iox::cxx::optional<KnownError> detectedError;
     iox::cxx::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
@@ -85,6 +87,7 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultL
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefaultLevelIsCaught)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "df123c54-a089-4515-87ff-cc16206d45af");
     iox::cxx::optional<KnownError> detectedError;
     iox::cxx::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
@@ -103,6 +106,7 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefau
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfUnknownModuleCallsGTestFail)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "10a50c0c-e21b-4c4f-ab0e-5ed2a4a14b3f");
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>([&](const auto error, const iox::ErrorLevel level) {
             EXPECT_THAT(error, Eq(KnownError::TEST__FOOBAR));
