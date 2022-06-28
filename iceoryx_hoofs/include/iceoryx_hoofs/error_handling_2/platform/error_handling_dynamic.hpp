@@ -46,25 +46,22 @@ Handler g_handler;
 
 // handle unspecific error
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level)
+void handle(const SourceLocation& location, Level level)
 {
     g_handler(location, level, 0, INVALID_MODULE);
-    std::cout << stream.str();
 }
 
 // handle concrete error
 template <class Level, class Error>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, const Error& error)
+void handle(const SourceLocation& location, Level level, const Error& error)
 {
     g_handler(location, level, error.code(), error.module());
-    std::cout << stream.str();
 }
 
 template <class Level>
 void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
     g_handler(location, level, code, module);
-    std::cout << stream.str();
 }
 
 // platform specific termination

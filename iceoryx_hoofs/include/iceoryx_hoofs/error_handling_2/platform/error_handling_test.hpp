@@ -1,13 +1,11 @@
 #pragma once
 
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
-#include "iceoryx_hoofs/error_handling_2/error_stream.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
 
 #include "iceoryx_hoofs/error_handling_2/error.hpp"
 
 #include "iceoryx_hoofs/error_handling_2/platform/error_levels.hpp"
-#include "iceoryx_hoofs/error_handling_2/platform/error_reporting.hpp"
 #include "iceoryx_hoofs/error_handling_2/platform/error_storage.hpp"
 
 #include <iostream>
@@ -29,28 +27,28 @@ ErrorStorage& errors()
 }
 
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level)
+void handle(const SourceLocation& location, Level level)
 {
-    report(location, level);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
     errors().add(GenericError());
     throw GenericError();
 }
 
 template <class Level, class Error>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, const Error& error)
+void handle(const SourceLocation& location, Level level, const Error& error)
 {
-    report(location, level, error);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
     errors().add(GenericError::from_error(error));
     throw Error(error);
 }
 
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
+void handle(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
-    report(location, level, code, module);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
     errors().add(GenericError(module, code));
     throw GenericError(module, code);
 }

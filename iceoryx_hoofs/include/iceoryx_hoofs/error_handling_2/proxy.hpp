@@ -1,7 +1,7 @@
 #pragma once
 
 #include "error_code.hpp"
-#include "error_stream.hpp"
+#include "error_logging.hpp"
 #include "location.hpp"
 
 #include "platform/error_handling.hpp"
@@ -19,21 +19,24 @@ struct UnspecificErrorProxy
     }
 
     UnspecificErrorProxy(const SourceLocation& location, Level level)
-        : location(location)
-        , level(level)
-        , code(0)
-        , module(eh::INVALID_MODULE)
+        : m_location(location)
+        , m_level(level)
+        , m_code(0)
+        , m_module(eh::INVALID_MODULE)
     {
-        hasError = true;
+        m_hasError = true;
+        log(m_stream, m_location, m_level);
     }
 
     template <class Code>
     UnspecificErrorProxy(const SourceLocation& location, Level level, Code code)
-        : location(location)
-        , level(level)
-        , code(code.code())
+        : m_location(location)
+        , m_level(level)
+        , m_code(code.code())
+        , m_module(code.module())
     {
-        hasError = true;
+        m_hasError = true;
+        log(m_stream, m_location, m_level, m_code);
     }
 
     UnspecificErrorProxy(UnspecificErrorProxy&&)
@@ -47,12 +50,10 @@ struct UnspecificErrorProxy
         raise();
     }
 
-    // TODO: consider a slightly different WITH_ERROR(Proxy&, args) call in addition
-    //       consider syntax (case etc.)
     template <class F, class... Args>
     UnspecificErrorProxy& IF_RAISED(const F& f, Args&&... args)
     {
-        if (hasError)
+        if (m_hasError)
         {
             f(*this, std::forward<Args>(args)...);
         }
@@ -60,37 +61,39 @@ struct UnspecificErrorProxy
     }
 
     template <class T>
-    UnspecificErrorProxy& operator<<(const T& msg)
+    UnspecificErrorProxy& operator<<(const T& value)
     {
-        if (hasError)
+        if (m_hasError)
         {
-            stream << msg;
+            m_stream << value;
         }
         return *this;
     }
 
   private:
-    SourceLocation location;
-    Level level;
-    error_code_t code;
-    module_id_t module;
-    bool hasError{false};
+    SourceLocation m_location;
+    Level m_level;
+    error_code_t m_code;
+    module_id_t m_module;
+    bool m_hasError{false};
 
-    ErrorStream stream;
+    ErrorStream m_stream;
 
     void raise()
     {
-        if (hasError)
+        if (m_hasError)
         {
-            if (module != INVALID_MODULE)
+            if (m_module != INVALID_MODULE)
             {
                 // generic error
-                handle(stream, location, level, code, module);
+                flush();
+                handle(m_location, m_level, m_code, m_module);
             }
             else
             {
                 // unknown error code (none provided)
-                handle(stream, location, level);
+                flush();
+                handle(m_location, m_level);
             }
             if (is_fatal<Level>::value)
             {
@@ -98,6 +101,12 @@ struct UnspecificErrorProxy
                 // std::terminate(); // TODO: ensure it is called in regular mode
             }
         }
+    }
+
+    void flush()
+    {
+        // TODO: target would be the logger later
+        std::cout << m_stream.str();
     }
 };
 
@@ -108,11 +117,12 @@ struct ErrorProxy
     {
     }
     ErrorProxy(const SourceLocation& location, Level level, Error error)
-        : location(location)
-        , level(level)
-        , error(error)
+        : m_location(location)
+        , m_level(level)
+        , m_error(error)
     {
-        hasError = true;
+        m_hasError = true;
+        log(m_stream, m_location, m_level, m_error);
     }
 
     ErrorProxy(ErrorProxy&&)
@@ -139,7 +149,7 @@ struct ErrorProxy
     template <class F, class... Args>
     ErrorProxy& IF_RAISED(const F& f, Args&&... args)
     {
-        if (hasError)
+        if (m_hasError)
         {
             f(std::forward<Args>(args)...);
         }
@@ -147,32 +157,29 @@ struct ErrorProxy
     }
 
     template <class T>
-    ErrorProxy& operator<<(const T& msg)
+    ErrorProxy& operator<<(const T& value)
     {
-        if (hasError)
+        if (m_hasError)
         {
-            stream << msg;
+            m_stream << value;
         }
         return *this;
     }
 
   private:
-    SourceLocation location;
-    Level level;
-    Error error;
-    bool hasError{false};
+    SourceLocation m_location;
+    Level m_level;
+    Error m_error;
+    bool m_hasError{false};
 
-
-    ErrorStream stream;
+    ErrorStream m_stream;
 
     void raise()
     {
-        if (hasError)
+        if (m_hasError)
         {
-            // log always here with logstream (and add location, level etc.)
-            // remove stream from handle
-            std::cout << stream.str();
-            handle(stream, location, level, error);
+            flush();
+            handle(m_location, m_level, m_error);
 
             if (is_fatal<Level>::value)
             {
@@ -180,6 +187,12 @@ struct ErrorProxy
                 // std::terminate(); // TODO: ensure it is called in regular mode
             }
         }
+    }
+
+    void flush()
+    {
+        // TODO: target would be the logger later
+        std::cout << m_stream.str();
     }
 };
 

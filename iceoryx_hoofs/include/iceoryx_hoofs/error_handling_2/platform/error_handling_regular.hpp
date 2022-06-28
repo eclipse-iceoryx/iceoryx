@@ -4,8 +4,6 @@
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
 
-#include "iceoryx_hoofs/error_handling_2/platform/error_reporting.hpp"
-
 #include <iostream>
 
 namespace eh
@@ -15,34 +13,38 @@ namespace eh
 
 // handle unspecific error
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level)
+void handle(const SourceLocation& location, Level level)
 {
-    report(location, level);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
 }
 
 // handle concrete error
 template <class Level, class Error>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, const Error& error)
+void handle(const SourceLocation& location, Level level, const Error& error)
 {
-    report(location, level, error);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
+    (void)error;
 }
 
-// overload for fatal errors - can be done for any defined error level
+// can overload for fatal errors - can be done for any defined error level
 template <class Error>
-void handle(ErrorStream& stream, const SourceLocation& location, Fatal level, const Error& error)
+void handle(const SourceLocation& location, Fatal level, const Error& error)
 {
+    (void)location;
+    (void)level;
+    (void)error;
     std::cout << "FATAL ERROR occurred" << std::endl;
-    report(location, level, error);
-    std::cout << stream.str();
 }
 
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
+void handle(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
-    report(location, level, code, module);
-    std::cout << stream.str();
+    (void)location;
+    (void)level;
+    (void)code;
+    (void)module;
 }
 
 // platform specific termination
