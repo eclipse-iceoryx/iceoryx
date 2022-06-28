@@ -21,6 +21,7 @@
 - Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend `unsafe_append` and `append` methods of `iox::cxx::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
+- Create convenience macro for `NewType` [\#1425](https://github.com/eclipse-iceoryx/iceoryx/issues/1425)
 
 **Bugfixes:**
 
@@ -177,9 +178,6 @@
    {
        using ThisType::ThisType;
    };
-
-   struct Bar : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
-   {
-       using ThisType::ThisType;
-   };
+   // or with the IOX_NEW_TYPE macro
+   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
    ```
