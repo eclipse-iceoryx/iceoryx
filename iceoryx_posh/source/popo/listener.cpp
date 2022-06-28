@@ -101,8 +101,7 @@ bool Event_t::reset() noexcept
 bool Event_t::isInitialized() const noexcept
 {
     return m_origin != nullptr && m_eventId != INVALID_ID && m_eventType != INVALID_ID && m_eventTypeHash != INVALID_ID
-           && m_callback != nullptr && m_translationCallback != nullptr
-           && m_invalidationCallback != cxx::function<void(uint64_t)>();
+           && m_callback != nullptr && m_translationCallback != nullptr && m_invalidationCallback;
 }
 } // namespace internal
 
