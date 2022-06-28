@@ -30,7 +30,7 @@ struct Error
     {
     }
 
-    static module_id_t module()
+    static constexpr module_id_t module()
     {
         return MODULE_ID;
     }

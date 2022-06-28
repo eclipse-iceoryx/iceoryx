@@ -71,6 +71,8 @@ TEST(EH_test, raiseConditionally)
 TEST(EH_test, assertCondition)
 {
     // shorthand notation, always fatal
+    // TODO: we could also stringify the condition expression and pass it to the handling
+    // (which can decde to log it)
     int x = 10;
     IOX_ASSERT(x < 10, A_Code::OutOfBounds);
 
