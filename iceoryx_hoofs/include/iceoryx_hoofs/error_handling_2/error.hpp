@@ -27,22 +27,14 @@ class GenericError
     {
     }
 
-    // could be used but requires a specific interface of Error
-    // template <typename Error>
-    // GenericError(const Error& error)
-    //     : m_module(error.module())
-    //     , m_code(error.code())
-    // {
-    // }
-
     // works if it the error codes of the modules are included before
-    template <typename Code>
-    GenericError(Code code)
-    {
-        auto e = create_error(code);
-        m_module = e.module();
-        m_code = e.code();
-    }
+    // template <typename Code>
+    // GenericError(Code code)
+    // {
+    //     auto e = create_error(code);
+    //     m_module = e.module();
+    //     m_code = e.code();
+    // }
 
     error_code_t code()
     {
@@ -62,6 +54,20 @@ class GenericError
     bool operator!=(const GenericError& other) const
     {
         return !(*this == other);
+    }
+
+    // cannot use ctor templates (both would have one argument of generic type)
+    template <typename Code>
+    static GenericError from_code(Code code)
+    {
+        auto e = create_error(code);
+        return GenericError(e.module(), e.code());
+    }
+
+    template <typename Error>
+    static GenericError from_error(const Error& e)
+    {
+        return GenericError(e.module(), e.code());
     }
 };
 } // namespace eh

@@ -145,13 +145,15 @@ TEST(EH_test, errorRecovery)
 
 #endif
 
+#ifdef TEST_PLATFORM
+
 // requires test platform to succeed (as otherwise nothing is thrown)
 // TODO: lacks elegance but works with test platform handler
-TEST(EH_test, verifyConcreteError)
+TEST(EH_test, verifyError1)
 {
     // we could check for the concrete error
     // but then it would require a comparison operator (in each module)
-    auto expectedError = GenericError(B_Code::OutOfMemory);
+    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
     try
     {
         // calling f which raises multiple errors would be a problem
@@ -181,12 +183,10 @@ TEST(EH_test, verifyConcreteError)
     FAIL();
 }
 
-// alternatively with EXPECT throw check and rethrow
-TEST(EH_test, verifyConcreteError2)
+// alternative with EXPECT_THROW check and rethrow
+TEST(EH_test, verifyError2)
 {
-    // we could check for the concrete error
-    // but then it would require a comparison operator (in each module)
-    auto expectedError = GenericError(B_Code::OutOfMemory);
+    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
     EXPECT_THROW(
         {
             try
@@ -201,4 +201,41 @@ TEST(EH_test, verifyConcreteError2)
         },
         B_Error);
 }
+
+// alternative with custom bookkeeping in test platform error handling
+TEST(EH_test, verifyError3)
+{
+    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
+    errors().reset();
+
+    // try/catch would not be needed if it would not throw in this implementation
+    try
+    {
+        IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    }
+    catch (...)
+    {
+    }
+    try
+    {
+        IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    }
+    catch (...)
+    {
+    }
+    try
+    {
+        IOX_RAISE(FATAL, A_Code::OutOfMemory);
+    }
+    catch (...)
+    {
+    }
+
+    EXPECT_EQ(errors().count(expectedError), 2);
+
+    errors().reset();
+    EXPECT_EQ(errors().count(expectedError), 0);
+}
+
+#endif
 } // namespace
