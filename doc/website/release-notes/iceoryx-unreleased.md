@@ -23,6 +23,8 @@
 - The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
 - Use builder pattern in FileLock [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
     - Add the ability to adjust path and file permissions of the file lock
+- Create convenience macro for `NewType` [\#1425](https://github.com/eclipse-iceoryx/iceoryx/issues/1425)
+- Add posix thread wrapper [\#1365](https://github.com/eclipse-iceoryx/iceoryx/issues/1365)
 
 **Bugfixes:**
 
@@ -180,11 +182,8 @@
    {
        using ThisType::ThisType;
    };
-
-   struct Bar : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
-   {
-       using ThisType::ThisType;
-   };
+   // or with the IOX_NEW_TYPE macro
+   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.
