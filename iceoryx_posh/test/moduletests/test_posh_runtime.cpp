@@ -153,7 +153,7 @@ TEST(PoshRuntime, LeadingSlashAppNameLeadsToFailure)
     ::testing::Test::RecordProperty("TEST_ID", "77542d11-6230-4c1e-94b2-6cf3b8fa9c6e");
     const iox::RuntimeName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "");
+    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "POSH__RUNTIME_LEADING_SLASH_PROVIDED");
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
