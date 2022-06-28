@@ -106,7 +106,7 @@ TEST_F(CommandLineOptionSet_test, AddingOptionWithSameShortAndLongNameLeadsToExi
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(3));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingSwitchWithMinusAsShortOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingSwitchWithDashAsShortOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5c6558ec-ecd9-47e9-b396-593445cef68f");
     CommandLineOptionSet optionSet("", errorCallback);
@@ -115,7 +115,7 @@ TEST_F(CommandLineOptionSet_test, AddingSwitchWithMinusAsShortOptionLeadsToFailu
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingOptionalValueWithMinusAsShortOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingOptionalValueWithDashAsShortOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8afd403b-9a77-4bde-92df-0200d4fb661b");
     CommandLineOptionSet optionSet("", errorCallback);
@@ -124,7 +124,7 @@ TEST_F(CommandLineOptionSet_test, AddingOptionalValueWithMinusAsShortOptionLeads
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusAsShortOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithDashAsShortOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "04e358dd-6ef4-48e4-988e-ee1d0514632b");
     CommandLineOptionSet optionSet("", errorCallback);
@@ -133,29 +133,29 @@ TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusAsShortOptionLeads
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingSwitchWithMinusStartingLongOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingSwitchWithDashStartingLongOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "62c0882a-7055-4a74-9dd9-8505d72da1e0");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addSwitch('a', "-oh-no-i-start-with-minus", "");
+    optionSet.addSwitch('a', "-oh-no-i-start-with-dash", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingOptionalValueWithMinusStartingLongOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingOptionalValueWithDashStartingLongOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "69c975d1-57d3-429a-b894-7ff1efa9f473");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addOptional('c', "-whoopsie-there-is-a-minus", "", "", "");
+    optionSet.addOptional('c', "-whoopsie-there-is-a-dash", "", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithMinusStartingLongOptionLeadsToFailure)
+TEST_F(CommandLineOptionSet_test, AddingRequiredValueWithDashStartingLongOptionLeadsToFailure)
 {
     ::testing::Test::RecordProperty("TEST_ID", "43929047-1051-45cd-8a13-ebf8ea8c4e26");
     CommandLineOptionSet optionSet("", errorCallback);
-    optionSet.addRequired('b', "-minus-is-all-i-need", "", "");
+    optionSet.addRequired('b', "-dash-is-all-i-need", "", "");
 
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }

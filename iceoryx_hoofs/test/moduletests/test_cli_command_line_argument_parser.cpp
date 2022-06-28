@@ -126,33 +126,33 @@ void FailureTest(const std::vector<std::string>& options,
 
 /// BEGIN syntax failure test
 
-TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_SingleArgument)
+TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithDash_SingleArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e463c987-a908-4cd5-b268-05a2cbda5be2");
-    std::vector<std::string> optionsToRegister{"i-have-no-minus"};
-    FailureTest({"i-have-no-minus"}, optionsToRegister);
-    FailureTest({"i-have-no-minus", "someValue"}, optionsToRegister);
+    std::vector<std::string> optionsToRegister{"i-have-no-dash"};
+    FailureTest({"i-have-no-dash"}, optionsToRegister);
+    FailureTest({"i-have-no-dash", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument)
+TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithDash_MultiArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da57a066-83da-4bc0-994f-872d7713d8dd");
-    std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
+    std::vector<std::string> optionsToRegister{"i-have-no-dash", "set", "bla"};
     // begin
-    FailureTest({"i-have-no-minus", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
-    FailureTest({"i-have-no-minus", "someValue", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
+    FailureTest({"i-have-no-dash", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
+    FailureTest({"i-have-no-dash", "someValue", "--set", "setValue", "--bla", "blaValue"}, optionsToRegister);
     // middle
-    FailureTest({"--set", "setValue", "i-have-no-minus", "--bla", "blaValue"}, optionsToRegister);
-    FailureTest({"--set", "setValue", "i-have-no-minus", "someValue", "--bla", "blaValue"}, optionsToRegister);
+    FailureTest({"--set", "setValue", "i-have-no-dash", "--bla", "blaValue"}, optionsToRegister);
+    FailureTest({"--set", "setValue", "i-have-no-dash", "someValue", "--bla", "blaValue"}, optionsToRegister);
     // end
-    FailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-minus"}, optionsToRegister);
-    FailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-minus", "someValue"}, optionsToRegister);
+    FailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-dash"}, optionsToRegister);
+    FailureTest({"--set", "setValue", "--bla", "blaValue", "i-have-no-dash", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithMinus_MultiArgument_ShortOption)
+TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenOptionDoesNotStartWithDash_MultiArgument_ShortOption)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b0f51f16-94ad-4a25-b6f7-11e7e2328472");
-    std::vector<std::string> optionsToRegister{"i-have-no-minus", "set", "bla"};
+    std::vector<std::string> optionsToRegister{"i-have-no-dash", "set", "bla"};
     // begin
     FailureTest({"i", "-s", "setValue", "-b", "blaValue"}, optionsToRegister);
     FailureTest({"i", "someValue", "-s", "setValue", "-b", "blaValue"}, optionsToRegister);
@@ -231,7 +231,7 @@ TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenShortOptionNameHasMoreThenO
     FailureTest({"--bla", "blaValue123123", "--set", "setValueXXX", "-invalid-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_SingleArgument)
+TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenLongOptionStartsWithTripleDash_SingleArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39eff747-a03f-4c4c-bee3-bb970e32f5b5");
     std::vector<std::string> optionsToRegister{"invalid-long-option"};
@@ -239,7 +239,7 @@ TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenLongOptionStartsWithTripleM
     FailureTest({"---invalid-long-option", "someValue"}, optionsToRegister);
 }
 
-TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenLongOptionStartsWithTripleMinus_MultiArgument)
+TEST_F(CommandLineArgumentParser_test, FailSyntaxWhenLongOptionStartsWithTripleDash_MultiArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f8b9f82a-a0f4-48c3-b88c-d9b997359d45");
     std::vector<std::string> optionsToRegister{"set", "bla", "invalid-long-option"};

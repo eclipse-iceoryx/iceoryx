@@ -120,7 +120,7 @@ TYPED_TEST(OptionTest, longOptionWithLeadingDashIsDetected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ca0fd4f-dfc3-45f3-9ff7-0ed83acf410c");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "-minusOhNo");
+    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "-dashOhNo");
     EXPECT_TRUE(sut.longOptionNameDoesStartWithDash());
 }
 

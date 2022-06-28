@@ -53,15 +53,15 @@ CommandLineOptionSet& CommandLineOptionSet::addOption(const OptionWithDetails& o
 
     if (option.longOptionNameDoesStartWithDash())
     {
-        std::cout << "The first character of a long option cannot start with minus \"-\" but the option \""
-                  << option.longOption << "\" starts with minus." << std::endl;
+        std::cout << "The first character of a long option cannot start with dash \"-\" but the option \""
+                  << option.longOption << "\" starts with dash." << std::endl;
         m_onFailureCallback();
         return *this;
     }
 
     if (option.shortOptionNameIsEqualDash())
     {
-        std::cout << "Minus \"-\" is not a valid character for a short option." << std::endl;
+        std::cout << "Dash \"-\" is not a valid character for a short option." << std::endl;
         m_onFailureCallback();
         return *this;
     }

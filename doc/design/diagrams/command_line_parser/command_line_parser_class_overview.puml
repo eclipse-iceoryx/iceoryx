@@ -17,13 +17,53 @@ class CommandLineArgumentParser {
     +CommandLineOptionValue parse(CommandLineOptionSet, ..)
 }
 
-CommandLineOptionSet <|--- CommandLineArgumentParser
-CommandLineOptionValue <|--- CommandLineArgumentParser
+class Option {
+    +isSwitch()
+    +hasOptionName(optionName)
+    +isSameOption(otherOption)
+    +operator<(otherOption)
+    +isEmpty()
+    +longOptionNameDoesStartWithDash()
+    +shortOptionNameIsEqualDash()
+    +hasLongOptionName(optionName)
+    +hasShortOptionName(value)
+    +hasShortOption()
+    +hasLongOption()
+    #shortOption
+    #longOption
+    #value
+}
+
+class OptionWithDetails::Details{
+    #description
+    #type
+    #typeName
+}
+
+class OptionWithDetails {
+    OptionWithDetails(option, description, type, typeName)
+    operator<(otherOptionWithDetails)
+
+    #details
+}
+
 
 class OptionManager {
     +OptionManager(programDescription, onFailureCallback)
     +T defineOption(..)
     +populateDefinedOptions(..)
 }
+note "Used only by the macro struct builder IOX_CLI_DEFINITION" as N1
+OptionManager .. N1
+
+
+OptionWithDetails "1" *-- "1" OptionWithDetails::Details
+Option <|--- OptionWithDetails
+
+CommandLineOptionValue "0..n" *-- "1" Option
+CommandLineOptionSet "0..n" *-- "1" OptionWithDetails
+
+CommandLineArgumentParser "1" *-- "1" CommandLineOptionSet : borrows
+CommandLineArgumentParser "1" *-- "1" CommandLineOptionValue : contains
 
 @enduml
