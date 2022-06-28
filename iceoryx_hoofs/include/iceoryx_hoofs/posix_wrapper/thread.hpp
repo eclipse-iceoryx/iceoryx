@@ -47,6 +47,14 @@ enum class ThreadError
     UNDEFINED
 };
 
+/// @brief POSIX thread wrapper class. Following RAII, the thread is joined on destruction.
+/// @code
+/// #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+///
+/// iox::cxx::function<void()> callable = []() { /* ... */ };
+/// optional<Thread> myThread;
+/// ThreadBuilder().create(myThread, callable).expect("Couldn't create a thread.");
+/// @endcode
 class Thread
 {
   public:
@@ -64,7 +72,7 @@ class Thread
 
     /// @brief Returns the name of the thread
     /// @return An iox::cxx::string containing the name of the thread
-    ThreadName_t getName() noexcept;
+    ThreadName_t getName() const noexcept;
 
     friend class ThreadBuilder;
     friend class cxx::optional<Thread>;

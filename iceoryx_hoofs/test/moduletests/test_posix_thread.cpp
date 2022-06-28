@@ -14,7 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test.hpp"
 
 #include <thread>
@@ -24,6 +26,8 @@ namespace
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
+using namespace iox::units;
+using namespace iox::units::duration_literals;
 
 class Thread_test : public Test
 {
@@ -65,6 +69,31 @@ TEST_F(Thread_test, CreateThreadWithEmptyCallableFails)
     auto result = ThreadBuilder().create(sut, callable);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
+}
+
+TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
+
+    std::chrono::steady_clock::time_point start;
+    std::chrono::steady_clock::time_point end;
+    constexpr Duration TEST_WAIT_TIME = 100_ms;
+    Barrier threadSync;
+
+    ASSERT_FALSE(ThreadBuilder()
+                     .create(sut,
+                             [&] {
+                                 threadSync.wait();
+                                 std::this_thread::sleep_for(std::chrono::nanoseconds(TEST_WAIT_TIME.toNanoseconds()));
+                             })
+                     .has_error());
+
+    start = std::chrono::steady_clock::now();
+    threadSync.notify();
+    sut.reset();
+    end = std::chrono::steady_clock::now();
+
+    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
 }
 
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)

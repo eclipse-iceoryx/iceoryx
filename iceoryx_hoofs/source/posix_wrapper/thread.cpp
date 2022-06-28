@@ -28,7 +28,7 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through cxx::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
-        std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
+        LogError() << "This should never happen! " << r.getHumanReadableErrnum();
         cxx::Ensures(false && "internal logic error");
     });
 }
@@ -43,7 +43,7 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
         .or_else([](auto& r) {
             // String length limit is ensured through MAX_THREAD_NAME_LENGTH
             // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-            std::cerr << "This should never happen! " << r.getHumanReadableErrnum() << std::endl;
+            LogError() << "This should never happen! " << r.getHumanReadableErrnum();
             cxx::Ensures(false && "internal logic error");
         });
 
@@ -55,7 +55,7 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
 {
     if (!callable)
     {
-        std::cerr << "The thread cannot be created with an empty callable." << std::endl;
+        LogError() << "The thread cannot be created with an empty callable.";
         return cxx::error<ThreadError>(ThreadError::EMPTY_CALLABLE);
     }
 
@@ -111,7 +111,7 @@ void Thread::setName(const ThreadName_t& name) noexcept
     /// @todo Do we really want to terminate here?
 }
 
-ThreadName_t Thread::getName() noexcept
+ThreadName_t Thread::getName() const noexcept
 {
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
