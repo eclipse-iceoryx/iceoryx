@@ -94,7 +94,8 @@ struct UnspecificErrorProxy
             }
             if (is_fatal<Level>::value)
             {
-                terminate();
+                preterminate();
+                // std::terminate(); // TODO: ensure it is called in regular mode
             }
         }
     }
@@ -168,11 +169,15 @@ struct ErrorProxy
     {
         if (hasError)
         {
+            // log always here with logstream (and add location, level etc.)
+            // remove stream from handle
+            std::cout << stream.str();
             handle(stream, location, level, error);
 
             if (is_fatal<Level>::value)
             {
-                terminate();
+                preterminate();
+                // std::terminate(); // TODO: ensure it is called in regular mode
             }
         }
     }

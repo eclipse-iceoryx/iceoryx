@@ -15,6 +15,7 @@
 namespace eh
 {
 // implementation of the test platform handling
+// TODO: ensure FATAL errors do not continue in tests
 
 // if the mechanism to check for an error with exceptions or some error stack works
 // (the latter should always work), there is no reason to implement a more costly runtime dispatch
@@ -54,7 +55,7 @@ void handle(ErrorStream& stream, const SourceLocation& location, Level level, er
     throw GenericError(module, code);
 }
 
-void terminate()
+void preterminate()
 {
     std::cout << "TERMINATE" << std::endl;
 }

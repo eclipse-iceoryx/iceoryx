@@ -2,6 +2,10 @@
 
 #include "iceoryx_hoofs/error_handling_2/error_level.hpp"
 
+// ***
+// *** TO BE IMPLEMENTED BY CLIENT - platform defines error levels
+// ***
+
 namespace eh
 {
 // define which levels shall exist for the platform, Fatal is mandatory and already exists (with code 0)
@@ -27,9 +31,8 @@ struct Warning
     }
 };
 
-constexpr Fatal fatal{};
-constexpr Error error{};
-constexpr Warning warning{};
+constexpr Error ERROR{};
+constexpr Warning WARNING{};
 
 // define which levels shall be handled
 // could be done in the types themselves with static functions
@@ -53,13 +56,7 @@ template <>
 bool constexpr requires_handling<Error>(Error)
 {
     // return false;
-    return true; // explicit, same as in primary template
+    return true;
 }
 
 } // namespace eh
-
-// for convenience, beware of ambiguity (not much of a problem with only one platform defined for
-// any given binary)
-#define FATAL eh::fatal
-#define ERROR1 eh::error
-#define WARNING eh::warning

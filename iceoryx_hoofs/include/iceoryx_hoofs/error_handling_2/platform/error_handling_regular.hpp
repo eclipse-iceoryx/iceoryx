@@ -46,7 +46,7 @@ void handle(ErrorStream& stream, const SourceLocation& location, Level level, er
 }
 
 // platform specific termination
-void terminate()
+void preterminate()
 {
     std::cout << "TERMINATE" << std::endl;
 }

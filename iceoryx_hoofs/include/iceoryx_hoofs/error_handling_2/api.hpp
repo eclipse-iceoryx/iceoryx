@@ -12,14 +12,15 @@
 #define DEBUG
 
 // clang-format off
-#define IOX_RAISE(...) eh::raise(SOURCE_LOCATION, ##__VA_ARGS__)
+// TODO:make defines FATAL typesafe like this
+#define IOX_RAISE(level, ...) eh::raise(SOURCE_LOCATION, eh::level, ##__VA_ARGS__)
 
-#define IOX_FATAL(...) eh::raise(SOURCE_LOCATION, FATAL, ##__VA_ARGS__)
+#define IOX_FATAL(...) eh::raise(SOURCE_LOCATION, eh::FATAL, ##__VA_ARGS__)
 
 // deferred evaluation of expr for performance
-#define IOX_RAISE_IF(expr, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool { return expr; }, ##__VA_ARGS__)
+#define IOX_RAISE_IF(expr, level, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool { return expr; }, eh::level, ##__VA_ARGS__)
 
-#define IOX_ASSERT(expr, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool {return !(expr);}, FATAL, ##__VA_ARGS__)
+#define IOX_ASSERT(expr, ...) eh::raise_if(SOURCE_LOCATION, [&]() -> bool {return !(expr);}, eh::FATAL, ##__VA_ARGS__)
 
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, ...) IOX_ASSERT(expr, ##__VA_ARGS__)

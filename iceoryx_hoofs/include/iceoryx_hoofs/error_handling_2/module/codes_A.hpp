@@ -1,5 +1,9 @@
 #pragma once
 
+// ***
+// *** TO BE IMPLEMENTED BY CLIENT - part of any module
+// ***
+
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 
 namespace module_A
@@ -14,6 +18,7 @@ enum class ErrorCode : error_code_t
     OutOfBounds = 2
 };
 
+// can be part of the struct
 static constexpr eh::module_id_t MODULE_ID = 73;
 
 // could be a static in Error
@@ -40,6 +45,7 @@ struct Error
         return (error_code_t)code_;
     }
 
+    // Contract: must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
         return errorNames[(error_code_t)code_];
@@ -47,7 +53,6 @@ struct Error
 };
 
 } // namespace module_A
-
 
 namespace eh
 {
