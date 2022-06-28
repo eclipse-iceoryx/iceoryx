@@ -160,7 +160,7 @@ TEST(NewType, AssignByValueMoveDoesCompile)
 TEST(NewType, CreatingNewTypeWithMacroWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d43d41f6-c6d8-4523-a7cf-8f86822643cc");
-    IOX_NEW_TYPE(Sut, uint64_t, newtype::ConstructByValueCopy, newtype::Comparable)
+    IOX_NEW_TYPE(Sut, uint64_t, newtype::ConstructByValueCopy, newtype::Comparable);
 
     Sut a(73), b(37);
     EXPECT_TRUE(a != b);

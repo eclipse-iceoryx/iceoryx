@@ -141,7 +141,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 ///                  newtype::ConstructByValueCopy,
 ///                  newtype::Comparable,
 ///                  newtype::Sortable,
-///                  newtype::AssignByValueCopy)
+///                  newtype::AssignByValueCopy);
 /// @endcode
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
     struct TypeName : public iox::cxx::NewType<Type, __VA_ARGS__>                                                      \
@@ -154,7 +154,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
         TypeName(TypeName&&) noexcept = default;                                                                       \
         TypeName& operator=(const TypeName&) noexcept = default;                                                       \
         TypeName& operator=(TypeName&&) noexcept = default;                                                            \
-    };
+    }
 
 } // namespace cxx
 } // namespace iox

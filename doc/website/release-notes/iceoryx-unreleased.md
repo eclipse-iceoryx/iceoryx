@@ -179,5 +179,5 @@
        using ThisType::ThisType;
    };
    // or with the IOX_NEW_TYPE macro
-   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy)
+   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
    ```
