@@ -29,6 +29,9 @@ using namespace eh;
 // verify a specific error was raised etc.
 // this is demonstrated later
 
+// deactivate the tests in this case as IOX_RAISE will throw
+#ifndef TEST_PLATFORM
+
 TEST(EH_test, raiseUnspecific)
 {
     // when we do not care about the specific error
@@ -114,6 +117,34 @@ TEST(EH_test, conditionalFunctionCall)
     IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 12);
     EXPECT_EQ(x, 21);
 }
+
+// recovery proposoal (it is always possible to do it with conditionals in
+// a straightfoward way)
+TEST(EH_test, errorRecovery)
+{
+    using namespace iox::cxx;
+
+    int arg = 3;
+    auto f = [](int) -> optional<int> { return nullopt; };
+    optional<int> result = f(arg); // try obtaining a result, which fails
+
+    auto tryRecover1 = [&](int) { result = f(arg); }; // retry, but this will fail again
+    auto tryRecover2 = [&](int a) { result = a; };    // try an alternative algorithm
+
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover1, arg);
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover2, arg);
+    IOX_RAISE_IF(!result, FATAL, B_Code::Unknown) << "recovery failed";
+
+    // TODO: can be made more elegant but already hides the branching
+    // and we can simulate recovery blocks arguably in a more concise way
+    // (performance should not be affected much if at all)
+
+    ASSERT_TRUE(result);
+    EXPECT_EQ(*result, arg);
+}
+
+#endif
+
 // requires test platform to succeed (as otherwise nothing is thrown)
 // TODO: lacks elegance but works with test platform handler
 TEST(EH_test, verifyConcreteError)
@@ -137,42 +168,37 @@ TEST(EH_test, verifyConcreteError)
         EXPECT_EQ(expectedError, GenericError(e.module(), e.code()));
         return;
     }
-#if 0
     catch (GenericError& e)
     {
         // should not be needed if we know the concrete error
         std::cout << "caught " << e.code() << " in module " << e.module() << std::endl;
-        EXPECT_EQ(expectedError, e);
-        return;
     }
-#endif
+    catch (...)
+    {
+        std::cout << "caught ?" << std::endl;
+    }
     // the expected error was not thrown
     FAIL();
 }
 
-// recovery proposoal (it is always possible to do it with conditionals in
-// a straightfoward way)
-TEST(EH_test, errorRecovery)
+// alternatively with EXPECT throw check and rethrow
+TEST(EH_test, verifyConcreteError2)
 {
-    using namespace iox::cxx;
-
-    int arg = 3;
-    auto f = [](int) -> optional<int> { return iox::cxx::nullopt; };
-    optional<int> result = f(arg); // try obtaining a result
-
-    // compute the result
-    auto tryRecover1 = [&](int) { result = f(arg); }; // retry, but this will fail again
-    auto tryRecover2 = [&](int a) { result = a; };    // try an alternative algorithm
-
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover1, arg);
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover2, arg);
-    IOX_RAISE_IF(!result, FATAL, B_Code::Unknown) << "recovery failed";
-
-    // TODO: can be made more elegant but already hides the branching
-    // and we can simulate recovery blocks arguably in a more concise way
-    // (performance should not be affected much if at all)
-
-    ASSERT_TRUE(result);
-    EXPECT_EQ(*result, arg);
+    // we could check for the concrete error
+    // but then it would require a comparison operator (in each module)
+    auto expectedError = GenericError(B_Code::OutOfMemory);
+    EXPECT_THROW(
+        {
+            try
+            {
+                IOX_RAISE(FATAL, B_Code::OutOfMemory);
+            }
+            catch (const B_Error& e)
+            {
+                EXPECT_EQ(expectedError, GenericError(e.module(), e.code()));
+                throw;
+            }
+        },
+        B_Error);
 }
 } // namespace

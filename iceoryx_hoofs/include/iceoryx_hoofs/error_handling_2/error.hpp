@@ -9,6 +9,8 @@ namespace eh
 // we cannot get back to the original module enum error from this GenericError but we do not have to
 // we can fall back to generic errors and compare them instead
 // can be used in tests to check against against an expected error
+
+// currently only used for testing
 class GenericError
 {
     module_id_t m_module{INVALID_MODULE};
