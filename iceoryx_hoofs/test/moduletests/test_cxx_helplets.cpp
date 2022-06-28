@@ -517,6 +517,10 @@ TEST(Helplets_test_isValidPathToFile_and_isValidPath, WhenOneInvalidCharacterIsC
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterFrontTest));
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterMiddleTest));
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterEndTest));
+
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest));
     }
 }
 
@@ -676,6 +680,54 @@ TEST(Helplets_test_doesEndWithPathSeparator, MultiCharacterStringEndingWithPathS
         ASSERT_TRUE(sut.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[i]));
         EXPECT_TRUE(doesEndWithPathSeparator(sut));
     }
+}
+
+TEST(Helplets_test_isValidPathEntry, EmptyPathEntryIsValid)
+{
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("")));
+}
+
+TEST(Helplets_test_isValidPathEntry, PathEntryWithOnlyValidCharactersIsValid)
+{
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a.213jkgc")));
+}
+
+TEST(Helplets_test_isValidPathEntry, RelativePathEntriesAreValid)
+{
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..")));
+}
+
+TEST(Helplets_test_isValidPathEntry, EntriesWithEndingDotAreInvalid)
+{
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc.")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("19283912asdb..")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb..")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb..")));
+}
+
+TEST(Helplets_test_isValidPathEntry, EntriesWithDotsNotAtTheEndAreValid)
+{
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".19283912asdb")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb")));
+}
+
+TEST(Helplets_test_isValidPathEntry, StringContainingAllValidCharactersIsValid)
+{
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_")));
+}
+
+TEST(Helplets_test_isValidPathEntry, StringWithSlashIsInvalid)
+{
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu/")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("fuu/uu")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("uuuubbuu/")));
 }
 
 TEST(Helplets_test_from, fromWorksAsConstexpr)

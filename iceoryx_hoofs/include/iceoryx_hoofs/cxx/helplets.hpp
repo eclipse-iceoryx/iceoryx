@@ -249,6 +249,10 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
+/// @brief checks if the given string is a valid path entry. A path entry is the string between
+///        two path separators.
+/// @param[in] name the path entry in question
+/// @return true if it is valid, otherwise false
 template <uint64_t StringCapacity>
 bool isValidPathEntry(const string<StringCapacity>& name) noexcept;
 
