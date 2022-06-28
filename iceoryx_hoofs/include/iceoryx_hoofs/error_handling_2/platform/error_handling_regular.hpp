@@ -15,32 +15,36 @@ namespace eh
 
 // handle unspecific error
 template <class Level>
-void handle(const SourceLocation& location, Level level)
+void handle(ErrorStream& stream, const SourceLocation& location, Level level)
 {
     report(location, level);
+    std::cout << stream.str();
 }
 
 // handle concrete error
 template <class Level, class Error>
-void handle(const SourceLocation& location, Level level, const Error& error)
+void handle(ErrorStream& stream, const SourceLocation& location, Level level, const Error& error)
 {
     report(location, level, error);
+    std::cout << stream.str();
 }
 
 // overload for fatal errors - can be done for any defined error level
 template <class Error>
-void handle(const SourceLocation& location, Fatal level, const Error& error)
+void handle(ErrorStream& stream, const SourceLocation& location, Fatal level, const Error& error)
 {
     std::cout << "FATAL ERROR occurred" << std::endl;
     report(location, level, error);
+    std::cout << stream.str();
 }
 
 // handle generic error where only the code and module id is known
 // (only required if the proxy will not store the error type)
 template <class Level>
-void handle(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
+void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
     report(location, level, code, module);
+    std::cout << stream.str();
 }
 
 // platform specific termination

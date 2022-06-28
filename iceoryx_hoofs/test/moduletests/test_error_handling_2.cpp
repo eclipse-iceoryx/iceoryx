@@ -1,3 +1,4 @@
+//#define TEST_PLATFORM
 
 // must be included before the /api.hpp (it contains the modules error codes)
 #include "iceoryx_hoofs/error_handling_2/module/config.hpp"
@@ -94,14 +95,14 @@ TEST(EH_test, additionalOutput)
 {
     // works with any macro but currently the underlying stream
     // is not exclusive stream for error handling (TODO)
-    IOX_RAISE(FATAL, A_Code::OutOfMemory) << " addtional error message " << 21 << "\n";
+    IOX_RAISE(FATAL, A_Code::OutOfMemory) << " additional error message " << 21 << "\n";
 }
 
 TEST(EH_test, conditionalAdditionalOutput)
 {
     // add additional output if an error occurred
     IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds) << "this is printed\n";
-    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds) << " this is not\n";
+    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds) << "this is not\n";
 }
 
 TEST(EH_test, conditionalFunctionCall)
@@ -116,6 +117,18 @@ TEST(EH_test, conditionalFunctionCall)
 
     IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 12);
     EXPECT_EQ(x, 21);
+}
+
+TEST(EH_test, fullFunctionality)
+{
+    int x = 10;
+    int n = 0;
+    auto f = [&](int a) { n += a; };
+
+    IOX_RAISE_IF(x <= 10, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 5) << "this is printed\n";
+    IOX_RAISE_IF(x > 10, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 3) << "this is not\n";
+
+    EXPECT_EQ(n, 5);
 }
 
 // recovery proposoal (it is always possible to do it with conditionals in
@@ -167,7 +180,7 @@ TEST(EH_test, verifyError1)
     {
         std::cout << "caught " << e.name() << " in module " << e.module() << std::endl;
         // we have no comparison operator for the concrete errors (but could have)
-        EXPECT_EQ(expectedError, GenericError(e.module(), e.code()));
+        EXPECT_EQ(expectedError, GenericError::from_error(e));
         return;
     }
     catch (GenericError& e)
@@ -195,7 +208,7 @@ TEST(EH_test, verifyError2)
             }
             catch (const B_Error& e)
             {
-                EXPECT_EQ(expectedError, GenericError(e.module(), e.code()));
+                EXPECT_EQ(expectedError, GenericError::from_error(e));
                 throw;
             }
         },

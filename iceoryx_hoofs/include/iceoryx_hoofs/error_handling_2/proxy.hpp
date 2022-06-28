@@ -1,14 +1,13 @@
 #pragma once
 
 #include "error_code.hpp"
+#include "error_stream.hpp"
 #include "location.hpp"
+
 #include "platform/error_handling.hpp"
 
 #include <iostream>
 #include <type_traits>
-
-// cannot be used long-term
-#include <sstream>
 
 namespace eh
 {
@@ -77,9 +76,7 @@ struct UnspecificErrorProxy
     module_id_t module;
     bool hasError{false};
 
-    // TODO: logstream abstraction, propagate to handler code
-    // temporary solution (LogStream?)
-    std::stringstream stream;
+    ErrorStream stream;
 
     void raise()
     {
@@ -89,15 +86,12 @@ struct UnspecificErrorProxy
             if (module != INVALID_MODULE)
             {
                 // generic error
-                handle(location, level, code, module);
-                // we need our own stream to do this, likely bounded
-                std::cout << stream.str();
+                handle(stream, location, level, code, module);
             }
             else
             {
                 // unknown error code (none provided)
-                handle(location, level);
-                std::cout << stream.str();
+                handle(stream, location, level);
             }
             if (is_fatal<Level>::value)
             {
@@ -168,17 +162,14 @@ struct ErrorProxy
     Error error;
     bool hasError{false};
 
-    // temporary solution (LogStream?)
-    std::stringstream stream;
+
+    ErrorStream stream;
 
     void raise()
     {
         if (hasError)
         {
-            handle(location, level, error);
-            // we need our own stream to do this, likely bounded
-            // TODO: abstract logstream and propagate to handle
-            std::cout << stream.str();
+            handle(stream, location, level, error);
 
             if (is_fatal<Level>::value)
             {
