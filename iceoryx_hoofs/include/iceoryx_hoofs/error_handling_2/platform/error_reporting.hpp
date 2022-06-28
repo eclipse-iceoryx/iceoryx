@@ -10,11 +10,11 @@
 
 #ifdef TEST_PLATFORM
 
-#include "error_handling_test.hpp"
+#include "error_reporting_test.hpp"
 
 #else
 
-// #include "error_handling_dynamic.hpp"
-#include "error_handling_regular.hpp"
+// #include "error_reporting_dynamic.hpp"
+#include "error_reporting_regular.hpp"
 
 #endif

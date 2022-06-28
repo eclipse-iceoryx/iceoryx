@@ -4,7 +4,7 @@
 #include "error_logging.hpp"
 #include "location.hpp"
 
-#include "platform/error_handling.hpp"
+#include "platform/error_reporting.hpp"
 
 #include <iostream>
 #include <type_traits>

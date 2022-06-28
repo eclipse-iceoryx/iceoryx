@@ -1,4 +1,4 @@
-//#define TEST_PLATFORM
+// #define TEST_PLATFORM
 
 #include "iceoryx_hoofs/error_handling_2/module/config.hpp"
 

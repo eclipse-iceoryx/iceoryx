@@ -40,7 +40,6 @@ struct Handler
     }
 };
 
-// set all pointers or nothing (whole handler)
 // could also be a singleton etc.
 Handler g_handler;
 
