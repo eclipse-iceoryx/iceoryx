@@ -47,8 +47,34 @@ int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
     return result;
 }
 
-int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*)(void*), void*)
+struct win_routine_args
 {
+    void* (*start_routine)(void*);
+    void* arg;
+};
+
+DWORD WINAPI win_start_routine(LPVOID lpParam)
+{
+    win_routine_args* args = static_cast<win_routine_args*>(lpParam);
+    args->start_routine(args->arg);
+    delete args;
+    return 0;
+}
+
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+{
+    win_routine_args* args = new win_routine_args();
+    args->start_routine = start_routine;
+    args->arg = arg;
+    auto result = Win32Call(CreateThread,
+                            static_cast<LPSECURITY_ATTRIBUTES>(NULL),
+                            static_cast<SIZE_T>(0),
+                            static_cast<LPTHREAD_START_ROUTINE>(win_start_routine),
+                            static_cast<LPVOID>(args),
+                            static_cast<DWORD>(0),
+                            static_cast<LPDWORD>(NULL))
+                      .value;
+
     return 0;
 }
 

@@ -51,13 +51,17 @@ class Thread_test : public Test
     optional<Thread> sut;
 };
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(__APPLE__)
 TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");
     bool callableWasCalled = false;
     Thread::callable_t callable = [&] { callableWasCalled = true; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+
+    /// @todo remove once join works
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
     sut.reset();
     EXPECT_TRUE(callableWasCalled);
 }
@@ -71,6 +75,7 @@ TEST_F(Thread_test, CreateThreadWithEmptyCallableFails)
     EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
 }
 
+#if !defined(_WIN32)
 TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
@@ -135,5 +140,6 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
+#endif
 #endif
 } // namespace
