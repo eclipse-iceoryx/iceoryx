@@ -262,12 +262,15 @@ bool isValidFileName(const string<StringCapacity>& name) noexcept;
 /// @param[in] name the string to verify
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
-bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
+
+template <uint64_t StringCapacity>
+[[deprecated("use isValidPathToFile")]] bool isValidFilePath(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name is a valid path, otherwise false
 /// @param[in] name the string to verify
 template <uint64_t StringCapacity>
-bool isValidPath(const string<StringCapacity>& name) noexcept;
+bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name ends with a path separator, otherwise false
 /// @param[in] name the string which may contain a path separator at the end

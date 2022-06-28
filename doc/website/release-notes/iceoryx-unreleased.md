@@ -200,3 +200,12 @@
                                                  .create()
                                                  .expect("Oh no I couldn't create the lock file");
     ```
+
+10. `isValidFilePath` is deprecated use `isValidPathToFile` instead.
+    ```cpp
+    // before
+    bool isCorrect = isValidFilePath("/path/to/file");
+
+    // after
+    bool isCorrect = isValidPathToFile("/path/to/file");
+    ```

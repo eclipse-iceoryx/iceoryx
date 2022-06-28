@@ -40,7 +40,7 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
 
-    if (!cxx::isValidPath(m_path))
+    if (!cxx::isValidPathToDirectory(m_path))
     {
         LogError() << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
         return cxx::error<FileLockError>(FileLockError::INVALID_PATH);

@@ -86,7 +86,7 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 }
 
 template <uint64_t StringCapacity>
-inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
+inline bool isValidPathToFile(const string<StringCapacity>& name) noexcept
 {
     if (doesEndWithPathSeparator(name))
     {
@@ -97,11 +97,17 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
     auto filePart = (lastSeparatorPosition) ? name.substr(*lastSeparatorPosition + 1).value() : name;
     auto pathPart = (lastSeparatorPosition) ? name.substr(0, *lastSeparatorPosition).value() : string<StringCapacity>();
 
-    return (pathPart.empty() || isValidPath(pathPart)) && isValidFileName(filePart);
+    return (pathPart.empty() || isValidPathToDirectory(pathPart)) && isValidFileName(filePart);
 }
 
 template <uint64_t StringCapacity>
-inline bool isValidPath(const string<StringCapacity>& name) noexcept
+inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
+{
+    return isValidPathToFile(name);
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
     {
@@ -150,6 +156,12 @@ inline bool isValidPath(const string<StringCapacity>& name) noexcept
     }
 
     return true;
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidPath(const string<StringCapacity>& name) noexcept
+{
+    return isValidPathToDirectory(name);
 }
 
 template <uint64_t StringCapacity>

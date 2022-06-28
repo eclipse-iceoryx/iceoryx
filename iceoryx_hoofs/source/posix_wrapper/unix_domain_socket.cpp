@@ -65,7 +65,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
         [&]() -> UdsName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
-            if (!cxx::isValidFilePath(name))
+            if (!cxx::isValidPathToFile(name))
             {
                 return name;
             }
@@ -86,7 +86,7 @@ UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
     : m_name(name)
     , m_channelSide(channelSide)
 {
-    if (!cxx::isValidFilePath(name))
+    if (!cxx::isValidPathToFile(name))
     {
         this->m_isInitialized = false;
         this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -142,7 +142,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    if (!cxx::isValidFilePath(name))
+    if (!cxx::isValidPathToFile(name))
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
@@ -159,7 +159,7 @@ cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsN
 cxx::expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t,
                                                                       const UdsName_t& name) noexcept
 {
-    if (!cxx::isValidFilePath(name))
+    if (!cxx::isValidPathToFile(name))
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
