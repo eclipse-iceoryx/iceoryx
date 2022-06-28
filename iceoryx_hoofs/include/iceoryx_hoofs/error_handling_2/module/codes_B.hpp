@@ -9,7 +9,7 @@ using module_id_t = eh::module_id_t;
 
 enum class ErrorCode : error_code_t
 {
-    Unknown = 0, // more like default/unspecific
+    Unknown = 0,
     OutOfMemory = 1,
     OutOfBounds = 2
 };
@@ -51,7 +51,7 @@ namespace eh
 using B_Error = module_B::Error;
 using B_Code = module_B::ErrorCode;
 
-// module specific overload
+// module specific overload is required
 B_Error create_error(B_Code code)
 {
     return B_Error(code);

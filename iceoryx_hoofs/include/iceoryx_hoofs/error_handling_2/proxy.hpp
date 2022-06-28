@@ -50,7 +50,7 @@ struct UnspecificErrorProxy
     // TODO: consider a slightly different WITH_ERROR(Proxy&, args) call in addition
     //       consider syntax (case etc.)
     template <class F, class... Args>
-    UnspecificErrorProxy& IF_ERROR(const F& f, Args&&... args)
+    UnspecificErrorProxy& IF_RAISED(const F& f, Args&&... args)
     {
         if (hasError)
         {
@@ -82,7 +82,6 @@ struct UnspecificErrorProxy
     {
         if (hasError)
         {
-            // can be compile time dispatched later
             if (module != INVALID_MODULE)
             {
                 // generic error
@@ -137,7 +136,7 @@ struct ErrorProxy
     }
 
     template <class F, class... Args>
-    ErrorProxy& IF_ERROR(const F& f, Args&&... args)
+    ErrorProxy& IF_RAISED(const F& f, Args&&... args)
     {
         if (hasError)
         {
@@ -195,7 +194,7 @@ struct EmptyProxy
     }
 
     template <class F, class... Args>
-    EmptyProxy& IF_ERROR(const F&, Args&&...)
+    EmptyProxy& IF_RAISED(const F&, Args&&...)
     {
         return *this;
     }

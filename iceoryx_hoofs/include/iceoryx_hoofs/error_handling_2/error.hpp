@@ -27,15 +27,6 @@ class GenericError
     {
     }
 
-    // works if it the error codes of the modules are included before
-    // template <typename Code>
-    // GenericError(Code code)
-    // {
-    //     auto e = create_error(code);
-    //     m_module = e.module();
-    //     m_code = e.code();
-    // }
-
     error_code_t code()
     {
         return m_code;

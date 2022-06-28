@@ -1,15 +1,9 @@
-//#define TEST_PLATFORM
-
-// must be included before the /api.hpp (it contains the modules error codes)
-#include "iceoryx_hoofs/error_handling_2/module/config.hpp"
-
-#include "iceoryx_hoofs/error_handling_2/api.hpp"
-#include "iceoryx_hoofs/error_handling_2/error.hpp"
-
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+// #define TEST_PLATFORM
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 
+#include "iceoryx_hoofs/error_handling_2/error.hpp"
+#include "iceoryx_hoofs/error_handling_2/module/config.hpp"
 
 #include "test.hpp"
 
@@ -37,7 +31,7 @@ TEST(EH_test, raiseUnspecific)
 {
     // when we do not care about the specific error
     IOX_RAISE(WARNING);
-    IOX_RAISE(ERROR);
+    IOX_RAISE(ERROR1);
     IOX_RAISE(FATAL);
 }
 
@@ -53,14 +47,14 @@ TEST(EH_test, raiseSpecific)
 {
     // when we know and care about the specific error
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
-    IOX_RAISE(ERROR, A_Code::Unknown);
+    IOX_RAISE(ERROR1, A_Code::Unknown);
     IOX_RAISE(FATAL, A_Code::OutOfMemory);
 }
 
 TEST(EH_test, raiseFromDifferentModules)
 {
     // e.g. for functions in posh which also use hoofs header
-    IOX_RAISE(ERROR, A_Code::OutOfBounds);
+    IOX_RAISE(ERROR1, A_Code::OutOfBounds);
     IOX_RAISE(FATAL, B_Code::OutOfMemory);
 }
 
@@ -101,8 +95,8 @@ TEST(EH_test, additionalOutput)
 TEST(EH_test, conditionalAdditionalOutput)
 {
     // add additional output if an error occurred
-    IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds) << "this is printed\n";
-    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds) << "this is not\n";
+    IOX_RAISE_IF(true, ERROR1, A_Code::OutOfBounds) << "this is printed\n";
+    IOX_RAISE_IF(false, ERROR1, A_Code::OutOfBounds) << "this is not\n";
 }
 
 TEST(EH_test, conditionalFunctionCall)
@@ -112,10 +106,10 @@ TEST(EH_test, conditionalFunctionCall)
     int x{0};
     auto f = [&](int a) { x = a; };
 
-    IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 21);
+    IOX_RAISE_IF(true, ERROR1, A_Code::OutOfBounds).IF_RAISED(f, 21);
     EXPECT_EQ(x, 21);
 
-    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 12);
+    IOX_RAISE_IF(false, ERROR1, A_Code::OutOfBounds).IF_RAISED(f, 12);
     EXPECT_EQ(x, 21);
 }
 
@@ -125,8 +119,8 @@ TEST(EH_test, fullFunctionality)
     int n = 0;
     auto f = [&](int a) { n += a; };
 
-    IOX_RAISE_IF(x <= 10, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 5) << "this is printed\n";
-    IOX_RAISE_IF(x > 10, ERROR, A_Code::OutOfBounds).IF_ERROR(f, 3) << "this is not\n";
+    IOX_RAISE_IF(x <= 10, ERROR1, A_Code::OutOfBounds).IF_RAISED(f, 5) << "this is printed\n";
+    IOX_RAISE_IF(x > 10, ERROR1, A_Code::OutOfBounds).IF_RAISED(f, 3) << "this is not\n";
 
     EXPECT_EQ(n, 5);
 }
@@ -144,8 +138,8 @@ TEST(EH_test, errorRecovery)
     auto tryRecover1 = [&](int) { result = f(arg); }; // retry, but this will fail again
     auto tryRecover2 = [&](int a) { result = a; };    // try an alternative algorithm
 
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover1, arg);
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_ERROR(tryRecover2, arg);
+    IOX_RAISE_IF(!result, ERROR1, B_Code::Unknown).IF_RAISED(tryRecover1, arg);
+    IOX_RAISE_IF(!result, ERROR1, B_Code::Unknown).IF_RAISED(tryRecover2, arg);
     IOX_RAISE_IF(!result, FATAL, B_Code::Unknown) << "recovery failed";
 
     // TODO: can be made more elegant but already hides the branching

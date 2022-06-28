@@ -9,22 +9,22 @@ namespace eh
 // for e.g. compile time dispatch)
 struct Error
 {
+    static constexpr char const* name = "Error";
+
     operator error_level_t()
     {
         return 1;
     }
-
-    static constexpr char const* name = "Error";
 };
 
 struct Warning
 {
+    static constexpr char const* name = "Warning";
+
     operator error_level_t()
     {
         return 2;
     }
-
-    static constexpr char const* name = "Warning";
 };
 
 constexpr Fatal fatal{};
@@ -61,5 +61,5 @@ bool constexpr requires_handling<Error>(Error)
 // for convenience, beware of ambiguity (not much of a problem with only one platform defined for
 // any given binary)
 #define FATAL eh::fatal
-#define ERROR eh::error
+#define ERROR1 eh::error
 #define WARNING eh::warning

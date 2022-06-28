@@ -38,8 +38,6 @@ void handle(ErrorStream& stream, const SourceLocation& location, Fatal level, co
     std::cout << stream.str();
 }
 
-// handle generic error where only the code and module id is known
-// (only required if the proxy will not store the error type)
 template <class Level>
 void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {

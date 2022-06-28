@@ -10,12 +10,12 @@ using error_level_t = uint32_t;
 
 struct Fatal
 {
+    static constexpr char const* name = "Fatal";
+
     operator error_level_t()
     {
         return 0;
     }
-
-    static constexpr char const* name = "Fatal";
 };
 
 template <class T>

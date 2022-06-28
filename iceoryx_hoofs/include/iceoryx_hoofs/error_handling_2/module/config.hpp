@@ -11,3 +11,5 @@
 
 // we can in principle have codes from multiple module in a configuration
 // all these codes can be used in a type-safe way in the compilation unit
+
+#include "iceoryx_hoofs/error_handling_2/api.hpp"
