@@ -41,7 +41,6 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
         {
             return;
         }
-        default:
         case ErrorMode::Inform:
         {
             std::cerr << "\033[5;31m"

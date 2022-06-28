@@ -18,7 +18,6 @@
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 
 #include "test.hpp"
 
@@ -98,46 +97,4 @@ TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
     EXPECT_THAT(object4.has_error(), Eq(true));
     EXPECT_THAT(object4.get_error(), Eq(TypedMemPoolError::OutOfChunks));
 }
-
-class TypedMemPool_Semaphore_test : public Test
-{
-  public:
-    static constexpr uint32_t NumberOfChunks{3};
-    static constexpr uint32_t ChunkSize{sizeof(iox::posix::Semaphore)};
-
-    using FreeListIndex_t = MemPool::freeList_t::Index_t;
-    static constexpr FreeListIndex_t LoFFLiMemoryRequirement{
-        MemPool::freeList_t::requiredIndexMemorySize(NumberOfChunks) + 100000};
-
-    TypedMemPool_Semaphore_test()
-        : allocator(m_rawMemory, NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement)
-        , sut(NumberOfChunks, allocator, allocator)
-    {
-    }
-
-    void SetUp(){};
-    void TearDown(){};
-
-    alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
-    iox::posix::Allocator allocator;
-
-    TypedMemPool<iox::posix::Semaphore> sut;
-};
-
-TEST_F(TypedMemPool_Semaphore_test, CreateValidSemaphore)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "753fbb32-beec-4277-936f-2d6359a557ce");
-    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
-        iox::posix::CreateNamedSemaphore, "/fuuSem", S_IRUSR | S_IWUSR, 10);
-    EXPECT_THAT(semaphorePtr.has_error(), Eq(false));
-}
-
-TEST_F(TypedMemPool_Semaphore_test, CreateInvalidSemaphore)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "410ff52d-f14d-41f3-a1e5-f164c5accbd7");
-    auto semaphorePtr = sut.createObjectWithCreationPattern<iox::posix::Semaphore::errorType_t>(
-        iox::posix::CreateNamedSemaphore, "", S_IRUSR | S_IWUSR, 10);
-    EXPECT_THAT(semaphorePtr.has_error(), Eq(true));
-}
-
 } // namespace

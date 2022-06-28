@@ -39,7 +39,6 @@ cstdlib
 cstring
 ctime
 fstream
-functional
 initializer_list
 iomanip
 iostream

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
 #include <thread>
 
@@ -121,8 +121,7 @@ class PeriodicTask
     T m_callable;
     posix::ThreadName_t m_taskName;
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
-    /// @todo use a refactored posix::Timer object once available
-    posix::Semaphore m_stop{posix::Semaphore::create(posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
+    cxx::optional<posix::UnnamedSemaphore> m_stop;
     std::thread m_taskExecutor;
 };
 

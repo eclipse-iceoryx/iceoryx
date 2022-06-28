@@ -69,7 +69,7 @@ class ConditionListener
     ConditionVariableData* getMembers() noexcept;
 
   private:
-    void reset(const uint64_t index) noexcept;
+    void resetUnchecked(const uint64_t index) noexcept;
     void resetSemaphore() noexcept;
 
     NotificationVector_t waitImpl(const cxx::function_ref<bool()>& waitCall) noexcept;

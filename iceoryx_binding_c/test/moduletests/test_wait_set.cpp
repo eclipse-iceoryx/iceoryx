@@ -548,6 +548,7 @@ TEST_F(iox_ws_test, MissedElementsIsCorrectWhenAllWereMissed)
 }
 
 TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "6d8a476d-5bcd-45a5-bbd4-7b3b709ac967");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
     std::atomic_bool waitWasCalled{false};
@@ -566,6 +567,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "4e576665-fda1-4f3c-8588-e9d2cffcb3f4");
     std::atomic_bool waitWasCalled{false};
     std::thread t([&] {
         iox_ws_wait(m_sut, NULL, 0U, &m_missedElements);
@@ -585,6 +587,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), 
 
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "e79edc1d-8b8a-4dd0-97ba-e2f41c9c8b31");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
     std::atomic_bool waitWasCalled{false};
@@ -603,6 +606,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "a6da4f49-b162-4c70-b0fa-c4ef1f988c57");
     std::atomic_bool waitWasCalled{false};
     std::thread t([&] {
         iox_ws_timed_wait(m_sut, {1000, 1000}, NULL, 0U, &m_missedElements);
@@ -621,6 +625,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat
 });
 
 TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "12fbbbc8-80b2-4e7e-af41-1376b2e48f4a");
     iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback);
 
     std::atomic_bool waitWasCalled{false};
@@ -796,7 +801,7 @@ void notifyClient(ClientPortData& portData)
     portData.m_connectionState = iox::ConnectionState::CONNECTED;
     iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingClientEventWorks)
@@ -928,7 +933,7 @@ void notifyServer(ServerPortData& portData)
 {
     iox::popo::ChunkQueuePusher<ServerChunkQueueData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, AttachingServerEventWorks)
@@ -1140,7 +1145,7 @@ void notifyServiceDiscovery(SubscriberPortData& portData)
 {
     iox::popo::ChunkQueuePusher<SubscriberChunkReceiverData_t> pusher{&portData.m_chunkReceiverData};
     pusher.push(iox::mepoo::SharedChunk());
-    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore.post().has_error());
+    EXPECT_FALSE(portData.m_chunkReceiverData.m_conditionVariableDataPtr->m_semaphore->post().has_error());
 }
 
 TEST_F(iox_ws_test, NotifyingServiceDiscoveryEventWorks)

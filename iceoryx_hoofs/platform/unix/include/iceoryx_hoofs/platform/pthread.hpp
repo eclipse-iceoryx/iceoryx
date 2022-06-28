@@ -22,9 +22,28 @@
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_DEFAULT
 
-inline int iox_pthread_setname_np(pthread_t thread, const char* name)
+using iox_pthread_t = pthread_t;
+using iox_pthread_attr_t = pthread_attr_t;
+
+inline int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
     return pthread_setname_np(thread, name);
+}
+
+inline int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
+{
+    return pthread_getname_np(thread, name, len);
+}
+
+inline int
+iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+{
+    return pthread_create(thread, attr, start_routine, arg);
+}
+
+inline int iox_pthread_join(iox_pthread_t thread, void** retval)
+{
+    return pthread_join(thread, retval);
 }
 
 #endif // IOX_HOOFS_UNIX_PLATFORM_PTHREAD_HPP

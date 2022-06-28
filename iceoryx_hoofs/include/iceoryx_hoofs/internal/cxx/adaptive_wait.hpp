@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
 #define IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
 
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 
 #include <cstdint>
@@ -52,6 +53,10 @@ class adaptive_wait
     ///        std::thread::yield() after a waiting strategy
     ///        with exponential waiting times is pursued.
     void wait() noexcept;
+
+    /// @brief Waits in a loop in a smart wait until continueToWait returns false.
+    /// @param[in] continueToWait callable which returns if the wait should continue
+    void wait_loop(const function_ref<bool()>& continueToWait) noexcept;
 
   protected:
     /// @note All numbers are not accurate and are just rough estimates

@@ -248,7 +248,7 @@ Macro(iox_add_executable)
         iox_set_file_language( FILES ${IOX_FILES} )
     endif()
 
-    target_compile_options(${IOX_TARGET} ${IOX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
 
     if ( IOX_STACK_SIZE )
         if(WIN32)
@@ -337,6 +337,8 @@ Macro(iox_add_library)
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         VERSION ${PROJECT_VERSION}
     )
+
+    set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
     target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})

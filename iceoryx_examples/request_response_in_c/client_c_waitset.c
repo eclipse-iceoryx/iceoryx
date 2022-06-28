@@ -18,6 +18,7 @@
 #include "iceoryx_binding_c/request_header.h"
 #include "iceoryx_binding_c/response_header.h"
 #include "iceoryx_binding_c/runtime.h"
+#include "iceoryx_binding_c/user_trigger.h"
 #include "iceoryx_binding_c/wait_set.h"
 #include "request_and_response_c_types.h"
 #include "sleep_for.h"
@@ -27,15 +28,23 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#if !defined(_WIN32)
+#include <unistd.h>
+#endif
+
 #define NUMBER_OF_NOTIFICATIONS 1
 
 bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-client-waitset";
 
+iox_ws_t waitset;
+iox_ws_storage_t waitsetStorage;
+
 void sigHandler(int signalValue)
 {
     (void)signalValue;
     keepRunning = false;
+    iox_ws_mark_for_destruction(waitset);
 }
 
 int main()
@@ -54,8 +63,7 @@ int main()
     int64_t expectedResponseSequenceId = requestSequenceId;
 
     //! [create waitset and attach client]
-    iox_ws_storage_t waitsetStorage;
-    iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+    waitset = iox_ws_init(&waitsetStorage);
 
     if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
     {

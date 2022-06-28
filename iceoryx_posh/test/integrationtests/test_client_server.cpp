@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/server.hpp"
@@ -345,10 +346,10 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
     ASSERT_TRUE(server.hasClients());
     ASSERT_THAT(client.getConnectionState(), Eq(iox::ConnectionState::CONNECTED));
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasRequestSent{false};
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingClient([&] {
         auto sendRequest = [&]() {
             auto loanResult = client.loan();
@@ -363,14 +364,14 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
         }
 
         // signal that an blocking send is expected
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         sendRequest();
         wasRequestSent = true;
     });
 
     // wait some time to check if the client is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasRequestSent.load(), Eq(false));
 
@@ -406,10 +407,10 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
         EXPECT_FALSE(clientLoanResult.value().send().has_error());
     }
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasResponseSent{false};
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingServer([&] {
         auto processRequest = [&]() {
             auto takeResult = server.take();
@@ -424,14 +425,14 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
             processRequest();
         }
 
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         processRequest();
         wasResponseSent = true;
     });
 
     // wait some time to check if the server is blocked
     constexpr std::chrono::milliseconds SLEEP_TIME{100U};
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(SLEEP_TIME);
     EXPECT_THAT(wasResponseSent.load(), Eq(false));
 

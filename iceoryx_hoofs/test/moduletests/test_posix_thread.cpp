@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test.hpp"
 
-#include <atomic>
 #include <thread>
 
 namespace
@@ -25,6 +26,8 @@ namespace
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
+using namespace iox::units;
+using namespace iox::units::duration_literals;
 
 class Thread_test : public Test
 {
@@ -35,64 +38,100 @@ class Thread_test : public Test
 
     void SetUp()
     {
-        m_run = true;
-        m_thread = new std::thread(&Thread_test::threadFunc, this);
     }
 
     void TearDown()
     {
-        m_run = false;
-        m_thread->join();
-        delete m_thread;
     }
 
     ~Thread_test()
     {
     }
 
-    void threadFunc()
-    {
-        while (m_run)
-        {
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-        }
-    };
-
-    std::atomic_bool m_run{true};
-    std::thread* m_thread;
+    optional<Thread> sut;
 };
 
-#if !defined(__APPLE__)
+#if !defined(_WIN32) && !defined(__APPLE__)
+TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");
+    bool callableWasCalled = false;
+    Thread::callable_t callable = [&] { callableWasCalled = true; };
+    ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
+    sut.reset();
+    EXPECT_TRUE(callableWasCalled);
+}
+
+TEST_F(Thread_test, CreateThreadWithEmptyCallableFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8058c282-ce33-42eb-80ed-4421ebac5652");
+    Thread::callable_t callable;
+    auto result = ThreadBuilder().create(sut, callable);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
+}
+
+TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
+
+    std::chrono::steady_clock::time_point start;
+    std::chrono::steady_clock::time_point end;
+    constexpr Duration TEST_WAIT_TIME = 100_ms;
+    Barrier threadSync;
+
+    ASSERT_FALSE(ThreadBuilder()
+                     .create(sut,
+                             [&] {
+                                 threadSync.wait();
+                                 std::this_thread::sleep_for(std::chrono::nanoseconds(TEST_WAIT_TIME.toNanoseconds()));
+                             })
+                     .has_error());
+
+    start = std::chrono::steady_clock::now();
+    threadSync.notify();
+    sut.reset();
+    end = std::chrono::steady_clock::now();
+
+    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
+}
+
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "b805a0a6-29c0-41df-b5b7-3f66499d151a");
+    ::testing::Test::RecordProperty("TEST_ID", "ba2ed4d9-f051-4ad1-a2df-6741134c494f");
+    ASSERT_FALSE(
+        ThreadBuilder().create(sut, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }).has_error());
     ThreadName_t emptyString = "";
 
-    setThreadName(m_thread->native_handle(), emptyString);
-    auto getResult = getThreadName(m_thread->native_handle());
+    sut->setName(emptyString);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(emptyString));
 }
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "115cf4e9-4c7a-4fcc-8df8-65e3b3b547d1");
+    ::testing::Test::RecordProperty("TEST_ID", "a67128fe-a779-4bdb-a849-3bcbfed4b20f");
+    ASSERT_FALSE(
+        ThreadBuilder().create(sut, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }).has_error());
     ThreadName_t stringEqualToThreadNameCapacitiy = "123456789ABCDEF";
     EXPECT_THAT(stringEqualToThreadNameCapacitiy.capacity(), Eq(stringEqualToThreadNameCapacitiy.size()));
 
-    setThreadName(m_thread->native_handle(), stringEqualToThreadNameCapacitiy);
-    auto getResult = getThreadName(m_thread->native_handle());
+    sut->setName(stringEqualToThreadNameCapacitiy);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
 }
 
 TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "d6c2d0b5-a6ee-43e6-8870-053feb6de845");
+    ::testing::Test::RecordProperty("TEST_ID", "b5141d3c-2721-478c-b3d1-f35fb3321117");
+    ASSERT_FALSE(
+        ThreadBuilder().create(sut, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }).has_error());
     char stringShorterThanThreadNameCapacitiy[] = "I'm short";
 
-    setThreadName(m_thread->native_handle(), stringShorterThanThreadNameCapacitiy);
-    auto getResult = getThreadName(m_thread->native_handle());
+    sut->setName(stringShorterThanThreadNameCapacitiy);
+    auto getResult = sut->getName();
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }

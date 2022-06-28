@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
 #include <functional>
 #include <gtest/gtest.h>
@@ -33,6 +33,11 @@ class Watchdog
     explicit Watchdog(const iox::units::Duration& timeToWait) noexcept
         : m_timeToWait(timeToWait)
     {
+        iox::posix::UnnamedSemaphoreBuilder()
+            .initialValue(0U)
+            .isInterProcessCapable(false)
+            .create(m_watchdogSemaphore)
+            .expect("unable to create semaphore for Watchdog");
     }
 
     Watchdog(const Watchdog&) = delete;
@@ -49,7 +54,7 @@ class Watchdog
     {
         if (m_watchdog.joinable())
         {
-            IOX_DISCARD_RESULT(m_watchdogSemaphore.post());
+            IOX_DISCARD_RESULT(m_watchdogSemaphore->post());
             m_watchdog.join();
         }
     }
@@ -59,7 +64,7 @@ class Watchdog
         reset();
 
         m_watchdog = std::thread([=] {
-            m_watchdogSemaphore.timedWait(m_timeToWait)
+            m_watchdogSemaphore->timedWait(m_timeToWait)
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {
@@ -82,8 +87,7 @@ class Watchdog
 
   private:
     iox::units::Duration m_timeToWait{0_s};
-    iox::posix::Semaphore m_watchdogSemaphore{
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value()};
+    iox::cxx::optional<iox::posix::UnnamedSemaphore> m_watchdogSemaphore;
     std::thread m_watchdog;
 };
 

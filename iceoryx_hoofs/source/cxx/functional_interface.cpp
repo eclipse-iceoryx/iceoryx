@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,24 +13,22 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_CONVERTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_CONVERTABLE_HPP
+
+#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 
 namespace iox
 {
 namespace cxx
 {
-namespace newtype
+namespace internal
 {
-template <typename T>
-struct Convertable
+void print_expect_message(const char* message) noexcept
 {
-  protected:
-    ~Convertable() = default;
-};
-
-} // namespace newtype
+    // print_expect_message is only called from expect. expect allows only
+    // cxx::string or char arrays which are both correctly null terminated
+    LogFatal() << message;
+}
+} // namespace internal
 } // namespace cxx
 } // namespace iox
-
-#endif

@@ -18,7 +18,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+#include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -156,7 +156,7 @@ iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
 iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeDetached;
 std::array<TriggerSourceAndCount, iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER> g_triggerCallbackArg;
 uint64_t g_triggerCallbackRuntimeInMs = 0U;
-iox::cxx::optional<iox::posix::Semaphore> g_callbackBlocker;
+iox::cxx::optional<iox::posix::UnnamedSemaphore> g_callbackBlocker;
 
 class Listener_test : public Test
 {
@@ -227,8 +227,11 @@ class Listener_test : public Test
 
     void activateTriggerCallbackBlocker() noexcept
     {
-        g_callbackBlocker.emplace(
-            iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value());
+        iox::posix::UnnamedSemaphoreBuilder()
+            .initialValue(0U)
+            .isInterProcessCapable(false)
+            .create(g_callbackBlocker)
+            .expect("Unable to create callback blocker semaphore");
     }
 
     void unblockTriggerCallback(const uint64_t numberOfUnblocks) noexcept
@@ -650,6 +653,7 @@ TEST_F(Listener_test, DetachingNonAttachedEventResetsNothing)
 // BEGIN calling callbacks
 ///////////////////////////////////
 TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "a283a326-52c7-4d39-9241-0770384892ec");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     ASSERT_FALSE(m_sut
@@ -666,6 +670,7 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledAfterNotify, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "6df97139-8c2e-42b1-bd9a-8770c295bf2e");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     uint64_t userType = 0U;
@@ -683,6 +688,7 @@ TIMING_TEST_F(Listener_test, CallbackWithEventAndUserTypeIsCalledAfterNotify, Re
 });
 
 TIMING_TEST_F(Listener_test, CallbackWithUserTypeIsCalledAfterNotify, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "98ffc91c-cf17-4331-8b20-a84121090119");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     uint64_t userType = 0U;
@@ -698,6 +704,7 @@ TIMING_TEST_F(Listener_test, CallbackWithUserTypeIsCalledAfterNotify, Repeat(5),
 });
 
 TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "ad1470d7-a683-4089-a548-93616278c772");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu1;
     SimpleEventClass fuu2;
@@ -724,6 +731,7 @@ TIMING_TEST_F(Listener_test, CallbackIsCalledOnlyOnceWhenTriggered, Repeat(5), [
 });
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "b29c6689-35cf-4d2f-b719-5c928bf5e870");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     ASSERT_FALSE(m_sut
@@ -748,6 +756,7 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallback, Repea
 });
 
 TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "1dea4bbc-6f11-434c-845d-d2ae1104707e");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
@@ -781,6 +790,7 @@ TIMING_TEST_F(Listener_test, TriggerWhileInCallbackLeadsToAnotherCallbackOnce, R
 });
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallback, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "9e1e5a70-e2e9-4ee9-85f9-f52cf475cb61");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     ASSERT_FALSE(m_sut
@@ -808,6 +818,7 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
 });
 
 TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCallbackOnce, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "51163b5c-01c9-426b-9f59-3fac62a2f10c");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     SimpleEventClass bar;
@@ -844,6 +855,7 @@ TIMING_TEST_F(Listener_test, TriggerMultipleTimesWhileInCallbackLeadsToAnotherCa
 });
 
 TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "6c11cc3f-d251-4e10-9c8e-cdc18c257227");
     m_sut.emplace(m_condVarData);
     SimpleEventClass fuu;
     ASSERT_FALSE(m_sut
@@ -859,6 +871,7 @@ TIMING_TEST_F(Listener_test, NoTriggerLeadsToNoCallback, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "9c0d0be4-7fdf-4b2d-8e40-992a975aa6cc");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
@@ -888,6 +901,7 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "6840b748-adcc-40c3-ac39-24870540a58f");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
@@ -926,6 +940,7 @@ TIMING_TEST_F(Listener_test, TriggeringAllEventsCallsAllCallbacksOnce, Repeat(5)
 // BEGIN concurrent attach / detach
 //////////////////////////////////
 TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "35edee3a-ff25-4b2e-a804-363ca56b4481");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
@@ -952,6 +967,7 @@ TIMING_TEST_F(Listener_test, AttachingWhileCallbackIsRunningWorks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "9ff36b35-0396-4f57-831a-dfc9dd0fdd46");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
@@ -983,6 +999,7 @@ TIMING_TEST_F(Listener_test, AttachingMultipleWhileCallbackIsRunningWorks, Repea
 });
 
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "f93b89e9-4bc9-432c-9808-cdb6f46ebff2");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
 
@@ -1006,6 +1023,7 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningWorks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "0a2b5a79-1ff6-4171-9318-52c593828cfb");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     ASSERT_FALSE(m_sut
@@ -1026,6 +1044,7 @@ TIMING_TEST_F(Listener_test, DetachingWhileCallbackIsRunningBlocksDetach, Repeat
 });
 
 TIMING_TEST_F(Listener_test, EventDestructorBlocksWhenCallbackIsRunning, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "0a7fc0d7-aa69-4812-837a-f1497401d3b6");
     m_sut.emplace(m_condVarData);
     SimpleEventClass* event = new SimpleEventClass();
     ASSERT_FALSE(
@@ -1045,6 +1064,7 @@ TIMING_TEST_F(Listener_test, EventDestructorBlocksWhenCallbackIsRunning, Repeat(
 
 
 TIMING_TEST_F(Listener_test, DetachingMultipleWhileCallbackIsRunningWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "81111c14-84a2-4f38-a77d-03b95e3f3f8c");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     AttachEvent<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 1U>::doIt(*m_sut, events, SimpleEvent::StoepselBachelorParty);
@@ -1077,6 +1097,7 @@ TIMING_TEST_F(Listener_test, DetachingMultipleWhileCallbackIsRunningWorks, Repea
 });
 
 TIMING_TEST_F(Listener_test, AttachingDetachingRunsIndependentOfCallback, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "f5a15344-a2d7-44dd-9a12-a65b70976f46");
     m_sut.emplace(m_condVarData);
     std::vector<SimpleEventClass> events(iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER);
     ASSERT_FALSE(
@@ -1108,6 +1129,7 @@ TIMING_TEST_F(Listener_test, AttachingDetachingRunsIndependentOfCallback, Repeat
 // BEGIN attach / detach in callbacks
 //////////////////////////////////
 TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "ac677d64-b444-4155-9879-7b674597be1e");
     m_sut.emplace(m_condVarData);
     g_toBeDetached->clear();
 
@@ -1125,6 +1147,7 @@ TIMING_TEST_F(Listener_test, DetachingSelfInCallbackWorks, Repeat(5), [&] {
 });
 
 TIMING_TEST_F(Listener_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "78d646d0-9899-4563-91cf-3740221fbca1");
     m_sut.emplace(m_condVarData);
     g_toBeDetached->clear();
 
@@ -1147,6 +1170,7 @@ TIMING_TEST_F(Listener_test, DetachingNonSelfEventInCallbackWorks, Repeat(5), [&
 });
 
 TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefore, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "7581bb34-802e-4241-a42e-e72c990936ab");
     // idea of the test is that an event which was detached but is technically still attached
     // since the detach blocks cannot be retriggered again so that the callback is called again.
     // once detach is called either the callback is currently running and detach is blocked or
@@ -1191,6 +1215,7 @@ TIMING_TEST_F(Listener_test, DetachedCallbacksAreNotBeingCalledWhenTriggeredBefo
 });
 
 TIMING_TEST_F(Listener_test, AttachingInCallbackWorks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "58734e7f-2d3f-49ac-9f37-8052016def8c");
     m_sut.emplace(m_condVarData);
     g_toBeAttached->clear();
 

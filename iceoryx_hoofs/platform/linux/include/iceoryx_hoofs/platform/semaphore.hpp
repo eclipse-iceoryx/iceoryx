@@ -17,12 +17,14 @@
 #ifndef IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
 #define IOX_HOOFS_LINUX_PLATFORM_SEMAPHORE_HPP
 
+#include <climits>
+#include <cstdint>
 #include <semaphore.h>
 
 using iox_sem_t = sem_t;
 
 #define IOX_SEM_FAILED SEM_FAILED
-#define IOX_SEM_VALUE_MAX SEM_VALUE_MAX
+constexpr uint32_t IOX_SEM_VALUE_MAX = SEM_VALUE_MAX;
 
 inline int iox_sem_getvalue(iox_sem_t* sem, int* sval)
 {

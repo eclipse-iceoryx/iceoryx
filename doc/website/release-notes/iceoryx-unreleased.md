@@ -18,8 +18,12 @@
 - Refactor semaphore [\#751](https://github.com/eclipse-iceoryx/iceoryx/issues/751)
     - Introduce `UnnamedSemaphore`
     - Introduce `NamedSemaphore`
+    - Remove old `Semaphore`
 - Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend `unsafe_append` and `append` methods of `iox::cxx::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
+- Create convenience macro for `NewType` [\#1425](https://github.com/eclipse-iceoryx/iceoryx/issues/1425)
+- Add posix thread wrapper [\#1365](https://github.com/eclipse-iceoryx/iceoryx/issues/1365)
 
 **Bugfixes:**
 
@@ -28,6 +32,7 @@
 - Compile Error : iceoryx_dds/Mempool.hpp: No such file or directory [\#1364](https://github.com/eclipse-iceoryx/iceoryx/issues/1364)
 - RPATH is correctly set up for all libraries and binaries. [\#1287](https://github.com/eclipse-iceoryx/iceoryx/issues/1287)
 - Wrong memory order in concurrent::FIFO [\#1396](https://github.com/eclipse-iceoryx/iceoryx/issues/1396)
+- Iceoryx libraries weren't compiled with `-fPIC` as position independent code [#\879](https://github.com/eclipse-iceoryx/iceoryx/issues/879)
 
 **Refactoring:**
 
@@ -44,6 +49,7 @@
 - Remove `iox::posix::Timer` [\#337](https://github.com/eclipse-iceoryx/iceoryx/issues/337)
 - Refactor service discovery tests [/#1065](https://github.com/eclipse-iceoryx/iceoryx/issues/1065)
   to increase comprehension and cover more test cases
+- Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 
 **New API features:**
 
@@ -78,3 +84,102 @@
     // after
     #include "iceoryx_hoofs/design_pattern/builder.hpp"
     ```
+
+3. `UnnamedSemaphore` replaces `Semaphore` with `CreateUnnamed*` option
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0);
+
+    // after
+    #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+
+    iox::cxx::optional<iox::posix::UnnamedSemaphore> semaphore;
+    auto result = iox::posix::UnnamedSemaphoreBuilder()
+                    .initialValue(0U)
+                    .isInterProcessCapable(true)
+                    .create(semaphore);
+    ```
+
+4. `NamedSemaphore` replaces `Semaphore` with `CreateNamedSemaphore` option
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/posix_wrapper/semaphore.hpp"
+
+    auto semaphore = iox::posix::Semaphore::create(iox::posix::CreateNamedSemaphore,
+                                               "mySemaphoreName",
+                                               S_IRUSR | S_IWUSR,
+                                                   0);
+    // after
+    #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
+
+    iox::cxx::optional<iox::posix::NamedSemaphore> semaphore;
+    auto result = iox::posix::NamedSemaphoreBuilder()
+                    .name("mySemaphoreName")
+                    .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
+                    .permissions(iox::cxx::perms::owner_all)
+                    .initialValue(0U)
+                    .create(semaphore);
+    ```
+
+5. `RoudiApp::waitForSignal` is deprecated
+    ```cpp
+    // before
+    //// in my custom roudi app implementation
+    uint8_t MyCustomRoudiApp::run() noexcept {
+        // ...
+
+        waitForSignal();
+    }
+
+    // after
+    //// in my custom roudi app implementation
+    uint8_t MyCustomRoudiApp::run() noexcept {
+        // ...
+
+        iox::posix::waitForTerminationRequest();
+    }
+    ```
+
+6. It is not possible to delete a class which is derived from `FunctionalInterface`
+   via a pointer to `FunctionalInterface`
+
+   ```cpp
+   iox::cxx::FunctionalInterface<iox::cxx::optional<MyClass>, MyClass, void>* soSmart =
+       new iox::cxx::optional<MyClass>{};
+
+   delete soSmart; // <- not possible anymore
+   ```
+7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
+
+   ```cpp
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+
+   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+
+   delete soSmart; // <- not possible anymore
+   ```
+
+8. It is not possible to use the `NewType` to create type aliases. This was not recommended and is now enforced
+
+   ```cpp
+   // before
+   // for the compiler Foo and Bar are the same type
+   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+
+   // after
+   // compile time error when Foo and Bar are mixed up
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+   // or with the IOX_NEW_TYPE macro
+   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
+   ```

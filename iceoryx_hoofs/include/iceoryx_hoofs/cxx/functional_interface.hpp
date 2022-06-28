@@ -16,10 +16,11 @@
 #ifndef IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 #define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/platform/unistd.hpp"
 
-#include <iostream>
 #include <utility>
 
 namespace iox
@@ -54,6 +55,8 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 {
 };
 
+void print_expect_message(const char* message) noexcept;
+
 template <typename Derived>
 struct Expect
 {
@@ -63,6 +66,9 @@ struct Expect
     /// @param[in] msg Message which will be printed when the object is invalid
     template <typename StringType>
     void expect(const StringType& msg) const noexcept;
+
+  protected:
+    ~Expect() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -99,6 +105,9 @@ struct ExpectWithValue
     /// @return const rvalue reference to the contained value
     template <typename StringType>
     const ValueType&& expect(const StringType& msg) const&& noexcept;
+
+  protected:
+    ~ExpectWithValue() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -121,6 +130,9 @@ struct ValueOr
     ///         with alternative as constructor argument
     template <typename U>
     ValueType value_or(U&& alternative) && noexcept;
+
+  protected:
+    ~ValueOr() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -165,6 +177,9 @@ struct AndThenWithValue
     /// @return const rvalue reference to *this
     template <typename Functor>
     const Derived&& and_then(const Functor& callable) const&& noexcept;
+
+  protected:
+    ~AndThenWithValue() = default;
 };
 
 template <typename Derived>
@@ -195,6 +210,9 @@ struct AndThen
     /// @param[in] callable will be called when valid
     /// @return const rvalue reference to *this
     const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
+
+  protected:
+    ~AndThen() = default;
 };
 
 template <typename Derived, typename ErrorType>
@@ -239,6 +257,9 @@ struct OrElseWithValue
     /// @return const rvalue reference to *this
     template <typename Functor>
     const Derived&& or_else(const Functor& callable) const&& noexcept;
+
+  protected:
+    ~OrElseWithValue() = default;
 };
 
 template <typename Derived>
@@ -269,6 +290,9 @@ struct OrElse
     /// @param[in] callable will be called when invalid
     /// @return const rvalue reference to *this
     const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
+
+  protected:
+    ~OrElse() = default;
 };
 
 template <typename Derived, typename ValueType, typename ErrorType>
@@ -277,12 +301,16 @@ struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
                                  public AndThenWithValue<Derived, ValueType>,
                                  public OrElseWithValue<Derived, ErrorType>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived>
 struct FunctionalInterfaceImpl<Derived, void, void>
     : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ValueType>
@@ -291,12 +319,16 @@ struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValu
                                                            public AndThenWithValue<Derived, ValueType>,
                                                            public OrElse<Derived>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ErrorType>
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
     : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {
+  protected:
+    ~FunctionalInterfaceImpl() = default;
 };
 } // namespace internal
 

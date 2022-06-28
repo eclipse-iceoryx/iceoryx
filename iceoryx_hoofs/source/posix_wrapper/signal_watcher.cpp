@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 
 namespace iox
@@ -29,26 +30,30 @@ void internalSignalHandler(int) noexcept
     for (uint64_t remainingNumberOfWaiters = instance.m_numberOfWaiters.load(); remainingNumberOfWaiters > 0;
          --remainingNumberOfWaiters)
     {
-        instance.m_semaphore.post().or_else([](auto) {
+        if (instance.m_semaphore->post().has_error())
+        {
+            // we use write since internalSignalHandler can be called from within a
+            // signal handler and write is signal safe
             constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
-            auto result = write(STDERR_FILENO, MSG, sizeof(MSG));
+            auto result = write(STDERR_FILENO, MSG, strlen(MSG));
             IOX_DISCARD_RESULT(result);
             std::abort();
-        });
+        }
     }
 }
 
 SignalWatcher::SignalWatcher() noexcept
-    : m_semaphore{std::move(Semaphore::create(CreateUnnamedSingleProcessSemaphore, 0U)
-                                .or_else([](auto) {
-                                    std::cerr << "Unable to create semaphore for signal watcher" << std::endl;
-                                    constexpr bool UNABLE_TO_CREATE_SEMAPHORE_FOR_SIGNAL_WATCHER = false;
-                                    cxx::Ensures(UNABLE_TO_CREATE_SEMAPHORE_FOR_SIGNAL_WATCHER);
-                                })
-                                .value())}
-    , m_sigTermGuard(registerSignalHandler(Signal::TERM, internalSignalHandler))
+    : m_sigTermGuard(registerSignalHandler(Signal::TERM, internalSignalHandler))
     , m_sigIntGuard(registerSignalHandler(Signal::INT, internalSignalHandler))
 {
+    UnnamedSemaphoreBuilder()
+        .isInterProcessCapable(false)
+        .create(m_semaphore)
+
+        // This can be safely used despite getInstance is used in the internalSignalHandler
+        // since this object has to be created first before internalSignalHandler can be called.
+        // The only way this object can be created is by calling getInstance.
+        .expect("Unable to create semaphore for signal watcher");
 }
 
 SignalWatcher& SignalWatcher::getInstance() noexcept
@@ -65,11 +70,7 @@ void SignalWatcher::waitForSignal() const noexcept
         return;
     }
 
-    m_semaphore.wait().or_else([](auto) {
-        std::cerr << "Unable to wait on semaphore in signal watcher" << std::endl;
-        constexpr bool UNABLE_TO_WAIT_ON_SEMAPHORE_IN_SIGNAL_WATCHER = false;
-        cxx::Ensures(UNABLE_TO_WAIT_ON_SEMAPHORE_IN_SIGNAL_WATCHER);
-    });
+    m_semaphore->wait().expect("Unable to wait on semaphore in signal watcher");
 }
 
 bool SignalWatcher::wasSignalTriggered() const noexcept
@@ -86,6 +87,5 @@ bool hasTerminationRequested() noexcept
 {
     return SignalWatcher::getInstance().wasSignalTriggered();
 }
-
 } // namespace posix
 } // namespace iox

@@ -443,6 +443,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
 }
 
 TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "0e76509d-d7af-4c8c-9de6-77e5b0dc9575");
     MemPoolInfoContainer memPoolTestContainer;
     auto testMempoolConfig = defaultMemPoolConfig();
 

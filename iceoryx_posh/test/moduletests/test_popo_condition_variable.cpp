@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
@@ -58,8 +59,6 @@ class ConditionVariable_test : public Test
     }
 
     Watchdog m_watchdog{m_timeToWait};
-    iox::posix::Semaphore m_syncSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
 };
 
 TEST_F(ConditionVariable_test, ConditionListenerIsNeitherCopyNorMovable)
@@ -118,13 +117,15 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInImmediateTriggerMultiThread
 {
     ::testing::Test::RecordProperty("TEST_ID", "39b40c73-3dcc-4af6-9682-b62816c69854");
     std::atomic<int> counter{0};
+    Barrier isThreadStarted(1U);
     std::thread waiter([&] {
         EXPECT_THAT(counter, Eq(0));
-        IOX_DISCARD_RESULT(m_syncSemaphore.post());
+        isThreadStarted.notify();
         m_waiter.wait();
         EXPECT_THAT(counter, Eq(1));
     });
-    IOX_DISCARD_RESULT(m_syncSemaphore.wait());
+    isThreadStarted.wait();
+
     counter++;
     m_signaler.notify();
     waiter.join();
@@ -233,10 +234,9 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsAllNotifiedIndices)
 }
 
 TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "c755aec9-43c3-4bf4-bec4-5672c76561ef");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    iox::posix::Semaphore threadSetupSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
     std::thread waiter([&] {
@@ -253,10 +253,9 @@ TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilTimeout, Repeat(5), [&
 })
 
 TIMING_TEST_F(ConditionVariable_test, TimedWaitBlocksUntilNotification, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "b2999ddd-d072-4c9f-975e-fc8acc31397d");
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    iox::posix::Semaphore threadSetupSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
     std::thread waiter([&] {
@@ -365,23 +364,24 @@ TEST_F(ConditionVariable_test, WaitAndNotifyResultsInCorrectNotificationVector)
 }
 
 TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "09d9ad43-ba97-4331-9a6b-ca22d2dbddb8");
     constexpr Type_t EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 5U;
     ConditionNotifier notifier(m_condVarData, EVENT_INDEX);
     ConditionListener listener(m_condVarData);
     NotificationVector_t activeNotifications;
-    iox::posix::Semaphore threadSetupSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
+    Barrier isThreadStarted(1U);
     std::atomic_bool hasWaited{false};
 
     std::thread waiter([&] {
-        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
+        isThreadStarted.notify();
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
         EXPECT_THAT(activeNotifications[0], Eq(EVENT_INDEX));
     });
 
-    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
+    isThreadStarted.wait();
+
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier.notify();
@@ -391,13 +391,12 @@ TIMING_TEST_F(ConditionVariable_test, WaitBlocks, Repeat(5), [&] {
 })
 
 TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repeat(5), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "dcbd55ee-e401-42cb-bbf2-a266058c2e76");
     constexpr Type_t FIRST_EVENT_INDEX = iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER - 2U;
     constexpr Type_t SECOND_EVENT_INDEX = 0U;
     ConditionNotifier notifier1(m_condVarData, FIRST_EVENT_INDEX);
     ConditionNotifier notifier2(m_condVarData, SECOND_EVENT_INDEX);
     ConditionListener listener(m_condVarData);
-    iox::posix::Semaphore threadSetupSemaphore =
-        iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U).value();
     std::atomic_bool hasWaited{false};
 
     Watchdog watchdogFirstWait(m_timeToWait);
@@ -414,8 +413,9 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
     Watchdog watchdogSecondWait(m_timeToWait);
     watchdogSecondWait.watchAndActOnFailure([&] { listener.destroy(); });
 
+    Barrier isThreadStarted(1U);
     std::thread waiter([&] {
-        IOX_DISCARD_RESULT(threadSetupSemaphore.post());
+        isThreadStarted.notify();
         activeNotifications = listener.wait();
         hasWaited.store(true, std::memory_order_relaxed);
         ASSERT_THAT(activeNotifications.size(), Eq(1U));
@@ -426,7 +426,8 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
         }
     });
 
-    IOX_DISCARD_RESULT(threadSetupSemaphore.wait());
+    isThreadStarted.wait();
+
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     EXPECT_THAT(hasWaited, Eq(false));
     notifier1.notify();

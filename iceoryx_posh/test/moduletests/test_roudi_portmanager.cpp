@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
 
 namespace iox_test_roudi_portmanager
@@ -835,7 +836,6 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     ASSERT_FALSE(maybeChunk.has_error());
     publisher.sendChunk(maybeChunk.value());
 
-    auto threadSyncSemaphore = iox::posix::Semaphore::create(iox::posix::CreateUnnamedSingleProcessSemaphore, 0U);
     std::atomic_bool wasChunkSent{false};
 
     constexpr iox::units::Duration DEADLOCK_TIMEOUT{5_s};
@@ -843,17 +843,18 @@ void PortManager_test::setupAndTestBlockingPublisher(const iox::RuntimeName_t& p
     deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
     // block in a separate thread
+    Barrier isThreadStarted(1U);
     std::thread blockingPublisher([&] {
         auto maybeChunk = publisher.tryAllocateChunk(42U, 8U);
         ASSERT_FALSE(maybeChunk.has_error());
-        ASSERT_FALSE(threadSyncSemaphore->post().has_error());
+        isThreadStarted.notify();
         publisher.sendChunk(maybeChunk.value());
         wasChunkSent = true;
     });
 
     // wait some time to check if the publisher is blocked
     constexpr int64_t SLEEP_IN_MS = 100;
-    ASSERT_FALSE(threadSyncSemaphore->wait().has_error());
+    isThreadStarted.wait();
     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_IN_MS));
     EXPECT_THAT(wasChunkSent.load(), Eq(false));
 

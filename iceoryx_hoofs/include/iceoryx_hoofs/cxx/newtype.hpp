@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,10 @@ namespace cxx
 /// An example could be that you would like to have an index class
 /// with those properties and some additional methods. Then you can
 /// inherit from NewType and add your methods.
+/// For most generic usage, the IOX_NEW_TYPE macro can be used.
 /// @code
+///     #include <iceoryx_hoofs/cxx/newtype.hpp>
+///
 ///     class Index : public NewType<int,
 ///                                     newtype::ConstructByValueCopy,
 ///                                     newtype::Comparable,
@@ -74,6 +77,11 @@ class NewType : public Policies<NewType<T, Policies...>>...
 {
   protected:
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
+
+    /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
+    /// in `Foo` and `Bar` being the same type, this enforces the creation of the
+    /// new type by inheritance
+    ~NewType() = default;
 
   public:
     /// @brief the type of *this
@@ -114,6 +122,40 @@ class NewType : public Policies<NewType<T, Policies...>>...
   private:
     T m_value;
 };
+
+/// @brief This macro helps to create types with the NewType class.
+/// In case the functionality of the underlying type is sufficient and one just
+/// wants to prevent to mix types, this macro removes the burden to write
+/// boilerplate code.
+///
+/// @param[in] TypeName is the name of the new type to create
+/// @param[in] Type is the underlying type of the new type
+/// @param[in] ... is a variadic list of the policies applied to the new type,
+/// e.g. iox::cxx::newtype::ConstructByValueCopy
+///
+/// @code
+///     #include <iceoryx_hoofs/cxx/newtype.hpp>
+///
+///     IOX_NEW_TYPE(MyType,
+///                  uint64_t,
+///                  newtype::ConstructByValueCopy,
+///                  newtype::Comparable,
+///                  newtype::Sortable,
+///                  newtype::AssignByValueCopy);
+/// @endcode
+#define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
+    struct TypeName : public iox::cxx::NewType<Type, __VA_ARGS__>                                                      \
+    {                                                                                                                  \
+        using ThisType::ThisType;                                                                                      \
+        using ThisType::operator=;                                                                                     \
+                                                                                                                       \
+        TypeName() noexcept = default;                                                                                 \
+        TypeName(const TypeName&) noexcept = default;                                                                  \
+        TypeName(TypeName&&) noexcept = default;                                                                       \
+        TypeName& operator=(const TypeName&) noexcept = default;                                                       \
+        TypeName& operator=(TypeName&&) noexcept = default;                                                            \
+    }
+
 } // namespace cxx
 } // namespace iox
 

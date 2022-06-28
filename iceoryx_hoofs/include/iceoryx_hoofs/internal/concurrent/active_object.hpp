@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_CONCURRENT_ACTIVE_OBJECT_HPP
 #define IOX_HOOFS_CONCURRENT_ACTIVE_OBJECT_HPP
 
-#include <functional>
 #include <thread>
 
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/fifo.hpp"
 #include "iceoryx_hoofs/internal/concurrent/trigger_queue.hpp"
 
@@ -32,7 +32,7 @@ class ActiveObject
   protected:
     ActiveObject() noexcept;
     virtual ~ActiveObject() noexcept;
-    void addTask(const std::function<void()>& f) noexcept;
+    void addTask(const cxx::function<void()>& f) noexcept;
     void mainLoop() noexcept;
     void stopRunning() noexcept;
 
@@ -40,7 +40,7 @@ class ActiveObject
 
   private:
     static constexpr uint32_t taskQueueSize = 128;
-    using taskQueue_t = concurrent::TriggerQueue<std::function<void()>, taskQueueSize, concurrent::FiFo>;
+    using taskQueue_t = concurrent::TriggerQueue<cxx::function<void()>, taskQueueSize, concurrent::FiFo>;
 
     taskQueue_t m_tasks;
 
