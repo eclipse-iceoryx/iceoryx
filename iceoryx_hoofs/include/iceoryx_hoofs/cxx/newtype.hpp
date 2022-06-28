@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -74,6 +74,11 @@ class NewType : public Policies<NewType<T, Policies...>>...
 {
   protected:
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
+
+    /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
+    /// in `Foo` and `Bar` being the same type, this enforces the creation of the
+    /// new type by inheritance
+    ~NewType() = default;
 
   public:
     /// @brief the type of *this

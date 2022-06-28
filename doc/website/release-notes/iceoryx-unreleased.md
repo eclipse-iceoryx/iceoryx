@@ -31,6 +31,7 @@
 - Compile Error : iceoryx_dds/Mempool.hpp: No such file or directory [\#1364](https://github.com/eclipse-iceoryx/iceoryx/issues/1364)
 - RPATH is correctly set up for all libraries and binaries. [\#1287](https://github.com/eclipse-iceoryx/iceoryx/issues/1287)
 - Wrong memory order in concurrent::FIFO [\#1396](https://github.com/eclipse-iceoryx/iceoryx/issues/1396)
+- Iceoryx libraries weren't compiled with `-fPIC` as position independent code [#\879](https://github.com/eclipse-iceoryx/iceoryx/issues/879)
 
 **Refactoring:**
 
@@ -142,7 +143,51 @@
     }
     ```
 
-6. `FileLock` uses the builder pattern. Path and permissions can now be set.
+6. It is not possible to delete a class which is derived from `FunctionalInterface`
+   via a pointer to `FunctionalInterface`
+
+   ```cpp
+   iox::cxx::FunctionalInterface<iox::cxx::optional<MyClass>, MyClass, void>* soSmart =
+       new iox::cxx::optional<MyClass>{};
+
+   delete soSmart; // <- not possible anymore
+   ```
+
+7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
+
+   ```cpp
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+
+   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+
+   delete soSmart; // <- not possible anymore
+   ```
+
+8. It is not possible to use the `NewType` to create type aliases. This was not recommended and is now enforced
+
+   ```cpp
+   // before
+   // for the compiler Foo and Bar are the same type
+   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+
+   // after
+   // compile time error when Foo and Bar are mixed up
+   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+
+   struct Bar : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   {
+       using ThisType::ThisType;
+   };
+   ```
+
+9. `FileLock` uses the builder pattern. Path and permissions can now be set.
     ```cpp
     // before
     auto fileLock = iox::posix::FileLock::create("lockFileName")
