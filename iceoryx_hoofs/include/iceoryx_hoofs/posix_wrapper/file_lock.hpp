@@ -66,8 +66,9 @@ class FileLock
 
     static constexpr uint64_t FILENAME_LENGTH = platform::IOX_MAX_FILENAME_LENGTH - LOCK_FILE_SUFFIX_LENGTH;
 
-    /// @brief A file name without any containing slash (path separator)
-    ///        For instance "myLock.lock"
+    /// @brief A file name without any containing slash (path separator). Can be used by the user
+    ///        and the LOCK_FILE_SUFFIX will be appended later.
+    ///        For instance "myLock" (without .lock)
     using FileName_t = cxx::string<FILENAME_LENGTH>;
     /// @brief The full path to the file, including the file
     ///        For instance "/path/to/myLock.lock"
