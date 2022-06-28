@@ -548,6 +548,10 @@ TEST(Helplets_test_isValidPath, RelativePathElementsAreValid)
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./././gimme-blubb/dir/")));
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./../.././gimme-blubb")));
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./../.././gimme-blubb/dir/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("all/glory/to/the/hypnotoad")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./all/glory/to/the/hypnotoad/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../all/glory/to/the/hypnotoad/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../all/glory/to/the/hypnotoad/../")));
 }
 
 TEST(Helplets_test_isValidPath, RelativePathBeginningFromRootIsValid)
@@ -578,6 +582,8 @@ TEST(Helplets_test_isValidPath, SingleEntryIsValidPath)
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/x/")));
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu:-012")));
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/fuu:-012/")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./hypnotoad")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./hypnotoad/")));
 }
 
 TEST(Helplets_test_isValidPath, ValidPathsWithNoRelativeComponentAreValid)
@@ -593,17 +599,17 @@ TEST(Helplets_test_isValidPath, ValidPathsWithNoRelativeComponentAreValid)
     EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("123/456/")));
 }
 
-TEST(Helplets_test_isValidPath, EndingWithRelativePathComponentIsInvalid)
+TEST(Helplets_test_isValidPath, EndingWithRelativePathComponentIsValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "506f9823-39cc-4cbc-b064-84d45b2311e8");
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/..")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/.")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("./..")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("../.")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("some/path/to/..")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("/another/path/to/.")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("../bla/fuu/../blubb/.")));
-    EXPECT_FALSE(isValidPath(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/..")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/.")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./..")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../.")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("some/path/to/..")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("/another/path/to/.")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("../bla/fuu/../blubb/.")));
+    EXPECT_TRUE(isValidPath(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
 }
 
 TEST(Helplets_test_isValidPath, FilePathsWithEndingDotsAreInvalid)

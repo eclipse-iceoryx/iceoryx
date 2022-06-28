@@ -111,7 +111,7 @@ class FileLockBuilder
     ///        appended to the filename
     IOX_BUILDER_PARAMETER(FileLock::FileName_t, name, "")
 
-    /// @brief Defines the path where the lock is stored. Use the file lock from the
+    /// @brief Defines the path where the lock is stored. Uses the file lock path from the
     ///        corresponding platform as default.
     IOX_BUILDER_PARAMETER(FileLock::PathName_t, path, platform::IOX_LOCK_FILE_PATH_PREFIX)
 

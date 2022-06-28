@@ -249,6 +249,9 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
+template <uint64_t StringCapacity>
+bool isValidPathEntry(const string<StringCapacity>& name) noexcept;
+
 /// @brief checks if the given string is a valid filename
 /// @param[in] name the string to verify
 /// @return true if the string is a filename, otherwise false

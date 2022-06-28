@@ -23,6 +23,40 @@ namespace iox
 namespace cxx
 {
 template <uint64_t StringCapacity>
+inline bool isValidPathEntry(const string<StringCapacity>& name) noexcept
+{
+    const string<StringCapacity> currentDirectory(".");
+    const string<StringCapacity> parentDirectory("..");
+
+    if (name == currentDirectory || name == parentDirectory)
+    {
+        return true;
+    }
+
+    const auto nameSize = name.size();
+
+    for (uint64_t i = 0; i < nameSize; ++i)
+    {
+        const char c = name.c_str()[i];
+        if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
+              || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
+              || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
+              || c == internal::ASCII_DOT || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE))
+        {
+            return false;
+        }
+    }
+
+    // dot at the end is invalid to be compatible with windows api
+    if (nameSize != 0 && name[nameSize - 1] == '.')
+    {
+        return false;
+    }
+
+    return true;
+}
+
+template <uint64_t StringCapacity>
 inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
@@ -48,19 +82,7 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
     }
 
     // check if the file contains only valid characters
-    for (uint64_t i = 0; i < nameSize; ++i)
-    {
-        const char c = name.c_str()[i];
-        if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
-              || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
-              || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
-              || c == internal::ASCII_DOT || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE))
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return isValidPathEntry(name);
 }
 
 template <uint64_t StringCapacity>
@@ -71,7 +93,11 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
         return false;
     }
 
-    return isValidPath(name);
+    auto lastSeparatorPosition = name.find_last_of(platform::IOX_PATH_SEPARATORS);
+    auto filePart = (lastSeparatorPosition) ? name.substr(*lastSeparatorPosition + 1).value() : name;
+    auto pathPart = (lastSeparatorPosition) ? name.substr(0, *lastSeparatorPosition).value() : string<StringCapacity>();
+
+    return (pathPart.empty() || isValidPath(pathPart)) && isValidFileName(filePart);
 }
 
 template <uint64_t StringCapacity>
@@ -119,7 +145,7 @@ inline bool isValidPath(const string<StringCapacity>& name) noexcept
         // we reached the last entry, if its a valid file name the path is valid
         else if (!separatorPosition)
         {
-            return isValidFileName(temp);
+            return isValidPathEntry(temp);
         }
     }
 
