@@ -250,20 +250,24 @@ constexpr bool isPowerOfTwo(const T n) noexcept
 }
 
 /// @brief checks if the given string is a valid filename
+/// @param[in] name the string to verify
 /// @return true if the string is a filename, otherwise false
 template <uint64_t StringCapacity>
 bool isValidFileName(const string<StringCapacity>& name) noexcept;
 
 /// @brief verifies if the given string is a valid path to a file
+/// @param[in] name the string to verify
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
 bool isValidFilePath(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name is a valid path, otherwise false
+/// @param[in] name the string to verify
 template <uint64_t StringCapacity>
 bool isValidPath(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name ends with a path separator, otherwise false
+/// @param[in] name the string which may contain a path separator at the end
 template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 

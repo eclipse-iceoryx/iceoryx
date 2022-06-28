@@ -61,9 +61,10 @@ class FileLock
   public:
     static constexpr int32_t INVALID_FD = -1;
     static constexpr const char LOCK_FILE_SUFFIX[] = ".lock";
-    static constexpr uint64_t FILENAME_LENGTH = platform::IOX_MAX_FILENAME_LENGTH
-                                                - sizeof(platform::IOX_LOCK_FILE_PATH_PREFIX) / sizeof(char)
-                                                - sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
+    static constexpr uint64_t PATH_SEPARATOR_LENGTH = 1U;
+    static constexpr uint64_t LOCK_FILE_SUFFIX_LENGTH = sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
+
+    static constexpr uint64_t FILENAME_LENGTH = platform::IOX_MAX_FILENAME_LENGTH - LOCK_FILE_SUFFIX_LENGTH;
 
     /// @brief A file name without any containing slash (path separator)
     ///        For instance "myLock.lock"
@@ -73,7 +74,8 @@ class FileLock
     using FilePath_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
     /// @brief The directory to the file
     ///        For instance "/path/to/"
-    using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH - FILENAME_LENGTH - 1>;
+    using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH - PATH_SEPARATOR_LENGTH
+                                   - (FILENAME_LENGTH + LOCK_FILE_SUFFIX_LENGTH)>;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
