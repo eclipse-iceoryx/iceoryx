@@ -107,13 +107,16 @@ class FileLock
 
 class FileLockBuilder
 {
-    /// @brief Defines the file name of the lock
+    /// @brief Defines the file name of the lock, the suffix ".lock" will be
+    ///        appended to the filename
     IOX_BUILDER_PARAMETER(FileLock::FileName_t, name, "")
 
-    /// @brief Defines the path where the lock is stored
+    /// @brief Defines the path where the lock is stored. Use the file lock from the
+    ///        corresponding platform as default.
     IOX_BUILDER_PARAMETER(FileLock::PathName_t, path, platform::IOX_LOCK_FILE_PATH_PREFIX)
 
-    /// @brief Defines the access permissions of the file lock
+    /// @brief Defines the access permissions of the file lock. If they are not
+    ///        explicitly set they will be none
     IOX_BUILDER_PARAMETER(cxx::perms, permission, cxx::perms::none)
 
   public:
