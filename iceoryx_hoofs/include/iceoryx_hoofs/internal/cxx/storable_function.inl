@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ storable_function<S, signature<ReturnType, Args...>>::~storable_function() noexc
 }
 
 template <typename S, typename ReturnType, typename... Args>
-ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args)
+ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args... args) const
 {
     cxx::Expects(!empty());
     return m_invoker(m_callable, std::forward<Args>(args)...);
@@ -127,7 +127,7 @@ ReturnType storable_function<S, signature<ReturnType, Args...>>::operator()(Args
 
 
 template <typename S, typename ReturnType, typename... Args>
-storable_function<S, signature<ReturnType, Args...>>::operator bool() noexcept
+storable_function<S, signature<ReturnType, Args...>>::operator bool() const noexcept
 {
     return !empty();
 }
