@@ -58,7 +58,7 @@ auto create_proxy(const SourceLocation&, Level, const Error&, std::false_type)
 template <class Expr, class Level, class Error>
 auto create_proxy(const Expr& expr, const SourceLocation& location, Level level, const Error& error, std::true_type)
 {
-    auto e = create_error(error);
+    auto e = eh::create_error(error);
     if (expr())
     {
         return ErrorProxy<Level, decltype(e)>(location, level, e);

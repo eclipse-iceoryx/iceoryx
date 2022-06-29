@@ -1,6 +1,9 @@
 // #define TEST_PLATFORM
 
-#include "iceoryx_hoofs/error_handling_2/module/config.hpp"
+#include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
+#include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
+
+// #include "iceoryx_hoofs/error_handling_2/api.hpp"
 
 #include "iceoryx_hoofs/error_handling_2/error.hpp"
 
@@ -13,12 +16,18 @@
 namespace
 {
 using namespace ::testing;
+using namespace eh;
 using std::cout;
 using std::endl;
 
-// TODO: should be iox::eh instead
-using namespace eh;
+using B_Error = module_B::Error;
+using B_Code = module_B::ErrorCode;
 
+using A_Error = module_A::Error;
+using A_Code = module_A::ErrorCode;
+
+// TODO: in test fixture std::set_terminate([](){ });
+// TODO: should be iox::eh instead
 
 // for now the tests check compilation only,
 // demonstrate usage and output
@@ -29,19 +38,19 @@ using namespace eh;
 // deactivate the tests in this case as IOX_RAISE will throw
 #ifndef TEST_PLATFORM
 
-TEST(EH_test, raiseUnspecific)
-{
-    // when we do not care about the specific error
-    IOX_RAISE(WARNING);
-    IOX_RAISE(ERROR);
-    IOX_RAISE(FATAL);
-}
+// TEST(EH_test, raiseUnspecific)
+// {
+//     // when we do not care about the specific error
+//     IOX_RAISE(WARNING);
+//     IOX_RAISE(ERROR);
+//     IOX_RAISE(FATAL);
+// }
 
 TEST(EH_test, fatalError)
 {
     // when we just want to abort the program (gracefully)
     // equivalent to IOX_RAISE(FATAL);
-    IOX_FATAL();
+    // IOX_FATAL();
     IOX_FATAL(A_Code::Unknown);
 }
 
@@ -55,9 +64,8 @@ TEST(EH_test, raiseSpecific)
 
 TEST(EH_test, raiseFromDifferentModules)
 {
-    // e.g. for functions in posh which also use hoofs header
-    IOX_RAISE(ERROR, A_Code::OutOfBounds);
-    IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    module_A::function();
+    module_B::function();
 }
 
 TEST(EH_test, raiseConditionally)
@@ -67,7 +75,7 @@ TEST(EH_test, raiseConditionally)
     IOX_RAISE_IF(x > 10, WARNING, A_Code::OutOfBounds);
 
     auto f = [] { return true; };
-    IOX_RAISE_IF(f, FATAL);
+    IOX_RAISE_IF(f, FATAL, B_Code::OutOfMemory);
 }
 
 TEST(EH_test, assertCondition)
@@ -164,7 +172,7 @@ TEST(EH_test, verifyError1)
 {
     // we could check for the concrete error
     // but then it would require a comparison operator (in each module)
-    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
+    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
     try
     {
         // calling f which raises multiple errors would be a problem
@@ -197,7 +205,8 @@ TEST(EH_test, verifyError1)
 // alternative with EXPECT_THROW check and rethrow
 TEST(EH_test, verifyError2)
 {
-    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
+    // NB: GenericError cannot know create_error at its implementation
+    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
     EXPECT_THROW(
         {
             try
@@ -216,7 +225,7 @@ TEST(EH_test, verifyError2)
 // alternative with custom bookkeeping in test platform error handling
 TEST(EH_test, verifyError3)
 {
-    auto expectedError = GenericError::from_code(B_Code::OutOfMemory);
+    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
     errors().reset();
     EXPECT_EQ(errors().count(expectedError), 0);
 

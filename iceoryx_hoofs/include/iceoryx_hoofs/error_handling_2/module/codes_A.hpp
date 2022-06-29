@@ -56,12 +56,9 @@ struct Error
 
 namespace eh
 {
-using A_Error = module_A::Error;
-using A_Code = module_A::ErrorCode;
-
-// module specific overload is required
-A_Error create_error(A_Code code)
+// module specific overload is required in eh
+module_A::Error create_error(module_A::ErrorCode code)
 {
-    return A_Error(code);
+    return module_A::Error(code);
 }
 } // namespace eh

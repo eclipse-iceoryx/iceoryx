@@ -47,14 +47,6 @@ class GenericError
         return !(*this == other);
     }
 
-    // cannot use ctor templates (both would have one argument of generic type)
-    template <typename Code>
-    static GenericError from_code(Code code)
-    {
-        auto e = create_error(code);
-        return GenericError(e.module(), e.code());
-    }
-
     template <typename Error>
     static GenericError from_error(const Error& e)
     {
