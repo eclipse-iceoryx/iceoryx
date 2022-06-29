@@ -32,7 +32,8 @@
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, error) IOX_ASSERT(expr, error)
 #else
-    #define IOX_DEBUG_ASSERT(expr, error) if(false) eh::EmptyProxy()
+    // the proxy is not actually constructed (false branch)
+    #define IOX_DEBUG_ASSERT(expr, error) if(false) eh::ErrorProxy<eh::Fatal>()
 #endif
 
 // clang-format on

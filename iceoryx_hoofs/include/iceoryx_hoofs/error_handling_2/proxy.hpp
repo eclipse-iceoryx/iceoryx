@@ -11,18 +11,19 @@
 
 namespace eh
 {
-template <class Level, class Error>
+template <typename Level>
 struct ErrorProxy
 {
     ErrorProxy()
     {
     }
+
+    template <class Error>
     ErrorProxy(const SourceLocation& location, Level level, Error error)
-        : m_location(location)
-        , m_level(level)
-        , m_error(error)
     {
-        log(m_stream, m_location, m_level, m_error);
+        // TODO: stream can be a thread local (check new LogStream)
+        log(m_stream, location, level, error);
+        report(location, level, error);
     }
 
     ErrorProxy(ErrorProxy&&)
@@ -61,70 +62,25 @@ struct ErrorProxy
     }
 
   private:
-    SourceLocation m_location;
-    Level m_level;
-    Error m_error;
-    bool m_hasError{false};
-
     // TODO: optimization where it only has a stream when needed by operator <<
     //       (is this possible?)
     ErrorStream m_stream;
 
     void raise()
     {
-        flush();
-        report(m_location, m_level, m_error);
-
+        std::cout << m_stream.str(); // flush to logger
         if (is_fatal<Level>::value)
         {
             preterminate(); // hook exists
             terminate();    // no hook exists to avoid terminate (TODO: tests?)
         }
     }
-
-    void flush()
-    {
-        // TODO: target would be the logger later
-        std::cout << m_stream.str();
-    }
-};
-
-// does nothing but is required for syntax of operator . and <<
-// (otherwise compilation fails)
-// should be largely optimized away (verified wit toy example in godbolt)
-//
-// Not strictly needed if we trust optimization (create another proxy in a compile time dead branch).
-// Can be removed later
-
-struct EmptyProxy
-{
-    EmptyProxy()
-    {
-    }
-
-    EmptyProxy(EmptyProxy&&)
-    {
-        // should not be used (exists for RVO in C++14)
-        std::terminate();
-    }
-
-    template <class F, class... Args>
-    EmptyProxy& IF_RAISED(const F&, Args&&...)
-    {
-        return *this;
-    }
-
-    template <class T>
-    EmptyProxy& operator<<(const T&)
-    {
-        return *this;
-    }
 };
 
 template <class Level, class Error>
 auto create_proxy(const SourceLocation& location, Level level, const Error& error)
 {
-    return ErrorProxy<Level, Error>(location, level, error);
+    return ErrorProxy<Level>(location, level, error);
 }
 
 } // namespace eh

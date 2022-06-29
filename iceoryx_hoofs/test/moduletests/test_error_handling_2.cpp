@@ -1,5 +1,5 @@
 // #define TEST_PLATFORM
-#define DEBUG // IOX_DEBUG_ASSERT active?
+// #define DEBUG // IOX_DEBUG_ASSERT active?
 
 #include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
 #include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
