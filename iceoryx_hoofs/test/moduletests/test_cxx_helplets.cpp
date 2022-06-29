@@ -621,7 +621,7 @@ TEST(Helplets_test_isValidPathToDirectory, EndingWithRelativePathComponentIsVali
     EXPECT_TRUE(isValidPathToDirectory(string<FILE_PATH_LENGTH>("./blubb/fuu/../bla/..")));
 }
 
-TEST(Helplets_test_isValidPathToDirectory, FilePathsWithEndingDotsAreInvalid)
+TEST(Helplets_test_isValidPathToDirectory, PathsWithEndingDotsAreInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f79660e6-12b5-4ad0-bc26-766da34898b8");
     EXPECT_FALSE(isValidPathToDirectory(string<FILE_PATH_LENGTH>("a.")));
@@ -689,12 +689,14 @@ TEST(Helplets_test_doesEndWithPathSeparator, MultiCharacterStringEndingWithPathS
 
 TEST(Helplets_test_isValidPathEntry, EmptyPathEntryIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1280b360-f26c-4ddf-8305-e01a99d58178");
     EXPECT_TRUE(
         isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(""), iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, PathEntryWithOnlyValidCharactersIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "166fb334-05c6-4b8c-a117-223d6cadb29b");
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a"),
                                  iox::cxx::RelativePathComponents::ACCEPT));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc"),
@@ -705,6 +707,7 @@ TEST(Helplets_test_isValidPathEntry, PathEntryWithOnlyValidCharactersIsValid)
 
 TEST(Helplets_test_isValidPathEntry, RelativePathEntriesAreValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d3432692-7cee-416a-a3f3-c246a02ad1a2");
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("."),
                                  iox::cxx::RelativePathComponents::ACCEPT));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".."),
@@ -713,6 +716,7 @@ TEST(Helplets_test_isValidPathEntry, RelativePathEntriesAreValid)
 
 TEST(Helplets_test_isValidPathEntry, EntriesWithEndingDotAreInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "f937de46-19fc-48da-bce6-51292cd9d75e");
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc."),
                                   iox::cxx::RelativePathComponents::ACCEPT));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("19283912asdb.."),
@@ -725,6 +729,7 @@ TEST(Helplets_test_isValidPathEntry, EntriesWithEndingDotAreInvalid)
 
 TEST(Helplets_test_isValidPathEntry, EntriesWithDotsNotAtTheEndAreValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "569aa328-2c47-418d-96e2-ddf73925e52f");
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc"),
                                  iox::cxx::RelativePathComponents::ACCEPT));
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".19283912asdb"),
@@ -737,6 +742,7 @@ TEST(Helplets_test_isValidPathEntry, EntriesWithDotsNotAtTheEndAreValid)
 
 TEST(Helplets_test_isValidPathEntry, StringContainingAllValidCharactersIsValid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b2c19516-e8fb-4fb8-a366-2b7b5fd9a84b");
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(
                                      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_"),
                                  iox::cxx::RelativePathComponents::ACCEPT));
@@ -744,6 +750,7 @@ TEST(Helplets_test_isValidPathEntry, StringContainingAllValidCharactersIsValid)
 
 TEST(Helplets_test_isValidPathEntry, StringWithSlashIsInvalid)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b1119db1-f897-48a5-af92-9a92eb3f9832");
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu/"),
                                   iox::cxx::RelativePathComponents::ACCEPT));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("fuu/uu"),
@@ -756,6 +763,7 @@ TEST(Helplets_test_isValidPathEntry, StringWithSlashIsInvalid)
 
 TEST(Helplets_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhenItContainsRelativeComponents)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "6c73e08e-3b42-446e-b8d4-a4ed7685f28e");
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../to/be"),
                                   iox::cxx::RelativePathComponents::REJECT));
     EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../../or/not"),

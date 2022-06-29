@@ -258,6 +258,7 @@ enum class RelativePathComponents
 /// @brief checks if the given string is a valid path entry. A path entry is the string between
 ///        two path separators.
 /// @param[in] name the path entry in question
+/// @param[in] relativePathComponents are relative path components are allowed for this path entry
 /// @return true if it is valid, otherwise false
 template <uint64_t StringCapacity>
 bool isValidPathEntry(const string<StringCapacity>& name,

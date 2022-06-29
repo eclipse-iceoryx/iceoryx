@@ -200,7 +200,7 @@
                                                  .expect("Oh no I couldn't create the lock file");
     ```
 
-10. `isValidFilePath` is deprecated use `isValidPathToFile` instead.
+10. `isValidFilePath` is removed use `isValidPathToFile` instead.
     ```cpp
     // before
     bool isCorrect = isValidFilePath("/path/to/file");
