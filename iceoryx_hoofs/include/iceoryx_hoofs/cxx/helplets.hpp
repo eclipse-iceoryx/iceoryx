@@ -249,12 +249,19 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
+enum class RelativePathComponents
+{
+    REJECT,
+    ACCEPT
+};
+
 /// @brief checks if the given string is a valid path entry. A path entry is the string between
 ///        two path separators.
 /// @param[in] name the path entry in question
 /// @return true if it is valid, otherwise false
 template <uint64_t StringCapacity>
-bool isValidPathEntry(const string<StringCapacity>& name) noexcept;
+bool isValidPathEntry(const string<StringCapacity>& name,
+                      const RelativePathComponents& relativePathComponents) noexcept;
 
 /// @brief checks if the given string is a valid filename
 /// @param[in] name the string to verify
@@ -267,10 +274,6 @@ bool isValidFileName(const string<StringCapacity>& name) noexcept;
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
 bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
-
-template <uint64_t StringCapacity>
-[[deprecated("removed in 4.0, use isValidPathToFile")]] bool
-isValidFilePath(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name is a valid path, otherwise false
 /// @param[in] name the string to verify

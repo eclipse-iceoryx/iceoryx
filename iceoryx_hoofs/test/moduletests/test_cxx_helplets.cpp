@@ -384,7 +384,7 @@ TEST(Helplets_test_isValidPathToFile, MultipleSlashsAreValidFilePath)
     EXPECT_TRUE(isValidPathToFile(string<FILE_PATH_LENGTH>("//multi///slash////hypno")));
 }
 
-TEST(Helplets_test_isValidPathToFile, RelativePathElementsAreValid)
+TEST(Helplets_test_isValidPathToFile, RelativePathComponentsAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec7d682f-ac7b-4173-a3f6-55969696ee92");
     EXPECT_TRUE(isValidPathToFile(string<FILE_PATH_LENGTH>("../some.file")));
@@ -460,7 +460,8 @@ TEST(Helplets_test_isValidPathToFile, EmptyFilePathIsInvalid)
     EXPECT_FALSE(isValidPathToFile(string<FILE_PATH_LENGTH>("")));
 }
 
-TEST(Helplets_test_isValidPathToFile_and_isValidPath, WhenOneInvalidCharacterIsContainedPathIsInvalid)
+TEST(Helplets_test_isValidPathToFile_isValidPathToDirectory_isValidPathEntry,
+     WhenOneInvalidCharacterIsContainedPathIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a764cff3-2607-47bb-952b-4ca75f326721");
     std::string validPath1 = "/hello";
@@ -518,9 +519,13 @@ TEST(Helplets_test_isValidPathToFile_and_isValidPath, WhenOneInvalidCharacterIsC
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterMiddleTest));
         EXPECT_FALSE(isValidPathToDirectory(invalidCharacterEndTest));
 
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest));
-        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::cxx::RelativePathComponents::ACCEPT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::cxx::RelativePathComponents::ACCEPT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::cxx::RelativePathComponents::ACCEPT));
+
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterFrontTest, iox::cxx::RelativePathComponents::REJECT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterMiddleTest, iox::cxx::RelativePathComponents::REJECT));
+        EXPECT_FALSE(isValidPathEntry(invalidCharacterEndTest, iox::cxx::RelativePathComponents::REJECT));
     }
 }
 
@@ -539,7 +544,7 @@ TEST(Helplets_test_isValidPathToDirectory, MultipleSlashsAreValidPath)
     EXPECT_TRUE(isValidPathToDirectory(string<FILE_PATH_LENGTH>("//multi///slash////hypno////")));
 }
 
-TEST(Helplets_test_isValidPathToDirectory, RelativePathElementsAreValid)
+TEST(Helplets_test_isValidPathToDirectory, RelativePathComponentsAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "97c215ca-7f67-4ec1-9b17-d98b219a804d");
     EXPECT_TRUE(isValidPathToDirectory(string<FILE_PATH_LENGTH>("../some.file")));
@@ -684,51 +689,103 @@ TEST(Helplets_test_doesEndWithPathSeparator, MultiCharacterStringEndingWithPathS
 
 TEST(Helplets_test_isValidPathEntry, EmptyPathEntryIsValid)
 {
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("")));
+    EXPECT_TRUE(
+        isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(""), iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, PathEntryWithOnlyValidCharactersIsValid)
 {
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a.213jkgc")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("agc"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("a.213jkgc"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, RelativePathEntriesAreValid)
 {
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("."),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".."),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, EntriesWithEndingDotAreInvalid)
 {
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc.")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("19283912asdb..")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb..")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb..")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("abc."),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("19283912asdb.."),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb.."),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb.."),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, EntriesWithDotsNotAtTheEndAreValid)
 {
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".19283912asdb")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb")));
-    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb")));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".abc"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(".19283912asdb"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..19283912asdb"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("..192839.12a.sdb"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, StringContainingAllValidCharactersIsValid)
 {
     EXPECT_TRUE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>(
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_")));
+                                     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-.:_"),
+                                 iox::cxx::RelativePathComponents::ACCEPT));
 }
 
 TEST(Helplets_test_isValidPathEntry, StringWithSlashIsInvalid)
 {
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu/")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("fuu/uu")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu")));
-    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("uuuubbuu/")));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu/"),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("fuu/uu"),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("/fuuuu"),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("uuuubbuu/"),
+                                  iox::cxx::RelativePathComponents::ACCEPT));
 }
+
+TEST(Helplets_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhenItContainsRelativeComponents)
+{
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../to/be"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../../or/not"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/../be"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("that/../../is/the/question"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("whether/tis/nobler/.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("in/the/mind/to/suffer//../.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../the/slings/and/arrows/../.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("../of/../outrageous/fortune/../.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./or/to/take/../arms/../.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./agains/a/see/./of/troubles/../.."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./and/by/../opposing/./."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("./end/them"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/./die"),
+                                  iox::cxx::RelativePathComponents::REJECT));
+    EXPECT_FALSE(isValidPathEntry(string<iox::platform::IOX_MAX_FILENAME_LENGTH>("to/./sleep/."),
+                                  iox::cxx::RelativePathComponents::REJECT));
+}
+
 
 TEST(Helplets_test_from, fromWorksAsConstexpr)
 {
