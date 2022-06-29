@@ -59,9 +59,6 @@ TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
     Thread::callable_t callable = [&] { callableWasCalled = true; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
 
-    /// @todo remove once join works
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
     sut.reset();
     EXPECT_TRUE(callableWasCalled);
 }
@@ -75,7 +72,6 @@ TEST_F(Thread_test, CreateThreadWithEmptyCallableFails)
     EXPECT_THAT(result.get_error(), Eq(ThreadError::EMPTY_CALLABLE));
 }
 
-#if !defined(_WIN32)
 TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1062a036-e825-4f30-bfb8-00d5de47fdfd");
@@ -101,6 +97,7 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
     EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
 }
 
+#if !defined(_WIN32)
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ba2ed4d9-f051-4ad1-a2df-6741134c494f");

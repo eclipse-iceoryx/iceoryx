@@ -24,8 +24,6 @@
 
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
-    DWORD threadId = Win32Call(GetThreadId, static_cast<HANDLE>(thread)).value;
-
     std::mbstate_t state = std::mbstate_t();
     uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
     std::vector<wchar_t> wName(length);
@@ -72,15 +70,20 @@ int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, vo
                             static_cast<LPTHREAD_START_ROUTINE>(win_start_routine),
                             static_cast<LPVOID>(args),
                             static_cast<DWORD>(0),
-                            static_cast<LPDWORD>(NULL))
-                      .value;
+                            static_cast<LPDWORD>(NULL));
 
-    return 0;
+    if (result.error != 0)
+    {
+        delete args;
+    }
+
+    *thread = result.value;
+    return result.error;
 }
 
-int iox_pthread_join(iox_pthread_t, void**)
+int iox_pthread_join(iox_pthread_t thread, void**)
 {
-    return 0;
+    return Win32Call(WaitForSingleObject, thread, INFINITE).error;
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
