@@ -29,13 +29,13 @@ int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
     std::vector<wchar_t> wName(length);
     std::mbsrtowcs(wName.data(), &name, length, &state);
 
-    return Win32Call(SetThreadDescription, static_cast<HANDLE>(thread), wName.data()).error;
+    return Win32Call(SetThreadDescription, thread, wName.data()).error;
 }
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
     wchar_t* wName;
-    auto result = Win32Call(GetThreadDescription, static_cast<HANDLE>(thread), &wName).error;
+    auto result = Win32Call(GetThreadDescription, thread, &wName).error;
     if (result == 0)
     {
         wcstombs(name, wName, len);

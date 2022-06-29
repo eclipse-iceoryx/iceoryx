@@ -97,7 +97,6 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
     EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
 }
 
-#if !defined(_WIN32)
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ba2ed4d9-f051-4ad1-a2df-6741134c494f");
@@ -137,6 +136,5 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 
     EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
 }
-#endif
 #endif
 } // namespace
