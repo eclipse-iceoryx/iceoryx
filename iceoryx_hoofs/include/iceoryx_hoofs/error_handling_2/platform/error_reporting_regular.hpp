@@ -9,7 +9,7 @@
 namespace eh
 {
 // platform specific handling
-// this implementation redirects to reporting which reports to console
+// this implementation does nothing
 
 template <class Level, class Error>
 void report(const SourceLocation& location, Level level, const Error& error)
@@ -41,6 +41,6 @@ void report(const SourceLocation& location, Level level, error_code_t code, modu
 // platform specific termination
 void preterminate()
 {
-    std::cout << "TERMINATE" << std::endl;
+    std::cout << "TERMINATE IS ABOUT TO BE CALLED" << std::endl;
 }
 } // namespace eh

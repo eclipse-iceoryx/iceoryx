@@ -1,5 +1,5 @@
 // #define TEST_PLATFORM
-// #define DEBUG // IOX_DEBUG_ASSERT active?
+#define DEBUG // IOX_DEBUG_ASSERT active?
 
 #include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
 #include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
@@ -40,10 +40,18 @@ class EH_test : public Test
 
         g_terminateCalled = false;
         terminateHandler = std::set_terminate([]() { g_terminateCalled = true; });
+
+#ifndef TEST_PLATFORM
+        // Handler::finalize(); // will abort if we try to set the handler afterwards
+        Handler::set(countingHandler());
+#endif
     }
     virtual void TearDown()
     {
         std::set_terminate(terminateHandler);
+#ifndef TEST_PLATFORM
+        Handler::reset();
+#endif
     }
 
     std::terminate_handler terminateHandler;

@@ -14,7 +14,7 @@
 
 #else
 
-// #include "error_reporting_dynamic.hpp"
-#include "error_reporting_regular.hpp"
+#include "error_reporting_dynamic.hpp"
+// #include "error_reporting_regular.hpp"
 
 #endif
