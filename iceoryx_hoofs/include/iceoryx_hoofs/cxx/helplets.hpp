@@ -269,7 +269,8 @@ template <uint64_t StringCapacity>
 bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
 
 template <uint64_t StringCapacity>
-[[deprecated("use isValidPathToFile")]] bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+[[deprecated("removed in 4.0, use isValidPathToFile")]] bool
+isValidFilePath(const string<StringCapacity>& name) noexcept;
 
 /// @brief returns true if the provided name is a valid path, otherwise false
 /// @param[in] name the string to verify

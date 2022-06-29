@@ -159,12 +159,6 @@ inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
 }
 
 template <uint64_t StringCapacity>
-inline bool isValidPath(const string<StringCapacity>& name) noexcept
-{
-    return isValidPathToDirectory(name);
-}
-
-template <uint64_t StringCapacity>
 inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
