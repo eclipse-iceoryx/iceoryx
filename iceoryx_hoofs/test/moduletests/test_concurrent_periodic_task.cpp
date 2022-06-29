@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 
@@ -219,22 +219,17 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
 });
 
-// clang-format off
-// due to the `()` enclosing the lambda, clang-format is messing this up
-// the `()` are needed since the `TIMING_TEST_F` macro is messing up the forwarding to the MethodCallback c'tor
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithMethodCallback, Repeat(3), ([&] {
-  ::testing::Test::RecordProperty("TEST_ID", "69736fff-5f48-4641-a1ee-ffde3df06a8d");
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
     {
-        PeriodicTaskTestType testType;
-        concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{PeriodicTaskAutoStart,
-            INTERVAL, "Test", testType, &PeriodicTaskTestType::incrementMethod};
+        concurrent::PeriodicTask<cxx::function<void()>> sut(
+            PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
 
-            std::this_thread::sleep_for(SLEEP_TIME);
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}));
-// clang-format on
+});
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");

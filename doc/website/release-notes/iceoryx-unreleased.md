@@ -49,6 +49,7 @@
 - Refactor service discovery tests [/#1065](https://github.com/eclipse-iceoryx/iceoryx/issues/1065)
   to increase comprehension and cover more test cases
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
+- Replace `MethodCallback` with `cxx::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 
 **New API features:**
 

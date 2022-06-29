@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ bool Trigger::isStateConditionSatisfied() const noexcept
     switch (getTriggerType())
     {
     case TriggerType::STATE_BASED:
-        return (isValid()) ? m_hasTriggeredCallback().value() : false;
+        return (isValid()) ? m_hasTriggeredCallback() : false;
     case TriggerType::EVENT_BASED:
         return isValid();
     case TriggerType::INVALID:
@@ -61,8 +61,8 @@ const NotificationInfo& Trigger::getNotificationInfo() const noexcept
 
 void Trigger::invalidate() noexcept
 {
-    m_hasTriggeredCallback = cxx::ConstMethodCallback<bool>();
-    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
+    m_hasTriggeredCallback = cxx::function<bool()>();
+    m_resetCallback = cxx::function<void(uint64_t)>();
     m_uniqueId = INVALID_TRIGGER_ID;
     m_triggerType = TriggerType::INVALID;
     m_originTriggerType = INVALID_TRIGGER_ID;
