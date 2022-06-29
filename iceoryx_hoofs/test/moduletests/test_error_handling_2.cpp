@@ -12,6 +12,7 @@
 
 #include "test.hpp"
 
+#include <exception>
 #include <iostream>
 
 namespace
@@ -27,8 +28,26 @@ using B_Code = module_B::ErrorCode;
 using A_Error = module_A::Error;
 using A_Code = module_A::ErrorCode;
 
-// TODO: in test fixture std::set_terminate([](){ });
-// TODO: should be iox::eh instead
+static bool g_terminateCalled;
+
+class EH_test : public Test
+{
+  public:
+    void SetUp()
+    {
+        // TODO this does not return so is not really useful to track terminate was called
+        // (distinguish crash and terminate call - if not needed we can use death tests)
+
+        g_terminateCalled = false;
+        terminateHandler = std::set_terminate([]() { g_terminateCalled = true; });
+    }
+    virtual void TearDown()
+    {
+        std::set_terminate(terminateHandler);
+    }
+
+    std::terminate_handler terminateHandler;
+};
 
 // for now the tests check compilation only,
 // demonstrate usage and output
@@ -39,14 +58,14 @@ using A_Code = module_A::ErrorCode;
 // deactivate the tests in this case as IOX_RAISE will throw
 #ifndef TEST_PLATFORM
 
-TEST(EH_test, fatalError)
+TEST_F(EH_test, fatalError)
 {
     // when we just want to abort the program (gracefully)
     // equivalent to IOX_RAISE(FATAL, code);
     IOX_FATAL(A_Code::Unknown);
 }
 
-TEST(EH_test, raiseSpecific)
+TEST_F(EH_test, raiseSpecific)
 {
     // when we know and care about the specific error
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
@@ -54,13 +73,13 @@ TEST(EH_test, raiseSpecific)
     IOX_RAISE(FATAL, A_Code::OutOfMemory);
 }
 
-TEST(EH_test, raiseFromDifferentModules)
+TEST_F(EH_test, raiseFromDifferentModules)
 {
     module_A::function();
     module_B::function();
 }
 
-TEST(EH_test, raiseConditionally)
+TEST_F(EH_test, raiseConditionally)
 {
     // shorthand notation
     int x = 11;
@@ -70,7 +89,7 @@ TEST(EH_test, raiseConditionally)
     IOX_RAISE_IF(f, FATAL, B_Code::OutOfMemory);
 }
 
-TEST(EH_test, assertCondition)
+TEST_F(EH_test, assertCondition)
 {
     // shorthand notation, always fatal
     int x = 10;
@@ -80,28 +99,28 @@ TEST(EH_test, assertCondition)
     IOX_ASSERT(f, A_Code::OutOfMemory);
 }
 
-TEST(EH_test, debugAssert)
+TEST_F(EH_test, debugAssert)
 {
     // fatal but a NOOP in release mode (like assert but with
     // custom handling when active)
     IOX_DEBUG_ASSERT(false, A_Code::OutOfBounds);
 }
 
-TEST(EH_test, additionalOutput)
+TEST_F(EH_test, additionalOutput)
 {
     // works with any macro but currently the underlying stream
     // is not exclusive stream for error handling (TODO)
     IOX_RAISE(FATAL, A_Code::OutOfMemory) << " additional error message " << 21 << "\n";
 }
 
-TEST(EH_test, conditionalAdditionalOutput)
+TEST_F(EH_test, conditionalAdditionalOutput)
 {
     // add additional output if an error occurred
     IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds) << "this is printed\n";
     IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds) << "this is not\n";
 }
 
-TEST(EH_test, conditionalFunctionCall)
+TEST_F(EH_test, conditionalFunctionCall)
 {
     // call some function custom arguments if an error occurred
     // syntactic sugar
@@ -115,7 +134,7 @@ TEST(EH_test, conditionalFunctionCall)
     EXPECT_EQ(x, 21);
 }
 
-TEST(EH_test, fullFunctionality)
+TEST_F(EH_test, fullFunctionality)
 {
     int x = 10;
     int n = 0;
@@ -129,7 +148,7 @@ TEST(EH_test, fullFunctionality)
 
 // recovery proposoal (it is always possible to do it with conditionals in
 // a straightfoward way)
-TEST(EH_test, errorRecovery)
+TEST_F(EH_test, errorRecovery)
 {
     using namespace iox::cxx;
 
@@ -158,7 +177,7 @@ TEST(EH_test, errorRecovery)
 
 // requires test platform to succeed (as otherwise nothing is thrown)
 // TODO: lacks elegance but works with test platform handler
-TEST(EH_test, verifyError1)
+TEST_F(EH_test, verifyError1)
 {
     // we could check for the concrete error
     // but then it would require a comparison operator (in each module)
@@ -193,7 +212,7 @@ TEST(EH_test, verifyError1)
 }
 
 // alternative with EXPECT_THROW check and rethrow
-TEST(EH_test, verifyError2)
+TEST_F(EH_test, verifyError2)
 {
     // NB: GenericError cannot know create_error at its implementation
     auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
@@ -213,7 +232,7 @@ TEST(EH_test, verifyError2)
 }
 
 // alternative with custom bookkeeping in test platform error handling
-TEST(EH_test, verifyError3)
+TEST_F(EH_test, verifyError3)
 {
     auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
     errors().reset();

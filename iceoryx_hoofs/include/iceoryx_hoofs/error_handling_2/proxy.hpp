@@ -77,8 +77,8 @@ struct ErrorProxy
 
         if (is_fatal<Level>::value)
         {
-            preterminate();
-            // std::terminate(); // TODO: ensure it is called in regular mode
+            preterminate(); // hook exists
+            terminate();    // no hook exists to avoid terminate (TODO: tests?)
         }
     }
 

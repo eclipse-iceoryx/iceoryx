@@ -8,6 +8,7 @@ namespace eh
 {
 using error_level_t = uint32_t;
 
+// mandatory level
 struct Fatal
 {
     static constexpr char const* name = "Fatal";
@@ -19,17 +20,36 @@ struct Fatal
 };
 
 template <class T>
-struct is_fatal
+struct is_fatal : public std::false_type
 {
-    static constexpr bool value = std::is_same<T, Fatal>::value;
 };
 
-// always requires handling
+template <>
+struct is_fatal<Fatal> : public std::true_type
+{
+};
+
+// FATAL always requires handling
 bool constexpr requires_handling(Fatal)
 {
     return true;
 }
 
 constexpr Fatal FATAL{};
+
+// TODO: how configurable shall this be?
+// currently the user shall have no option to avoid terminate being called for FATAL errors
+// however, in the test platform at least we do not want this
+#ifndef TEST_PLATFORM
+void terminate()
+{
+    // std::terminate(); // will never return
+}
+#else
+void terminate()
+{
+    // TODO: abort the thread
+}
+#endif
 
 } // namespace eh
