@@ -59,4 +59,11 @@ bool constexpr requires_handling<Error>(Error)
     return true;
 }
 
+// NB: this cannot be overridden by design
+// template <>
+// bool constexpr requires_handling<Fatal>(Fatal)
+// {
+//     return false;
+// }
+
 } // namespace eh

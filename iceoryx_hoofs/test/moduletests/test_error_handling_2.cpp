@@ -1,4 +1,5 @@
 // #define TEST_PLATFORM
+#define DEBUG // IOX_DEBUG_ASSERT active?
 
 #include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
 #include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
@@ -38,19 +39,10 @@ using A_Code = module_A::ErrorCode;
 // deactivate the tests in this case as IOX_RAISE will throw
 #ifndef TEST_PLATFORM
 
-// TEST(EH_test, raiseUnspecific)
-// {
-//     // when we do not care about the specific error
-//     IOX_RAISE(WARNING);
-//     IOX_RAISE(ERROR);
-//     IOX_RAISE(FATAL);
-// }
-
 TEST(EH_test, fatalError)
 {
     // when we just want to abort the program (gracefully)
-    // equivalent to IOX_RAISE(FATAL);
-    // IOX_FATAL();
+    // equivalent to IOX_RAISE(FATAL, code);
     IOX_FATAL(A_Code::Unknown);
 }
 
@@ -81,8 +73,6 @@ TEST(EH_test, raiseConditionally)
 TEST(EH_test, assertCondition)
 {
     // shorthand notation, always fatal
-    // TODO: we could also stringify the condition expression and pass it to the handling
-    // (which can decde to log it)
     int x = 10;
     IOX_ASSERT(x < 10, A_Code::OutOfBounds);
 

@@ -11,17 +11,8 @@ namespace eh
 // platform specific handling
 // this implementation redirects to reporting which reports to console
 
-// handle unspecific error
-template <class Level>
-void handle(const SourceLocation& location, Level level)
-{
-    (void)location;
-    (void)level;
-}
-
-// handle concrete error
 template <class Level, class Error>
-void handle(const SourceLocation& location, Level level, const Error& error)
+void report(const SourceLocation& location, Level level, const Error& error)
 {
     (void)location;
     (void)level;
@@ -30,7 +21,7 @@ void handle(const SourceLocation& location, Level level, const Error& error)
 
 // can overload for fatal errors - can be done for any defined error level
 template <class Error>
-void handle(const SourceLocation& location, Fatal level, const Error& error)
+void report(const SourceLocation& location, Fatal level, const Error& error)
 {
     (void)location;
     (void)level;
@@ -39,7 +30,7 @@ void handle(const SourceLocation& location, Fatal level, const Error& error)
 }
 
 template <class Level>
-void handle(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
+void report(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
     (void)location;
     (void)level;

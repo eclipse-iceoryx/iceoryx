@@ -18,10 +18,6 @@ enum class ErrorCode : error_code_t
     OutOfBounds = 2
 };
 
-// can be part of the struct
-static constexpr eh::module_id_t MODULE_ID = 73;
-
-// could be a static in Error
 static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
 
 struct Error
@@ -50,6 +46,8 @@ struct Error
     {
         return errorNames[(error_code_t)code_];
     }
+
+    static constexpr eh::module_id_t MODULE_ID = 73;
 };
 
 } // namespace module_A

@@ -24,6 +24,7 @@ struct is_fatal
     static constexpr bool value = std::is_same<T, Fatal>::value;
 };
 
+// always requires handling
 bool constexpr requires_handling(Fatal)
 {
     return true;

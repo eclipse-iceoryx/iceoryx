@@ -3,7 +3,7 @@
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
 
-// cannot be used in the real implementation
+// cannot be used in the real implementation (to be replaced by LogStream)
 #include <iostream>
 #include <sstream>
 

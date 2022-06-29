@@ -1,55 +1,38 @@
 #pragma once
 
-#include "raise.hpp"
+#include "proxy.hpp"
 
 // macros are required for SOURCE_LOCATION
 // macros start with IOX_ but constants do not (avoids some clashes)
 
-// note that we can always decide to not allow variadic versions
-// which and then always require a concrete error (code)
-
-// define somewhere reasonable
-#define DEBUG
-
-// prevent misuse in assignment with "if(true)"
-
 // clang-format off
 
-#if 0
-#define IOX_RAISE(level, ...) if(true) eh::raise(SOURCE_LOCATION, eh::level, ##__VA_ARGS__)
+// non variadic (slight limitation, no unspecific errors)
+// - level is one of the error levels defined (FATAL and user defined in eh namespace)
+// - error is an error code or some error type which requires to be convertible to
+//   an error via create_error (this can be the identity) defined by the module
 
-#define IOX_FATAL(...) if(true) eh::raise(SOURCE_LOCATION, eh::FATAL, ##__VA_ARGS__)
+#define IOX_RAISE(level, error) \
+    if(requires_handling(eh::level)) \
+        eh::create_proxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
 
-// deferred evaluation of expr for performance
-#define IOX_RAISE_IF(expr, level, ...) if(true) eh::raise_if(SOURCE_LOCATION, [&]() -> bool { return expr; }, eh::level, ##__VA_ARGS__)
+#define IOX_FATAL(error) IOX_RAISE(FATAL, error)
 
-#define IOX_ASSERT(expr, ...) if(true) eh::raise_if(SOURCE_LOCATION, [&]() -> bool {return !(expr);}, eh::FATAL, ##__VA_ARGS__)
+// note that the check for expr occurs at runtime (while the other does not, allows to optimize the whole branch away)
+#define IOX_RAISE_IF(expr, level, error) \
+    if(requires_handling(eh::level)) \
+        if([&]() -> bool { return expr; }()) \
+             eh::create_proxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
 
-#ifdef DEBUG
-    #define IOX_DEBUG_ASSERT(expr, ...) IOX_ASSERT(expr, ##__VA_ARGS__)
-#else    
-    #define IOX_DEBUG_ASSERT(expr, ...) eh::EmptyProxy()
-#endif
-#else
-
-// non variadic (slight limitation)
-#define IOX_RAISE(level, error) if(true) eh::raise(SOURCE_LOCATION, eh::level, eh::create_error(error))
-
-#define IOX_FATAL(error) if(true) eh::raise(SOURCE_LOCATION, eh::FATAL, eh::create_error(error))
-
-// deferred evaluation of expr for performance
-#define IOX_RAISE_IF(expr, level, error) if(true) eh::raise_if(SOURCE_LOCATION, [&]() -> bool { return expr; }, eh::level, eh::create_error(error))
-
-#define IOX_ASSERT(expr, error) if(true) eh::raise_if(SOURCE_LOCATION, [&]() -> bool {return !(expr);}, eh::FATAL, eh::create_error(error))
+#define IOX_ASSERT(expr, error) \
+    if(requires_handling(eh::FATAL)) \
+        if([&]() -> bool { return !(expr); }()) \
+            eh::create_proxy(SOURCE_LOCATION, eh::FATAL, eh::create_error(error))
 
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, error) IOX_ASSERT(expr, error)
-#else    
-    #define IOX_DEBUG_ASSERT(expr, error) eh::EmptyProxy()
-#endif
-
-
-
+#else
+    #define IOX_DEBUG_ASSERT(expr, error) if(false) eh::EmptyProxy()
 #endif
 
 // clang-format on

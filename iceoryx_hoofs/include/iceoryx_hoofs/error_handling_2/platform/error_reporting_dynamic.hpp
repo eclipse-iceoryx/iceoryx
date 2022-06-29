@@ -43,22 +43,14 @@ struct Handler
 // could also be a singleton etc.
 Handler g_handler;
 
-// handle unspecific error
-template <class Level>
-void handle(const SourceLocation& location, Level level)
-{
-    g_handler(location, level, 0, INVALID_MODULE);
-}
-
-// handle concrete error
 template <class Level, class Error>
-void handle(const SourceLocation& location, Level level, const Error& error)
+void report(const SourceLocation& location, Level level, const Error& error)
 {
     g_handler(location, level, error.code(), error.module());
 }
 
 template <class Level>
-void handle(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
+void report(ErrorStream& stream, const SourceLocation& location, Level level, error_code_t code, module_id_t module)
 {
     g_handler(location, level, code, module);
 }
