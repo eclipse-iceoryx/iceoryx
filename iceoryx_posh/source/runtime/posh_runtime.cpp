@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
@@ -81,18 +82,13 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const Runtime
 {
     if (!name.has_value())
     {
-        LogError() << "Cannot initialize runtime. Application name has not been specified!";
+        LogFatal() << "Cannot initialize runtime. Application name has not been specified!";
         errorHandler(PoshError::POSH__RUNTIME_NO_NAME_PROVIDED, ErrorLevel::FATAL);
     }
-    else if (name.value()->empty())
+    else if (!cxx::isValidFileName(**name))
     {
-        LogError() << "Cannot initialize runtime. Application name must not be empty!";
-        errorHandler(PoshError::POSH__RUNTIME_NAME_EMPTY, ErrorLevel::FATAL);
-    }
-    else if (name.value()->c_str()[0] == '/')
-    {
-        LogError() << "Cannot initialize runtime. Please remove leading slash from Application name " << *name.value();
-        errorHandler(PoshError::POSH__RUNTIME_LEADING_SLASH_PROVIDED, ErrorLevel::FATAL);
+        LogFatal() << "Cannot initialize runtime. The application name \"" << **name << "\" is not a valid file name.";
+        errorHandler(PoshError::POSH__RUNTIME_NAME_NOT_VALID_FILE_NAME);
     }
 
     return *name.value();
