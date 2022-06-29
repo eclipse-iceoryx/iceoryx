@@ -148,12 +148,23 @@ TEST_F(PoshRuntime_test, NoAppName)
 }
 
 // To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
-TEST(PoshRuntime, LeadingSlashAppNameLeadsToFailure)
+TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "77542d11-6230-4c1e-94b2-6cf3b8fa9c6e");
-    const iox::RuntimeName_t invalidAppName = "/miau";
 
-    EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "POSH__RUNTIME_LEADING_SLASH_PROVIDED");
+    for (auto i : {"/miau",
+                   "/fuu/bar",
+                   "plum/bus",
+                   ".",
+                   "..",
+                   "strawberriesWithMayonnaiseIs/..",
+                   "ohLookADot.",
+                   "amIADirectory/"})
+    {
+        const iox::RuntimeName_t invalidAppName(iox::cxx::TruncateToCapacity, i);
+
+        EXPECT_DEATH(PoshRuntime::initRuntime(invalidAppName), "POSH__RUNTIME_NAME_NOT_VALID_FILE_NAME");
+    }
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
