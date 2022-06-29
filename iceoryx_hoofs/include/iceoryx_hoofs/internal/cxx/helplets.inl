@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,39 +16,29 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_INL
 #define IOX_HOOFS_CXX_HELPLETS_INL
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
+
 namespace iox
 {
 namespace cxx
 {
 template <uint64_t StringCapacity>
-inline bool isValidFileName(const string<StringCapacity>& name) noexcept
+inline bool isValidPathEntry(const string<StringCapacity>& name,
+                             const RelativePathComponents& relativePathComponents) noexcept
 {
-    if (name.empty())
-    {
-        return false;
-    }
-
-    uint64_t nameSize = name.size();
-
     const string<StringCapacity> currentDirectory(".");
     const string<StringCapacity> parentDirectory("..");
 
     if (name == currentDirectory || name == parentDirectory)
     {
-        return false;
+        return relativePathComponents == RelativePathComponents::ACCEPT;
     }
 
-    // dot at the end is invalid to be compatible with windows api
-    const char lastCharacter = name.c_str()[nameSize - 1U];
-    if (lastCharacter == '.')
-    {
-        return false;
-    }
+    const auto nameSize = name.size();
 
-    // check if the file contains only valid characters
     for (uint64_t i = 0; i < nameSize; ++i)
     {
-        const char c = name.c_str()[i];
+        const char c = name[i];
         if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
               || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
               || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
@@ -58,29 +48,48 @@ inline bool isValidFileName(const string<StringCapacity>& name) noexcept
         }
     }
 
+    // dot at the end is invalid to be compatible with windows api
+    if (nameSize != 0 && name[nameSize - 1] == '.')
+    {
+        return false;
+    }
+
     return true;
 }
 
 template <uint64_t StringCapacity>
-inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
+inline bool isValidFileName(const string<StringCapacity>& name) noexcept
 {
     if (name.empty())
     {
         return false;
     }
 
-    uint64_t nameSize = name.size();
+    // check if the file contains only valid characters
+    return isValidPathEntry(name, RelativePathComponents::REJECT);
+}
 
-    // a file path ends with the filename and not the path separator, only a
-    // directory can end with a path separator
-    auto numberOfPathSeparators = strlen(platform::IOX_PATH_SEPARATORS);
-    for (uint64_t i = 0; i < numberOfPathSeparators; ++i)
+template <uint64_t StringCapacity>
+inline bool isValidPathToFile(const string<StringCapacity>& name) noexcept
+{
+    if (doesEndWithPathSeparator(name))
     {
-        const char lastCharacter = name.c_str()[nameSize - 1U];
-        if (lastCharacter == platform::IOX_PATH_SEPARATORS[i])
-        {
-            return false;
-        }
+        return false;
+    }
+
+    auto lastSeparatorPosition = name.find_last_of(platform::IOX_PATH_SEPARATORS);
+    auto filePart = (lastSeparatorPosition) ? name.substr(*lastSeparatorPosition + 1).value() : name;
+    auto pathPart = (lastSeparatorPosition) ? name.substr(0, *lastSeparatorPosition).value() : string<StringCapacity>();
+
+    return (pathPart.empty() || isValidPathToDirectory(pathPart)) && isValidFileName(filePart);
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
     }
 
     auto temp = name;
@@ -120,22 +129,42 @@ inline bool isValidFilePath(const string<StringCapacity>& name) noexcept
         // we reached the last entry, if its a valid file name the path is valid
         else if (!separatorPosition)
         {
-            return isValidFileName(temp);
+            return isValidPathEntry(temp, RelativePathComponents::ACCEPT);
         }
     }
 
+    return true;
+}
+
+template <uint64_t StringCapacity>
+inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    char lastCharacter = name[name.size() - 1U];
+
+    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    {
+        if (lastCharacter == iox::platform::IOX_PATH_SEPARATORS[i])
+        {
+            return true;
+        }
+    }
     return false;
 }
 
 template <typename F, typename T>
-constexpr T from(const F) noexcept
+inline constexpr T from(const F) noexcept
 {
     static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
     Please specialize `template <typename F, typename T> constexpr T from(const F) noexcept`!");
 }
 
 template <typename T, typename F>
-constexpr T into(const F e) noexcept
+inline constexpr T into(const F e) noexcept
 {
     return from<F, T>(e);
 }

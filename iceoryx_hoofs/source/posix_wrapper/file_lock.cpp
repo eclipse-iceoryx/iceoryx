@@ -16,12 +16,13 @@
 
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/errno.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/file.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
@@ -31,50 +32,68 @@ namespace posix
 {
 constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
-FileLock::FileLock(const FileName_t& name) noexcept
-    : m_name(name)
-    , m_fileLockPath(platform::IOX_LOCK_FILE_PATH_PREFIX + m_name + LOCK_FILE_SUFFIX)
+cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
-    initializeFileLock().and_then([this]() { this->m_isInitialized = true; }).or_else([this](FileLockError& error) {
-        this->m_isInitialized = false;
-        this->m_errorValue = error;
-    });
-}
-
-cxx::expected<FileLockError> FileLock::initializeFileLock() noexcept
-{
-    if (!cxx::isValidFilePath(m_name))
+    if (!cxx::isValidFileName(m_name))
     {
+        LogError() << "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.";
         return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
-    constexpr int CREATE_FILE_FOR_READ_WRITE = O_CREAT | O_RDWR;
-    mode_t userReadWriteAccess = S_IRUSR | S_IWUSR;
 
-    auto openCall = posixCall(iox_open)(m_fileLockPath.c_str(), CREATE_FILE_FOR_READ_WRITE, userReadWriteAccess)
-                        .failureReturnValue(ERROR_CODE)
-                        .evaluate()
-                        .and_then([this](auto& r) { this->m_fd = r.value; });
+    if (!cxx::isValidPathToDirectory(m_path))
+    {
+        LogError() << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
+        return cxx::error<FileLockError>(FileLockError::INVALID_PATH);
+    }
+
+    FileLock::FilePath_t fileLockPath = m_path;
+
+    if (!cxx::doesEndWithPathSeparator(fileLockPath))
+    {
+        fileLockPath.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[0]);
+    }
+
+    fileLockPath.unsafe_append(m_name);
+    fileLockPath.unsafe_append(FileLock::LOCK_FILE_SUFFIX);
+
+    auto openCall = posixCall(iox_open)(fileLockPath.c_str(),
+                                        convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
+                                        static_cast<mode_t>(m_permission))
+                        .failureReturnValue(-1)
+                        .evaluate();
 
     if (openCall.has_error())
     {
-        return cxx::error<FileLockError>(convertErrnoToFileLockError(openCall.get_error().errnum));
+        return cxx::error<FileLockError>(
+            FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
     }
 
-    auto lockCall = posixCall(iox_flock)(m_fd, LOCK_EX | LOCK_NB)
-                        .failureReturnValue(ERROR_CODE)
+    auto fileDescriptor = openCall.value().value;
+    auto lockCall = posixCall(iox_flock)(fileDescriptor, static_cast<int>(FileLock::LockOperation::LOCK))
+                        .failureReturnValue(-1)
                         .suppressErrorMessagesForErrnos(EWOULDBLOCK)
                         .evaluate();
 
     if (lockCall.has_error())
     {
-        closeFileDescriptor().or_else([](auto) {
-            std::cerr << "Unable to close file lock in error related cleanup during initialization." << std::endl;
+        posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
+            LogError() << "Unable to close file lock \"" << fileLockPath
+                       << "\" in error related cleanup during initialization.";
         });
-        // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return cxx::error<FileLockError>(convertErrnoToFileLockError(lockCall.get_error().errnum));
+
+        //  possible errors in iox_close() are masked and we inform the user about the actual error
+        return cxx::error<FileLockError>(
+            FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
     }
 
-    return cxx::success<>();
+    return cxx::success<FileLock>(FileLock(fileDescriptor, fileLockPath));
+}
+
+FileLock::FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept
+    : m_fd{fileDescriptor}
+    , m_fileLockPath{path}
+{
 }
 
 FileLock::FileLock(FileLock&& rhs) noexcept
@@ -88,13 +107,10 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
     {
         if (closeFileDescriptor().has_error())
         {
-            std::cerr << "Unable to cleanup file lock \"" << m_fileLockPath
-                      << "\" in the move constructor/move assingment operator" << std::endl;
+            LogError() << "Unable to cleanup file lock \"" << m_fileLockPath
+                       << "\" in the move constructor/move assingment operator";
         }
 
-        CreationPattern_t::operator=(std::move(rhs));
-
-        m_name = std::move(rhs.m_name);
         m_fileLockPath = std::move(rhs.m_fileLockPath);
         m_fd = std::move(rhs.m_fd);
 
@@ -108,38 +124,36 @@ FileLock::~FileLock() noexcept
 {
     if (closeFileDescriptor().has_error())
     {
-        std::cerr << "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor" << std::endl;
+        LogError() << "unable to cleanup file lock \"" << m_fileLockPath << "\" in the destructor";
     }
 }
 
 cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 {
-    if (isInitialized() && (m_fd != INVALID_FD))
+    if (m_fd != INVALID_FD)
     {
         bool cleanupFailed = false;
-        posixCall(iox_flock)(m_fd, LOCK_UN)
-            .failureReturnValue(ERROR_CODE)
+        posixCall(iox_flock)(m_fd, static_cast<int>(LockOperation::UNLOCK))
+            .failureReturnValue(-1)
             .suppressErrorMessagesForErrnos(EWOULDBLOCK)
             .evaluate()
             .or_else([&](auto& result) {
                 cleanupFailed = true;
-                IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
-                std::cerr << "Unable to unlock the file lock \"" << m_fileLockPath << "\"" << std::endl;
+                IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+                LogError() << "Unable to unlock the file lock \"" << m_fileLockPath << "\"";
             });
 
-        posixCall(iox_close)(m_fd).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& result) {
+        posixCall(iox_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
-            std::cerr << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"" << std::endl;
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+            LogError() << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"";
         });
 
-        posixCall(remove)(m_fileLockPath.c_str()).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& result) {
+        posixCall(remove)(m_fileLockPath.c_str()).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
-            IOX_DISCARD_RESULT(this->convertErrnoToFileLockError(result.errnum));
-            std::cerr << "Unable to remove the file lock \"" << m_fileLockPath << "\"" << std::endl;
+            IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
+            LogError() << "Unable to remove the file lock \"" << m_fileLockPath << "\"";
         });
-
-        invalidate();
 
         if (cleanupFailed)
         {
@@ -152,104 +166,96 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 void FileLock::invalidate() noexcept
 {
     m_fd = INVALID_FD;
-    m_isInitialized = false;
-    m_name.assign("");
     m_fileLockPath.assign("");
 }
 
-FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const noexcept
+FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept
 {
     switch (errnum)
     {
     case EACCES:
     {
-        std::cerr << "permission to access file denied \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "permission denied for file lock \"" << fileLockPath << "\"";
         return FileLockError::ACCESS_DENIED;
     }
     case EDQUOT:
     {
-        std::cerr << "user disk quota exhausted for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "user disk quota exhausted for file lock \"" << fileLockPath << "\"";
         return FileLockError::QUOTA_EXHAUSTED;
     }
     case EFAULT:
     {
-        std::cerr << "outside address space error for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "outside address space error for file lock \"" << fileLockPath << "\"";
         return FileLockError::ACCESS_DENIED;
     }
     case EFBIG:
     case EOVERFLOW:
     {
-        std::cerr << "file \"" << m_fileLockPath << "\""
-                  << " is too large to be openend" << std::endl;
+        LogError() << "file lock \"" << fileLockPath << "\""
+                   << " is too large to be openend";
         return FileLockError::FILE_TOO_LARGE;
-    }
-    case EINVAL:
-    {
-        std::cerr << "provided invalid characters in file \"" << m_fileLockPath << "\"" << std::endl;
-        return FileLockError::INVALID_CHARACTERS_IN_FILE_NAME;
     }
     case ELOOP:
     {
-        std::cerr << "too many symbolic links for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "too many symbolic links for file lock \"" << fileLockPath << "\"";
         return FileLockError::INVALID_FILE_NAME;
     }
     case EMFILE:
     {
-        std::cerr << "process limit reached for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "process limit reached for file lock \"" << fileLockPath << "\"";
         return FileLockError::PROCESS_LIMIT;
     }
     case ENFILE:
     {
-        std::cerr << "system limit reached for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "system limit reached for file lock \"" << fileLockPath << "\"";
         return FileLockError::SYSTEM_LIMIT;
     }
     case ENODEV:
     {
-        std::cerr << "permission to access file denied \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "permission to access file lock denied \"" << fileLockPath << "\"";
         return FileLockError::ACCESS_DENIED;
     }
     case ENOENT:
     {
-        std::cerr << "directory \"" << platform::IOX_LOCK_FILE_PATH_PREFIX << "\""
-                  << " does not exist. Please create it as described in the filesystem hierarchy standard."
-                  << std::endl;
+        LogError() << "directory \"" << platform::IOX_LOCK_FILE_PATH_PREFIX << "\""
+                   << " does not exist.";
         return FileLockError::NO_SUCH_DIRECTORY;
     }
     case ENOMEM:
     {
-        std::cerr << "out of memory for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "out of memory for file lock \"" << fileLockPath << "\"";
         return FileLockError::OUT_OF_MEMORY;
     }
     case ENOSPC:
     {
-        std::cerr << "Device has no space for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "Device has no space for file lock \"" << fileLockPath << "\"";
         return FileLockError::QUOTA_EXHAUSTED;
     }
     case ENOSYS:
     {
-        std::cerr << "open() not implemented for filesystem to \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "open() not implemented for filesystem to \"" << fileLockPath << "\"";
         return FileLockError::SYS_CALL_NOT_IMPLEMENTED;
     }
     case ENXIO:
     {
-        std::cerr << "\"" << m_fileLockPath << "\""
-                  << " is a special file and no corresponding device exists" << std::endl;
+        LogError() << "\"" << fileLockPath << "\""
+                   << " is a special file and no corresponding device exists";
         return FileLockError::SPECIAL_FILE;
     }
     case EPERM:
     {
-        std::cerr << "permission to access file denied \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "permission denied to file lock \"" << fileLockPath << "\"";
         return FileLockError::ACCESS_DENIED;
     }
     case EROFS:
     {
-        std::cerr << "read only error for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "read only error for file lock \"" << fileLockPath << "\"";
         return FileLockError::INVALID_FILE_NAME;
     }
     case ETXTBSY:
     {
-        std::cerr << "write access requested for file \"" << m_fileLockPath << "\""
-                  << " in use" << std::endl;
+        LogError() << "write access requested for file lock \"" << fileLockPath << "\""
+                   << " in use";
         return FileLockError::FILE_IN_USE;
     }
     case EWOULDBLOCK:
@@ -259,17 +265,17 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum) const 
     }
     case ENOLCK:
     {
-        std::cerr << "system limit for locks reached for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "system limit for locks reached for file lock \"" << fileLockPath << "\"";
         return FileLockError::SYSTEM_LIMIT;
     }
     case EIO:
     {
-        std::cerr << "I/O for file \"" << m_fileLockPath << "\"" << std::endl;
+        LogError() << "I/O for file lock \"" << fileLockPath << "\"";
         return FileLockError::I_O_ERROR;
     }
     default:
     {
-        std::cerr << "internal logic error in file \"" << m_fileLockPath << "\" occurred" << std::endl;
+        LogError() << "internal logic error in file lock \"" << fileLockPath << "\" occurred";
         return FileLockError::INTERNAL_LOGIC_ERROR;
     }
     }

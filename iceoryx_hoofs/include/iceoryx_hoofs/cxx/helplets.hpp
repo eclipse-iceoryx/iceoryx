@@ -249,15 +249,42 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
+enum class RelativePathComponents
+{
+    REJECT,
+    ACCEPT
+};
+
+/// @brief checks if the given string is a valid path entry. A path entry is the string between
+///        two path separators.
+/// @param[in] name the path entry in question
+/// @param[in] relativePathComponents are relative path components are allowed for this path entry
+/// @return true if it is valid, otherwise false
+template <uint64_t StringCapacity>
+bool isValidPathEntry(const string<StringCapacity>& name,
+                      const RelativePathComponents& relativePathComponents) noexcept;
+
 /// @brief checks if the given string is a valid filename
+/// @param[in] name the string to verify
 /// @return true if the string is a filename, otherwise false
 template <uint64_t StringCapacity>
 bool isValidFileName(const string<StringCapacity>& name) noexcept;
 
 /// @brief verifies if the given string is a valid path to a file
+/// @param[in] name the string to verify
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
-bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name is a valid path, otherwise false
+/// @param[in] name the string to verify
+template <uint64_t StringCapacity>
+bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name ends with a path separator, otherwise false
+/// @param[in] name the string which may contain a path separator at the end
+template <uint64_t StringCapacity>
+bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
 /// @brief Converts a value of type F to a corresponding value of type T. This function needs to be specialized by the
 /// user for the types to be converted.
