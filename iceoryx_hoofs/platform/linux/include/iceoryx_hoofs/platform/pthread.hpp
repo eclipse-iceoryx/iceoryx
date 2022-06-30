@@ -19,12 +19,19 @@
 
 #include <pthread.h>
 
+#include <stdio.h>
+
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
-inline int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
+inline int iox_pthread_setname_np2(iox_pthread_t thread, const char* name)
 {
     return pthread_setname_np(thread, name);
+}
+
+inline int iox_pthread_setname_np1(const char*)
+{
+    return 0;
 }
 
 inline int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)

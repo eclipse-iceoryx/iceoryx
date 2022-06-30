@@ -22,16 +22,19 @@
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
-inline int iox_pthread_setname_np(iox_pthread_t, const char*)
+inline int iox_pthread_setname_np2(iox_pthread_t, const char*)
 {
-    // Not implemeted due to missing functionality in MacOS
     return 0;
 }
 
-inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
+inline int iox_pthread_setname_np1(const char* name)
 {
-    // Not implemeted due to missing functionality in MacOS
-    return 0;
+    return pthread_setname_np(name);
+}
+
+inline int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
+{
+    return pthread_getname_np(thread, name, len);
 }
 
 inline int

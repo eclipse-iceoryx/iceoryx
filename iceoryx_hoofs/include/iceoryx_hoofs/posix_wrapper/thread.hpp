@@ -71,7 +71,7 @@ class Thread
     ~Thread() noexcept;
 
     // @todo set name during creation and remove method
-    void setName(const ThreadName_t& name) noexcept;
+    // void setName(const ThreadName_t& name) noexcept;
 
     /// @brief Returns the name of the thread
     /// @return An iox::cxx::string containing the name of the thread
@@ -87,13 +87,25 @@ class Thread
 
     static void* startRoutine(void* callable);
 
-    iox_pthread_t m_threadHandle;
-    callable_t m_callable;
-    bool m_isThreadConstructed{false};
+    // iox_pthread_t m_threadHandle;
+    //  callable_t m_callable;
+    // bool m_isThreadConstructed{false};
+
+    // rename, maybe just include callable and name
+    struct info
+    {
+        iox_pthread_t m_threadHandle;
+        callable_t m_callable;
+        ThreadName_t m_name;
+        bool m_isThreadConstructed{false};
+    } m_info;
 };
 
 class ThreadBuilder
 {
+    /// @brief Set the name of the thread
+    IOX_BUILDER_PARAMETER(ThreadName_t, name, "")
+
   public:
     /// @brief Creates a thread
     /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored
