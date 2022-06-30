@@ -64,7 +64,9 @@ class PoshRuntime
 
     /// @brief creates the runtime with given name
     ///
-    /// @param[in] name used for registering the process with the RouDi daemon
+    /// @param[in] name used for registering the process with the RouDi daemon.
+    ///            Must be a valid platform-independent file name, see
+    ///            iox::cxx::isValidPathEntry
     ///
     /// @return active runtime
     static PoshRuntime& initRuntime(const RuntimeName_t& name) noexcept;

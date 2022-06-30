@@ -257,6 +257,18 @@ enum class RelativePathComponents
 
 /// @brief checks if the given string is a valid path entry. A path entry is the string between
 ///        two path separators.
+/// @note A valid path entry for iceoryx must be platform independent and also supported
+///       by various file systems. The file systems we intend to support are
+///         * linux: ext3, ext4, btrfs
+///         * windows: ntfs, exfat, fat
+///         * freebsd: ufs, ffs
+///         * apple: apfs
+///         * qnx: etfs
+///         * android: ext3, ext4, fat
+///
+///       Sometimes it is also possible that a certain file character is supported by the filesystem
+///       itself but not by the platforms SDK. One example are files which end with a dot like "myFile."
+///       which are supported by ntfs but not by the Windows SDK.
 /// @param[in] name the path entry in question
 /// @param[in] relativePathComponents are relative path components are allowed for this path entry
 /// @return true if it is valid, otherwise false
@@ -264,7 +276,9 @@ template <uint64_t StringCapacity>
 bool isValidPathEntry(const string<StringCapacity>& name,
                       const RelativePathComponents& relativePathComponents) noexcept;
 
-/// @brief checks if the given string is a valid filename
+/// @brief checks if the given string is a valid filename. It must fulfill the
+///        requirements of a valid path entry (see, isValidPathEntry) and is not allowed
+///        to contain relative path components
 /// @param[in] name the string to verify
 /// @return true if the string is a filename, otherwise false
 template <uint64_t StringCapacity>

@@ -159,7 +159,9 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
                    "..",
                    "strawberriesWithMayonnaiseIs/..",
                    "ohLookADot.",
-                   "amIADirectory/"})
+                   "amIADirectory/",
+                   "",
+                   "letsFlyInto "})
     {
         const iox::RuntimeName_t invalidAppName(iox::cxx::TruncateToCapacity, i);
 
