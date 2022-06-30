@@ -83,6 +83,7 @@ class IpcRuntimeInterface
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
+    bool m_sendKeepalive = true;
 };
 
 } // namespace runtime

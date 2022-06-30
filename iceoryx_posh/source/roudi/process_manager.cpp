@@ -267,7 +267,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
     auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_segmentManager);
     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
                << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
-               << m_mgmtSegmentId;
+               << m_mgmtSegmentId << isMonitored;
 
     m_processList.back().sendViaIpcChannel(sendBuffer);
 
