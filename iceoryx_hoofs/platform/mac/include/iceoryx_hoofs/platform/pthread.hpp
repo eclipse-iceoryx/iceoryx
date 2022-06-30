@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,14 +34,15 @@ inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
     return 0;
 }
 
-inline int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*)(void*), void*)
+inline int
+iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
 {
-    return 0;
+    return pthread_create(thread, attr, start_routine, arg);
 }
 
-inline int iox_pthread_join(iox_pthread_t, void**)
+inline int iox_pthread_join(iox_pthread_t thread, void** retval)
 {
-    return 0;
+    return pthread_join(thread, retval);
 }
 
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP

@@ -34,7 +34,6 @@ struct Thread_test : public Test
     optional<Thread> sut;
 };
 
-#if !defined(__APPLE__)
 TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");
@@ -79,6 +78,7 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
     EXPECT_THAT((end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
 }
 
+#if !defined(__APPLE__)
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ba2ed4d9-f051-4ad1-a2df-6741134c494f");
