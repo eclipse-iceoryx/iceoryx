@@ -58,7 +58,6 @@ TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
     bool callableWasCalled = false;
     Thread::callable_t callable = [&] { callableWasCalled = true; };
     ASSERT_FALSE(ThreadBuilder().create(sut, callable).has_error());
-
     sut.reset();
     EXPECT_TRUE(callableWasCalled);
 }
