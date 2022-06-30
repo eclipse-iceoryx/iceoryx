@@ -1,11 +1,15 @@
 #pragma once
 
 #include "default_handler.hpp"
-#include "handler_interface.hpp"
+#include "unique.hpp"
 
 namespace eh
 {
-using ErrorHandler = UniqueHandler<HandlerInterface, DefaultHandler>;
+using ErrorHandler = Unique<HandlerInterface, DefaultHandler>;
+
+// NB: this special case would be non-polymorphic but allow different
+// instances of DefaultHandler be installed
+// using ErrorHandler = Unique<DefaultHandler, DefaultHandler>;
 
 // report is called by proxy (template/inline call there will be optimized and not exist as a function call)
 // 1 indirection s_handler
