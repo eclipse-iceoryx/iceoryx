@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ class IpcRuntimeInterface
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
+    bool m_sendKeepalive = true;
 };
 
 } // namespace runtime
