@@ -8,7 +8,7 @@
 
 **Bugfixes:**
 
-- Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)
+- Fix FileLock leak when lock failed [\#1440](https://github.com/eclipse-iceoryx/iceoryx/issues/1440)
 
 **Refactoring:**
 
