@@ -49,3 +49,15 @@ Location of the folders platform and module is preliminary and for structuring p
 - errors should not be raised in destructors (problematic by design)
 - when a destructor must raise an error it has to be FATAL
 - this is even more important if the handler code is throwing exceptions
+
+## Configurability
+
+1. error levels can be defined within the platform (FATAL is mandatory)
+2. error codes can be defined within modules
+3. conversion from error codes to errors must be provided
+4. errors only have to satisfy a minimal interface (provide module id and error code) but are otherwise flexible
+5. logging always happens according to the log level (logger needs to be used when ready)
+6. error is delegated further to platform specific handling (does nothing by default)
+7. platform specific handling can be implemented in a way that the reaction can be dynamically changed at runtime (useful for e.g. tests but incurs a performance hit)
+    - handling does not have to change dynamically at runtime
+    - dynamic change can be finalized to prohibit change after a certain phase (e.g. init)

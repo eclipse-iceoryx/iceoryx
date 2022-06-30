@@ -40,11 +40,6 @@ class ErrorStorage
         return n;
     }
 
-    const std::vector<RuntimeError>& get() const
-    {
-        return m_errors;
-    }
-
   private:
     std::vector<RuntimeError> m_errors;
     mutable std::mutex m_mutex;
