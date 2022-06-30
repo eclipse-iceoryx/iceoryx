@@ -5,12 +5,11 @@
 // macros are required for SOURCE_LOCATION
 // macros start with IOX_ but constants do not (avoids some clashes)
 
-// clang-format off
-
-// non variadic (slight limitation, no unspecific errors)
-// - level is one of the error levels defined (FATAL and user defined in eh namespace)
+// - level is one of the error levels defined by the platform (FATAL and user defined in eh namespace)
 // - error is an error code or some error type which requires to be convertible to
 //   an error via create_error (this can be the identity) defined by the module
+
+// clang-format off
 
 #define IOX_RAISE(level, error) \
     if(requires_handling(eh::level)) \

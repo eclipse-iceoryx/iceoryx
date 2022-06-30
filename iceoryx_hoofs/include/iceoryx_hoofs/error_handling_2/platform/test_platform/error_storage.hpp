@@ -1,7 +1,7 @@
 #pragma once
 
-#include "iceoryx_hoofs/error_handling_2/error.hpp"
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
+#include "iceoryx_hoofs/error_handling_2/runtime_error.hpp"
 
 #include <mutex>
 #include <vector>
@@ -19,13 +19,13 @@ class ErrorStorage
         m_errors.clear();
     }
 
-    void add(const GenericError& error)
+    void add(const RuntimeError& error)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         m_errors.push_back(error);
     }
 
-    uint32_t count(const GenericError& error)
+    uint32_t count(const RuntimeError& error) const
     {
         uint32_t n{0};
 
@@ -40,14 +40,14 @@ class ErrorStorage
         return n;
     }
 
-    const std::vector<GenericError>& get()
+    const std::vector<RuntimeError>& get() const
     {
         return m_errors;
     }
 
   private:
-    std::vector<GenericError> m_errors;
-    std::mutex m_mutex;
+    std::vector<RuntimeError> m_errors;
+    mutable std::mutex m_mutex;
 };
 
 } // namespace eh

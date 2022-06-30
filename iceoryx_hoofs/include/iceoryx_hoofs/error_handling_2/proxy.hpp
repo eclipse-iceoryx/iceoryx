@@ -72,7 +72,11 @@ struct ErrorProxy
         if (is_fatal<Level>::value)
         {
             preterminate(); // hook exists
-            terminate();    // no hook exists to avoid terminate (TODO: tests?)
+#ifndef TEST_PLATFORM
+            // TODO: how to deal ensure it cannot be overridden but also is not active in (all) tests?
+            //       do we want to make it available in platform as hook?
+            terminate();
+#endif
         }
     }
 };

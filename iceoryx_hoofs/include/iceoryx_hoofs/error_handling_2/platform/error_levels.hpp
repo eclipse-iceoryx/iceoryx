@@ -10,7 +10,7 @@ namespace eh
 {
 // define which levels shall exist for the platform, Fatal is mandatory and already exists (with code 0)
 // codes are currently unused as we can rely on the C++ type system instead (which has advantages
-// for e.g. compile time dispatch)
+// for e.g. compile time dispatch and type annotations)
 struct Error
 {
     static constexpr char const* name = "Error";

@@ -1,15 +1,18 @@
 #pragma once
 
-#include "error_levels.hpp"
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
+
+#include "iceoryx_hoofs/error_handling_2/platform/error_levels.hpp"
 
 #include <iostream>
 
 namespace eh
 {
 // platform specific handling
-// this implementation does nothing
+
+// static dispatch, cannot be changed at runtime (fewer indirections)
+// default does nothing (will be optimized away)
 
 template <class Level, class Error>
 void report(const SourceLocation& location, Level level, const Error& error)
@@ -29,18 +32,8 @@ void report(const SourceLocation& location, Fatal level, const Error& error)
     std::cout << "FATAL ERROR occurred" << std::endl;
 }
 
-template <class Level>
-void report(const SourceLocation& location, Level level, error_code_t code, module_id_t module)
-{
-    (void)location;
-    (void)level;
-    (void)code;
-    (void)module;
-}
-
 // platform specific termination
 void preterminate()
 {
-    std::cout << "TERMINATE IS ABOUT TO BE CALLED" << std::endl;
 }
 } // namespace eh

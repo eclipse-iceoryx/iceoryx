@@ -11,6 +11,8 @@ namespace eh
 {
 using ErrorStream = std::stringstream;
 
+// TODO: nice log output
+
 template <class Level>
 void log(ErrorStream& stream, const SourceLocation& location, Level level)
 {

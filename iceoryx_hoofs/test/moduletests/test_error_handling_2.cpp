@@ -1,14 +1,14 @@
-// #define TEST_PLATFORM
+#define TEST_PLATFORM
 #define DEBUG // IOX_DEBUG_ASSERT active?
 
 #include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
 #include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
 
-// #include "iceoryx_hoofs/error_handling_2/api.hpp"
-
-#include "iceoryx_hoofs/error_handling_2/error.hpp"
-
 #include "iceoryx_hoofs/cxx/optional.hpp"
+
+#ifdef TEST_PLATFORM
+#include "iceoryx_hoofs/error_handling_2/platform/test_platform/test_handler.hpp"
+#endif
 
 #include "test.hpp"
 
@@ -30,6 +30,27 @@ using A_Code = module_A::ErrorCode;
 
 static bool g_terminateCalled;
 
+#ifdef TEST_PLATFORM
+// optional handlers to be used in addition
+TestHandler& testHandler()
+{
+    static TestHandler h;
+    return h;
+}
+
+ThrowHandler& throwHandler()
+{
+    static ThrowHandler h;
+    return h;
+}
+
+template <typename Code>
+RuntimeError to_error(Code code)
+{
+    return RuntimeError::from_error(create_error(code));
+}
+#endif
+
 class EH_test : public Test
 {
   public:
@@ -41,30 +62,17 @@ class EH_test : public Test
         g_terminateCalled = false;
         terminateHandler = std::set_terminate([]() { g_terminateCalled = true; });
 
-#ifndef TEST_PLATFORM
-        // Handler::finalize(); // will abort if we try to set the handler afterwards
-        Handler::set(countingHandler());
+#ifdef TEST_PLATFORM
+        ErrorHandler::reset();
 #endif
     }
     virtual void TearDown()
     {
         std::set_terminate(terminateHandler);
-#ifndef TEST_PLATFORM
-        Handler::reset();
-#endif
     }
 
     std::terminate_handler terminateHandler;
 };
-
-// for now the tests check compilation only,
-// demonstrate usage and output
-// for automated checks we need the test platform to
-// verify a specific error was raised etc.
-// this is demonstrated later
-
-// deactivate the tests in this case as IOX_RAISE will throw
-#ifndef TEST_PLATFORM
 
 TEST_F(EH_test, fatalError)
 {
@@ -160,122 +168,95 @@ TEST_F(EH_test, errorRecovery)
 {
     using namespace iox::cxx;
 
-    int arg = 3;
+    int x = 3;
     auto f = [](int) -> optional<int> { return nullopt; };
-    optional<int> result = f(arg); // try obtaining a result, which fails
+    optional<int> result = f(x); // try obtaining a result, which fails
 
-    auto tryRecover1 = [&](int) { result = f(arg); }; // retry, but this will fail again
+    auto tryRecover1 = [&](int a) { result = f(a); }; // retry, but this will fail again
     auto tryRecover2 = [&](int a) { result = a; };    // try an alternative algorithm
 
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover1, arg);
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover2, arg);
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover1, x);
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover2, x);
     IOX_RAISE_IF(!result, FATAL, B_Code::Unknown) << "recovery failed";
 
-    // TODO: can be made more elegant but already hides the branching
+    // can be made more elegant but already hides the branching
     // and we can simulate recovery blocks arguably in a more concise way
     // (performance should not be affected much if at all)
 
     ASSERT_TRUE(result);
-    EXPECT_EQ(*result, arg);
+    EXPECT_EQ(*result, x);
 }
 
-#endif
 
 #ifdef TEST_PLATFORM
-
-// requires test platform to succeed (as otherwise nothing is thrown)
-// TODO: lacks elegance but works with test platform handler
 TEST_F(EH_test, verifyError1)
 {
-    // we could check for the concrete error
-    // but then it would require a comparison operator (in each module)
-    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
+    // activate throwing behavior
+    ErrorHandler::set(throwHandler());
+
+    auto expectedError = to_error(B_Code::OutOfMemory);
     try
     {
         // calling f which raises multiple errors would be a problem
         // with the exception verification technique
         // but this can only happen if destructors raise errors which is
         // forbidden (as with exceptions)
-        //
         IOX_RAISE(FATAL, B_Code::OutOfMemory);
     }
-    catch (B_Error& e)
+    catch (RuntimeError& e)
     {
-        std::cout << "caught " << e.name() << " in module " << e.module() << std::endl;
-        // we have no comparison operator for the concrete errors (but could have)
-        EXPECT_EQ(expectedError, GenericError::from_error(e));
+        EXPECT_EQ(expectedError, e);
         return;
     }
-    catch (GenericError& e)
-    {
-        // should not be needed if we know the concrete error
-        std::cout << "caught " << e.code() << " in module " << e.module() << std::endl;
-    }
-    catch (...)
-    {
-        std::cout << "caught ?" << std::endl;
-    }
-    // the expected error was not thrown
     FAIL();
 }
 
 // alternative with EXPECT_THROW check and rethrow
 TEST_F(EH_test, verifyError2)
 {
-    // NB: GenericError cannot know create_error at its implementation
-    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
+    // activate throwing behavior
+    ErrorHandler::set(throwHandler());
+
+    auto expectedError = to_error(B_Code::OutOfMemory);
     EXPECT_THROW(
         {
             try
             {
                 IOX_RAISE(FATAL, B_Code::OutOfMemory);
             }
-            catch (const B_Error& e)
+            catch (const RuntimeError& e)
             {
-                EXPECT_EQ(expectedError, GenericError::from_error(e));
+                EXPECT_EQ(expectedError, e);
                 throw;
             }
         },
-        B_Error);
+        RuntimeError);
 }
 
-// alternative with custom bookkeeping in test platform error handling
+// alternative with custom bookkeeping of errors
 TEST_F(EH_test, verifyError3)
 {
-    auto expectedError = GenericError::from_error(create_error(B_Code::OutOfMemory));
-    errors().reset();
-    EXPECT_EQ(errors().count(expectedError), 0);
+    // ErrorHandler::finalize(); // will abort if we try to set the handler afterwards
+    // activate
+    auto& handler = testHandler();
+    ErrorHandler::set(handler);
+    // set cannot fail so we know handler was set
 
-    // try/catch would not be needed if it would not throw in this implementation
-    try
-    {
-        IOX_RAISE(FATAL, B_Code::OutOfMemory);
-    }
-    catch (...)
-    {
-    }
-    try
-    {
-        IOX_RAISE(FATAL, B_Code::OutOfMemory);
-    }
-    catch (...)
-    {
-    }
-    try
-    {
-        IOX_RAISE(FATAL, A_Code::OutOfMemory);
-    }
-    catch (...)
-    {
-    }
+    auto expectedError = to_error(B_Code::OutOfMemory);
 
-    EXPECT_EQ(errors().count(expectedError), 2);
+    EXPECT_EQ(handler.errors().count(expectedError), 0);
 
-    errors().reset();
-    EXPECT_EQ(errors().count(expectedError), 0);
+    // multiple errors without termination
+    IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    IOX_RAISE(FATAL, B_Code::OutOfMemory);
+    IOX_RAISE(FATAL, A_Code::OutOfMemory);
+
+    EXPECT_EQ(handler.errors().count(expectedError), 2);
+
+    handler.reset();
+    EXPECT_EQ(handler.errors().count(expectedError), 0);
 }
 
 #endif
-
 
 } // namespace

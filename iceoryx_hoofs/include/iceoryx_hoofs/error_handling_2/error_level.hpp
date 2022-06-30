@@ -37,19 +37,11 @@ bool constexpr requires_handling(Fatal)
 
 constexpr Fatal FATAL{};
 
-// TODO: how configurable shall this be?
-// currently the user shall have no option to avoid terminate being called for FATAL errors
-// however, in the test platform at least we do not want this
-#ifndef TEST_PLATFORM
 void terminate()
 {
-    // std::terminate(); // will never return
+    // do we want to make this configurable?
+    // in tests it is not desirable to call terminate in all cases
+    // std::terminate();
 }
-#else
-void terminate()
-{
-    // TODO: abort the thread
-}
-#endif
 
 } // namespace eh
