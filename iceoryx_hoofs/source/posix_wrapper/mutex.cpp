@@ -93,13 +93,13 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
         switch (result.get_error().errnum)
         {
         case ENOSYS:
-            LogError() << "The system does not support mutex priorities\n";
+            LogError() << "The system does not support mutex priorities";
             return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
         case ENOTSUP:
-            LogError() << "The used mutex priority is not supported by the platform\n";
+            LogError() << "The used mutex priority is not supported by the platform";
             return cxx::error<MutexError>(MutexError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
         case EPERM:
-            LogError() << "Unsufficient permissions to set mutex priorities\n";
+            LogError() << "Unsufficient permissions to set mutex priorities";
             return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
         default:
             LogError() << "This should never happen. An unknown error occurred while setting up the mutex priority.";
@@ -116,6 +116,26 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
         LogError() << "This should never happen. An unknown error occurred while setting up the mutex thread "
                       "termination behavior.";
         return cxx::error<MutexError>(MutexError::UNDEFINED);
+    }
+
+
+    result = posixCall(pthread_mutexattr_setprioceiling)(&mutexAttributes, static_cast<int>(m_priorityCeiling))
+                 .returnValueMatchesErrno()
+                 .evaluate();
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EPERM:
+            LogError() << "Unsufficient permissions to set the mutex priority ceiling.";
+            return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
+        case ENOSYS:
+            LogError() << "The platform does not support mutex priority ceiling.";
+            return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
+        case EINVAL:
+            LogError() << "The priority ceiling \"" << m_priorityCeiling << "\" is not a valid priority ceiling.";
+            return cxx::error<MutexError>(MutexError::INVALID_PRIORITY_CEILING_VALUE);
+        }
     }
 
 
@@ -197,16 +217,6 @@ Mutex::~Mutex() noexcept
             }
         }
     }
-}
-
-const pthread_mutex_t& Mutex::get_native_handle() const noexcept
-{
-    return m_handle;
-}
-
-pthread_mutex_t& Mutex::get_native_handle() noexcept
-{
-    return m_handle;
 }
 
 cxx::expected<MutexError> Mutex::lock() noexcept
