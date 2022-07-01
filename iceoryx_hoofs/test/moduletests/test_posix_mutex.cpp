@@ -220,6 +220,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnloc
     EXPECT_FALSE(sut->unlock().has_error());
 }
 
+#if !defined(__APPLE__)
 TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");
@@ -237,4 +238,5 @@ TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThr
     EXPECT_THAT(*result, iox::posix::MutexTryLock::LOCK_SUCCEEDED);
     EXPECT_FALSE(sut->unlock().has_error());
 }
+#endif
 } // namespace
