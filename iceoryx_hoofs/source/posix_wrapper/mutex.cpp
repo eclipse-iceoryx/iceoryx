@@ -48,7 +48,10 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
     cxx::GenericRAII mutexAttributesCleanup([&] {
         auto destroyResult =
             posixCall(pthread_mutexattr_destroy)(&mutexAttributes).returnValueMatchesErrno().evaluate();
-        LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+        if (destroyResult.has_error())
+        {
+            LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+        }
     });
 
 
@@ -147,6 +150,7 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
     return cxx::success<>();
 }
 
+/// @todo iox-#1036 remove this, introduced to keep current API temporarily
 Mutex::Mutex(bool f_isRecursive) noexcept
 {
     pthread_mutexattr_t attr;
@@ -157,7 +161,7 @@ Mutex::Mutex(bool f_isRecursive) noexcept
                           .evaluate()
                           .has_error();
     isInitialized &=
-        !posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE_NP : PTHREAD_MUTEX_FAST_NP)
+        !posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE : PTHREAD_MUTEX_NORMAL)
              .returnValueMatchesErrno()
              .evaluate()
              .has_error();
@@ -179,34 +183,91 @@ Mutex::~Mutex() noexcept
     {
         auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
 
-        /// NOLINTJUSTIFICATION is fixed in the PR iox-#1443
-        /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        cxx::Ensures(!destroyCall.has_error() && "Could not destroy mutex");
+        if (destroyCall.has_error())
+        {
+            LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+        }
     }
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-pthread_mutex_t Mutex::get_native_handle() const noexcept
+const pthread_mutex_t& Mutex::get_native_handle() const noexcept
 {
     return m_handle;
 }
 
-bool Mutex::lock() noexcept
+pthread_mutex_t& Mutex::get_native_handle() noexcept
 {
-    return !posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate().has_error();
+    return m_handle;
 }
 
-bool Mutex::unlock() noexcept
+cxx::expected<MutexError> Mutex::lock() noexcept
 {
-    return !posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate().has_error();
+    auto result = posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EINVAL:
+            LogError() << "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
+                          "priority is greater than the mutex priority.";
+            return cxx::error<MutexError>(MutexError::PRIORITY_MISMATCH);
+        case EAGAIN:
+            LogError() << "Maximum number of recursive locks exceeded.";
+            return cxx::error<MutexError>(MutexError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
+        case EDEADLK:
+            LogError() << "Deadlock in mutex detected.";
+            return cxx::error<MutexError>(MutexError::DEADLOCK_CONDITION);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while locking the mutex. "
+                          "This can indicate a either corrupted or non-posix compliant system.";
+            return cxx::error<MutexError>(MutexError::UNDEFINED);
+        }
+    }
+    return cxx::success<>();
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-bool Mutex::try_lock() noexcept
+cxx::expected<MutexError> Mutex::unlock() noexcept
+{
+    auto result = posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EPERM:
+            LogError() << "The thread is not owned by the current thread. The mutex must be unlocked by the same "
+                          "thread it was locked by.";
+            return cxx::error<MutexError>(MutexError::NOT_OWNED_BY_THREAD);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while unlocking the mutex. "
+                          "This can indicate a either corrupted or non-posix compliant system.";
+            return cxx::error<MutexError>(MutexError::UNDEFINED);
+        }
+    }
+
+    return cxx::success<>();
+}
+
+cxx::expected<MutexTryLock, MutexError> Mutex::try_lock() noexcept
 {
     auto result = posixCall(pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();
-    bool isBusy = !result.has_error() && result->errnum == EBUSY;
-    return !isBusy && !result.has_error();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EINVAL:
+            LogError() << "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
+                          "priority is greater than the mutex priority.";
+            return cxx::error<MutexError>(MutexError::PRIORITY_MISMATCH);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while try locking the mutex. "
+                          "This can indicate a either corrupted or non-posix compliant system.";
+            return cxx::error<MutexError>(MutexError::UNDEFINED);
+        }
+    }
+
+    return (result->errnum == EBUSY) ? cxx::success<MutexTryLock>(MutexTryLock::FAILED_TO_ACQUIRE_LOCK)
+                                     : cxx::success<MutexTryLock>(MutexTryLock::LOCK_SUCCEEDED);
 }
 } // namespace posix
 } // namespace iox

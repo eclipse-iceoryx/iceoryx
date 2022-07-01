@@ -26,20 +26,47 @@ namespace iox
 {
 namespace posix
 {
+enum class MutexError
+{
+    INSUFFICIENT_MEMORY,
+    INSUFFICIENT_RESOURCES,
+    PERMISSION_DENIED,
+    INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM,
+    PRIORITIES_UNSUPPORTED_BY_PLATFORM,
+    USED_PRIORITY_UNSUPPORTED_BY_PLATFORM,
+    PRIORITY_MISMATCH,
+    MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED,
+    DEADLOCK_CONDITION,
+    NOT_OWNED_BY_THREAD,
+    UNDEFINED
+};
+
+enum class MutexTryLock
+{
+    LOCK_SUCCEEDED,
+    FAILED_TO_ACQUIRE_LOCK
+};
+
 /// @brief Wrapper for a interprocess pthread based mutex which does not use
 ///         exceptions!
 /// @code
 ///     #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 ///
 ///     int main() {
-///         posix::mutex myMutex(false);
+///         cxx::optional<iox::posix::Mutex> myMutex;
+///         iox::posix::MutexBuilder().isInterProcessCapable(true)
+///                                   .mutexType(MutexType::RECURSIVE)
+///                                   .priorityInheritance(MutexPriorityInheritance::NONE)
+///                                   .threadTerminationBehavior(MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
+///                                   .create(myMutex)
+///                                   .expect("Failed to create mutex!");
 ///
-///         myMutex->lock();
+///         myMutex->lock().expect("Mutex lock failed. Maybe the system is corrupted.");
 ///         // ... do stuff
-///         myMutex->unlock();
+///         myMutex->unlock().expect("Mutex unlock failed. Maybe the system is corrupted.");
 ///
 ///         {
-///             std::lock_guard<posix::mutex> lock(myMutex);
+///             std::lock_guard<posix::mutex> lock(*myMutex);
 ///             // ...
 ///         }
 ///
@@ -51,9 +78,9 @@ class Mutex
 {
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
+    /// @todo iox-#1036 remove this, introduced to keep current API temporarily
     explicit Mutex(const bool f_isRecursive) noexcept;
 
-    /// @attention the destruction of the mutex can fail. This can lead to a program termination!
     ~Mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
@@ -68,24 +95,24 @@ class Mutex
     /// @brief Locks the mutex object and returns true if the underlying c
     ///         function did not returned any error. If the mutex is already
     ///         locked the method is blocking till the mutex can be locked.
-    bool lock() noexcept;
+    cxx::expected<MutexError> lock() noexcept;
     /// @brief Unlocks the mutex object and returns true if the underlying c
     ///         function did not returned any error.
     ///        IMPORTANT! Unlocking and unlocked mutex is undefined behavior
     ///         and the underlying c function will report success in this case!
-    bool unlock() noexcept;
+    cxx::expected<MutexError> unlock() noexcept;
 
     /// @brief  Tries to lock the mutex object. If it is not possible to lock
     ///         the mutex object try_lock will return an error. If the c
     ///         function fails it will return false, otherwise true.
-    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-    bool try_lock() noexcept;
+    cxx::expected<MutexTryLock, MutexError> try_lock() noexcept;
 
     /// @brief  Returns the native handle which then can be used in
     ///         pthread_mutex_** calls. Required when a pthread_mutex_**
     ///         call is not abstracted with this wrapper.
-    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-    pthread_mutex_t get_native_handle() const noexcept;
+    const pthread_mutex_t& get_native_handle() const noexcept;
+
+    pthread_mutex_t& get_native_handle() noexcept;
 
   private:
     Mutex() noexcept = default;
@@ -93,7 +120,7 @@ class Mutex
   private:
     friend class MutexBuilder;
     friend class cxx::optional<Mutex>;
-    // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
+
     pthread_mutex_t m_handle;
     bool m_isDescructable = true;
 };
@@ -120,17 +147,6 @@ enum class MutexThreadTerminationBehavior : int32_t
 {
     STALL_WHEN_LOCKED = PTHREAD_MUTEX_STALLED,
     RELEASE_WHEN_LOCKED = PTHREAD_MUTEX_ROBUST,
-};
-
-enum class MutexError
-{
-    INSUFFICIENT_MEMORY,
-    INSUFFICIENT_RESOURCES,
-    PERMISSION_DENIED,
-    INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM,
-    PRIORITIES_UNSUPPORTED_BY_PLATFORM,
-    USED_PRIORITY_UNSUPPORTED_BY_PLATFORM,
-    UNDEFINED
 };
 
 class MutexBuilder
