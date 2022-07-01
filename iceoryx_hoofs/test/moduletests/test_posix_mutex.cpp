@@ -179,6 +179,7 @@ TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "feb07935-674d-4ebc-abaa-66664751719a");
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
@@ -190,6 +191,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockItTwice)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "062e411e-a5d3-4759-9faf-db6f4129d395");
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
@@ -203,6 +205,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockIt
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnlock)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4dcea981-2259-48c6-bf27-7839ad9013b4");
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
@@ -219,6 +222,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnloc
 
 TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminates)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(iox::posix::MutexBuilder()
                      .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
