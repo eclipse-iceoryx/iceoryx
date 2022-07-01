@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -193,8 +193,8 @@ class MutexBuilder
     /// @brief States how thread priority is adjusted when they own the mutex
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
 
-    /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted
-    IOX_BUILDER_PARAMETER(int32_t, priorityCeiling, 0)
+    /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted, default: 1
+    IOX_BUILDER_PARAMETER(int32_t, priorityCeiling, 1)
 
     /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates
     IOX_BUILDER_PARAMETER(MutexThreadTerminationBehavior,
@@ -202,6 +202,9 @@ class MutexBuilder
                           MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
 
   public:
+    /// @brief Initializes a provided uninitialized mutex
+    /// @param[in] uninitializedMutex the uninitialized mutex which should be initialized
+    /// @return On failure MutexError which explains the error
     cxx::expected<MutexError> create(cxx::optional<Mutex>& uninitializedMutex) noexcept;
 };
 } // namespace posix

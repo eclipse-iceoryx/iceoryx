@@ -133,8 +133,14 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
             LogError() << "The platform does not support mutex priority ceiling.";
             return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
         case EINVAL:
-            LogError() << "The priority ceiling \"" << m_priorityCeiling << "\" is not a valid priority ceiling.";
+        {
+            auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
+            auto maximumPriority = getSchedulerPriorityMaximum(Scheduler::FIFO);
+
+            LogError() << "The priority ceiling \"" << m_priorityCeiling << "\" is not in the valid priority range [ "
+                       << minimumPriority << ", " << maximumPriority << "] of the Scheduler::FIFO.";
             return cxx::error<MutexError>(MutexError::INVALID_PRIORITY_CEILING_VALUE);
+        }
         }
     }
 

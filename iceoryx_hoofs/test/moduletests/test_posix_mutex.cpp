@@ -84,7 +84,6 @@ TEST_F(Mutex_test, TryLockAndUnlockWithNonRecursiveMutexWorks)
     ASSERT_FALSE(tryLockResult.has_error());
     EXPECT_THAT(*tryLockResult, Eq(iox::posix::MutexTryLock::LOCK_SUCCEEDED));
     EXPECT_FALSE(sutNonRecursive->unlock().has_error());
-    EXPECT_FALSE(sutNonRecursive->unlock().has_error());
 }
 
 #ifndef _WIN32
