@@ -132,7 +132,7 @@ enum class MutexType : int32_t
 {
     NORMAL = PTHREAD_MUTEX_NORMAL,
     RECURSIVE = PTHREAD_MUTEX_RECURSIVE,
-    WITH_ERROR_CHECK = PTHREAD_MUTEX_ERRORCHECK,
+    WITH_DEADLOCK_DETECTION = PTHREAD_MUTEX_ERRORCHECK,
     PLATFORM_DEFAULT = PTHREAD_MUTEX_DEFAULT
 };
 
@@ -152,7 +152,7 @@ enum class MutexThreadTerminationBehavior : int32_t
 class MutexBuilder
 {
     IOX_BUILDER_PARAMETER(bool, isInterProcessCapable, true)
-    IOX_BUILDER_PARAMETER(MutexType, mutexType, MutexType::PLATFORM_DEFAULT)
+    IOX_BUILDER_PARAMETER(MutexType, mutexType, MutexType::RECURSIVE)
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
     IOX_BUILDER_PARAMETER(MutexThreadTerminationBehavior,
                           threadTerminationBehavior,

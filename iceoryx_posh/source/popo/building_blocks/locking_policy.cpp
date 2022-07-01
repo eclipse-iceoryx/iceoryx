@@ -45,7 +45,12 @@ void ThreadSafePolicy::unlock() const noexcept
 
 bool ThreadSafePolicy::tryLock() const noexcept
 {
-    return m_mutex.try_lock();
+    auto tryLockResult = m_mutex.try_lock();
+    if (tryLockResult.has_error())
+    {
+        errorHandler(PoshError::POPO__CHUNK_TRY_LOCK_ERROR, ErrorLevel::FATAL);
+    }
+    return *tryLockResult == posix::MutexTryLock::LOCK_SUCCEEDED;
 }
 
 void SingleThreadedPolicy::lock() const noexcept

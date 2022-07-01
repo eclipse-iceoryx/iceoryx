@@ -185,7 +185,16 @@ Mutex::~Mutex() noexcept
 
         if (destroyCall.has_error())
         {
-            LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+            switch (destroyCall.get_error().errnum)
+            {
+            case EBUSY:
+                LogError() << "Tried to remove a locked mutex which failed. The mutex resource is now leaked and "
+                              "cannot be removed anymore!";
+                break;
+            default:
+                LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex.";
+                break;
+            }
         }
     }
 }
@@ -202,7 +211,8 @@ pthread_mutex_t& Mutex::get_native_handle() noexcept
 
 cxx::expected<MutexError> Mutex::lock() noexcept
 {
-    auto result = posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
+    auto result =
+        posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EOWNERDEAD).evaluate();
     if (result.has_error())
     {
         switch (result.get_error().errnum)
@@ -249,7 +259,10 @@ cxx::expected<MutexError> Mutex::unlock() noexcept
 
 cxx::expected<MutexTryLock, MutexError> Mutex::try_lock() noexcept
 {
-    auto result = posixCall(pthread_mutex_trylock)(&m_handle).returnValueMatchesErrno().ignoreErrnos(EBUSY).evaluate();
+    auto result = posixCall(pthread_mutex_trylock)(&m_handle)
+                      .returnValueMatchesErrno()
+                      .ignoreErrnos(EBUSY, EOWNERDEAD)
+                      .evaluate();
 
     if (result.has_error())
     {
