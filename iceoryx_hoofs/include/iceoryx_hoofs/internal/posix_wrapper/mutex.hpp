@@ -17,13 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_platform/pthread.hpp"
-
-#if defined(__QNX__) || defined(__APPLE__)
-#define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
-#define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_NORMAL
-#endif
+#include "iceoryx_hoofs/design_pattern/builder.hpp"
+#include "iceoryx_hoofs/platform/pthread.hpp"
 
 namespace iox
 {
@@ -50,23 +47,23 @@ namespace posix
 /// @endcode
 /// @attention Errors in c'tor or d'tor can lead to a program termination!
 ///
-class mutex
+class Mutex
 {
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
-    explicit mutex(const bool f_isRecursive) noexcept;
+    explicit Mutex(const bool f_isRecursive) noexcept;
 
     /// @attention the destruction of the mutex can fail. This can lead to a program termination!
-    ~mutex() noexcept;
+    ~Mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
     ///         undefined behavior or race conditions will occure if you copy
     ///         or move mutexe when its possible that they are locked or will
     ///         be locked
-    mutex(const mutex&) = delete;
-    mutex(mutex&&) = delete;
-    mutex& operator=(const mutex&) = delete;
-    mutex& operator=(mutex&&) = delete;
+    Mutex(const Mutex&) = delete;
+    Mutex(Mutex&&) = delete;
+    Mutex& operator=(const Mutex&) = delete;
+    Mutex& operator=(Mutex&&) = delete;
 
     /// @brief Locks the mutex object and returns true if the underlying c
     ///         function did not returned any error. If the mutex is already
@@ -90,8 +87,63 @@ class mutex
     // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
     pthread_mutex_t get_native_handle() const noexcept;
 
+  private:
+    Mutex() noexcept = default;
+
+  private:
+    friend class MutexBuilder;
+    friend class cxx::optional<Mutex>;
     // NOLINTNEXTLINE(readability-identifier-naming) C++ STL code guidelines
-    pthread_mutex_t m_handle{};
+    pthread_mutex_t m_handle;
+    bool m_isDescructable = true;
+};
+
+/// @todo iox-#1036 remove this, introduced to keep current API temporarily
+using mutex = Mutex;
+
+enum class MutexType : int32_t
+{
+    NORMAL = PTHREAD_MUTEX_NORMAL,
+    RECURSIVE = PTHREAD_MUTEX_RECURSIVE,
+    WITH_ERROR_CHECK = PTHREAD_MUTEX_ERRORCHECK,
+    PLATFORM_DEFAULT = PTHREAD_MUTEX_DEFAULT
+};
+
+enum class MutexPriorityInheritance : int32_t
+{
+    NONE = PTHREAD_PRIO_NONE,
+    INHERIT = PTHREAD_PRIO_INHERIT,
+    PROTECT = PTHREAD_PRIO_PROTECT
+};
+
+enum class MutexThreadTerminationBehavior : int32_t
+{
+    STALL_WHEN_LOCKED = PTHREAD_MUTEX_STALLED,
+    RELEASE_WHEN_LOCKED = PTHREAD_MUTEX_ROBUST,
+};
+
+enum class MutexError
+{
+    INSUFFICIENT_MEMORY,
+    INSUFFICIENT_RESOURCES,
+    PERMISSION_DENIED,
+    INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM,
+    PRIORITIES_UNSUPPORTED_BY_PLATFORM,
+    USED_PRIORITY_UNSUPPORTED_BY_PLATFORM,
+    UNDEFINED
+};
+
+class MutexBuilder
+{
+    IOX_BUILDER_PARAMETER(bool, isInterProcessCapable, true)
+    IOX_BUILDER_PARAMETER(MutexType, mutexType, MutexType::PLATFORM_DEFAULT)
+    IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
+    IOX_BUILDER_PARAMETER(MutexThreadTerminationBehavior,
+                          threadTerminationBehavior,
+                          MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
+
+  public:
+    cxx::expected<MutexError> create(cxx::optional<Mutex>& uninitializedMutex) noexcept;
 };
 } // namespace posix
 } // namespace iox
