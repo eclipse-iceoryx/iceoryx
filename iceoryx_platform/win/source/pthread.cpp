@@ -122,6 +122,16 @@ int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol)
     return 0;
 }
 
+int pthread_mutexattr_setrobust(pthread_mutexattr_t* attr, int robustness)
+{
+    return 0;
+}
+
+int pthread_mutexattr_setprioceiling(pthread_mutexattr_t* attr, int prioceiling)
+{
+    return 0;
+}
+
 int pthread_mutex_destroy(pthread_mutex_t* mutex)
 {
     if (!mutex->isInterprocessMutex)

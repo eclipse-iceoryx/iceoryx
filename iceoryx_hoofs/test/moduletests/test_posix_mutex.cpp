@@ -177,6 +177,7 @@ TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
     lockedMutexBlocks(this, *sutRecursive);
 }
 
+#if !defined(_WIN32)
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "feb07935-674d-4ebc-abaa-66664751719a");
@@ -188,6 +189,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexError::DEADLOCK_CONDITION));
 }
+#endif
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockItTwice)
 {
@@ -220,7 +222,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnloc
     EXPECT_FALSE(sut->unlock().has_error());
 }
 
-#if !defined(__APPLE__)
+#if !defined(__APPLE__) && !defined(_WIN32)
 TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");

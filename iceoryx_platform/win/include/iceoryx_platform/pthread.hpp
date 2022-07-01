@@ -25,9 +25,18 @@
 #include <type_traits>
 
 #define PTHREAD_PROCESS_SHARED 0
-#define PTHREAD_MUTEX_RECURSIVE_NP 1
-#define PTHREAD_MUTEX_FAST_NP 2
-#define PTHREAD_PRIO_NONE 3
+#define PTHREAD_PROCESS_PRIVATE 1
+#define PTHREAD_MUTEX_RECURSIVE 2
+#define PTHREAD_MUTEX_NORMAL 3
+#define PTHREAD_MUTEX_ERRORCHECK 4
+#define PTHREAD_MUTEX_DEFAULT PTHREAD_MUTEX_NORMAL
+
+#define PTHREAD_PRIO_NONE 4
+#define PTHREAD_PRIO_INHERIT 5
+#define PTHREAD_PRIO_PROTECT 6
+
+#define PTHREAD_MUTEX_STALLED 7
+#define PTHREAD_MUTEX_ROBUST 8
 
 struct pthread_mutex_t
 {
@@ -48,6 +57,8 @@ int pthread_mutexattr_init(pthread_mutexattr_t* attr);
 int pthread_mutexattr_setpshared(pthread_mutexattr_t* attr, int pshared);
 int pthread_mutexattr_settype(pthread_mutexattr_t* attr, int type);
 int pthread_mutexattr_setprotocol(pthread_mutexattr_t* attr, int protocol);
+int pthread_mutexattr_setrobust(pthread_mutexattr_t* attr, int robustness);
+int pthread_mutexattr_setprioceiling(pthread_mutexattr_t* attr, int prioceiling);
 
 int pthread_mutex_destroy(pthread_mutex_t* mutex);
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr);
