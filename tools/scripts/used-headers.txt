@@ -9,6 +9,7 @@ grp.h
 mqueue.h
 pthread.h
 pwd.h
+sched.h
 semaphore.h
 signal.h
 sys/acl.h
