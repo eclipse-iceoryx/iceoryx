@@ -17,7 +17,7 @@ namespace eh
 template <typename Interface, typename Default>
 class PolymorphicSingleton
 {
-    static_assert(std::is_base_of<Interface, Default>::value);
+    static_assert(std::is_base_of<Interface, Default>::value, "Default must inherit from Interface");
 
   public:
     using Self = PolymorphicSingleton<Interface, Default>;

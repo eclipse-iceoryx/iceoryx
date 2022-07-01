@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling2.hpp"
 
 #include <iostream>
 
@@ -34,6 +35,9 @@ void Require(
         std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
                   << ")" << std::endl;
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
+
+        // use new handling instead (note that the IOX_ASSERT etc. makes Require obsolete)
+        IOX_RAISE(FATAL, HoofsErrorCode::ExpectsEnsuresFailed);
     }
 }
 } // namespace internal

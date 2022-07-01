@@ -37,11 +37,4 @@ bool constexpr requires_handling(Fatal)
 
 constexpr Fatal FATAL{};
 
-void terminate()
-{
-    // do we want to make this configurable?
-    // in tests it is not desirable to call terminate in all cases
-    // std::terminate();
-}
-
 } // namespace eh

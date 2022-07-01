@@ -30,7 +30,7 @@ void report(const SourceLocation& location, Level level, const Error& error)
 }
 
 // platform specific termination
-void preterminate()
+inline void preterminate()
 {
     ErrorHandler::get().preterminate();
 }

@@ -29,7 +29,7 @@ struct DefaultHandler : public HandlerInterface
         (void)module;
     }
 
-    void preterminate()
+    inline void preterminate()
     {
     }
 };
