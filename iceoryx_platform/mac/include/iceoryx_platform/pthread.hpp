@@ -19,6 +19,9 @@
 
 #include <pthread.h>
 
+#define PTHREAD_MUTEX_STALLED 1
+#define PTHREAD_MUTEX_ROBUST 2
+
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
@@ -31,5 +34,7 @@ int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, vo
 int iox_pthread_join(iox_pthread_t thread, void** retval);
 
 iox_pthread_t iox_pthread_self();
+int pthread_mutexattr_setrobust(pthread_mutexattr_t*, int);
+
 
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP
