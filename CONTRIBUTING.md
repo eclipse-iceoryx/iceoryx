@@ -273,6 +273,9 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 
 #### Static code analysis
 
+The iceoryx maintainers have a partnership with [Axivion](https://www.axivion.com/en/) and use their
+[Axivion Suite](https://www.axivion.com/en/products/static-code-analysis/) to run a static code analysis.
+
 Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label | Priority |
@@ -286,14 +289,27 @@ If one of the rules is not followed, a rationale is added in the following manne
 Either with a comment in the same line:
 
 ```cpp
-*mynullptr = foo; // PRQA S 4242 # Short description why
+*mynullptr = foo; // AXIVION Same Line Ruleset-A1.2.3 : Short description why
 ```
 
-Or with a comment one line above (the number after the warning number indicates that next ’n’ lines are inclusive)
+Or with a comment one line above:
 
 ```cpp
-// PRQA S 4242 1 # Short description why
+// AXIVION Next Line Ruleset-A1.2.3 : Short description why
 *mynullptr = foo;
+```
+
+It is also possible to suppress a rule for a complete construct:
+
+```cpp
+// AXIVION Construct Ruleset-A1.2.3 : Short description why
+class Foo
+{
+  void doSomething()
+  {
+    // Do something useful
+  }
+};
 ```
 
 ### Header
