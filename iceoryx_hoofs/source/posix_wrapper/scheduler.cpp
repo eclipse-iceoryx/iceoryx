@@ -47,4 +47,3 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
 }
 } // namespace posix
 } // namespace iox
-
