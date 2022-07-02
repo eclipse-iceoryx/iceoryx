@@ -71,10 +71,6 @@ class function_ref<ReturnType(ArgTypes...)>
         bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
   public:
-    /// @brief Creates an empty function_ref in an invalid state
-    /// @note Handle with care, program will terminate when calling an invalid function_ref
-    function_ref() noexcept;
-
     ~function_ref() noexcept = default;
 
     function_ref(const function_ref&) noexcept = default;
@@ -106,10 +102,6 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @return Returns the data type of the underlying function pointer
     /// @attention Invoking an empty function_ref can lead to a program termination!
     ReturnType operator()(ArgTypes... args) const noexcept;
-
-    /// @brief Checks whether a valid target is contained
-    /// @return True if valid target is contained, otherwise false
-    explicit operator bool() const noexcept;
 
     /// @brief Swaps the contents of two function_ref's
     /// @param[in] Reference to another function_ref

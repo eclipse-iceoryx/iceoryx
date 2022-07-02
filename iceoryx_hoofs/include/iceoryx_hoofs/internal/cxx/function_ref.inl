@@ -20,13 +20,6 @@ namespace iox
 namespace cxx
 {
 template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
-    : m_pointerToCallable(nullptr)
-    , m_functionPointer(nullptr)
-{
-}
-
-template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
@@ -78,12 +71,6 @@ inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... 
     // Expect that a callable was assigned beforehand
     cxx::Expects((m_pointerToCallable != nullptr) && "Empty function_ref invoked");
     return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
-}
-
-template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::operator bool() const noexcept
-{
-    return m_pointerToCallable != nullptr;
 }
 
 template <class ReturnType, class... ArgTypes>

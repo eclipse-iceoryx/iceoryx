@@ -27,7 +27,7 @@ namespace cxx
 template <uint64_t Capacity>
 inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
     const cxx::function<void(), Capacity>& cleanupFunction) noexcept
-    : GenericRAIIWithVariableCapacity(function_ref<void()>(), cleanupFunction)
+    : m_cleanupFunction(cleanupFunction)
 {
 }
 
@@ -36,10 +36,7 @@ inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacit
     const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
-    if (initFunction)
-    {
-        initFunction();
-    }
+    initFunction();
 }
 
 template <uint64_t Capacity>

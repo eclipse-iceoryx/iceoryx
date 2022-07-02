@@ -25,7 +25,7 @@ template <typename T, typename... CTorArgs>
 inline GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
 {
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
-    return GenericRAII([] {}, [&memory] { memory.reset(); });
+    return GenericRAII([&memory] { memory.reset(); });
 }
 } // namespace cxx
 } // namespace iox
