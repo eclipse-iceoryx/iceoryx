@@ -107,6 +107,35 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
         }
     }
 
+    if (m_priorityInheritance == MutexPriorityInheritance::PROTECT)
+    {
+        result = posixCall(pthread_mutexattr_setprioceiling)(&mutexAttributes, static_cast<int>(m_priorityCeiling))
+                     .returnValueMatchesErrno()
+                     .evaluate();
+        if (result.has_error())
+        {
+            switch (result.get_error().errnum)
+            {
+            case EPERM:
+                LogError() << "Unsufficient permissions to set the mutex priority ceiling.";
+                return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
+            case ENOSYS:
+                LogError() << "The platform does not support mutex priority ceiling.";
+                return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
+            case EINVAL:
+            {
+                auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
+                auto maximumPriority = getSchedulerPriorityMaximum(Scheduler::FIFO);
+
+                LogError() << "The priority ceiling \"" << m_priorityCeiling
+                           << "\" is not in the valid priority range [ " << minimumPriority << ", " << maximumPriority
+                           << "] of the Scheduler::FIFO.";
+                return cxx::error<MutexError>(MutexError::INVALID_PRIORITY_CEILING_VALUE);
+            }
+            }
+        }
+    }
+
 
     result = posixCall(pthread_mutexattr_setrobust)(&mutexAttributes, static_cast<int>(m_threadTerminationBehavior))
                  .returnValueMatchesErrno()
@@ -116,32 +145,6 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
         LogError() << "This should never happen. An unknown error occurred while setting up the mutex thread "
                       "termination behavior.";
         return cxx::error<MutexError>(MutexError::UNDEFINED);
-    }
-
-
-    result = posixCall(pthread_mutexattr_setprioceiling)(&mutexAttributes, static_cast<int>(m_priorityCeiling))
-                 .returnValueMatchesErrno()
-                 .evaluate();
-    if (result.has_error())
-    {
-        switch (result.get_error().errnum)
-        {
-        case EPERM:
-            LogError() << "Unsufficient permissions to set the mutex priority ceiling.";
-            return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
-        case ENOSYS:
-            LogError() << "The platform does not support mutex priority ceiling.";
-            return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
-        case EINVAL:
-        {
-            auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
-            auto maximumPriority = getSchedulerPriorityMaximum(Scheduler::FIFO);
-
-            LogError() << "The priority ceiling \"" << m_priorityCeiling << "\" is not in the valid priority range [ "
-                       << minimumPriority << ", " << maximumPriority << "] of the Scheduler::FIFO.";
-            return cxx::error<MutexError>(MutexError::INVALID_PRIORITY_CEILING_VALUE);
-        }
-        }
     }
 
 
