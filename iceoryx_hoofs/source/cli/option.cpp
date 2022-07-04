@@ -22,11 +22,6 @@ namespace cli
 {
 namespace internal
 {
-bool Option::isSwitch() const noexcept
-{
-    return value.empty();
-}
-
 bool Option::isEmpty() const noexcept
 {
     return longOption.empty() && shortOption == NO_SHORT_OPTION;

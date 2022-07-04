@@ -55,7 +55,7 @@ class CommandLineOptionValue
 
     /// @brief returns true if the specified switch was set, otherwise false
     /// @param[in] switchName either one letter for the shortOption or the whole longOption
-    bool has(const OptionName_t& switchName) const noexcept;
+    bool isSwitchSet(const OptionName_t& switchName) const noexcept;
 
     /// @brief returns the full path name of the binary
     const BinaryName_t& binaryName() const noexcept;

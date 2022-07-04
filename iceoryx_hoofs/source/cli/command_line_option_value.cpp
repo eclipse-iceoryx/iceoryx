@@ -27,11 +27,11 @@ const BinaryName_t& CommandLineOptionValue::binaryName() const noexcept
     return m_binaryName;
 }
 
-bool CommandLineOptionValue::has(const OptionName_t& switchName) const noexcept
+bool CommandLineOptionValue::isSwitchSet(const OptionName_t& switchName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
-        if (a.isSwitch() && a.hasOptionName(switchName))
+        if (a.isSwitch && a.hasOptionName(switchName))
         {
             return true;
         }

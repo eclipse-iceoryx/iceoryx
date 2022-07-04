@@ -28,18 +28,19 @@ namespace internal
 /// @brief Represents a command line option
 struct Option
 {
-    /// @brief returns true when this option is a switch
-    bool isSwitch() const noexcept;
-
     /// @brief returns true when the name is either equal to the long or
     ///        short option
+    /// @param[in] name the option name in question
     bool hasOptionName(const OptionName_t& name) const noexcept;
 
     /// @brief returns true when the long and short options are equal (does
     ///        not consider value)
+    /// @param[in] rhs the other option to which it should be compared
     bool isSameOption(const Option& rhs) const noexcept;
 
-    /// @brief returns true if rhs is greater than this
+    /// @brief Returns true if rhs is greater than this. It implements a
+    ///        lexicographical order.
+    /// @param[in] rhs the other option to which it should be compared
     bool operator<(const Option& rhs) const noexcept;
 
     /// @brief returns true when neither short nor long option is set
@@ -52,9 +53,11 @@ struct Option
     bool shortOptionNameIsEqualDash() const noexcept;
 
     /// @brief returns true when the long option name is equal to value
+    /// @param[in] value the option name in question
     bool hasLongOptionName(const OptionName_t& value) const noexcept;
 
     /// @brief returns true when the short option name is equal to value
+    /// @param[in] value the option name in question
     bool hasShortOptionName(const char value) const noexcept;
 
     /// @brief returns true when it contains a short option which is set
@@ -64,6 +67,7 @@ struct Option
     bool hasLongOption() const noexcept;
 
     char shortOption = NO_SHORT_OPTION;
+    bool isSwitch = false;
     OptionName_t longOption;
     Argument_t value;
 };
@@ -80,7 +84,9 @@ struct OptionWithDetails : public Option
                       const OptionType type,
                       const TypeName_t& typeName) noexcept;
 
-    /// @brief returns true if rhs is greater than this
+    /// @brief Returns true if rhs is greater than this. It implements a
+    ///        lexicographical order.
+    /// @param[in] rhs the other OptionWithDetails to which it should be compared
     bool operator<(const OptionWithDetails& rhs) const noexcept;
 
     struct

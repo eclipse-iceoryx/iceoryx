@@ -1130,7 +1130,7 @@ TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_Single
     std::vector<std::string> switchesToRegister{"light"};
     auto option = SuccessTest({"--light"}, optionsToRegister, switchesToRegister);
 
-    EXPECT_TRUE(option.has("light"));
+    EXPECT_TRUE(option.isSwitchSet("light"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument)
@@ -1140,9 +1140,9 @@ TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiA
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"--light", "--fridge", "--muu"}, optionsToRegister, switchesToRegister);
 
-    EXPECT_TRUE(option.has("light"));
-    EXPECT_TRUE(option.has("fridge"));
-    EXPECT_TRUE(option.has("muu"));
+    EXPECT_TRUE(option.isSwitchSet("light"));
+    EXPECT_TRUE(option.isSwitchSet("fridge"));
+    EXPECT_TRUE(option.isSwitchSet("muu"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiArgument_ShortOption)
@@ -1152,9 +1152,9 @@ TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_MultiA
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"-l", "-f", "-m"}, optionsToRegister, switchesToRegister);
 
-    EXPECT_TRUE(option.has("l"));
-    EXPECT_TRUE(option.has("f"));
-    EXPECT_TRUE(option.has("m"));
+    EXPECT_TRUE(option.isSwitchSet("l"));
+    EXPECT_TRUE(option.isSwitchSet("f"));
+    EXPECT_TRUE(option.isSwitchSet("m"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_PartialSet)
@@ -1164,9 +1164,9 @@ TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_Partia
     std::vector<std::string> switchesToRegister{"light", "fridge", "muu"};
     auto option = SuccessTest({"-l"}, optionsToRegister, switchesToRegister);
 
-    EXPECT_TRUE(option.has("light"));
-    EXPECT_FALSE(option.has("fridge"));
-    EXPECT_FALSE(option.has("muu"));
+    EXPECT_TRUE(option.isSwitchSet("light"));
+    EXPECT_FALSE(option.isSwitchSet("fridge"));
+    EXPECT_FALSE(option.isSwitchSet("muu"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset)
@@ -1178,9 +1178,9 @@ TEST_F(CommandLineArgumentParser_test, ReadSwitchValueSuccessfullyWhenSet_Offset
     auto option =
         SuccessTest({"----unknown-dont-care", "-f", "-m"}, optionsToRegister, switchesToRegister, {}, ARGC_OFFSET);
 
-    EXPECT_FALSE(option.has("light"));
-    EXPECT_TRUE(option.has("fridge"));
-    EXPECT_TRUE(option.has("muu"));
+    EXPECT_FALSE(option.isSwitchSet("light"));
+    EXPECT_TRUE(option.isSwitchSet("fridge"));
+    EXPECT_TRUE(option.isSwitchSet("muu"));
 }
 /// END acquire values correctly
 
@@ -1213,9 +1213,9 @@ TEST_F(CommandLineArgumentParser_test, ReadMixedValueSuccessfully)
     verifyEntry<std::string>(option, "j-req", {"someJ"});
     verifyEntry<std::string>(option, "g-req", {"someG"});
 
-    EXPECT_TRUE(option.has("d-switch"));
-    EXPECT_FALSE(option.has("e-switch"));
-    EXPECT_TRUE(option.has("f-switch"));
+    EXPECT_TRUE(option.isSwitchSet("d-switch"));
+    EXPECT_FALSE(option.isSwitchSet("e-switch"));
+    EXPECT_TRUE(option.isSwitchSet("f-switch"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadMixedValueSuccessfully_ShortOption)
@@ -1236,9 +1236,9 @@ TEST_F(CommandLineArgumentParser_test, ReadMixedValueSuccessfully_ShortOption)
     verifyEntry<std::string>(option, "j-req", {"blaJ"});
     verifyEntry<std::string>(option, "g-req", {"blaG"});
 
-    EXPECT_FALSE(option.has("d-switch"));
-    EXPECT_TRUE(option.has("e-switch"));
-    EXPECT_FALSE(option.has("f-switch"));
+    EXPECT_FALSE(option.isSwitchSet("d-switch"));
+    EXPECT_TRUE(option.isSwitchSet("e-switch"));
+    EXPECT_FALSE(option.isSwitchSet("f-switch"));
 }
 
 TEST_F(CommandLineArgumentParser_test, ReadMixedValueSuccessfully_Offset)
@@ -1261,9 +1261,9 @@ TEST_F(CommandLineArgumentParser_test, ReadMixedValueSuccessfully_Offset)
     verifyEntry<std::string>(option, "j-req", {"blaJ"});
     verifyEntry<std::string>(option, "g-req", {"blaG"});
 
-    EXPECT_FALSE(option.has("d-switch"));
-    EXPECT_TRUE(option.has("e-switch"));
-    EXPECT_FALSE(option.has("f-switch"));
+    EXPECT_FALSE(option.isSwitchSet("d-switch"));
+    EXPECT_TRUE(option.isSwitchSet("e-switch"));
+    EXPECT_FALSE(option.isSwitchSet("f-switch"));
 }
 /// END acquire mixed values correctly
 

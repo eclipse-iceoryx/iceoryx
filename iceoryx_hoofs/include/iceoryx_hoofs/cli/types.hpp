@@ -27,7 +27,7 @@ namespace iox
 namespace cli
 {
 /// @brief defines the type of command line argument option
-enum class OptionType
+enum class OptionType : uint8_t
 {
     /// @brief option when provided is true
     SWITCH,

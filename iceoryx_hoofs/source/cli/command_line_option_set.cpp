@@ -27,7 +27,8 @@ CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDes
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
-    std::move(*this).addOption({{'h', {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
+    constexpr bool IS_SWITCH = true;
+    std::move(*this).addOption({{'h', IS_SWITCH, {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
 }
 
 cxx::optional<OptionWithDetails> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept
@@ -92,9 +93,6 @@ CommandLineOptionSet& CommandLineOptionSet::addOption(const OptionWithDetails& o
 
     m_availableOptions.emplace_back(option);
 
-    /// sort options so that they are alphabetically sorted in help output
-    sortAvailableOptions();
-
     return *this;
 }
 
@@ -102,7 +100,8 @@ CommandLineOptionSet& CommandLineOptionSet::addSwitch(const char shortOption,
                                                       const OptionName_t& longOption,
                                                       const OptionDescription_t& description) noexcept
 {
-    return addOption({{shortOption, longOption, {""}}, description, OptionType::SWITCH, {""}});
+    constexpr bool IS_SWITCH = true;
+    return addOption({{shortOption, IS_SWITCH, longOption, {""}}, description, OptionType::SWITCH, {""}});
 }
 
 CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
@@ -111,14 +110,17 @@ CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
                                                         const TypeName_t& typeName,
                                                         const Argument_t& defaultValue) noexcept
 {
-    return addOption({{shortOption, longOption, defaultValue}, description, OptionType::OPTIONAL, typeName});
+    constexpr bool IS_NO_SWITCH = false;
+    return addOption(
+        {{shortOption, IS_NO_SWITCH, longOption, defaultValue}, description, OptionType::OPTIONAL, typeName});
 }
 CommandLineOptionSet& CommandLineOptionSet::addRequired(const char shortOption,
                                                         const OptionName_t& longOption,
                                                         const OptionDescription_t& description,
                                                         const TypeName_t& typeName) noexcept
 {
-    return addOption({{shortOption, longOption, {""}}, description, OptionType::REQUIRED, typeName});
+    constexpr bool IS_NO_SWITCH = false;
+    return addOption({{shortOption, IS_NO_SWITCH, longOption, {""}}, description, OptionType::REQUIRED, typeName});
 }
 
 std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& option) noexcept

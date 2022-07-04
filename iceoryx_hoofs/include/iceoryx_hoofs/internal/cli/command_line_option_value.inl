@@ -41,13 +41,13 @@ template <>
 inline cxx::expected<bool, CommandLineOptionValue::Error>
 CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const noexcept
 {
-    bool doesContainTrueAsString = (strncmp(stringValue.c_str(), "true", 5) == 0);
-    if (!doesContainTrueAsString && (strncmp(stringValue.c_str(), "false", 6) != 0))
+    if (stringValue != "true" && stringValue != "false")
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
         return cxx::error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
     }
-    return cxx::success<bool>(doesContainTrueAsString);
+
+    return cxx::success<bool>(stringValue == "true");
 }
 
 template <typename T>

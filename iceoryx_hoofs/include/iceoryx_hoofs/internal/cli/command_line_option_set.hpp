@@ -84,7 +84,6 @@ class CommandLineOptionSet
     friend class CommandLineArgumentParser;
     friend std::ostream& operator<<(std::ostream&, const OptionWithDetails&) noexcept;
 
-    void sortAvailableOptions() noexcept;
     CommandLineOptionSet& addOption(const OptionWithDetails& option) noexcept;
     cxx::optional<OptionWithDetails> getOption(const OptionName_t& name) const noexcept;
 

@@ -56,20 +56,6 @@ struct OptionWithDetailsFactory
 using Implementations_t = Types<OptionFactory, OptionWithDetailsFactory>;
 TYPED_TEST_SUITE(OptionTest, Implementations_t);
 
-TYPED_TEST(OptionTest, emptyValueIsASwitch)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3a599a9a-4594-4290-96a6-1281305b94bf");
-    EXPECT_TRUE(this->createEmpty().isSwitch());
-}
-
-TYPED_TEST(OptionTest, nonEmptyValueIsNotASwitch)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "bf62d4fc-1b38-479d-bfa2-fe2764f7102c");
-    auto sut = this->createEmpty();
-    sut.value = iox::cli::Argument_t(iox::cxx::TruncateToCapacity, "WeLoveTheLeafSheep");
-    EXPECT_FALSE(sut.isSwitch());
-}
-
 TYPED_TEST(OptionTest, emptyOptionIsDetected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7d6d45f3-4fb4-45d2-b968-a5723665d356");

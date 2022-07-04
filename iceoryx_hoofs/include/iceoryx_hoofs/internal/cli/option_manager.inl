@@ -50,11 +50,15 @@ inline T OptionManager::defineOption(T& referenceToMember,
                                      const OptionType optionType,
                                      T defaultArgumentValue)
 {
-    m_optionSet.addOption(OptionWithDetails{
-        {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
-        description,
-        optionType,
-        {cxx::TypeInfo<T>::NAME}});
+    constexpr bool IS_NO_SWITCH = false;
+    m_optionSet.addOption(
+        OptionWithDetails{{shortName,
+                           IS_NO_SWITCH,
+                           name,
+                           Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
+                          description,
+                          optionType,
+                          {cxx::TypeInfo<T>::NAME}});
 
     m_assignments.emplace_back([this, &referenceToMember, shortName, name](CommandLineOptionValue& options) {
         referenceToMember = extractOptionArgumentValue<T>(options, shortName, name);
@@ -71,8 +75,9 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
                                         const OptionType optionType,
                                         bool defaultArgumentValue)
 {
+    constexpr bool IS_SWITCH = true;
     m_optionSet.addOption(OptionWithDetails{
-        {shortName, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
+        {shortName, IS_SWITCH, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
         description,
         optionType,
         {cxx::TypeInfo<bool>::NAME}});
@@ -83,11 +88,11 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
             {
                 if (shortName != NO_SHORT_OPTION)
                 {
-                    referenceToMember = options.has(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
+                    referenceToMember = options.isSwitchSet(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
                 }
                 else
                 {
-                    referenceToMember = options.has(name);
+                    referenceToMember = options.isSwitchSet(name);
                 }
             }
             else

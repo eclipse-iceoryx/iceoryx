@@ -70,8 +70,8 @@ class CommandLineArgumentParser
     bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithDash(const char* option) const noexcept;
     bool hasNonEmptyOptionName(const char* option) const noexcept;
-    bool hasValidShortOptionDashCount(const char* option) const noexcept;
-    bool hasValidOptionDashCount(const char* option) const noexcept;
+    bool doesNotHaveLongOptionDash(const char* option) const noexcept;
+    bool doesNotExceedLongOptionDash(const char* option) const noexcept;
     bool doesOptionNameFitIntoString(const char* option) const noexcept;
     bool isNextArgumentAValue(const uint64_t position) const noexcept;
     bool isOptionSet(const OptionWithDetails& entry) const noexcept;
