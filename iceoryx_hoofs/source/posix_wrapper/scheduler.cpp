@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -29,6 +30,11 @@ int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept
     {
         LogError() << "The \"sched_get_priority_min\" should never fail. This can only be caused by an internal logic "
                       "error or a non posix compliant system.";
+
+        iox::cxx::Ensures(
+            false
+            && "This should never happen! Either the system is not posix compliant or and invalid integer was "
+               "casted to the enum class Scheduler.");
         return -1;
     }
     return static_cast<int32_t>(result.value().value);
@@ -41,6 +47,11 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
     {
         LogError() << "The \"sched_get_priority_max\" should never fail. This can only be caused by an internal logic "
                       "error or a non posix compliant system.";
+
+        iox::cxx::Ensures(
+            false
+            && "This should never happen! Either the system is not posix compliant or and invalid integer was "
+               "casted to the enum class Scheduler.");
         return -1;
     }
     return static_cast<int32_t>(result.value().value);

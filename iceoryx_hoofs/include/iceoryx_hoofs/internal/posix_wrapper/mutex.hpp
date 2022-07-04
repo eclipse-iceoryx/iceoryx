@@ -184,19 +184,20 @@ enum class MutexThreadTerminationBehavior : int32_t
 /// @brief Builder which creates a posix mutex
 class MutexBuilder
 {
-    /// @brief Defines if the mutex should be used in inter process context. Default: true
+    /// @brief Defines if the mutex should be usable in an inter process context. Default: true
     IOX_BUILDER_PARAMETER(bool, isInterProcessCapable, true)
 
     /// @brief Sets the MutexType, default: MutexType::RECURSIVE
     IOX_BUILDER_PARAMETER(MutexType, mutexType, MutexType::RECURSIVE)
 
-    /// @brief States how thread priority is adjusted when they own the mutex
+    /// @brief States how thread priority is adjusted when they own the mutex, default: MutexPriorityInheritance::NONE
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
 
     /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted, default: 1
     IOX_BUILDER_PARAMETER(int32_t, priorityCeiling, 1)
 
-    /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates
+    /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates,
+    ///        default: MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED
     IOX_BUILDER_PARAMETER(MutexThreadTerminationBehavior,
                           threadTerminationBehavior,
                           MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)

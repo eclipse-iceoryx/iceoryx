@@ -263,7 +263,7 @@ cxx::expected<MutexError> Mutex::unlock() noexcept
         switch (result.get_error().errnum)
         {
         case EPERM:
-            LogError() << "The thread is not owned by the current thread. The mutex must be unlocked by the same "
+            LogError() << "The mutex is not owned by the current thread. The mutex must be unlocked by the same "
                           "thread it was locked by.";
             return cxx::error<MutexError>(MutexError::NOT_OWNED_BY_THREAD);
         default:
