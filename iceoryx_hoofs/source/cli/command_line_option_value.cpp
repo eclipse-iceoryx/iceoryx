@@ -22,7 +22,7 @@ namespace cli
 {
 namespace internal
 {
-const BinaryName_t& CommandLineOptionValue::binaryName() const noexcept
+const char* CommandLineOptionValue::binaryName() const noexcept
 {
     return m_binaryName;
 }

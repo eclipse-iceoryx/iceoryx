@@ -78,7 +78,7 @@ TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValues
         {"myBinaryName", "--required-string", "bluubb", "--required-float", "123.456", "--required-uint", "12"});
     auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
-    EXPECT_THAT(sut.binaryName().c_str(), StrEq("myBinaryName"));
+    EXPECT_THAT(sut.binaryName(), StrEq("myBinaryName"));
 
     // default values
     EXPECT_THAT(sut.stringValue1().c_str(), StrEq("default value"));
@@ -121,7 +121,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "--light-switch-2"});
     auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
-    EXPECT_THAT(sut.binaryName().c_str(), StrEq("anotherOneBitesTheDust"));
+    EXPECT_THAT(sut.binaryName(), StrEq("anotherOneBitesTheDust"));
 
     EXPECT_THAT(sut.stringValue1().c_str(), StrEq("flatterdude"));
     EXPECT_THAT(sut.stringValue2().c_str(), StrEq("evilhuhn"));
@@ -163,7 +163,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "-m"});
     auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
-    EXPECT_THAT(sut.binaryName().c_str(), StrEq("noOneBitesHypnotoad"));
+    EXPECT_THAT(sut.binaryName(), StrEq("noOneBitesHypnotoad"));
 
     EXPECT_THAT(sut.stringValue1().c_str(), StrEq("DoNotTouchTheFishy"));
     EXPECT_THAT(sut.stringValue2().c_str(), StrEq("NoLittleTouchyFishy"));

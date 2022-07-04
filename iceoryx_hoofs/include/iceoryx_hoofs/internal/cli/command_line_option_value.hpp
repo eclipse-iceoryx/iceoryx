@@ -58,7 +58,7 @@ class CommandLineOptionValue
     bool isSwitchSet(const OptionName_t& switchName) const noexcept;
 
     /// @brief returns the full path name of the binary
-    const BinaryName_t& binaryName() const noexcept;
+    const char* binaryName() const noexcept;
 
   private:
     template <typename T>
@@ -67,7 +67,7 @@ class CommandLineOptionValue
 
 
   private:
-    BinaryName_t m_binaryName;
+    const char* m_binaryName;
     cxx::vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
 } // namespace internal

@@ -96,7 +96,7 @@
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
     ::iox::cli::internal::OptionManager* m_optionManager = nullptr;                                                    \
-    ::iox::cli::BinaryName_t m_binaryName;                                                                             \
+    const char* m_binaryName = nullptr;                                                                                \
                                                                                                                        \
   private:                                                                                                             \
     Name(::iox::cli::internal::OptionManager& optionManager,                                                           \
@@ -122,7 +122,7 @@
         return Name(optionManager, argc, argv, argcOffset, actionWhenOptionUnknown);                                   \
     }                                                                                                                  \
                                                                                                                        \
-    const ::iox::cli::BinaryName_t& binaryName() const noexcept                                                        \
+    const char* binaryName() const noexcept                                                                            \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
     }

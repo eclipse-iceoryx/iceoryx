@@ -28,7 +28,7 @@ OptionManager::OptionManager(const OptionDescription_t& programDescription,
 {
 }
 
-void OptionManager::populateDefinedOptions(BinaryName_t& binaryName,
+void OptionManager::populateDefinedOptions(const char*& binaryName,
                                            int argc,
                                            char* argv[],
                                            const uint64_t argcOffset,

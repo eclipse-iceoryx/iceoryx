@@ -45,17 +45,6 @@ bool CommandLineArgumentParser::hasArguments(const uint64_t argc) const noexcept
     return hasArguments;
 }
 
-bool CommandLineArgumentParser::assignBinaryName(const char* name) noexcept
-{
-    const bool binaryNameFitsIntoString = m_optionValue.m_binaryName.unsafe_assign(name);
-    if (!binaryNameFitsIntoString)
-    {
-        std::cout << "The \"" << name << "\" binary path is too long" << std::endl;
-        printHelpAndExit();
-    }
-    return binaryNameFitsIntoString;
-}
-
 bool CommandLineArgumentParser::doesOptionStartWithDash(const char* option) const noexcept
 {
     const bool doesOptionStartWithDash = (strnlen(option, 1) > 0 && option[0] == '-');
@@ -191,10 +180,12 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     // reset options otherwise multiple parse calls work on already parsed options
     m_optionValue = CommandLineOptionValue();
 
-    if (!hasArguments(m_argc) || !assignBinaryName(m_argv[0]))
+    if (!hasArguments(m_argc))
     {
         return m_optionValue;
     }
+
+    m_optionValue.m_binaryName = m_argv[0];
 
     for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < m_argc; ++i)
     {

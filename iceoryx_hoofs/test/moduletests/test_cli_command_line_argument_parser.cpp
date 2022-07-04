@@ -39,15 +39,15 @@ class CommandLineArgumentParser_test : public Test
     {
         // if we do not capture stdout then the console is filled with garbage
         // since the command line parser prints the help on failure
-        //    ::testing::internal::CaptureStdout();
+        ::testing::internal::CaptureStdout();
     }
     void TearDown() override
     {
-        //   std::string output = ::testing::internal::GetCapturedStdout();
-        //   if (Test::HasFailure())
-        //   {
-        //       std::cout << output << std::endl;
-        //   }
+        std::string output = ::testing::internal::GetCapturedStdout();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
     }
 
     uint64_t numberOfErrorCallbackCalls = 0U;
@@ -59,11 +59,11 @@ Argument_t CommandLineArgumentParser_test::defaultValue = "DEFAULT VALUE";
 TEST_F(CommandLineArgumentParser_test, SettingBinaryNameWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb5e0199-c061-4fa4-be14-c797f996fff6");
-    const BinaryName_t binaryName("AllHailHypnotoad");
-    CmdArgs args({binaryName.c_str()});
+    const char* binaryName("AllHailHypnotoad");
+    CmdArgs args({binaryName});
     auto options = parseCommandLineArguments(CommandLineOptionSet(""), args.argc, args.argv);
 
-    EXPECT_THAT(options.binaryName(), Eq(binaryName));
+    EXPECT_THAT(options.binaryName(), StrEq(binaryName));
 }
 
 TEST_F(CommandLineArgumentParser_test, EmptyArgcLeadsToExit)
@@ -74,23 +74,14 @@ TEST_F(CommandLineArgumentParser_test, EmptyArgcLeadsToExit)
     EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
 }
 
-TEST_F(CommandLineArgumentParser_test, TooLargeBinaryNameLeadsToExit)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "9a1000e2-6dbd-404b-ba6f-0287e5ffeb46");
-    CmdArgs args({std::string(BinaryName_t::capacity() + 1, 'a')});
-    IOX_DISCARD_RESULT(parseCommandLineArguments(CommandLineOptionSet("", errorCallback), args.argc, args.argv));
-
-    EXPECT_THAT(numberOfErrorCallbackCalls, Eq(1));
-}
-
 void FailureTest(const std::vector<std::string>& options,
                  const std::vector<std::string>& optionsToRegister = {},
                  const std::vector<std::string>& switchesToRegister = {},
                  const std::vector<std::string>& requiredValuesToRegister = {},
                  const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept
 {
-    const BinaryName_t binaryName("GloryToTheHasselToad");
-    std::vector<std::string> optionVector{binaryName.c_str()};
+    const char* binaryName("GloryToTheHasselToad");
+    std::vector<std::string> optionVector{binaryName};
     optionVector.insert(optionVector.end(), options.begin(), options.end());
     CmdArgs args(optionVector);
 
@@ -945,8 +936,8 @@ CommandLineOptionValue SuccessTest(const std::vector<std::string>& options,
                                    const std::vector<std::string>& requiredValuesToRegister = {},
                                    const uint64_t argcOffset = 1U) noexcept
 {
-    const BinaryName_t binaryName("GloryToTheHasselToad");
-    std::vector<std::string> optionVector{binaryName.c_str()};
+    const char* binaryName("GloryToTheHasselToad");
+    std::vector<std::string> optionVector{binaryName};
     optionVector.insert(optionVector.end(), options.begin(), options.end());
     CmdArgs args(optionVector);
     CommandLineOptionValue retVal;

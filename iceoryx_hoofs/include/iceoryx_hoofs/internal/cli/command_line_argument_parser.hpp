@@ -67,7 +67,6 @@ class CommandLineArgumentParser
     bool doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept;
     bool areAllRequiredValuesPresent() const noexcept;
     bool hasArguments(const uint64_t argc) const noexcept;
-    bool assignBinaryName(const char* name) noexcept;
     bool doesOptionStartWithDash(const char* option) const noexcept;
     bool hasNonEmptyOptionName(const char* option) const noexcept;
     bool doesNotHaveLongOptionDash(const char* option) const noexcept;

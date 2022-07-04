@@ -53,7 +53,6 @@ static constexpr char NO_SHORT_OPTION = '\0';
 using OptionName_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
 using OptionDescription_t = cxx::string<MAX_OPTION_DESCRIPTION_LENGTH>;
 using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
-using BinaryName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
 using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
 
 } // namespace cli
