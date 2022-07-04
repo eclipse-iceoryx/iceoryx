@@ -18,8 +18,8 @@
 
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cli/command_line_argument_parser.hpp"
-#include "iceoryx_hoofs/internal/cli/command_line_option_set.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/option_definition.hpp"
 
 namespace iox
 {
@@ -27,8 +27,7 @@ namespace cli
 {
 namespace internal
 {
-using CmdAssignments_t =
-    cxx::vector<cxx::function<void(CommandLineOptionValue&)>, CommandLineOptionValue::MAX_NUMBER_OF_ARGUMENTS>;
+using CmdAssignments_t = cxx::vector<cxx::function<void(Arguments&)>, MAX_NUMBER_OF_ARGUMENTS>;
 
 /// @brief Manages command line options which were defined via the IOX_CLI_ macros in a
 ///        user defined struct.
@@ -73,13 +72,13 @@ class OptionManager
                                 const UnknownOption actionWhenOptionUnknown);
 
   private:
-    CommandLineArgumentParser m_parser;
-    CommandLineOptionSet m_optionSet;
+    CommandLineParser m_parser;
+    OptionDefinition m_optionSet;
     CmdAssignments_t m_assignments;
 
   private:
     template <typename T>
-    T extractOptionArgumentValue(const CommandLineOptionValue& options, const char shortName, const OptionName_t& name);
+    T extractOptionArgumentValue(const Arguments& options, const char shortName, const OptionName_t& name);
 };
 
 } // namespace internal

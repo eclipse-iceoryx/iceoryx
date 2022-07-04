@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/command_line_option_value.hpp"
+#include "iceoryx_hoofs/internal/cli/arguments.hpp"
 
 namespace iox
 {
@@ -22,12 +22,12 @@ namespace cli
 {
 namespace internal
 {
-const char* CommandLineOptionValue::binaryName() const noexcept
+const char* Arguments::binaryName() const noexcept
 {
     return m_binaryName;
 }
 
-bool CommandLineOptionValue::isSwitchSet(const OptionName_t& switchName) const noexcept
+bool Arguments::isSwitchSet(const OptionName_t& switchName) const noexcept
 {
     for (const auto& a : m_arguments)
     {

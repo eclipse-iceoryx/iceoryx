@@ -72,7 +72,7 @@ struct Option
     Argument_t value;
 };
 
-struct OptionWithDetails : public Option
+struct OptionWithDetails : public Option // can this be melt together
 {
     /// @brief construct a Option class with additional details
     /// @param[in] option the option

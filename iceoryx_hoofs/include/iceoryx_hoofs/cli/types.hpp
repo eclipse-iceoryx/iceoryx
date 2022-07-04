@@ -49,6 +49,7 @@ static constexpr uint64_t MAX_OPTION_ARGUMENT_LENGTH = 128;
 static constexpr uint64_t MAX_OPTION_DESCRIPTION_LENGTH = 1024;
 static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
 static constexpr char NO_SHORT_OPTION = '\0';
+static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
 
 using OptionName_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
 using OptionDescription_t = cxx::string<MAX_OPTION_DESCRIPTION_LENGTH>;

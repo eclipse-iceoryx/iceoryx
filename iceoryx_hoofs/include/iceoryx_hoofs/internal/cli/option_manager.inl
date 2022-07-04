@@ -26,9 +26,8 @@ namespace cli
 namespace internal
 {
 template <typename T>
-inline T OptionManager::extractOptionArgumentValue(const CommandLineOptionValue& options,
-                                                   const char shortName,
-                                                   const OptionName_t& name)
+inline T
+OptionManager::extractOptionArgumentValue(const Arguments& options, const char shortName, const OptionName_t& name)
 {
     if (shortName != NO_SHORT_OPTION)
     {
@@ -60,7 +59,7 @@ inline T OptionManager::defineOption(T& referenceToMember,
                           optionType,
                           {cxx::TypeInfo<T>::NAME}});
 
-    m_assignments.emplace_back([this, &referenceToMember, shortName, name](CommandLineOptionValue& options) {
+    m_assignments.emplace_back([this, &referenceToMember, shortName, name](Arguments& options) {
         referenceToMember = extractOptionArgumentValue<T>(options, shortName, name);
     });
 
@@ -82,24 +81,23 @@ inline bool OptionManager::defineOption(bool& referenceToMember,
         optionType,
         {cxx::TypeInfo<bool>::NAME}});
 
-    m_assignments.emplace_back(
-        [this, &referenceToMember, optionType, shortName, name](CommandLineOptionValue& options) {
-            if (optionType == OptionType::SWITCH)
+    m_assignments.emplace_back([this, &referenceToMember, optionType, shortName, name](Arguments& options) {
+        if (optionType == OptionType::SWITCH)
+        {
+            if (shortName != NO_SHORT_OPTION)
             {
-                if (shortName != NO_SHORT_OPTION)
-                {
-                    referenceToMember = options.isSwitchSet(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
-                }
-                else
-                {
-                    referenceToMember = options.isSwitchSet(name);
-                }
+                referenceToMember = options.isSwitchSet(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
             }
             else
             {
-                referenceToMember = extractOptionArgumentValue<bool>(options, shortName, name);
+                referenceToMember = options.isSwitchSet(name);
             }
-        });
+        }
+        else
+        {
+            referenceToMember = extractOptionArgumentValue<bool>(options, shortName, name);
+        }
+    });
     return defaultArgumentValue;
 }
 } // namespace internal

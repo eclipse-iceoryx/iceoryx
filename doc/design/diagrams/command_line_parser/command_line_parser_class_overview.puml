@@ -1,20 +1,20 @@
 @startuml
 
-class CommandLineOptionSet {
-    +CommandLineOptionSet(programDescription, onFailureCallback)
+class OptionDefinition {
+    +OptionDefinition(programDescription, onFailureCallback)
     +addSwitch(..)
     +addOptional(..)
     +addRequired(..)
 }
 
-class CommandLineOptionValue {
+class Arguments {
     +T get(optionName)
     +bool has(optionName)
     +BinaryName_t binaryName()
 }
 
-class CommandLineArgumentParser {
-    +CommandLineOptionValue parse(CommandLineOptionSet, ..)
+class CommandLineParser {
+    +Arguments parse(OptionDefinition, ..)
 }
 
 class Option {
@@ -60,10 +60,10 @@ OptionManager .. N1
 OptionWithDetails "1" *-- "1" OptionWithDetails::Details
 Option <|--- OptionWithDetails
 
-CommandLineOptionValue "0..n" *-- "1" Option
-CommandLineOptionSet "0..n" *-- "1" OptionWithDetails
+Arguments "0..n" *-- "1" Option
+OptionDefinition "0..n" *-- "1" OptionWithDetails
 
-CommandLineArgumentParser "1" *-- "1" CommandLineOptionSet : borrows
-CommandLineArgumentParser "1" *-- "1" CommandLineOptionValue : contains
+CommandLineParser "1" *-- "1" OptionDefinition : borrows
+CommandLineParser "1" *-- "1" Arguments : contains
 
 @enduml

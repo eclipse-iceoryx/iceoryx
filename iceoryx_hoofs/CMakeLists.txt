@@ -45,10 +45,10 @@ iox_add_library(
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES
-        source/cli/command_line_argument_parser.cpp
-        source/cli/command_line_option_set.cpp
-        source/cli/command_line_option_value.cpp
+        source/cli/arguments.cpp
+        source/cli/command_line_parser.cpp
         source/cli/option.cpp
+        source/cli/option_definition.cpp
         source/cli/option_manager.cpp
         source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp

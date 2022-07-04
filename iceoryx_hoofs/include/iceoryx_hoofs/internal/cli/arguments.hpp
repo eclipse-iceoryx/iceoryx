@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_HPP
-#define IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_HPP
+#ifndef IOX_HOOFS_CLI_ARGUMENTS_HPP
+#define IOX_HOOFS_CLI_ARGUMENTS_HPP
 
 #include "iceoryx_hoofs/cli/types.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
@@ -30,15 +30,14 @@ namespace internal
 {
 /// @brief This class provides access to the command line argument values.
 ///        When constructed with the default constructor it is empty. Calling
-///        CommandLineParser::parse creates and returns a populated CommandLineOptionValue
+///        CommandLineParser::parse creates and returns a populated Arguments
 ///        object.
 ///        This class should never be used directly. Use the CommandLine builder
 ///        from `iceoryx_hoofs/cxx/command_line_argument_definition.hpp` to create a struct which contains
 ///        the values.
-class CommandLineOptionValue
+class Arguments
 {
   public:
-    static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
     enum class Error
     {
         UNABLE_TO_CONVERT_VALUE,
@@ -63,7 +62,7 @@ class CommandLineOptionValue
   private:
     template <typename T>
     cxx::expected<T, Error> convertFromString(const Argument_t& value) const noexcept;
-    friend class CommandLineArgumentParser;
+    friend class CommandLineParser;
 
 
   private:
@@ -74,5 +73,5 @@ class CommandLineOptionValue
 } // namespace cli
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cli/command_line_option_value.inl"
+#include "iceoryx_hoofs/internal/cli/arguments.inl"
 #endif

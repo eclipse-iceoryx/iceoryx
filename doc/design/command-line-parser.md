@@ -69,6 +69,10 @@ The solution shall be:
 
 #### Class Diagram
 
+The `CommandLineParser` takes an `OptionDefinition` and parses
+the raw command line arguments (`argc` and `argv`) based onto the `OptionDefinition`
+into `Arguments` which can be used to access the values of those options.
+
 ![class diagram](../website/images/command_line_parser_class_overview.svg)
 
 #### Sequence Diagram

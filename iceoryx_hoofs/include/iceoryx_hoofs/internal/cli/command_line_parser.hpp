@@ -13,11 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_COMMAND_LINE_PARSER_HPP
-#define IOX_HOOFS_CLI_COMMAND_LINE_PARSER_HPP
+#ifndef IOX_HOOFS_CLI_COMMAND_PARSER_HPP
+#define IOX_HOOFS_CLI_COMMAND_PARSER_HPP
 
-#include "iceoryx_hoofs/internal/cli/command_line_option_set.hpp"
-#include "iceoryx_hoofs/internal/cli/command_line_option_value.hpp"
+#include "iceoryx_hoofs/internal/cli/arguments.hpp"
+#include "iceoryx_hoofs/internal/cli/option_definition.hpp"
 #include <cstdint>
 
 namespace iox
@@ -30,31 +30,31 @@ namespace internal
 ///        all switches and options before calling parse. This is required for
 ///        the help page which is generated and printed on failure as well as
 ///        for consistency and syntax checks.
-class CommandLineArgumentParser
+class CommandLineParser
 {
   public:
     static constexpr uint64_t OPTION_OUTPUT_WIDTH = 45;
 
   private:
     friend class OptionManager;
-    friend CommandLineOptionValue
-    parseCommandLineArguments(const CommandLineOptionSet&, int, char*[], const uint64_t, const UnknownOption) noexcept;
+    friend Arguments
+    parseCommandLineArguments(const OptionDefinition&, int, char*[], const uint64_t, const UnknownOption) noexcept;
 
     /// @brief Parses the arguments from the command line.
     ///        Calls onFailureCallback in optionSet when the command line arguments contain illegal syntax or required
     ///        values are not provided and prints the help.
-    /// @param[in] optionSet the user defined options, based on those options the CommandLineOptionValue object is
+    /// @param[in] optionSet the user defined options, based on those options the Arguments object is
     ///            generated
     /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
     /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
     /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
     ///             option/switch which is unknown
-    CommandLineOptionValue parse(const CommandLineOptionSet& optionSet,
-                                 int argc,
-                                 char* argv[],
-                                 const uint64_t argcOffset = 1U,
-                                 const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+    Arguments parse(const OptionDefinition& optionSet,
+                    int argc,
+                    char* argv[],
+                    const uint64_t argcOffset = 1U,
+                    const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
     void printHelpAndExit() const noexcept;
 
@@ -86,17 +86,16 @@ class CommandLineArgumentParser
     char** m_argv = nullptr;
     uint64_t m_argcOffset = 0;
 
-    const CommandLineOptionSet* m_optionSet = nullptr;
-    CommandLineOptionValue m_optionValue;
+    const OptionDefinition* m_optionSet = nullptr;
+    Arguments m_optionValue;
 };
 
-/// @copydoc CommandLineArgumentParser::parse()
-CommandLineOptionValue
-parseCommandLineArguments(const CommandLineOptionSet& optionSet,
-                          int argc,
-                          char* argv[],
-                          const uint64_t argcOffset = 1U,
-                          const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+/// @copydoc CommandLineParser::parse()
+Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
+                                    int argc,
+                                    char* argv[],
+                                    const uint64_t argcOffset = 1U,
+                                    const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
 
 } // namespace internal
 } // namespace cli

@@ -19,17 +19,17 @@
 #include "iceoryx_hoofs/internal/cli/option_manager.hpp"
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
-  private:                                                                                                             \
-    type m_##memberName = [this] {                                                                                     \
-        return this->m_optionManager->defineOption<type>(                                                              \
-            this->m_##memberName, shortName, longName, description, optionType, defaultValue);                         \
-    }();                                                                                                               \
-                                                                                                                       \
   public:                                                                                                              \
     const type& memberName() const noexcept                                                                            \
     {                                                                                                                  \
         return m_##memberName;                                                                                         \
-    }
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    type m_##memberName = [this] {                                                                                     \
+        return this->m_optionManager->defineOption<type>(                                                              \
+            this->m_##memberName, shortName, longName, description, optionType, defaultValue);                         \
+    }()
 
 /// @brief Adds an optional value to the command line
 /// @param[in] type the type of the optional value
@@ -95,10 +95,6 @@
 /// @endcode
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
-    ::iox::cli::internal::OptionManager* m_optionManager = nullptr;                                                    \
-    const char* m_binaryName = nullptr;                                                                                \
-                                                                                                                       \
-  private:                                                                                                             \
     Name(::iox::cli::internal::OptionManager& optionManager,                                                           \
          int argc,                                                                                                     \
          char* argv[],                                                                                                 \
@@ -125,6 +121,11 @@
     const char* binaryName() const noexcept                                                                            \
     {                                                                                                                  \
         return m_binaryName;                                                                                           \
-    }
+    }                                                                                                                  \
+                                                                                                                       \
+  private:                                                                                                             \
+    ::iox::cli::internal::OptionManager* m_optionManager = nullptr;                                                    \
+    const char* m_binaryName = nullptr
+
 
 #endif

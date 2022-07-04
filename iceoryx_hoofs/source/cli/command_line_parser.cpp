@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/command_line_argument_parser.hpp"
+#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
@@ -26,16 +26,16 @@ namespace cli
 {
 namespace internal
 {
-CommandLineOptionValue parseCommandLineArguments(const CommandLineOptionSet& optionSet,
-                                                 int argc,
-                                                 char* argv[],
-                                                 const uint64_t argcOffset,
-                                                 const UnknownOption actionWhenOptionUnknown) noexcept
+Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
+                                    int argc,
+                                    char* argv[],
+                                    const uint64_t argcOffset,
+                                    const UnknownOption actionWhenOptionUnknown) noexcept
 {
-    return CommandLineArgumentParser().parse(optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
+    return CommandLineParser().parse(optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
 }
 
-bool CommandLineArgumentParser::hasArguments(const uint64_t argc) const noexcept
+bool CommandLineParser::hasArguments(const uint64_t argc) const noexcept
 {
     const bool hasArguments = (argc > 0);
     if (!hasArguments)
@@ -45,7 +45,7 @@ bool CommandLineArgumentParser::hasArguments(const uint64_t argc) const noexcept
     return hasArguments;
 }
 
-bool CommandLineArgumentParser::doesOptionStartWithDash(const char* option) const noexcept
+bool CommandLineParser::doesOptionStartWithDash(const char* option) const noexcept
 {
     const bool doesOptionStartWithDash = (strnlen(option, 1) > 0 && option[0] == '-');
 
@@ -57,7 +57,7 @@ bool CommandLineArgumentParser::doesOptionStartWithDash(const char* option) cons
     return doesOptionStartWithDash;
 }
 
-bool CommandLineArgumentParser::hasNonEmptyOptionName(const char* option) const noexcept
+bool CommandLineParser::hasNonEmptyOptionName(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
     const bool hasNonEmptyOptionName =
@@ -72,7 +72,7 @@ bool CommandLineArgumentParser::hasNonEmptyOptionName(const char* option) const 
     return hasNonEmptyOptionName;
 }
 
-bool CommandLineArgumentParser::doesNotHaveLongOptionDash(const char* option) const noexcept
+bool CommandLineParser::doesNotHaveLongOptionDash(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
     const bool doesNotHaveLongOptionDash = !(minArgIdentifierLength > 2 && option[1] != '-');
@@ -86,7 +86,7 @@ bool CommandLineArgumentParser::doesNotHaveLongOptionDash(const char* option) co
     return doesNotHaveLongOptionDash;
 }
 
-bool CommandLineArgumentParser::doesNotExceedLongOptionDash(const char* option) const noexcept
+bool CommandLineParser::doesNotExceedLongOptionDash(const char* option) const noexcept
 {
     const uint64_t minArgIdentifierLength = strnlen(option, 3);
     const bool doesNotExceedLongOptionDash = !(minArgIdentifierLength > 2 && option[2] == '-');
@@ -100,12 +100,12 @@ bool CommandLineArgumentParser::doesNotExceedLongOptionDash(const char* option) 
     return doesNotExceedLongOptionDash;
 }
 
-bool CommandLineArgumentParser::doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept
+bool CommandLineParser::doesFitIntoString(const char* value, const uint64_t maxLength) const noexcept
 {
     return (strnlen(value, maxLength + 1) <= maxLength);
 }
 
-bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) const noexcept
+bool CommandLineParser::doesOptionNameFitIntoString(const char* option) const noexcept
 {
     const bool doesOptionNameFitIntoString = doesFitIntoString(option, MAX_OPTION_NAME_LENGTH);
 
@@ -118,14 +118,14 @@ bool CommandLineArgumentParser::doesOptionNameFitIntoString(const char* option) 
     return doesOptionNameFitIntoString;
 }
 
-bool CommandLineArgumentParser::isNextArgumentAValue(const uint64_t position) const noexcept
+bool CommandLineParser::isNextArgumentAValue(const uint64_t position) const noexcept
 {
     uint64_t nextPosition = position + 1;
     return (m_argc > 0 && m_argc > nextPosition
             && (strnlen(m_argv[nextPosition], MAX_OPTION_NAME_LENGTH) > 0 && m_argv[nextPosition][0] != '-'));
 }
 
-bool CommandLineArgumentParser::isOptionSet(const OptionWithDetails& value) const noexcept
+bool CommandLineParser::isOptionSet(const OptionWithDetails& value) const noexcept
 {
     bool isOptionSet = false;
     for (const auto& option : m_optionValue.m_arguments)
@@ -146,7 +146,7 @@ bool CommandLineArgumentParser::isOptionSet(const OptionWithDetails& value) cons
     return isOptionSet;
 }
 
-bool CommandLineArgumentParser::doesOptionValueFitIntoString(const char* value) const noexcept
+bool CommandLineParser::doesOptionValueFitIntoString(const char* value) const noexcept
 {
     const bool doesOptionValueFitIntoString = doesFitIntoString(value, MAX_OPTION_ARGUMENT_LENGTH);
 
@@ -160,17 +160,17 @@ bool CommandLineArgumentParser::doesOptionValueFitIntoString(const char* value) 
     return doesOptionValueFitIntoString;
 }
 
-bool CommandLineArgumentParser::hasLexicallyValidOption(const char* value) const noexcept
+bool CommandLineParser::hasLexicallyValidOption(const char* value) const noexcept
 {
     return doesOptionStartWithDash(value) && hasNonEmptyOptionName(value) && doesNotHaveLongOptionDash(value)
            && doesNotExceedLongOptionDash(value) && doesOptionNameFitIntoString(value);
 }
 
-CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionSet& optionSet,
-                                                        int argc,
-                                                        char* argv[],
-                                                        const uint64_t argcOffset,
-                                                        const UnknownOption actionWhenOptionUnknown) noexcept
+Arguments CommandLineParser::parse(const OptionDefinition& optionSet,
+                                   int argc,
+                                   char* argv[],
+                                   const uint64_t argcOffset,
+                                   const UnknownOption actionWhenOptionUnknown) noexcept
 {
     m_optionSet = &optionSet;
 
@@ -178,7 +178,7 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     m_argv = argv;
     m_argcOffset = argcOffset;
     // reset options otherwise multiple parse calls work on already parsed options
-    m_optionValue = CommandLineOptionValue();
+    m_optionValue = Arguments();
 
     if (!hasArguments(m_argc))
     {
@@ -261,8 +261,8 @@ CommandLineOptionValue CommandLineArgumentParser::parse(const CommandLineOptionS
     return m_optionValue;
 }
 
-bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const OptionWithDetails& value,
-                                                             const uint64_t position) const noexcept
+bool CommandLineParser::doesOptionHasSucceedingValue(const OptionWithDetails& value,
+                                                     const uint64_t position) const noexcept
 {
     bool doesOptionHasSucceedingValue = (position + 1 < m_argc);
     if (!doesOptionHasSucceedingValue)
@@ -274,7 +274,7 @@ bool CommandLineArgumentParser::doesOptionHasSucceedingValue(const OptionWithDet
 }
 
 
-void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
+void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
 {
     for (const auto& r : m_optionSet->m_availableOptions)
     {
@@ -300,7 +300,7 @@ void CommandLineArgumentParser::setDefaultValuesToUnsetOptions() noexcept
     }
 }
 
-bool CommandLineArgumentParser::areAllRequiredValuesPresent() const noexcept
+bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
 {
     bool areAllRequiredValuesPresent = true;
     for (const auto& r : m_optionSet->m_availableOptions)
@@ -327,7 +327,7 @@ bool CommandLineArgumentParser::areAllRequiredValuesPresent() const noexcept
     return areAllRequiredValuesPresent;
 }
 
-void CommandLineArgumentParser::printHelpAndExit() const noexcept
+void CommandLineParser::printHelpAndExit() const noexcept
 {
     std::cout << "\n" << m_optionSet->m_programDescription << "\n" << std::endl;
     std::cout << "Usage: ";

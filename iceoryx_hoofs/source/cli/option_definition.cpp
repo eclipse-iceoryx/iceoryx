@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/command_line_option_set.hpp"
+#include "iceoryx_hoofs/internal/cli/option_definition.hpp"
 
 namespace iox
 {
@@ -22,8 +22,8 @@ namespace cli
 {
 namespace internal
 {
-CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDescription,
-                                           const cxx::function<void()> onFailureCallback) noexcept
+OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
+                                   const cxx::function<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
     , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
 {
@@ -31,7 +31,7 @@ CommandLineOptionSet::CommandLineOptionSet(const OptionDescription_t& programDes
     std::move(*this).addOption({{'h', IS_SWITCH, {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
 }
 
-cxx::optional<OptionWithDetails> CommandLineOptionSet::getOption(const OptionName_t& name) const noexcept
+cxx::optional<OptionWithDetails> OptionDefinition::getOption(const OptionName_t& name) const noexcept
 {
     for (const auto& r : m_availableOptions)
     {
@@ -43,7 +43,7 @@ cxx::optional<OptionWithDetails> CommandLineOptionSet::getOption(const OptionNam
     return cxx::nullopt;
 }
 
-CommandLineOptionSet& CommandLineOptionSet::addOption(const OptionWithDetails& option) noexcept
+OptionDefinition& OptionDefinition::addOption(const OptionWithDetails& option) noexcept
 {
     if (option.isEmpty())
     {
@@ -96,28 +96,28 @@ CommandLineOptionSet& CommandLineOptionSet::addOption(const OptionWithDetails& o
     return *this;
 }
 
-CommandLineOptionSet& CommandLineOptionSet::addSwitch(const char shortOption,
-                                                      const OptionName_t& longOption,
-                                                      const OptionDescription_t& description) noexcept
+OptionDefinition& OptionDefinition::addSwitch(const char shortOption,
+                                              const OptionName_t& longOption,
+                                              const OptionDescription_t& description) noexcept
 {
     constexpr bool IS_SWITCH = true;
     return addOption({{shortOption, IS_SWITCH, longOption, {""}}, description, OptionType::SWITCH, {""}});
 }
 
-CommandLineOptionSet& CommandLineOptionSet::addOptional(const char shortOption,
-                                                        const OptionName_t& longOption,
-                                                        const OptionDescription_t& description,
-                                                        const TypeName_t& typeName,
-                                                        const Argument_t& defaultValue) noexcept
+OptionDefinition& OptionDefinition::addOptional(const char shortOption,
+                                                const OptionName_t& longOption,
+                                                const OptionDescription_t& description,
+                                                const TypeName_t& typeName,
+                                                const Argument_t& defaultValue) noexcept
 {
     constexpr bool IS_NO_SWITCH = false;
     return addOption(
         {{shortOption, IS_NO_SWITCH, longOption, defaultValue}, description, OptionType::OPTIONAL, typeName});
 }
-CommandLineOptionSet& CommandLineOptionSet::addRequired(const char shortOption,
-                                                        const OptionName_t& longOption,
-                                                        const OptionDescription_t& description,
-                                                        const TypeName_t& typeName) noexcept
+OptionDefinition& OptionDefinition::addRequired(const char shortOption,
+                                                const OptionName_t& longOption,
+                                                const OptionDescription_t& description,
+                                                const TypeName_t& typeName) noexcept
 {
     constexpr bool IS_NO_SWITCH = false;
     return addOption({{shortOption, IS_NO_SWITCH, longOption, {""}}, description, OptionType::REQUIRED, typeName});

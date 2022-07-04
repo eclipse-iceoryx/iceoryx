@@ -1,36 +1,36 @@
 @startuml
 
-== Create a CommandLineOptionSet and define the application options ==
+== Create a OptionDefinition and define the application options ==
 
-User -> CommandLineOptionSet ++ : CommandLineOptionSet(programName, onFailureCallback)
-return CommandLineOptionSet
+User -> OptionDefinition ++ : OptionDefinition(programName, onFailureCallback)
+return OptionDefinition
 
-User -> CommandLineOptionSet ++ : addSwitch()
+User -> OptionDefinition ++ : addSwitch()
 return
 
-User -> CommandLineOptionSet ++ : addOptional()
+User -> OptionDefinition ++ : addOptional()
 return
 
-User -> CommandLineOptionSet ++ : addRequired()
+User -> OptionDefinition ++ : addRequired()
 return
 
 == Parse command line arguments ==
 
-User -> CommandLineArgumentParser ++ : parse(CommandLineOptionSet)
-return CommandLineOptionValue
+User -> CommandLineParser ++ : parse(OptionDefinition)
+return Arguments
 
 == Acquire command line option values ==
 
-User -> CommandLineOptionValue ++ : has(switchName)
+User -> Arguments ++ : has(switchName)
 return bool
 
-User -> CommandLineOptionValue ++ : get<TypeName>(optionalOptionName)
+User -> Arguments ++ : get<TypeName>(optionalOptionName)
 return TypeName
 
-User -> CommandLineOptionValue ++ : get<TypeName>(requiredOptionName)
+User -> Arguments ++ : get<TypeName>(requiredOptionName)
 return TypeName
 
-User -> CommandLineOptionValue ++ : binaryName()
+User -> Arguments ++ : binaryName()
 return BinaryName_t
 
 @enduml

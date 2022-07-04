@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_INL
 #define IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_INL
 
-#include "iceoryx_hoofs/internal/cli/command_line_option_value.hpp"
+#include "iceoryx_hoofs/internal/cli/arguments.hpp"
 
 namespace iox
 {
@@ -25,8 +25,7 @@ namespace cli
 namespace internal
 {
 template <typename T>
-inline cxx::expected<T, CommandLineOptionValue::Error>
-CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const noexcept
+inline cxx::expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
@@ -38,8 +37,7 @@ CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const n
 }
 
 template <>
-inline cxx::expected<bool, CommandLineOptionValue::Error>
-CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const noexcept
+inline cxx::expected<bool, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
     if (stringValue != "true" && stringValue != "false")
     {
@@ -51,8 +49,7 @@ CommandLineOptionValue::convertFromString(const Argument_t& stringValue) const n
 }
 
 template <typename T>
-inline cxx::expected<T, CommandLineOptionValue::Error>
-CommandLineOptionValue::get(const OptionName_t& optionName) const noexcept
+inline cxx::expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
