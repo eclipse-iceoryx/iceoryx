@@ -51,7 +51,7 @@ class Thread_test : public Test
     optional<Thread> sut;
 };
 
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(__APPLE__)
 TEST_F(Thread_test, CreateThreadWithNonEmptyCallableSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d1e439d-c84e-4a46-ac45-dc8be7530c32");

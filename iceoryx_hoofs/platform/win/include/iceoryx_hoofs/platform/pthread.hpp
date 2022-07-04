@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ int pthread_mutex_lock(pthread_mutex_t* mutex);
 int pthread_mutex_trylock(pthread_mutex_t* mutex);
 int pthread_mutex_unlock(pthread_mutex_t* mutex);
 
-using iox_pthread_t = pthread_t;
+using iox_pthread_t = HANDLE;
 using iox_pthread_attr_t = void;
 
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name);

@@ -24,20 +24,18 @@
 
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
-    DWORD threadId = Win32Call(GetThreadId, static_cast<HANDLE>(thread)).value;
-
     std::mbstate_t state = std::mbstate_t();
     uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
     std::vector<wchar_t> wName(length);
     std::mbsrtowcs(wName.data(), &name, length, &state);
 
-    return Win32Call(SetThreadDescription, static_cast<HANDLE>(thread), wName.data()).error;
+    return Win32Call(SetThreadDescription, thread, wName.data()).error;
 }
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
     wchar_t* wName;
-    auto result = Win32Call(GetThreadDescription, static_cast<HANDLE>(thread), &wName).error;
+    auto result = Win32Call(GetThreadDescription, thread, &wName).error;
     if (result == 0)
     {
         wcstombs(name, wName, len);
@@ -47,14 +45,45 @@ int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
     return result;
 }
 
-int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*)(void*), void*)
+struct win_routine_args
 {
+    void* (*start_routine)(void*);
+    void* arg;
+};
+
+DWORD WINAPI win_start_routine(LPVOID lpParam)
+{
+    win_routine_args* args = static_cast<win_routine_args*>(lpParam);
+    args->start_routine(args->arg);
+    delete args;
     return 0;
 }
 
-int iox_pthread_join(iox_pthread_t, void**)
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
 {
-    return 0;
+    win_routine_args* args = new win_routine_args();
+    args->start_routine = start_routine;
+    args->arg = arg;
+    auto result = Win32Call(CreateThread,
+                            static_cast<LPSECURITY_ATTRIBUTES>(NULL),
+                            static_cast<SIZE_T>(0),
+                            static_cast<LPTHREAD_START_ROUTINE>(win_start_routine),
+                            static_cast<LPVOID>(args),
+                            static_cast<DWORD>(0),
+                            static_cast<LPDWORD>(NULL));
+
+    if (result.error != 0)
+    {
+        delete args;
+    }
+
+    *thread = result.value;
+    return result.error;
+}
+
+int iox_pthread_join(iox_pthread_t thread, void**)
+{
+    return Win32Call(WaitForSingleObject, thread, INFINITE).error;
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)
