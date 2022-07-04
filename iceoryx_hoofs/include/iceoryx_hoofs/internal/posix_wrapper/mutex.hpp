@@ -149,9 +149,6 @@ enum class MutexType : int32_t
     ///        reported. It detects also when unlock is called from a different
     ///        thread.
     WITH_DEADLOCK_DETECTION = PTHREAD_MUTEX_ERRORCHECK,
-
-    /// @brief The default type of the platform, in most cases MutexType::NORMAL
-    PLATFORM_DEFAULT = PTHREAD_MUTEX_DEFAULT
 };
 
 /// @brief Describes the priority setting of the mutex.

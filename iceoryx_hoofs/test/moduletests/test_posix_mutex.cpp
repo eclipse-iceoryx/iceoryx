@@ -188,6 +188,8 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
     auto result = sut->lock();
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexError::DEADLOCK_CONDITION));
+
+    EXPECT_FALSE(sut->unlock().has_error());
 }
 #endif
 
