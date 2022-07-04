@@ -21,7 +21,7 @@
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   private:                                                                                                             \
     type m_##memberName = [this] {                                                                                     \
-        return this->m_optionManager.defineOption<type>(                                                               \
+        return this->m_optionManager->defineOption<type>(                                                              \
             this->m_##memberName, shortName, longName, description, optionType, defaultValue);                         \
     }();                                                                                                               \
                                                                                                                        \
@@ -68,7 +68,7 @@
 /// // With those macros a struct can be generated easily like this:
 /// struct CommandLine
 /// {
-///     IOX_CLI_DEFINITION(CommandLine, "My program description");
+///     IOX_CLI_DEFINITION(CommandLine);
 ///
 ///     IOX_CLI_OPTIONAL(string<100>, stringValue, {"default Value"}, 's', "string-value", "some description");
 ///     IOX_CLI_REQUIRED(string<100>, anotherString, 'a', "another-string", "some description");
@@ -89,25 +89,37 @@
 /// //   -v or --version
 ///
 /// int main(int argc, char* argv[]) {
-///   CommandLine cmd(argc, argv);
+///   auto cmd = CommandLine::parse(argc, argv, "My program description");
 ///   std::cout << cmd.stringValue() << " " << cmd.anotherString() << std::endl;
 /// }
 /// @endcode
-#define IOX_CLI_DEFINITION(Name, ProgramDescription)                                                                   \
+#define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
-    ::iox::cli::internal::OptionManager m_optionManager;                                                               \
+    ::iox::cli::internal::OptionManager* m_optionManager = nullptr;                                                    \
     ::iox::cli::BinaryName_t m_binaryName;                                                                             \
                                                                                                                        \
+  private:                                                                                                             \
+    Name(::iox::cli::internal::OptionManager& optionManager,                                                           \
+         int argc,                                                                                                     \
+         char* argv[],                                                                                                 \
+         const uint64_t argcOffset = 1U,                                                                               \
+         const ::iox::cli::UnknownOption actionWhenOptionUnknown = ::iox::cli::UnknownOption::TERMINATE)               \
+        : m_optionManager{&optionManager}                                                                              \
+    {                                                                                                                  \
+        m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
+    }                                                                                                                  \
+                                                                                                                       \
   public:                                                                                                              \
-    Name(                                                                                                              \
+    static Name parse(                                                                                                 \
         int argc,                                                                                                      \
         char* argv[],                                                                                                  \
+        const iox::cli::OptionDescription_t& programDescription,                                                       \
         const uint64_t argcOffset = 1U,                                                                                \
         const ::iox::cli::UnknownOption actionWhenOptionUnknown = ::iox::cli::UnknownOption::TERMINATE,                \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
-        : m_optionManager{ProgramDescription, onFailureCallback}                                                       \
     {                                                                                                                  \
-        m_optionManager.populateDefinedOptions(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);         \
+        ::iox::cli::internal::OptionManager optionManager(programDescription, onFailureCallback);                      \
+        return Name(optionManager, argc, argv, argcOffset, actionWhenOptionUnknown);                                   \
     }                                                                                                                  \
                                                                                                                        \
     const ::iox::cli::BinaryName_t& binaryName() const noexcept                                                        \

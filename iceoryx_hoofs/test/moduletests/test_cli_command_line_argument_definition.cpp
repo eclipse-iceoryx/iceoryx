@@ -54,7 +54,7 @@ class CommandLineArgumentDefinition_test : public Test
 
 struct CommandLineArgumentDefinitionSut
 {
-    IOX_CLI_DEFINITION(CommandLineArgumentDefinitionSut, {"My program description"});
+    IOX_CLI_DEFINITION(CommandLineArgumentDefinitionSut);
 
     IOX_CLI_OPTIONAL(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
     IOX_CLI_OPTIONAL(string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
@@ -76,7 +76,7 @@ TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValues
     ::testing::Test::RecordProperty("TEST_ID", "451701b8-061f-4e30-9beb-1c09c7e6bc1b");
     CmdArgs args(
         {"myBinaryName", "--required-string", "bluubb", "--required-float", "123.456", "--required-uint", "12"});
-    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
+    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("myBinaryName"));
 
@@ -119,7 +119,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "31",
                   "--light-switch-1",
                   "--light-switch-2"});
-    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
+    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("anotherOneBitesTheDust"));
 
@@ -161,7 +161,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "25",
                   "-l",
                   "-m"});
-    CommandLineArgumentDefinitionSut sut(args.argc, args.argv);
+    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName().c_str(), StrEq("noOneBitesHypnotoad"));
 
