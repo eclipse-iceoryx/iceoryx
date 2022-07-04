@@ -2,9 +2,58 @@
 
 In this document are tips and hints documented which can help for troubleshooting on RouDi.
 
-## Does iceoryx run in a docker environment
+## Does iceoryx run in a docker environment?
 
 Yes. Take a look at the [icedocker example](../../iceoryx_examples/icedocker/)
+
+## How can I find out if RouDi is running?
+
+RouDi uses a file locking machanism to ensure that only one RouDi instance is running at a time. For that RouDi
+creates and locks `/tmp/roudi.lock`. The file exists also also when RouDi is not running. Try locking this file,
+if this fails RouDi is running.
+
+On the command line do
+
+```console
+flock -n /tmp/roudi.lock echo "RouDi is not running"
+```
+
+## Missing samples in a publish subscribe scenario
+
+Lost samples are not acceptable for your system? Is your publisher sending at a higher frequency than the subscribers
+are taking the samples?
+
+Either
+
+* Make sure that the receiving frequency is higher than the publishing one
+
+or
+
+* Use the [blocking publisher feature](../../iceoryx_examples/iceoptions/)
+
+!!! caution
+    The usage of the blocking publisher feature needs to be considered carefully as other subscribers will not receive
+    samples while the publisher is blocked.
+
+A possible alternative is
+
+* Increase `SubscriberOptions::queueCapacity` to up to 256
+  * If 256 is not enough, increase the maximum value `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY`
+  via [the CMake switch](advanced/configuration-guide.md)
+
+## Solving the error `MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS`
+
+Possible solutions are one of the following:
+
+1. Increase [memory configuration of RouDi](advanced/configuration-guide.md)
+1. Make sure that the receiving frequency is higher than the publishing one
+1. Reduce `SubscriberOptions::queueCapacity` to hold less samples in the mempool on the subscriber side
+1. Consider using the [blocking publisher feature](../../iceoryx_examples/iceoptions/). The usage needs to be
+considered carefully as other subscribers will not receive samples while the publisher is blocked.
+
+!!! caution
+    The usage of the blocking publisher feature needs to be considered carefully as other subscribers will not receive
+    samples while the publisher is blocked.
 
 ## iox-roudi fails on startup
 
