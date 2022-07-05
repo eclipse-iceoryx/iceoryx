@@ -72,8 +72,13 @@ class OptionManager
     CmdAssignments_t m_assignments;
 
   private:
+    static OptionName_t getLookupName(const char shortName, const OptionName_t& name) noexcept;
+
     template <typename T>
-    T extractOptionArgumentValue(const Arguments& options, const char shortName, const OptionName_t& name);
+    T extractOptionArgumentValue(const Arguments& arguments,
+                                 const char shortName,
+                                 const OptionName_t& name,
+                                 const OptionType optionType);
 };
 
 } // namespace internal

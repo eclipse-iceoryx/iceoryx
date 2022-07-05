@@ -26,19 +26,30 @@ namespace cli
 namespace internal
 {
 template <typename T>
-inline T
-OptionManager::extractOptionArgumentValue(const Arguments& options, const char shortName, const OptionName_t& name)
+inline T OptionManager::extractOptionArgumentValue(const Arguments& arguments,
+                                                   const char shortName,
+                                                   const OptionName_t& name,
+                                                   const OptionType)
 {
-    if (shortName != NO_SHORT_OPTION)
+    return arguments.get<T>(getLookupName(shortName, name))
+        .or_else([this](auto&) { m_parser.printHelpAndExit(); })
+        .value();
+}
+
+template <>
+inline bool OptionManager::extractOptionArgumentValue(const Arguments& arguments,
+                                                      const char shortName,
+                                                      const OptionName_t& name,
+                                                      const OptionType optionType)
+{
+    if (optionType == OptionType::SWITCH)
     {
-        return options.get<T>(OptionName_t{cxx::TruncateToCapacity, &shortName, 1})
-            .or_else([this](auto&) { m_parser.printHelpAndExit(); })
-            .value();
+        return arguments.isSwitchSet(getLookupName(shortName, name));
     }
-    else
-    {
-        return options.get<T>(name).or_else([this](auto&) { m_parser.printHelpAndExit(); }).value();
-    }
+
+    return arguments.get<bool>(getLookupName(shortName, name))
+        .or_else([this](auto&) { m_parser.printHelpAndExit(); })
+        .value();
 }
 
 template <typename T>
@@ -59,45 +70,10 @@ inline T OptionManager::defineOption(T& referenceToMember,
                           optionType,
                           {cxx::TypeInfo<T>::NAME}});
 
-    m_assignments.emplace_back([this, &referenceToMember, shortName, name](Arguments& options) {
-        referenceToMember = extractOptionArgumentValue<T>(options, shortName, name);
+    m_assignments.emplace_back([this, &referenceToMember, optionType, shortName, name](Arguments& arguments) {
+        referenceToMember = extractOptionArgumentValue<T>(arguments, shortName, name, optionType);
     });
 
-    return defaultArgumentValue;
-}
-
-template <>
-inline bool OptionManager::defineOption(bool& referenceToMember,
-                                        const char shortName,
-                                        const OptionName_t& name,
-                                        const OptionDescription_t& description,
-                                        const OptionType optionType,
-                                        bool defaultArgumentValue)
-{
-    constexpr bool IS_SWITCH = true;
-    m_optionSet.addOption(OptionWithDetails{
-        {shortName, IS_SWITCH, name, Argument_t(cxx::TruncateToCapacity, cxx::convert::toString(defaultArgumentValue))},
-        description,
-        optionType,
-        {cxx::TypeInfo<bool>::NAME}});
-
-    m_assignments.emplace_back([this, &referenceToMember, optionType, shortName, name](Arguments& options) {
-        if (optionType == OptionType::SWITCH)
-        {
-            if (shortName != NO_SHORT_OPTION)
-            {
-                referenceToMember = options.isSwitchSet(OptionName_t{cxx::TruncateToCapacity, &shortName, 1});
-            }
-            else
-            {
-                referenceToMember = options.isSwitchSet(name);
-            }
-        }
-        else
-        {
-            referenceToMember = extractOptionArgumentValue<bool>(options, shortName, name);
-        }
-    });
     return defaultArgumentValue;
 }
 } // namespace internal

@@ -39,6 +39,17 @@ void OptionManager::populateDefinedOptions(const char*& binaryName, int argc, ch
 
     binaryName = options.binaryName();
 }
+
+OptionName_t OptionManager::getLookupName(const char shortName, const OptionName_t& name) noexcept
+{
+    if (shortName == NO_SHORT_OPTION)
+    {
+        return OptionName_t{cxx::TruncateToCapacity, &shortName, 1};
+    }
+
+    return name;
+}
+
 } // namespace internal
 } // namespace cli
 } // namespace iox
