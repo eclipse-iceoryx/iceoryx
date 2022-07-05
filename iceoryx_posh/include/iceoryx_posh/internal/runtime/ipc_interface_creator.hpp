@@ -52,7 +52,6 @@ class IpcInterfaceCreator : public IpcInterfaceBase
 
   private:
     friend class IpcRuntimeInterface;
-    void cleanupResource() noexcept;
     posix::FileLock m_fileLock;
 };
 

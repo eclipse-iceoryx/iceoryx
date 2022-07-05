@@ -185,12 +185,6 @@ cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
     return cxx::success<>();
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static) API can be misused if IPC channel changes
-cxx::expected<bool, IpcChannelError> NamedPipe::isOutdated() noexcept
-{
-    return cxx::success<bool>(false);
-}
-
 cxx::expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
     auto result = SharedMemory::unlinkIfExist(convertName(NAMED_PIPE_PREFIX, name));

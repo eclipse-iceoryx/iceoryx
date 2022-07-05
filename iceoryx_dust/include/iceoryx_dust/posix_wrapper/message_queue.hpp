@@ -69,9 +69,6 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
-    /// close and remove message queue.
-    cxx::expected<IpcChannelError> destroy() noexcept;
-
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
     cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
@@ -107,6 +104,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                                                              const int32_t errnum) noexcept;
     static cxx::expected<IpcChannelName_t, IpcChannelError>
     sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
+    cxx::expected<IpcChannelError> destroy() noexcept;
 
   private:
     IpcChannelName_t m_name;

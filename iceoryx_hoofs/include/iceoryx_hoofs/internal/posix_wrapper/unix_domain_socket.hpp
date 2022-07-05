@@ -73,9 +73,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
 
-    /// @brief close the unix domain socket.
-    cxx::expected<IpcChannelError> destroy() noexcept;
-
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
@@ -95,10 +92,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @param timout for the receive operation
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
-
-    /// @brief checks whether the unix domain socket is outdated
-    /// @return true if the unix domain socket is outdated, false otherwise, IpcChannelError if error occured
-    cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
     /// @brief c'tor
@@ -122,6 +115,9 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
+
+    /// @brief close the unix domain socket.
+    cxx::expected<IpcChannelError> destroy() noexcept;
 
     /// @brief initializes the unix domain socket
     /// @return IpcChannelError if error occured
