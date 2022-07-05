@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate() noexcept;
 
-    cxx::GenericRAII m_unregisterRelativePtr{[] {}, [] { rp::BaseRelativePointer::unregisterAll(); }};
+    cxx::GenericRAII m_unregisterRelativePtr{[] { rp::BaseRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
@@ -141,13 +141,12 @@ class RouDi
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
-    cxx::GenericRAII m_roudiMemoryManagerCleaner{[]() {},
-                                                 [this]() {
-                                                     if (this->m_roudiMemoryInterface->destroyMemory().has_error())
-                                                     {
-                                                         LogWarn() << "unable to cleanup roudi memory interface";
-                                                     };
-                                                 }};
+    cxx::GenericRAII m_roudiMemoryManagerCleaner{[this]() {
+        if (this->m_roudiMemoryInterface->destroyMemory().has_error())
+        {
+            LogWarn() << "unable to cleanup roudi memory interface";
+        };
+    }};
     PortManager* m_portManager{nullptr};
     concurrent::smart_lock<ProcessManager> m_prcMgr;
 

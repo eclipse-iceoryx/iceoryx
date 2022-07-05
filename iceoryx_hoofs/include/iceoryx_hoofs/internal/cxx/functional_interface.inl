@@ -131,10 +131,7 @@ inline Derived& AndThenWithValue<Derived, ValueType>::and_then(const Functor& ca
     if (*derivedThis)
     {
         auto callback = static_cast<and_then_callback_t>(callable);
-        if (callback)
-        {
-            callback(derivedThis->value());
-        }
+        callback(derivedThis->value());
     }
 
     return *derivedThis;
@@ -159,10 +156,7 @@ inline const Derived& AndThenWithValue<Derived, ValueType>::and_then(const Funct
     if (*derivedThis)
     {
         auto callback = static_cast<const_and_then_callback_t>(callable);
-        if (callback)
-        {
-            callback(derivedThis->value());
-        }
+        callback(derivedThis->value());
     }
 
     return *derivedThis;
@@ -180,7 +174,7 @@ inline Derived& AndThen<Derived>::and_then(const and_then_callback_t& callable) 
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (*derivedThis && callable)
+    if (*derivedThis)
     {
         callable();
     }
@@ -224,11 +218,7 @@ inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& call
     if (!(*derivedThis))
     {
         auto callback = static_cast<or_else_callback_t>(callable);
-
-        if (callback)
-        {
-            callback(derivedThis->get_error());
-        }
+        callback(derivedThis->get_error());
     }
 
     return *derivedThis;
@@ -253,10 +243,7 @@ inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor
     if (!(*derivedThis))
     {
         auto callback = static_cast<const_or_else_callback_t>(callable);
-        if (callback)
-        {
-            callback(derivedThis->get_error());
-        }
+        callback(derivedThis->get_error());
     }
 
     return *derivedThis;
@@ -274,7 +261,7 @@ inline Derived& OrElse<Derived>::or_else(const or_else_callback_t& callable) & n
 {
     Derived* derivedThis = static_cast<Derived*>(this);
 
-    if (!(*derivedThis) && callable)
+    if (!(*derivedThis))
     {
         callable();
     }

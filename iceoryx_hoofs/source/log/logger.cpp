@@ -71,7 +71,7 @@ cxx::GenericRAII Logger::SetLogLevelForScope(const LogLevel logLevel) noexcept
 {
     m_logLevelPredecessor.store(m_logLevel.load(std::memory_order_relaxed), std::memory_order_relaxed);
     SetLogLevel(logLevel);
-    return cxx::GenericRAII([] {}, [&] { this->SetLogLevel(m_logLevelPredecessor.load(std::memory_order_relaxed)); });
+    return cxx::GenericRAII([&] { this->SetLogLevel(m_logLevelPredecessor.load(std::memory_order_relaxed)); });
 }
 
 // NOLINTNEXTLINE(readability-identifier-naming)

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,7 +84,7 @@ TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWithEmptyInitFunction)
     int hasCalledCleanup = 0;
 
     {
-        GenericRAII sut(function_ref<void()>(), [&] { ++hasCalledCleanup; });
+        GenericRAII sut([&] { ++hasCalledCleanup; });
     }
 
     EXPECT_THAT(hasCalledCleanup, Eq(1));

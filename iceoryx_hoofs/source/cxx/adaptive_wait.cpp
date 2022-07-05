@@ -49,11 +49,6 @@ void adaptive_wait::wait() noexcept
 
 void adaptive_wait::wait_loop(const function_ref<bool()>& continueToWait) noexcept
 {
-    if (!continueToWait)
-    {
-        return;
-    }
-
     while (continueToWait())
     {
         wait();

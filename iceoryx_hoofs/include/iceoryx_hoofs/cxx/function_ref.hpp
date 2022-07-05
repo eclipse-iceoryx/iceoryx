@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,10 +71,6 @@ class function_ref<ReturnType(ArgTypes...)>
         bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
   public:
-    /// @brief Creates an empty function_ref in an invalid state
-    /// @note Handle with care, program will terminate when calling an invalid function_ref
-    function_ref() noexcept;
-
     ~function_ref() noexcept = default;
 
     function_ref(const function_ref&) noexcept = default;
@@ -90,12 +86,12 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref(CallableType&& callable) noexcept;
 
     /// @brief Creates a function_ref from a function pointer
-    /// @param[in] function function pointer to function we want to reference
+    /// @param[in] function function reference to function we want to reference
     ///
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
-    function_ref(ReturnType (*function)(ArgTypes...)) noexcept;
+    function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;
 
@@ -106,10 +102,6 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @return Returns the data type of the underlying function pointer
     /// @attention Invoking an empty function_ref can lead to a program termination!
     ReturnType operator()(ArgTypes... args) const noexcept;
-
-    /// @brief Checks whether a valid target is contained
-    /// @return True if valid target is contained, otherwise false
-    explicit operator bool() const noexcept;
 
     /// @brief Swaps the contents of two function_ref's
     /// @param[in] Reference to another function_ref

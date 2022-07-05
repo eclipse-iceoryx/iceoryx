@@ -40,11 +40,6 @@ void ServiceDiscovery::findService(const cxx::optional<capro::IdString_t>& servi
                                    const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
                                    const popo::MessagingPattern pattern) noexcept
 {
-    if (!callableForEach)
-    {
-        return;
-    }
-
     update();
 
     switch (pattern)

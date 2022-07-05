@@ -54,6 +54,7 @@
   to increase comprehension and cover more test cases
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Replace `MethodCallback` with `cxx::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
+- Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 
 **New API features:**
 

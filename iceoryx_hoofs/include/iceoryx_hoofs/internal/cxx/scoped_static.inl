@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ template <typename T, typename... CTorArgs>
 inline GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
 {
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
-    return GenericRAII([] {}, [&memory] { memory.reset(); });
+    return GenericRAII([&memory] { memory.reset(); });
 }
 } // namespace cxx
 } // namespace iox

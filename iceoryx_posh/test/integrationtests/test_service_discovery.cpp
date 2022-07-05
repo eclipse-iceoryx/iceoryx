@@ -256,16 +256,6 @@ TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
 // Only PUB/SUB
 //
 
-TEST_F(ServiceDiscoveryNotification_test, FindServiceWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7e1bf253-ce81-47cc-9b4a-605de7e49b64");
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("ninjababy", "pow", "pow");
-    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
-    iox::cxx::function_ref<void(const ServiceDescription&)> searchFunction;
-    this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction, MessagingPattern::PUB_SUB);
-}
-
 TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsAttachableToWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fc0eeb7a-6f2a-481f-ae8a-1e17460e261f");
