@@ -21,6 +21,8 @@
 #include <string>
 #include <utility>
 
+/// @note Since pthread_setname_np and pthread_getname_np are missing in MacOS, their functionality is simulated via a
+/// map of thread handle and thread name.
 static std::map<iox_pthread_t, std::string> handleNameMap;
 
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
@@ -28,8 +30,8 @@ int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
     const auto result = handleNameMap.insert(std::make_pair(thread, name));
     if (!result.second)
     {
-        /// return error code once std::thread is replaced; not possible now because iox_pthread_join is not called
-        /// which erases the map entry
+        /// @todo iox-#1365 return error code once std::thread is replaced; not possible now because iox_pthread_join is
+        /// not called which erases the map entry
         return 0;
     }
     return 0;

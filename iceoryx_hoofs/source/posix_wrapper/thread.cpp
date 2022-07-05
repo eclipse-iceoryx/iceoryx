@@ -84,9 +84,9 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to set thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
+    /// @todo iox-#1365 Do we really want to terminate?
 
     return cxx::success<>();
 }
@@ -121,9 +121,9 @@ ThreadName_t Thread::getName() const noexcept
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to retrieve the thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
+    /// @todo iox-#1365 Do we really want to terminate?
 
     return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
@@ -133,8 +133,8 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
     switch (errnoValue)
     {
     case EAGAIN:
-        /// @todo add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both, the name of
-        /// the new thread and the name of the thread which created the new one
+        /// @todo iox-#1365 add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both,
+        /// the name of the new thread and the name of the thread which created the new one
         LogError() << "insufficient resources to create another thread";
         return ThreadError::INSUFFICIENT_RESOURCES;
     case EINVAL:
