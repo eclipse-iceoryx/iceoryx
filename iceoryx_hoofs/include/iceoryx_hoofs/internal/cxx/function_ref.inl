@@ -31,7 +31,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
 }
 
 template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...)) noexcept
+inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
 {
     // the cast is required to work on POSIX systems
     m_pointerToCallable = reinterpret_cast<void*>(function);

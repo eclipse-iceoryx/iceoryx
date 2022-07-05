@@ -317,14 +317,6 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)
     EXPECT_EQ(result, arg);
 }
 
-TEST_F(function_refTest, CreationWithFunctionNullPointerIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e10c9dd4-d8a2-4231-a6c0-0e93e65e1ae0");
-    int (*fp)(int) = nullptr;
-    function_ref<int(int)> sut(fp);
-    EXPECT_DEATH(sut(42), "Empty function_ref invoked");
-}
-
 template <typename Functor>
 void canBeConstructedFromConstReferenceCallable(const Functor& f)
 {

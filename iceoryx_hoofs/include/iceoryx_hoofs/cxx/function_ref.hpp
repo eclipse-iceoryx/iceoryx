@@ -86,12 +86,12 @@ class function_ref<ReturnType(ArgTypes...)>
     function_ref(CallableType&& callable) noexcept;
 
     /// @brief Creates a function_ref from a function pointer
-    /// @param[in] function function pointer to function we want to reference
+    /// @param[in] function function reference to function we want to reference
     ///
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
-    function_ref(ReturnType (*function)(ArgTypes...)) noexcept;
+    function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;
 
