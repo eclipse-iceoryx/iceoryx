@@ -26,13 +26,10 @@ namespace cli
 {
 namespace internal
 {
-Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
-                                    int argc,
-                                    char* argv[],
-                                    const uint64_t argcOffset,
-                                    const UnknownOption actionWhenOptionUnknown) noexcept
+Arguments
+parseCommandLineArguments(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset) noexcept
 {
-    return CommandLineParser().parse(optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
+    return CommandLineParser().parse(optionSet, argc, argv, argcOffset);
 }
 
 bool CommandLineParser::hasArguments(const uint64_t argc) const noexcept
@@ -166,11 +163,8 @@ bool CommandLineParser::hasLexicallyValidOption(const char* value) const noexcep
            && doesNotExceedLongOptionDash(value) && doesOptionNameFitIntoString(value);
 }
 
-Arguments CommandLineParser::parse(const OptionDefinition& optionSet,
-                                   int argc,
-                                   char* argv[],
-                                   const uint64_t argcOffset,
-                                   const UnknownOption actionWhenOptionUnknown) noexcept
+Arguments
+CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset) noexcept
 {
     m_optionSet = &optionSet;
 
@@ -201,23 +195,9 @@ Arguments CommandLineParser::parse(const OptionDefinition& optionSet,
 
         if (!optionEntry)
         {
-            switch (actionWhenOptionUnknown)
-            {
-            case UnknownOption::TERMINATE:
-            {
-                std::cout << "Unknown option \"" << m_argv[i] << "\"" << std::endl;
-                printHelpAndExit();
-                return m_optionValue;
-            }
-            case UnknownOption::IGNORE:
-            {
-                if (isNextArgumentAValue(i))
-                {
-                    skipCommandLineArgument();
-                }
-                continue;
-            }
-            }
+            std::cout << "Unknown option \"" << m_argv[i] << "\"" << std::endl;
+            printHelpAndExit();
+            return m_optionValue;
         }
 
         if (isOptionSet(*optionEntry))
@@ -276,9 +256,9 @@ bool CommandLineParser::doesOptionHasSucceedingValue(const OptionWithDetails& va
 
 void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
 {
-    for (const auto& r : m_optionSet->m_availableOptions)
+    for (const auto& availableOption : m_optionSet->m_availableOptions)
     {
-        if (r.details.type != OptionType::OPTIONAL)
+        if (availableOption.details.type != OptionType::OPTIONAL)
         {
             continue;
         }
@@ -286,7 +266,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
         bool isOptionAlreadySet = false;
         for (auto& option : m_optionValue.m_arguments)
         {
-            if (option.isSameOption(r))
+            if (option.isSameOption(availableOption))
             {
                 isOptionAlreadySet = true;
                 break;
@@ -295,7 +275,7 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
 
         if (!isOptionAlreadySet)
         {
-            m_optionValue.m_arguments.emplace_back(r);
+            m_optionValue.m_arguments.emplace_back(availableOption);
         }
     }
 }
@@ -303,14 +283,14 @@ void CommandLineParser::setDefaultValuesToUnsetOptions() noexcept // rename
 bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
 {
     bool areAllRequiredValuesPresent = true;
-    for (const auto& r : m_optionSet->m_availableOptions)
+    for (const auto& availableOption : m_optionSet->m_availableOptions)
     {
-        if (r.details.type == OptionType::REQUIRED)
+        if (availableOption.details.type == OptionType::REQUIRED)
         {
             bool isValuePresent = false;
-            for (const auto& o : m_optionValue.m_arguments)
+            for (const auto& option : m_optionValue.m_arguments)
             {
-                if (o.isSameOption(r))
+                if (option.isSameOption(availableOption))
                 {
                     isValuePresent = true;
                     break;
@@ -318,7 +298,7 @@ bool CommandLineParser::areAllRequiredValuesPresent() const noexcept
             }
             if (!isValuePresent)
             {
-                std::cout << "Required option \"" << r << "\" is unset!" << std::endl;
+                std::cout << "Required option \"" << availableOption << "\" is unset!" << std::endl;
                 areAllRequiredValuesPresent = false;
             }
         }
@@ -342,37 +322,37 @@ void CommandLineParser::printHelpAndExit() const noexcept
     auto sortedAvailableOptions = m_optionSet->m_availableOptions;
     std::sort(sortedAvailableOptions.begin(), sortedAvailableOptions.end());
 
-    for (const auto& a : sortedAvailableOptions)
+    for (const auto& option : sortedAvailableOptions)
     {
         uint64_t outLength = 4U;
         std::cout << "    ";
-        if (a.hasShortOption())
+        if (option.hasShortOption())
         {
-            std::cout << "-" << a.shortOption;
+            std::cout << "-" << option.shortOption;
             outLength += 2;
         }
 
-        if (a.hasShortOption() && a.hasLongOption())
+        if (option.hasShortOption() && option.hasLongOption())
         {
             std::cout << ", ";
             outLength += 2;
         }
 
-        if (a.hasLongOption())
+        if (option.hasLongOption())
         {
-            std::cout << "--" << a.longOption.c_str();
-            outLength += 2 + a.longOption.size();
+            std::cout << "--" << option.longOption.c_str();
+            outLength += 2 + option.longOption.size();
         }
 
-        if (a.details.type == OptionType::REQUIRED)
+        if (option.details.type == OptionType::REQUIRED)
         {
-            std::cout << " [" << a.details.typeName << "]";
-            outLength += 3 + a.details.typeName.size();
+            std::cout << " [" << option.details.typeName << "]";
+            outLength += 3 + option.details.typeName.size();
         }
-        else if (a.details.type == OptionType::OPTIONAL)
+        else if (option.details.type == OptionType::OPTIONAL)
         {
-            std::cout << " [" << a.details.typeName << "]";
-            outLength += 3 + a.details.typeName.size();
+            std::cout << " [" << option.details.typeName << "]";
+            outLength += 3 + option.details.typeName.size();
         }
 
         uint64_t spacing = (outLength + 1 < OPTION_OUTPUT_WIDTH) ? OPTION_OUTPUT_WIDTH - outLength : 2;
@@ -381,15 +361,15 @@ void CommandLineParser::printHelpAndExit() const noexcept
         {
             std::cout << " ";
         }
-        std::cout << a.details.description << std::endl;
+        std::cout << option.details.description << std::endl;
 
-        if (a.details.type == OptionType::OPTIONAL)
+        if (option.details.type == OptionType::OPTIONAL)
         {
             for (uint64_t i = 0; i < OPTION_OUTPUT_WIDTH; ++i)
             {
                 std::cout << " ";
             }
-            std::cout << "default value = \'" << a.value << "\'" << std::endl;
+            std::cout << "default value = \'" << option.value << "\'" << std::endl;
         }
     }
     std::cout << std::endl;

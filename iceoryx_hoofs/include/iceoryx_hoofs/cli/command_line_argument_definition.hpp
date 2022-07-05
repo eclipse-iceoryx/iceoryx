@@ -95,14 +95,10 @@
 /// @endcode
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
-    Name(::iox::cli::internal::OptionManager& optionManager,                                                           \
-         int argc,                                                                                                     \
-         char* argv[],                                                                                                 \
-         const uint64_t argcOffset = 1U,                                                                               \
-         const ::iox::cli::UnknownOption actionWhenOptionUnknown = ::iox::cli::UnknownOption::TERMINATE)               \
+    Name(::iox::cli::internal::OptionManager& optionManager, int argc, char* argv[], const uint64_t argcOffset = 1U)   \
         : m_optionManager{&optionManager}                                                                              \
     {                                                                                                                  \
-        m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset, actionWhenOptionUnknown);        \
+        m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset);                                 \
     }                                                                                                                  \
                                                                                                                        \
   public:                                                                                                              \
@@ -111,11 +107,10 @@
         char* argv[],                                                                                                  \
         const iox::cli::OptionDescription_t& programDescription,                                                       \
         const uint64_t argcOffset = 1U,                                                                                \
-        const ::iox::cli::UnknownOption actionWhenOptionUnknown = ::iox::cli::UnknownOption::TERMINATE,                \
         const ::iox::cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                        \
     {                                                                                                                  \
         ::iox::cli::internal::OptionManager optionManager(programDescription, onFailureCallback);                      \
-        return Name(optionManager, argc, argv, argcOffset, actionWhenOptionUnknown);                                   \
+        return Name(optionManager, argc, argv, argcOffset);                                                            \
     }                                                                                                                  \
                                                                                                                        \
     const char* binaryName() const noexcept                                                                            \

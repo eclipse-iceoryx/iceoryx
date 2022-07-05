@@ -37,13 +37,6 @@ enum class OptionType : uint8_t
     OPTIONAL
 };
 
-/// @brief defines the action when an unknown option is encountered
-enum class UnknownOption
-{
-    IGNORE,
-    TERMINATE
-};
-
 static constexpr uint64_t MAX_OPTION_NAME_LENGTH = 32;
 static constexpr uint64_t MAX_OPTION_ARGUMENT_LENGTH = 128;
 static constexpr uint64_t MAX_OPTION_DESCRIPTION_LENGTH = 1024;

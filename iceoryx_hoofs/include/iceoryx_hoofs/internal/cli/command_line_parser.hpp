@@ -37,8 +37,7 @@ class CommandLineParser
 
   private:
     friend class OptionManager;
-    friend Arguments
-    parseCommandLineArguments(const OptionDefinition&, int, char*[], const uint64_t, const UnknownOption) noexcept;
+    friend Arguments parseCommandLineArguments(const OptionDefinition&, int, char*[], const uint64_t) noexcept;
 
     /// @brief Parses the arguments from the command line.
     ///        Calls onFailureCallback in optionSet when the command line arguments contain illegal syntax or required
@@ -48,13 +47,7 @@ class CommandLineParser
     /// @param[in] argc number of arguments, see int main(int argc, char*argv[])
     /// @param[in] argv the string array of arguments, see int main(int argc, char*argv[])
     /// @param[in] argcOffset the starting point for the parsing. 1U starts at the first argument.
-    /// @param[in] actionWhenOptionUnknown defines the action which should be performed when the user sets a
-    ///             option/switch which is unknown
-    Arguments parse(const OptionDefinition& optionSet,
-                    int argc,
-                    char* argv[],
-                    const uint64_t argcOffset = 1U,
-                    const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+    Arguments parse(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset = 1U) noexcept;
 
     void printHelpAndExit() const noexcept;
 
@@ -94,8 +87,7 @@ class CommandLineParser
 Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
                                     int argc,
                                     char* argv[],
-                                    const uint64_t argcOffset = 1U,
-                                    const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept;
+                                    const uint64_t argcOffset = 1U) noexcept;
 
 } // namespace internal
 } // namespace cli

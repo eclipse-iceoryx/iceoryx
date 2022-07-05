@@ -28,13 +28,9 @@ OptionManager::OptionManager(const OptionDescription_t& programDescription,
 {
 }
 
-void OptionManager::populateDefinedOptions(const char*& binaryName,
-                                           int argc,
-                                           char* argv[],
-                                           const uint64_t argcOffset,
-                                           const UnknownOption actionWhenOptionUnknown)
+void OptionManager::populateDefinedOptions(const char*& binaryName, int argc, char* argv[], const uint64_t argcOffset)
 {
-    auto options = m_parser.parse(m_optionSet, argc, argv, argcOffset, actionWhenOptionUnknown);
+    auto options = m_parser.parse(m_optionSet, argc, argv, argcOffset);
 
     for (const auto& assignment : m_assignments)
     {

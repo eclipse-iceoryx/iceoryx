@@ -77,8 +77,7 @@ TEST_F(CommandLineParser_test, EmptyArgcLeadsToExit)
 void FailureTest(const std::vector<std::string>& options,
                  const std::vector<std::string>& optionsToRegister = {},
                  const std::vector<std::string>& switchesToRegister = {},
-                 const std::vector<std::string>& requiredValuesToRegister = {},
-                 const UnknownOption actionWhenOptionUnknown = UnknownOption::TERMINATE) noexcept
+                 const std::vector<std::string>& requiredValuesToRegister = {}) noexcept
 {
     const char* binaryName("GloryToTheHasselToad");
     std::vector<std::string> optionVector{binaryName};
@@ -101,18 +100,10 @@ void FailureTest(const std::vector<std::string>& options,
             optionSet.addRequired(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
         }
 
-        IOX_DISCARD_RESULT(parseCommandLineArguments(optionSet, args.argc, args.argv, 1U, actionWhenOptionUnknown));
+        IOX_DISCARD_RESULT(parseCommandLineArguments(optionSet, args.argc, args.argv, 1U));
     }
 
-    switch (actionWhenOptionUnknown)
-    {
-    case UnknownOption::TERMINATE:
-        EXPECT_TRUE(wasErrorHandlerCalled);
-        break;
-    case UnknownOption::IGNORE:
-        EXPECT_FALSE(wasErrorHandlerCalled);
-        break;
-    }
+    EXPECT_TRUE(wasErrorHandlerCalled);
 }
 
 /// BEGIN syntax failure test
@@ -799,59 +790,6 @@ TEST_F(CommandLineParser_test, FailWhenSwitchIsNotRegistered_MixedArguments)
                 switchesToRegister,
                 requiredValuesToRegister);
 }
-
-TEST_F(CommandLineParser_test, IgnoreWhenOptionIsNotRegistered_MixedArguments)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7112ec61-4f06-4297-83c9-e532367aac2a");
-    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
-    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
-    std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
-
-    FailureTest({"--d-switch",
-                 "--f-switch",
-                 "--a-opt",
-                 "aVal",
-                 "--nobody-knows-me",
-                 "mrUnknown",
-                 "--b-opt",
-                 "bVal",
-                 "--k-req",
-                 "ohNoIHasNoValue",
-                 "--i-req",
-                 "someI",
-                 "--j-req",
-                 "fuu"},
-                optionsToRegister,
-                switchesToRegister,
-                requiredValuesToRegister,
-                UnknownOption::IGNORE);
-}
-
-TEST_F(CommandLineParser_test, IgnoreWhenSwitchIsNotRegistered_MixedArguments)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "50d2bad5-90cc-4e85-bf42-5e6292813f5e");
-    std::vector<std::string> optionsToRegister{"a-opt", "b-opt", "c-opt"};
-    std::vector<std::string> switchesToRegister{"d-switch", "e-switch", "f-switch"};
-    std::vector<std::string> requiredValuesToRegister{"i-req", "j-req", "k-req"};
-
-    FailureTest({"--unknown-switch",
-                 "--d-switch",
-                 "--f-switch",
-                 "--a-opt",
-                 "aVal",
-                 "--b-opt",
-                 "bVal",
-                 "--k-req",
-                 "ohNoIHasNoValue",
-                 "--i-req",
-                 "someI",
-                 "--j-req",
-                 "fuu"},
-                optionsToRegister,
-                switchesToRegister,
-                requiredValuesToRegister,
-                UnknownOption::IGNORE);
-}
 /// END required, optional option and switch failure mix
 
 TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForShortOptionsOnly)
@@ -864,7 +802,7 @@ TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForShortOptionsOnly)
     optionSet.addOptional('b', "", "", "int", Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_2).c_str()));
 
     CmdArgs args({"binaryName"});
-    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0);
 
     auto result1 = retVal.get<int32_t>("a");
     ASSERT_FALSE(result1.has_error());
@@ -893,7 +831,7 @@ TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
                           Argument_t(TruncateToCapacity, std::to_string(DEFAULT_VALUE_2).c_str()));
 
     CmdArgs args({"binaryName"});
-    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0);
 
     auto result1 = retVal.get<int32_t>("bla");
     ASSERT_FALSE(result1.has_error());
@@ -912,7 +850,7 @@ TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
     optionSet.addRequired('b', "", "", "int");
 
     CmdArgs args({"binaryName"});
-    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0);
 
     EXPECT_THAT(wasErrorHandlerCalled, Eq(true));
 }
@@ -925,7 +863,7 @@ TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithLongOptionsOnly)
     optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "beta", "", "int");
 
     CmdArgs args({"binaryName"});
-    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0, UnknownOption::IGNORE);
+    auto retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, 0);
 
     EXPECT_THAT(wasErrorHandlerCalled, Eq(true));
 }
@@ -962,7 +900,7 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         {
             auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
                 [&](const iox::HoofsError, const iox::ErrorLevel) { wasErrorHandlerCalled = true; });
-            retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, argcOffset, UnknownOption::IGNORE);
+            retVal = parseCommandLineArguments(optionSet, args.argc, args.argv, argcOffset);
         }
     }
     EXPECT_FALSE(wasErrorHandlerCalled);

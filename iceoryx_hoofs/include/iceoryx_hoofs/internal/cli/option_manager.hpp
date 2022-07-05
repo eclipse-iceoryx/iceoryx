@@ -64,12 +64,7 @@ class OptionManager
     /// @param[in] argc the argument count taken from int main(int argc, char*argv[])
     /// @param[in] argv the argument array ptr taken from int main(int argc, char*argv[])
     /// @param[in] argcOffset the offset from which the arguments should be parsed
-    /// @param[in] actionWhenOptionUnknown the action which should be performed when an unknown option is encountered
-    void populateDefinedOptions(const char*& binaryName,
-                                int argc,
-                                char* argv[],
-                                const uint64_t argcOffset,
-                                const UnknownOption actionWhenOptionUnknown);
+    void populateDefinedOptions(const char*& binaryName, int argc, char* argv[], const uint64_t argcOffset);
 
   private:
     CommandLineParser m_parser;
