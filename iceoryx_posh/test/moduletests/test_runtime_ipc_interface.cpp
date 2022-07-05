@@ -32,18 +32,17 @@ using namespace iox::posix;
 using namespace iox::units::duration_literals;
 
 #if defined(__APPLE__)
-using IpcChannelTypes = Types<UnixDomainSocket>;
+using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>>;
 #elif defined(_WIN32)
-using IpcChannelTypes = Types<NamedPipe>;
+using IpcChannelTypes = Types<runtime::IpcInterface<NamedPipe>>;
 #elif defined(unix) || defined(__unix) || defined(__unix__)
 using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>, runtime::IpcInterface<NamedPipe>>;
 #else
-using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket, NamedPipe>;
+using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>, runtime::IpcInterface<NamedPipe>>;
 #endif
 
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
-constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
 
 /// @req
