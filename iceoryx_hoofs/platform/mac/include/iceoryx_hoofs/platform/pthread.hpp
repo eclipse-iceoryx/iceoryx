@@ -22,20 +22,9 @@
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
-inline int iox_pthread_setname_np2(iox_pthread_t, const char*)
-{
-    return 0;
-}
+int iox_pthread_setname_np(iox_pthread_t, const char*);
 
-inline int iox_pthread_setname_np1(const char* name)
-{
-    return pthread_setname_np(name);
-}
-
-inline int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
-{
-    return pthread_getname_np(thread, name, len);
-}
+int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len);
 
 inline int
 iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
@@ -43,9 +32,6 @@ iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* 
     return pthread_create(thread, attr, start_routine, arg);
 }
 
-inline int iox_pthread_join(iox_pthread_t thread, void** retval)
-{
-    return pthread_join(thread, retval);
-}
+int iox_pthread_join(iox_pthread_t thread, void** retval);
 
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP

@@ -25,7 +25,7 @@ namespace posix
 {
 void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 {
-    posixCall(iox_pthread_setname_np2)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
+    posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through cxx::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
         LogError() << "This should never happen! " << r.getHumanReadableErrnum();
@@ -63,25 +63,24 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     }
 
     uninitializedThread.emplace();
-    uninitializedThread->m_info.m_callable = callable;
-    uninitializedThread->m_info.m_name = m_name;
+    uninitializedThread->m_callable = callable;
 
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
-    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_info.m_threadHandle,
+    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_threadHandle,
                                                       threadAttributes,
                                                       Thread::startRoutine,
-                                                      &uninitializedThread->m_info)
+                                                      &uninitializedThread->m_callable)
                             .successReturnValue(0)
                             .evaluate();
-    uninitializedThread->m_info.m_isThreadConstructed = !createResult.has_error();
-    if (!uninitializedThread->m_info.m_isThreadConstructed)
+    uninitializedThread->m_isThreadConstructed = !createResult.has_error();
+    if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
-    posixCall(iox_pthread_setname_np2)(uninitializedThread->m_info.m_threadHandle, m_name.c_str())
+    posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to set thread name.");
@@ -94,9 +93,9 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
 
 Thread::~Thread() noexcept
 {
-    if (m_info.m_isThreadConstructed)
+    if (m_isThreadConstructed)
     {
-        auto joinResult = posixCall(iox_pthread_join)(m_info.m_threadHandle, nullptr).successReturnValue(0).evaluate();
+        auto joinResult = posixCall(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
             switch (joinResult.get_error().errnum)
@@ -112,25 +111,13 @@ Thread::~Thread() noexcept
     }
 }
 
-// NOLINTNEXTLINE(readability-make-member-function-const) method will be removed in PR #1441
-// void Thread::setName(const ThreadName_t& name) noexcept
-//{
-// posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
-//.successReturnValue(0)
-//.evaluate()
-//.expect("This should never happen! Failed to set thread name.");
-///// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-///// and errors possible for open(2) can be retrieved. Handle them here?
-///// @todo Do we really want to terminate here?
-//}
-
 ThreadName_t Thread::getName() const noexcept
 {
     // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
-    posixCall(iox_pthread_getname_np)(m_info.m_threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
+    posixCall(iox_pthread_getname_np)(m_threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to retrieve the thread name.");
@@ -167,16 +154,7 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 
 void* Thread::startRoutine(void* callable)
 {
-    // set name on Apple here? what if the pthread_setname_np fails? propbably only a log message
-    posixCall(iox_pthread_setname_np1)(static_cast<info*>(callable)->m_name.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to set thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
-
-    static_cast<info*>(callable)->m_callable();
+    (*static_cast<callable_t*>(callable))();
     return nullptr;
 }
 } // namespace posix

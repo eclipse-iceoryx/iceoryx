@@ -22,7 +22,7 @@
 #include <cwchar>
 #include <vector>
 
-int iox_pthread_setname_np2(iox_pthread_t thread, const char* name)
+int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
     std::mbstate_t state = std::mbstate_t();
     uint64_t length = std::mbsrtowcs(nullptr, &name, 0, &state) + 1U;
@@ -30,11 +30,6 @@ int iox_pthread_setname_np2(iox_pthread_t thread, const char* name)
     std::mbsrtowcs(wName.data(), &name, length, &state);
 
     return Win32Call(SetThreadDescription, thread, wName.data()).error;
-}
-
-inline int iox_pthread_setname_np1(const char*)
-{
-    return 0;
 }
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
