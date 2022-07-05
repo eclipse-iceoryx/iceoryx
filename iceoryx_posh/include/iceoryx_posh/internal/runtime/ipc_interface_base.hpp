@@ -151,6 +151,10 @@ template <typename IpcChannelType>
 class IpcInterface
 {
   public:
+    static constexpr uint64_t MAX_MESSAGE_SIZE = IpcChannelType::MAX_MESSAGE_SIZE;
+
+    virtual ~IpcInterface() noexcept = default;
+
     /// @brief Receives a message from the IPC channel and stores it in
     ///         answer.
     /// @param[out] answer If a message is received it is stored there.
@@ -226,7 +230,6 @@ class IpcInterface
     IpcInterface() = delete;
 
     IpcInterface(const RuntimeName_t& runtimeName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
-    virtual ~IpcInterface() noexcept = default;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
     IpcInterface(const IpcInterface&) = delete;
