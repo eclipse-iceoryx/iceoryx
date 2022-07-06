@@ -31,3 +31,15 @@ Checks: '
 #
 # * rule: readability-identifier-naming
 #   justification: structs and classes in tests do not obey the same naming convention like in production code
+
+CheckOptions:
+  - { key: readability-function-size.LineThreshold,               value: 10000 }
+  - { key: readability-function-size.BranchThreshold,             value: 10000 }
+  - { key: readability-function-size.StatementThreshold,          value: 10000 }
+  - { key: readability-function-cognitive-complexity.Threshold,   value: 10000 }
+
+## Justifications for CheckOptions ##
+#
+# EXPECT_*, ASSERT_* and TEST_F, TYPED_TEST macros are introducing additional
+# branches and increases the code complexity without affecting the user. Therefore,
+# those metrics are hardly applicable in tests.

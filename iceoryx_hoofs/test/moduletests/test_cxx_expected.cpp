@@ -484,8 +484,8 @@ TEST_F(expected_test, CreateFromErrorLeadsToCorrectError)
 TEST_F(expected_test, ConvertNonEmptySuccessResultToErrorTypeOnlyResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b14f4aaa-abd0-4b99-84df-d644506712fa");
-    constexpr TestError errorValue = TestError::ERROR2;
-    expected<int, TestError> sut{success<int>(errorValue)};
+    constexpr int VALUE = 91823;
+    expected<int, TestError> sut{success<int>(VALUE)};
     expected<TestError> sut2 = sut;
     EXPECT_THAT(sut2.has_error(), Eq(false));
 }
