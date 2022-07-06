@@ -29,11 +29,11 @@ using NumberType = iox::cxx::convert::NumberType;
 class convert_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         internal::CaptureStderr();
     }
-    virtual void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -47,45 +47,50 @@ class convert_test : public Test
 TEST_F(convert_test, toString_uint8_t)
 {
     ::testing::Test::RecordProperty("TEST_ID", "24321fe1-52e2-48e1-b31a-436473b3e5f0");
-    uint8_t data = 131U;
-    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("131"));
+    constexpr uint8_t DATA = 131U;
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("131"));
 }
 
 TEST_F(convert_test, toString_int8_t)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3ec95300-04e9-4282-a7a4-92a7d8717343");
-    int8_t data = 31;
-    EXPECT_THAT(iox::cxx::convert::toString(data), Eq("31"));
+    constexpr int8_t DATA = 31U;
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("31"));
 }
 
 TEST_F(convert_test, toString_Integer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c426bfd9-3cfa-4986-90ed-d55147434a3e");
-    EXPECT_THAT(iox::cxx::convert::toString(33331), Eq("33331"));
+    constexpr int DATA = 33331;
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("33331"));
 }
 
 TEST_F(convert_test, toString_Float)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e00f7b9c-325c-4eb1-885c-83f8d5fa3f72");
-    EXPECT_THAT(iox::cxx::convert::toString(333.1f), Eq("333.1"));
+    constexpr float DATA = 333.1F;
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("333.1"));
 }
 
 TEST_F(convert_test, toString_LongLongUnsignedInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d70c7e8-801e-4492-9f01-036c62b4ce54");
-    EXPECT_THAT(iox::cxx::convert::toString(123LLU), Eq("123"));
+    constexpr long long unsigned DATA = 123LLU;
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("123"));
 }
 
 TEST_F(convert_test, toString_Char)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb223438-73e9-409a-b644-088bb6509d9c");
-    EXPECT_THAT(iox::cxx::convert::toString('x'), Eq("x"));
+    constexpr char DATA = 'x';
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("x"));
 }
 
 TEST_F(convert_test, toString_String)
 {
     ::testing::Test::RecordProperty("TEST_ID", "43eb7090-619c-42a5-bad9-9f452e81228b");
-    EXPECT_THAT(iox::cxx::convert::toString(std::string("hello")), Eq("hello"));
+    const std::string DATA = "hello";
+    EXPECT_THAT(iox::cxx::convert::toString(DATA), Eq("hello"));
 }
 
 TEST_F(convert_test, toString_StringConvertableClass)
@@ -93,7 +98,7 @@ TEST_F(convert_test, toString_StringConvertableClass)
     ::testing::Test::RecordProperty("TEST_ID", "39601439-ec94-49d0-ac30-168dd0598bdc");
     struct A
     {
-        operator std::string() const
+        explicit operator std::string() const
         {
             return "fuu";
         }
@@ -115,7 +120,7 @@ TEST_F(convert_test, fromString_Char_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a15825c9-536a-4671-a502-6973490022e7");
     std::string source = "h";
-    char destination;
+    char destination = '\0';
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(source[0], Eq(destination));
 }
@@ -124,7 +129,7 @@ TEST_F(convert_test, fromString_Char_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "656e87ad-6fdb-42d7-bf49-23f81a4f5a31");
     std::string source = "hasd";
-    char destination;
+    char destination = '\0';
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -186,16 +191,16 @@ TEST_F(convert_test, fromString_FLOAT_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6255c3e-369e-43a0-a1ab-03f7b13d03c2");
     std::string source = "123.01";
-    float destination;
+    float destination = 0.0F;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_FLOAT_EQ(destination, 123.01f);
+    EXPECT_FLOAT_EQ(destination, 123.01F);
 }
 
 TEST_F(convert_test, fromString_FLOAT_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2b94d50-664c-4f9e-be4f-99212c6fa165");
     std::string source = "hasd";
-    float destination;
+    float destination = 0.0F;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -203,7 +208,7 @@ TEST_F(convert_test, fromString_Double_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ba379e-120e-4b80-a829-33fe54f1bfed");
     std::string source = "123.04";
-    double destination;
+    double destination = 0.0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(static_cast<double>(123.04)));
 }
@@ -212,7 +217,7 @@ TEST_F(convert_test, fromString_Double_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f4ace11b-a056-47b1-b6c5-6fb2c58e1a06");
     std::string source = "hasd";
-    double destination;
+    double destination = 0.0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -220,18 +225,17 @@ TEST_F(convert_test, fromString_LongDouble_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2864fbae-ef1c-48ab-97f2-745baadc4dc5");
     std::string source = "121.01";
-    long double destination;
-    long double verify = 121.01;
+    long double destination = 0.0;
+    constexpr long double VERIFY = 121.01;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Ge(verify - 0.00001));
-    EXPECT_THAT(destination, Le(verify + 0.00001));
+    EXPECT_THAT(destination, DoubleEq(VERIFY));
 }
 
 TEST_F(convert_test, fromString_LongDouble_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "519f2ac5-8836-419e-8034-377230a88a09");
     std::string source = "hasd";
-    double destination;
+    double destination = 0.0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -239,16 +243,16 @@ TEST_F(convert_test, fromString_UNSIGNED_Int_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1edb8d5f-c42d-4d02-bc31-477f48898bbb");
     std::string source = "100";
-    unsigned int destination;
+    unsigned int destination = 0.0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(100u));
+    EXPECT_THAT(destination, Eq(100U));
 }
 
 TEST_F(convert_test, fromString_UNSIGNED_Int_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ce6de82-a6c0-4562-9c5c-663b93d768b3");
     std::string source = "-331";
-    unsigned int destination;
+    unsigned int destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -256,16 +260,16 @@ TEST_F(convert_test, fromString_UNSIGNED_LongInt_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "054b08b2-54e1-4191-91b6-e6bec415612f");
     std::string source = "999";
-    uint64_t destination;
+    uint64_t destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(999lu));
+    EXPECT_THAT(destination, Eq(999LU));
 }
 
 TEST_F(convert_test, fromString_UNSIGNED_LongInt_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4b215747-90b2-4ca2-97ee-517c07597b1b");
     std::string source = "-a123";
-    uint64_t destination;
+    uint64_t destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -273,7 +277,7 @@ TEST_F(convert_test, fromString_Int_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9318ee60-f2e0-445a-b32d-c718cf918b18");
     std::string source = "3331";
-    int destination;
+    int destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(3331));
 }
@@ -282,7 +286,7 @@ TEST_F(convert_test, fromString_Int_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f8e698a9-054d-4441-b196-bcd58a72b1d9");
     std::string source = "-+321";
-    int destination;
+    int destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -290,7 +294,7 @@ TEST_F(convert_test, fromString_ShortInt_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e804f821-157d-4c52-81a7-75fce5a43805");
     std::string source = "12345";
-    short destination;
+    short destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(12345));
 }
@@ -299,7 +303,7 @@ TEST_F(convert_test, fromString_ShortInt_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1150066b-cb42-4055-9927-2f20fb40bc87");
     std::string source = "-+123321";
-    short destination;
+    short destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -307,7 +311,7 @@ TEST_F(convert_test, fromString_Bool_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "893723fc-dfb8-46a4-b446-badaf8bad25a");
     std::string source = "1";
-    bool destination;
+    bool destination = false;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(true));
 }
@@ -316,7 +320,7 @@ TEST_F(convert_test, fromString_Bool_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1c937da6-29ea-49cf-a7d0-4c46f564c16e");
     std::string source = "-+222";
-    bool destination;
+    bool destination = false;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -324,7 +328,7 @@ TEST_F(convert_test, fromString_UShortInt_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "99d22d80-3860-47fa-9f98-f11ff9629815");
     std::string source = "333";
-    unsigned short destination;
+    unsigned short destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     EXPECT_THAT(destination, Eq(333));
 }
@@ -333,7 +337,7 @@ TEST_F(convert_test, fromString_UShortInt_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ab6ded6-dff3-401a-8a7f-98326da7cca6");
     std::string source = "-+111";
-    unsigned short destination;
+    unsigned short destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -341,16 +345,16 @@ TEST_F(convert_test, fromString_LongInt_Success)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37133256-ae79-45c7-8c86-56bd33fa7bd8");
     std::string source = "-1123";
-    int64_t destination;
+    int64_t destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(-1123l));
+    EXPECT_THAT(destination, Eq(-1123L));
 }
 
 TEST_F(convert_test, fromString_LongInt_Fail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0e368bf3-cb16-4829-a4cc-dc56e0bde958");
     std::string source = "-a121";
-    int64_t destination;
+    int64_t destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
 
@@ -358,7 +362,7 @@ TEST_F(convert_test, fromString_MinMaxShort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98e33efd-ba39-4b88-8307-358be30e4e73");
     std::string source = "32767";
-    std::int16_t destination;
+    int16_t destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     source = "32768";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
@@ -372,7 +376,7 @@ TEST_F(convert_test, fromString_MinMaxUNSIGNED_Short)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9196939-ae5d-4c27-85bf-b3b084343261");
     std::string source = "65535";
-    std::uint16_t destination;
+    uint16_t destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     source = "65536";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
@@ -386,7 +390,7 @@ TEST_F(convert_test, fromString_MinMaxInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "abf0fda5-044e-4f1b-bb1e-31b701578a3d");
     std::string source = "2147483647";
-    std::int32_t destination;
+    int32_t destination = 0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     source = "2147483648";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
@@ -400,7 +404,7 @@ TEST_F(convert_test, fromString_MinMaxUNSIGNED_Int)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2a832ef-3e86-4303-a98c-63c7b11ea789");
     std::string source = "4294967295";
-    std::uint32_t destination;
+    uint32_t destination = 0U;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
     source = "4294967296";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
