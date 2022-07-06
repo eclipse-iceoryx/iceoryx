@@ -294,7 +294,7 @@ TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
 TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneAndReinsertElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c7e70ac7-e476-43aa-976c-1ac78513c869");
-    int64_t counter = 0U;
+    int64_t counter = 0;
     for (; static_cast<uint64_t>(counter) < sut.capacity(); ++counter)
     {
         sut.emplace_back(counter);
@@ -909,14 +909,14 @@ TEST_F(list_test, PushBackFailsWhenSpaceNotAvailableRValue)
 TEST_F(list_test, PushBackCheckInsertPosition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d07986f-87ba-4dde-bfb9-7da56eb4bb54");
-    int64_t counter = 0U;
+    int64_t counter = 0;
 
     for (; static_cast<uint64_t>(counter) < TESTLISTCAPACITY; ++counter)
     {
         EXPECT_TRUE(sut.push_back(counter));
     }
 
-    counter = 0U;
+    counter = 0;
     for (auto& listElement : sut)
     {
         EXPECT_THAT(listElement.m_value, Eq(counter));

@@ -876,7 +876,7 @@ TEST_F(ObjectPool_test, iterator)
     }
 
     EXPECT_THAT(numElements, Eq(3));
-    for (uint64_t i = 1; i <= 3; ++i)
+    for (uint64_t i = 1U; i <= 3U; ++i)
     {
         EXPECT_THAT(count[i], Eq(1)); // expect each value exactly once
     }

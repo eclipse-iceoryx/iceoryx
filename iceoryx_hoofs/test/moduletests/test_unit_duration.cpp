@@ -2076,7 +2076,7 @@ TEST(Duration_test, MultiplyMaxDurationWithDoubleOneResultsInMaxDuration)
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToSeconds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "085de609-5f38-4a63-8719-f15263ca448b");
-    constexpr float MULTIPLICATOR{1343535617188545797.0f};
+    constexpr float MULTIPLICATOR{1343535617188545797.0F};
     constexpr Duration DURATION = 14_s;
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
@@ -2096,7 +2096,7 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToSeconds)
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToNanoseconds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38ad7f5d-480a-4c4b-8ff0-8a24f3d6f2a6");
-    constexpr float MULTIPLICATOR{1343535617188545797.0f};
+    constexpr float MULTIPLICATOR{1343535617188545797.0F};
     constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));

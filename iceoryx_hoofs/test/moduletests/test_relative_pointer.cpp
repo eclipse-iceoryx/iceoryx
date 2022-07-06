@@ -294,7 +294,7 @@ TYPED_TEST(RelativePointer_test, getPtr)
     EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), ptr);
 
-    uint64_t offset = SHARED_MEMORY_SIZE / 2;
+    uint64_t offset = SHARED_MEMORY_SIZE / 2U;
     auto addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
     RelativePointer<TypeParam> rp2(addressAtOffset, 1);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), addressAtOffset);

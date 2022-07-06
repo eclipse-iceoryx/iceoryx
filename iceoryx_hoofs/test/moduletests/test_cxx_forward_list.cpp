@@ -362,7 +362,7 @@ TEST_F(forward_list_test, CustomCTorWithOneElements)
     ::testing::Test::RecordProperty("TEST_ID", "56251d67-94f6-406d-9448-3224a58df4bb");
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{1U};
-    constexpr int64_t DEFAULT_VALUE{3U};
+    constexpr int64_t DEFAULT_VALUE{3};
     forward_list<TestListElement, CAPACITY> sut1;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
@@ -464,7 +464,7 @@ TEST_F(forward_list_test, EmplaceAfterWithSomeElements)
     constexpr uint64_t ELEMENT_COUNT{37U};
     forward_list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.cbefore_begin();
-    int64_t cnt = 0U;
+    int64_t cnt = 0;
 
     EXPECT_THAT(cTor, Eq(0U));
     EXPECT_THAT(customCTor, Eq(0U));
