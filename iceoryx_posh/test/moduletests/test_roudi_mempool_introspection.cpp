@@ -135,7 +135,7 @@ class MemPoolIntrospection_test : public Test
     }
 
     template <typename MemPoolInfoStruct>
-    void initMemPoolInfo(int index, MemPoolInfoStruct& info)
+    void initMemPoolInfo(uint32_t index, MemPoolInfoStruct& info)
     {
         info.m_chunkSize = index * 100 + 10;
         info.m_minFreeChunks = index * 100 + 45;
@@ -146,7 +146,7 @@ class MemPoolIntrospection_test : public Test
     // initializes the mempool info with a defined pattern
     void initMemPoolInfoContainer(MemPoolInfoContainer& memPoolInfoContainer)
     {
-        int index = 0;
+        uint32_t index = 0;
         for (auto& info : memPoolInfoContainer)
         {
             initMemPoolInfo(index, info);
@@ -158,7 +158,7 @@ class MemPoolIntrospection_test : public Test
     template <typename MemPoolInfoType1, typename MemPoolInfoType2>
     bool compareMemPoolInfo(MemPoolInfoType1& first, MemPoolInfoType2& second)
     {
-        int index = 0;
+        uint32_t index = 0;
         for (auto& info : first)
         {
             if (info.m_chunkSize != second[index].m_chunkSize)

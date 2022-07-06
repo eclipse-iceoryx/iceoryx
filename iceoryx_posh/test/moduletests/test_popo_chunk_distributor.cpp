@@ -39,14 +39,21 @@ using namespace iox::mepoo;
 
 using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ChunkDistributor_test, ChunkDistributorTestSubjects);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename PolicyType>
 class ChunkDistributor_test : public Test
 {
   public:
-    SharedChunk allocateChunk(uint32_t value)
+    SharedChunk allocateChunk(uint64_t value)
     {
         ChunkManagement* chunkMgmt = static_cast<ChunkManagement*>(chunkMgmtPool.getChunk());
         auto chunk = mempool.getChunk();
@@ -61,7 +68,7 @@ class ChunkDistributor_test : public Test
 
         ChunkHeader* chunkHeader = new (chunk) ChunkHeader(mempool.getChunkSize(), chunkSettings);
         new (chunkMgmt) ChunkManagement{chunkHeader, &mempool, &chunkMgmtPool};
-        *static_cast<uint32_t*>(chunkHeader->userPayload()) = value;
+        *static_cast<uint64_t*>(chunkHeader->userPayload()) = value;
         return SharedChunk(chunkMgmt);
     }
     uint32_t getSharedChunkValue(const SharedChunk& chunk)

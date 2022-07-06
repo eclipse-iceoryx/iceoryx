@@ -115,7 +115,7 @@ TEST_F(FixedSizeContainer_test, removeAndSizeMultiElementContainer)
 
     for (uint32_t k = 0; k < capacity; ++k)
     {
-        container.remove(k);
+        container.remove(static_cast<index_t>(k));
         EXPECT_THAT(container.size(), Eq(capacity - k - 1));
     }
 
@@ -123,19 +123,21 @@ TEST_F(FixedSizeContainer_test, removeAndSizeMultiElementContainer)
     {
         container.add(12);
         container.add(12);
-        container.remove(k);
+        container.remove(static_cast<index_t>(k));
         container.add(12);
 
         size_t newSize = 2 * (k + 1);
         if (newSize > 100)
+        {
             newSize = 100;
+        }
 
         EXPECT_THAT(container.size(), Eq(newSize));
     }
 
     for (uint32_t k = 0; k < capacity; ++k)
     {
-        container.remove(k);
+        container.remove(static_cast<index_t>(k));
         EXPECT_THAT(container.size(), Eq(capacity - k - 1));
     }
 }
@@ -156,22 +158,22 @@ TEST_F(FixedSizeContainer_test, addAndVerifySingleElementContainer)
 TEST_F(FixedSizeContainer_test, addAndVerifyMultiElementContainer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de654427-1873-4583-b6a6-117869ca86f0");
-    constexpr size_t capacity = 25;
+    constexpr uint32_t capacity = 25;
     FixedSizeContainer<size_t, capacity> container;
 
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint32_t i = 0; i < capacity; ++i)
     {
-        for (size_t k = i; k < capacity; ++k)
+        for (uint32_t k = i; k < capacity; ++k)
         {
-            EXPECT_THAT(container.get(k), Eq(nullptr));
+            EXPECT_THAT(container.get(static_cast<index_t>(k)), Eq(nullptr));
         }
 
         container.add(2 * i + 1);
 
-        for (size_t k = 0; k < i; ++k)
+        for (uint32_t k = 0; k < i; ++k)
         {
-            EXPECT_THAT(*container.get(k), Eq(2 * k + 1));
-            EXPECT_THAT(container[k], Eq(2 * k + 1));
+            EXPECT_THAT(*container.get(static_cast<index_t>(k)), Eq(2 * k + 1));
+            EXPECT_THAT(container[static_cast<index_t>(k)], Eq(2 * k + 1));
         }
     }
 }
@@ -191,23 +193,23 @@ TEST_F(FixedSizeContainer_test, removeAndVerifySingleElementContainer)
 TEST_F(FixedSizeContainer_test, removeAndVerifyMultiElementContainer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ad112c45-1166-41f9-8cd0-af604677957f");
-    constexpr size_t capacity = 25;
+    constexpr uint32_t capacity = 25;
     FixedSizeContainer<size_t, capacity> container;
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint32_t i = 0; i < capacity; ++i)
     {
         container.add(5 * i + 12);
     }
 
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint32_t i = 0; i < capacity; ++i)
     {
-        for (size_t k = 0; k < i; ++k)
+        for (uint32_t k = 0; k < i; ++k)
         {
-            EXPECT_THAT(container.get(k), Eq(nullptr));
+            EXPECT_THAT(container.get(static_cast<index_t>(k)), Eq(nullptr));
         }
-        container.remove(i);
-        for (size_t k = i + 1; k < capacity; ++k)
+        container.remove(static_cast<index_t>(i));
+        for (uint32_t k = i + 1; k < capacity; ++k)
         {
-            EXPECT_THAT(*container.get(k), Eq(5 * k + 12));
+            EXPECT_THAT(*container.get(static_cast<index_t>(k)), Eq(5 * k + 12));
         }
     }
 }

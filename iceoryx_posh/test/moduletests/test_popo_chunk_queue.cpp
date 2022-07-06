@@ -84,7 +84,14 @@ using ChunkQueueSubjects =
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ChunkQueue_test, ChunkQueueSubjects);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename TestTypes>
@@ -268,7 +275,14 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
 using ChunkQueueFiFoTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename PolicyType>
@@ -332,7 +346,14 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
 using ChunkQueueSoFiSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename PolicyType>
