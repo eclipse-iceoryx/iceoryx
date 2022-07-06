@@ -76,7 +76,7 @@ constexpr auto getReturns()
 {
     using R = decltype(std::declval<P>().get());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the conversion operator of P return a T?
 template <typename P, typename T>
@@ -84,7 +84,7 @@ constexpr auto conversionReturns()
 {
     using R = decltype(std::declval<P>().operator T());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the arrow operator of P return a T?
 template <typename P, typename T>
@@ -92,7 +92,7 @@ constexpr auto arrowReturns()
 {
     using R = decltype(std::declval<P>().operator->());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the dereferencing operator of P return a T?
 template <typename P, typename T>
@@ -100,7 +100,7 @@ constexpr auto dereferencingReturns()
 {
     using R = decltype(std::declval<P>().operator*());
     return std::is_same<R, T>::value;
-};
+}
 
 
 struct Data

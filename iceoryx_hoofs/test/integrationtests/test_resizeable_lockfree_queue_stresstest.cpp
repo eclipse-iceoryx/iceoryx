@@ -298,7 +298,7 @@ void changeCapacity(Queue& queue,
             incrementK = false;
         }
 
-        if (queue.setCapacity(capacities[k], removeHandler))
+        if (queue.setCapacity(capacities[static_cast<uint64_t>(k)], removeHandler))
         {
             ++numChanges;
         }

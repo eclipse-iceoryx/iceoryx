@@ -46,7 +46,7 @@ class DirectedGraph
             return false;
         }
 
-        if (findVertex(vertex) >= 0)
+        if (findVertex(vertex) != INVALID_INDEX)
         {
             return false; // already exists
         }

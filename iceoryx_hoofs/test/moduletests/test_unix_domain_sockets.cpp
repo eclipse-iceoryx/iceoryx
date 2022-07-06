@@ -426,7 +426,7 @@ TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocks, Repeat(5), [&] {
 
     TIMING_TEST_ASSERT_TRUE(msg.has_error());
     TIMING_TEST_EXPECT_TRUE(msg.get_error() == IpcChannelError::TIMEOUT);
-});
+})
 
 TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "76df3d40-d420-4c5f-b82a-3bf8b684a21b");
@@ -446,7 +446,7 @@ TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived, R
     std::this_thread::sleep_for(WAIT_IN_MS);
     TIMING_TEST_ASSERT_FALSE(client.send(message).has_error());
     waitThread.join();
-});
+})
 #endif
 } // namespace
 #endif
