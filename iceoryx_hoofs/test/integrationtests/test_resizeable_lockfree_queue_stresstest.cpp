@@ -38,7 +38,7 @@ namespace
 {
 struct Data
 {
-    Data(int32_t id = 0, uint64_t count = 0)
+    Data(uint32_t id = 0, uint64_t count = 0)
         : id(id)
         , count(count)
     {
@@ -55,7 +55,7 @@ Barrier g_barrier;
 using CountArray = std::vector<std::atomic<uint64_t>>;
 
 template <typename Queue>
-void producePeriodic(Queue& queue, const int32_t id, CountArray& producedCount, std::atomic_bool& run)
+void producePeriodic(Queue& queue, const uint32_t id, CountArray& producedCount, std::atomic_bool& run)
 {
     g_barrier.notify();
 
@@ -89,7 +89,7 @@ void consume(Queue& queue, CountArray& consumedCount, std::atomic_bool& run)
 }
 
 template <typename Queue>
-void produceMonotonic(Queue& queue, const int32_t id, std::atomic_bool& run)
+void produceMonotonic(Queue& queue, const uint32_t id, std::atomic_bool& run)
 {
     g_barrier.notify();
 
@@ -104,7 +104,7 @@ void produceMonotonic(Queue& queue, const int32_t id, std::atomic_bool& run)
 }
 
 template <typename Queue>
-void consumeAndCheckOrder(Queue& queue, const int32_t maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
+void consumeAndCheckOrder(Queue& queue, const uint32_t maxId, std::atomic_bool& run, std::atomic_bool& orderOk)
 {
     g_barrier.notify();
 
@@ -145,7 +145,7 @@ void consumeAndCheckOrder(Queue& queue, const int32_t maxId, std::atomic_bool& r
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, int32_t id, std::atomic<bool>& run)
+void work(Queue& queue, uint32_t id, std::atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -191,7 +191,7 @@ void work(Queue& queue, int32_t id, std::atomic<bool>& run)
 // popProbability essentially controls whether the queue tends to be full or empty on average
 template <typename Queue>
 void randomWork(Queue& queue,
-                int32_t id,
+                uint32_t id,
                 std::atomic<bool>& run,
                 uint64_t numItems,
                 int& overflowCount,
@@ -260,10 +260,10 @@ void changeCapacity(Queue& queue,
 {
     g_barrier.notify();
 
-    const int32_t n = capacities.size(); // number of different capacities
-    int32_t k = n;                       // index of current capacity to be used
-    int32_t d = -1;                      // increment delta of the index k, will be 1 or -1
-    numChanges = 0;                      // number of capacity changes performed
+    const uint64_t n = capacities.size(); // number of different capacities
+    int64_t k = static_cast<int64_t>(n);  // index of current capacity to be used
+    bool incrementK = false;              // states if k is incremented or decremented by 1
+    numChanges = 0;                       // number of capacity changes performed
 
     // capacities will contain a number of pre generated capacities to switch between,
     // ordered from lowest to highest
@@ -278,19 +278,27 @@ void changeCapacity(Queue& queue,
     while (run)
     {
         // go forward and backward in the capacities array to select the next capacity
-        k += d;
+        if (incrementK)
+        {
+            ++k;
+        }
+        else
+        {
+            --k;
+        }
+
         if (k < 0)
         {
             k = 1;
-            d = 1;
+            incrementK = true;
         }
-        else if (k >= n)
+        else if (static_cast<uint64_t>(k) >= n)
         {
-            k = n - 1;
-            d = -1;
+            k = static_cast<int64_t>(n - 1);
+            incrementK = false;
         }
 
-        if (queue.setCapacity(capacities[k], removeHandler))
+        if (queue.setCapacity(capacities[static_cast<uint64_t>(k)], removeHandler))
         {
             ++numChanges;
         }
@@ -394,7 +402,14 @@ using HalfFull3 = HalfFull<Data, Large>;
 /// @endcode
 typedef ::testing::Types<HalfFull2> TestConfigs;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 ///@brief Tests concurrent operation of multiple producers and consumers
@@ -416,12 +431,12 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsume
     // unfortunately we cannot really check out of order arrival this way, since
     // the sent counts are not monotonic themselves due to the wraparound
 
-    const int cycleLength{1000};
+    const uint64_t cycleLength{1000U};
     CountArray producedCount(cycleLength);
     CountArray consumedCount(cycleLength);
 
     // cannot be done with the vector ctor for atomics
-    for (int i = 0; i < cycleLength; ++i)
+    for (uint64_t i = 0; i < cycleLength; ++i)
     {
         producedCount[i].store(0U, std::memory_order_relaxed);
         consumedCount[i].store(0U, std::memory_order_relaxed);
@@ -461,7 +476,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsume
     }
 
     // verify counts
-    for (int i = 0; i < cycleLength; ++i)
+    for (uint64_t i = 0; i < cycleLength; ++i)
     {
         EXPECT_EQ(producedCount[i], consumedCount[i]);
     }
@@ -548,7 +563,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 
     std::vector<std::thread> threads;
 
-    for (int id = 1; id <= numThreads; ++id)
+    for (uint64_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
     }
@@ -563,7 +578,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     }
 
     // check whether all elements are there, but there is no specific ordering we can expect
-    std::vector<int> count(capacity, 0);
+    std::vector<uint64_t> count(capacity, 0);
     auto popped = q.pop();
     while (popped.has_value())
     {
@@ -601,7 +616,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 
     auto& q = this->sut;
     std::chrono::seconds runtime(10);
-    const int numThreads = 32;
+    const uint32_t numThreads = 32;
     const double popProbability = 0.45; // tends to overflow
     const auto capacity = q.capacity();
 
@@ -623,7 +638,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         }
     }
 
-    for (int id = 1; id <= numThreads; ++id)
+    for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
                              std::ref(q),
@@ -678,7 +693,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
         // and each count appears for all ids exactly ones
-        for (int j = 0; j <= numThreads; ++j)
+        for (uint32_t j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {
@@ -724,7 +739,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 
     // fill the queue
     Data d;
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0; i < capacity; ++i)
     {
         d.count = i;
         while (!q.tryPush(d))
@@ -732,7 +747,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         }
     }
 
-    for (int id = 1; id <= numThreads; ++id)
+    for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
                              std::ref(q),
@@ -744,7 +759,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
                              popProbability);
     }
 
-    int id = numThreads + 1;
+    uint32_t id = numThreads + 1U;
     uint64_t numChanges;
     threads.emplace_back(changeCapacity<Queue>,
                          std::ref(q),
@@ -792,12 +807,12 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     }
 
     bool testResult = true;
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0; i < capacity; ++i)
     {
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
         // and each count appears for all ids exactly ones
-        for (int j = 0; j <= numThreads; ++j)
+        for (uint32_t j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {

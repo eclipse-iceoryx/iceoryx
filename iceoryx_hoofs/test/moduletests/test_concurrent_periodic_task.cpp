@@ -167,7 +167,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstru
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWithArguments, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "be2b7225-344d-4700-974d-830d7ade60e3");
@@ -181,7 +181,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWit
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter,
                 AllOf(Ge(CALL_COUNTER_OFFSET + MIN_RUNS), Le(CALL_COUNTER_OFFSET + MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "dfc65bfa-ce9b-432f-af1a-07948e776f31");
@@ -193,7 +193,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repea
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "71b34fd4-4b2b-43e5-a574-9261460cca7c");
@@ -205,7 +205,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "2939849e-c0c6-49ba-8cde-24fc84336ee6");
@@ -217,7 +217,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
@@ -229,7 +229,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), 
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");
@@ -247,7 +247,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
 
     EXPECT_THAT(elapsedTime, Le(2 * SLEEP_TIME));
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlockingOnStop, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4a4db536-3691-4a73-aeb0-09cd37009b9e");
@@ -259,5 +259,5 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlocki
     auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
 
     EXPECT_THAT(elapsedTime, Ge(SLEEP_TIME));
-});
+})
 } // namespace

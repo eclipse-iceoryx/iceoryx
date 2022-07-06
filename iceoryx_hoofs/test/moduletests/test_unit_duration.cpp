@@ -216,8 +216,8 @@ TEST(Duration_test, ConstructFromTimespecWithMaxValue)
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     struct timespec ts;
-    ts.tv_sec = SECONDS;
-    ts.tv_nsec = NANOSECONDS;
+    ts.tv_sec = static_cast<time_t>(SECONDS);
+    ts.tv_nsec = static_cast<long>(NANOSECONDS);
 
     Duration sut{ts};
     EXPECT_THAT(sut, Eq(DurationAccessor::max()));
@@ -275,8 +275,8 @@ TEST(Duration_test, ConstructFromITimerspecWithMaxValue)
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
     struct itimerspec its;
-    its.it_interval.tv_sec = SECONDS;
-    its.it_interval.tv_nsec = NANOSECONDS;
+    its.it_interval.tv_sec = static_cast<time_t>(SECONDS);
+    its.it_interval.tv_nsec = static_cast<long>(NANOSECONDS);
 
     Duration sut{its};
     EXPECT_THAT(sut, Eq(DurationAccessor::max()));
@@ -335,8 +335,8 @@ TEST(Duration_test, ConstructFromTimevalWithMaxValue)
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * Duration::NANOSECS_PER_MICROSEC);
 
     struct timeval tv;
-    tv.tv_sec = SECONDS;
-    tv.tv_usec = MICROSECONDS;
+    tv.tv_sec = static_cast<time_t>(SECONDS);
+    tv.tv_usec = static_cast<long>(MICROSECONDS);
 
     Duration sut{tv};
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
@@ -2076,7 +2076,7 @@ TEST(Duration_test, MultiplyMaxDurationWithDoubleOneResultsInMaxDuration)
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToSeconds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "085de609-5f38-4a63-8719-f15263ca448b");
-    constexpr float MULTIPLICATOR{1343535617188545797.0};
+    constexpr float MULTIPLICATOR{1343535617188545797.0F};
     constexpr Duration DURATION = 14_s;
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));
@@ -2096,7 +2096,7 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToSeconds)
 TEST(Duration_test, MultiplyDurationWithFloatResultsInSaturationDueToNanoseconds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38ad7f5d-480a-4c4b-8ff0-8a24f3d6f2a6");
-    constexpr float MULTIPLICATOR{1343535617188545797.0};
+    constexpr float MULTIPLICATOR{1343535617188545797.0F};
     constexpr Duration DURATION = 13_s + 930_ms + 37_ns;
 
     EXPECT_THAT(MULTIPLICATOR * DURATION, Eq(DurationAccessor::max()));

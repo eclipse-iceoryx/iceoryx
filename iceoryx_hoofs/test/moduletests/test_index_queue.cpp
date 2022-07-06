@@ -61,7 +61,14 @@ TEST(LockFreeQueueTest, capacityIsConsistent)
 
 typedef ::testing::Types<IndexQueue<1>, IndexQueue<10>, IndexQueue<1000>> TestQueues;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(IndexQueueTest, TestQueues);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 TYPED_TEST(IndexQueueTest, defaultConstructedQueueIsEmpty)

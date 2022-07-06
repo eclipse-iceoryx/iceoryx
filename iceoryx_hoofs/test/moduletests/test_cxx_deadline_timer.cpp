@@ -48,18 +48,18 @@ class DeadlineTimer_test : public Test
 
     std::atomic<int> numberOfCalls{0};
     static const Duration TIMEOUT;
-    static const int SLEEPTIME;
+    static const uint64_t SLEEPTIME;
 };
 
 const Duration DeadlineTimer_test::TIMEOUT{10_ms};
-const int DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.toMilliseconds();
+const uint64_t DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.toMilliseconds();
 
 TIMING_TEST_F(DeadlineTimer_test, ZeroTimeoutTest, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "eb956212-5565-45d6-8f2a-64f79a0709f0");
     Timer sut(0_s);
 
     TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "bc7c63b2-b55f-4731-8677-f8794d2676d9");
@@ -70,7 +70,7 @@ TIMING_TEST_F(DeadlineTimer_test, DurationOfNonZeroIsExpiresAfterTimeout, Repeat
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, ResetWithDurationIsExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "a0af948d-31f1-4a18-b9a7-7c81f6e19bb6");
@@ -79,7 +79,7 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWithDurationIsExpired, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(sut.hasExpired());
     sut.reset();
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "1ce05dc0-04fd-497f-8f8d-b3d5ba9cd3fa");
@@ -88,7 +88,7 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWhenNotExpiredIsStillNotExpired, Repeat(5
     sut.reset();
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME / 3));
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "08cfd0df-4bd6-4944-b070-e7538aa4464d");
@@ -98,7 +98,7 @@ TIMING_TEST_F(DeadlineTimer_test, ResetAfterBeingExpiredIsNotExpired, Repeat(5),
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
     sut.reset();
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "9ceb9355-4013-4d51-a51f-65399f25b14f");
@@ -111,7 +111,7 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsNotE
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_EXPECT_FALSE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "03c71362-4cba-46be-b056-ffdc9f811f8a");
@@ -124,7 +124,7 @@ TIMING_TEST_F(DeadlineTimer_test, ResetWithCustomizedTimeAfterBeingExpiredIsExpi
     std::this_thread::sleep_for(std::chrono::milliseconds(2 * SLEEPTIME));
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "8c8af30c-104c-41ef-b89f-f40b50823d12");
@@ -133,10 +133,10 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfExpired, Repeat(5), [&] {
 
     TIMING_TEST_ASSERT_TRUE(sut.hasExpired());
 
-    int remainingTime = sut.remainingTime().toMilliseconds();
-    const int EXPECTED_REMAINING_TIME = 0; // the timer is expired the remaining wait time is Zero
+    uint64_t remainingTime = sut.remainingTime().toMilliseconds();
+    const uint64_t EXPECTED_REMAINING_TIME = 0; // the timer is expired the remaining wait time is Zero
     TIMING_TEST_EXPECT_TRUE(remainingTime == EXPECTED_REMAINING_TIME);
-});
+})
 
 TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "0d0f56d4-8e6a-435d-9026-c15f472c1d0d");
@@ -145,11 +145,11 @@ TIMING_TEST_F(DeadlineTimer_test, RemainingTimeCheckIfNotExpired, Repeat(5), [&]
 
     TIMING_TEST_ASSERT_FALSE(sut.hasExpired());
 
-    int remainingTime = sut.remainingTime().toMilliseconds();
+    uint64_t remainingTime = sut.remainingTime().toMilliseconds();
     const int PASSED_TIMER_TIME = SLEEPTIME; // Already 10ms passed in sleeping out of 20ms
     const int RANGE_APPROX = 2;              // 2ms arppoximation. This may be lost after arming the timer in execution.
     const int EXPECTED_REMAINING_TIME = PASSED_TIMER_TIME - RANGE_APPROX;
 
     TIMING_TEST_EXPECT_TRUE(remainingTime >= EXPECTED_REMAINING_TIME && remainingTime <= PASSED_TIMER_TIME);
-});
+})
 } // namespace

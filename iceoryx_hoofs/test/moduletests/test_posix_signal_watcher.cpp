@@ -82,7 +82,7 @@ TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGTERMWasTriggeredBefore)
 
 void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
                                            const int signal,
-                                           const uint64_t numberOfWaiters,
+                                           const uint32_t numberOfWaiters,
                                            const std::function<void()>& wait)
 {
     Barrier isThreadStarted(numberOfWaiters);

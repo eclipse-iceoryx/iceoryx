@@ -73,8 +73,14 @@ class RelativePointer_test : public Test
 
 typedef testing::Types<uint8_t, int8_t, double> Types;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(RelativePointer_test, Types);
-
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 /// @todo #605 the tests should be reworked in a refactoring of relative pointers
 TYPED_TEST(RelativePointer_test, ConstrTests)
@@ -288,7 +294,7 @@ TYPED_TEST(RelativePointer_test, getPtr)
     EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), ptr);
 
-    int offset = SHARED_MEMORY_SIZE / 2;
+    uint64_t offset = SHARED_MEMORY_SIZE / 2U;
     auto addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
     RelativePointer<TypeParam> rp2(addressAtOffset, 1);
     EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), addressAtOffset);

@@ -26,7 +26,7 @@ class TestClass
 {
   public:
     TestClass() noexcept = default;
-    TestClass(const int32_t a, const int32_t b, const int32_t c) noexcept
+    TestClass(const uint32_t a, const uint32_t b, const uint32_t c) noexcept
         : m_a(a)
         , m_b(b)
         , m_c(c)
@@ -37,21 +37,21 @@ class TestClass
     {
         return m_a == rhs.m_a && m_b == rhs.m_b && m_c == rhs.m_c;
     }
-    int32_t m_a = 0, m_b = 0, m_c = 0;
+    uint32_t m_a = 0, m_b = 0, m_c = 0;
 };
 
 class stack_test : public Test
 {
   public:
-    static constexpr uint64_t STACK_SIZE = 10U;
+    static constexpr uint32_t STACK_SIZE = 10U;
     cxx::stack<TestClass, STACK_SIZE> m_sut;
 
-    void pushElements(const uint64_t numberOfElements)
+    void pushElements(const uint32_t numberOfElements)
     {
-        for (uint64_t i = 0U; i < numberOfElements; ++i)
+        for (uint32_t i = 0U; i < numberOfElements; ++i)
         {
-            ASSERT_TRUE(m_sut.push(1 + i, 2 + i, 3 + i));
-            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            ASSERT_TRUE(m_sut.push(i + 1, i + 2, i + 3));
+            EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(i) + 1U));
             EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
         }
     }
@@ -92,10 +92,10 @@ TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
     ::testing::Test::RecordProperty("TEST_ID", "2d12fd5d-ded8-482d-86dd-094660c65f9c");
     pushElements(STACK_SIZE);
 
-    for (uint64_t i = 0U; i < STACK_SIZE; ++i)
+    for (uint32_t i = 0U; i < STACK_SIZE; ++i)
     {
         auto element = m_sut.pop();
-        EXPECT_THAT(m_sut.size(), Eq(STACK_SIZE - i - 1U));
+        EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(STACK_SIZE - i) - 1U));
         ASSERT_TRUE(element.has_value());
         EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
     }

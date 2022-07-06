@@ -508,7 +508,7 @@ struct TestStructForInPlaceConstruction
     }
 
     TestStructForInPlaceConstruction(int8_t&& val)
-        : val(DEFAULT_MULTIPLICATOR * val)
+        : val(static_cast<int8_t>(DEFAULT_MULTIPLICATOR * val))
     {
     }
 

@@ -128,12 +128,12 @@ class Functor : public Counter<Functor>
 int32_t freeFunction(int32_t n)
 {
     return n + 1;
-};
+}
 
 struct Arg : Counter<Arg>
 {
     Arg() = default;
-    Arg(uint32_t value)
+    Arg(int32_t value)
         : value(value){};
     Arg(const Arg&) = default;
     Arg& operator=(const Arg&) = default;

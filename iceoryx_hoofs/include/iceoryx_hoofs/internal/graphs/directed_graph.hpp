@@ -28,10 +28,10 @@ template <typename VertexType, int32_t VERTEX_LIMIT, int32_t DEGREE_LIMIT>
 class DirectedGraph
 {
   public:
-    using Index_t = int32_t;
+    using Index_t = uint32_t;
     using AdjacencyList = iox::cxx::vector<VertexType*, DEGREE_LIMIT>;
 
-    static constexpr Index_t INVALID_INDEX = -1;
+    static constexpr Index_t INVALID_INDEX = std::numeric_limits<Index_t>::max();
 
     virtual ~DirectedGraph() = default;
 
@@ -46,7 +46,7 @@ class DirectedGraph
             return false;
         }
 
-        if (findVertex(vertex) >= 0)
+        if (findVertex(vertex) != INVALID_INDEX)
         {
             return false; // already exists
         }
@@ -120,7 +120,7 @@ class DirectedGraph
     /// @return pointer to the list of successors, nullptr if index does not exist in the graph
     const AdjacencyList* getSuccessors(Index_t index)
     {
-        if (index >= 0 && index < static_cast<Index_t>(numberOfVertices()))
+        if (index != INVALID_INDEX && index < static_cast<Index_t>(numberOfVertices()))
         {
             return &m_vertices[index].successors;
         }
@@ -132,7 +132,7 @@ class DirectedGraph
     /// @return pointer to the list of predecessors, nullptr if index does not exist in the graph
     const AdjacencyList* getPredecessors(Index_t index)
     {
-        if (index >= 0 && index < static_cast<Index_t>(numberOfVertices()))
+        if (index != INVALID_INDEX && index < static_cast<Index_t>(numberOfVertices()))
         {
             return &m_vertices[index].predecessors;
         }
@@ -259,7 +259,7 @@ class DirectedGraph
 
     bool isValid(Index_t index)
     {
-        return index >= 0 && index < static_cast<Index_t>(m_vertices.size());
+        return index != INVALID_INDEX && index < static_cast<Index_t>(m_vertices.size());
     }
 };
 

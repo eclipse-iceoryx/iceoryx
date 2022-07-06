@@ -76,7 +76,7 @@ constexpr auto getReturns()
 {
     using R = decltype(std::declval<P>().get());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the conversion operator of P return a T?
 template <typename P, typename T>
@@ -84,7 +84,7 @@ constexpr auto conversionReturns()
 {
     using R = decltype(std::declval<P>().operator T());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the arrow operator of P return a T?
 template <typename P, typename T>
@@ -92,7 +92,7 @@ constexpr auto arrowReturns()
 {
     using R = decltype(std::declval<P>().operator->());
     return std::is_same<R, T>::value;
-};
+}
 
 // does the dereferencing operator of P return a T?
 template <typename P, typename T>
@@ -100,7 +100,7 @@ constexpr auto dereferencingReturns()
 {
     using R = decltype(std::declval<P>().operator*());
     return std::is_same<R, T>::value;
-};
+}
 
 
 struct Data
@@ -185,8 +185,14 @@ class Relocatable_ptr_test : public Test
 
 typedef ::testing::Types<int, Data, void, char*, const Data, const void> TestTypes;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(Relocatable_ptr_typed_test, TestTypes);
-
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 TYPED_TEST(Relocatable_ptr_typed_test, wrappedPointerTypeIsCorrect)
 {
