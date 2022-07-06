@@ -98,7 +98,9 @@ TEST_F(convert_test, toString_StringConvertableClass)
     ::testing::Test::RecordProperty("TEST_ID", "39601439-ec94-49d0-ac30-168dd0598bdc");
     struct A
     {
-        explicit operator std::string() const
+        // we want to test the implicit conversion
+        // NOLINTNEXTLINE(hicpp-explicit-conversions)
+        operator std::string() const
         {
             return "fuu";
         }
@@ -228,7 +230,7 @@ TEST_F(convert_test, fromString_LongDouble_Success)
     long double destination = 0.0;
     constexpr long double VERIFY = 121.01;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, DoubleEq(VERIFY));
+    EXPECT_THAT(static_cast<double>(destination), DoubleEq(static_cast<double>(VERIFY)));
 }
 
 TEST_F(convert_test, fromString_LongDouble_Fail)
