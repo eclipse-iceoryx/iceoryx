@@ -155,6 +155,7 @@ class string
     ///
     /// @param [in] other is the copy origin
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) copy constructor for string with different capacity
     string(const string<N>& other) noexcept;
 
     /// @brief moves other to this with compile time check whether the capacity of other is less than or equal to
@@ -162,6 +163,7 @@ class string
     ///
     /// @param [in] other is the move origin
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) move constructor for string with different capacity
     string(string<N>&& other) noexcept;
 
     /// @brief assigns rhs fixed string to this with compile time check whether the capacity of rhs is less than or
@@ -200,6 +202,10 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // avoid-c-arrays: cxx::string wraps char array
+    // explicit-conversions: we want to assign string literals to the string, like string<10> str = "abc"; this is safe
+    // because cxx::string wraps char array
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
     string(const char (&other)[N]) noexcept;
 
     /// @brief conversion constructor for cstring to string which truncates characters if the size is greater than
@@ -219,6 +225,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, "abcd");
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const char* const other) noexcept;
 
     /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
@@ -239,6 +247,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, bar);
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const std::string& other) noexcept;
 
     /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
@@ -259,6 +269,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, "abcd", 2);
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
 
     /// @brief assigns a char array to string with compile time check if the array size is less than or equal
@@ -281,6 +293,7 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     string& operator=(const char (&rhs)[N]) noexcept;
 
     /// @brief fixed string assignment with compile time check if capacity of str is less than or equal to this'
@@ -315,6 +328,7 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     string& assign(const char (&str)[N]) noexcept;
 
     /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
@@ -428,12 +442,14 @@ class string
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) todo #1196 remove this conversion and implement toStdString method
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
     /// capacity (failing or truncating), the fixed string does not support operator+=; use append for truncating or
     /// unsafe_append for failing in that case
     template <typename T>
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) method is disabled via static_assert
     string& operator+=(const T&) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too
@@ -450,6 +466,8 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& str) noexcept;
 
     /// @brief appends a char to the end of this if this' capacity is large enough.
@@ -457,6 +475,8 @@ class string
     /// @param [in] cstr is the char to append
     ///
     /// @return reference to self
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string& append(TruncateToCapacity_t, char cstr) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
@@ -584,6 +604,7 @@ class string
     template <uint64_t N>
     string& move(string<N>&& rhs) noexcept;
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char m_rawstring[Capacity + 1U]{'\0'};
     uint64_t m_rawstringSize{0U};
 };

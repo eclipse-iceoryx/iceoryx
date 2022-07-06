@@ -23,7 +23,12 @@ hicpp-*,
 -readability-redundant-access-specifiers,
 -readability-redundant-declaration,
 
+-readability-identifier-naming,
+
 '
+
+### Temporarily disabled because massive API changes:
+# * rule: readability-identifier-naming
 
 ### Justifications for deactivated rules
 # * rule: readability-avoid-const-params-in-decls

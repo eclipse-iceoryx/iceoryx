@@ -32,7 +32,14 @@ class stringTyped_test : public Test
     using stringType = T;
 };
 
-using Implementations = Types<string<1>, string<15>, string<100>, string<1000>>;
+constexpr uint64_t TYPED_TEST_STRINGCAP_1 = 1U;
+constexpr uint64_t TYPED_TEST_STRINGCAP_15 = 15U;
+constexpr uint64_t TYPED_TEST_STRINGCAP_100 = 100U;
+constexpr uint64_t TYPED_TEST_STRINGCAP_1000 = 1000U;
+using Implementations = Types<string<TYPED_TEST_STRINGCAP_1>,
+                              string<TYPED_TEST_STRINGCAP_15>,
+                              string<TYPED_TEST_STRINGCAP_100>,
+                              string<TYPED_TEST_STRINGCAP_1000>>;
 
 #ifdef __clang__
 #pragma GCC diagnostic push
@@ -256,6 +263,7 @@ TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSizeCapaResultsInSizeCapa
     ::testing::Test::RecordProperty("TEST_ID", "de81475a-527e-43e0-97b8-faf7a9300204");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
@@ -286,6 +294,7 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeCapaResultsInSi
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     // increase capacity by one to circumvent gcc -Werror=array-bounds
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[STRINGCAP + 1];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
@@ -303,6 +312,7 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeGreaterCapaResu
     ::testing::Test::RecordProperty("TEST_ID", "5e0a2023-ea15-43d5-aae8-980a75be6122");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; i++)
     {
@@ -419,6 +429,7 @@ TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeC
     string<STRING_CAPACITY> testSubject(TruncateToCapacity, testString.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject.capacity(), Eq(STRING_CAPACITY));
     EXPECT_THAT(testSubject.size(), Eq(STRING_SIZE));
+    // NOLINTNEXTLINE(bugprone-string-literal-with-embedded-nul) this shall be explicitely tested
     EXPECT_THAT(testSubject.c_str(), StrEq("ice\0ryx"));
 }
 
@@ -426,6 +437,7 @@ TEST(CharArrayAssignment, AssignCharArrayWithStringSizeLessThanArraySize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "886f580d-e57c-4685-90bf-2399737779be");
     constexpr uint64_t STRING_CAPACITY = 20U;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testString[STRING_CAPACITY] = "iceoryx";
     string<STRING_CAPACITY> testSubject(testString);
     EXPECT_THAT(testSubject.size(), Eq(7U));
@@ -436,6 +448,7 @@ TEST(CharArrayAssignment, AssignZeroTerminatedCharArrayWithSizeForFullCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "884e724a-f5d3-41d1-89fa-96f55ce99a96");
     constexpr uint64_t STRING_CAPACITY = 7U;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testString[STRING_CAPACITY + 1U] = "iceoryx";
     string<STRING_CAPACITY> testSubject(testString);
     EXPECT_THAT(testSubject.size(), Eq(STRING_CAPACITY));
@@ -446,6 +459,7 @@ TEST(CharArrayAssignment, AssignNonZeroTerminatedCharArrayOfSizeForFullCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a43553f-4358-4c41-a885-1495de0d7f4f");
     constexpr uint64_t STRING_CAPACITY = 7U;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testString[STRING_CAPACITY + 1U] = "iceoryx";
     testString[STRING_CAPACITY] = 'x'; // overwrite the 0 termination
     string<STRING_CAPACITY> testSubject(testString);
@@ -479,6 +493,7 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaWithOperatorResultsInSizeCap
     ::testing::Test::RecordProperty("TEST_ID", "19b0a4af-acfa-4d9b-b432-145ab1e7f59d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
@@ -580,6 +595,7 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaResultsInSizeCapa)
     ::testing::Test::RecordProperty("TEST_ID", "25f4f306-2303-4cc8-a42b-d0cbb600d833");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
@@ -1115,6 +1131,7 @@ TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
     std::string testStdString(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(testStdString), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -1134,6 +1151,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
     std::string temp(STRINGCAP, 'L');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -1154,6 +1172,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
     std::string temp(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -1173,6 +1192,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositi
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U] = {'\0'};
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
 
@@ -1188,6 +1208,7 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferent
     std::string temp(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 2U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -1210,6 +1231,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa
     std::string temp(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 2U];
     for (uint64_t i = 0U; i < STRINGCAP + 1U; ++i)
     {
@@ -1228,6 +1250,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa
     string<STRINGCAP + 1U> sut;
     ASSERT_THAT(sut.unsafe_assign(temp), Eq(true));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; ++i)
     {
@@ -1244,6 +1267,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
     constexpr auto STRINGCAP = MyString::capacity();
     string<STRINGCAP + 1U> sut("M");
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP] = {'\0'};
     EXPECT_THAT(sut.compare(testCharArray), Gt(0));
 }
@@ -1260,6 +1284,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     const char testCharArray[STRINGCAP + 1U] = {'M'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(true));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
@@ -1280,6 +1305,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U] = {'L'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(false));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
@@ -1300,6 +1326,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
     constexpr auto STRINGCAP = MyString::capacity() + 5U;
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP] = {'M'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(true));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
@@ -1313,6 +1340,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
     EXPECT_THAT(this->testSubject != testStdString, Eq(false));
     EXPECT_THAT(testStdString != this->testSubject, Eq(false));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     const char test[] = {'M'};
     EXPECT_THAT(test == this->testSubject, Eq(true));
 }
@@ -1324,6 +1352,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
     constexpr auto STRINGCAP = MyString::capacity() + 3U;
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP] = {'M', 'L'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(false));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
@@ -1352,6 +1381,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U] = {'L'};
     std::string testStdString = testCharArray;
 
@@ -1405,6 +1435,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
     constexpr auto STRINGCAP = MyString::capacity();
     this->testSubject = "M";
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U] = {'M'};
     EXPECT_THAT(this->testSubject < testCharArray, Eq(false));
     EXPECT_THAT(this->testSubject <= testCharArray, Eq(true));
@@ -1434,6 +1465,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[STRINGCAP + 1U];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -1500,6 +1532,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
     constexpr uint64_t TEST_STRINGCAP = STRINGCAP + 6U;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testCharArray[TEST_STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
@@ -2215,6 +2248,7 @@ TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorP
     EXPECT_THAT(testString1.size(), Eq(1U));
     EXPECT_THAT(testString1.c_str(), StrEq("M"));
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
     char testChar[3] = "ab";
     testChar[2] = 'c';
     string<3U * STRINGCAP> testString2 = this->testSubject + testChar;
@@ -3303,7 +3337,9 @@ TEST(String100, FindLastOfForNotIncludedSTDStringFails)
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
-    EXPECT_DEATH({ this->testSubject.at(0U); }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ this->testSubject.at(0U); }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
@@ -3311,7 +3347,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
     ::testing::Test::RecordProperty("TEST_ID", "68035709-5f8d-4bcb-80ce-ad5619aba84a");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNonEmptyStringViaAtReturnsCorrectCharacter)
@@ -3344,7 +3382,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    EXPECT_DEATH({ sut.at(0U); }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ sut.at(0U); }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
@@ -3353,7 +3393,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    EXPECT_DEATH({ sut.at(STRINGCAP); }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ sut.at(STRINGCAP); }, "Out of bounds access");
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstAtReturnsCorrectCharacter)
@@ -3381,7 +3423,9 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstAtSucceeds
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
-    EXPECT_DEATH({ this->testSubject[0U]; }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ this->testSubject[0U]; }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
@@ -3389,7 +3433,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
     ::testing::Test::RecordProperty("TEST_ID", "ab52924e-1d6a-41e1-a8a9-8cfd9ab2120d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
@@ -3422,7 +3468,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperato
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    EXPECT_DEATH({ sut[0U]; }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ sut[0U]; }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
@@ -3431,7 +3479,9 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorF
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    EXPECT_DEATH({ sut[STRINGCAP]; }, ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH({ sut[STRINGCAP]; }, "Out of bounds access!");
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)
