@@ -169,7 +169,14 @@ typedef ::testing::Types<LFFull1,
                          AlmostEmpty2>
     TestConfigs;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(LockFreeQueueTest, TestConfigs);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 TEST(LockFreeQueueTest, capacityIsConsistent)

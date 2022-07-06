@@ -55,11 +55,11 @@ class DirectedGraph_test : public Test
 
     DirectedGraph<TestNode, MAX_VERTICES, MAX_DEGREE> m_graph;
 
-    TestNode node1{0, 0};
-    TestNode node2{2, 1};
-    TestNode node3{100, 0};
-    TestNode node4{13, 42};
-    TestNode node5{10000, 88};
+    TestNode node1{0U, 0U};
+    TestNode node2{2U, 1U};
+    TestNode node3{100U, 0U};
+    TestNode node4{13U, 42U};
+    TestNode node5{10000U, 88U};
 };
 
 TEST_F(DirectedGraph_test, addVertices)

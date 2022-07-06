@@ -870,13 +870,13 @@ TEST_F(ObjectPool_test, iterator)
         auto value = *foo.m_data;
         if (value >= 1 && value <= 3)
         {
-            count[value]++;
+            count[static_cast<uint64_t>(value)]++;
         }
         ++numElements;
     }
 
     EXPECT_THAT(numElements, Eq(3));
-    for (int i = 1; i <= 3; ++i)
+    for (uint64_t i = 1; i <= 3; ++i)
     {
         EXPECT_THAT(count[i], Eq(1)); // expect each value exactly once
     }
@@ -894,7 +894,7 @@ TEST_F(ObjectPool_test, iterator)
         auto value = *foo.m_data;
         if (value >= 1 && value <= 3)
         {
-            count[value]++;
+            count[static_cast<uint64_t>(value)]++;
         }
         ++numElements;
     }
@@ -918,7 +918,7 @@ TEST_F(ObjectPool_test, iterator)
         auto value = *foo.m_data;
         if (value >= 1 && value <= 3)
         {
-            count[value]++;
+            count[static_cast<uint64_t>(value)]++;
         }
         ++numElements;
     }
@@ -939,7 +939,7 @@ TEST_F(ObjectPool_test, iterator)
         auto value = *foo.m_data;
         if (value >= 1 && value <= 3)
         {
-            count[value]++;
+            count[static_cast<uint64_t>(value)]++;
         }
         ++numElements;
     }

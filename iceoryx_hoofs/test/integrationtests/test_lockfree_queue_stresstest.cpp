@@ -35,14 +35,14 @@ namespace
 {
 struct Data
 {
-    Data(int id = 0, size_t count = 0)
+    Data(uint64_t id = 0U, uint64_t count = 0)
         : id(id)
         , count(count)
     {
     }
 
-    int id{0};
-    size_t count{0};
+    uint64_t id{0};
+    uint64_t count{0};
 
     void print()
     {
@@ -53,12 +53,12 @@ struct Data
 Barrier g_barrier;
 
 template <typename Queue>
-void produce(Queue& queue, int id, int iterations)
+void produce(Queue& queue, uint64_t id, uint64_t iterations)
 {
     g_barrier.notify();
 
     Data d(id, 0);
-    for (int i = 0; i < iterations; ++i)
+    for (uint64_t i = 0; i < iterations; ++i)
     {
         d.count++;
         while (!queue.tryPush(d))
@@ -68,13 +68,13 @@ void produce(Queue& queue, int id, int iterations)
 }
 
 template <typename Queue>
-void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, int maxId, bool& testResult)
+void consume(Queue& queue, std::atomic<bool>& run, uint64_t expectedFinalCount, uint64_t maxId, bool& testResult)
 {
     g_barrier.notify();
 
     bool error = false;
 
-    std::vector<size_t> lastCount(maxId + 1, 0);
+    std::vector<uint64_t> lastCount(maxId + 1, 0);
 
     while (run || !queue.empty())
     {
@@ -91,7 +91,7 @@ void consume(Queue& queue, std::atomic<bool>& run, size_t expectedFinalCount, in
         }
     }
 
-    for (int i = 1; i <= maxId; ++i)
+    for (uint64_t i = 1; i <= maxId; ++i)
     {
         if (lastCount[i] != expectedFinalCount)
         {
@@ -121,7 +121,7 @@ void consumeAndStore(Queue& queue, std::atomic<bool>& run, std::list<Data>& cons
     }
 }
 
-std::list<Data> filter(std::list<Data>& list, int id)
+std::list<Data> filter(std::list<Data>& list, uint64_t id)
 {
     std::list<Data> filtered;
 
@@ -186,12 +186,12 @@ bool isComplete(std::list<Data>& list1, std::list<Data>& list2, size_t finalCoun
 
 bool checkTwoConsumerResult(std::list<Data>& consumed1,
                             std::list<Data>& consumed2,
-                            size_t expectedFinalCount,
-                            int maxId)
+                            uint64_t expectedFinalCount,
+                            uint64_t maxId)
 {
-    std::vector<std::list<Data>> consumed(maxId + 1);
+    std::vector<std::list<Data>> consumed(maxId + 1U);
 
-    for (int id = 1; id <= maxId; ++id)
+    for (uint64_t id = 1; id <= maxId; ++id)
     {
         auto filtered1 = filter(consumed1, id);
         auto filtered2 = filter(consumed2, id);
@@ -215,7 +215,7 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
 // alternates between push and pop
 template <typename Queue>
-void work(Queue& queue, int id, std::atomic<bool>& run)
+void work(Queue& queue, uint64_t id, std::atomic<bool>& run)
 {
     g_barrier.notify();
 
@@ -262,9 +262,9 @@ void work(Queue& queue, int id, std::atomic<bool>& run)
 // popProbability essentially controls whether the queue tends to be full or empty on average
 template <typename Queue>
 void randomWork(Queue& queue,
-                int id,
+                uint64_t id,
                 std::atomic<bool>& run,
-                int& overflowCount,
+                uint64_t& overflowCount,
                 std::list<Data>& items,
                 double popProbability = 0.5)
 {
@@ -364,8 +364,14 @@ using LargeQueue = TestQueue<1000000>;
 typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue> TestQueues;
 // typedef ::testing::Types<MediumQueue> TestQueues;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues);
-
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 ///@brief Tests concurrent operation of one prodcuer and one consumer
 /// The producer pushes a fixed number of data elements which the consumer pops and checks.
@@ -380,8 +386,8 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_singleProducerSingleConsumer)
     bool testResult;
     int iterations = 10000000;
 
-    std::thread consumer(consume<Queue>, std::ref(queue), std::ref(run), iterations, 1, std::ref(testResult));
-    std::thread producer(produce<Queue>, std::ref(queue), 1, iterations);
+    std::thread consumer(consume<Queue>, std::ref(queue), std::ref(run), iterations, 1U, std::ref(testResult));
+    std::thread producer(produce<Queue>, std::ref(queue), 1U, iterations);
 
     producer.join();
 
@@ -402,15 +408,15 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerSingleConsumer)
     auto& queue = this->sut;
     std::atomic<bool> run{true};
     bool testResult;
-    int iterations = 1000000;
-    int numProducers = 8;
+    uint64_t iterations = 1000000U;
+    uint64_t numProducers = 8U;
 
     std::vector<std::thread> producers;
 
     std::thread consumer(
         consume<Queue>, std::ref(queue), std::ref(run), iterations, numProducers, std::ref(testResult));
 
-    for (int id = 1; id <= numProducers; ++id)
+    for (uint64_t id = 1U; id <= numProducers; ++id)
     {
         producers.emplace_back(produce<Queue>, std::ref(queue), id, iterations);
     }
@@ -441,8 +447,8 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
 
     auto& queue = this->sut;
     std::atomic<bool> run{true};
-    int iterations = 1000000;
-    int numProducers = 4;
+    uint64_t iterations = 1000000U;
+    uint64_t numProducers = 4;
 
     std::vector<std::thread> producers;
 
@@ -453,7 +459,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_multiProducerTwoConsumer)
     std::thread consumer1(consumeAndStore<Queue>, std::ref(queue), std::ref(run), std::ref(consumed1));
     std::thread consumer2(consumeAndStore<Queue>, std::ref(queue), std::ref(run), std::ref(consumed2));
 
-    for (int id = 1; id <= numProducers; ++id)
+    for (uint64_t id = 1U; id <= numProducers; ++id)
     {
         producers.emplace_back(produce<Queue>, std::ref(queue), id, iterations);
     }
@@ -484,7 +490,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 
     auto& q = this->sut;
     std::chrono::seconds runtime(10);
-    int numThreads = 32;
+    uint32_t numThreads = 32U;
 
     auto capacity = q.capacity();
 
@@ -503,7 +509,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer)
 
     std::vector<std::thread> threads;
 
-    for (int id = 1; id <= numThreads; ++id)
+    for (uint64_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
     }
@@ -558,7 +564,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
 
     auto& q = this->sut;
     std::chrono::seconds runtime(10);
-    int numThreads = 32;
+    uint32_t numThreads = 32U;
     double popProbability = 0.45; // tends to overflow
 
     auto capacity = q.capacity();
@@ -566,14 +572,14 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
     std::atomic<bool> run{true};
 
     std::vector<std::thread> threads;
-    std::vector<int> overflowCount(numThreads);
+    std::vector<uint64_t> overflowCount(numThreads);
     std::vector<std::list<Data>> itemVec(numThreads);
 
     g_barrier.reset(numThreads);
 
     // fill the queue
     Data d;
-    for (size_t i = 0; i < capacity; ++i)
+    for (uint64_t i = 0U; i < capacity; ++i)
     {
         d.count = i;
         while (!q.tryPush(d))
@@ -581,7 +587,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
         }
     }
 
-    for (int id = 1; id <= numThreads; ++id)
+    for (uint64_t id = 1U; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
                              std::ref(q),
@@ -605,7 +611,7 @@ TYPED_TEST(LockFreeQueueStressTest, DISABLED_timedMultiProducerMultiConsumer0ver
     // check whether all elements are there, but there is no specific ordering we can expect
     // items are either in the local lists or the queue, in total we expect each count numThreads times
 
-    std::vector<int> count(capacity, 0);
+    std::vector<uint64_t> count(capacity, 0U);
     auto popped = q.pop();
     while (popped.has_value())
     {

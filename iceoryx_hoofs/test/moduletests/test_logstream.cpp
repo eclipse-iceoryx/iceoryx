@@ -203,7 +203,14 @@ class IoxLogStreamHexBin_test : public IoxLogStream_test
 
 using LogHexBinTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(IoxLogStreamHexBin_test, LogHexBinTypes);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename LogType>
@@ -276,7 +283,14 @@ TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMax)
 using ArithmeticTypes =
     Types<bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, float, double>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(IoxLogStreamArithmetic_test, ArithmeticTypes);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 template <typename Arithmetic>

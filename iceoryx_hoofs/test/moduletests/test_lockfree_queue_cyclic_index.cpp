@@ -50,7 +50,14 @@ class LockFreeQueueCyclicIndexTest : public ::testing::Test
 
 typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, CyclicIndex<1000>> TestIndices;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(LockFreeQueueCyclicIndexTest, TestIndices);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 
 // note that in all tests we will check whether the getCycle and getIndex methods
