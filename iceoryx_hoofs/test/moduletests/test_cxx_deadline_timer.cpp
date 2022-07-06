@@ -35,12 +35,12 @@ using Timer = iox::cxx::DeadlineTimer;
 class DeadlineTimer_test : public Test
 {
   public:
-    virtual void SetUp()
+    void SetUp() override
     {
         numberOfCalls = 0;
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
     }
 
