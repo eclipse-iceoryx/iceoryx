@@ -566,7 +566,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T
     {
         return nullopt;
     }
-    return (found - c_str());
+    return (static_cast<uint64_t>(found - c_str()));
 }
 
 template <uint64_t Capacity>

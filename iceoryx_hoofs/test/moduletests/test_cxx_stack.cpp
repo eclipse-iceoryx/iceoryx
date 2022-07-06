@@ -43,15 +43,15 @@ class TestClass
 class stack_test : public Test
 {
   public:
-    static constexpr uint64_t STACK_SIZE = 10U;
-    cxx::stack<TestClass, STACK_SIZE> m_sut;
+    static constexpr int32_t STACK_SIZE = 10U;
+    cxx::stack<TestClass, static_cast<uint64_t>(STACK_SIZE)> m_sut;
 
-    void pushElements(const uint64_t numberOfElements)
+    void pushElements(const int32_t numberOfElements)
     {
-        for (uint64_t i = 0U; i < numberOfElements; ++i)
+        for (int32_t i = 0U; i < numberOfElements; ++i)
         {
-            ASSERT_TRUE(m_sut.push(1 + i, 2 + i, 3 + i));
-            EXPECT_THAT(m_sut.size(), Eq(i + 1U));
+            ASSERT_TRUE(m_sut.push(i + 1, i + 2, i + 3));
+            EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(i) + 1U));
             EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
         }
     }
@@ -92,10 +92,10 @@ TEST_F(stack_test, pushingElementsTillStackIsFullAndPoppingInLIFOOrderSucceeds)
     ::testing::Test::RecordProperty("TEST_ID", "2d12fd5d-ded8-482d-86dd-094660c65f9c");
     pushElements(STACK_SIZE);
 
-    for (uint64_t i = 0U; i < STACK_SIZE; ++i)
+    for (int32_t i = 0U; i < STACK_SIZE; ++i)
     {
         auto element = m_sut.pop();
-        EXPECT_THAT(m_sut.size(), Eq(STACK_SIZE - i - 1U));
+        EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(STACK_SIZE - i) - 1U));
         ASSERT_TRUE(element.has_value());
         EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
     }

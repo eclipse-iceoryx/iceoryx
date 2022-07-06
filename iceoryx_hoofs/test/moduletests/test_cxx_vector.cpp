@@ -28,16 +28,16 @@ using namespace iox::cxx;
 class vector_test : public Test
 {
   public:
-    static int cTor;
-    static int customCTor;
-    static int copyCTor;
-    static int moveCTor;
-    static int moveAssignment;
-    static int copyAssignment;
-    static int dTor;
-    static int classValue;
+    static uint64_t cTor;
+    static uint64_t customCTor;
+    static uint64_t copyCTor;
+    static uint64_t moveCTor;
+    static uint64_t moveAssignment;
+    static uint64_t copyAssignment;
+    static uint64_t dTor;
+    static uint64_t classValue;
 
-    static std::vector<int> dtorOrder;
+    static std::vector<uint64_t> dtorOrder;
 
     class CTorTest
     {
@@ -48,7 +48,7 @@ class vector_test : public Test
             classValue = value;
         }
 
-        CTorTest(const int value)
+        CTorTest(const uint64_t value)
             : value(value)
         {
             customCTor++;
@@ -92,7 +92,7 @@ class vector_test : public Test
             dtorOrder.emplace_back(value);
         }
 
-        int value = 0;
+        uint64_t value = 0;
     };
 
     void SetUp()
@@ -108,18 +108,18 @@ class vector_test : public Test
         dtorOrder.clear();
     }
 
-    vector<int, 10> sut;
+    vector<uint64_t, 10> sut;
 };
 
-int vector_test::cTor;
-int vector_test::customCTor;
-int vector_test::copyCTor;
-int vector_test::moveCTor;
-int vector_test::moveAssignment;
-int vector_test::copyAssignment;
-int vector_test::dTor;
-int vector_test::classValue;
-std::vector<int> vector_test::dtorOrder;
+uint64_t vector_test::cTor;
+uint64_t vector_test::customCTor;
+uint64_t vector_test::copyCTor;
+uint64_t vector_test::moveCTor;
+uint64_t vector_test::moveAssignment;
+uint64_t vector_test::copyAssignment;
+uint64_t vector_test::dTor;
+uint64_t vector_test::classValue;
+std::vector<uint64_t> vector_test::dtorOrder;
 
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
@@ -193,7 +193,7 @@ TEST_F(vector_test, NewVectorWithElementsCTorWithMoreThanCapacityElements)
 TEST_F(vector_test, EmplaceBackSuccessfullWhenSpaceAvailable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98d17e04-0d2b-4575-a1f0-7b3cd918c54d");
-    EXPECT_THAT(sut.emplace_back(5), Eq(true));
+    EXPECT_THAT(sut.emplace_back(5U), Eq(true));
 }
 
 TEST_F(vector_test, EmplaceBackFailsWhenSpaceNotAvailable)
@@ -201,9 +201,9 @@ TEST_F(vector_test, EmplaceBackFailsWhenSpaceNotAvailable)
     ::testing::Test::RecordProperty("TEST_ID", "199e6fc7-5bc4-4896-b211-e04fc668ccd0");
     for (uint64_t i = 0; i < 10; ++i)
     {
-        EXPECT_THAT(sut.emplace_back(5), Eq(true));
+        EXPECT_THAT(sut.emplace_back(5U), Eq(true));
     }
-    EXPECT_THAT(sut.emplace_back(5), Eq(false));
+    EXPECT_THAT(sut.emplace_back(5U), Eq(false));
 }
 
 TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableLValue)
@@ -255,7 +255,7 @@ TEST_F(vector_test, PopBackNonEmptyVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef4ecaa7-d467-4c8a-9ab4-4444b87727d0");
     vector<CTorTest, 10> sut;
-    sut.emplace_back(101);
+    sut.emplace_back(101U);
     ASSERT_THAT(sut.size(), Eq(1u));
     dTor = 0;
     sut.pop_back();
@@ -266,7 +266,7 @@ TEST_F(vector_test, PopBackNonEmptyVector)
 TEST_F(vector_test, SizeIncreasesWhenElementIsAdded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2f1814ce-dfc8-4dbe-a7c7-ab004e28a7a2");
-    sut.emplace_back(5);
+    sut.emplace_back(5U);
     EXPECT_THAT(sut.size(), Eq(1));
 }
 
@@ -275,7 +275,7 @@ TEST_F(vector_test, SizeEqualsCapacityWheFull)
     ::testing::Test::RecordProperty("TEST_ID", "733985c2-ef1d-4772-9c01-4e26e841581d");
     for (uint64_t i = 0; i < 10; ++i)
     {
-        sut.emplace_back(5);
+        sut.emplace_back(5U);
     }
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }
@@ -285,23 +285,23 @@ TEST_F(vector_test, SizeUnchangedWhenEmplaceFails)
     ::testing::Test::RecordProperty("TEST_ID", "6ae42f49-ef4d-4b9c-9360-a6e63a8b9357");
     for (uint64_t i = 0; i < 10; ++i)
     {
-        sut.emplace_back(5);
+        sut.emplace_back(5U);
     }
-    EXPECT_THAT(sut.emplace_back(5), Eq(false));
+    EXPECT_THAT(sut.emplace_back(5U), Eq(false));
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }
 
 TEST_F(vector_test, NotEmptyWhenElementWasAdded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "651703b8-0828-471e-9333-547dc1b00295");
-    sut.emplace_back(5);
+    sut.emplace_back(5U);
     EXPECT_THAT(sut.empty(), Eq(false));
 }
 
 TEST_F(vector_test, EmptyAfterClear)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f08cd8f7-2eca-4ef2-b2c3-d642529ecd60");
-    sut.emplace_back(5);
+    sut.emplace_back(5U);
     sut.clear();
     EXPECT_THAT(sut.empty(), Eq(true));
 }
@@ -309,7 +309,7 @@ TEST_F(vector_test, EmptyAfterClear)
 TEST_F(vector_test, SizeZeroAfterClear)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7fb46858-5e85-488c-8c10-40c44d412c61");
-    sut.emplace_back(5);
+    sut.emplace_back(5U);
     sut.clear();
     EXPECT_THAT(sut.size(), Eq(0));
 }
@@ -318,8 +318,8 @@ TEST_F(vector_test, CopyConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "afc46f10-e2fe-4c62-beb3-75c28d18d0f9");
     vector<CTorTest, 10> sut1;
-    sut1.emplace_back(101);
-    sut1.emplace_back(102);
+    sut1.emplace_back(101U);
+    sut1.emplace_back(102U);
 
     vector<CTorTest, 10> sut2(sut1);
     EXPECT_THAT(copyCTor, Eq(2));
@@ -362,13 +362,13 @@ TEST_F(vector_test, MoveConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c96fdf10-822b-4872-b3d2-d3745a2ccb52");
     vector<CTorTest, 10> sut1;
-    sut1.emplace_back(8101);
-    sut1.emplace_back(8102);
+    sut1.emplace_back(8101U);
+    sut1.emplace_back(8102U);
 
     vector<CTorTest, 10> sut2(std::move(sut1));
     EXPECT_THAT(moveCTor, Eq(2));
-    EXPECT_THAT(sut2.at(0).value, Eq(8101));
-    EXPECT_THAT(sut2.at(1).value, Eq(8102));
+    EXPECT_THAT(sut2.at(0).value, Eq(8101U));
+    EXPECT_THAT(sut2.at(1).value, Eq(8102U));
     EXPECT_THAT(sut2.empty(), Eq(false));
     EXPECT_THAT(sut2.size(), Eq(2));
 }
@@ -416,9 +416,9 @@ TEST_F(vector_test, DestructorSomeElements)
     ::testing::Test::RecordProperty("TEST_ID", "ccbc94af-9cfa-49a6-8d69-426794ac6e83");
     {
         vector<CTorTest, 10> sut1;
-        sut1.emplace_back(891);
-        sut1.emplace_back(9191);
-        sut1.emplace_back(1);
+        sut1.emplace_back(891U);
+        sut1.emplace_back(9191U);
+        sut1.emplace_back(1U);
     }
     EXPECT_THAT(dTor, Eq(3));
 }
@@ -430,7 +430,7 @@ TEST_F(vector_test, DestructorWithFullVector)
         vector<CTorTest, 10> sut1;
         for (uint64_t i = 0; i < sut1.capacity(); ++i)
         {
-            sut1.emplace_back(1231);
+            sut1.emplace_back(1231U);
         }
     }
 
@@ -441,9 +441,9 @@ TEST_F(vector_test, CopyAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f64706d-b370-41b4-91e1-3e319cd6c14a");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(812);
-    sut1.emplace_back(81122);
-    sut1.emplace_back(8132);
+    sut1.emplace_back(812U);
+    sut1.emplace_back(81122U);
+    sut1.emplace_back(8132U);
 
     sut1 = sut2;
     EXPECT_THAT(dTor, Eq(3));
@@ -457,9 +457,9 @@ TEST_F(vector_test, CopyAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c3bb0ad8-c099-438c-afc4-d41a22dc4e2f");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(5812);
-    sut1.emplace_back(581122);
-    sut1.emplace_back(58132);
+    sut1.emplace_back(5812U);
+    sut1.emplace_back(581122U);
+    sut1.emplace_back(58132U);
 
     sut2 = sut1;
     EXPECT_THAT(dTor, Eq(0));
@@ -468,22 +468,22 @@ TEST_F(vector_test, CopyAssignmentWithEmptyDestination)
     EXPECT_THAT(sut2.size(), Eq(3));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
-    EXPECT_THAT(sut2.at(0).value, Eq(5812));
-    EXPECT_THAT(sut2.at(1).value, Eq(581122));
-    EXPECT_THAT(sut2.at(2).value, Eq(58132));
+    EXPECT_THAT(sut2.at(0).value, Eq(5812U));
+    EXPECT_THAT(sut2.at(1).value, Eq(581122U));
+    EXPECT_THAT(sut2.at(2).value, Eq(58132U));
 }
 
 TEST_F(vector_test, CopyAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "39353120-5606-43b6-8909-a6751a801331");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(5842);
-    sut1.emplace_back(584122);
-    sut1.emplace_back(58432);
-    sut1.emplace_back(58432);
+    sut1.emplace_back(5842U);
+    sut1.emplace_back(584122U);
+    sut1.emplace_back(58432U);
+    sut1.emplace_back(58432U);
 
-    sut2.emplace_back(313);
-    sut2.emplace_back(3131);
+    sut2.emplace_back(313U);
+    sut2.emplace_back(3131U);
 
     sut1 = sut2;
     EXPECT_THAT(dTor, Eq(2));
@@ -492,21 +492,21 @@ TEST_F(vector_test, CopyAssignmentWithLargerDestination)
     EXPECT_THAT(sut1.size(), Eq(2));
     EXPECT_THAT(sut1.empty(), Eq(false));
 
-    EXPECT_THAT(sut1.at(0).value, Eq(313));
-    EXPECT_THAT(sut1.at(1).value, Eq(3131));
+    EXPECT_THAT(sut1.at(0).value, Eq(313U));
+    EXPECT_THAT(sut1.at(1).value, Eq(3131U));
 }
 
 TEST_F(vector_test, CopyAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "956303d2-0853-410f-8d44-347a2c5258fe");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(15842);
-    sut1.emplace_back(1584122);
-    sut1.emplace_back(158432);
-    sut1.emplace_back(158432);
+    sut1.emplace_back(15842U);
+    sut1.emplace_back(1584122U);
+    sut1.emplace_back(158432U);
+    sut1.emplace_back(158432U);
 
-    sut2.emplace_back(1313);
-    sut2.emplace_back(13131);
+    sut2.emplace_back(1313U);
+    sut2.emplace_back(13131U);
 
     sut2 = sut1;
 
@@ -516,19 +516,19 @@ TEST_F(vector_test, CopyAssignmentWithLargerSource)
     EXPECT_THAT(sut2.size(), Eq(4));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
-    EXPECT_THAT(sut2.at(0).value, Eq(15842));
-    EXPECT_THAT(sut2.at(1).value, Eq(1584122));
-    EXPECT_THAT(sut2.at(2).value, Eq(158432));
-    EXPECT_THAT(sut2.at(3).value, Eq(158432));
+    EXPECT_THAT(sut2.at(0).value, Eq(15842U));
+    EXPECT_THAT(sut2.at(1).value, Eq(1584122U));
+    EXPECT_THAT(sut2.at(2).value, Eq(158432U));
+    EXPECT_THAT(sut2.at(3).value, Eq(158432U));
 }
 
 TEST_F(vector_test, MoveAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc8c2211-e8f6-4a49-a1bb-8344894c017b");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(812);
-    sut1.emplace_back(81122);
-    sut1.emplace_back(8132);
+    sut1.emplace_back(812U);
+    sut1.emplace_back(81122U);
+    sut1.emplace_back(8132U);
 
     sut1 = std::move(sut2);
     EXPECT_THAT(dTor, Eq(3));
@@ -542,9 +542,9 @@ TEST_F(vector_test, MoveAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4e9b8dba-4ad3-4281-af5b-e9bb73b8b246");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(5812);
-    sut1.emplace_back(581122);
-    sut1.emplace_back(58132);
+    sut1.emplace_back(5812U);
+    sut1.emplace_back(581122U);
+    sut1.emplace_back(58132U);
 
     sut2 = std::move(sut1);
     EXPECT_THAT(dTor, Eq(3));
@@ -553,22 +553,22 @@ TEST_F(vector_test, MoveAssignmentWithEmptyDestination)
     EXPECT_THAT(sut2.size(), Eq(3));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
-    EXPECT_THAT(sut2.at(0).value, Eq(5812));
-    EXPECT_THAT(sut2.at(1).value, Eq(581122));
-    EXPECT_THAT(sut2.at(2).value, Eq(58132));
+    EXPECT_THAT(sut2.at(0).value, Eq(5812U));
+    EXPECT_THAT(sut2.at(1).value, Eq(581122U));
+    EXPECT_THAT(sut2.at(2).value, Eq(58132U));
 }
 
 TEST_F(vector_test, MoveAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f41e5f13-19bc-4876-a1d0-32c57f06902f");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(5842);
-    sut1.emplace_back(584122);
-    sut1.emplace_back(58432);
-    sut1.emplace_back(58432);
+    sut1.emplace_back(5842U);
+    sut1.emplace_back(584122U);
+    sut1.emplace_back(58432U);
+    sut1.emplace_back(58432U);
 
-    sut2.emplace_back(313);
-    sut2.emplace_back(3131);
+    sut2.emplace_back(313U);
+    sut2.emplace_back(3131U);
 
     sut1 = std::move(sut2);
     EXPECT_THAT(dTor, Eq(4));
@@ -577,21 +577,21 @@ TEST_F(vector_test, MoveAssignmentWithLargerDestination)
     EXPECT_THAT(sut1.size(), Eq(2));
     EXPECT_THAT(sut1.empty(), Eq(false));
 
-    EXPECT_THAT(sut1.at(0).value, Eq(313));
-    EXPECT_THAT(sut1.at(1).value, Eq(3131));
+    EXPECT_THAT(sut1.at(0).value, Eq(313U));
+    EXPECT_THAT(sut1.at(1).value, Eq(3131U));
 }
 
 TEST_F(vector_test, MoveAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b840951e-9d80-49d4-9c8f-3a21b4136ba8");
     vector<CTorTest, 10> sut1, sut2;
-    sut1.emplace_back(15842);
-    sut1.emplace_back(1584122);
-    sut1.emplace_back(158432);
-    sut1.emplace_back(158432);
+    sut1.emplace_back(15842U);
+    sut1.emplace_back(1584122U);
+    sut1.emplace_back(158432U);
+    sut1.emplace_back(158432U);
 
-    sut2.emplace_back(1313);
-    sut2.emplace_back(13131);
+    sut2.emplace_back(1313U);
+    sut2.emplace_back(13131U);
 
     sut2 = std::move(sut1);
 
@@ -601,10 +601,10 @@ TEST_F(vector_test, MoveAssignmentWithLargerSource)
     EXPECT_THAT(sut2.size(), Eq(4));
     EXPECT_THAT(sut2.empty(), Eq(false));
 
-    EXPECT_THAT(sut2.at(0).value, Eq(15842));
-    EXPECT_THAT(sut2.at(1).value, Eq(1584122));
-    EXPECT_THAT(sut2.at(2).value, Eq(158432));
-    EXPECT_THAT(sut2.at(3).value, Eq(158432));
+    EXPECT_THAT(sut2.at(0).value, Eq(15842U));
+    EXPECT_THAT(sut2.at(1).value, Eq(1584122U));
+    EXPECT_THAT(sut2.at(2).value, Eq(158432U));
+    EXPECT_THAT(sut2.at(3).value, Eq(158432U));
 }
 
 TEST_F(vector_test, BeginEndIteratorAreTheSameWhenEmpty)
@@ -623,14 +623,14 @@ TEST_F(vector_test, BeginEndConstIteratorAreTheSameWhenEmpty)
 TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenNotEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "26ab3394-ec0e-4f12-bcac-73d7918bcdbb");
-    sut.emplace_back(1);
+    sut.emplace_back(1U);
     EXPECT_THAT(sut.begin() < sut.end(), Eq(true));
 }
 
 TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenNotEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c1a101ff-c840-45d2-acf8-f2de2fd504c7");
-    sut.emplace_back(1);
+    sut.emplace_back(1U);
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
                 Eq(true));
 }
@@ -639,7 +639,9 @@ TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f20cda46-0941-440e-87cb-a0a111719182");
     for (uint64_t i = 0; i < sut.capacity(); ++i)
+    {
         sut.emplace_back(i);
+    }
     EXPECT_THAT(sut.begin() < sut.end(), Eq(true));
 }
 
@@ -647,7 +649,9 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9912c12f-25a4-47f3-a3a6-714c543dd882");
     for (uint64_t i = 0; i < sut.capacity(); ++i)
+    {
         sut.emplace_back(i);
+    }
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
                 Eq(true));
 }
@@ -655,13 +659,13 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
 TEST_F(vector_test, IteratorIteratesThroughNonEmptyVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "caf1508b-4ea5-4a0d-bba4-b7c0810e236d");
-    constexpr int INITIAL_VALUE{42};
+    constexpr uint64_t INITIAL_VALUE = 42U;
     sut.emplace_back(INITIAL_VALUE);
-    sut.emplace_back(INITIAL_VALUE + 1);
-    sut.emplace_back(INITIAL_VALUE + 2);
-    const int EXPECTED_END_INDEX = sut.size();
+    sut.emplace_back(INITIAL_VALUE + 1U);
+    sut.emplace_back(INITIAL_VALUE + 2U);
+    const uint64_t EXPECTED_END_INDEX = sut.size();
 
-    int count = 0;
+    uint64_t count = 0U;
     for (auto& v : sut)
     {
         EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
@@ -673,13 +677,13 @@ TEST_F(vector_test, IteratorIteratesThroughNonEmptyVector)
 TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "959fcdac-ca00-4765-a247-947f6fc9e00f");
-    constexpr int INITIAL_VALUE{142};
+    constexpr uint64_t INITIAL_VALUE{142U};
     sut.emplace_back(INITIAL_VALUE);
-    sut.emplace_back(INITIAL_VALUE + 1);
-    sut.emplace_back(INITIAL_VALUE + 2);
-    const int EXPECTED_END_COUNT = sut.size();
+    sut.emplace_back(INITIAL_VALUE + 1U);
+    sut.emplace_back(INITIAL_VALUE + 2U);
+    const uint64_t EXPECTED_END_COUNT = sut.size();
 
-    int count = 0;
+    uint64_t count = 0;
     for (auto& v : *const_cast<const decltype(sut)*>(&sut))
     {
         EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
@@ -695,7 +699,7 @@ TEST_F(vector_test, IteratorIteratesThroughFullVector)
     {
         sut.emplace_back(42 * k);
     }
-    const int EXPECTED_END_COUNT = sut.size();
+    const auto EXPECTED_END_COUNT = sut.size();
 
     int i = 0;
     for (auto& v : sut)
@@ -712,7 +716,7 @@ TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
     {
         sut.emplace_back(142 * k);
     }
-    const int EXPECTED_END_COUNT = sut.size();
+    const auto EXPECTED_END_COUNT = sut.size();
 
     int i = 0;
     for (const auto& v : *const_cast<const decltype(sut)*>(&sut))
@@ -725,78 +729,78 @@ TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
 TEST_F(vector_test, IterateUsingData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "73d9a41f-3248-45a7-948e-2853c0ff8d3a");
-    sut.emplace_back(127);
-    sut.emplace_back(128);
-    sut.emplace_back(129);
+    sut.emplace_back(127U);
+    sut.emplace_back(128U);
+    sut.emplace_back(129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut.data()[k], Eq(127 + k));
+        EXPECT_THAT(sut.data()[k], Eq(127U + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98feb75a-ba95-4598-a29a-8ac36840be3c");
-    sut.emplace_back(3127);
-    sut.emplace_back(3128);
-    sut.emplace_back(3129);
+    sut.emplace_back(3127U);
+    sut.emplace_back(3128U);
+    sut.emplace_back(3129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->data()[k], Eq(3127 + k));
+        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->data()[k], Eq(3127U + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingAt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3d51b868-af12-47eb-bb0a-63ba87c8674a");
-    sut.emplace_back(127);
-    sut.emplace_back(128);
-    sut.emplace_back(129);
+    sut.emplace_back(127U);
+    sut.emplace_back(128U);
+    sut.emplace_back(129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut.at(k), Eq(127 + k));
+        EXPECT_THAT(sut.at(k), Eq(127U + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstAt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65d76c52-0b7a-4b84-b5e3-eed51a887a6f");
-    sut.emplace_back(3127);
-    sut.emplace_back(3128);
-    sut.emplace_back(3129);
+    sut.emplace_back(3127U);
+    sut.emplace_back(3128U);
+    sut.emplace_back(3129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->at(k), Eq(3127 + k));
+        EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->at(k), Eq(3127U + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingSquareBracket)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91eac70e-8555-4a37-bcd6-a0e4a41aff00");
-    sut.emplace_back(2127);
-    sut.emplace_back(2128);
-    sut.emplace_back(2129);
+    sut.emplace_back(2127U);
+    sut.emplace_back(2128U);
+    sut.emplace_back(2129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(2127 + k));
+        EXPECT_THAT(sut[k], Eq(2127U + k));
     }
 }
 
 TEST_F(vector_test, IterateUsingConstSquareBracket)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1aa30bb-9aec-4419-8746-bba9b81d6049");
-    sut.emplace_back(4127);
-    sut.emplace_back(4128);
-    sut.emplace_back(4129);
+    sut.emplace_back(4127U);
+    sut.emplace_back(4128U);
+    sut.emplace_back(4129U);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT((*const_cast<const decltype(sut)*>(&sut))[k], Eq(4127 + k));
+        EXPECT_THAT((*const_cast<const decltype(sut)*>(&sut))[k], Eq(4127U + k));
     }
 }
 
@@ -810,9 +814,9 @@ TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
 TEST_F(vector_test, ErasingElementDecreasesSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "713074f9-0ad1-446e-a2a1-0707dcc112ca");
-    sut.emplace_back(3);
-    sut.emplace_back(4);
-    sut.emplace_back(5);
+    sut.emplace_back(3U);
+    sut.emplace_back(4U);
+    sut.emplace_back(5U);
     sut.erase(sut.begin() + 2);
     sut.erase(sut.begin());
     EXPECT_THAT(sut.size(), Eq(1));
@@ -822,9 +826,9 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7af6f518-d95b-4643-87db-ec248be2cf8e");
     vector<CTorTest, 5> sut1;
-    sut1.emplace_back(7);
-    sut1.emplace_back(8);
-    sut1.emplace_back(9);
+    sut1.emplace_back(7U);
+    sut1.emplace_back(8U);
+    sut1.emplace_back(9U);
 
     sut1.erase(sut1.begin() + 2);
 
@@ -836,11 +840,11 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
 {
     ::testing::Test::RecordProperty("TEST_ID", "caa4f0fb-3ddd-4273-9bec-66ef05a4c42b");
     vector<CTorTest, 5> sut1;
-    sut1.emplace_back(7);
-    sut1.emplace_back(8);
-    sut1.emplace_back(9);
-    sut1.emplace_back(10);
-    sut1.emplace_back(11);
+    sut1.emplace_back(7U);
+    sut1.emplace_back(8U);
+    sut1.emplace_back(9U);
+    sut1.emplace_back(10U);
+    sut1.emplace_back(11U);
 
     sut1.erase(sut1.begin() + 2);
 
@@ -852,11 +856,11 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a5ce9c6f-0bc0-474b-9cff-5f9d317b4f95");
     vector<CTorTest, 5> sut1;
-    sut1.emplace_back(7);
-    sut1.emplace_back(8);
-    sut1.emplace_back(9);
-    sut1.emplace_back(10);
-    sut1.emplace_back(11);
+    sut1.emplace_back(7U);
+    sut1.emplace_back(8U);
+    sut1.emplace_back(9U);
+    sut1.emplace_back(10U);
+    sut1.emplace_back(11U);
 
     sut1.erase(sut1.begin());
 
@@ -867,100 +871,102 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
 TEST_F(vector_test, EraseMiddleElementDataCorrectAfterwards)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37448e1f-c069-4507-baa6-b66c0d47d4fc");
-    sut.emplace_back(97);
-    sut.emplace_back(101);
-    sut.emplace_back(98);
-    sut.emplace_back(99);
+    sut.emplace_back(97U);
+    sut.emplace_back(101U);
+    sut.emplace_back(98U);
+    sut.emplace_back(99U);
 
     sut.erase(sut.begin() + 1);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(97 + k));
+        EXPECT_THAT(sut[k], Eq(97U + k));
     }
 }
 
 TEST_F(vector_test, EraseFrontElementDataCorrectAfterwards)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5dea546e-16b6-4c48-b86a-ea86f334e7a7");
-    sut.emplace_back(6101);
-    sut.emplace_back(597);
-    sut.emplace_back(598);
-    sut.emplace_back(599);
+    sut.emplace_back(6101U);
+    sut.emplace_back(597U);
+    sut.emplace_back(598U);
+    sut.emplace_back(599U);
 
     sut.erase(sut.begin());
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(597 + k));
+        EXPECT_THAT(sut[k], Eq(597U + k));
     }
 }
 
 TEST_F(vector_test, EraseLastElementDataCorrectAfterwards)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f4c0a74a-de14-44e0-ac40-8875bd3c71d7");
-    sut.emplace_back(7597);
-    sut.emplace_back(7598);
-    sut.emplace_back(7599);
-    sut.emplace_back(7600);
-    sut.emplace_back(7601);
-    sut.emplace_back(76101);
+    sut.emplace_back(7597U);
+    sut.emplace_back(7598U);
+    sut.emplace_back(7599U);
+    sut.emplace_back(7600U);
+    sut.emplace_back(7601U);
+    sut.emplace_back(76101U);
 
     sut.erase(sut.begin() + 5);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(7597 + k));
+        EXPECT_THAT(sut[k], Eq(7597U + k));
     }
 }
 
 TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa4041c7-0fe4-43a9-8722-b1c6077b69d7");
-    for (int i = 0; i < static_cast<int>(sut.capacity()); ++i)
-        sut.emplace_back(i * 123);
+    for (uint64_t i = 0; i < sut.capacity(); ++i)
+    {
+        sut.emplace_back(i * 123U);
+    }
 
     sut.erase(sut.begin() + sut.size() - 1);
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        EXPECT_THAT(sut[k], Eq(k * 123));
+        EXPECT_THAT(sut[k], Eq(k * 123U));
     }
 }
 
 TEST_F(vector_test, FrontPointsToFirstElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f6283a1-16dd-41fb-892d-bb0b66805c1d");
-    sut.emplace_back(1);
-    sut.emplace_back(2);
-    sut.emplace_back(3);
+    sut.emplace_back(1U);
+    sut.emplace_back(2U);
+    sut.emplace_back(3U);
     EXPECT_THAT(sut.front(), Eq(1));
 }
 
 TEST_F(vector_test, BackPointsToLastElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "83cf678d-1e9e-4eb0-ac14-accb56b81d1b");
-    sut.emplace_back(4);
-    sut.emplace_back(5);
-    sut.emplace_back(6);
+    sut.emplace_back(4U);
+    sut.emplace_back(5U);
+    sut.emplace_back(6U);
     EXPECT_THAT(sut.back(), Eq(6));
 }
 
 TEST_F(vector_test, ConstFrontPointsToFirstElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "34be7cb5-c9a8-42e7-b954-f37442e7ab54");
-    sut.emplace_back(7);
-    sut.emplace_back(8);
-    sut.emplace_back(9);
+    sut.emplace_back(7U);
+    sut.emplace_back(8U);
+    sut.emplace_back(9U);
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->front(), Eq(7));
 }
 
 TEST_F(vector_test, ConstBackPointsToLastElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "46be9689-0f94-42d2-94dc-36d1b768db24");
-    sut.emplace_back(10);
-    sut.emplace_back(11);
-    sut.emplace_back(12);
+    sut.emplace_back(10U);
+    sut.emplace_back(11U);
+    sut.emplace_back(12U);
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->back(), Eq(12));
 }
 
@@ -1181,7 +1187,7 @@ TEST_F(vector_test, PopBackReturnsFalseOnEmptyVector)
 TEST_F(vector_test, PopBackReturnsTrueOnNonEmptyVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7c09370e-f656-4d30-a7c3-f79a935c7aef");
-    sut.emplace_back(123);
+    sut.emplace_back(123U);
     EXPECT_TRUE(sut.pop_back());
 }
 
@@ -1211,7 +1217,7 @@ TEST_F(vector_test, ResizeFailsWhenCountIsGreaterThanCapacity)
 TEST_F(vector_test, ResizeWithTemplateValueFailsWhenCountIsGreaterThanCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "525c2de0-a6ed-4c8d-8c5e-ab974bada3e4");
-    EXPECT_FALSE(sut.resize(sut.capacity() + 1U, 12));
+    EXPECT_FALSE(sut.resize(sut.capacity() + 1U, 12U));
 }
 
 TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
@@ -1239,7 +1245,7 @@ TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
 TEST_F(vector_test, SizeIncreaseWithResizeAndTemplateValueWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5dc23a28-177c-4e0b-a454-e2b09acba11f");
-    EXPECT_TRUE(sut.resize(4U, 421337));
+    EXPECT_TRUE(sut.resize(4U, 421337U));
     ASSERT_THAT(sut.size(), Eq(4U));
     for (auto& e : sut)
     {
@@ -1270,10 +1276,10 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
     iox::cxx::vector<CTorTest, 10U> sut;
     for (uint64_t i = 0U; i < sut.capacity(); ++i)
     {
-        sut.emplace_back(i + 10);
+        sut.emplace_back(i + 10U);
     }
 
-    EXPECT_TRUE(sut.resize(7U, 66807));
+    EXPECT_TRUE(sut.resize(7U, 66807U));
     EXPECT_THAT(dTor, Eq(3));
     ASSERT_THAT(dtorOrder.size(), Eq(3U));
     EXPECT_THAT(dtorOrder[0], Eq(19));
@@ -1284,31 +1290,31 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
 TEST_F(vector_test, ResizeWithDefaultCTorChangesNothingIfSizeAlreadyFits)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7d4bf455-a7b4-4bb5-87f1-53d9552b91d5");
-    sut.emplace_back(5);
-    sut.emplace_back(6);
+    sut.emplace_back(5U);
+    sut.emplace_back(6U);
     EXPECT_TRUE(sut.resize(2U));
 
     ASSERT_THAT(sut.size(), Eq(2U));
-    EXPECT_THAT(sut[0], Eq(5));
-    EXPECT_THAT(sut[1], Eq(6));
+    EXPECT_THAT(sut[0], Eq(5U));
+    EXPECT_THAT(sut[1], Eq(6U));
 }
 
 TEST_F(vector_test, ResizeWithTemplateValueChangesNothingIfSizeAlreadyFits)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ccd9ac4-788c-428b-9d11-37885284088f");
-    sut.emplace_back(7);
-    sut.emplace_back(9);
-    EXPECT_TRUE(sut.resize(2U, 421337));
+    sut.emplace_back(7U);
+    sut.emplace_back(9U);
+    EXPECT_TRUE(sut.resize(2U, 421337U));
 
     ASSERT_THAT(sut.size(), Eq(2U));
-    EXPECT_THAT(sut[0], Eq(7));
-    EXPECT_THAT(sut[1], Eq(9));
+    EXPECT_THAT(sut[0], Eq(7U));
+    EXPECT_THAT(sut[1], Eq(9U));
 }
 
 TEST_F(vector_test, EmplaceInEmptyVectorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e6b1b8d4-77b6-4a19-8d7e-7f483e2e461d");
-    EXPECT_TRUE(sut.emplace(0U, 123));
+    EXPECT_TRUE(sut.emplace(0U, 123U));
     ASSERT_THAT(sut.size(), Eq(1U));
     EXPECT_THAT(sut[0], Eq(123));
 }
@@ -1331,18 +1337,18 @@ TEST_F(vector_test, EmplaceAtFrontTillFullWorks)
 TEST_F(vector_test, EmplaceInTheMiddleMovesElementsToTheRight)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab181814-6743-43a2-8420-c725b3afd800");
-    sut.emplace_back(0);
-    sut.emplace_back(1);
-    sut.emplace_back(2);
+    sut.emplace_back(0U);
+    sut.emplace_back(1U);
+    sut.emplace_back(2U);
 
-    EXPECT_TRUE(sut.emplace(1U, 3));
+    EXPECT_TRUE(sut.emplace(1U, 3U));
 
     ASSERT_THAT(sut.size(), Eq(4));
 
-    EXPECT_THAT(sut[0], Eq(0));
-    EXPECT_THAT(sut[1], Eq(3));
-    EXPECT_THAT(sut[2], Eq(1));
-    EXPECT_THAT(sut[3], Eq(2));
+    EXPECT_THAT(sut[0], Eq(0U));
+    EXPECT_THAT(sut[1], Eq(3U));
+    EXPECT_THAT(sut[2], Eq(1U));
+    EXPECT_THAT(sut[3], Eq(2U));
 }
 
 TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
@@ -1354,37 +1360,37 @@ TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
     }
 
     auto index = sut.capacity() / 2;
-    EXPECT_FALSE(sut.emplace(index, 5));
+    EXPECT_FALSE(sut.emplace(index, 5U));
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }
 
 TEST_F(vector_test, EmplaceWhenPositionExceedsCapacityReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "519d97fb-aec0-4824-9cd7-dd3446b7b71c");
-    EXPECT_FALSE(sut.emplace(sut.capacity() + 10U, 5));
+    EXPECT_FALSE(sut.emplace(sut.capacity() + 10U, 5U));
     EXPECT_THAT(sut.size(), Eq(0));
 }
 
 TEST_F(vector_test, EmplaceAtEndWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57551774-750f-4dd4-81c0-fa6ef9046689");
-    sut.emplace_back(0);
-    sut.emplace_back(1);
+    sut.emplace_back(0U);
+    sut.emplace_back(1U);
 
-    EXPECT_TRUE(sut.emplace(sut.size(), 3));
+    EXPECT_TRUE(sut.emplace(sut.size(), 3U));
     ASSERT_THAT(sut.size(), Eq(3));
-    EXPECT_THAT(sut[0], Eq(0));
-    EXPECT_THAT(sut[1], Eq(1));
-    EXPECT_THAT(sut[2], Eq(3));
+    EXPECT_THAT(sut[0], Eq(0U));
+    EXPECT_THAT(sut[1], Eq(1U));
+    EXPECT_THAT(sut[2], Eq(3U));
 }
 
 TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5112070-9446-44bf-8fdf-1853cfb247fc");
-    sut.emplace_back(0);
-    sut.emplace_back(1);
+    sut.emplace_back(0U);
+    sut.emplace_back(1U);
 
-    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3));
+    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3U));
     ASSERT_THAT(sut.size(), Eq(2));
 }
 } // namespace
