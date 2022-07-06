@@ -128,7 +128,7 @@ class Functor : public Counter<Functor>
 int32_t freeFunction(int32_t n)
 {
     return n + 1;
-};
+}
 
 struct Arg : Counter<Arg>
 {
