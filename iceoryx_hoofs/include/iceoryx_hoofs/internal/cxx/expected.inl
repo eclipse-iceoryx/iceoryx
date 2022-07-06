@@ -198,9 +198,9 @@ inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexcept
 {
-    // const_cast avoids code duplication
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<expected*>(this)->operator->();
+    return const_cast<const ValueType*>(const_cast<expected*>(this)->operator->());
 }
 
 template <typename ValueType, typename ErrorType>
@@ -212,9 +212,9 @@ inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexcept
 {
-    // const_cast avoids code duplication
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<expected*>(this)->operator*();
+    return const_cast<const ValueType&>(const_cast<expected*>(this)->operator*());
 }
 
 template <typename ValueType, typename ErrorType>

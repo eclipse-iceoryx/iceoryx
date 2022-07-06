@@ -38,7 +38,7 @@ struct TestClass
 {
     // the parameters can be swapped without changing the outcome, methods which
     // work on them are commutative
-    // NOLINTNEXTLINE( bugprone-easily-swappable-parameters)
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     TestClass(int a, int b)
         : m_a(a)
         , m_b(b)
@@ -69,7 +69,7 @@ struct TestClass
 struct NonTrivialTestClass
 {
     // swapped parameters will be directly detected with failing tests
-    // NOLINTNEXTLINE( bugprone-easily-swappable-parameters)
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     NonTrivialTestClass(int a, int b)
         : m_a(a)
         , m_b(b)

@@ -40,6 +40,6 @@ CheckOptions:
 
 ## Justifications for CheckOptions ##
 #
-# EXPECT_*, ASSERT_* and TEST_F, TYPED_TEST macros are introducing additional
-# branches and increases the code complexity without affecting the user. Therefore,
+# EXPECT_*, ASSERT_* and TEST_F, TYPED_TEST macros introduce additional
+# branches and increase the code complexity without affecting the user. Therefore,
 # those metrics are hardly applicable in tests.
