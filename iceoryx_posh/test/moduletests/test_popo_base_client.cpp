@@ -51,7 +51,7 @@ int resetCallsFromDtors<BaseClientWithMocks>()
 {
     // from base only
     return 1;
-};
+}
 
 template <typename Base>
 class TestBaseClient : public Base

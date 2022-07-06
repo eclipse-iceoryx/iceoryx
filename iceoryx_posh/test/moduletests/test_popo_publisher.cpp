@@ -177,7 +177,7 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAddi
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
-    auto result = sut.publishResultOf(CallableStruct{}, 42U, 77.77f);
+    auto result = sut.publishResultOf(CallableStruct{}, 42U, 77.77F);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
@@ -214,7 +214,7 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAddi
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
-    auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42U, 77.77f);
+    auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42U, 77.77F);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //

@@ -51,7 +51,7 @@ int resetCallsFromDtors<BaseServerWithMocks>()
 {
     // from base only
     return 1;
-};
+}
 
 template <typename Base>
 class TestBaseServer : public Base

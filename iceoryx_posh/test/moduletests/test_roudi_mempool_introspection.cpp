@@ -277,6 +277,6 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
     introspectionAccess.stop();
-});
+})
 
 } // namespace

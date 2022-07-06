@@ -962,7 +962,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 //
 // test mixed operation of PUB/SUB and REQ/RES
@@ -1068,6 +1068,6 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 } // namespace
