@@ -34,7 +34,7 @@ T maxUnderlyingCEnumValue()
 #pragma GCC diagnostic ignored "-Wconversion"
     return static_cast<T>(std::numeric_limits<std::underlying_type_t<T>>::max());
 #pragma GCC diagnostic pop
-};
-}; // namespace iox_test_binding_c
+}
+} // namespace iox_test_binding_c
 
 #endif // IOX_BINDING_C_TEST_HPP
