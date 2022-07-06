@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_ALGORITHM_HPP
 #define IOX_HOOFS_CXX_ALGORITHM_HPP
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
+
 #include <cstdint>
 #include <type_traits>
 
@@ -97,10 +99,10 @@ template <typename T, typename CompareType, typename Next, typename... Remainder
 constexpr bool doesContainType() noexcept;
 
 /// @brief Finalizes the recursion of doesContainValue
-/// @param T type of the value to check
+/// @param[in] v type of the value to check
 /// @return always false
 template <typename T>
-inline constexpr bool doesContainValue(const T) noexcept;
+inline constexpr bool doesContainValue(const T v) noexcept;
 
 /// @brief Returns true if value of T is found in the ValueList, otherwise false
 /// @tparam T type of the value to check
