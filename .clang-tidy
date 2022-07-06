@@ -75,7 +75,37 @@ hicpp-*,
 -cppcoreguidelines-owning-memory,
 -cppcoreguidelines-init-variables,
 -hicpp-move-const-arg,
--hicpp-invalid-access-moved'
+-hicpp-invalid-access-moved,
+
+-clang-analyzer-core.uninitialized.UndefReturn,
+-clang-analyzer-optin.cplusplus.VirtualCall,
+
+-readability-qualified-auto,
+-readability-convert-member-functions-to-static,
+-readability-container-size-empty,
+-readability-simplify-boolean-expr,
+-readability-const-return-type,
+-readability-use-anyofallof,
+-cppcoreguidelines-avoid-magic-numbers,
+-cppcoreguidelines-init-variables,
+-hicpp-use-auto,
+-readability-qualified-auto,
+-hicpp-uppercase-literal-suffix,
+-readability-uppercase-literal-suffix,
+-readability-implicit-bool-conversion,
+-bugprone-branch-clone,
+-hicpp-use-equals-default,
+-hicpp-deprecated-headers,
+-cppcoreguidelines-prefer-member-initializer,
+-readability-convert-member-functions-to-static,
+-cppcoreguidelines-pro-type-const-cast,
+-cppcoreguidelines-pro-type-member-init,
+-bugprone-implicit-widening-of-multiplication-result,
+-readability-inconsistent-declaration-parameter-name,
+-performance-for-range-copy,
+-readability-make-member-function-const
+
+'
 
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments
@@ -123,25 +153,23 @@ HeaderFilterRegex:    ''
 FormatStyle:          file
 InheritParentConfig:  false
 
-# ToDo iox-#889: re-enable the following tests:
-# -hicpp-move-const-arg
-# -hicpp-invalid-access-moved
-
+# The options below are just uncommented temporarily so that we do not change
+# the public API during the hack a thon
 CheckOptions:
-  - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
-  - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
-  - { key: readability-identifier-naming.StructCase,              value: CamelCase }
-  - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
-  - { key: readability-identifier-naming.MethodCase,              value: camelBack }
-  - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
-  - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
+  #   - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
+  #   - { key: readability-identifier-naming.StructCase,              value: CamelCase }
+  #   - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.MethodCase,              value: camelBack }
+  #   - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
+  #   - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
   - { key: readability-identifier-naming.PrivateMemberPrefix,     value: m_ }
   - { key: readability-identifier-naming.ProtectedMemberPrefix,   value: m_ }
-  - { key: readability-identifier-naming.MemberCase,              value: camelBack }
-  - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
-  - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
-  - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
-  - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
+  # - { key: readability-identifier-naming.MemberCase,              value: camelBack }
+  # - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
+  # - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
+  # - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
+  # - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
   - { key: readability-function-size.LineThreshold,               value: 200 }
   - { key: readability-function-size.StatementThreshold,          value: 200 }
   - { key: readability-function-size.BranchThreshold,             value: 10 }
