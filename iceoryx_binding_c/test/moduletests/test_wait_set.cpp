@@ -564,7 +564,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsBlockingTillTriggered, Repeat(5), [&] {
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
-});
+})
 
 TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4e576665-fda1-4f3c-8588-e9d2cffcb3f4");
@@ -583,7 +583,7 @@ TIMING_TEST_F(iox_ws_test, WaitIsNonBlockingAfterMarkForDestruction, Repeat(5), 
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
-});
+})
 
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
@@ -603,7 +603,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsBlockingTillTriggered, Repeat(5), [&] {
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
-});
+})
 
 TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "a6da4f49-b162-4c70-b0fa-c4ef1f988c57");
@@ -622,7 +622,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitIsNonBlockingAfterMarkForDestruction, Repeat
 
     t.join();
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
-});
+})
 
 TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "12fbbbc8-80b2-4e7e-af41-1376b2e48f4a");
@@ -641,7 +641,7 @@ TIMING_TEST_F(iox_ws_test, TimedWaitBlocksTillTimeout, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(waitWasCalled.load());
 
     t.join();
-});
+})
 
 TEST_F(iox_ws_test, SubscriberEventCallbackIsCalled)
 {
