@@ -372,19 +372,21 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     // least common multiple of 2^32 and NANOSECONDS_PER_SECOND;
     // for the following calculation it is not important to be the least common multiple, any common multiple will do
     constexpr uint64_t LEAST_COMMON_MULTIPLE{8388608000000000};
-    static_assert(LEAST_COMMON_MULTIPLE % (1ULL << 32) == 0, "invalid multiple");
+    constexpr uint64_t NUMBER_OF_BITS_IN_UINT32{32};
+    static_assert(LEAST_COMMON_MULTIPLE % (1ULL << NUMBER_OF_BITS_IN_UINT32) == 0, "invalid multiple");
     static_assert(LEAST_COMMON_MULTIPLE % NANOSECS_PER_SEC == 0, "invalid multiple");
 
-    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> 32};
+    constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> NUMBER_OF_BITS_IN_UINT32};
     constexpr uint64_t SECONDS_PER_FULL_BLOCK{LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC};
 
-    uint64_t multiplicatorHigh = static_cast<uint32_t>(multiplicator >> 32U);
+    uint64_t multiplicatorHigh = static_cast<uint32_t>(multiplicator >> NUMBER_OF_BITS_IN_UINT32);
     auto nanosecondsFromHigh = m_nanoseconds * multiplicatorHigh;
     auto fullBlocksOfSecondsOnly = nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY;
     auto remainingBlockWithFullAndFractionalSeconds = nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY;
 
-    auto durationFromNanosecondsHigh = Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
-                                       + Duration::fromNanoseconds(remainingBlockWithFullAndFractionalSeconds << 32);
+    auto durationFromNanosecondsHigh =
+        Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
+        + Duration::fromNanoseconds(remainingBlockWithFullAndFractionalSeconds << NUMBER_OF_BITS_IN_UINT32);
 
     return durationFromSeconds + durationFromNanosecondsLow + durationFromNanosecondsHigh;
 }
