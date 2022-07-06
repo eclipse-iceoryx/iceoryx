@@ -58,8 +58,8 @@ inline constexpr Duration Duration::zero() noexcept
     return Duration{0U, 0U};
 }
 
-template <typename T, typename String>
-inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value, const String) noexcept
+template <typename T>
+inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
@@ -74,7 +74,7 @@ inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(con
 template <typename T>
 inline constexpr Duration Duration::fromNanoseconds(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::NANOSECS_PER_SEC);
     auto nanoseconds = static_cast<Duration::Nanoseconds_t>(clampedValue % Duration::NANOSECS_PER_SEC);
     return Duration{seconds, nanoseconds};
@@ -82,7 +82,7 @@ inline constexpr Duration Duration::fromNanoseconds(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromMicroseconds(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::MICROSECS_PER_SEC);
     auto nanoseconds = static_cast<Duration::Nanoseconds_t>((clampedValue % Duration::MICROSECS_PER_SEC)
                                                             * Duration::NANOSECS_PER_MICROSEC);
@@ -91,7 +91,7 @@ inline constexpr Duration Duration::fromMicroseconds(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromMilliseconds(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::MILLISECS_PER_SEC);
     auto nanoseconds = static_cast<Duration::Nanoseconds_t>((clampedValue % Duration::MILLISECS_PER_SEC)
                                                             * Duration::NANOSECS_PER_MILLISEC);
@@ -100,7 +100,7 @@ inline constexpr Duration Duration::fromMilliseconds(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromSeconds(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
@@ -111,7 +111,7 @@ inline constexpr Duration Duration::fromSeconds(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromMinutes(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     constexpr uint64_t MAX_MINUTES_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_MINUTE};
     if (clampedValue > MAX_MINUTES_BEFORE_OVERFLOW)
     {
@@ -122,7 +122,7 @@ inline constexpr Duration Duration::fromMinutes(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromHours(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     constexpr uint64_t MAX_HOURS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / Duration::SECS_PER_HOUR};
     if (clampedValue > MAX_HOURS_BEFORE_OVERFLOW)
     {
@@ -133,7 +133,7 @@ inline constexpr Duration Duration::fromHours(const T value) noexcept
 template <typename T>
 inline constexpr Duration Duration::fromDays(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value, __PRETTY_FUNCTION__);
+    auto clampedValue = positiveValueOrClampToZero(value);
     constexpr uint64_t SECS_PER_DAY{Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR};
     constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
     if (clampedValue > MAX_DAYS_BEFORE_OVERFLOW)

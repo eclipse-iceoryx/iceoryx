@@ -322,8 +322,8 @@ class Duration
     static constexpr Duration createDuration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept;
 
   private:
-    template <typename T, typename String>
-    static constexpr unsigned long long int positiveValueOrClampToZero(const T value, const String fromMethod) noexcept;
+    template <typename T>
+    static constexpr unsigned long long int positiveValueOrClampToZero(const T value) noexcept;
 
     template <typename T>
     constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
