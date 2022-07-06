@@ -227,9 +227,9 @@ TEST_F(algorithm_test, MergingIdenticalContainerResultsInUnchangedContainer)
     auto mergedContainer = uniqueMergeSortedContainers(someContainer, someContainer);
 
     ASSERT_THAT(mergedContainer.size(), Eq(VECTOR_SIZE / 2U));
-    for (uint64_t i = 0U; i < VECTOR_SIZE; ++i)
+    for (uint64_t i = 0U; i < VECTOR_SIZE / 2U; ++i)
     {
-        EXPECT_THAT(mergedContainer[static_cast<uint64_t>(i)], Eq(i * 2 + OFFSET));
+        EXPECT_THAT(mergedContainer[i], Eq(i * 2 + OFFSET));
     }
 }
 
