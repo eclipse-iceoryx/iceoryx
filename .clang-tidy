@@ -20,6 +20,9 @@ hicpp-*,
 
 -readability-avoid-const-params-in-decls,
 -readability-identifier-length,
+-readability-redundant-access-specifiers,
+-readability-redundant-declaration,
+
 '
 
 ### Justifications for deactivated rules
