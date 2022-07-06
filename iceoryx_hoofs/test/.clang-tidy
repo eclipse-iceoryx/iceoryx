@@ -1,0 +1,26 @@
+# Symlinked to:
+# iceoryx_hoofs/testing/.clang-tidy
+
+InheritParentConfig:  true
+
+Checks: '
+-cert-err58-cpp,
+-cppcoreguidelines-special-member-functions,
+-hicpp-special-member-functions
+-readability-identifier-naming
+'
+
+## Rationals for rule deactivation ##
+
+# Rule: cert-err58-cpp
+# Rational: Many warnings due to gtest macros like "initialization of 'test_info_'
+#           with static storage duration may throw an exception that cannot be caught"
+
+# Rule: cppcoreguidelines-special-member-functions
+# Rational: structs and classes in tests do not all follow the rule of five
+
+# Rule: hicpp-special-member-functions
+# Rational: same as for 'cppcoreguidelines-special-member-functions'
+
+# Rule: readability-identifier-naming
+# Rational: structs and classes in tests obey the same naming convention like production code
