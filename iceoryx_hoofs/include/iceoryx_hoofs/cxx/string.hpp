@@ -77,8 +77,8 @@ using IsCxxStringAndCxxStringOrCharArrayOrChar =
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
-                                                                                           const T2& t2) noexcept;
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& str1,
+                                                                                           const T2& str2) noexcept;
 
 /// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
@@ -92,7 +92,7 @@ IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> c
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
 IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
-concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
+concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 
 /// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
 /// string literals/chars is not possible
@@ -102,7 +102,7 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 /// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
 IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
-operator+(const T1& t1, const T2& t2) noexcept;
+operator+(const T1& str1, const T2& str2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
@@ -146,6 +146,9 @@ class string
     ///
     /// @return reference to self
     string& operator=(string&& rhs) noexcept;
+
+    /// @brief destructor
+    ~string() noexcept = default;
 
     /// @brief creates a new string of given capacity as a copy of other with compile time check whether the capacity of
     /// other is less than or equal to this' capacity
@@ -438,7 +441,7 @@ class string
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] t is the iox::cxx::string/string literal/std::string to append
+    /// @param [in] str is the iox::cxx::string/string literal/std::string to append
     ///
     /// @return reference to self
     ///
@@ -447,14 +450,14 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& str) noexcept;
 
     /// @brief appends a char to the end of this if this' capacity is large enough.
     ///
-    /// @param [in] c is the char to append
+    /// @param [in] cstr is the char to append
     ///
     /// @return reference to self
-    string& append(TruncateToCapacity_t, char c) noexcept;
+    string& append(TruncateToCapacity_t, char cstr) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
     /// sum of both sizes is greater than this' capacity.
@@ -463,7 +466,7 @@ class string
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& str) noexcept;
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
@@ -500,36 +503,36 @@ class string
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
     /// the found substring, returns iox::cxx::nullopt if no substring is found or if pos is greater than this' size
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character of the found substring, iox::cxx::nullopt if
     /// no substring is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find(const T& str, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
     /// size
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_first_of(const T& str, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to finish the search
     ///
     /// @return an optional containing the position of the last character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_last_of(const T& str, const uint64_t pos = Capacity) const noexcept;
 
     /// @brief returns a reference to the character stored at pos
     /// @param[in] pos position of character to return

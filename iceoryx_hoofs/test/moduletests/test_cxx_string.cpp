@@ -413,18 +413,21 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConstrWithCountGreaterCapaResults
 TEST(String100, UnsafeCharToStringConstrIncludingNullCharWithCountResultsInSizeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "548eb26e-39b0-4c35-ad80-7665cde80361");
-    std::string testString{"ice\0ryx", 7U};
-    string<100U> testSubject(TruncateToCapacity, testString.c_str(), 7U);
-    EXPECT_THAT(testSubject.capacity(), Eq(100U));
-    EXPECT_THAT(testSubject.size(), Eq(7U));
+    constexpr uint64_t STRING_CAPACITY = 100U;
+    constexpr uint64_t STRING_SIZE = 7U;
+    std::string testString{"ice\0ryx", STRING_SIZE};
+    string<STRING_CAPACITY> testSubject(TruncateToCapacity, testString.c_str(), STRING_SIZE);
+    EXPECT_THAT(testSubject.capacity(), Eq(STRING_CAPACITY));
+    EXPECT_THAT(testSubject.size(), Eq(STRING_SIZE));
     EXPECT_THAT(testSubject.c_str(), StrEq("ice\0ryx"));
 }
 
 TEST(CharArrayAssignment, AssignCharArrayWithStringSizeLessThanArraySize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "886f580d-e57c-4685-90bf-2399737779be");
-    char testString[20] = "iceoryx";
-    string<20U> testSubject(testString);
+    constexpr uint64_t STRING_CAPACITY = 20U;
+    char testString[STRING_CAPACITY] = "iceoryx";
+    string<STRING_CAPACITY> testSubject(testString);
     EXPECT_THAT(testSubject.size(), Eq(7U));
     EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
 }
@@ -432,19 +435,21 @@ TEST(CharArrayAssignment, AssignCharArrayWithStringSizeLessThanArraySize)
 TEST(CharArrayAssignment, AssignZeroTerminatedCharArrayWithSizeForFullCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "884e724a-f5d3-41d1-89fa-96f55ce99a96");
-    char testString[8] = "iceoryx";
-    string<7U> testSubject(testString);
-    EXPECT_THAT(testSubject.size(), Eq(7U));
+    constexpr uint64_t STRING_CAPACITY = 7U;
+    char testString[STRING_CAPACITY + 1U] = "iceoryx";
+    string<STRING_CAPACITY> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(STRING_CAPACITY));
     EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
 }
 
 TEST(CharArrayAssignment, AssignNonZeroTerminatedCharArrayOfSizeForFullCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a43553f-4358-4c41-a885-1495de0d7f4f");
-    char testString[8] = "iceoryx";
-    testString[7] = 'x'; // overwrite the 0 termination
-    string<7U> testSubject(testString);
-    EXPECT_THAT(testSubject.size(), Eq(7U));
+    constexpr uint64_t STRING_CAPACITY = 7U;
+    char testString[STRING_CAPACITY + 1U] = "iceoryx";
+    testString[STRING_CAPACITY] = 'x'; // overwrite the 0 termination
+    string<STRING_CAPACITY> testSubject(testString);
+    EXPECT_THAT(testSubject.size(), Eq(STRING_CAPACITY));
     EXPECT_THAT(testSubject.c_str(), StrEq("iceoryx"));
 }
 
@@ -761,10 +766,12 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyStringResultsInPositive)
 TEST(String100, CompareStringsInclNullCharacterWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a6c1b983-a88c-46bb-a38f-33947e52f209");
-    std::string testString1{"ice\0ryx", 7};
-    std::string testString2{"ice\0rYx", 7};
-    string<100U> testSubject1(TruncateToCapacity, testString1.c_str(), 7U);
-    string<100U> testSubject2(TruncateToCapacity, testString2.c_str(), 7U);
+    constexpr uint64_t STRING_CAPACITY = 100U;
+    constexpr uint64_t STRING_SIZE = 7U;
+    std::string testString1{"ice\0ryx", STRING_SIZE};
+    std::string testString2{"ice\0rYx", STRING_SIZE};
+    string<STRING_CAPACITY> testSubject1(TruncateToCapacity, testString1.c_str(), STRING_SIZE);
+    string<STRING_CAPACITY> testSubject2(TruncateToCapacity, testString2.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
 }
 
@@ -819,10 +826,13 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyStringOfDifferentCapaResultsInPosit
 TEST(String100, CompareStringsWithDifferentCapaInclNullCharacterWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe260cb6-5d77-42b1-89b8-073c9ea9593d");
-    std::string testString1{"ice\0ryx", 7};
-    std::string testString2{"ice\0rYx", 7};
-    string<200U> testSubject1(TruncateToCapacity, testString1.c_str(), 7U);
-    string<100U> testSubject2(TruncateToCapacity, testString2.c_str(), 7U);
+    constexpr uint64_t STRING_SIZE = 7U;
+    constexpr uint64_t STRING_CAPACITY_100 = 100U;
+    constexpr uint64_t STRING_CAPACITY_200 = 200U;
+    std::string testString1{"ice\0ryx", STRING_SIZE};
+    std::string testString2{"ice\0rYx", STRING_SIZE};
+    string<STRING_CAPACITY_200> testSubject1(TruncateToCapacity, testString1.c_str(), STRING_SIZE);
+    string<STRING_CAPACITY_100> testSubject2(TruncateToCapacity, testString2.c_str(), STRING_SIZE);
     EXPECT_THAT(testSubject1.compare(testSubject2), Gt(0));
 }
 
@@ -1186,8 +1196,9 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferent
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
 
+    constexpr uint64_t STD_STRINGCAP = STRINGCAP + 13U;
     std::string testStdString(STRINGCAP, 'M');
-    testStdString.reserve(STRINGCAP + 13U);
+    testStdString.reserve(STD_STRINGCAP);
     EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
 }
 
@@ -1286,17 +1297,17 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
 {
     ::testing::Test::RecordProperty("TEST_ID", "a01cc09b-fe94-42db-bcbd-4f813f4acd62");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
     this->testSubject = "M";
 
-    char testCharArray[STRINGCAP + 5U] = {'M'};
+    char testCharArray[STRINGCAP] = {'M'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(true));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
 
     std::string testStdString = "M";
-    testStdString.reserve(STRINGCAP + 5U);
+    testStdString.reserve(STRINGCAP);
     EXPECT_THAT(this->testSubject == testStdString, Eq(true));
     EXPECT_THAT(testStdString == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testStdString, Eq(false));
@@ -1310,10 +1321,10 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
 {
     ::testing::Test::RecordProperty("TEST_ID", "d678927a-f629-433c-ad10-1d62338c816b");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 3U;
     this->testSubject = "M";
 
-    char testCharArray[STRINGCAP + 3U] = {'M', 'L'};
+    char testCharArray[STRINGCAP] = {'M', 'L'};
     EXPECT_THAT(this->testSubject == testCharArray, Eq(false));
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
@@ -1432,9 +1443,10 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
 
     const std::string testStdString = testCharArray;
 
+    constexpr uint64_t TEST_STRINGCAP = STRINGCAP + 5U;
     // compare with greater string
-    std::string temp1(STRINGCAP + 5U, 'M');
-    string<STRINGCAP + 5U> sutGreater;
+    std::string temp1(TEST_STRINGCAP, 'M');
+    string<TEST_STRINGCAP> sutGreater;
     ASSERT_THAT(sutGreater.unsafe_assign(temp1), Eq(true));
 
     EXPECT_THAT(sutGreater < testCharArray, Eq(false));
@@ -1456,8 +1468,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     EXPECT_THAT(testStdString >= sutGreater, Eq(false));
 
     // compare with less string
-    std::string temp2(STRINGCAP + 5U, 'F');
-    string<STRINGCAP + 5U> sutLess;
+    std::string temp2(TEST_STRINGCAP, 'F');
+    string<TEST_STRINGCAP> sutLess;
     ASSERT_THAT(sutLess.unsafe_assign(temp2), Eq(true));
 
     EXPECT_THAT(sutLess < testCharArray, Eq(true));
@@ -1487,7 +1499,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     std::string temp(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
-    char testCharArray[STRINGCAP + 6U];
+    constexpr uint64_t TEST_STRINGCAP = STRINGCAP + 6U;
+    char testCharArray[TEST_STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         testCharArray[i] = 'M';
@@ -1667,9 +1680,11 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
 
     char testChar = 'L';
 
+    constexpr uint64_t TEST_STRINGCAP = STRINGCAP + 5U;
+
     // compare testChar with greater string
-    std::string temp1(STRINGCAP + 5U, 'M');
-    string<STRINGCAP + 5U> sutGreaterTestChar;
+    std::string temp1(TEST_STRINGCAP, 'M');
+    string<TEST_STRINGCAP> sutGreaterTestChar;
     ASSERT_THAT(sutGreaterTestChar.unsafe_assign(temp1), Eq(true));
 
     EXPECT_THAT(sutGreaterTestChar < testChar, Eq(false));
@@ -1682,8 +1697,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
     EXPECT_THAT(testChar >= sutGreaterTestChar, Eq(false));
 
     // compare testChar with less string
-    std::string temp2(STRINGCAP + 5U, 'F');
-    string<STRINGCAP + 5U> sutLessTestChar;
+    std::string temp2(TEST_STRINGCAP, 'F');
+    string<TEST_STRINGCAP> sutLessTestChar;
     ASSERT_THAT(sutLessTestChar.unsafe_assign(temp2), Eq(true));
 
     EXPECT_THAT(sutLessTestChar < testChar, Eq(true));
@@ -1696,8 +1711,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
     EXPECT_THAT(testChar >= sutLessTestChar, Eq(true));
 
     // compare testChar with equal string
-    std::string temp3(STRINGCAP + 5U, 'L');
-    string<STRINGCAP + 5U> sutEqualTestChar;
+    std::string temp3(TEST_STRINGCAP, 'L');
+    string<TEST_STRINGCAP> sutEqualTestChar;
     ASSERT_THAT(sutEqualTestChar.unsafe_assign(temp3), Eq(true));
 
     EXPECT_THAT(sutEqualTestChar < testChar, Eq(false));
@@ -1748,8 +1763,9 @@ TYPED_TEST(stringTyped_test, CompareWithStdStringResultPositiveWithDifferentSize
     ::testing::Test::RecordProperty("TEST_ID", "08891d54-3db7-47cd-8e42-9beb7035c044");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP + 6U, 'M');
-    string<STRINGCAP + 6U> sut;
+    constexpr auto STRINGCAP_PLUS6 = STRINGCAP + 6U;
+    std::string testString(STRINGCAP_PLUS6, 'M');
+    string<STRINGCAP_PLUS6> sut;
     ASSERT_THAT(sut.unsafe_assign(testString), Eq(true));
     std::string foo(STRINGCAP, 'M');
     EXPECT_THAT(sut.compare(foo), Gt(0));
@@ -1864,8 +1880,8 @@ TYPED_TEST(stringTyped_test, MoveConstrWithEmptyStringWithSmallerCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76527963-8483-4689-816e-01e6803e078a");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 30U> testString(std::move(this->testSubject));
+    constexpr auto STRINGCAP = MyString::capacity() + 30U;
+    string<STRINGCAP> testString(std::move(this->testSubject));
     EXPECT_THAT(testString.size(), Eq(0U));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
     EXPECT_THAT(testString.c_str(), StrEq(""));
@@ -1877,9 +1893,10 @@ TYPED_TEST(stringTyped_test, MoveConstrWithStringSmallerCapaWorks)
     ::testing::Test::RecordProperty("TEST_ID", "4bc0b719-080b-4345-9875-a74d0b5cf77d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto TEST_STRINGCAP = STRINGCAP + 11U;
     std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<STRINGCAP + 11U> fuu(std::move(this->testSubject));
+    string<TEST_STRINGCAP> fuu(std::move(this->testSubject));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
@@ -1918,9 +1935,9 @@ TYPED_TEST(stringTyped_test, AssignmentOfNotEmptyStringWithSmallerCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66eaa759-fe92-4b94-9c1c-371f2c4fc2bf");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 30U;
     this->testSubject = "M";
-    string<STRINGCAP + 30U> testString("Ferdinand Spitzschnueffler");
+    string<STRINGCAP> testString("Ferdinand Spitzschnueffler");
     testString = this->testSubject;
     EXPECT_THAT(testString.c_str(), StrEq("M"));
     EXPECT_THAT(testString.size(), Eq(1U));
@@ -1934,8 +1951,8 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfEmptyStringWithSmallerCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0703614e-88a6-4f5f-80c7-f0d7e51736f6");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 63U> fuu;
+    constexpr auto STRINGCAP = MyString::capacity() + 63U;
+    string<STRINGCAP> fuu;
     fuu = std::move(this->testSubject);
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
     EXPECT_THAT(fuu.size(), Eq(0U));
@@ -1948,9 +1965,10 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfStringWithSmallerCapaWorks)
     ::testing::Test::RecordProperty("TEST_ID", "7c8713cb-d018-448b-9df7-880f1e765474");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto TEST_STRINGCAP = STRINGCAP + 36U;
     std::string testString(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testString), Eq(true));
-    string<STRINGCAP + 36U> fuu;
+    string<TEST_STRINGCAP> fuu;
     fuu = std::move(this->testSubject);
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(0U));
@@ -1962,9 +1980,9 @@ TYPED_TEST(stringTyped_test, MoveAssignmentOfNotEmptyStringWithSmallerCapaWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74811de5-eab2-44b7-9a80-6022e5d90ce0");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 30U;
     this->testSubject = "M";
-    string<STRINGCAP + 30U> testString("Jean-Luc Picard");
+    string<STRINGCAP> testString("Jean-Luc Picard");
     testString = std::move(this->testSubject);
     EXPECT_THAT(testString.c_str(), StrEq("M"));
     EXPECT_THAT(testString.size(), Eq(1U));
@@ -2120,10 +2138,12 @@ TYPED_TEST(stringTyped_test, ConcatenateStringAndCharWorks)
     ::testing::Test::RecordProperty("TEST_ID", "d8cf335a-4fa2-4dc5-a98d-8b34f3b47464");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto TEST_STRING1CAP = STRINGCAP + 10U;
+    constexpr auto TEST_STRING2CAP = 15U;
     const string<STRINGCAP + 26U> expectedString("FerdinandSpitzschnueffler");
-    string<STRINGCAP + 10> testString1("Ferdinand");
+    string<TEST_STRING1CAP> testString1("Ferdinand");
     const char testChar = 'S';
-    string<15> testString2("pitzschnueffler");
+    string<TEST_STRING2CAP> testString2("pitzschnueffler");
     auto result = concatenate(testString1, testChar, testString2);
 
     EXPECT_THAT(result.capacity(), Eq(expectedString.capacity()));
@@ -2173,12 +2193,14 @@ TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "161902aa-98a0-450f-874e-f300a99a144d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto TEST_STRING1CAP = STRINGCAP + 3U;
+    constexpr auto TEST_STRING2CAP = 6U * STRINGCAP;
     std::string testStdString0(STRINGCAP, 'M');
     EXPECT_THAT(this->testSubject.unsafe_assign(testStdString0), Eq(true));
-    std::string testStdString1(STRINGCAP + 3U, 'L');
-    string<STRINGCAP + 3U> testString1(TruncateToCapacity, testStdString1);
-    string<6U * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
-    EXPECT_THAT(testString2.capacity(), Eq(6U * STRINGCAP));
+    std::string testStdString1(TEST_STRING1CAP, 'L');
+    string<TEST_STRING1CAP> testString1(TruncateToCapacity, testStdString1);
+    string<TEST_STRING2CAP> testString2 = this->testSubject + testString1 + this->testSubject;
+    EXPECT_THAT(testString2.capacity(), Eq(TEST_STRING2CAP));
     EXPECT_THAT(testString2.size(), Eq(2U * this->testSubject.size() + testString1.size()));
     EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
 }
@@ -2205,10 +2227,10 @@ TYPED_TEST(stringTyped_test, ConcatenateStringLiteralAndStringWithOperatorPlusWo
 {
     ::testing::Test::RecordProperty("TEST_ID", "d6630140-592b-45c7-ab76-be8cd3fa3d98");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 7U;
     this->testSubject = "e";
-    string<STRINGCAP + 7U> testString = "AdmTass" + this->testSubject;
-    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7U));
+    string<STRINGCAP> testString = "AdmTass" + this->testSubject;
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(8U));
     EXPECT_THAT(testString.c_str(), StrEq("AdmTasse"));
 }
@@ -2228,10 +2250,10 @@ TYPED_TEST(stringTyped_test, ConcatenateCharAndStringWithOperatorPlusWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7d25ab82-48f9-4000-9764-e14522fd4ecc");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 7U;
     this->testSubject = "S";
-    string<STRINGCAP + 7U> testString = 'F' + this->testSubject;
-    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 7U));
+    string<STRINGCAP> testString = 'F' + this->testSubject;
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(2U));
     EXPECT_THAT(testString.c_str(), StrEq("FS"));
 }
@@ -2270,11 +2292,11 @@ TYPED_TEST(stringTyped_test, UnsafeAppendFittingStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b609c480-c1dd-49d5-b230-09ccda1b0e78");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = 5U * MyString::capacity();
     this->testSubject = "2";
-    string<5U * STRINGCAP> testString("R2-D");
+    string<STRINGCAP> testString("R2-D");
     EXPECT_THAT(testString.unsafe_append(this->testSubject), Eq(true));
-    EXPECT_THAT(testString.capacity(), Eq(5U * STRINGCAP));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(5));
     EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
 }
@@ -2310,9 +2332,10 @@ TYPED_TEST(stringTyped_test, UnsafeAppendEmptyStringLiteralWorks)
 TEST(String10, UnsafeAppendFittingStringLiteralWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ed188a09-9550-4377-95f6-ca51f8cfbf7e");
-    string<10U> testString("R2-D");
+    constexpr uint64_t STRINGCAP = 10U;
+    string<STRINGCAP> testString("R2-D");
     EXPECT_THAT(testString.unsafe_append("2"), Eq(true));
-    EXPECT_THAT(testString.capacity(), Eq(10U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(5U));
     EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
 }
@@ -2320,9 +2343,10 @@ TEST(String10, UnsafeAppendFittingStringLiteralWorks)
 TEST(String10, UnsafeAppendTooLargeStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9305077-c3a8-4edb-be5f-ea8b1af19645");
-    string<10U> testString("Kern");
+    constexpr uint64_t STRINGCAP = 10U;
+    string<STRINGCAP> testString("Kern");
     EXPECT_THAT(testString.unsafe_append("fusionsbaby"), Eq(false));
-    EXPECT_THAT(testString.capacity(), Eq(10U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(4U));
     EXPECT_THAT(testString.c_str(), StrEq("Kern"));
 }
@@ -2345,10 +2369,10 @@ TYPED_TEST(stringTyped_test, UnsafeAppendCharWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4243b52a-fe02-45ec-b201-dde2a0dca5b8");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("R2-D");
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString("R2-D");
     EXPECT_THAT(testString.unsafe_append('2'), Eq(true));
-    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(5U));
     EXPECT_THAT(testString.c_str(), StrEq("R2-D2"));
 }
@@ -2400,11 +2424,11 @@ TYPED_TEST(stringTyped_test, UnsafeAppendFittingStdStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32beaa61-3282-4964-af1f-b185b7cc50ee");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<5U * STRINGCAP> sut("R2-D");
+    constexpr auto STRINGCAP = 5U * MyString::capacity();
+    string<STRINGCAP> sut("R2-D");
     std::string testStdString = "2";
     EXPECT_THAT(sut.unsafe_append(testStdString), Eq(true));
-    EXPECT_THAT(sut.capacity(), Eq(5U * STRINGCAP));
+    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(sut.size(), Eq(5U));
     EXPECT_THAT(sut.c_str(), StrEq("R2-D2"));
 }
@@ -2453,7 +2477,8 @@ TYPED_TEST(stringTyped_test, AppendStringToEmptyStringResultsInConcatenatedStrin
     ::testing::Test::RecordProperty("TEST_ID", "cb8651ac-efcf-430a-94e8-8f6e20dcd265");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("M");
+    constexpr auto TEST_STRINGCAP = STRINGCAP + 5U;
+    string<TEST_STRINGCAP> testString("M");
     this->testSubject.append(TruncateToCapacity, testString);
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(1U));
@@ -2464,11 +2489,11 @@ TYPED_TEST(stringTyped_test, AppendStringResultsInConcatenatedString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9c7f7d12-4b5b-483b-acb4-0afbe6d59ec2");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
     this->testSubject = "d";
-    string<STRINGCAP + 5U> testString("Picar");
+    string<STRINGCAP> testString("Picar");
     testString.append(TruncateToCapacity, this->testSubject);
-    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(6U));
     EXPECT_THAT(testString.c_str(), StrEq("Picard"));
 }
@@ -2514,9 +2539,10 @@ TYPED_TEST(stringTyped_test, AppendStringLiteralToEmptyStringResultsInConcatenat
 TEST(String10, AppendStringLiteralResultsInConcatenatedString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f620c504-8d0a-4088-9074-4a1be80ff077");
-    string<10U> testString("Picar");
+    constexpr uint64_t STRINGCAP = 10U;
+    string<STRINGCAP> testString("Picar");
     testString.append(TruncateToCapacity, "d");
-    EXPECT_THAT(testString.capacity(), Eq(10U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(6U));
     EXPECT_THAT(testString.c_str(), StrEq("Picard"));
 }
@@ -2524,10 +2550,11 @@ TEST(String10, AppendStringLiteralResultsInConcatenatedString)
 TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "524a544a-0275-4549-a6dd-7c40e31af91c");
-    string<10U> testString("Live long");
+    constexpr uint64_t STRINGCAP = 10U;
+    string<STRINGCAP> testString("Live long");
     testString.append(TruncateToCapacity, " and prosper");
-    EXPECT_THAT(testString.capacity(), Eq(10U));
-    EXPECT_THAT(testString.size(), Eq(10U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(testString.size(), Eq(STRINGCAP));
     EXPECT_THAT(testString.c_str(), StrEq("Live long "));
 }
 
@@ -2560,11 +2587,11 @@ TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7159ef46-f441-4cc7-8eff-46b5f3d33597");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> sut = "P";
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> sut = "P";
     std::string testStdString("icard");
     sut.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(sut.size(), Eq(6U));
     EXPECT_THAT(sut.c_str(), StrEq("Picard"));
 }
@@ -2637,10 +2664,10 @@ TYPED_TEST(stringTyped_test, AppendCharResultsInConcatenatedString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "853b6d2f-4e48-43f4-b167-53f076747ab2");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("Picar");
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString("Picar");
     testString.append(TruncateToCapacity, 'd');
-    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP + 5U));
+    EXPECT_THAT(testString.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testString.size(), Eq(6U));
     EXPECT_THAT(testString.c_str(), StrEq("Picard"));
 }
@@ -2683,14 +2710,16 @@ TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
 TEST(String100, SubstrWithDefaultSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "10b1244f-7245-449d-b6d0-5c94faa7d274");
+    constexpr uint64_t STRINGCAP = 100U;
+    constexpr uint64_t SUBSTR_POS = 8U;
     std::string testStdString = "Mueslimaedchen";
-    std::string testStdSubstring = testStdString.substr(8);
-    string<100U> testCxxString(TruncateToCapacity, testStdString);
-    auto res = testCxxString.substr(8U);
+    std::string testStdSubstring = testStdString.substr(SUBSTR_POS);
+    string<STRINGCAP> testCxxString(TruncateToCapacity, testStdString);
+    auto res = testCxxString.substr(SUBSTR_POS);
     ASSERT_THAT(res.has_value(), Eq(true));
 
     auto testSubstring = res.value();
-    EXPECT_THAT(testSubstring.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
 }
@@ -2699,46 +2728,56 @@ TEST(String100, SubstrWithDefaultSizeWorks)
 TEST(String100, SubstrWithValidPosAndSizeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3cd90af2-97f4-4767-854d-d3ca726bd348");
+    constexpr uint64_t STRINGCAP = 100U;
     std::string testStdString = "Ferdinand Spitzschnueffler";
-    string<100U> testCxxString(TruncateToCapacity, testStdString);
+    string<STRINGCAP> testCxxString(TruncateToCapacity, testStdString);
 
-    std::string testStdSubstring = testStdString.substr(0, 19);
-    auto res1 = testCxxString.substr(0U, 19U);
+    constexpr uint64_t SUBSTR_POS_0 = 0;
+    constexpr uint64_t SUBSTR_COUNT_19 = 19;
+    std::string testStdSubstring = testStdString.substr(SUBSTR_POS_0, SUBSTR_COUNT_19);
+    auto res1 = testCxxString.substr(SUBSTR_POS_0, SUBSTR_COUNT_19);
     ASSERT_THAT(res1.has_value(), Eq(true));
     auto testSubstring1 = res1.value();
-    EXPECT_THAT(testSubstring1.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring1.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring1.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring));
 
-    testStdSubstring = testStdString.substr(20, 5);
-    auto res2 = testCxxString.substr(20U, 5U);
+    constexpr uint64_t SUBSTR_POS_20 = 20;
+    constexpr uint64_t SUBSTR_COUNT_5 = 5;
+    testStdSubstring = testStdString.substr(SUBSTR_POS_20, SUBSTR_COUNT_5);
+    auto res2 = testCxxString.substr(SUBSTR_POS_20, SUBSTR_COUNT_5);
     EXPECT_THAT(res2.has_value(), Eq(true));
     auto testSubstring2 = res2.value();
-    EXPECT_THAT(testSubstring2.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring2.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring2.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring));
 
-    testStdSubstring = testStdString.substr(0, 26);
-    auto res3 = testCxxString.substr(0U, 26U);
+    constexpr uint64_t SUBSTR_COUNT_26 = 26;
+    testStdSubstring = testStdString.substr(SUBSTR_POS_0, SUBSTR_COUNT_26);
+    auto res3 = testCxxString.substr(SUBSTR_POS_0, SUBSTR_COUNT_26);
     ASSERT_THAT(res3.has_value(), Eq(true));
     auto testSubstring3 = res3.value();
-    EXPECT_THAT(testSubstring3.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring3.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring3.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring));
 
-    testStdSubstring = testStdString.substr(11, 8);
-    auto res4 = testCxxString.substr(11U, 8U);
+    constexpr uint64_t SUBSTR_POS_11 = 11;
+    constexpr uint64_t SUBSTR_COUNT_8 = 8;
+    testStdSubstring = testStdString.substr(SUBSTR_POS_11, SUBSTR_COUNT_8);
+    auto res4 = testCxxString.substr(SUBSTR_POS_11, SUBSTR_COUNT_8);
     ASSERT_THAT(res4.has_value(), Eq(true));
     auto testSubstring4 = res4.value();
-    EXPECT_THAT(testSubstring4.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring4.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring4.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring));
 
-    testStdSubstring = testStdString.substr(13, 98);
-    auto res5 = testCxxString.substr(13U, 98U);
+    constexpr uint64_t SUBSTR_POS_13 = 13;
+    constexpr uint64_t SUBSTR_COUNT_98 = 98;
+    testStdSubstring = testStdString.substr(SUBSTR_POS_13, SUBSTR_COUNT_98);
+    auto res5 = testCxxString.substr(SUBSTR_POS_13, SUBSTR_COUNT_98);
     ASSERT_THAT(res5.has_value(), Eq(true));
     auto testSubstring5 = res5.value();
-    EXPECT_THAT(testSubstring5.capacity(), Eq(100U));
+    EXPECT_THAT(testSubstring5.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring5.size(), Eq(testStdSubstring.size()));
     EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring));
 }
@@ -2758,8 +2797,8 @@ TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3ceb4ed6-1395-445e-afe4-94f6c9b2cee8");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString;
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString;
     auto res = this->testSubject.find(testString);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
@@ -2778,8 +2817,8 @@ TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "feb48bb6-c6f0-4f8b-8ce5-bf881fd876cb");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("a");
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString("a");
     auto res = this->testSubject.find(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -2794,8 +2833,10 @@ TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
 TEST(String100, FindStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b487b6bc-1c40-46f1-8285-dd1660d2e882");
-    string<10U> testString("R2-D2");
-    string<100U> substring("2");
+    constexpr uint64_t STRINGCAP = 10U;
+    constexpr uint64_t SUB_STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
+    string<SUB_STRINGCAP> substring("2");
     auto res = testString.find(substring);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(1U));
@@ -2812,37 +2853,46 @@ TEST(String100, FindStringInNotEmptyStringWorks)
 TEST(String100, FindNotIncludedStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb0ca1b6-3dbd-491a-acac-e1f57ad2eb4f");
-    string<100U> testString("Kernfusionsbaby");
-    string<100U> substring("abc");
+    constexpr uint64_t STRINGCAP = 100U;
+    constexpr uint64_t FIND_POS = 50U;
+
+    string<STRINGCAP> testString("Kernfusionsbaby");
+    string<STRINGCAP> substring("abc");
     auto res = testString.find(substring);
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = testString.find(substring, 0U);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find(substring, 50U);
+    res = testString.find(substring, FIND_POS);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindStringLiteralInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b9a3018f-10d5-4f57-bfeb-f536a6ea9642");
-    string<100U> testString1("Mueslimaedchen");
+    constexpr uint64_t STRINGCAP = 100U;
+
+    string<STRINGCAP> testString1("Mueslimaedchen");
     auto res = testString1.find("lima");
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString1.find("lima", 2U);
+    constexpr uint64_t FIND_POS_2 = 2U;
+    res = testString1.find("lima", FIND_POS_2);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString1.find("e", 10U);
+    constexpr uint64_t FIND_POS_10 = 10U;
+    res = testString1.find("e", FIND_POS_10);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(12U));
 
-    std::string testStdString{"ice\0ryx", 7};
-    string<100U> testString2(TruncateToCapacity, testStdString.c_str(), 7U);
-    res = testString2.find("e\0ry", 0U);
+    constexpr uint64_t STRING_COUNT = 7U;
+    constexpr uint64_t FIND_POS_0 = 0U;
+    std::string testStdString{"ice\0ryx", STRING_COUNT};
+    string<STRINGCAP> testString2(TruncateToCapacity, testStdString.c_str(), STRING_COUNT);
+    res = testString2.find("e\0ry", FIND_POS_0);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(2U));
 }
@@ -2850,18 +2900,21 @@ TEST(String100, FindStringLiteralInNotEmptyStringWorks)
 TEST(String100, FindNotIncludedStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bd1ef66b-3698-4049-9d62-131b6de51b76");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    constexpr uint64_t FIND_POS = 50U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     auto res = testString.find("abc");
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find("abc", 50U);
+    res = testString.find("abc", FIND_POS);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindSTDStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "794f62c2-deca-4511-9529-3353ff9ee552");
-    string<100U> testString("R2-D2");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
     std::string testStdString = "2";
     auto res = testString.find(testStdString);
     ASSERT_THAT(res.has_value(), Eq(true));
@@ -2879,15 +2932,18 @@ TEST(String100, FindSTDStringInNotEmptyStringWorks)
 TEST(String100, FindNotIncludedSTDStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b2116c9-5f7d-48b4-8c26-cb3b71cf0ea2");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     std::string testStdString = "abc";
     auto res = testString.find(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find(testStdString, 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find(testStdString, FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find(testStdString, 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find(testStdString, FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -2897,8 +2953,8 @@ TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21f90f13-6b15-4ce1-9258-c21154b6043c");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString;
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString;
     auto res = this->testSubject.find_first_of(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -2914,8 +2970,8 @@ TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a1b1272-fc5b-431e-980d-39357f66e882");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("a");
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString("a");
     auto res = this->testSubject.find_first_of(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -2930,8 +2986,10 @@ TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
 TEST(String100, FindFirstOfForStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b24dbd99-3595-4b04-9e6e-177d2a6e4ad0");
-    string<10U> testString("R2-D2");
-    string<100U> substring1("2");
+    constexpr uint64_t STRINGCAP = 10U;
+    constexpr uint64_t SUB_STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
+    string<SUB_STRINGCAP> substring1("2");
     auto res = testString.find_first_of(substring1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(1U));
@@ -2944,7 +3002,7 @@ TEST(String100, FindFirstOfForStringInNotEmptyStringWorks)
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    string<100U> substring2("D3R");
+    string<SUB_STRINGCAP> substring2("D3R");
     res = testString.find_first_of(substring2);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
@@ -2957,31 +3015,37 @@ TEST(String100, FindFirstOfForStringInNotEmptyStringWorks)
 TEST(String100, FindFirstOfForNotIncludedStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f42e026a-063b-43dd-8a6a-157330f3f426");
-    string<100U> testString("Kernfusionsbaby");
-    string<100U> substring("cdG");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
+    string<STRINGCAP> substring("cdG");
     auto res = testString.find_first_of(substring);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of(substring, 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_first_of(substring, FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of(substring, 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_first_of(substring, FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindFirstOfForStringLiteralInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cfb3c539-c442-4a80-82b2-2da4ea37f1cd");
-    string<100U> testString1("Mueslimaedchen");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString1("Mueslimaedchen");
     auto res = testString1.find_first_of("lima");
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString1.find_first_of("mali", 2U);
+    constexpr uint64_t FIND_POS_2 = 2U;
+    res = testString1.find_first_of("mali", FIND_POS_2);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString1.find_first_of("e", 10U);
+    constexpr uint64_t FIND_POS_10 = 10U;
+    res = testString1.find_first_of("e", FIND_POS_10);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(12U));
 
@@ -2989,9 +3053,11 @@ TEST(String100, FindFirstOfForStringLiteralInNotEmptyStringWorks)
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
 
-    std::string testStdString{"ice\0ryx", 7};
-    string<100U> testString2(TruncateToCapacity, testStdString.c_str(), 7U);
-    res = testString2.find_first_of("e\0ry", 0U);
+    constexpr uint64_t STRING_COUNT = 7U;
+    constexpr uint64_t FIND_POS_0 = 0U;
+    std::string testStdString{"ice\0ryx", STRING_COUNT};
+    string<STRINGCAP> testString2(TruncateToCapacity, testStdString.c_str(), STRING_COUNT);
+    res = testString2.find_first_of("e\0ry", FIND_POS_0);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(2U));
 }
@@ -2999,21 +3065,25 @@ TEST(String100, FindFirstOfForStringLiteralInNotEmptyStringWorks)
 TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bc574b5b-496b-4c81-acf9-a81fe3d2abb0");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     auto res = testString.find_first_of("cd");
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of("cd", 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_first_of("cd", FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of("cd", 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_first_of("cd", FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1f44acab-aa37-4f45-a782-06ad02bd926b");
-    string<100U> testString("R2-D2");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
     std::string testStdString1 = "2";
     auto res = testString.find_first_of(testStdString1);
     ASSERT_THAT(res.has_value(), Eq(true));
@@ -3040,15 +3110,18 @@ TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
 TEST(String100, FindFirstOfForNotIncludedSTDStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "700d9fd9-4039-490e-9dd4-3833fb9f5e08");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     std::string testStdString = "cd";
     auto res = testString.find_first_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of(testStdString, 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_first_of(testStdString, FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_first_of(testStdString, 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_first_of(testStdString, FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -3058,8 +3131,8 @@ TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7e09947d-762f-4d7f-a1ab-65696877da06");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString;
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString;
     auto res = this->testSubject.find_last_of(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -3075,8 +3148,8 @@ TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab1650d8-b3f1-445a-b53a-b339f9f37830");
     using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> testString("a");
+    constexpr auto STRINGCAP = MyString::capacity() + 5U;
+    string<STRINGCAP> testString("a");
     auto res = this->testSubject.find_last_of(testString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -3091,26 +3164,30 @@ TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
 TEST(String100, FindLastOfForStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "384b1457-ccaa-4801-a7be-625ef9b7a27a");
-    string<10U> testString("R2-D2");
-    string<100U> substring1("2");
+    constexpr uint64_t STRINGCAP = 10U;
+    constexpr uint64_t SUB_STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
+    string<SUB_STRINGCAP> substring1("2");
     auto res = testString.find_last_of(substring1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString.find_last_of(substring1, 1U);
+    constexpr uint64_t FIND_POS_1 = 1U;
+    res = testString.find_last_of(substring1, FIND_POS_1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(1U));
 
-    res = testString.find_last_of(substring1, 5U);
+    constexpr uint64_t FIND_POS_5 = 5U;
+    res = testString.find_last_of(substring1, FIND_POS_5);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    string<100U> substring2("D3R");
+    string<SUB_STRINGCAP> substring2("D3R");
     res = testString.find_last_of(substring2);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(3U));
 
-    res = testString.find_last_of(substring2, 1U);
+    res = testString.find_last_of(substring2, FIND_POS_1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
 }
@@ -3118,31 +3195,37 @@ TEST(String100, FindLastOfForStringInNotEmptyStringWorks)
 TEST(String100, FindLastOfForNotIncludedStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0aad222-061f-42ab-8d58-7c7fb5dc1296");
-    string<100U> testString("Kernfusionsbaby");
-    string<100U> substring("cdG");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
+    string<STRINGCAP> substring("cdG");
     auto res = testString.find_last_of(substring);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of(substring, 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_last_of(substring, FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of(substring, 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_last_of(substring, FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindLastOfForStringLiteralInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cac2ed11-6f33-4e32-ac3f-fd725c068f42");
-    string<100U> testString1("Mueslimaedchen");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString1("Mueslimaedchen");
     auto res = testString1.find_last_of("lima");
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(7U));
 
-    res = testString1.find_last_of("lima", 5U);
+    constexpr uint64_t FIND_POS_5 = 5U;
+    res = testString1.find_last_of("lima", FIND_POS_5);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(5U));
 
-    res = testString1.find_last_of("e", 7U);
+    constexpr uint64_t FIND_POS_7 = 7U;
+    res = testString1.find_last_of("e", FIND_POS_7);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(2U));
 
@@ -3154,31 +3237,37 @@ TEST(String100, FindLastOfForStringLiteralInNotEmptyStringWorks)
 TEST(String100, FindLastOfForNotIncludedStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec2e64cf-91ef-4c9c-801d-4a27d26db240");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     auto res = testString.find_last_of("cd");
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of("cd", 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_last_of("cd", FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of("cd", 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_last_of("cd", FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f068fa78-1e97-4148-bbba-da9cc2cf022e");
-    string<100U> testString("R2-D2");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("R2-D2");
     std::string testStdString1 = "2";
     auto res = testString.find_last_of(testStdString1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
-    res = testString.find_last_of(testStdString1, 1U);
+    constexpr uint64_t FIND_POS_1 = 1U;
+    res = testString.find_last_of(testStdString1, FIND_POS_1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(1U));
 
-    res = testString.find_last_of(testStdString1, 5U);
+    constexpr uint64_t FIND_POS_5 = 5U;
+    res = testString.find_last_of(testStdString1, FIND_POS_5);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 
@@ -3187,7 +3276,7 @@ TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(3U));
 
-    res = testString.find_last_of(testStdString2, 1U);
+    res = testString.find_last_of(testStdString2, FIND_POS_1);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
 }
@@ -3195,15 +3284,18 @@ TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
 TEST(String100, FindLastOfForNotIncludedSTDStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91df370f-38ee-41e8-8063-5f4c3010374f");
-    string<100U> testString("Kernfusionsbaby");
+    constexpr uint64_t STRINGCAP = 100U;
+    string<STRINGCAP> testString("Kernfusionsbaby");
     std::string testStdString = "cd";
     auto res = testString.find_last_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of(testStdString, 0U);
+    constexpr uint64_t FIND_POS_0 = 0U;
+    res = testString.find_last_of(testStdString, FIND_POS_0);
     EXPECT_THAT(res.has_value(), Eq(false));
 
-    res = testString.find_last_of(testStdString, 50U);
+    constexpr uint64_t FIND_POS_50 = 50U;
+    res = testString.find_last_of(testStdString, FIND_POS_50);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -3368,8 +3460,9 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstSubscriptO
 TEST(String10, InsertStringLiteralAtTheBeginningOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f3c5bf8-2367-46c0-b803-570a2a640c93");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("toad");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("toad");
     ASSERT_TRUE(sut.insert(0, "Hypno", 5));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3378,8 +3471,9 @@ TEST(String10, InsertStringLiteralAtTheBeginningOfTheStringSucceeds)
 TEST(String10, InsertStringLiteralInTheMiddleOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "861eec68-3e78-42cf-ac75-30c23a3e60d2");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("Hypoad");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("Hypoad");
     ASSERT_TRUE(sut.insert(3, "not", 3));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3388,8 +3482,9 @@ TEST(String10, InsertStringLiteralInTheMiddleOfTheStringSucceeds)
 TEST(String10, InsertStringLiteralAtTheEndOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91f733e0-5ded-4f85-9727-241b649bd7dc");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("Hypno");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("Hypno");
     ASSERT_TRUE(sut.insert(sut.size(), "toad", 4));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3424,8 +3519,9 @@ TYPED_TEST(stringTyped_test, InsertStringLiteralWithCountGreaterThanSizeOfString
 TEST(String10, InsertTooLargeStringLiteralFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f11f387-f437-4a39-8207-259df4807c70");
-    const string<10> expectedString("Ferdinand");
-    string<10> sut(expectedString);
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Ferdinand");
+    string<STRINGCAP> sut(expectedString);
     ASSERT_FALSE(sut.insert(sut.size(), "Spitzschnueffler", 16));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3434,8 +3530,9 @@ TEST(String10, InsertTooLargeStringLiteralFails)
 TEST(String10, InsertTooLargeStringLiteralWithSmallCountSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2763b3d8-3023-4841-80d1-798acd3b71d7");
-    const string<10> expectedString("FerdinandS");
-    string<10> sut("Ferdinand");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("FerdinandS");
+    string<STRINGCAP> sut("Ferdinand");
     ASSERT_TRUE(sut.insert(sut.size(), "Spitzschnueffler", 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3452,8 +3549,9 @@ TYPED_TEST(stringTyped_test, InsertStringLiteralWithCount0DoesntChangeTheString)
 TEST(String10, InsertStringLiteralAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3a30ea5-f228-48f4-9497-08502e4f2c9a");
-    const string<10> expectedString("Muesli");
-    string<10> sut(expectedString);
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Muesli");
+    string<STRINGCAP> sut(expectedString);
     ASSERT_FALSE(sut.insert(sut.size() + 1U, "s", 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3462,9 +3560,10 @@ TEST(String10, InsertStringLiteralAtPositionGreaterStringSizeFails)
 TEST(String10, InsertCxxStringAtTheBeginningOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df62df30-0838-4282-91f7-b39b1c861861");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("toad");
-    string<10> string_to_insert("Hypno");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("toad");
+    string<STRINGCAP> string_to_insert("Hypno");
     ASSERT_TRUE(sut.insert(0, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3473,9 +3572,10 @@ TEST(String10, InsertCxxStringAtTheBeginningOfTheStringSucceeds)
 TEST(String10, InsertCxxStringInTheMiddleOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5a94b5a-c734-4654-a6ba-08819b4b7eac");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("Hypoad");
-    string<10> string_to_insert("not");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("Hypoad");
+    string<STRINGCAP> string_to_insert("not");
     ASSERT_TRUE(sut.insert(3, string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3484,9 +3584,10 @@ TEST(String10, InsertCxxStringInTheMiddleOfTheStringSucceeds)
 TEST(String10, InsertCxxStringAtTheEndOfTheStringSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f77dfb73-77ce-471f-b90b-8fcf0ab1a5de");
-    const string<10> expectedString("Hypnotoad");
-    string<10> sut("Hypno");
-    string<10> string_to_insert("toad");
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Hypnotoad");
+    string<STRINGCAP> sut("Hypno");
+    string<STRINGCAP> string_to_insert("toad");
     ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3523,9 +3624,11 @@ TYPED_TEST(stringTyped_test, InsertCxxStringWithCountGreaterThanSizeOfStringLite
 TEST(String10, InsertTooLargeCxxStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e9d88dd2-9da5-4f5f-a798-10b3931e6516");
-    const string<10> expectedString("Ferdinand");
-    string<10> sut(expectedString);
-    string<16> string_to_insert("Spitzschnueffler");
+    constexpr uint64_t STRINGCAP = 10U;
+    constexpr uint64_t INSERT_STRINGCAP = STRINGCAP + 6U;
+    const string<STRINGCAP> expectedString("Ferdinand");
+    string<STRINGCAP> sut(expectedString);
+    string<INSERT_STRINGCAP> string_to_insert("Spitzschnueffler");
     ASSERT_FALSE(sut.insert(sut.size(), string_to_insert, string_to_insert.size()));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3534,9 +3637,11 @@ TEST(String10, InsertTooLargeCxxStringFails)
 TEST(String10, InsertTooLargeCxxStringWithSmallCountSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e99348ac-87a4-4678-b33a-2ddac3e21cb4");
-    const string<10> expectedString("FerdinandS");
-    string<10> sut("Ferdinand");
-    string<16> string_to_insert("Spitzschnueffler");
+    constexpr uint64_t STRINGCAP = 10U;
+    constexpr uint64_t INSERT_STRINGCAP = STRINGCAP + 6U;
+    const string<STRINGCAP> expectedString("FerdinandS");
+    string<STRINGCAP> sut("Ferdinand");
+    string<INSERT_STRINGCAP> string_to_insert("Spitzschnueffler");
     ASSERT_TRUE(sut.insert(sut.size(), string_to_insert, 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
@@ -3545,7 +3650,7 @@ TEST(String10, InsertTooLargeCxxStringWithSmallCountSucceeds)
 TYPED_TEST(stringTyped_test, InsertCxxStringWithCount0DoesntChangeTheString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "340c595e-b0b1-43a8-a08e-ebb62dc0d306");
-    string<10> string_to_insert("Ferdinand");
+    const string<10> string_to_insert("Ferdinand");
     ASSERT_TRUE(this->testSubject.insert(0, string_to_insert, 0));
     EXPECT_THAT(this->testSubject.size(), Eq(0));
     EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
@@ -3554,8 +3659,9 @@ TYPED_TEST(stringTyped_test, InsertCxxStringWithCount0DoesntChangeTheString)
 TEST(String10, InsertCxxStringAtPositionGreaterStringSizeFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a2517ea0-2842-4f56-a89a-b7fd01c6c6ba");
-    const string<10> expectedString("Muesli");
-    string<10> sut(expectedString);
+    constexpr uint64_t STRINGCAP = 10U;
+    const string<STRINGCAP> expectedString("Muesli");
+    string<STRINGCAP> sut(expectedString);
     string<1> string_to_insert("s");
     ASSERT_FALSE(sut.insert(sut.size() + 1U, string_to_insert, 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));

@@ -418,15 +418,15 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
-                                                                                                  const T2& t2) noexcept
+inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+concatenate(const T1& str1, const T2& str2) noexcept
 {
-    uint64_t size1 = internal::GetSize<T1>::call(t1);
-    uint64_t size2 = internal::GetSize<T2>::call(t2);
+    uint64_t size1 = internal::GetSize<T1>::call(str1);
+    uint64_t size2 = internal::GetSize<T2>::call(str2);
     using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
-    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(t1), size1);
-    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(t2), size2);
+    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(str1), size1);
+    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(str2), size2);
     newString.m_rawstring[size1 + size2] = '\0';
     newString.m_rawstringSize = size1 + size2;
 
@@ -435,24 +435,24 @@ inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::va
 
 template <typename T1, typename T2, typename... Targs>
 inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
-concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
+concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 {
-    return concatenate(concatenate(t1, t2), targs...);
+    return concatenate(concatenate(str1, str2), targs...);
 }
 
 template <typename T1, typename T2>
 inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
-operator+(const T1& t1, const T2& t2) noexcept
+operator+(const T1& str1, const T2& str2) noexcept
 {
-    return concatenate(t1, t2);
+    return concatenate(str1, str2);
 }
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& t) noexcept
+inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(t);
-    const char* tData = internal::GetData<T>::call(t);
+    uint64_t tSize = internal::GetSize<T>::call(str);
+    const char* tData = internal::GetData<T>::call(str);
     uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
 
     if (tSize > clampedTSize)
@@ -470,10 +470,10 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
 template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t,
-                                                                                const T& t) noexcept
+                                                                                const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(t);
-    const char* tData = internal::GetData<T>::call(t);
+    uint64_t tSize = internal::GetSize<T>::call(str);
+    const char* tData = internal::GetData<T>::call(str);
     uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
 
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
@@ -489,14 +489,14 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
 }
 
 template <uint64_t Capacity>
-inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char c) noexcept
+inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char cstr) noexcept
 {
     if (m_rawstringSize == Capacity)
     {
-        std::cerr << "Appending of " << c << " failed because this' capacity would be exceeded." << std::endl;
+        std::cerr << "Appending of " << cstr << " failed because this' capacity would be exceeded." << std::endl;
         return *this;
     }
-    m_rawstring[m_rawstringSize] = c;
+    m_rawstring[m_rawstringSize] = cstr;
     m_rawstringSize += 1U;
     m_rawstring[m_rawstringSize] = '\0';
     return *this;
@@ -555,13 +555,14 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) c
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T& str,
+                                                                         const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
         return nullopt;
     }
-    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(t));
+    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(str));
     if (found == nullptr)
     {
         return nullopt;
@@ -571,7 +572,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_of(const T& t,
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_of(const T& str,
                                                                                   const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
@@ -579,7 +580,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
         return nullopt;
     }
     const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(t);
+    const char* data = internal::GetData<T>::call(str);
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
         found = std::strchr(data, m_rawstring[p]);
@@ -593,7 +594,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of(const T& t,
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of(const T& str,
                                                                                  const uint64_t pos) const noexcept
 {
     if (m_rawstringSize == 0U)
@@ -607,7 +608,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
         p = m_rawstringSize - 1U;
     }
     const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(t);
+    const char* data = internal::GetData<T>::call(str);
     for (; p > 0U; --p)
     {
         found = std::strchr(data, m_rawstring[p]);
