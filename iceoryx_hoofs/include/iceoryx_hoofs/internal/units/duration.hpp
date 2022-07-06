@@ -41,25 +41,25 @@ class Duration;
 namespace duration_literals
 {
 /// @brief Constructs a new Duration object from nanoseconds
-constexpr Duration operator"" _ns(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _ns(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from microseconds
-constexpr Duration operator"" _us(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _us(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from milliseconds
-constexpr Duration operator"" _ms(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _ms(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from seconds
-constexpr Duration operator"" _s(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _s(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from minutes
-constexpr Duration operator"" _m(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _m(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from hours
-constexpr Duration operator"" _h(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _h(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from days
-constexpr Duration operator"" _d(unsigned long long int) noexcept; // PRQA S 48
+constexpr Duration operator"" _d(unsigned long long intvalue) noexcept;
 } // namespace duration_literals
 
 /// @code
@@ -283,13 +283,13 @@ class Duration
 
     // END CONVERSION
 
-    friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int) noexcept; // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _us(unsigned long long int) noexcept; // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int) noexcept; // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int) noexcept;  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int) noexcept;  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int) noexcept;  // PRQA S 48
-    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int) noexcept;  // PRQA S 48
+    friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _us(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _s(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _m(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _h(unsigned long long int value) noexcept;
+    friend constexpr Duration duration_literals::operator"" _d(unsigned long long int value) noexcept;
 
     template <typename T>
     friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
