@@ -1,0 +1,26 @@
+# Symlinked to:
+# currently no symlinks
+
+InheritParentConfig:  true
+
+Checks: '
+-cert-err58-cpp,
+-cppcoreguidelines-special-member-functions,
+-hicpp-special-member-functions
+-readability-identifier-naming
+'
+
+## Justifications for rule deactivation ##
+#
+# * rule: cert-err58-cpp
+#   justification: Many warnings due to gtest 'TEST' macros like "initialization of
+#       'test_info_'  with static storage duration may throw an exception that cannot be caught"
+#
+# * rule: cppcoreguidelines-special-member-functions
+#   justification: structs and classes in tests do not all follow the rule of five
+#
+# * rule: hicpp-special-member-functions
+#   justification: same as for 'cppcoreguidelines-special-member-functions'
+#
+# * rule: readability-identifier-naming
+#   justification: structs and classes in tests do not obey the same naming convention like in production code

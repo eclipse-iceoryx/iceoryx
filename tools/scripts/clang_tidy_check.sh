@@ -78,7 +78,7 @@ elif [[ "$MODE" == "full"* ]]; then
     echo "Checking all files with Clang-Tidy"
     echo " "
     echo $FILES
-    run-$CLANG_TIDY_CMD -p build $FILES
+    $CLANG_TIDY_CMD -p build $FILES
     exit $?
 elif [[ "$MODE" == "ci_pull_request"* ]]; then
     FILES=$(echo $2 | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)

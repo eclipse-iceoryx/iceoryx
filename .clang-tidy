@@ -16,66 +16,9 @@ bugprone-*,
 cppcoreguidelines-*,
 concurrency-*,
 performance-*,
-hicpp-*,
+hicpp-*
 
--bugprone-use-after-move,
--bugprone-easily-swappable-parameters,
--bugprone-branch-clone,
--bugprone-implicit-widening-of-multiplication-result,
--bugprone-not-null-terminated-result,
--concurrency-mt-unsafe,
--readability-named-parameter,
--readability-avoid-const-params-in-decls,
--readability-else-after-return,
--readability-redundant-access-specifiers,
--readability-magic-numbers,
--readability-function-size,
--readability-static-accessed-through-instance,
--readability-qualified-auto,
--readability-uppercase-literal-suffix,
--readability-implicit-bool-conversion,
--readability-convert-member-functions-to-static,
--readability-inconsistent-declaration-parameter-name,
--readability-container-size-empty,
--readability-simplify-boolean-expr,
--readability-make-member-function-const,
--readability-const-return-type,
--readability-function-cognitive-complexity,
--readability-use-anyofallof,
--hicpp-named-parameter,
--hicpp-avoid-c-arrays,
--hicpp-no-array-decay,
--hicpp-signed-bitwise,
--hicpp-vararg,
--hicpp-no-malloc,
--hicpp-member-init,
--hicpp-use-auto,
--hicpp-uppercase-literal-suffix,
--hicpp-use-equals-default,
--hicpp-deprecated-headers,
--cert-env33-c,
--performance-move-const-arg,
--performance-no-int-to-ptr,
--performance-unnecessary-value-param,
--performance-for-range-copy,
--clang-analyzer-core.uninitialized.UndefReturn,
--clang-analyzer-optin.cplusplus.VirtualCall,
--cppcoreguidelines-avoid-c-arrays,
--cppcoreguidelines-pro-bounds-constant-array-index,
--cppcoreguidelines-pro-bounds-array-to-pointer-decay,
--cppcoreguidelines-pro-type-vararg,
--cppcoreguidelines-macro-usage,
--cppcoreguidelines-avoid-non-const-global-variables,
--cppcoreguidelines-pro-type-reinterpret-cast,
--cppcoreguidelines-prefer-member-initializer,
--cppcoreguidelines-avoid-magic-numbers,
--cppcoreguidelines-pro-type-const-cast,
--cppcoreguidelines-pro-type-member-init,
--cppcoreguidelines-pro-bounds-pointer-arithmetic,
--cppcoreguidelines-owning-memory,
--cppcoreguidelines-init-variables,
--hicpp-move-const-arg,
--hicpp-invalid-access-moved'
+'
 
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments
@@ -123,25 +66,23 @@ HeaderFilterRegex:    ''
 FormatStyle:          file
 InheritParentConfig:  false
 
-# ToDo iox-#889: re-enable the following tests:
-# -hicpp-move-const-arg
-# -hicpp-invalid-access-moved
-
+# The options below are just uncommented temporarily so that we do not change
+# the public API during the hack a thon
 CheckOptions:
-  - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
-  - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
-  - { key: readability-identifier-naming.StructCase,              value: CamelCase }
-  - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
-  - { key: readability-identifier-naming.MethodCase,              value: camelBack }
-  - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
-  - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
+  #   - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
+  #   - { key: readability-identifier-naming.StructCase,              value: CamelCase }
+  #   - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.MethodCase,              value: camelBack }
+  #   - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
+  #   - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
   - { key: readability-identifier-naming.PrivateMemberPrefix,     value: m_ }
   - { key: readability-identifier-naming.ProtectedMemberPrefix,   value: m_ }
-  - { key: readability-identifier-naming.MemberCase,              value: camelBack }
-  - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
-  - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
-  - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
-  - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
+  # - { key: readability-identifier-naming.MemberCase,              value: camelBack }
+  # - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
+  # - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
+  # - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
+  # - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
   - { key: readability-function-size.LineThreshold,               value: 200 }
   - { key: readability-function-size.StatementThreshold,          value: 200 }
   - { key: readability-function-size.BranchThreshold,             value: 10 }
