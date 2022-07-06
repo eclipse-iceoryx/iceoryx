@@ -102,7 +102,13 @@ struct PosixCallDetails
 ///        // when your posix call signals failure by returning the errno value instead of setting the errno use
 ///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
 /// @endcode
-#define posixCall(f) internal::createPosixCallBuilder(f, #f, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define posixCall(f)                                                                                                   \
+    internal::createPosixCallBuilder(                                                                                  \
+        f,                                                                                                             \
+        #f,                                                                                                            \
+        __FILE__,                                                                                                      \
+        __LINE__,                                                                                                      \
+        __PRETTY_FUNCTION__) // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
 
 /// @brief class which is created by the verificator to evaluate the result of a posix call
 template <typename ReturnType>
