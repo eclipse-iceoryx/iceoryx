@@ -52,14 +52,14 @@ hicpp-*,
 #          int foo();
 #          int bar();
 #
-#          int baz{42};
+#          int baz { 42 };
 #      good:
 #        private:
 #          int foo();
 #          int bar();
 #
 #        private:
-#          int bar{42};
+#          int bar { 42 };
 #
 # * rule: readability-redundant-declaration
 #   justification: The this rule has false positives with friend declarations.
