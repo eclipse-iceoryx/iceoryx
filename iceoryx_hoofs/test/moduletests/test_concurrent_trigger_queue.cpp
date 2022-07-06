@@ -67,7 +67,10 @@ using TriggerQueueTestSubjects = Types<TriggerQueue<uint64_t, 1, FiFo>,
                                        TriggerQueue<uint64_t, 10, ResizeableLockFreeQueue>,
                                        TriggerQueue<uint64_t, 100, ResizeableLockFreeQueue>>;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 TYPED_TEST_SUITE(TriggerQueue_test, TriggerQueueTestSubjects);
+#pragma GCC diagnostic pop
 
 
 TYPED_TEST(TriggerQueue_test, EmptyOnConstruction)

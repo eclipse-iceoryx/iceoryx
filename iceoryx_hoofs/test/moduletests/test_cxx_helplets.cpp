@@ -207,8 +207,14 @@ class Helplets_test_isPowerOfTwo : public Helplets_test
 
 using HelpletsIsPowerOfTwoTypes = Types<uint8_t, uint16_t, uint32_t, uint64_t, size_t>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(Helplets_test_isPowerOfTwo, HelpletsIsPowerOfTwoTypes);
-
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 TYPED_TEST(Helplets_test_isPowerOfTwo, OneIsPowerOfTwo)
 {
@@ -319,7 +325,7 @@ TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
         // it is tested separately
         if (i != ASCII_DOT && isValidFileCharacter(i))
         {
-            uint32_t index = i % 3;
+            uint32_t index = static_cast<uint32_t>(i) % 3;
 
             auto& s = combinations[index];
             s.append(1, static_cast<char>(i));

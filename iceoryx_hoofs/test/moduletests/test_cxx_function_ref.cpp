@@ -312,7 +312,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)
     constexpr auto fp = &returnComplexType;
     function_ref<ComplexType(ComplexType)> sut(fp);
 
-    ComplexType arg{1, 2, 3.3};
+    ComplexType arg{1, 2, 3.3f};
     auto result = sut(arg);
     EXPECT_EQ(result, arg);
 }

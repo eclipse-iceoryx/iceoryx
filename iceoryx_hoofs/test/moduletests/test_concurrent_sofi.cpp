@@ -275,7 +275,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
     {
         EXPECT_EQ(m_sofi.size(), i);
-        m_sofi.push(i, ret);
+        m_sofi.push(static_cast<int>(i), ret);
         EXPECT_EQ(m_sofi.size(), i + 1);
     }
 }
@@ -294,7 +294,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
     {
         EXPECT_EQ(m_sofi.size(), i);
-        m_sofi.push(i, ret);
+        m_sofi.push(static_cast<int>(i), ret);
         EXPECT_EQ(m_sofi.size(), i + 1);
     }
 }
