@@ -1249,22 +1249,18 @@ TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSat
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
 }
 
-// END CONVERSION FUNCTION TESTS
-
-// BEGIN CONVERSION OPERATOR TESTS
-
-TEST(Duration_test, OperatorTimevalFromZeroDuration)
+TEST(Duration_test, ConvertTimevalFromZeroDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "10d3b209-093c-42c2-b3ab-2f2ac7e53836");
     auto duration = createDuration(0U, 0U);
 
-    struct timeval sut = timeval(duration);
+    struct timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(0U));
     EXPECT_THAT(sut.tv_usec, Eq(0U));
 }
 
-TEST(Duration_test, OperatorTimevalFromDurationWithLessThanOneSecond)
+TEST(Duration_test, ConvertTimevalFromDurationWithLessThanOneSecond)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc53677c-34ce-475f-b4d1-586c1189618a");
     constexpr int64_t SECONDS{0};
@@ -1273,13 +1269,13 @@ TEST(Duration_test, OperatorTimevalFromDurationWithLessThanOneSecond)
 
     auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
-    struct timeval sut = timeval(duration);
+    struct timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
 }
 
-TEST(Duration_test, OperatorTimevalFromDurationWithMoreThanOneSecond)
+TEST(Duration_test, ConvertTimevalFromDurationWithMoreThanOneSecond)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e23080e-e6e6-4bed-b6d1-758c06317f60");
     constexpr int64_t SECONDS{111};
@@ -1288,37 +1284,37 @@ TEST(Duration_test, OperatorTimevalFromDurationWithMoreThanOneSecond)
 
     auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
-    struct timeval sut = timeval(duration);
+    struct timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
 }
 
-TEST(Duration_test, OperatorTimevalFromDurationResultsNotYetInSaturation)
+TEST(Duration_test, ConvertTimevalFromDurationResultsNotYetInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a4dff7c7-178b-4b7a-a2b1-f6edfb9c2a22");
     using SEC_TYPE = decltype(timeval::tv_sec);
     auto duration = Duration::fromSeconds(std::numeric_limits<SEC_TYPE>::max());
 
-    struct timeval sut = timeval(duration);
+    struct timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
     EXPECT_THAT(sut.tv_usec, Eq(0));
 }
 
-TEST(Duration_test, OperatorTimevalFromMaxDurationResultsInSaturation)
+TEST(Duration_test, ConvertTimevalFromMaxDurationResultsInSaturation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e3016dbf-bea7-4925-ab96-1674ee141905");
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
 
-    struct timeval sut = timeval(DurationAccessor::max());
+    struct timeval sut = DurationAccessor::max().timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
     EXPECT_THAT(sut.tv_usec, Eq(static_cast<USEC_TYPE>(MICROSECS_PER_SECONDS - 1U)));
 }
 
-// END CONVERSION OPERATOR TESTS
+// END CONVERSION FUNCTION TESTS
 
 // BEGIN COMPARISON TESTS
 

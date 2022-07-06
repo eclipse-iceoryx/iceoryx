@@ -29,7 +29,7 @@ namespace iox
 {
 namespace units
 {
-enum class TimeSpecReference
+enum class TimeSpecReference : uint8_t
 {
     None,
     Epoch,
@@ -279,7 +279,7 @@ class Duration
     /// @brief converts duration in a timeval c struct
     ///     timeval::tv_sec = seconds since the Epoch (01.01.1970)
     ///     timeval::tv_usec = microseconds
-    constexpr operator struct timeval() const noexcept;
+    constexpr struct timeval timeval() const noexcept;
 
     // END CONVERSION
 

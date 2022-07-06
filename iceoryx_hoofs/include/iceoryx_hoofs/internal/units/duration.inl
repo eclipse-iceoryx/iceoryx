@@ -241,7 +241,7 @@ inline constexpr uint64_t Duration::toDays() const noexcept
     return m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR);
 }
 
-inline constexpr Duration::operator timeval() const noexcept
+inline constexpr struct timeval Duration::timeval() const noexcept
 {
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
