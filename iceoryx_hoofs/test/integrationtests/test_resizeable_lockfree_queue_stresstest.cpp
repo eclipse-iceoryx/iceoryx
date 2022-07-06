@@ -261,8 +261,8 @@ void changeCapacity(Queue& queue,
     g_barrier.notify();
 
     const uint64_t n = capacities.size(); // number of different capacities
-    uint64_t k = n;                       // index of current capacity to be used
-    bool incrementK = false;              // increment delta of the index k, will be 1 or -1
+    int64_t k = static_cast<int64_t>(n);  // index of current capacity to be used
+    bool incrementK = false;              // states if k is incremented or decremented by 1
     numChanges = 0;                       // number of capacity changes performed
 
     // capacities will contain a number of pre generated capacities to switch between,
@@ -292,9 +292,9 @@ void changeCapacity(Queue& queue,
             k = 1;
             incrementK = true;
         }
-        else if (k >= n)
+        else if (static_cast<uint64_t>(k) >= n)
         {
-            k = n - 1;
+            k = static_cast<int64_t>(n - 1);
             incrementK = false;
         }
 

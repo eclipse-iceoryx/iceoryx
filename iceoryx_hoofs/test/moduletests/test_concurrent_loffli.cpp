@@ -29,10 +29,14 @@ using namespace ::testing;
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
 
+#ifdef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(LoFFLi_test, LoFFLiTestSubjects);
+#ifdef __clang__
 #pragma GCC diagnostic pop
+#endif
 
 template <typename LoFFLiType>
 class LoFFLi_test : public Test

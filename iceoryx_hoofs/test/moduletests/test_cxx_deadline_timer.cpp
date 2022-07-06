@@ -48,11 +48,11 @@ class DeadlineTimer_test : public Test
 
     std::atomic<int> numberOfCalls{0};
     static const Duration TIMEOUT;
-    static const int SLEEPTIME;
+    static const uint64_t SLEEPTIME;
 };
 
 const Duration DeadlineTimer_test::TIMEOUT{10_ms};
-const int DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.toMilliseconds();
+const uint64_t DeadlineTimer_test::SLEEPTIME = DeadlineTimer_test::TIMEOUT.toMilliseconds();
 
 TIMING_TEST_F(DeadlineTimer_test, ZeroTimeoutTest, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "eb956212-5565-45d6-8f2a-64f79a0709f0");
