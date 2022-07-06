@@ -28,10 +28,10 @@ template <typename VertexType, int32_t VERTEX_LIMIT, int32_t DEGREE_LIMIT>
 class DirectedGraph
 {
   public:
-    using Index_t = uint64_t;
+    using Index_t = uint32_t;
     using AdjacencyList = iox::cxx::vector<VertexType*, DEGREE_LIMIT>;
 
-    static constexpr Index_t INVALID_INDEX = std::numeric_limits<uint64_t>::max();
+    static constexpr Index_t INVALID_INDEX = std::numeric_limits<Index_t>::max();
 
     virtual ~DirectedGraph() = default;
 

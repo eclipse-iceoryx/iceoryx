@@ -954,9 +954,9 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     ASSERT_THAT(TESTLISTCAPACITY, Ge(10U));
 
     // fill half
-    for (uint64_t i = 0U; i < 5U; ++i)
+    for (int64_t i = 0; i < 5; ++i)
     {
-        sut.emplace_front(static_cast<int64_t>(i));
+        sut.emplace_front(i);
         EXPECT_THAT(sut.size(), Eq(i + 1U));
     }
 

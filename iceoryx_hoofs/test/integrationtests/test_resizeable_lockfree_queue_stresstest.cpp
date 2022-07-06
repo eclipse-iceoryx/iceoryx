@@ -262,7 +262,7 @@ void changeCapacity(Queue& queue,
 
     const uint64_t n = capacities.size(); // number of different capacities
     uint64_t k = n;                       // index of current capacity to be used
-    int32_t d = -1;                       // increment delta of the index k, will be 1 or -1
+    bool incrementK = false;              // increment delta of the index k, will be 1 or -1
     numChanges = 0;                       // number of capacity changes performed
 
     // capacities will contain a number of pre generated capacities to switch between,
@@ -278,7 +278,7 @@ void changeCapacity(Queue& queue,
     while (run)
     {
         // go forward and backward in the capacities array to select the next capacity
-        if (d > 0)
+        if (incrementK)
         {
             ++k;
         }
@@ -290,12 +290,12 @@ void changeCapacity(Queue& queue,
         if (k < 0)
         {
             k = 1;
-            d = 1;
+            incrementK = true;
         }
         else if (k >= n)
         {
             k = n - 1;
-            d = -1;
+            incrementK = false;
         }
 
         if (queue.setCapacity(capacities[k], removeHandler))
@@ -638,7 +638,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         }
     }
 
-    for (uint64_t id = 1; id <= numThreads; ++id)
+    for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
                              std::ref(q),
@@ -693,7 +693,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
         // and each count appears for all ids exactly ones
-        for (uint64_t j = 0; j <= numThreads; ++j)
+        for (uint32_t j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {
@@ -747,7 +747,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         }
     }
 
-    for (uint64_t id = 1; id <= numThreads; ++id)
+    for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(randomWork<Queue>,
                              std::ref(q),
@@ -759,7 +759,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
                              popProbability);
     }
 
-    uint64_t id = numThreads + 1U;
+    uint32_t id = numThreads + 1U;
     uint64_t numChanges;
     threads.emplace_back(changeCapacity<Queue>,
                          std::ref(q),
@@ -812,7 +812,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
         // we expect each data item exactly numThreads + 1 times,
         // the extra one is for the initially full queue
         // and each count appears for all ids exactly ones
-        for (uint64_t j = 0; j <= numThreads; ++j)
+        for (uint32_t j = 0; j <= numThreads; ++j)
         {
             if (count[i][j] != 1)
             {
