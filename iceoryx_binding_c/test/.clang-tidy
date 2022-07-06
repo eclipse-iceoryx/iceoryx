@@ -10,17 +10,17 @@ Checks: '
 -readability-identifier-naming
 '
 
-## Rationals for rule deactivation ##
-
-# Rule: cert-err58-cpp
-# Rational: Many warnings due to gtest macros like "initialization of 'test_info_'
-#           with static storage duration may throw an exception that cannot be caught"
-
-# Rule: cppcoreguidelines-special-member-functions
-# Rational: structs and classes in tests do not all follow the rule of five
-
-# Rule: hicpp-special-member-functions
-# Rational: same as for 'cppcoreguidelines-special-member-functions'
-
-# Rule: readability-identifier-naming
-# Rational: structs and classes in tests obey the same naming convention like production code
+## Justifications for rule deactivation ##
+#
+# * rule: cert-err58-cpp
+#   justification: Many warnings due to gtest 'TEST' macros like "initialization of
+#       'test_info_'  with static storage duration may throw an exception that cannot be caught"
+#
+# * rule: cppcoreguidelines-special-member-functions
+#   justification: structs and classes in tests do not all follow the rule of five
+#
+# * rule: hicpp-special-member-functions
+#   justification: same as for 'cppcoreguidelines-special-member-functions'
+#
+# * rule: readability-identifier-naming
+#   justification: structs and classes in tests do not obey the same naming convention like in production code
