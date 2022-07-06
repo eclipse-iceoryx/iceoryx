@@ -40,18 +40,18 @@ using UntypedServerWithMocks = iox::popo::UntypedServerImpl<BaseServerWithMocks>
 using TypedServerWithMocks = iox::popo::ServerImpl<uint64_t, uint64_t, BaseServerWithMocks>;
 
 template <typename T>
-uint64_t resetCallsFromDtors()
+int resetCallsFromDtors()
 {
     // from derived and base class
-    return 2U;
+    return 2;
 }
 
 template <>
-uint64_t resetCallsFromDtors<BaseServerWithMocks>()
+int resetCallsFromDtors<BaseServerWithMocks>()
 {
     // from base only
-    return 1U;
-};
+    return 1;
+}
 
 template <typename Base>
 class TestBaseServer : public Base
@@ -75,7 +75,14 @@ class TestBaseServer : public Base
 
 using BaseServerTypes = Types<BaseServerWithMocks, UntypedServerWithMocks, TypedServerWithMocks>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 template <typename SutType>
 class BaseServer_test : public Test

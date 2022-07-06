@@ -150,7 +150,7 @@ TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
 TEST_F(RouDiMemoryManager_Test, OperatorTest)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67167a98-5ac2-498d-8062-47a61102a130");
-    for (int16_t i = 0; i < nbTestCase; i++)
+    for (uint16_t i = 0; i < nbTestCase; i++)
     {
         iox::log::LogStream logStream(loggerMock);
         logStream << m_testCombinationRoudiMemoryManagerError[i];

@@ -55,7 +55,14 @@ class MockPublisherInterface : public PublisherInterface<DummyData, DummyHeader>
         return mockSend(std::move(s));
     }
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
     MOCK_METHOD(void, mockSend, (SampleProducerType &&), (noexcept));
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 };
 
 struct SampleTestCase
@@ -92,7 +99,14 @@ class MockRequestInterface : public RpcInterface<RequestProducerType, ClientSend
         return mockSend(std::move(req));
     }
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
     MOCK_METHOD(iox::cxx::expected<ClientSendError>, mockSend, (RequestProducerType &&), (noexcept));
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 };
 
 class RequestTestCase
@@ -130,7 +144,14 @@ class MockResponseInterface : public RpcInterface<ResponseProducerType, ServerSe
         return mockSend(std::move(res));
     }
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
     MOCK_METHOD(iox::cxx::expected<ServerSendError>, mockSend, (ResponseProducerType &&), (noexcept));
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 };
 
 class ResponseTestCase

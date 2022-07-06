@@ -36,7 +36,7 @@ namespace
 {
 using ParseErrorInputFile_t = std::pair<iox::config::TomlGatewayConfigParseError, iox::roudi::ConfigFilePathString_t>;
 using CheckCharactersValidity_t = std::pair<std::string, bool>;
-}; // namespace
+} // namespace
 
 // ======================================== Fixture ======================================== //
 class TomlGatewayConfigParserTest : public TestWithParam<ParseErrorInputFile_t>

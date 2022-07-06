@@ -178,7 +178,14 @@ struct ReqRes
 };
 
 using CommunicationKind = Types<PubSub, ReqRes>;
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ServiceDiscovery_test, CommunicationKind);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 //
 // Built-in topics can be found
@@ -783,7 +790,14 @@ using TestVariations = Types<PS_SIE,
 // note that testing all variations is costly but ensures coverage of every
 // combination of wildcards, communication type and many equivalence classes
 // of a search setup, i.e. the existing services in the system
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(ServiceDiscoveryFindService_test, TestVariations);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 // *************************************************************************************************
 // All tests run for publishers and servers as well as all 8 search variations.
@@ -948,7 +962,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 //
 // test mixed operation of PUB/SUB and REQ/RES
@@ -1054,6 +1068,6 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 } // namespace

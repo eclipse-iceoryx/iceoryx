@@ -40,18 +40,18 @@ using UntypedClientWithMocks = iox::popo::UntypedClientImpl<BaseClientWithMocks>
 using TypedClientWithMocks = iox::popo::ClientImpl<uint64_t, uint64_t, BaseClientWithMocks>;
 
 template <typename T>
-uint64_t resetCallsFromDtors()
+int resetCallsFromDtors()
 {
     // from derived and base class
-    return 2U;
+    return 2;
 }
 
 template <>
-uint64_t resetCallsFromDtors<BaseClientWithMocks>()
+int resetCallsFromDtors<BaseClientWithMocks>()
 {
     // from base only
-    return 1U;
-};
+    return 1;
+}
 
 template <typename Base>
 class TestBaseClient : public Base
@@ -75,7 +75,14 @@ class TestBaseClient : public Base
 
 using BaseClientTypes = Types<BaseClientWithMocks, UntypedClientWithMocks, TypedClientWithMocks>;
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
 TYPED_TEST_SUITE(BaseClient_test, BaseClientTypes);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 template <typename SutType>
 class BaseClient_test : public Test

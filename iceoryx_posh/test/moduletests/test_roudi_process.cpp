@@ -47,7 +47,7 @@ class Process_test : public Test
 {
   public:
     const iox::RuntimeName_t processname = {"TestProcess"};
-    pid_t pid{200U};
+    uint32_t pid{200U};
     PosixUser user{"foo"};
     bool isMonitored = true;
     const uint64_t dataSegmentId{0x654321U};
