@@ -67,7 +67,7 @@ hicpp-*,
 #          int bar { 42 };
 #
 # * rule: readability-redundant-declaration
-#   justification: The this rule has false positives with friend declarations.
+#   justification: This rule has false positives with friend declarations.
 #   example:
 #      bad:
 #        // in hpp file
