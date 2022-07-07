@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     ResizeableLockFreeQueue& operator=(const ResizeableLockFreeQueue&) = delete;
     ResizeableLockFreeQueue& operator=(ResizeableLockFreeQueue&&) = delete;
 
-    ResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept;
+    explicit ResizeableLockFreeQueue(const uint64_t initialCapacity) noexcept;
 
     /// @brief returns the maximum capacity of the queue
     /// @return the maximum capacity

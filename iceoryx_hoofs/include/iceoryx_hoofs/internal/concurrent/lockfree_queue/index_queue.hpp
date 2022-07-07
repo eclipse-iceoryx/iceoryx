@@ -62,10 +62,10 @@ class IndexQueue
     IndexQueue& operator=(IndexQueue&&) = delete;
 
     /// @brief constructs an empty IndexQueue
-    IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
+    explicit IndexQueue(ConstructEmpty_t = ConstructEmpty) noexcept;
 
     /// @brief constructs IndexQueue filled with all indices 0,1,...capacity-1
-    IndexQueue(ConstructFull_t) noexcept;
+    explicit IndexQueue(ConstructFull_t) noexcept;
 
     /// @brief get the capacity of the IndexQueue
     /// @return capacity of the IndexQueue

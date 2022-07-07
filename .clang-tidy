@@ -25,6 +25,13 @@ hicpp-*,
 
 -readability-identifier-naming,
 -readability-use-anyofallof,
+-readability-named-parameter,
+
+-cppcoreguidelines-non-private-member-variables-in-classes,
+-cppcoreguidelines-avoid-c-arrays,
+
+-hicpp-avoid-c-arrays,
+-hicpp-named-parameter,
 
 '
 
@@ -88,7 +95,21 @@ hicpp-*,
 #
 # * rule: readability-use-anyofallof
 #   justification: requires C++20 and std::ranges but we only use C++14
-
+#
+# * rule: cppcoreguidelines-non-private-member-variables-in-classes
+#   justification: Sometimes it makes sense to have protected members to extend the base class.
+#                  Even public members are useful in lightweight classes (effectively structs).
+#                  This unnecessarily limits design options.
+#
+# * rule: cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays
+#   justicfication: C arrays are useful in low level code for buffers etc.
+#                   It should not be mandatory to use std::array as sometimes the STL dependency is not desired.
+#
+# * rule: readability-named-parameter
+#   justicfication: For tag types which just guide overloading no name is needed.
+#                   Declaration of private functions does not require a name (no doxygen comment).
+#                   For callbacks omitting the name is less verbose than to cast an unsued parameter to void.
+#
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments
 # -bugprone-easily-swappable-parameters

@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
+
 namespace iox
 {
 namespace concurrent

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,18 +113,18 @@ class LockFreeQueue
 
     Buffer<ElementType, Capacity, BufferIndex> m_buffer;
 
-    std::atomic<uint64_t> m_size{0u};
+    std::atomic<uint64_t> m_size{0U};
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)
     template <typename T>
-    void writeBufferAt(const BufferIndex&, T&&) noexcept;
+    void writeBufferAt(const BufferIndex& index, T&& value) noexcept;
 
     // needed to avoid code duplication (via universal reference type deduction)
     template <typename T>
     iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
 
-    cxx::optional<ElementType> readBufferAt(const BufferIndex&) noexcept;
+    cxx::optional<ElementType> readBufferAt(const BufferIndex& index) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

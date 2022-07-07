@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <utility>
@@ -153,7 +154,7 @@ template <typename ElementType, uint64_t Capacity>
 cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const BufferIndex& index) noexcept
 {
     // also used for buffer synchronization
-    m_size.fetch_sub(1u, std::memory_order_acquire);
+    m_size.fetch_sub(1U, std::memory_order_acquire);
 
     auto& element = m_buffer[index];
     cxx::optional<ElementType> result(std::move(element));
@@ -169,7 +170,7 @@ void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& inde
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise
 
     // also used for buffer synchronization
-    m_size.fetch_add(1u, std::memory_order_release);
+    m_size.fetch_add(1U, std::memory_order_release);
 }
 
 } // namespace concurrent
