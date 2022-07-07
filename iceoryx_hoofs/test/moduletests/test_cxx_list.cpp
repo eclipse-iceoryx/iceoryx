@@ -25,8 +25,8 @@ namespace
 using namespace ::testing;
 using namespace iox::cxx;
 
-static constexpr uint64_t TESTLISTCAPACITY{10U};
-static constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
+constexpr uint64_t TESTLISTCAPACITY{10U};
+constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
 
 class list_test : public Test
 {
@@ -49,6 +49,8 @@ class list_test : public Test
             classValue = m_value;
         }
 
+        /// @NOLINTJUSTIFICATION only used in tests
+        /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
         TestListElement(const int64_t value)
             : m_value(value)
         {
@@ -57,32 +59,38 @@ class list_test : public Test
         }
 
         TestListElement(const TestListElement& rhs)
+            : m_value{rhs.m_value}
         {
             copyCTor++;
-            m_value = rhs.m_value;
             classValue = m_value;
         }
 
-        TestListElement(TestListElement&& rhs)
+        TestListElement(TestListElement&& rhs) noexcept
+            : m_value{rhs.m_value}
         {
             moveCTor++;
-            m_value = rhs.m_value;
             classValue = m_value;
         }
 
         TestListElement& operator=(const TestListElement& rhs)
         {
-            copyAssignment++;
-            m_value = rhs.m_value;
-            classValue = m_value;
+            if (this != &rhs)
+            {
+                copyAssignment++;
+                m_value = rhs.m_value;
+                classValue = m_value;
+            }
             return *this;
         }
 
-        TestListElement& operator=(TestListElement&& rhs)
+        TestListElement& operator=(TestListElement&& rhs) noexcept
         {
-            moveAssignment++;
-            m_value = rhs.m_value;
-            classValue = m_value;
+            if (this != &rhs)
+            {
+                moveAssignment++;
+                m_value = rhs.m_value;
+                classValue = m_value;
+            }
             return *this;
         }
 
@@ -101,7 +109,7 @@ class list_test : public Test
     };
 
 
-    void SetUp()
+    void SetUp() override
     {
         cTor = 0U;
         customCTor = 0U;
@@ -113,17 +121,10 @@ class list_test : public Test
         classValue = 0U;
     }
 
-    bool isSetupState()
+    static bool isSetupState()
     {
-        if (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
-            && copyAssignment == 0U && dTor == 0U && classValue == 0U)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
+                && copyAssignment == 0U && dTor == 0U && classValue == 0U);
     }
 
     list<TestListElement, TESTLISTCAPACITY> sut;
@@ -276,6 +277,8 @@ TEST_F(list_test, FullWhenFilledWithMoreThanCapacityElements)
     }
 
     EXPECT_THAT(sut.full(), Eq(true));
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.emplace_front(), "");
 }
 TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
@@ -723,6 +726,8 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
         }
         else
         {
+            /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+            /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
             EXPECT_DEATH(sut1.emplace_back(cnt), "");
         }
         ++cnt;
@@ -745,7 +750,8 @@ TEST_F(list_test, EmplaceWithWrongListIterator)
     ::testing::Test::RecordProperty("TEST_ID", "54b1d551-30d8-4738-a46b-b4c886e9ea50");
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{13U};
-    list<TestListElement, CAPACITY> sut11, sut12;
+    list<TestListElement, CAPACITY> sut11;
+    list<TestListElement, CAPACITY> sut12;
     auto iterOfSut1 = sut11.begin();
     auto iterOfSut2 = sut12.begin();
     int64_t cnt = 0;
@@ -756,6 +762,8 @@ TEST_F(list_test, EmplaceWithWrongListIterator)
         ++cnt;
     }
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut11.emplace(iterOfSut2, cnt), "");
 }
 
@@ -1477,7 +1485,8 @@ TEST_F(list_test, IteratorDecrementOperatorBeyondBeginWithFullList)
 TEST_F(list_test, IteratorComparisonOfDifferentLists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0be4cfdd-1abb-4a34-93b1-490b0cf07b9c");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842);
     sut11.emplace_front(1584122);
     sut11.emplace_front(158432);
@@ -1489,26 +1498,38 @@ TEST_F(list_test, IteratorComparisonOfDifferentLists)
 
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 }
 
@@ -1516,7 +1537,8 @@ TEST_F(list_test, IteratorComparisonOfDifferentLists)
 TEST_F(list_test, ComparingConstIteratorAndIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ab56e3f-c22b-4544-806e-04dfda4ce449");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1603,6 +1625,8 @@ TEST_F(list_test, CopyConstructorWithEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65409af0-bd13-4011-bdd7-e1b6aa0d4703");
     list<TestListElement, TESTLISTCAPACITY> sut11;
+    /// @NOLINTJUSTIFICATION the test should explicitly test the copy constructor
+    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     EXPECT_THAT(copyCTor, Eq(0U));
     EXPECT_THAT(sut12.size(), Eq(0U));
@@ -1661,7 +1685,7 @@ TEST_F(list_test, MoveConstructorWithEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42991766-c8dd-4261-814f-837ae99f6647");
     list<TestListElement, TESTLISTCAPACITY> sut11;
-    list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
+    list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
     EXPECT_THAT(moveCTor, Eq(0U));
     EXPECT_THAT(cTor, Eq(0U));
     EXPECT_THAT(customCTor, Eq(0U));
@@ -1730,7 +1754,8 @@ TEST_F(list_test, DestructorWithFullList)
 TEST_F(list_test, CopyAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d4f0c079-d7bb-4c46-8221-dd0a616537bb");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(812U);
     sut11.emplace_front(81122U);
     sut11.emplace_front(8132U);
@@ -1748,7 +1773,8 @@ TEST_F(list_test, CopyAssignmentWithEmptySource)
 TEST_F(list_test, CopyAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9202d629-f0db-482e-9363-456a83410d54");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5812U);
     sut11.emplace_front(581122U);
     sut11.emplace_front(58132U);
@@ -1770,7 +1796,8 @@ TEST_F(list_test, CopyAssignmentWithEmptyDestination)
 TEST_F(list_test, CopyAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f16524d0-1493-4f57-8590-211a96fb9849");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5842U);
     sut11.emplace_front(584122U);
     sut11.emplace_front(58432U);
@@ -1795,7 +1822,8 @@ TEST_F(list_test, CopyAssignmentWithLargerDestination)
 TEST_F(list_test, CopyAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "876a0d55-1047-4ec7-8b97-7a90b928fea1");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1823,7 +1851,8 @@ TEST_F(list_test, CopyAssignmentWithLargerSource)
 TEST_F(list_test, MoveAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "135d1210-1434-40f8-b169-ef742622ec41");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(812U);
     sut11.emplace_front(81122U);
     sut11.emplace_front(8132U);
@@ -1840,7 +1869,8 @@ TEST_F(list_test, MoveAssignmentWithEmptySource)
 TEST_F(list_test, MoveAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "457b17f5-2bea-429c-b836-d30b4006c8be");
-    list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    list<TestListElement, TESTLISTCAPACITY> sut11;
+    list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5812U);
     sut11.emplace_front(581122U);
     sut11.emplace_front(58132U);
@@ -1867,7 +1897,8 @@ TEST_F(list_test, MoveAssignmentWithEmptyDestination)
 TEST_F(list_test, MoveAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "66e0e3b9-be1d-4e00-a56a-41902255b43c");
-    list<TestListElement, 10U> sut11, sut12;
+    list<TestListElement, 10U> sut11;
+    list<TestListElement, 10U> sut12;
     sut11.emplace_front(5842U);
     sut11.emplace_front(584122U);
     sut11.emplace_front(58432U);
@@ -1892,7 +1923,8 @@ TEST_F(list_test, MoveAssignmentWithLargerDestination)
 TEST_F(list_test, MoveAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c190218d-f3dc-4f44-b4b4-2e8f5b161a65");
-    list<TestListElement, 10U> sut11, sut12;
+    list<TestListElement, 10U> sut11;
+    list<TestListElement, 10U> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -2278,6 +2310,8 @@ TEST_F(list_test, invalidIteratorErase)
     ++iter;
     sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.erase(iter), "");
 }
 
@@ -2294,6 +2328,8 @@ TEST_F(list_test, invalidIteratorIncrement)
     ++iter;
     sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(++iter, "");
 }
 
@@ -2310,6 +2346,8 @@ TEST_F(list_test, invalidIteratorDecrement)
     ++iter;
     sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(--iter, "");
 }
 
@@ -2326,6 +2364,8 @@ TEST_F(list_test, invalidIteratorComparison)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
 
@@ -2342,6 +2382,8 @@ TEST_F(list_test, invalidIteratorComparisonUnequal)
     ++iter;
     auto iter2 = sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter2 != iter), "");
 }
 
@@ -2358,6 +2400,8 @@ TEST_F(list_test, invalidIteratorDereferencing)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc((*iter).m_value), "");
 }
 
@@ -2374,6 +2418,8 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
 }
 
@@ -2382,8 +2428,10 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
     ::testing::Test::RecordProperty("TEST_ID", "ce16f50e-8da5-497c-abd5-a3af4ebd78d2");
     uint64_t i = 0U;
     using TestFwdList = list<TestListElement, TESTLISTCAPACITY>;
+    /// @NOLINTJUSTIFICATION required temporary memory buffer for the memcpy test
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
-    uint8_t* otherSutPtr = otherSutBuffer;
+    uint8_t* otherSutPtr = &otherSutBuffer[0];
 
     {
         TestFwdList sut1;
@@ -2394,7 +2442,9 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
-        memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
+        /// @NOLINTJUSTIFICATION the list is trivially copyable and this test verifies this with memcpy
+        /// @NOLINTNEXTLINE(bugprone-undefined-memory-manipulation)
+        memcpy(otherSutPtr, &sut1, sizeof(sut1));
 
         // overwrite copied-from list before it's being destroyed
         sut1.clear();
@@ -2405,6 +2455,9 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
         }
     }
 
+    /// @NOLINTJUSTIFICATION we need to verify that list is in fact trivially copyable and stored in otherSubBuffer
+    /// therefore we need to cast it
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;

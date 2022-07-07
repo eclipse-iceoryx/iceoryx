@@ -26,12 +26,18 @@ namespace iox
 {
 namespace cxx
 {
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+/// into the list
+/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list() noexcept
 {
     init();
 }
 
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+/// into the list
+/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list(const list& rhs) noexcept
 {
@@ -39,6 +45,9 @@ inline list<T, Capacity>::list(const list& rhs) noexcept
     *this = rhs;
 }
 
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
+/// into the list
+/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline list<T, Capacity>::list(list&& rhs) noexcept
 {
@@ -459,6 +468,9 @@ template <bool IsConstIterator>
 inline typename list<T, Capacity>::template IteratorBase<IsConstIterator>&
 list<T, Capacity>::IteratorBase<IsConstIterator>::operator=(const IteratorBase<false>& rhs) noexcept
 {
+    /// @NOLINTJUSTIFICATION ensure that this and rhs are not the same object without taking the type into account
+    ///                      required since it is possible to assign a non const iterator to a const iterator
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     if (reinterpret_cast<const void*>(this) != reinterpret_cast<const void*>(&rhs))
     {
         m_list = rhs.m_list;
@@ -584,7 +596,10 @@ inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevId
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::size_type& list<T, Capacity>::getPrevIdx(const size_type idx) noexcept
 {
-    return const_cast<size_type&>(static_cast<const list<T, Capacity>*>(this)->getPrevIdx(idx));
+    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    /// restored
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<size_type&>(const_cast<const list<T, Capacity>*>(this)->getPrevIdx(idx));
 }
 
 template <typename T, uint64_t Capacity>
@@ -595,7 +610,10 @@ inline const typename list<T, Capacity>::size_type& list<T, Capacity>::getNextId
 template <typename T, uint64_t Capacity>
 inline typename list<T, Capacity>::size_type& list<T, Capacity>::getNextIdx(const size_type idx) noexcept
 {
-    return const_cast<size_type&>(static_cast<const list<T, Capacity>*>(this)->getNextIdx(idx));
+    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    /// restored
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<size_type&>(const_cast<const list<T, Capacity>*>(this)->getNextIdx(idx));
 }
 
 template <typename T, uint64_t Capacity>
@@ -640,13 +658,18 @@ inline const T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const 
 {
     cxx::Expects(isValidElementIdx(idx) && "invalid list element");
 
+    /// @NOLINTJUSTIFICATION provide type safe access to the encapsulated untyped m_data array
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
 
 template <typename T, uint64_t Capacity>
 inline T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) noexcept
 {
-    return const_cast<T*>(static_cast<const list<T, Capacity>*>(this)->getDataPtrFromIdx(idx));
+    /// @NOLINTJUSTIFICATION const_cast avoids code duplication, is safe since the constness of the return value is
+    /// restored
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<T*>(const_cast<const list<T, Capacity>*>(this)->getDataPtrFromIdx(idx));
 }
 
 /*************************/
