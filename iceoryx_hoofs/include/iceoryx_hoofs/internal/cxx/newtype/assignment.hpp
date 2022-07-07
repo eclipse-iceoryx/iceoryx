@@ -23,28 +23,48 @@ namespace cxx
 {
 namespace newtype
 {
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct CopyAssignable
 {
   protected:
     ~CopyAssignable() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct MoveAssignable
 {
   protected:
     ~MoveAssignable() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AssignByValueCopy
 {
   protected:
     ~AssignByValueCopy() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AssignByValueMove
 {
   protected:

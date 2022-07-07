@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_NEWTYPE_INL
 #define IOX_HOOFS_CXX_NEWTYPE_INL
 
+#include "iceoryx_hoofs/cxx/newtype.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -29,7 +31,8 @@ inline NewType<T, Policies...>::NewType() noexcept
 }
 
 template <typename T, template <typename> class... Policies>
-inline NewType<T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept
+inline NewType<T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t dummy IOX_MAYBE_UNUSED,
+                                        const T& rhs) noexcept
     : m_value(rhs)
 {
     static_assert(algorithm::doesContainType<newtype::ProtectedConstructByValueCopy<T>, Policies<T>...>(),
@@ -65,9 +68,12 @@ inline NewType<T, Policies...>::NewType(NewType&& rhs) noexcept
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(const NewType& rhs) noexcept
 {
-    m_value = rhs.m_value;
-    static_assert(algorithm::doesContainType<newtype::CopyAssignable<T>, Policies<T>...>(),
-                  "This type is not copy assignable, please add the newtype::CopyAssignable policy.");
+    if (this != &rhs)
+    {
+        m_value = rhs.m_value;
+        static_assert(algorithm::doesContainType<newtype::CopyAssignable<T>, Policies<T>...>(),
+                      "This type is not copy assignable, please add the newtype::CopyAssignable policy.");
+    }
     return *this;
 }
 

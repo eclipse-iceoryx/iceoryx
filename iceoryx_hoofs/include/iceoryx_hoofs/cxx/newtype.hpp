@@ -76,6 +76,8 @@ template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>...
 {
   protected:
+    /// 'ProtectedConstructor_t' is a compile time variable to select the correct constructors
+    /// @NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
     /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
@@ -143,6 +145,8 @@ class NewType : public Policies<NewType<T, Policies...>>...
 ///                  newtype::Sortable,
 ///                  newtype::AssignByValueCopy);
 /// @endcode
+/// @NOLINTJUSTIFICATION macro is used to reduce boilerplate code for 'NewType'
+/// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
     struct TypeName : public iox::cxx::NewType<Type, __VA_ARGS__>                                                      \
     {                                                                                                                  \
