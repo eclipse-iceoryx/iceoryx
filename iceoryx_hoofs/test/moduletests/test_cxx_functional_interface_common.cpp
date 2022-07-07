@@ -18,6 +18,7 @@
 
 namespace test_cxx_functional_interface
 {
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
 GenericValueError::GenericValueError(const value_t value, const error_t error) noexcept
     : m_value{value}
     , m_error{error}
@@ -41,11 +42,17 @@ const GenericValueError::value_t& GenericValueError::value() const& noexcept
 
 GenericValueError::value_t&& GenericValueError::value() && noexcept
 {
+    // we must use std::move otherwise m_value is not converted into a rvalue
+    // which would lead to a compile failure
+    // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     return std::move(m_value);
 }
 
 const GenericValueError::value_t&& GenericValueError::value() const&& noexcept
 {
+    // we must use std::move otherwise m_value is not converted into a rvalue
+    // which would lead to a compile failure
+    // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     return std::move(m_value);
 }
 
@@ -61,17 +68,25 @@ const GenericValueError::error_t& GenericValueError::get_error() const& noexcept
 
 GenericValueError::error_t&& GenericValueError::get_error() && noexcept
 {
+    // we must use std::move otherwise m_value is not converted into a rvalue
+    // which would lead to a compile failure
+    // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     return std::move(m_error);
 }
 
 const GenericValueError::error_t&& GenericValueError::get_error() const&& noexcept
 {
+    // we must use std::move otherwise m_value is not converted into a rvalue
+    // which would lead to a compile failure
+    // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     return std::move(m_error);
 }
 
-GenericPlain::GenericPlain(const int value, const int)
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
+GenericPlain::GenericPlain(const int value, const int error)
     : m_isValid{value != INVALID_VALUE}
 {
+    IOX_DISCARD_RESULT(error);
 }
 
 GenericPlain::operator bool() const noexcept
