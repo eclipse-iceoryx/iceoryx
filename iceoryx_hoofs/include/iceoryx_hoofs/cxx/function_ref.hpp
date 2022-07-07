@@ -83,7 +83,7 @@ class function_ref<ReturnType(ArgTypes...)> final
                                           && (!has_same_decayed_type<CallableType, function_ref>::value)
                                           && (is_invocable<CallableType, ArgTypes...>::value)>>
     // AXIVION Next Line AutosarC++19_03-A12.1.4 : Implicit conversion is needed for lambdas
-    function_ref(CallableType&& callable) noexcept;
+    function_ref(CallableType&& callable) noexcept; // NOLINT(hicpp-explicit-conversions)
 
     /// @brief Creates a function_ref from a function pointer
     /// @param[in] function function reference to function we want to reference
@@ -91,6 +91,8 @@ class function_ref<ReturnType(ArgTypes...)> final
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
+    // For justification see c'tor above
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;

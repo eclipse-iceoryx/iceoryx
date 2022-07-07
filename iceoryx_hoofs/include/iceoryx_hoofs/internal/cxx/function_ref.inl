@@ -33,13 +33,16 @@ template <typename CallableType, typename>
 // explicit
 // AXIVION Next Line AutosarC++19_03-A8.4.6 : Only ArgTypes needs to be forwarded
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
-    // AXIVION Next Line AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by casting
-    // back on call
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by
+    // casting back on call
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast)
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
     // AXIVION Next Line AutosarC++19_03-A15.4.4 : Lambda not 'noexcept' as callable might throw
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
-        // AXIVION Next Line AutosarC++19_03-A5.2.4, CertC++-EXP36 : Type-safety ensured by casting from type
-        // AXIVION Next Line AutosarC++19_03-A5.3.2, AutosarC++19_03-M5.2.8 : Check for 'nullptr' is performed on call
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4, CertC++-EXP36 : Type-safety ensured by casting from type
+        // AXIVION Next Construct AutosarC++19_03-A5.3.2, AutosarC++19_03-M5.2.8 : Check for 'nullptr' is performed on
+        // call
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);
     })
@@ -48,21 +51,22 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
 
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
-{
     // the cast is required to work on POSIX systems
-    // AXIVION Next Line AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting back on
-    // call
-    m_pointerToCallable = reinterpret_cast<void*>(function);
-
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting
+    // back on call NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+    : m_pointerToCallable(reinterpret_cast<void*>(function))
+    ,
     // the lambda does not capture and is thus convertible to a function pointer
     // (required by the C++ standard)
-    m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+    m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
         using PointerType = ReturnType (*)(ArgTypes...);
-        // AXIVION Next Line AutosarC++19_03-A5.2.4 : Type-safety ensured by casting from type
-        PointerType f{reinterpret_cast<PointerType>(target)};
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by casting from type
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+        PointerType f = reinterpret_cast<PointerType>(target);
         // AXIVION Next Line AutosarC++19_03-A5.3.2 : Check for 'nullptr' is performed on call
         return f(args...);
-    };
+    })
+{
 }
 
 template <class ReturnType, class... ArgTypes>
