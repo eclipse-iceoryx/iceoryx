@@ -26,7 +26,7 @@ namespace iox
 {
 namespace cxx
 {
-/// m_data fields are explicitly initialized whenever a new element is inserted
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
 /// into the list
 /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
@@ -35,7 +35,7 @@ inline list<T, Capacity>::list() noexcept
     init();
 }
 
-/// m_data fields are explicitly initialized whenever a new element is inserted
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
 /// into the list
 /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
@@ -45,7 +45,7 @@ inline list<T, Capacity>::list(const list& rhs) noexcept
     *this = rhs;
 }
 
-/// m_data fields are explicitly initialized whenever a new element is inserted
+/// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
 /// into the list
 /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>

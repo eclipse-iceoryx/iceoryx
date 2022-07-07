@@ -49,6 +49,7 @@ class list_test : public Test
             classValue = m_value;
         }
 
+        /// @NOLINTJUSTIFICATION only used in tests
         /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
         TestListElement(const int64_t value)
             : m_value(value)
@@ -2441,7 +2442,7 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
-        /// @NOLINTJUSTIFICATION actually the list is trivially copyable and this test verifies this with memcpy
+        /// @NOLINTJUSTIFICATION the list is trivially copyable and this test verifies this with memcpy
         /// @NOLINTNEXTLINE(bugprone-undefined-memory-manipulation)
         memcpy(otherSutPtr, &sut1, sizeof(sut1));
 
