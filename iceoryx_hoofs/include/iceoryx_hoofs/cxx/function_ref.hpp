@@ -83,7 +83,7 @@ class function_ref<ReturnType(ArgTypes...)>
               typename = std::enable_if_t<!is_function_pointer<CallableType>::value
                                           && !has_same_decayed_type<CallableType, function_ref>::value
                                           && is_invocable<CallableType, ArgTypes...>::value>>
-    function_ref(CallableType&& callable) noexcept;
+    function_ref(CallableType&& callable) noexcept; // NOLINT(hicpp-explicit-conversions)
 
     /// @brief Creates a function_ref from a function pointer
     /// @param[in] function function reference to function we want to reference
@@ -91,7 +91,7 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
-    function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
+    function_ref(ReturnType (&function)(ArgTypes...)) noexcept; // NOLINT(hicpp-explicit-conversions)
 
     function_ref(function_ref&& rhs) noexcept;
 

@@ -15,6 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CXX_FUNCTION_REF_INL
+#define IOX_HOOFS_CXX_FUNCTION_REF_INL
+
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -22,8 +27,10 @@ namespace cxx
 template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast)
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);
     })
@@ -32,16 +39,18 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
 
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
-{
     // the cast is required to work on POSIX systems
-    m_pointerToCallable = reinterpret_cast<void*>(function);
-
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+    : m_pointerToCallable(reinterpret_cast<void*>(function))
+    ,
     // the lambda does not capture and is thus convertible to a function pointer
     // (required by the C++ standard)
-    m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
+    m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
+        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
         return f(args...);
-    };
+    })
+{
 }
 
 template <class ReturnType, class... ArgTypes>
@@ -88,3 +97,5 @@ inline void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<Return
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_HOOFS_CXX_FUNCTION_REF_INL
