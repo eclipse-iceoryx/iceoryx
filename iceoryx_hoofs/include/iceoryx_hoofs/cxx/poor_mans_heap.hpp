@@ -33,7 +33,6 @@ class PoorMansHeapType
 
 constexpr uint64_t POOR_MANS_HEAP_DEFAULT_ALIGNMENT{8};
 
-// AXIVION Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the memory is initialized on access
 /// @brief Reserves space on stack for placement new instatiation
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
@@ -113,7 +112,7 @@ constexpr uint64_t POOR_MANS_HEAP_DEFAULT_ALIGNMENT{8};
 ///     return 0;
 /// }
 /// @endcode
-/// @NOLINTJUSTIFICATION same as AXIVION comment
+/// @NOLINTJUSTIFICATION it is guaranteed that the memory is initialized on access
 template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment = POOR_MANS_HEAP_DEFAULT_ALIGNMENT>
 class PoorMansHeap // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {

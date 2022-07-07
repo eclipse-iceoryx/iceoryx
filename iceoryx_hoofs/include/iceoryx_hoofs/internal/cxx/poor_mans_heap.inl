@@ -33,12 +33,10 @@ PoorMansHeap<Interface, TypeSize, TypeAlignment>::~PoorMansHeap() noexcept
     deleteInstance();
 }
 
-// it is guaranteed that the memory is initialized on access
-// NOLINTNEXTLINE (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+// NOLINTNEXTLINE (cppcoreguidelines-pro-type-member-init,hicpp-member-init) justification in header
 template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
-// 'PoorMansHeapType<Type>' is a compile time variable to recognize the used type
-// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 PoorMansHeap<Interface, TypeSize, TypeAlignment>::PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept
 {
     newInstance<Type>(std::forward<CTorArgs>(ctorArgs)...);
