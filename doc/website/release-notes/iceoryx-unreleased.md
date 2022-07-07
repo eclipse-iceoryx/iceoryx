@@ -223,3 +223,14 @@
     // after
     cxx::optional<int> myLama = someExpected.to_optional();
     ```
+
+12. Replace implicit conversion of `units::Duration` to `timeval` by a conversion method
+    ```cpp
+    // before
+    units::Duration duration = 42_ms;
+    timeval tv1 = duration;
+
+    // after
+    units::Duration duration = 42_ms;
+    timveal tv = duration.timeval();
+    ```
