@@ -32,11 +32,15 @@ void Require(
 // implementing C++ Core Guideline, I.6. Prefer Expects
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-expects
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define Expects(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
 
 // implementing C++ Core Guideline, I.8. Prefer Ensures
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-ensures
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define Ensures(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
 
 
