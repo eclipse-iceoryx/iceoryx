@@ -254,6 +254,10 @@ class forward_list
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
+        // We want to assign iterator to const_iterator, like in a for loop
+        // for (auto& elem : myList) { ... }
+        // This is safe since we convert from non const to const
+        // NOLINTNEXTLINE(hicpp-explicit-conversions)
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief assigns a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
@@ -351,9 +355,12 @@ class forward_list
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
+    // todo #1196 will be replaced by uninitialized array
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 
     size_type m_size{0U};
 }; // forward_list

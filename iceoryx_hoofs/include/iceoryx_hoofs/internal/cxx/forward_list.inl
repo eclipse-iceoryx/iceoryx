@@ -26,12 +26,16 @@ namespace iox
 {
 namespace cxx
 {
+// m_data is initialized when elements are added
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline forward_list<T, Capacity>::forward_list() noexcept
 {
     init();
 }
 
+// m_data is initialized when elements are added
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline forward_list<T, Capacity>::forward_list(const forward_list& rhs) noexcept
 {
@@ -39,6 +43,8 @@ inline forward_list<T, Capacity>::forward_list(const forward_list& rhs) noexcept
     *this = rhs;
 }
 
+// m_data is initialized when elements are added
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline forward_list<T, Capacity>::forward_list(forward_list&& rhs) noexcept
 {
@@ -415,6 +421,8 @@ template <bool IsConstIterator>
 inline typename forward_list<T, Capacity>::template IteratorBase<IsConstIterator>&
 forward_list<T, Capacity>::IteratorBase<IsConstIterator>::operator=(const IteratorBase<false>& rhs) noexcept
 {
+    // reinterpret_cast needed since distinct pointer types need to be compared
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     if (reinterpret_cast<const void*>(this) != reinterpret_cast<const void*>(&rhs))
     {
         m_list = rhs.m_list;
@@ -519,6 +527,8 @@ template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::size_type&
 forward_list<T, Capacity>::getNextIdx(const size_type idx) noexcept
 {
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<size_type&>(static_cast<const forward_list<T, Capacity>*>(this)->getNextIdx(idx));
 }
 
@@ -532,6 +542,8 @@ template <typename T, uint64_t Capacity>
 inline typename forward_list<T, Capacity>::size_type&
 forward_list<T, Capacity>::getNextIdx(const const_iterator& iter) noexcept
 {
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<size_type&>(static_cast<const forward_list<T, Capacity>*>(this)->getNextIdx(iter));
 }
 
@@ -547,12 +559,16 @@ inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx
 {
     cxx::Expects(isValidElementIdx(idx) && "Invalid list element");
 
+    // safe since m_data entries are aligned to T
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return &(reinterpret_cast<const T*>(&m_data)[idx]);
 }
 
 template <typename T, uint64_t Capacity>
 inline T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx) noexcept
 {
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(static_cast<const forward_list<T, Capacity>*>(this)->getDataPtrFromIdx(idx));
 }
 
