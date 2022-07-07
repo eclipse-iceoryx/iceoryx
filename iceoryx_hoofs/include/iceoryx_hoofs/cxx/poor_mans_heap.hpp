@@ -33,7 +33,7 @@ class PoorMansHeapType
 
 constexpr uint64_t POOR_MANS_HEAP_DEFAULT_ALIGNMENT{8};
 
-// AXIVION Construct Ruleset-A12.1.1 : it is guaranteed that the memory is initialized on access
+// AXIVION Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the memory is initialized on access
 /// @brief Reserves space on stack for placement new instatiation
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
