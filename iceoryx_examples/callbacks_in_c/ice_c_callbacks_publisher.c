@@ -32,7 +32,7 @@ static void sigHandler(int f_sig)
     killswitch = true;
 }
 
-void sending()
+void sending(void)
 {
     iox_runtime_init("iox-c-callbacks-publisher");
 
@@ -75,7 +75,7 @@ void sending()
     }
 }
 
-int main()
+int main(void)
 {
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);

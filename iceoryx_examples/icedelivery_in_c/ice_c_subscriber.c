@@ -35,7 +35,7 @@ static void sigHandler(int signalValue)
     killswitch = true;
 }
 
-void receiving()
+void receiving(void)
 {
     //! [create runtime instance]
     const char APP_NAME[] = "iox-c-subscriber";
@@ -87,7 +87,7 @@ void receiving()
     //! [cleanup]
 }
 
-int main()
+int main(void)
 {
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
