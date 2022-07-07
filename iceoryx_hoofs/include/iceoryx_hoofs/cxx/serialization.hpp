@@ -75,6 +75,8 @@ class Serialization
 
     /// @brief string conversion operator, returns the raw serialized string
     /// @return serialized string
+    // the whole file will be refactored to remove 'std::string'; this lint will also be handled with at the refactoring
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator std::string() const noexcept;
 
     /// @brief Create Serialization if every arguments is convertable to string
@@ -114,7 +116,7 @@ class Serialization
 
   private:
     std::string m_value;
-    static constexpr char separator = ':';
+    static constexpr char SEPARATOR = ':';
 
   private:
     static std::string serializer() noexcept;
