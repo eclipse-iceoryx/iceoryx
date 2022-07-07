@@ -47,7 +47,7 @@ using namespace iox::cxx;
 TEST(TypeTraitsTest, IsInvocableResolvesToTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "802f0044-ee40-47b7-9b83-519866c63508");
-    auto lambda = [](int foo) -> void { foo++; };
+    auto lambda = [](int) -> void {};
     auto sut = is_invocable<decltype(lambda), int>::value;
     EXPECT_TRUE(sut);
 }
@@ -176,6 +176,8 @@ TEST(TypeTraitsTest, NonCharArraysAreIdentifiedCorrectly)
     ::testing::Test::RecordProperty("TEST_ID", "40359de0-2ccd-422a-b1d4-da4b4f12a172");
 
     EXPECT_FALSE(is_char_array<int>::value);
+    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_char_array<int[10]>::value);
     EXPECT_FALSE(is_char_array<iox::cxx::string<11>>::value);
     EXPECT_FALSE(is_char_array<char>::value);
@@ -185,8 +187,11 @@ TEST(TypeTraitsTest, CharArraysAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e1c115d9-80c4-4bc9-97d0-338112dfe1d3");
 
+    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_TRUE(is_char_array<char[1]>::value);
     EXPECT_TRUE(is_char_array<char[10]>::value);
+    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 }
 
 TEST(TypeTraitsTest, NonCxxStringsAreIdentifiedCorrectly)
@@ -194,8 +199,11 @@ TEST(TypeTraitsTest, NonCxxStringsAreIdentifiedCorrectly)
     ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
 
     EXPECT_FALSE(is_cxx_string<int>::value);
+    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_cxx_string<int[10]>::value);
     EXPECT_FALSE(is_cxx_string<char[11]>::value);
+    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_cxx_string<char>::value);
 }
 

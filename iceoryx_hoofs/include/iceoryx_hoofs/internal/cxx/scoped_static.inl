@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_INL
 #define IOX_HOOFS_CXX_SCOPED_STATIC_INL
 
+#include "iceoryx_hoofs/cxx/scoped_static.hpp"
+
 namespace iox
 {
 namespace cxx

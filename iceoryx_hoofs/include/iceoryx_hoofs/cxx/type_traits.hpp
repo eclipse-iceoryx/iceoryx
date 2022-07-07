@@ -21,6 +21,8 @@
 #include <cstdint>
 #include <type_traits>
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -73,13 +75,16 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-    static constexpr std::true_type test(typename cxx::invoke_result<C, As...>::type*) noexcept
+    static constexpr std::true_type test(typename cxx::invoke_result<C, As...>::type* f IOX_MAYBE_UNUSED) noexcept
     {
         return {};
     }
 
     // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
     template <typename C, typename... As>
+    /// @NOLINTJUSTIFICATION we require a SFINEA failure case where all parameter types (non invokable ones) are
+    ///                      allowed, this can be achieved with variadic arguments
+    /// @NOLINTNEXTLINE(cert-dcl50-cpp)
     static constexpr std::false_type test(...) noexcept
     {
         return {};
@@ -99,13 +104,17 @@ template <typename ReturnType, typename Callable, typename... ArgTypes>
 struct is_invocable_r
 {
     template <typename C, typename... As>
-    static constexpr std::true_type test(
-        std::enable_if_t<std::is_convertible<typename cxx::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
+    static constexpr std::true_type
+    test(std::enable_if_t<std::is_convertible<typename cxx::invoke_result<C, As...>::type, ReturnType>::value>* f
+             IOX_MAYBE_UNUSED) noexcept
     {
         return {};
     }
 
     template <typename C, typename... As>
+    /// @NOLINTJUSTIFICATION we require a SFINEA failure case where all parameter types (non invokable ones) are
+    ///                      allowed, this can be achieved with variadic arguments
+    /// @NOLINTNEXTLINE(cert-dcl50-cpp)
     static constexpr std::false_type test(...) noexcept
     {
         return {};
@@ -137,6 +146,8 @@ struct is_char_array : std::false_type
 };
 
 template <uint64_t N>
+/// @NOLINTJUSTIFICATION struct used to deduce char array types, it does not use them
+/// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 struct is_char_array<char[N]> : std::true_type
 {
 };
