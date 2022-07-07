@@ -218,9 +218,9 @@ inline T& forward_list<T, Capacity>::emplace_front(ConstructorArgs&&... args) no
 template <typename T, uint64_t Capacity>
 template <typename... ConstructorArgs>
 inline typename forward_list<T, Capacity>::iterator
-forward_list<T, Capacity>::emplace_after(const_iterator toBeEmplacedAfterIter, ConstructorArgs&&... args) noexcept
+forward_list<T, Capacity>::emplace_after(const_iterator iter, ConstructorArgs&&... args) noexcept
 {
-    if (isInvalidIterOrDifferentLists(toBeEmplacedAfterIter))
+    if (isInvalidIterOrDifferentLists(iter))
     {
         return end();
     }
@@ -243,8 +243,8 @@ forward_list<T, Capacity>::emplace_after(const_iterator toBeEmplacedAfterIter, C
     new (getDataPtrFromIdx(toBeAddedIdx)) T(std::forward<ConstructorArgs>(args)...);
 
     // add to usedList
-    setNextIdx(toBeAddedIdx, getNextIdx(toBeEmplacedAfterIter));
-    setNextIdx(toBeEmplacedAfterIter.m_iterListNodeIdx, toBeAddedIdx);
+    setNextIdx(toBeAddedIdx, getNextIdx(iter));
+    setNextIdx(iter.m_iterListNodeIdx, toBeAddedIdx);
 
     ++m_size;
 
@@ -253,15 +253,14 @@ forward_list<T, Capacity>::emplace_after(const_iterator toBeEmplacedAfterIter, C
 
 
 template <typename T, uint64_t Capacity>
-inline typename forward_list<T, Capacity>::iterator
-forward_list<T, Capacity>::erase_after(const_iterator toBeErasedAfterIter) noexcept
+inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::erase_after(const_iterator iter) noexcept
 {
-    if (isInvalidIterOrDifferentLists(toBeErasedAfterIter))
+    if (isInvalidIterOrDifferentLists(iter))
     {
         return end();
     }
 
-    auto eraseIdx = getNextIdx(toBeErasedAfterIter);
+    auto eraseIdx = getNextIdx(iter);
 
     // additional validity check on to-be-erase element
     if (!isValidElementIdx(eraseIdx) || empty())
@@ -272,7 +271,7 @@ forward_list<T, Capacity>::erase_after(const_iterator toBeErasedAfterIter) noexc
 
     // unlink from usedList
     size_type retIdx = getNextIdx(eraseIdx);
-    setNextIdx(toBeErasedAfterIter.m_iterListNodeIdx, retIdx);
+    setNextIdx(iter.m_iterListNodeIdx, retIdx);
 
     // d'tor data class
     getDataPtrFromIdx(eraseIdx)->~T();

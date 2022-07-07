@@ -194,10 +194,10 @@ class forward_list
     /// @brief remove next element from linked iterator position
     ///         element destructors will be invoked
     ///         recursive calls to erase_after only delete each 2nd element
-    /// @param[in] beforeToBeErasedIter iterator linking the element before the to-be-removed element
+    /// @param[in] iter iterator linking the element before the to-be-removed element
     /// @return an (non-const_) iterator to the element after the removed element,
     ///         returns end() element when reached end of list
-    iterator erase_after(const_iterator beforeToBeErasedIter) noexcept;
+    iterator erase_after(const_iterator iter) noexcept;
 
     /// @brief remove all elements which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
@@ -220,10 +220,10 @@ class forward_list
 
     /// @brief construct element inplace after the pointed-to element
     /// @param[in] args T-typed construction parameters (initializer list)
-    /// @param[in] afterToBeEmplacedIter position in list to (construct)insert after
+    /// @param[in] iter position in list to (construct)insert after
     /// @return iterator to the newly added element
     template <typename... ConstructorArgs>
-    iterator emplace_after(const_iterator afterToBeEmplacedIter, ConstructorArgs&&... args) noexcept;
+    iterator emplace_after(const_iterator iter, ConstructorArgs&&... args) noexcept;
 
     /// @brief insert element after iterator position
     /// @param[in] citer iterator with the position to insert after
