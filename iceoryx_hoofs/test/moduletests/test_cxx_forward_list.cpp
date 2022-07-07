@@ -47,6 +47,7 @@ class forward_list_test : public Test
             classValue = m_value;
         }
 
+        // NOLINTNEXTLINE(hicpp-explicit-conversions) only used for tests
         TestListElement(const int64_t value)
             : m_value(value)
         {
@@ -61,7 +62,7 @@ class forward_list_test : public Test
             classValue = m_value;
         }
 
-        TestListElement(TestListElement&& rhs)
+        TestListElement(TestListElement&& rhs) noexcept
             : m_value(rhs.m_value)
         {
             moveCTor++;
@@ -70,13 +71,16 @@ class forward_list_test : public Test
 
         TestListElement& operator=(const TestListElement& rhs)
         {
-            copyAssignment++;
-            m_value = rhs.m_value;
-            classValue = m_value;
+            if (this != &rhs)
+            {
+                copyAssignment++;
+                m_value = rhs.m_value;
+                classValue = m_value;
+            }
             return *this;
         }
 
-        TestListElement& operator=(TestListElement&& rhs)
+        TestListElement& operator=(TestListElement&& rhs) noexcept
         {
             moveAssignment++;
             m_value = rhs.m_value;
@@ -113,12 +117,8 @@ class forward_list_test : public Test
 
     static bool isSetupState()
     {
-        if (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
-            && copyAssignment == 0U && dTor == 0U && classValue == 0U)
-        {
-            return true;
-        }
-        return false;
+        return (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
+                && copyAssignment == 0U && dTor == 0U && classValue == 0);
     }
 
     forward_list<TestListElement, TESTLISTCAPACITY> sut;
@@ -2081,8 +2081,9 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
     ::testing::Test::RecordProperty("TEST_ID", "a80ec7c9-9256-4a11-a4ec-102b22db2de2");
     uint64_t i = 0U;
     using TestFwdList = forward_list<TestListElement, TESTLISTCAPACITY>;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for test
     alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
-    uint8_t* otherSutPtr = otherSutBuffer;
+    auto* otherSutPtr = static_cast<uint8_t*>(otherSutBuffer);
 
     {
         TestFwdList sut1;
@@ -2093,6 +2094,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) needed for memcpy
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
 
         // overwrite copied-from list before it's being destroyed
@@ -2104,6 +2106,9 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         }
     }
 
+    // reinterpret_cast needed since distinct pointer types need to be compared
+    // safe since otherSutBuffer is aligned to TestFwdList
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;
