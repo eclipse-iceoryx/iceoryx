@@ -69,13 +69,13 @@ TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtor)
 TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWhenUsingCleanupOnlyCTor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74fbd0d6-c69f-4951-a193-e30c37d0d1bd");
-    int hasCalledCleanup = 0;
+    bool hasCalledCleanup = false;
 
     {
         GenericRAII sut([&] { hasCalledCleanup = true; });
     }
 
-    EXPECT_THAT(hasCalledCleanup, Eq(1));
+    EXPECT_TRUE(hasCalledCleanup);
 }
 
 TEST_F(GenericRAII_test, CleanupFunctionIsCalledInDtorWithEmptyInitFunction)

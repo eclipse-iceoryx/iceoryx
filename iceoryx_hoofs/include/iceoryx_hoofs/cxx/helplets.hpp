@@ -81,64 +81,82 @@ template <typename T, typename = typename std::enable_if<std::is_pointer<T>::val
 struct not_null
 {
   public:
+    // this class should behave like a pointer which never can be nullptr adding explicit
+    // would defeat the purpose
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     not_null(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t != nullptr);
     }
 
+    // this should behave like a pointer which never can be nullptr adding explicit
+    // would defeat the purpose
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T, T Minimum>
 struct greater_or_equal
 {
   public:
+    // this class should behave like a T but which never can be less than Minimum.
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     greater_or_equal(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t >= Minimum);
     }
 
+    // this class should behave like a T but which never can be less than Minimum.
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T, T Minimum, T Maximum>
 struct range
 {
   public:
+    // this class should behave like a T but with values only in range [Minimum, Maximum]
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     range(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t >= Minimum && t <= Maximum);
     }
 
+    // this class should behave like a T but with values only in range [Minimum, Maximum]
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T>
 T align(const T value, const T alignment) noexcept
 {
     T remainder = value % alignment;
-    return value + ((remainder == 0u) ? 0u : alignment - remainder);
+    return value + ((remainder == 0U) ? 0U : alignment - remainder);
 }
 
 /// @brief allocates aligned memory which can only be free'd by alignedFree
@@ -152,10 +170,10 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
 void alignedFree(void* const memory) noexcept;
 
 /// template recursion stopper for maximum alignment calculation
-template <size_t s = 0>
+template <size_t S = 0>
 constexpr size_t maxAlignment() noexcept
 {
-    return s;
+    return S;
 }
 
 /// calculate maximum alignment of supplied types
@@ -166,10 +184,10 @@ constexpr size_t maxAlignment() noexcept
 }
 
 /// template recursion stopper for maximum size calculation
-template <size_t s = 0>
+template <size_t S = 0>
 constexpr size_t maxSize() noexcept
 {
-    return s;
+    return S;
 }
 
 /// calculate maximum size of supplied types
@@ -187,10 +205,10 @@ const char* convertEnumToString(T port, const Enumeration source) noexcept
 }
 
 /// cast an enum to its underlying type
-template <typename enum_type>
-auto enumTypeAsUnderlyingType(enum_type const value) noexcept -> typename std::underlying_type<enum_type>::type
+template <typename EnumType>
+auto enumTypeAsUnderlyingType(EnumType const value) noexcept -> typename std::underlying_type<EnumType>::type
 {
-    return static_cast<typename std::underlying_type<enum_type>::type>(value);
+    return static_cast<typename std::underlying_type<EnumType>::type>(value);
 }
 
 /// calls a given functor for every element in a given container
@@ -212,6 +230,8 @@ void forEach(Container& c, const Functor& f) noexcept
 /// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
 /// @return Returns the size of a char array at compile time.
 template <uint64_t SizeValue>
+// returning capacity of c array at compile time is safe, no possibility of out of bounds access
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue]) noexcept
 {
     return SizeValue - 1;
