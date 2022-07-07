@@ -17,12 +17,15 @@
 #ifndef IOX_HOOFS_CXX_OPTIONAL_INL
 #define IOX_HOOFS_CXX_OPTIONAL_INL
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+
 namespace iox
 {
 namespace cxx
 {
 template <typename T>
-inline optional<T>::optional(const nullopt_t&) noexcept
+inline optional<T>::optional(const nullopt_t& noVal IOX_MAYBE_UNUSED) noexcept
 {
 }
 
@@ -160,7 +163,7 @@ constexpr inline bool optional<T>::operator==(const optional<T>& rhs) const noex
 }
 
 template <typename T>
-constexpr inline bool optional<T>::operator==(const nullopt_t&) const noexcept
+constexpr inline bool optional<T>::operator==(const nullopt_t& rhs IOX_MAYBE_UNUSED) const noexcept
 {
     return !m_hasValue;
 }
