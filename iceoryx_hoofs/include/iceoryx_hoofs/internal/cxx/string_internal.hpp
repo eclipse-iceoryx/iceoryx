@@ -33,7 +33,8 @@ class string;
 namespace internal
 {
 template <uint64_t N>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// c array not used here, it is a type alias for easier access
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 using charArray = char[N];
 
 /// @brief struct to get capacity of iox::cxx::string/char array/char
@@ -51,7 +52,8 @@ struct GetCapa<string<N>>
 };
 
 template <uint64_t N>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// used to acquire char array capacity safely at compile time
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetCapa<char[N]>
 {
     static constexpr uint64_t capa = N - 1U;
@@ -77,7 +79,9 @@ struct GetSize<string<N>>
 };
 
 template <uint64_t N>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// used to acquire size of c array safely, strnlen only accesses N elements which is the maximum capacity of the array
+// where N is a compile time constant
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetSize<char[N]>
 {
     static uint64_t call(const charArray<N>& data) noexcept
@@ -98,9 +102,8 @@ struct GetSize<std::string>
 template <>
 struct GetSize<char>
 {
-    static uint64_t call(char c) noexcept
+    static uint64_t call(char c IOX_MAYBE_UNUSED) noexcept
     {
-        IOX_DISCARD_RESULT(c);
         return 1U;
     }
 };
@@ -119,7 +122,9 @@ struct GetData<string<N>>
 };
 
 template <uint64_t N>
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// provides uniform and safe access (in combination with GetCapa and GetSize) to string like constructs like
+// cxx::string, std::string, string literal, char
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetData<char[N]>
 {
     static const char* call(const charArray<N>& data) noexcept

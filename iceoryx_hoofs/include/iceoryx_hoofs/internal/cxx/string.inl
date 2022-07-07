@@ -104,8 +104,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 }
 
 template <uint64_t Capacity>
-// TruncateToCapacity_t is a compile time variable to distinguish between constructors
-// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
     : string(
         TruncateToCapacity, other, [&]() -> uint64_t { return (other != nullptr) ? strnlen(other, Capacity) : 0U; }())

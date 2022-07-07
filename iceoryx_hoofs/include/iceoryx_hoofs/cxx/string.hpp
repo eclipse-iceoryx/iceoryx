@@ -293,7 +293,8 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+    // We want to assign string literals to the cxx::string, like myString = "abc";
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& operator=(const char (&rhs)[N]) noexcept;
 
     /// @brief fixed string assignment with compile time check if capacity of str is less than or equal to this'
@@ -328,7 +329,8 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+    // We want to assign string literals to the cxx::string, like myString.assign("abc");
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& assign(const char (&str)[N]) noexcept;
 
     /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
@@ -466,7 +468,7 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // TruncateToCapacity_t informs how the method behaves when str does not fit into the string
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& str) noexcept;
 
@@ -475,7 +477,7 @@ class string
     /// @param [in] cstr is the char to append
     ///
     /// @return reference to self
-    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // TruncateToCapacity_t informs how the method behaves when cstr does not fit into the string
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string& append(TruncateToCapacity_t, char cstr) noexcept;
 
@@ -604,7 +606,8 @@ class string
     template <uint64_t N>
     string& move(string<N>&& rhs) noexcept;
 
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+    // safe access is guaranteed since the char array is wrapped inside the string class
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char m_rawstring[Capacity + 1U]{'\0'};
     uint64_t m_rawstringSize{0U};
 };
