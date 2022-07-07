@@ -52,8 +52,13 @@ inline bool isValidPathEntry(const string<StringCapacity>& name,
         }
     }
 
+    if (nameSize == 0)
+    {
+        return true;
+    }
+
     // dot at the end is invalid to be compatible with windows api
-    return !(nameSize != 0 && name[nameSize - 1] == '.');
+    return !(name[nameSize - 1] == '.');
 }
 
 template <uint64_t StringCapacity>
