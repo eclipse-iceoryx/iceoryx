@@ -49,12 +49,7 @@ inline bool isValidPathEntry(const string<StringCapacity>& name,
     }
 
     // dot at the end is invalid to be compatible with windows api
-    if (nameSize != 0 && name[nameSize - 1] == '.')
-    {
-        return false;
-    }
-
-    return true;
+    return !(nameSize != 0 && name[nameSize - 1] == '.');
 }
 
 template <uint64_t StringCapacity>
@@ -148,6 +143,9 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
 
     for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
     {
+        // in platform the path separator and number of path separators are set and tested
+        // so that such an access is safe
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         if (lastCharacter == iox::platform::IOX_PATH_SEPARATORS[i])
         {
             return true;
@@ -157,7 +155,7 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
 }
 
 template <typename F, typename T>
-inline constexpr T from(const F) noexcept
+inline constexpr T from(const F e IOX_MAYBE_UNUSED) noexcept
 {
     static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
     Please specialize `template <typename F, typename T> constexpr T from(const F) noexcept`!");
