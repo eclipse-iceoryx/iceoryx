@@ -59,7 +59,7 @@ constexpr Duration operator"" _m(unsigned long long int value) noexcept;
 constexpr Duration operator"" _h(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from days
-constexpr Duration operator"" _d(unsigned long long intvalue) noexcept;
+constexpr Duration operator"" _d(unsigned long long int value) noexcept;
 } // namespace duration_literals
 
 /// @code

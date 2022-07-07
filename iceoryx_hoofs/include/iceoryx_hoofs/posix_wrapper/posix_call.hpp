@@ -109,6 +109,7 @@ struct PosixCallDetails
         __FILE__,                                                                                                      \
         __LINE__,                                                                                                      \
         __PRETTY_FUNCTION__) // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+                             // needed for source code location, safely wrapped in macro
 
 /// @brief class which is created by the verificator to evaluate the result of a posix call
 template <typename ReturnType>

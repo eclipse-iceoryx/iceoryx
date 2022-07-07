@@ -52,24 +52,18 @@ constexpr Duration createDuration(DurationAccessor::Seconds_t seconds, DurationA
 TEST(Duration_test, ConversionConstants)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1d9090fc-438c-41dc-9350-04910ef9b27d");
-    constexpr uint64_t SECS_PER_MINUTE{60U};
-    static_assert(Duration::SECS_PER_MINUTE == SECS_PER_MINUTE, "Mismatch for conversion constants!");
-    constexpr uint64_t SECS_PER_HOUR{3600U};
-    static_assert(Duration::SECS_PER_HOUR == SECS_PER_HOUR, "Mismatch for conversion constants!");
-    constexpr uint64_t HOURS_PER_DAY{24U};
-    static_assert(Duration::HOURS_PER_DAY == HOURS_PER_DAY, "Mismatch for conversion constants!");
+    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers) readability
+    static_assert(Duration::SECS_PER_MINUTE == 60U, "Mismatch for conversion constants!");
+    static_assert(Duration::SECS_PER_HOUR == 3600U, "Mismatch for conversion constants!");
+    static_assert(Duration::HOURS_PER_DAY == 24U, "Mismatch for conversion constants!");
 
-    constexpr uint64_t MILLISECS_PER_SEC{1000U};
-    static_assert(Duration::MILLISECS_PER_SEC == MILLISECS_PER_SEC, "Mismatch for conversion constants!");
-    constexpr uint64_t MICROSECS_PER_SEC{1000000U};
-    static_assert(Duration::MICROSECS_PER_SEC == MICROSECS_PER_SEC, "Mismatch for conversion constants!");
+    static_assert(Duration::MILLISECS_PER_SEC == 1000U, "Mismatch for conversion constants!");
+    static_assert(Duration::MICROSECS_PER_SEC == 1000000U, "Mismatch for conversion constants!");
 
-    constexpr uint64_t NANOSECS_PER_MICROSEC{1000U};
-    static_assert(Duration::NANOSECS_PER_MICROSEC == NANOSECS_PER_MICROSEC, "Mismatch for conversion constants!");
-    constexpr uint64_t NANOSECS_PER_MILLISEC{1000000U};
-    static_assert(Duration::NANOSECS_PER_MILLISEC == NANOSECS_PER_MILLISEC, "Mismatch for conversion constants!");
-    constexpr uint64_t NANOSECS_PER_SEC{1000000000U};
-    static_assert(Duration::NANOSECS_PER_SEC == NANOSECS_PER_SEC, "Mismatch for conversion constants!");
+    static_assert(Duration::NANOSECS_PER_MICROSEC == 1000U, "Mismatch for conversion constants!");
+    static_assert(Duration::NANOSECS_PER_MILLISEC == 1000000U, "Mismatch for conversion constants!");
+    static_assert(Duration::NANOSECS_PER_SEC == 1000000000U, "Mismatch for conversion constants!");
+    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers) readability
 }
 
 // BEGIN CONSTRUCTOR TESTS
@@ -179,9 +173,7 @@ TEST(Duration_test, ConstructFromTimespecWithZeroValue)
     constexpr uint64_t NANOSECONDS{0U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec ts
-    {
-    };
+    timespec ts = {};
     ts.tv_sec = SECONDS;
     ts.tv_nsec = NANOSECONDS;
 
@@ -196,9 +188,7 @@ TEST(Duration_test, ConstructFromTimespecWithValueLessThanOneSecond)
     constexpr uint64_t NANOSECONDS{456U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec value
-    {
-    };
+    timespec value = {};
     value.tv_sec = SECONDS;
     value.tv_nsec = NANOSECONDS;
 
@@ -213,9 +203,7 @@ TEST(Duration_test, ConstructFromTimespecWithValueMoreThanOneSecond)
     constexpr uint64_t NANOSECONDS{456U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec value
-    {
-    };
+    timespec value = {};
     value.tv_sec = SECONDS;
     value.tv_nsec = NANOSECONDS;
 
@@ -229,9 +217,7 @@ TEST(Duration_test, ConstructFromTimespecWithMaxValue)
     constexpr uint64_t SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec ts
-    {
-    };
+    timespec ts = {};
     ts.tv_sec = static_cast<time_t>(SECONDS);
     ts.tv_nsec = static_cast<long>(NANOSECONDS);
 
@@ -246,9 +232,7 @@ TEST(Duration_test, ConstructFromITimerspecWithZeroValue)
     constexpr uint64_t NANOSECONDS{0U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct itimerspec its
-    {
-    };
+    itimerspec its = {};
     its.it_interval.tv_sec = SECONDS;
     its.it_interval.tv_nsec = NANOSECONDS;
 
@@ -263,9 +247,7 @@ TEST(Duration_test, ConstructFromITimerspecWithValueLessThanOneSecond)
     constexpr uint64_t NANOSECONDS{642U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct itimerspec its
-    {
-    };
+    itimerspec its = {};
     its.it_interval.tv_sec = SECONDS;
     its.it_interval.tv_nsec = NANOSECONDS;
 
@@ -280,9 +262,7 @@ TEST(Duration_test, ConstructFromITimerspecWithValueMoreThanOneSecond)
     constexpr uint64_t NANOSECONDS{42U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, NANOSECONDS);
 
-    struct itimerspec its
-    {
-    };
+    itimerspec its = {};
     its.it_interval.tv_sec = SECONDS;
     its.it_interval.tv_nsec = NANOSECONDS;
 
@@ -296,9 +276,7 @@ TEST(Duration_test, ConstructFromITimerspecWithMaxValue)
     constexpr uint64_t SECONDS{std::numeric_limits<DurationAccessor::Seconds_t>::max()};
     constexpr uint64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct itimerspec its
-    {
-    };
+    itimerspec its = {};
     its.it_interval.tv_sec = static_cast<time_t>(SECONDS);
     its.it_interval.tv_nsec = static_cast<long>(NANOSECONDS);
 
@@ -313,9 +291,7 @@ TEST(Duration_test, ConstructFromTimevalWithZeroValue)
     constexpr uint64_t MICROSECONDS{0U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
-    struct timeval tv
-    {
-    };
+    timeval tv = {};
     tv.tv_sec = SECONDS;
     tv.tv_usec = MICROSECONDS;
 
@@ -330,9 +306,7 @@ TEST(Duration_test, ConstructFromTimevalWithValueLessThanOneSecond)
     constexpr uint64_t MICROSECONDS{13U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
-    struct timeval tv
-    {
-    };
+    timeval tv = {};
     tv.tv_sec = SECONDS;
     tv.tv_usec = MICROSECONDS;
 
@@ -347,9 +321,7 @@ TEST(Duration_test, ConstructFromTimevalWithValueMoreThanOneSecond)
     constexpr uint64_t MICROSECONDS{42U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND);
 
-    struct timeval tv
-    {
-    };
+    timeval tv = {};
     tv.tv_sec = SECONDS;
     tv.tv_usec = MICROSECONDS;
 
@@ -364,9 +336,7 @@ TEST(Duration_test, ConstructFromTimevalWithMaxValue)
     constexpr uint64_t MICROSECONDS{Duration::MICROSECS_PER_SEC - 1U};
     constexpr Duration EXPECTED_DURATION = createDuration(SECONDS, MICROSECONDS * Duration::NANOSECS_PER_MICROSEC);
 
-    struct timeval tv
-    {
-    };
+    timeval tv = {};
     tv.tv_sec = static_cast<time_t>(SECONDS);
     tv.tv_usec = static_cast<long>(MICROSECONDS);
 
@@ -1163,7 +1133,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromZeroDuration)
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1177,7 +1147,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationLessThanOneSecon
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1191,7 +1161,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationMoreThanOneSecon
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1205,7 +1175,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromDurationResultsNotYetInS
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
 
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1217,7 +1187,7 @@ TEST(Duration_test, ConvertTimespecWithNoneReferenceFromMaxDurationResultsInSatu
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::None);
+    const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::None);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1233,7 +1203,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     auto timeSinceMonotonicEpoch = std::chrono::steady_clock::now().time_since_epoch();
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Monotonic);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::Monotonic);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
     auto secondsSinceMonotonicEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoch).count();
@@ -1247,7 +1217,7 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReferenceFromMaxDurationResultsI
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Monotonic);
+    const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Monotonic);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1262,7 +1232,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReference)
     auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
-    struct timespec sut = duration.timespec(iox::units::TimeSpecReference::Epoch);
+    const timespec sut = duration.timespec(iox::units::TimeSpecReference::Epoch);
 
     auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
     EXPECT_THAT(10 * SECONDS, Lt(secondsSinceUnixEpoch));
@@ -1275,7 +1245,7 @@ TEST(Duration_test, ConvertTimespecWithEpochReferenceFromMaxDurationResultsInSat
     constexpr int64_t SECONDS{std::numeric_limits<int64_t>::max()};
     constexpr int64_t NANOSECONDS{NANOSECS_PER_SECOND - 1U};
 
-    struct timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Epoch);
+    const timespec sut = DurationAccessor::max().timespec(iox::units::TimeSpecReference::Epoch);
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_nsec, Eq(NANOSECONDS));
@@ -1286,7 +1256,7 @@ TEST(Duration_test, ConvertTimevalFromZeroDuration)
     ::testing::Test::RecordProperty("TEST_ID", "10d3b209-093c-42c2-b3ab-2f2ac7e53836");
     auto duration = createDuration(0U, 0U);
 
-    struct timeval sut = duration.timeval();
+    const timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(0U));
     EXPECT_THAT(sut.tv_usec, Eq(0U));
@@ -1301,7 +1271,7 @@ TEST(Duration_test, ConvertTimevalFromDurationWithLessThanOneSecond)
 
     auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
-    struct timeval sut = duration.timeval();
+    const timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
@@ -1316,7 +1286,7 @@ TEST(Duration_test, ConvertTimevalFromDurationWithMoreThanOneSecond)
 
     auto duration = createDuration(SECONDS, MICROSECONDS * NANOSECS_PER_MICROSECOND + ROUND_OFF_NANOSECONDS);
 
-    struct timeval sut = duration.timeval();
+    const timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(SECONDS));
     EXPECT_THAT(sut.tv_usec, Eq(MICROSECONDS));
@@ -1328,7 +1298,7 @@ TEST(Duration_test, ConvertTimevalFromDurationResultsNotYetInSaturation)
     using SEC_TYPE = decltype(timeval::tv_sec);
     auto duration = Duration::fromSeconds(std::numeric_limits<SEC_TYPE>::max());
 
-    struct timeval sut = duration.timeval();
+    const timeval sut = duration.timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
     EXPECT_THAT(sut.tv_usec, Eq(0));
@@ -1340,7 +1310,7 @@ TEST(Duration_test, ConvertTimevalFromMaxDurationResultsInSaturation)
     using SEC_TYPE = decltype(timeval::tv_sec);
     using USEC_TYPE = decltype(timeval::tv_usec);
 
-    struct timeval sut = DurationAccessor::max().timeval();
+    const timeval sut = DurationAccessor::max().timeval();
 
     EXPECT_THAT(sut.tv_sec, Eq(std::numeric_limits<SEC_TYPE>::max()));
     EXPECT_THAT(sut.tv_usec, Eq(static_cast<USEC_TYPE>(MICROSECS_PER_SECONDS - 1U)));
