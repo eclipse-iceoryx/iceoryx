@@ -24,6 +24,7 @@ hicpp-*,
 -readability-redundant-declaration,
 
 -readability-identifier-naming,
+-readability-use-anyofallof,
 
 '
 
@@ -84,6 +85,9 @@ hicpp-*,
 #        void bar(Foo& foo);
 #        // in cpp file
 #        void bar(Foo& foo) {...}
+#
+# * rule: readability-use-anyofallof
+#   justification: requires C++20 and std::ranges but we only use C++14
 
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments

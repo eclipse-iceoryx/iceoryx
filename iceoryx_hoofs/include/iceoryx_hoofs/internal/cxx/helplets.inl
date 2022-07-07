@@ -39,10 +39,14 @@ inline bool isValidPathEntry(const string<StringCapacity>& name,
     for (uint64_t i = 0; i < nameSize; ++i)
     {
         const char c = name[i];
-        if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
-              || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
-              || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
-              || c == internal::ASCII_DOT || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE))
+
+        const bool isSmallLetter = (internal::ASCII_A <= c && c <= internal::ASCII_Z);
+        const bool isCapitalLetter = (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z);
+        const bool isNumber = (internal::ASCII_0 <= c && c <= internal::ASCII_9);
+        const bool isSpecialCharacter = (c == internal::ASCII_MINUS || c == internal::ASCII_DOT
+                                         || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE);
+
+        if (!isSmallLetter && !isCapitalLetter && !isNumber && !isSpecialCharacter)
         {
             return false;
         }
@@ -141,12 +145,9 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
 
     char lastCharacter = name[name.size() - 1U];
 
-    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {
-        // in platform the path separator and number of path separators are set and tested
-        // so that such an access is safe
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        if (lastCharacter == iox::platform::IOX_PATH_SEPARATORS[i])
+        if (lastCharacter == separator)
         {
             return true;
         }
