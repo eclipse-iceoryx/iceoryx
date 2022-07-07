@@ -383,13 +383,12 @@ class list
     // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
     // first used list element (begin())
 
-    /// @NOLINTJUSTIFICATION the c arrays are the base of the list and completely wrapped inside
-    ///                      the list. the list ensures a safe access to it.
-    /// NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    /// @NOLINTJUSTIFICATION will be replaced by uninitialized array
+    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
-    /// NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 
     size_type m_size{0U};
 }; // list
