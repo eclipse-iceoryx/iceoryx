@@ -52,7 +52,6 @@ constexpr Duration createDuration(DurationAccessor::Seconds_t seconds, DurationA
 TEST(Duration_test, ConversionConstants)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1d9090fc-438c-41dc-9350-04910ef9b27d");
-    // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers) readability
     static_assert(Duration::SECS_PER_MINUTE == 60U, "Mismatch for conversion constants!");
     static_assert(Duration::SECS_PER_HOUR == 3600U, "Mismatch for conversion constants!");
     static_assert(Duration::HOURS_PER_DAY == 24U, "Mismatch for conversion constants!");
@@ -63,7 +62,6 @@ TEST(Duration_test, ConversionConstants)
     static_assert(Duration::NANOSECS_PER_MICROSEC == 1000U, "Mismatch for conversion constants!");
     static_assert(Duration::NANOSECS_PER_MILLISEC == 1000000U, "Mismatch for conversion constants!");
     static_assert(Duration::NANOSECS_PER_SEC == 1000000000U, "Mismatch for conversion constants!");
-    // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers) readability
 }
 
 // BEGIN CONSTRUCTOR TESTS
