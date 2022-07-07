@@ -238,11 +238,7 @@ inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other)
         {
             return -1;
         }
-        if (m_rawstringSize > otherSize)
-        {
-            return 1;
-        }
-        return 0;
+        return (m_rawstringSize > otherSize ? 1 : 0);
     }
     return result;
 }
@@ -335,11 +331,7 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
         {
             return -1;
         }
-        if (m_rawstringSize > 1U)
-        {
-            return 1;
-        }
-        return 0;
+        return (m_rawstringSize > 1U ? 1 : 0);
     }
     return result;
 }
