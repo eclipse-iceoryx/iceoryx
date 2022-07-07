@@ -31,6 +31,8 @@ class PoorMansHeapType
 {
 };
 
+constexpr uint64_t POOR_MANS_HEAP_DEFAULT_ALIGNMENT{8};
+
 /// @brief Reserves space on stack for placement new instatiation
 /// @param Interface base type of all classes which should be stored in here
 /// @param TypeSize maximum size of a child of Interface
@@ -110,8 +112,9 @@ class PoorMansHeapType
 ///     return 0;
 /// }
 /// @endcode
-template <typename Interface, size_t TypeSize, size_t TypeAlignment = 8>
-class PoorMansHeap
+/// @NOLINTJUSTIFICATION it is guaranteed that the memory is initialized on access
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment = POOR_MANS_HEAP_DEFAULT_ALIGNMENT>
+class PoorMansHeap // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
   public:
     PoorMansHeap() = default;
@@ -121,7 +124,9 @@ class PoorMansHeap
     /// @param [in] Type the type to instantiate, wrapped in PoorMansHeapType
     /// @param [in] ctorArgs ctor arguments for the type to instantiate
     template <typename Type, typename... CTorArgs>
-    PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept;
+    // 'PoorMansHeapType<Type>' is a compile time variable to recognize the used type
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    explicit PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept;
 
     PoorMansHeap(PoorMansHeap&& other) = delete;
     PoorMansHeap& operator=(PoorMansHeap&& rhs) = delete;
@@ -152,6 +157,8 @@ class PoorMansHeap
 
   private:
     Interface* m_instance{nullptr};
+    // safe access is guaranteed since the array is wrapped inside the PoorMansHeap
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(TypeAlignment) uint8_t m_heap[TypeSize];
 };
 

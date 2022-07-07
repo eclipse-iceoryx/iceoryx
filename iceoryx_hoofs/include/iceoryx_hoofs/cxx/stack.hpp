@@ -23,7 +23,7 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Construct Ruleset-A12.1.1 : it is guaranteed that the array elements are initialized on access
+// AXIVION Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized on access
 /// @brief stack implementation with a simple push pop interface
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
@@ -50,12 +50,12 @@ class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // AXIVION Next Line Ruleset-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the stack
-    // class
+    // AXIVION Next Line AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the
+    // stack class
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
-    // AXIVION Next Line Ruleset-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the stack
-    // class
+    // AXIVION Next Line AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the
+    // stack class
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(T) element_t m_data[Capacity];
     uint64_t m_size = 0U;
