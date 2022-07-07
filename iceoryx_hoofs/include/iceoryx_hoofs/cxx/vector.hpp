@@ -196,9 +196,12 @@ class vector
     iterator erase(iterator position) noexcept;
 
   private:
+    /// @todo #1196 Replace with UninitializedArray
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
-    uint64_t m_size = 0u;
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays)
+    uint64_t m_size = 0U;
 };
 } // namespace cxx
 } // namespace iox
