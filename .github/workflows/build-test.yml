@@ -53,7 +53,7 @@ jobs:
       uses: vmactions/freebsd-vm@v0.1.6
       with:
         usesh: true
-        mem: 2048
+        mem: 4096
         prepare: pkg install -y cmake git ncurses bash wget bison
         run: |
          git config --global --add safe.directory /Users/runner/work/iceoryx/iceoryx
