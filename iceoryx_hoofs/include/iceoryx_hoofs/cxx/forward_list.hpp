@@ -194,10 +194,10 @@ class forward_list
     /// @brief remove next element from linked iterator position
     ///         element destructors will be invoked
     ///         recursive calls to erase_after only delete each 2nd element
-    /// @param[in] beforeToBeErasedIter iterator linking the element before the to-be-removed element
+    /// @param[in] iter iterator linking the element before the to-be-removed element
     /// @return an (non-const_) iterator to the element after the removed element,
     ///         returns end() element when reached end of list
-    iterator erase_after(const_iterator beforeToBeErasedIter) noexcept;
+    iterator erase_after(const_iterator iter) noexcept;
 
     /// @brief remove all elements which matches the given comparing element (compare by value)
     ///         requires a the template type T to have operator== defined.
@@ -220,10 +220,10 @@ class forward_list
 
     /// @brief construct element inplace after the pointed-to element
     /// @param[in] args T-typed construction parameters (initializer list)
-    /// @param[in] afterToBeEmplacedIter position in list to (construct)insert after
+    /// @param[in] iter position in list to (construct)insert after
     /// @return iterator to the newly added element
     template <typename... ConstructorArgs>
-    iterator emplace_after(const_iterator afterToBeEmplacedIter, ConstructorArgs&&... args) noexcept;
+    iterator emplace_after(const_iterator iter, ConstructorArgs&&... args) noexcept;
 
     /// @brief insert element after iterator position
     /// @param[in] citer iterator with the position to insert after
@@ -254,6 +254,10 @@ class forward_list
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
+        // We want to assign iterator to const_iterator, like in a for loop
+        // for (auto& elem : myList) { ... }
+        // This is safe since we convert from non const to const
+        // NOLINTNEXTLINE(hicpp-explicit-conversions)
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief assigns a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
@@ -351,9 +355,12 @@ class forward_list
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
+    // todo #1196 will be replaced by uninitialized array
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 
     size_type m_size{0U};
 }; // forward_list

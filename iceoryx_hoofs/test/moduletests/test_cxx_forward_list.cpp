@@ -23,8 +23,8 @@ namespace
 using namespace ::testing;
 using namespace iox::cxx;
 
-static constexpr uint64_t TESTLISTCAPACITY{10U};
-static constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
+constexpr uint64_t TESTLISTCAPACITY{10U};
+constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
 
 class forward_list_test : public Test
 {
@@ -47,6 +47,7 @@ class forward_list_test : public Test
             classValue = m_value;
         }
 
+        // NOLINTNEXTLINE(hicpp-explicit-conversions) only used for tests
         TestListElement(const int64_t value)
             : m_value(value)
         {
@@ -55,28 +56,31 @@ class forward_list_test : public Test
         }
 
         TestListElement(const TestListElement& rhs)
+            : m_value(rhs.m_value)
         {
             copyCTor++;
-            m_value = rhs.m_value;
             classValue = m_value;
         }
 
-        TestListElement(TestListElement&& rhs)
+        TestListElement(TestListElement&& rhs) noexcept
+            : m_value(rhs.m_value)
         {
             moveCTor++;
-            m_value = rhs.m_value;
             classValue = m_value;
         }
 
         TestListElement& operator=(const TestListElement& rhs)
         {
-            copyAssignment++;
-            m_value = rhs.m_value;
-            classValue = m_value;
+            if (this != &rhs)
+            {
+                copyAssignment++;
+                m_value = rhs.m_value;
+                classValue = m_value;
+            }
             return *this;
         }
 
-        TestListElement& operator=(TestListElement&& rhs)
+        TestListElement& operator=(TestListElement&& rhs) noexcept
         {
             moveAssignment++;
             m_value = rhs.m_value;
@@ -99,7 +103,7 @@ class forward_list_test : public Test
     };
 
 
-    void SetUp()
+    void SetUp() override
     {
         cTor = 0U;
         customCTor = 0U;
@@ -111,17 +115,10 @@ class forward_list_test : public Test
         classValue = 0U;
     }
 
-    bool isSetupState()
+    static bool isSetupState()
     {
-        if (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
-            && copyAssignment == 0U && dTor == 0U && classValue == 0U)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
+                && copyAssignment == 0U && dTor == 0U && classValue == 0);
     }
 
     forward_list<TestListElement, TESTLISTCAPACITY> sut;
@@ -295,6 +292,8 @@ TEST_F(forward_list_test, FullWhenFilledWithMoreThanCapacityElements)
     }
 
     EXPECT_THAT(sut.full(), Eq(true));
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.emplace_front(), "");
 }
 TEST_F(forward_list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
@@ -655,7 +654,8 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
     ::testing::Test::RecordProperty("TEST_ID", "8ea12c2d-c942-45f7-a642-364b21267413");
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{13U};
-    forward_list<TestListElement, CAPACITY> sut11, sut12;
+    forward_list<TestListElement, CAPACITY> sut11;
+    forward_list<TestListElement, CAPACITY> sut12;
     auto iterOfSut11 = sut11.before_begin();
     auto iterOfSut12 = sut12.before_begin();
     int64_t cnt = 0;
@@ -666,6 +666,8 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
         ++cnt;
     }
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut11.emplace_after(iterOfSut12, cnt), "");
 }
 
@@ -785,7 +787,8 @@ TEST_F(forward_list_test, PopFrontOnEmptyList)
 TEST_F(forward_list_test, PopFrontNonEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "33cb4d4f-b04e-4664-a5bf-8c2e5866197b");
-    sut.emplace_front(101U);
+    constexpr uint32_t ELEMENT = 101U;
+    sut.emplace_front(ELEMENT);
     ASSERT_THAT(sut.size(), Eq(1U));
 
     EXPECT_TRUE(sut.pop_front());
@@ -871,7 +874,8 @@ TEST_F(forward_list_test, InsertAfterLValueCheckReturn)
 TEST_F(forward_list_test, InsertAfterEmptyListAsRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef2e7386-315e-42b3-95e0-e08fcf387d1c");
-    sut.insert_after(sut.before_begin(), {10U});
+    constexpr uint32_t DATA = 10U;
+    sut.insert_after(sut.before_begin(), {DATA});
 
     ASSERT_THAT(sut.size(), Eq(1U));
     ASSERT_THAT(cTor, Eq(0U));
@@ -885,10 +889,11 @@ TEST_F(forward_list_test, InsertAfterEmptyListAsRValue)
 TEST_F(forward_list_test, InsertAfterRValueCheckReturn)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37db60b9-1222-4339-aabb-e8d2db11403c");
-    auto iter = sut.insert_after(sut.before_begin(), {10U});
+    constexpr uint32_t DATA = 10U;
+    auto iter = sut.insert_after(sut.before_begin(), {DATA});
 
     ASSERT_THAT(iter == sut.begin(), Eq(true));
-    ASSERT_THAT((*iter).m_value, Eq(10U));
+    ASSERT_THAT((*iter).m_value, Eq(DATA));
 }
 
 TEST_F(forward_list_test, InsertAfterBeginListLValue)
@@ -900,7 +905,7 @@ TEST_F(forward_list_test, InsertAfterBeginListLValue)
     sut.emplace_front();
     sut.insert_after(sut.begin(), a);
 
-    ASSERT_THAT(sut.size(), Eq(2u));
+    ASSERT_THAT(sut.size(), Eq(2U));
     ASSERT_THAT(cTor, Eq(1U));
     ASSERT_THAT(customCTor, Eq(1U));
     auto iter = sut.begin();
@@ -918,7 +923,7 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListLValue)
     sut.emplace_front();
     sut.insert_after(sut.before_begin(), a);
 
-    ASSERT_THAT(sut.size(), Eq(2u));
+    ASSERT_THAT(sut.size(), Eq(2U));
     ASSERT_THAT(cTor, Eq(1U));
     ASSERT_THAT(customCTor, Eq(1U));
     auto iter = sut.begin();
@@ -935,7 +940,7 @@ TEST_F(forward_list_test, InsertAfterBeforeBeginListRValue)
     sut.emplace_front(a);
     sut.insert_after(sut.before_begin(), {});
 
-    ASSERT_THAT(sut.size(), Eq(2u));
+    ASSERT_THAT(sut.size(), Eq(2U));
     ASSERT_THAT(cTor, Eq(1U));
     ASSERT_THAT(customCTor, Eq(1U));
     auto iter = sut.begin();
@@ -950,11 +955,8 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListLValue)
     const TestListElement a{DEFAULT_VALUE};
     uint64_t loopCounter = 0U;
 
-    // this tests the test case setup (the following code needs a minimum testlist capacity)
-    ASSERT_THAT(TESTLISTCAPACITY, Ge(10U));
-
     // fill half
-    for (int64_t i = 0; i < 5; ++i)
+    for (int64_t i = 0; i < static_cast<int64_t>(TESTLISTCAPACITY) / 2; ++i)
     {
         sut.emplace_front(i);
         EXPECT_THAT(sut.size(), Eq(i + 1U));
@@ -992,11 +994,8 @@ TEST_F(forward_list_test, InsertAfterSomeElementsListRValue)
     ::testing::Test::RecordProperty("TEST_ID", "e30b2576-0625-44f0-95c9-f6084ff2147e");
     constexpr int64_t DEFAULT_VALUE{13L};
 
-    // test requires a minimum capacity
-    ASSERT_THAT(TESTLISTCAPACITY, Ge(10U));
-
     // fill half
-    for (uint64_t i = 0U; i < 5U; ++i)
+    for (uint64_t i = 0U; i < TESTLISTCAPACITY / 2U; ++i)
     {
         sut.emplace_front(static_cast<int64_t>(i));
         EXPECT_THAT(sut.size(), Eq(i + 1U));
@@ -1096,10 +1095,8 @@ TEST_F(forward_list_test, IteratorArrowOperator)
     ::testing::Test::RecordProperty("TEST_ID", "ed2c903e-ab2e-4c44-abb1-bf1db2839863");
     constexpr int64_t DEFAULT_VALUE{13L};
 
-    ASSERT_THAT(TESTLISTCAPACITY, Ge(10U)); // for the rest of magic numbers to fit
-
     // fill half
-    for (uint64_t i = 0U; i < 5U; ++i)
+    for (uint64_t i = 0U; i < TESTLISTCAPACITY / 2U; ++i)
     {
         sut.emplace_front(static_cast<int64_t>(i));
         EXPECT_THAT(sut.size(), Eq(i + 1U));
@@ -1156,7 +1153,8 @@ TEST_F(forward_list_test, ConstIteratorIncrementOperatorBeyondEnd)
 TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "85e3a092-b256-4ef2-ae33-087935d96483");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1168,26 +1166,38 @@ TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
 
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.before_begin();
     iterSut2 = sut12.before_begin();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.before_begin();
     iterSut2 = sut12.before_begin();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 }
 
@@ -1195,7 +1205,8 @@ TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
 TEST_F(forward_list_test, ComparingConstIteratorAndIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e7922f5-1832-42f6-a062-f3cd20fe2750");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1221,15 +1232,15 @@ TEST_F(forward_list_test, ComparingConstIteratorAndIterator)
 TEST_F(forward_list_test, IteratorTraitsGetValueType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f3f2b8c8-50e0-4e4f-aa9a-74eff3a2014a");
-    forward_list<int, 10U> sut1;
+    forward_list<int, TESTLISTCAPACITY> sut1;
 
-    sut1.emplace_front(5);
+    sut1.emplace_front(static_cast<int32_t>(TESTLISTCAPACITY) / 2);
     auto iter{sut1.begin()};
 
     // using a function call here is closer to the actual use case (-> intentionally did not inline all code here)
     auto ret = iteratorTraitReturnDoubleValue(iter);
 
-    EXPECT_THAT(ret, Eq(10U));
+    EXPECT_THAT(ret, Eq(TESTLISTCAPACITY));
 }
 
 TEST_F(forward_list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
@@ -1243,7 +1254,7 @@ TEST_F(forward_list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 TEST_F(forward_list_test, EmptyAfterClear)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3970e5a4-0ac3-4acf-b5ef-40c96125039b");
-    sut.emplace_front(5U);
+    sut.emplace_front(4U);
     sut.clear();
     EXPECT_THAT(sut.empty(), Eq(true));
 }
@@ -1251,7 +1262,7 @@ TEST_F(forward_list_test, EmptyAfterClear)
 TEST_F(forward_list_test, SizeZeroAfterClear)
 {
     ::testing::Test::RecordProperty("TEST_ID", "410dc821-1b7f-4cf3-bdad-99e9d15c74db");
-    sut.emplace_front(5U);
+    sut.emplace_front(4U);
     sut.clear();
     EXPECT_THAT(sut.size(), Eq(0U));
 }
@@ -1260,8 +1271,10 @@ TEST_F(forward_list_test, CopyConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "792edf58-e345-4fea-bd41-35144da1b514");
     forward_list<TestListElement, TESTLISTCAPACITY> sut11;
-    sut11.emplace_front(101U);
-    sut11.emplace_front(102U);
+    constexpr uint32_t ELEMENT1 = 101U;
+    constexpr uint32_t ELEMENT2 = 102U;
+    sut11.emplace_front(ELEMENT1);
+    sut11.emplace_front(ELEMENT2);
     EXPECT_THAT(customCTor, Eq(2U));
 
     forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
@@ -1272,9 +1285,9 @@ TEST_F(forward_list_test, CopyConstructor)
     EXPECT_THAT(moveAssignment, Eq(0U));
     EXPECT_THAT(copyAssignment, Eq(0U));
     auto iter = sut12.begin();
-    EXPECT_THAT(iter->m_value, Eq(102U));
+    EXPECT_THAT(iter->m_value, Eq(ELEMENT2));
     ++iter;
-    EXPECT_THAT(iter->m_value, Eq(101U));
+    EXPECT_THAT(iter->m_value, Eq(ELEMENT1));
     EXPECT_THAT(sut12.empty(), Eq(false));
     EXPECT_THAT(sut12.size(), Eq(2U));
 }
@@ -1283,6 +1296,7 @@ TEST_F(forward_list_test, CopyConstructorWithEmptyForwardList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8ca26707-e1a6-4bf1-b795-67ee4efac72f");
     forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) copy constructor shall be tested
     forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     EXPECT_THAT(copyCTor, Eq(0U));
     EXPECT_THAT(sut12.size(), Eq(0U));
@@ -1317,8 +1331,10 @@ TEST_F(forward_list_test, MoveConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7579f4ae-e00d-46b4-b3fb-9ecbf5c7fc3e");
     forward_list<TestListElement, TESTLISTCAPACITY> sut11;
-    sut11.emplace_front(8101U);
-    sut11.emplace_front(8102U);
+    constexpr uint32_t ELEMENT1 = 8101U;
+    constexpr uint32_t ELEMENT2 = 8102U;
+    sut11.emplace_front(ELEMENT1);
+    sut11.emplace_front(ELEMENT2);
 
     forward_list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
 
@@ -1330,8 +1346,8 @@ TEST_F(forward_list_test, MoveConstructor)
     EXPECT_THAT(moveAssignment, Eq(0U));
     EXPECT_THAT(dTor, Eq(2U));
     auto iter = sut12.begin();
-    EXPECT_THAT(iter->m_value, Eq(8102U));
-    EXPECT_THAT((++iter)->m_value, Eq(8101U));
+    EXPECT_THAT(iter->m_value, Eq(ELEMENT2));
+    EXPECT_THAT((++iter)->m_value, Eq(ELEMENT1));
     EXPECT_THAT(sut12.empty(), Eq(false));
     EXPECT_THAT(sut12.size(), Eq(2U));
     EXPECT_THAT(sut11.empty(), Eq(true));
@@ -1341,7 +1357,7 @@ TEST_F(forward_list_test, MoveConstructorWithEmptyForwardList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a4b0fa37-fd3d-424a-9564-6c13f4eb4593");
     forward_list<TestListElement, TESTLISTCAPACITY> sut11;
-    forward_list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
     EXPECT_THAT(moveCTor, Eq(0U));
     EXPECT_THAT(cTor, Eq(0U));
     EXPECT_THAT(customCTor, Eq(0U));
@@ -1411,7 +1427,8 @@ TEST_F(forward_list_test, DestructorWithFullForwardList)
 TEST_F(forward_list_test, CopyAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7b5dc0b4-7b0b-43c9-8608-50b0f0b921ae");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(812U);
     sut11.emplace_front(81122U);
     sut11.emplace_front(8132U);
@@ -1429,10 +1446,14 @@ TEST_F(forward_list_test, CopyAssignmentWithEmptySource)
 TEST_F(forward_list_test, CopyAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "72b62a1a-da62-46fe-ac04-9ec107947d0d");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
-    sut11.emplace_front(5812U);
-    sut11.emplace_front(581122U);
-    sut11.emplace_front(58132U);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
+    constexpr uint32_t ELEMENT1 = 5812U;
+    constexpr uint32_t ELEMENT2 = 581122U;
+    constexpr uint32_t ELEMENT3 = 58132U;
+    sut11.emplace_front(ELEMENT1);
+    sut11.emplace_front(ELEMENT2);
+    sut11.emplace_front(ELEMENT3);
 
     sut12 = sut11;
     EXPECT_THAT(dTor, Eq(0U));
@@ -1442,16 +1463,17 @@ TEST_F(forward_list_test, CopyAssignmentWithEmptyDestination)
     EXPECT_THAT(sut12.empty(), Eq(false));
 
     auto iter = sut12.cbefore_begin();
-    EXPECT_THAT((++iter)->m_value, Eq(58132U));
-    EXPECT_THAT((++iter)->m_value, Eq(581122U));
-    EXPECT_THAT((++iter)->m_value, Eq(5812U));
+    EXPECT_THAT((++iter)->m_value, Eq(ELEMENT3));
+    EXPECT_THAT((++iter)->m_value, Eq(ELEMENT2));
+    EXPECT_THAT((++iter)->m_value, Eq(ELEMENT1));
 }
 
 
 TEST_F(forward_list_test, CopyAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0a5e2ddd-a9a8-4852-89db-8958aeb84a7a");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5842U);
     sut11.emplace_front(584122U);
     sut11.emplace_front(58432U);
@@ -1476,7 +1498,8 @@ TEST_F(forward_list_test, CopyAssignmentWithLargerDestination)
 TEST_F(forward_list_test, CopyAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be223c46-144b-42fa-9bbe-e17625754c7d");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1504,7 +1527,8 @@ TEST_F(forward_list_test, CopyAssignmentWithLargerSource)
 TEST_F(forward_list_test, MoveAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ccd0dd16-b472-4f49-b83e-695b86c6e4f3");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(812U);
     sut11.emplace_front(81122U);
     sut11.emplace_front(8132U);
@@ -1521,7 +1545,8 @@ TEST_F(forward_list_test, MoveAssignmentWithEmptySource)
 TEST_F(forward_list_test, MoveAssignmentWithEmptyDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "650eee96-687a-49b9-90fe-d0d9fa7e4eba");
-    forward_list<TestListElement, TESTLISTCAPACITY> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5812U);
     sut11.emplace_front(581122U);
     sut11.emplace_front(58132U);
@@ -1548,7 +1573,8 @@ TEST_F(forward_list_test, MoveAssignmentWithEmptyDestination)
 TEST_F(forward_list_test, MoveAssignmentWithLargerDestination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f85ecbbf-a08f-46ee-9a54-edef0fb6291d");
-    forward_list<TestListElement, 10U> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(5842U);
     sut11.emplace_front(584122U);
     sut11.emplace_front(58432U);
@@ -1573,7 +1599,8 @@ TEST_F(forward_list_test, MoveAssignmentWithLargerDestination)
 TEST_F(forward_list_test, MoveAssignmentWithLargerSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0f415c61-384c-44be-b61d-76c61236f673");
-    forward_list<TestListElement, 10U> sut11, sut12;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut12;
     sut11.emplace_front(15842U);
     sut11.emplace_front(1584122U);
     sut11.emplace_front(158432U);
@@ -1623,7 +1650,7 @@ TEST_F(forward_list_test, RemoveCustomElementFromEmptyList)
 TEST_F(forward_list_test, RemoveOneDefaultElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b6c6e21b-f2f5-469f-a655-290c9f2faa1d");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1648,7 +1675,7 @@ TEST_F(forward_list_test, RemoveOneDefaultElementFromList)
 TEST_F(forward_list_test, RemoveOneCustomElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "41cf180d-7cb9-4221-b850-98b806c64761");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1674,7 +1701,7 @@ TEST_F(forward_list_test, RemoveOneCustomElementFromList)
 TEST_F(forward_list_test, RemoveNotExistentElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0550f6e2-f2c1-415f-a5f3-a9afad3d7932");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1703,7 +1730,7 @@ TEST_F(forward_list_test, RemoveNotExistentElementFromList)
 TEST_F(forward_list_test, RemoveOnetoEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b3f3c773-7fa8-44ff-b5f7-9bbc790f85e1");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
 
     auto cnt = sut11.remove({15842U});
@@ -1718,7 +1745,7 @@ TEST_F(forward_list_test, RemoveOnetoEmptyList)
 TEST_F(forward_list_test, RemoveWithFewMatches)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee0e523c-fd50-43bb-8340-58294c9d7592");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1735,7 +1762,7 @@ TEST_F(forward_list_test, RemoveWithFewMatches)
 TEST_F(forward_list_test, RemoveWithAllMatches)
 {
     ::testing::Test::RecordProperty("TEST_ID", "294c0407-5475-4422-b255-816a511d8b7d");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front();
     sut11.emplace_front();
 
@@ -1751,12 +1778,13 @@ TEST_F(forward_list_test, RemoveWithAllMatches)
 TEST_F(forward_list_test, RemoveAllFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "25af8e19-2a36-4b9d-b26e-66cdaaa0cbc2");
-    forward_list<TestListElement, 10U> sut11;
-    sut11.emplace_front(15842U);
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
+    constexpr uint32_t ELEMENT = 15842U;
+    sut11.emplace_front(ELEMENT);
     sut11.emplace_front();
     sut11.emplace_front();
 
-    auto cnt = sut11.remove({15842U});
+    auto cnt = sut11.remove({ELEMENT});
     cnt += sut11.remove({});
 
     EXPECT_THAT(cTor, Eq(3U));
@@ -1781,7 +1809,7 @@ TEST_F(forward_list_test, RemoveIfFromEmptyList)
 TEST_F(forward_list_test, RemoveIfOneDefaultElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "44b32eb8-4038-43b9-9060-7c464f41b2be");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1809,7 +1837,7 @@ TEST_F(forward_list_test, RemoveIfOneDefaultElementFromList)
 TEST_F(forward_list_test, RemoveIfOneCustomElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7eca865c-8aad-499d-a8e4-581277cfc6e0");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1836,7 +1864,7 @@ TEST_F(forward_list_test, RemoveIfOneCustomElementFromList)
 TEST_F(forward_list_test, RemoveIfNotExistentElementFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90ed9470-b17a-42cb-95ad-4f926bbbdcbe");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1864,7 +1892,7 @@ TEST_F(forward_list_test, RemoveIfNotExistentElementFromList)
 TEST_F(forward_list_test, RemoveIfOnetoEmptyList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32c1c9b3-64bf-42cf-b558-46ddd042903b");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
 
     auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 15842U; });
@@ -1879,7 +1907,7 @@ TEST_F(forward_list_test, RemoveIfOnetoEmptyList)
 TEST_F(forward_list_test, RemoveIfWithFewMatches)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8431f210-d8e4-422c-82e0-4d019de35c12");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1897,7 +1925,7 @@ TEST_F(forward_list_test, RemoveIfWithFewMatches)
 TEST_F(forward_list_test, RemoveIfWithAllMatches)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b076c5bb-e0e7-41f6-8e08-cd42c2dcee68");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front();
     sut11.emplace_front();
 
@@ -1914,7 +1942,7 @@ TEST_F(forward_list_test, RemoveIfWithAllMatches)
 TEST_F(forward_list_test, RemoveIfAllFromList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "06b33436-aad4-4621-880d-a8eac1150caa");
-    forward_list<TestListElement, 10U> sut11;
+    forward_list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(15842U);
     sut11.emplace_front();
     sut11.emplace_front();
@@ -1958,6 +1986,8 @@ TEST_F(forward_list_test, invalidIteratorErase)
     auto iter = sut.begin();
     sut.pop_front();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.erase_after(iter), "");
 }
 
@@ -1973,6 +2003,8 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
     auto iter = sut.cbegin();
     sut.pop_front();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(++iter, "");
 }
 
@@ -1988,6 +2020,8 @@ TEST_F(forward_list_test, invalidIteratorComparison)
     auto iter = sut.cbegin();
     sut.pop_front();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
 
@@ -2003,6 +2037,8 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
     sut.pop_front();
     auto iter2 = sut.cbegin();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter2 != iter), "");
 }
 
@@ -2018,6 +2054,8 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
     auto iter = sut.cbegin();
     sut.pop_front();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.remove(*iter), "");
 }
 
@@ -2033,6 +2071,8 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
     auto iter = sut.cbegin();
     sut.pop_front();
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
 }
 
@@ -2041,8 +2081,9 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
     ::testing::Test::RecordProperty("TEST_ID", "a80ec7c9-9256-4a11-a4ec-102b22db2de2");
     uint64_t i = 0U;
     using TestFwdList = forward_list<TestListElement, TESTLISTCAPACITY>;
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for test
     alignas(TestFwdList) uint8_t otherSutBuffer[sizeof(TestFwdList)];
-    uint8_t* otherSutPtr = otherSutBuffer;
+    auto* otherSutPtr = static_cast<uint8_t*>(otherSutBuffer);
 
     {
         TestFwdList sut1;
@@ -2053,6 +2094,7 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
             sut1.emplace_front(static_cast<int64_t>(j));
         }
 
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) needed for memcpy
         memcpy(reinterpret_cast<void*>(otherSutPtr), reinterpret_cast<const void*>(&sut1), sizeof(sut1));
 
         // overwrite copied-from list before it's being destroyed
@@ -2064,6 +2106,9 @@ TEST_F(forward_list_test, ListIsCopyableViaMemcpy)
         }
     }
 
+    // reinterpret_cast needed since distinct pointer types need to be compared
+    // safe since otherSutBuffer is aligned to TestFwdList
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;
