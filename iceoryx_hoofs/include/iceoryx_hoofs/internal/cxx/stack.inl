@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_CXX_STACK_INL
 #define IOX_HOOFS_CXX_STACK_INL
 
+#include "iceoryx_hoofs/cxx/stack.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -28,6 +30,9 @@ inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
         return cxx::nullopt;
     }
 
+    // low level memory management with access to the topmost element on the untyped buffer;
+    // type safety is ensured by the template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return *reinterpret_cast<T*>(m_data[--m_size]);
 }
 
@@ -40,6 +45,9 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
         return false;
     }
 
+    // low level memory management with access to the topmost element on the untyped buffer;
+    // type safety is ensured by the template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     new (reinterpret_cast<T*>(m_data[m_size++])) T(std::forward<Targs>(args)...);
     return true;
 }
