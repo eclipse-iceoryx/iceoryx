@@ -46,17 +46,12 @@ struct PeriodicTaskTestType
   public:
     PeriodicTaskTestType() = default;
 
-    PeriodicTaskTestType(uint64_t callCounterOffset)
+    explicit PeriodicTaskTestType(uint64_t callCounterOffset)
     {
         callCounter = callCounterOffset;
     }
 
     void operator()()
-    {
-        increment();
-    }
-
-    void incrementMethod()
     {
         increment();
     }
@@ -74,12 +69,12 @@ uint64_t PeriodicTaskTestType::callCounter{0};
 class PeriodicTask_test : public Test
 {
   public:
-    virtual void SetUp()
+    void SetUp() override
     {
         PeriodicTaskTestType::callCounter = 0;
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
     }
 };
