@@ -27,20 +27,24 @@ namespace iox
 {
 namespace cxx
 {
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 PoorMansHeap<Interface, TypeSize, TypeAlignment>::~PoorMansHeap() noexcept
 {
     deleteInstance();
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+// it is guaranteed that the memory is initialized on access
+// NOLINTNEXTLINE (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
+// 'PoorMansHeapType<Type>' is a compile time variable to recognize the used type
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 PoorMansHeap<Interface, TypeSize, TypeAlignment>::PoorMansHeap(PoorMansHeapType<Type>, CTorArgs&&... ctorArgs) noexcept
 {
     newInstance<Type>(std::forward<CTorArgs>(ctorArgs)...);
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
 void PoorMansHeap<Interface, TypeSize, TypeAlignment>::newInstance(CTorArgs&&... ctorArgs) noexcept
 {
@@ -49,10 +53,12 @@ void PoorMansHeap<Interface, TypeSize, TypeAlignment>::newInstance(CTorArgs&&...
 
     deleteInstance();
 
+    // the PoorMansHeap acts as a fancy pointer and takes the memory ownership
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     m_instance = new (m_heap) Type(std::forward<CTorArgs>(ctorArgs)...);
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 void PoorMansHeap<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
 {
     if (m_instance != nullptr)
@@ -62,19 +68,19 @@ void PoorMansHeap<Interface, TypeSize, TypeAlignment>::deleteInstance() noexcept
     }
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 bool PoorMansHeap<Interface, TypeSize, TypeAlignment>::hasInstance() const noexcept
 {
     return m_instance != nullptr;
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 Interface* PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator->() const noexcept
 {
     return m_instance;
 }
 
-template <typename Interface, size_t TypeSize, size_t TypeAlignment>
+template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 Interface& PoorMansHeap<Interface, TypeSize, TypeAlignment>::operator*() const noexcept
 {
     return *m_instance;

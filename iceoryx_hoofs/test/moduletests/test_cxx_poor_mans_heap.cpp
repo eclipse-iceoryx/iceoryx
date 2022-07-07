@@ -42,7 +42,7 @@ std::vector<Identity> g_destructionIdentities;
 class Interface
 {
   public:
-    Interface(Identity identity)
+    explicit Interface(Identity identity)
         : m_identity(identity)
     {
     }
@@ -58,14 +58,14 @@ class Interface
 
     virtual LuckyNumber luckyNumber() const = 0;
 
-  protected:
+  private:
     Identity m_identity{Identity::None};
 };
 
 class Bar : public Interface
 {
   public:
-    Bar(LuckyNumber luckyNumber)
+    explicit Bar(LuckyNumber luckyNumber)
         : Interface(Identity::Bar)
         , m_luckyNumber(luckyNumber)
     {
@@ -83,7 +83,7 @@ class Bar : public Interface
 class Foo : public Interface
 {
   public:
-    Foo()
+    explicit Foo()
         : Interface(Identity::Foo)
     {
     }
@@ -92,10 +92,6 @@ class Foo : public Interface
     {
         return LuckyNumber::Foo;
     }
-
-    // protected instead of private to prevent a unused member warning
-  protected:
-    alignas(32) uint8_t m_dummy[73];
 };
 
 class PoorMansHeap_test : public Test
@@ -143,7 +139,7 @@ TEST_F(PoorMansHeap_test, CTorDTor_BaseClass)
         g_destructionIdentities.clear();
     }
 
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
@@ -159,7 +155,7 @@ TEST_F(PoorMansHeap_test, CTorDTor_NonDerived)
         g_destructionIdentities.clear();
     }
 
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 }
 
@@ -180,7 +176,7 @@ TEST_F(PoorMansHeap_test, deleteInstance)
 
     g_destructionIdentities.clear();
     m_sut.deleteInstance();
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
     EXPECT_THAT(m_sut.hasInstance(), Eq(false));
 }
@@ -194,7 +190,7 @@ TEST_F(PoorMansHeap_test, overwriteInstance)
 
     m_sut.newInstance<Foo>();
 
-    ASSERT_THAT(g_destructionIdentities.size(), Eq(1u));
+    ASSERT_THAT(g_destructionIdentities.size(), Eq(1U));
     EXPECT_THAT(g_destructionIdentities[0], Eq(Identity::Bar));
 
     ASSERT_THAT(m_sut.hasInstance(), Eq(true));
