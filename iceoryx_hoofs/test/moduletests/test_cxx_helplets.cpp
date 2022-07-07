@@ -324,7 +324,7 @@ TEST(Helplets_test_isValidFileName, FileNameWithValidSymbolsAndDotsAreValid)
 TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a8661ad-4511-4e54-8cd9-16f21074c332");
-    constexpr uint64_t COMBINATION_CAPACITY = 3U;
+    constexpr uint32_t COMBINATION_CAPACITY = 3U;
     std::array<std::string, COMBINATION_CAPACITY> combinations;
 
     constexpr int32_t MAX_ASCII_CODE = 255;
