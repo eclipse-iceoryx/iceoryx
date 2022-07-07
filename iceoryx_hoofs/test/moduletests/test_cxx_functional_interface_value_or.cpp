@@ -24,11 +24,15 @@ using namespace ::testing;
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
 
+// the macro is used as code generator to make the tests more readable. because of the
+// template nature of those tests this is cannot be implemented in the same readable fashion
+// as with macros
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
     ValueOrReturnsValueWhenValid<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(       \
-        [](auto& sut, auto alternativeValue) { return variationPoint.value_or(alternativeValue); });
+        [](auto& sut, auto alternativeValue) { return (variationPoint).value_or(alternativeValue); });
 
 
 template <bool HasValue>
@@ -38,8 +42,9 @@ template <>
 struct ValueOrReturnsValueWhenValid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ValueOrCall>
-    static void performTest(const ValueOrCall&)
+    static void performTest(const ValueOrCall& callValueOr)
     {
+        IOX_DISCARD_RESULT(callValueOr);
     }
 };
 
@@ -73,8 +78,9 @@ template <>
 struct ValueOrReturnsArgumentWhenInalid<TYPE_HAS_NO_VALUE_METHOD>
 {
     template <typename TestFactory, typename ValueOrCall>
-    static void performTest(const ValueOrCall&)
+    static void performTest(const ValueOrCall& callValueOr)
     {
+        IOX_DISCARD_RESULT(callValueOr);
     }
 };
 

@@ -5,11 +5,13 @@ InheritParentConfig:  true
 
 Checks: '
 -cert-err58-cpp,
+-cppcoreguidelines-avoid-magic-numbers,
 -cppcoreguidelines-avoid-non-const-global-variables,
 -cppcoreguidelines-owning-memory,
 -cppcoreguidelines-special-member-functions,
 -hicpp-special-member-functions,
 -readability-identifier-naming,
+-readability-magic-numbers,
 '
 
 ## Justifications for rule deactivation ##
@@ -43,3 +45,12 @@ CheckOptions:
 # EXPECT_*, ASSERT_* and TEST_F, TYPED_TEST macros introduce additional
 # branches and increase the code complexity without affecting the user. Therefore,
 # those metrics are hardly applicable in tests.
+#
+# * rule: cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers
+#   justification: too many false positives and it enforces a less readable code style
+#   example:
+#     bad:
+#       constexpr uint64_t STRING_CAPACITY = 100U;
+#       cxx::string<STRING_CAPACITY> myString; // the 100 is already part of the type name so why not allow it
+#     good:
+#       cxx::string<100> myString; // this leads to a warning but we want it

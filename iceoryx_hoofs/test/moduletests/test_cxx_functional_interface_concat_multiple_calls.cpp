@@ -20,13 +20,18 @@ namespace
 using namespace test_cxx_functional_interface;
 using namespace ::testing;
 
+// the macro is used as code generator to make the tests more readable. because of the
+// template nature of those tests this is cannot be implemented in the same readable fashion
+// as with macros
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
     constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
+    /* NOLINTNEXTLINE(bugprone-macro-parentheses) prevents clang-tidy parsing failures */                              \
     TestName<HAS_VALUE_METHOD, HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(     \
         [](auto& sut, auto andThenCallback, auto orElseCallback) {                                                     \
-            variationPoint.and_then(andThenCallback).or_else(orElseCallback);                                          \
+            (variationPoint).and_then(andThenCallback).or_else(orElseCallback);                                        \
         })
 
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
@@ -124,6 +129,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_L
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_ConstLValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7810e0de-ac7f-4247-9adc-4177294bb60f");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenOrElseConcatenatedWorksWhenInvalid, const_cast<const SutType&>(sut));
 }
 
@@ -137,6 +144,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorksWhenInvalid_C
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ca6c6d0-fa72-45ff-a2ae-9b7a9574c450");
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenOrElseConcatenatedWorksWhenInvalid,
+                                  // const_cast avoids code duplication
+                                  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
                                   std::move(const_cast<const SutType&>(sut)));
 }
 
@@ -230,6 +239,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_LVal
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_ConstLValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d70fd26a-f8bb-4976-b119-409651301e1b");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenOrElseConcatenatedWorkWhenValid, const_cast<SutType&>(sut));
 }
 
@@ -242,6 +253,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_RVal
 TYPED_TEST(FunctionalInterface_test, AndThenOrElseConcatenatedWorkWhenValid_ConstRValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "96b3f8d5-07e0-407e-8e7e-5c7ae258a623");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenOrElseConcatenatedWorkWhenValid, std::move(const_cast<SutType&>(sut)));
 }
 } // namespace
