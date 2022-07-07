@@ -25,8 +25,9 @@ namespace concurrent
 {
 template <typename T>
 template <typename... Args>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
-                                     const posix::ThreadName_t taskName,
+                                     const posix::ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
@@ -37,6 +38,7 @@ inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
 
 template <typename T>
 template <typename... Args>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskAutoStart_t,
                                      const units::Duration interval,
                                      const posix::ThreadName_t taskName,

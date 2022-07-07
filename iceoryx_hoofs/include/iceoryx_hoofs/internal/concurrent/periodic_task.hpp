@@ -72,7 +72,9 @@ class PeriodicTask
     /// @param[in] taskName will be set as thread name
     /// @param[in] args are forwarded to the underlying callable object
     template <typename... Args>
-    PeriodicTask(const PeriodicTaskManualStart_t, const posix::ThreadName_t taskName, Args&&... args) noexcept;
+    // PeriodicTaskManualStart_t is a compile time constant to indicate that this constructor does not start the task
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    PeriodicTask(const PeriodicTaskManualStart_t, const posix::ThreadName_t& taskName, Args&&... args) noexcept;
 
     /// @brief Creates a periodic task by spawning a thread. The specified callable is executed immediately on creation
     /// and then periodically after the interval duration.
@@ -83,6 +85,8 @@ class PeriodicTask
     /// @param[in] taskName will be set as thread name
     /// @param[in] args are forwarded to the underlying callable object
     template <typename... Args>
+    // PeriodicTaskAutoStart_t is a compile time constant to indicate that this constructor starts the task
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     PeriodicTask(const PeriodicTaskAutoStart_t,
                  const units::Duration interval,
                  const posix::ThreadName_t taskName,
