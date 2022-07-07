@@ -39,22 +39,26 @@ inline bool isValidPathEntry(const string<StringCapacity>& name,
     for (uint64_t i = 0; i < nameSize; ++i)
     {
         const char c = name[i];
-        if (!((internal::ASCII_A <= c && c <= internal::ASCII_Z)
-              || (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z)
-              || (internal::ASCII_0 <= c && c <= internal::ASCII_9) || c == internal::ASCII_MINUS
-              || c == internal::ASCII_DOT || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE))
+
+        const bool isSmallLetter = (internal::ASCII_A <= c && c <= internal::ASCII_Z);
+        const bool isCapitalLetter = (internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z);
+        const bool isNumber = (internal::ASCII_0 <= c && c <= internal::ASCII_9);
+        const bool isSpecialCharacter = (c == internal::ASCII_MINUS || c == internal::ASCII_DOT
+                                         || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE);
+
+        if (!isSmallLetter && !isCapitalLetter && !isNumber && !isSpecialCharacter)
         {
             return false;
         }
     }
 
-    // dot at the end is invalid to be compatible with windows api
-    if (nameSize != 0 && name[nameSize - 1] == '.')
+    if (nameSize == 0)
     {
-        return false;
+        return true;
     }
 
-    return true;
+    // dot at the end is invalid to be compatible with windows api
+    return !(name[nameSize - 1] == '.');
 }
 
 template <uint64_t StringCapacity>
@@ -77,7 +81,8 @@ inline bool isValidPathToFile(const string<StringCapacity>& name) noexcept
         return false;
     }
 
-    auto lastSeparatorPosition = name.find_last_of(platform::IOX_PATH_SEPARATORS);
+    auto lastSeparatorPosition = name.find_last_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
+        cxx::TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
     auto filePart = (lastSeparatorPosition) ? name.substr(*lastSeparatorPosition + 1).value() : name;
     auto pathPart = (lastSeparatorPosition) ? name.substr(0, *lastSeparatorPosition).value() : string<StringCapacity>();
 
@@ -99,7 +104,8 @@ inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
 
     while (!temp.empty())
     {
-        auto separatorPosition = temp.find_first_of(platform::IOX_PATH_SEPARATORS);
+        auto separatorPosition = temp.find_first_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
+            cxx::TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
 
         // multiple slashes are explicitly allowed. the following paths
         // are equivalent:
@@ -146,9 +152,9 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
 
     char lastCharacter = name[name.size() - 1U];
 
-    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {
-        if (lastCharacter == iox::platform::IOX_PATH_SEPARATORS[i])
+        if (lastCharacter == separator)
         {
             return true;
         }
@@ -157,7 +163,7 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
 }
 
 template <typename F, typename T>
-inline constexpr T from(const F) noexcept
+inline constexpr T from(const F e IOX_MAYBE_UNUSED) noexcept
 {
     static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
     Please specialize `template <typename F, typename T> constexpr T from(const F) noexcept`!");
