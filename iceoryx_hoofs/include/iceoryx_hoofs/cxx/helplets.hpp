@@ -81,7 +81,7 @@ template <typename T, typename = typename std::enable_if<std::is_pointer<T>::val
 struct not_null
 {
   public:
-    // this class should behave like a pointer which never can be nullptr adding explicit
+    // this class should behave like a pointer which never can be nullptr, adding explicit
     // would defeat the purpose
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     not_null(T t) noexcept
@@ -90,7 +90,7 @@ struct not_null
         Expects(t != nullptr);
     }
 
-    // this should behave like a pointer which never can be nullptr adding explicit
+    // this should behave like a pointer which never can be nullptr, adding explicit
     // would defeat the purpose
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
