@@ -66,18 +66,26 @@ namespace
 {
 struct Bar
 {
+    // required for testing, a struct with a defined size
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(8) uint8_t m_dummy[73];
 };
 struct Foo
 {
+    // required for testing, a struct with a defined size
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     uint8_t m_dummy[73];
 };
 struct FooBar
 {
+    // required for testing, a struct with a defined size
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(32) uint8_t m_dummy[73];
 };
 struct FuBar
 {
+    // required for testing, a struct with a defined size
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(32) uint8_t m_dummy[73];
 };
 } // namespace
@@ -316,17 +324,21 @@ TEST(Helplets_test_isValidFileName, FileNameWithValidSymbolsAndDotsAreValid)
 TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a8661ad-4511-4e54-8cd9-16f21074c332");
-    std::array<std::string, 3> combinations;
+    constexpr uint64_t COMBINATION_CAPACITY = 3U;
+    std::array<std::string, COMBINATION_CAPACITY> combinations;
 
-    for (int32_t i = 0; i <= 255; ++i)
+    constexpr int32_t MAX_ASCII_CODE = 255;
+    for (int32_t i = 0; i <= MAX_ASCII_CODE; ++i)
     {
         // for simplicity we exclude the valid dot here, since it is
         // invalid when it occurs alone.
         // it is tested separately
         if (i != ASCII_DOT && isValidFileCharacter(i))
         {
-            uint32_t index = static_cast<uint32_t>(i) % 3;
+            uint32_t index = static_cast<uint32_t>(i) % COMBINATION_CAPACITY;
 
+            // index is always in the range of [0, COMBINATION_CAPACITY] since we calculate % COMBINATION_CAPACITY
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
             auto& s = combinations[index];
             s.append(1, static_cast<char>(i));
 
@@ -341,7 +353,8 @@ TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedFileNameIs
     std::string validName1 = "summon";
     std::string validName2 = "TheHolyToad";
 
-    for (int32_t i = 0; i <= 255; ++i)
+    constexpr int32_t MAX_ASCII_CODE = 255;
+    for (int32_t i = 0; i <= MAX_ASCII_CODE; ++i)
     {
         if (isValidFileCharacter(i))
         {
@@ -474,7 +487,8 @@ TEST(Helplets_test_isValidPathToFile_isValidPathToDirectory_isValidPathEntry,
     std::string validPath2 = "fuu/world";
 
     // begin at 1 since 0 is string termination
-    for (int32_t i = 1; i <= 255; ++i)
+    constexpr int32_t MAX_ASCII_CODE = 255;
+    for (int32_t i = 1; i <= MAX_ASCII_CODE; ++i)
     {
         // ignore valid characters
         if (isValidFileCharacter(i))
@@ -484,10 +498,9 @@ TEST(Helplets_test_isValidPathToFile_isValidPathToDirectory_isValidPathEntry,
 
         // ignore path separators since they are valid path characters
         bool isPathSeparator = false;
-        auto numberOfPathSeparators = strlen(iox::platform::IOX_PATH_SEPARATORS);
-        for (uint64_t k = 0; k < numberOfPathSeparators; ++k)
+        for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
         {
-            if (static_cast<char>(i) == iox::platform::IOX_PATH_SEPARATORS[k])
+            if (static_cast<char>(i) == separator)
             {
                 isPathSeparator = true;
                 break;

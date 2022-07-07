@@ -72,9 +72,8 @@ inline constexpr bool doesContainType() noexcept
 }
 
 template <typename T>
-inline constexpr bool doesContainValue(const T v) noexcept
+inline constexpr bool doesContainValue(const T v IOX_MAYBE_UNUSED) noexcept
 {
-    IOX_DISCARD_RESULT(v);
     return false;
 }
 
