@@ -56,6 +56,7 @@
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Replace `MethodCallback` with `cxx::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Remove implicit conversion from `cxx::expected` to `cxx::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 
 **New API features:**
 
@@ -212,4 +213,13 @@
 
     // after
     bool isCorrect = isValidPathToFile("/path/to/file");
+    ```
+
+11. Remove implicit conversion from `cxx::expected` to `cxx::optional`
+    ```cpp
+    // before
+    cxx::optional<int> myLama = someExpected;
+
+    // after
+    cxx::optional<int> myLama = someExpected.to_optional();
     ```

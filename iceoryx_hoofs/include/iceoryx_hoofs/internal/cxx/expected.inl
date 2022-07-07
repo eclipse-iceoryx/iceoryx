@@ -246,9 +246,8 @@ inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(const success<void>& successValue) noexcept
+inline expected<ErrorType>::expected(const success<void>& successValue IOX_MAYBE_UNUSED) noexcept
 {
-    IOX_DISCARD_RESULT(successValue);
 }
 
 template <typename ErrorType>
