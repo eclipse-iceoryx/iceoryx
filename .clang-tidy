@@ -16,9 +16,74 @@ bugprone-*,
 cppcoreguidelines-*,
 concurrency-*,
 performance-*,
-hicpp-*
+hicpp-*,
+
+-readability-avoid-const-params-in-decls,
+-readability-identifier-length,
+-readability-redundant-access-specifiers,
+-readability-redundant-declaration,
+
+-readability-identifier-naming,
 
 '
+
+### Temporarily disabled because massive API changes:
+# * rule: readability-identifier-naming
+
+### Justifications for deactivated rules
+# * rule: readability-avoid-const-params-in-decls
+#   justification: Symmetry with definition and declaration when we enforce to add const to every parameter
+#   example:
+#     bad:
+#       void myFunction(int); // declaration, broken symmetry, the argument is not const
+#       void myFunction(const int) {} // definition
+#     good:
+#       void myFunction(const int); // declaration
+#       void myFunction(const int) {} // definition
+#
+# * rule: readability-identifier-length
+#   justification: In some functions single letter variables make sense, this is covered by the review process
+#   example:
+#      bad:
+#        int sum(int summand1, int summand2); // here we would like to have single letter variable arguments
+#      good:
+#        int sum(int a, int b); // failure since a and b have less than three letters
+#
+# * rule: readability-redundant-access-specifiers
+#   justification: The access specifier can be used to separate methods from members.
+#   example:
+#      bad:
+#        private:
+#          int foo();
+#          int bar();
+#
+#          int baz { 42 };
+#      good:
+#        private:
+#          int foo();
+#          int bar();
+#
+#        private:
+#          int bar { 42 };
+#
+# * rule: readability-redundant-declaration
+#   justification: The this rule has false positives with friend declarations.
+#   example:
+#      bad:
+#        // in hpp file
+#        class Foo {
+#            friend void bar(Foo& foo);
+#        };
+#        // in cpp file
+#        void bar(Foo& foo) {...}
+#      good:
+#        // in hpp file
+#        class Foo {
+#            friend void bar(Foo& foo);
+#        };
+#        void bar(Foo& foo);
+#        // in cpp file
+#        void bar(Foo& foo) {...}
 
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments

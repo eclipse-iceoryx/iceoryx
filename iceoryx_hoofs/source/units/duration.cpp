@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
@@ -36,8 +37,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
         static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
         if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
         {
-            std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
-                      << std::endl;
+            LogVerbose() << ": Result of conversion would overflow, clamping to max value!";
             return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
         }
 
@@ -45,35 +45,30 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
         auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
         return {tv_sec, tv_nsec};
     }
-    else
+
+    struct timespec referenceTime = {};
+
+    if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
+                                        &referenceTime)
+            .failureReturnValue(-1)
+            .evaluate()
+            .has_error())
     {
-        struct timespec referenceTime = {};
-
-        if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
-                                            &referenceTime)
-                .failureReturnValue(-1)
-                .evaluate()
-                .has_error())
-        {
-            return {0, 0};
-        }
-        else
-        {
-            auto targetTime = Duration(referenceTime) + *this;
-
-            static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
-            if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
-            {
-                std::clog << __PRETTY_FUNCTION__ << ": Result of conversion would overflow, clamping to max value!"
-                          << std::endl;
-                return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
-            }
-
-            auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
-            auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
-            return {tv_sec, tv_nsec};
-        }
+        return {0, 0};
     }
+
+    auto targetTime = Duration(referenceTime) + *this;
+
+    static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+    if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
+    {
+        LogVerbose() << ": Result of conversion would overflow, clamping to max value!";
+        return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
+    }
+
+    auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
+    auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
+    return {tv_sec, tv_nsec};
 }
 
 std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcept

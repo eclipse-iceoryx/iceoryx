@@ -42,6 +42,7 @@ inline string<Capacity>& string<Capacity>::operator=(const string& rhs) noexcept
     {
         return *this;
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) copy() returns *this
     return copy(rhs);
 }
 
@@ -52,6 +53,7 @@ inline string<Capacity>& string<Capacity>::operator=(string&& rhs) noexcept
     {
         return *this;
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) move() returns *this
     return move(std::move(rhs));
 }
 
@@ -79,6 +81,7 @@ inline string<Capacity>& string<Capacity>::operator=(const string<N>& rhs) noexc
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) copy() returns *this
     return copy(rhs);
 }
 
@@ -88,29 +91,37 @@ inline string<Capacity>& string<Capacity>::operator=(string<N>&& rhs) noexcept
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) move() returns *this
     return move(std::move(rhs));
 }
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>::string(const char (&other)[N]) noexcept
 {
     *this = other;
 }
 
 template <uint64_t Capacity>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, [&]() -> uint64_t { return other ? strnlen(other, Capacity) : 0U; }())
+    : string(
+        TruncateToCapacity, other, [&]() -> uint64_t { return (other != nullptr) ? strnlen(other, Capacity) : 0U; }())
 {
 }
 
 template <uint64_t Capacity>
+// TruncateToCapacity_t is a compile time variable to distinguish between constructors
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 inline string<Capacity>::string(TruncateToCapacity_t, const std::string& other) noexcept
     : string(TruncateToCapacity, other.c_str(), other.size())
 {
 }
 
 template <uint64_t Capacity>
+// TruncateToCapacity_t is a compile time variable to distinguish between constructors
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept
 {
     if (other == nullptr)
@@ -135,6 +146,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
     static_assert(N <= Capacity + 1U,
@@ -171,6 +183,7 @@ inline string<Capacity>& string<Capacity>::assign(const string<N>& str) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 {
     *this = str;
@@ -225,14 +238,7 @@ inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other)
         {
             return -1;
         }
-        else if (m_rawstringSize > otherSize)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+        return (m_rawstringSize > otherSize ? 1 : 0);
     }
     return result;
 }
@@ -325,14 +331,7 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
         {
             return -1;
         }
-        else if (m_rawstringSize > 1U)
-        {
-            return 1;
-        }
-        else
-        {
-            return 0;
-        }
+        return (m_rawstringSize > 1U ? 1 : 0);
     }
     return result;
 }
@@ -410,6 +409,7 @@ inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& st
 
 template <uint64_t Capacity>
 template <typename T>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) method is disabled via static_assert
 inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
     static_assert(cxx::always_false_v<string<Capacity>>,
@@ -418,15 +418,15 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
-                                                                                                  const T2& t2) noexcept
+inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+concatenate(const T1& str1, const T2& str2) noexcept
 {
-    uint64_t size1 = internal::GetSize<T1>::call(t1);
-    uint64_t size2 = internal::GetSize<T2>::call(t2);
+    uint64_t size1 = internal::GetSize<T1>::call(str1);
+    uint64_t size2 = internal::GetSize<T2>::call(str2);
     using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
-    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(t1), size1);
-    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(t2), size2);
+    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(str1), size1);
+    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(str2), size2);
     newString.m_rawstring[size1 + size2] = '\0';
     newString.m_rawstringSize = size1 + size2;
 
@@ -435,24 +435,24 @@ inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::va
 
 template <typename T1, typename T2, typename... Targs>
 inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
-concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept
+concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 {
-    return concatenate(concatenate(t1, t2), targs...);
+    return concatenate(concatenate(str1, str2), targs...);
 }
 
 template <typename T1, typename T2>
 inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
-operator+(const T1& t1, const T2& t2) noexcept
+operator+(const T1& str1, const T2& str2) noexcept
 {
-    return concatenate(t1, t2);
+    return concatenate(str1, str2);
 }
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& t) noexcept
+inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(t);
-    const char* tData = internal::GetData<T>::call(t);
+    uint64_t tSize = internal::GetSize<T>::call(str);
+    const char* tData = internal::GetData<T>::call(str);
     uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
 
     if (tSize > clampedTSize)
@@ -469,11 +469,13 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
 
 template <uint64_t Capacity>
 template <typename T>
+// TruncateToCapacity_t is a compile time variable to distinguish between constructors
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t,
-                                                                                const T& t) noexcept
+                                                                                const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(t);
-    const char* tData = internal::GetData<T>::call(t);
+    uint64_t tSize = internal::GetSize<T>::call(str);
+    const char* tData = internal::GetData<T>::call(str);
     uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
 
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
@@ -489,14 +491,16 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
 }
 
 template <uint64_t Capacity>
-inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char c) noexcept
+// TruncateToCapacity_t is a compile time variable to distinguish between constructors
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char cstr) noexcept
 {
     if (m_rawstringSize == Capacity)
     {
-        std::cerr << "Appending of " << c << " failed because this' capacity would be exceeded." << std::endl;
+        std::cerr << "Appending of " << cstr << " failed because this' capacity would be exceeded." << std::endl;
         return *this;
     }
-    m_rawstring[m_rawstringSize] = c;
+    m_rawstring[m_rawstringSize] = cstr;
     m_rawstringSize += 1U;
     m_rawstring[m_rawstringSize] = '\0';
     return *this;
@@ -555,13 +559,14 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos) c
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T& t, const uint64_t pos) const noexcept
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T& str,
+                                                                         const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
     {
         return nullopt;
     }
-    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(t));
+    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(str));
     if (found == nullptr)
     {
         return nullopt;
@@ -571,7 +576,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_of(const T& t,
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_of(const T& str,
                                                                                   const uint64_t pos) const noexcept
 {
     if (pos > m_rawstringSize)
@@ -579,7 +584,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
         return nullopt;
     }
     const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(t);
+    const char* data = internal::GetData<T>::call(str);
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
         found = std::strchr(data, m_rawstring[p]);
@@ -593,7 +598,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of(const T& t,
+inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of(const T& str,
                                                                                  const uint64_t pos) const noexcept
 {
     if (m_rawstringSize == 0U)
@@ -607,7 +612,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
         p = m_rawstringSize - 1U;
     }
     const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(t);
+    const char* data = internal::GetData<T>::call(str);
     for (; p > 0U; --p)
     {
         found = std::strchr(data, m_rawstring[p]);
@@ -627,6 +632,9 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
 template <uint64_t Capacity>
 inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 {
+    // const_cast to avoid code duplication, safe since it's first casted to a const type and then the const is removed
+    // again
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<char&>(const_cast<const string<Capacity>*>(this)->at(pos));
 }
 

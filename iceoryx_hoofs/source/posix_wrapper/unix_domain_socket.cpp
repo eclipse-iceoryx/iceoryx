@@ -234,7 +234,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    struct timeval tv = timeout;
+    auto tv = timeout.timeval();
     auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
@@ -281,7 +281,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    struct timeval tv = timeout;
+    auto tv = timeout.timeval();
     auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)

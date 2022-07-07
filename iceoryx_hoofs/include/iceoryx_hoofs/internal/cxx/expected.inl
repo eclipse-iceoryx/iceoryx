@@ -198,7 +198,9 @@ inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexcept
 {
-    return const_cast<expected*>(this)->operator->();
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<const ValueType*>(const_cast<expected*>(this)->operator->());
 }
 
 template <typename ValueType, typename ErrorType>
@@ -210,7 +212,9 @@ inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexcept
 {
-    return const_cast<expected*>(this)->operator*();
+    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<const ValueType&>(const_cast<expected*>(this)->operator*());
 }
 
 template <typename ValueType, typename ErrorType>
@@ -235,13 +239,6 @@ inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const n
     return returnValue;
 }
 
-template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::operator optional<ValueType>() const noexcept
-{
-    return this->to_optional();
-}
-// expected<ErrorType>
-
 template <typename ErrorType>
 inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
     : m_store(std::move(f_store))
@@ -249,7 +246,7 @@ inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(const success<void>&) noexcept
+inline expected<ErrorType>::expected(const success<void>& successValue IOX_MAYBE_UNUSED) noexcept
 {
 }
 

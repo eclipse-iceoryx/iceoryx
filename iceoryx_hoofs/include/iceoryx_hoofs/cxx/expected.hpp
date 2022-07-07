@@ -51,19 +51,19 @@ struct success
     /// @brief constructor which creates a success helper class by copying
     ///         the value of t
     /// @param[in] t value which should be later stored in an expected
-    success(const T& t) noexcept;
+    explicit success(const T& t) noexcept;
 
     /// @brief constructor which creates a success helper class by moving
     ///         the value of t
     /// @param[in] t value which should be later moved into an expected
-    success(T&& t) noexcept;
+    explicit success(T&& t) noexcept;
     template <typename... Targs>
 
     /// @brief constructor which creates a success helper class by forwarding
     ///         arguments to the constructor of T
     /// @param[in] args... arguments which will be perfectly forwarded to the
     ///                     constructor
-    success(Targs&&... args) noexcept;
+    explicit success(Targs&&... args) noexcept;
 
     T value;
 };
@@ -94,19 +94,19 @@ struct error
     /// @brief constructor which creates a error helper class by copying
     ///         the value of t
     /// @param[in] t value which should be later stored in an expected
-    error(const T& t) noexcept;
+    explicit error(const T& t) noexcept;
 
     /// @brief constructor which creates a error helper class by moving
     ///         the value of t
     /// @param[in] t value which should be later moved into an expected
-    error(T&& t) noexcept;
+    explicit error(T&& t) noexcept;
 
     /// @brief constructor which creates a error helper class by forwarding
     ///         arguments to the constructor of T
     /// @param[in] args... arguments which will be perfectly forwarded to the
     ///                     constructor
     template <typename... Targs>
-    error(Targs&&... args) noexcept;
+    explicit error(Targs&&... args) noexcept;
 
     T value;
 };
@@ -196,16 +196,28 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 
     /// @brief  constructs an expected which is signaling success
     /// @param[in] successValue value which will be stored in the expected
+    //
+    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const success<void>& successValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be stored in the expected
+    ///
+    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const error<ErrorType>& errorValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by value
     /// @param[in] errorValue error value which will be moved into the expected
+    //
+    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(error<ErrorType>&& errorValue) noexcept;
 
     /// @brief  creates an expected which is signaling success
@@ -283,21 +295,37 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     /// @brief  constructs an expected which is signaling success and uses the value
     ///         provided by successValue to copy construct its success value
     /// @param[in] successValue value which will be stored in the expected
+    //
+    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const success<ValueType>& successValue) noexcept;
 
     /// @brief  constructs an expected which is signaling success and uses the value
     ///         provided by successValue to move construct its success value
     /// @param[in] successValue value which will be moved into the expected
+    //
+    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(success<ValueType>&& successValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be stored in the expected
+    ///
+    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const error<ErrorType>& errorValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be moved into the expected
+    ///
+    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // conversion to return an expected easily
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(error<ErrorType>&& errorValue) noexcept;
 
     /// @brief  creates an expected which is signaling success and perfectly forwards
@@ -403,12 +431,10 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         return someErrorProneFunction();
     ///     }
     /// @endcode
+    //
     template <typename T>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) see doxygen brief section
     operator expected<T>() const noexcept;
-
-    /// @brief conversion operator to an optional.
-    /// @return optional containing the value if the expected contains a value, otherwise a nullopt
-    operator optional<ValueType>() const noexcept;
 
     /// @brief conversion operator to an optional.
     /// @return optional containing the value if the expected contains a value, otherwise a nullopt

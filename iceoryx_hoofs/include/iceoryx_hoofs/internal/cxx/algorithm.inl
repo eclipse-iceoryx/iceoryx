@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_ALGORITHM_INL
 #define IOX_HOOFS_CXX_ALGORITHM_INL
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
+
 namespace iox
 {
 namespace algorithm
@@ -70,8 +72,9 @@ inline constexpr bool doesContainType() noexcept
 }
 
 template <typename T>
-inline constexpr bool doesContainValue(const T) noexcept
+inline constexpr bool doesContainValue(const T v) noexcept
 {
+    IOX_DISCARD_RESULT(v);
     return false;
 }
 
@@ -86,7 +89,8 @@ template <typename Container>
 inline Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept
 {
     Container mergedContainer;
-    uint64_t indexV1 = 0U, indexV2 = 0U;
+    uint64_t indexV1 = 0U;
+    uint64_t indexV2 = 0U;
     uint64_t v1Size = v1.size();
     uint64_t v2Size = v2.size();
 
