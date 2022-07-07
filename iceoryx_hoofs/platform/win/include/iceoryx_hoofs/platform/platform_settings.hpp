@@ -34,8 +34,8 @@ constexpr bool IOX_SUPPORT_NAMED_SEMAPHORE_OVERFLOW_DETECTION = true;
 constexpr bool IOX_SHM_WRITE_ZEROS_ON_CREATION = false;
 constexpr uint64_t IOX_MAX_SHM_NAME_LENGTH = 255U;
 // yes, windows has two possible path separators!
-constexpr const char IOX_PATH_SEPARATORS[] = "\\/";
 constexpr uint64_t IOX_NUMBER_OF_PATH_SEPARATORS = 2U;
+constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/', '\\'};
 // unix domain sockets are not supported in windows but the variables have to be defined
 // so that the code with stub implementation at least compiles
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;

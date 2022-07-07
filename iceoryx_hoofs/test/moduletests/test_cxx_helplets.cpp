@@ -686,10 +686,10 @@ TEST(Helplets_test_doesEndWithPathSeparator, SingleCharacterStringOnlyWithPathSe
 {
     ::testing::Test::RecordProperty("TEST_ID", "18bf45aa-9b65-4351-956a-8ddc98fa0296");
 
-    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {
         string<FILE_PATH_LENGTH> sut = " ";
-        sut[0] = iox::platform::IOX_PATH_SEPARATORS[i];
+        sut[0] = separator;
         EXPECT_TRUE(doesEndWithPathSeparator(sut));
     }
 }
@@ -698,10 +698,10 @@ TEST(Helplets_test_doesEndWithPathSeparator, MultiCharacterStringEndingWithPathS
 {
     ::testing::Test::RecordProperty("TEST_ID", "c702ec34-8f7f-4220-b50e-6b231ac4e736");
 
-    for (uint64_t i = 0; i < iox::platform::IOX_NUMBER_OF_PATH_SEPARATORS; ++i)
+    for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {
         string<FILE_PATH_LENGTH> sut = "HypnotoadAteTheSpagettiMonster";
-        ASSERT_TRUE(sut.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[i]));
+        ASSERT_TRUE(sut.unsafe_append(separator));
         EXPECT_TRUE(doesEndWithPathSeparator(sut));
     }
 }
