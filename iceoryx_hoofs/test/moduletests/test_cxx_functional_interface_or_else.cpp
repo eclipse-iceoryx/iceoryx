@@ -31,7 +31,7 @@ TYPED_TEST(FunctionalInterface_test, OrElseHasCorrectSignature)
 }
 
 // the macro is used as code generator to make the tests more readable. because of the
-// template nature of those tests this is cannot be implemented in the same readable fashion
+// template nature of those tests this cannot be implemented in the same readable fashion
 // as with macros
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
