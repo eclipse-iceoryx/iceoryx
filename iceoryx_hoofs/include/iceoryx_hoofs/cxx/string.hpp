@@ -77,8 +77,8 @@ using IsCxxStringAndCxxStringOrCharArrayOrChar =
 ///     auto bar = iox::cxx::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& t1,
-                                                                                           const T2& t2) noexcept;
+IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& str1,
+                                                                                           const T2& str2) noexcept;
 
 /// @brief concatenates an arbitrary number of iox::cxx::strings, string literals or chars
 ///
@@ -92,7 +92,7 @@ IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> c
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
 IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
-concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
+concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 
 /// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
 /// string literals/chars is not possible
@@ -102,7 +102,7 @@ concatenate(const T1& t1, const T2& t2, const Targs&... targs) noexcept;
 /// @return a new iox::cxx::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
 IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
-operator+(const T1& t1, const T2& t2) noexcept;
+operator+(const T1& str1, const T2& str2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
 /// constructors with certain behavior
@@ -147,11 +147,15 @@ class string
     /// @return reference to self
     string& operator=(string&& rhs) noexcept;
 
+    /// @brief destructor
+    ~string() noexcept = default;
+
     /// @brief creates a new string of given capacity as a copy of other with compile time check whether the capacity of
     /// other is less than or equal to this' capacity
     ///
     /// @param [in] other is the copy origin
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) copy constructor for string with different capacity
     string(const string<N>& other) noexcept;
 
     /// @brief moves other to this with compile time check whether the capacity of other is less than or equal to
@@ -159,6 +163,7 @@ class string
     ///
     /// @param [in] other is the move origin
     template <uint64_t N>
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) move constructor for string with different capacity
     string(string<N>&& other) noexcept;
 
     /// @brief assigns rhs fixed string to this with compile time check whether the capacity of rhs is less than or
@@ -197,6 +202,10 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // avoid-c-arrays: cxx::string wraps char array
+    // explicit-conversions: we want to assign string literals to the string, like string<10> str = "abc"; this is safe
+    // because cxx::string wraps char array
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
     string(const char (&other)[N]) noexcept;
 
     /// @brief conversion constructor for cstring to string which truncates characters if the size is greater than
@@ -216,6 +225,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, "abcd");
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const char* const other) noexcept;
 
     /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
@@ -236,6 +247,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, bar);
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const std::string& other) noexcept;
 
     /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
@@ -256,6 +269,8 @@ class string
     ///         string<4> fuu(TruncateToCapacity, "abcd", 2);
     ///     }
     /// @endcode
+    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
 
     /// @brief assigns a char array to string with compile time check if the array size is less than or equal
@@ -278,6 +293,8 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // We want to assign string literals to the cxx::string, like myString = "abc";
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& operator=(const char (&rhs)[N]) noexcept;
 
     /// @brief fixed string assignment with compile time check if capacity of str is less than or equal to this'
@@ -312,6 +329,8 @@ class string
     ///     }
     /// @endcode
     template <uint64_t N>
+    // We want to assign string literals to the cxx::string, like myString.assign("abc");
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& assign(const char (&str)[N]) noexcept;
 
     /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
@@ -425,12 +444,14 @@ class string
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) todo #1196 remove this conversion and implement toStdString method
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
     /// capacity (failing or truncating), the fixed string does not support operator+=; use append for truncating or
     /// unsafe_append for failing in that case
     template <typename T>
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) method is disabled via static_assert
     string& operator+=(const T&) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/std::string to the end of this. If this' capacity is too
@@ -438,7 +459,7 @@ class string
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] t is the iox::cxx::string/string literal/std::string to append
+    /// @param [in] str is the iox::cxx::string/string literal/std::string to append
     ///
     /// @return reference to self
     ///
@@ -447,14 +468,18 @@ class string
     ///     fuu.append(TruncateToCapacity, "fgahc");
     /// @endcode
     template <typename T>
-    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& t) noexcept;
+    // TruncateToCapacity_t informs how the method behaves when str does not fit into the string
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    IsStringOrCharArrayOrChar<T, string&> append(TruncateToCapacity_t, const T& str) noexcept;
 
     /// @brief appends a char to the end of this if this' capacity is large enough.
     ///
-    /// @param [in] c is the char to append
+    /// @param [in] cstr is the char to append
     ///
     /// @return reference to self
-    string& append(TruncateToCapacity_t, char c) noexcept;
+    // TruncateToCapacity_t informs how the method behaves when cstr does not fit into the string
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    string& append(TruncateToCapacity_t, char cstr) noexcept;
 
     /// @brief appends a iox::cxx::string/string literal/char/std::string to the end of this. The appending fails if the
     /// sum of both sizes is greater than this' capacity.
@@ -463,7 +488,7 @@ class string
     ///
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& t) noexcept;
+    IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& str) noexcept;
 
     /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
     /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
@@ -500,36 +525,36 @@ class string
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
     /// the found substring, returns iox::cxx::nullopt if no substring is found or if pos is greater than this' size
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character of the found substring, iox::cxx::nullopt if
     /// no substring is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find(const T& str, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the first occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found or if pos is greater than this'
     /// size
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find_first_of(const T& t, const uint64_t pos = 0U) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_first_of(const T& str, const uint64_t pos = 0U) const noexcept;
 
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::cxx::nullopt if no character is found
     ///
-    /// @param [in] t is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
     /// @param [in] pos is the position at which to finish the search
     ///
     /// @return an optional containing the position of the last character equal to one of the characters of the given
     /// character sequence, iox::cxx::nullopt if no character is found
     template <typename T>
-    IsStringOrCharArray<T, optional<uint64_t>> find_last_of(const T& t, const uint64_t pos = Capacity) const noexcept;
+    IsStringOrCharArray<T, optional<uint64_t>> find_last_of(const T& str, const uint64_t pos = Capacity) const noexcept;
 
     /// @brief returns a reference to the character stored at pos
     /// @param[in] pos position of character to return
@@ -581,6 +606,8 @@ class string
     template <uint64_t N>
     string& move(string<N>&& rhs) noexcept;
 
+    // safe access is guaranteed since the char array is wrapped inside the string class
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char m_rawstring[Capacity + 1U]{'\0'};
     uint64_t m_rawstringSize{0U};
 };
