@@ -76,13 +76,15 @@ T* unique_ptr<T>::operator->() noexcept
 template <typename T>
 const T* unique_ptr<T>::operator->() const noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(get());
 }
 
 template <typename T>
 unique_ptr<T>::operator bool() const noexcept
 {
-    return get() != nullptr ? true : false;
+    return get();
 }
 
 template <typename T>
@@ -94,6 +96,8 @@ T* unique_ptr<T>::get() noexcept
 template <typename T>
 const T* unique_ptr<T>::get() const noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(m_ptr);
 }
 
