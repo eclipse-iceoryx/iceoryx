@@ -35,7 +35,7 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
                   << std::endl;
     }
 
-    for (uint64_t i = 0u; i < count && i < Capacity; ++i)
+    for (uint64_t i = 0U; i < count && i < Capacity; ++i)
     {
         emplace_back(value);
     }
@@ -81,7 +81,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         // copy using copy assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -110,7 +110,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
 {
     if (this != &rhs)
     {
-        uint64_t i = 0u;
+        uint64_t i = 0U;
         // move using move assignment
         for (; i < std::min(rhs.size(), size()); ++i)
         {
@@ -138,7 +138,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::empty() const noexcept
 {
-    return m_size == 0u;
+    return m_size == 0U;
 }
 
 template <typename T, uint64_t Capacity>
@@ -315,7 +315,7 @@ template <typename T, uint64_t Capacity>
 inline T& vector<T, Capacity>::back() noexcept
 {
     cxx::Expects(!empty() && "Attempting to access the back of an empty vector");
-    return at(size() - 1u);
+    return at(size() - 1U);
 }
 
 template <typename T, uint64_t Capacity>

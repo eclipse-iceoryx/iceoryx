@@ -53,7 +53,7 @@ class vector
 
     /// @brief creates a vector with count copies of elements constructed with the default constructor of T
     /// @param [in] count is the number copies which are inserted into the vector
-    vector(const uint64_t count) noexcept;
+    explicit vector(const uint64_t count) noexcept;
 
     /// @brief copy constructor to copy a vector of the same capacity
     vector(const vector& rhs) noexcept;
