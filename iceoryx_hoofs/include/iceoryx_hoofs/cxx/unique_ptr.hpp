@@ -39,7 +39,7 @@ class unique_ptr
     ///
     /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
     ///
-    unique_ptr(const function<void(T*)>& deleter) noexcept;
+    explicit unique_ptr(const function<void(T*)>& deleter) noexcept;
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
