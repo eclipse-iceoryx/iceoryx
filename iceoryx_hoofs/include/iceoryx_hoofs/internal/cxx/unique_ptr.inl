@@ -84,7 +84,7 @@ const T* unique_ptr<T>::operator->() const noexcept
 template <typename T>
 unique_ptr<T>::operator bool() const noexcept
 {
-    return get();
+    return get() != nullptr;
 }
 
 template <typename T>

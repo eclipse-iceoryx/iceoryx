@@ -107,6 +107,9 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
 
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
+            // check if move is invalidating the object
+            // NOLINTNEXTLINE (bugprone-use-after-move)
+            EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
         // anotherSUT is out of scope and should have called deleter
@@ -130,6 +133,9 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
 
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
+            // check if move is invalidating the object
+            // NOLINTNEXTLINE (bugprone-use-after-move)
+            EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
         // anotherSUT is out of scope and should have called deleter
