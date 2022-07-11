@@ -89,7 +89,7 @@ class PeriodicTask
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     PeriodicTask(const PeriodicTaskAutoStart_t,
                  const units::Duration interval,
-                 const posix::ThreadName_t taskName,
+                 const posix::ThreadName_t& taskName,
                  Args&&... args) noexcept;
 
     /// @brief Stops and joins the thread spawned by the constructor.

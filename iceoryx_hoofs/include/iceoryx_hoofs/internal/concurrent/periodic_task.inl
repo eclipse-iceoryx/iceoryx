@@ -41,7 +41,7 @@ template <typename... Args>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskAutoStart_t,
                                      const units::Duration interval,
-                                     const posix::ThreadName_t taskName,
+                                     const posix::ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : PeriodicTask(PeriodicTaskManualStart, taskName, std::forward<Args>(args)...)
 {
