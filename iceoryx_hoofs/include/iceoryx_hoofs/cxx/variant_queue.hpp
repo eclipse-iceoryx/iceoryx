@@ -77,7 +77,7 @@ class VariantQueue
 
     /// @brief Constructor of a VariantQueue
     /// @param[in] type type of the underlying queue
-    VariantQueue(const VariantQueueTypes type) noexcept;
+    explicit VariantQueue(const VariantQueueTypes type) noexcept;
 
     /// @brief pushs an element into the fifo
     /// @param[in] value value which should be added in the fifo

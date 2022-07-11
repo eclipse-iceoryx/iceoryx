@@ -28,17 +28,19 @@ using namespace iox::cxx;
 class VariantQueue_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
     }
-    void TearDown()
+    void TearDown() override
     {
     }
 
-    void PerformTestForQueueTypes(const std::function<void(uint64_t typeID)>& testCase) noexcept
+    void PerformTestForQueueTypes(const std::function<void(uint64_t typeID)>& testCase) const noexcept
     {
         for (uint64_t i = 0; i < numberOfQueueTypes; ++i)
+        {
             testCase(i);
+        }
     }
 
     // if a new fifo type is added this variable has to be adjusted
