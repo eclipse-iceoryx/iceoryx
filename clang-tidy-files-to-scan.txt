@@ -1,0 +1,22 @@
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/algorithm.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/algorithm.inl
+./iceoryx_hoofs/test/moduletests/test_cxx_algorithm.cpp
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/attributes.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/convert.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/convert.inl
+./iceoryx_hoofs/test/moduletests/test_cxx_convert.cpp
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/deadline_timer.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/filesystem.hpp
+
+# we are able to use wildcards in this file, every warning free component
+# should be added like:
+#
+# ./iceoryx_hoofs/include/iceoryx_hoofs/cxx/*
+# ./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/*
+# ./iceoryx_hoofs/test/moduletests/test_cxx*
+#
+# When all warnings are fixed we can include folders and subfolder also with 
+# wildcards like
+#
+# ./iceoryx_hoofs/include/**/*

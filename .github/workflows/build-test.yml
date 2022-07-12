@@ -90,15 +90,22 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
 
   build-test-ubuntu-with-sanitizers-clang-latest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-clang@v1
-        with:
-          version: 13
-          platform: x64
-      - uses: actions/checkout@v3
-      - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
+      - name: install newest clang version
+        run: |
+         wget https://apt.llvm.org/llvm.sh
+         chmod +x llvm.sh
+         sudo ./llvm.sh 15 all ## uses clang version 15
+         sudo rm /usr/bin/clang
+         sudo rm /usr/bin/clang++
+         sudo ln -s /usr/bin/clang-15 /usr/bin/clang
+         sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: build with sanitizers
+        run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
     runs-on: macos-latest

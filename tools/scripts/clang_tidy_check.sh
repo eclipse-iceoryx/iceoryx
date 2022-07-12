@@ -52,7 +52,7 @@ cd "${WORKSPACE}"
 if ! [[ -f build/compile_commands.json ]]; then
     export CXX=clang++
     export CC=clang
-    cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DBUILD_EXAMPLES=ON
+    cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON
 fi
 
 if [[ "$MODE" == "hook"* ]]; then
@@ -89,4 +89,17 @@ elif [[ "$MODE" == "ci_pull_request"* ]]; then
     else
         $CLANG_TIDY_CMD -p build $FILES
     fi
+elif [[ "$MODE" == "scan_list"* ]]; then
+    FILE_WITH_SCAN_LIST=$2
+    echo " "
+    echo "Reading files from $2"
+    for FILE in $(cat  $FILE_WITH_SCAN_LIST); do
+        # add files until the comment section starts
+        if [[ "$(echo $FILE | grep "#" | wc -l)" == "1" ]]; then
+            break
+        fi
+        FILE_LIST="${FILE_LIST} $FILE"
+    done
+
+    $CLANG_TIDY_CMD -p build $FILE_LIST
 fi
