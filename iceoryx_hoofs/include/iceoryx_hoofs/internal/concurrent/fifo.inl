@@ -24,24 +24,21 @@ namespace iox
 namespace concurrent
 {
 template <class ValueType, uint64_t Capacity>
-inline bool FiFo<ValueType, Capacity>::push(const ValueType& f_param_r) noexcept
+inline bool FiFo<ValueType, Capacity>::push(const ValueType& value) noexcept
 {
     if (is_full())
     {
         return false;
     }
-    else
-    {
-        auto currentWritePos = m_write_pos.load(std::memory_order_relaxed);
-        m_data[currentWritePos % Capacity] = f_param_r;
+    auto currentWritePos = m_write_pos.load(std::memory_order_relaxed);
+    m_data[currentWritePos % Capacity] = value;
 
-        // m_write_pos must be increased after writing the new value otherwise
-        // it is possible that the value is read by pop while it is written.
-        // this fifo is a single producer, single consumer fifo therefore
-        // store is allowed.
-        m_write_pos.store(currentWritePos + 1, std::memory_order_release);
-        return true;
-    }
+    // m_write_pos must be increased after writing the new value otherwise
+    // it is possible that the value is read by pop while it is written.
+    // this fifo is a single producer, single consumer fifo therefore
+    // store is allowed.
+    m_write_pos.store(currentWritePos + 1, std::memory_order_release);
+    return true;
 }
 
 template <class ValueType, uint64_t Capacity>
@@ -80,16 +77,13 @@ inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
     {
         return cxx::nullopt_t();
     }
-    else
-    {
-        ValueType out = m_data[currentReadPos % Capacity];
+    ValueType out = m_data[currentReadPos % Capacity];
 
-        // m_read_pos must be increased after reading the pop'ed value otherwise
-        // it is possible that the pop'ed value is overwritten by push while it is read.
-        // Implementing a single consumer fifo here allows us to use store.
-        m_read_pos.store(currentReadPos + 1, std::memory_order_release);
-        return out;
-    }
+    // m_read_pos must be increased after reading the pop'ed value otherwise
+    // it is possible that the pop'ed value is overwritten by push while it is read.
+    // Implementing a single consumer fifo here allows us to use store.
+    m_read_pos.store(currentReadPos + 1, std::memory_order_release);
+    return out;
 }
 } // namespace concurrent
 } // namespace iox

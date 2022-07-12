@@ -33,7 +33,7 @@ class FiFo
     /// @brief pushes a value into the fifo
     /// @return if the values was pushed successfully into the fifo it returns
     ///         true, otherwise false
-    bool push(const ValueType& f_value) noexcept;
+    bool push(const ValueType& value) noexcept;
 
     /// @brief returns the oldest value from the fifo and removes it
     /// @return if the fifo was not empty the optional contains the value,
@@ -53,6 +53,8 @@ class FiFo
     bool is_full() const noexcept;
 
   private:
+    // safe access is guaranteed since the char array is wrapped inside the FiFo class
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     ValueType m_data[Capacity];
     std::atomic<uint64_t> m_write_pos{0};
     std::atomic<uint64_t> m_read_pos{0};
