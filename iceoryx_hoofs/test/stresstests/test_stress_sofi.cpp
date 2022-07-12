@@ -20,9 +20,9 @@
 #include "iceoryx_hoofs/testing/test.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <mutex>
 #include <queue>
-#include <stdlib.h>
 #include <thread>
 
 using namespace testing;
@@ -38,13 +38,12 @@ constexpr std::chrono::milliseconds STRESS_TIME{
 
 class SoFiStress : public Test
 {
-  public:
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
     }
 
@@ -54,12 +53,14 @@ class SoFiStress : public Test
     /// @param cpu is the CPU the thread shall use
     /// @param nativeHandle is the native handle of the c++11 std::thread
     /// @return bool: if true, setting the affinity was successfull
-    bool setCpuAffinity(unsigned int cpu, std::thread::native_handle_type nativeHandle)
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
+    static bool setCpuAffinity(unsigned int cpu, std::thread::native_handle_type nativeHandle)
     {
 #ifdef __linux__
         // Create a cpu_set_t object representing a set of CPUs. Clear it and mark only cpu as set.
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) used only for test purposes
         CPU_SET(cpu, &cpuset);
         auto retVal = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
         if (retVal != 0)
@@ -157,7 +158,7 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
             isPushing = false;
 
             // if we do not get an expected value, perform the test for logging and stop the threads
-            if (pushResult == false || valOut >= 0)
+            if (!pushResult || valOut >= 0)
             {
                 EXPECT_THAT(pushResult, Eq(true)) << "Pushing is slower than popping! No overflow should occur!";
                 EXPECT_THAT(valOut, Lt(0)) << "Pushing is slower than popping! No value should be returned!";
@@ -244,14 +245,14 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             pushCounter++;
 
             // if we do not get an expected value, perform the test for logging and stop the threads
-            if (pushResult == true && valOut >= 0)
+            if (pushResult && valOut >= 0)
             {
                 EXPECT_THAT(valOut, Lt(0)) << "There was no overflow, but we still got data!";
                 stopPushThread = true;
                 stopPopThread = true;
             }
 
-            if (pushResult == false && valOut < 0)
+            if (!pushResult && valOut < 0)
             {
                 EXPECT_THAT(valOut, Gt(INVALID_SOFI_DATA)) << "There was an overflow, but we did not get data!";
                 stopPushThread = true;
@@ -262,7 +263,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
             // if "pushResult == true" and "valOut < 0" -> no error, we are pushing into an non-full SoFi
 
             // this is what we want, an overflowing SoFi
-            if (pushResult == false && valOut >= 0)
+            if (!pushResult && valOut >= 0)
             {
                 // we had our first overflow -> allow popping
                 if (dataCounter == 0)
@@ -324,7 +325,7 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
 
             // SoFi should never be empty
             auto emptyResult = sofi.empty();
-            if (emptyResult == true)
+            if (emptyResult)
             {
                 EXPECT_THAT(emptyResult, Eq(false)) << "SoFi is continuously overflowing and shouldn't be empty!";
                 stopPushThread = true;
