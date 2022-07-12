@@ -53,6 +53,8 @@ setup_docker_image() {
         echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
     fi
 
+    git config --global --add safe.directory /iceoryx
+
     mkdir -p /root/.config/fish
     echo "set -gx PATH /iceoryx/tools/ci /iceoryx/scripts \$PATH" >> /root/.config/fish/config.fish
     echo "set -gx ASAN_OPTIONS 'symbolize=1,detect_leaks=1,abort_on_error=1,quarantine_size_mb=8192'" >> /root/.config/fish/config.fish
