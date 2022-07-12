@@ -30,12 +30,8 @@ smart_lock<T, MutexType> make_smart_lock(Targs&&... args) noexcept
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::smart_lock() noexcept
-{
-}
-
-template <typename T, typename MutexType>
 template <typename... ArgTypes>
+// NOLINTNEXTLINE(readability-named-parameter, hicpp-named-parameter) justification in Doxygen documentation
 smart_lock<T, MutexType>::smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept
     : base(std::forward<ArgTypes>(args)...)
 {
@@ -93,8 +89,11 @@ typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() 
 }
 
 template <typename T, typename MutexType>
+// const return type improves const correctness, operator-> can be chained with underlying operator->
+// NOLINTNEXTLINE(readability-const-return-type)
 const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>*>(this)->operator->();
 }
 
@@ -105,8 +104,11 @@ typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard
 }
 
 template <typename T, typename MutexType>
+// const return type improves const correctness, operator-> can be chained with underlying operator->
+// NOLINTNEXTLINE(readability-const-return-type)
 const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>*>(this)->getScopeGuard();
 }
 
@@ -142,6 +144,7 @@ T* smart_lock<T, MutexType>::Proxy::operator->() noexcept
 template <typename T, typename MutexType>
 const T* smart_lock<T, MutexType>::Proxy::operator->() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>::Proxy*>(this)->operator->();
 }
 

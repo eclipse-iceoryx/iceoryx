@@ -63,6 +63,11 @@ class smart_lock
         Proxy(T& base, MutexType& lock) noexcept;
         ~Proxy() noexcept;
 
+        Proxy(const Proxy&) noexcept = default;
+        Proxy(Proxy&&) noexcept = default;
+        Proxy& operator=(const Proxy&) noexcept = default;
+        Proxy& operator=(Proxy&&) noexcept = default;
+
         T* operator->() noexcept;
         const T* operator->() const noexcept;
 
@@ -72,12 +77,16 @@ class smart_lock
     };
 
   public:
-    ///@brief c'tor creating empty smart_lock
-    smart_lock() noexcept;
+    /// @brief c'tor creating empty smart_lock
+    smart_lock() noexcept = default;
 
-    ///@brief c'tor forwarding all args to the underlying object
+    /// @brief c'tor forwarding all args to the underlying object
+    /// @param[in] ForwardArgsToCTor is a compile time constant to indicate that this constructor forwards all arguments
+    /// to the underlying object
+    /// @param[in] args are the arguments that are forwarded to the underlying object
     template <typename... ArgTypes>
-    smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept;
+    // NOLINTNEXTLINE(readability-named-parameter, hicpp-named-parameter) justification in Doxygen documentation
+    explicit smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept;
 
     smart_lock(const smart_lock& rhs) noexcept;
     smart_lock(smart_lock&& rhs) noexcept;
