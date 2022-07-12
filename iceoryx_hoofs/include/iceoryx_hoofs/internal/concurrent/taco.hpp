@@ -117,6 +117,39 @@ constexpr uint32_t DEFAULT_MAX_NUMBER_OF_CONTEXT = 500;
 template <typename T, typename Context, uint32_t MaxNumberOfContext = DEFAULT_MAX_NUMBER_OF_CONTEXT>
 class TACO
 {
+  public:
+    /// Create a TACO instance with the specified mode
+    /// @param [in] mode the TACO operates
+    explicit TACO(TACOMode mode);
+
+    TACO(const TACO&) = delete;
+    TACO(TACO&&) = delete;
+    TACO& operator=(const TACO&) = delete;
+    TACO& operator=(TACO&&) = delete;
+
+    ~TACO() = default;
+
+    /// Takes the data from the TACO and supplies new data
+    /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
+    /// @param [in] context of the thread which performs the exchange
+    /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
+    /// data was supplied from the same context and the mode disallows data from the same context
+    cxx::optional<T> exchange(const T& data, Context context);
+
+    /// Takes the data which is ready for consumption. The data isn't available for other access anymore.
+    /// @param [in] context of the thread which takes the data
+    /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
+    /// data was supplied from the same context and the mode disallows data from the same context
+    cxx::optional<T> take(const Context context);
+
+    /// Supplies data for consumption
+    /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
+    /// @param [in] context of the thread which performs the exchange
+    void store(const T& data, const Context context);
+
+  private:
+    cxx::optional<T> exchange(const Context context);
+
   private:
     struct Transaction
     {
@@ -139,91 +172,10 @@ class TACO
     // and there needs to be one more element which is the one ready for consumption
     Transaction m_transactions[NumberOfContext + 1];
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-
-  public:
-    /// Create a TACO instance with the specified mode
-    /// @param [in] mode the TACO operates
-    explicit TACO(TACOMode mode)
-        : m_mode(mode)
-        , m_pendingTransaction(NumberOfContext)
-    {
-        static_assert(std::is_enum<Context>::value, "TACO Context must be an enum class!");
-        static_assert(!std::is_convertible<Context, uint32_t>::value,
-                      "TACO Context must be an enum class, not just an enum!");
-        static_assert(std::is_same<uint32_t, typename std::underlying_type<Context>::type>::value,
-                      "TACO Context underlying type must be uint32_t!");
-        static_assert(static_cast<uint32_t>(Context::END_OF_LIST) < MaxNumberOfContext,
-                      "TACO exceeded max number of contexts!");
-
-        // initially assign the indices to the corresponding contexts
-        uint32_t i = 0;
-        for (auto& index : m_indices)
-        {
-            index = i;
-            i++;
-        }
-    }
-
-    TACO(const TACO&) = delete;
-    TACO(TACO&&) = delete;
-    TACO& operator=(const TACO&) = delete;
-    TACO& operator=(TACO&&) = delete;
-
-    ~TACO() = default;
-
-    /// Takes the data from the TACO and supplies new data
-    /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
-    /// @param [in] context of the thread which performs the exchange
-    /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
-    /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> exchange(const T& data, Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        m_transactions[m_indices[static_cast<uint32_t>(context)]].data.emplace(data);
-        return exchange(context);
-    }
-
-    /// Takes the data which is ready for consumption. The data isn't available for other access anymore.
-    /// @param [in] context of the thread which takes the data
-    /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
-    /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> take(const Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        // there is no need to set the transaction for the corresponding context to nullopt_t, the exchange function
-        // either moves the data, which leaves a nullopt_t or resets the data, which also results in a nullopt_t
-        return exchange(context);
-    }
-
-    /// Supplies data for consumption
-    /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
-    /// @param [in] context of the thread which performs the exchange
-    void store(const T& data, const Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        exchange(data, context);
-    }
-
-  private:
-    cxx::optional<T> exchange(const Context context)
-    {
-        auto contextIndex = static_cast<uint32_t>(context);
-        auto transactionIndexOld = m_indices[contextIndex];
-        m_transactions[transactionIndexOld].context = context;
-
-        m_indices[contextIndex] = m_pendingTransaction.exchange(transactionIndexOld, std::memory_order_acq_rel);
-        auto transactionIndexNew = m_indices[contextIndex];
-
-        if (m_mode == TACOMode::AccecptDataFromSameContext || m_transactions[transactionIndexNew].context != context)
-        {
-            return std::move(m_transactions[transactionIndexNew].data);
-        }
-
-        m_transactions[transactionIndexNew].data.reset();
-        return cxx::nullopt_t();
-    }
 };
 } // namespace concurrent
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/concurrent/taco.inl"
 
 #endif // IOX_HOOFS_CONCURRENT_TACO_HPP
