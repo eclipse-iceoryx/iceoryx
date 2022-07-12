@@ -35,7 +35,7 @@ jobs:
     # prevent stuck jobs consuming macos runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
       with:
