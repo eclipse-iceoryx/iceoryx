@@ -9,11 +9,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: compiler versions
-        run: |
-          echo $(gcc --version)
-          echo $(clang --version)
-
       - name: Install iceoryx dependencies and clang-tidy
         run: |
           sudo apt-get update

@@ -9,6 +9,10 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/cxx/filesystem.hpp
 
+# IMPORTANT:
+#    after the first # everything is considered a comment, add new files and
+#    directories only at the top of this file
+#
 # we are able to use wildcards in this file, every warning free component
 # should be added like:
 #

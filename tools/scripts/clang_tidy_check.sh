@@ -31,7 +31,7 @@ fail() {
     exit 1
 }
 
-CLANG_TIDY_VERSION=12
+CLANG_TIDY_VERSION=15
 CLANG_TIDY_CMD="clang-tidy-$CLANG_TIDY_VERSION"
 if ! command -v $CLANG_TIDY_CMD &> /dev/null
 then
@@ -54,6 +54,9 @@ if ! [[ -f build/compile_commands.json ]]; then
     export CC=clang
     cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON
 fi
+
+echo "Using clang-tidy version:"
+$CLANG_TIDY_CMD --version
 
 if [[ "$MODE" == "hook"* ]]; then
     FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
@@ -87,7 +90,8 @@ elif [[ "$MODE" == "ci_pull_request"* ]]; then
     if [ -z "$FILES" ]; then
           echo "No modified files to check, skipping clang-tidy"
     else
-        $CLANG_TIDY_CMD -p build $FILES
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILES
+        exit $?
     fi
 elif [[ "$MODE" == "scan_list"* ]]; then
     FILE_WITH_SCAN_LIST=$2
@@ -101,5 +105,6 @@ elif [[ "$MODE" == "scan_list"* ]]; then
         FILE_LIST="${FILE_LIST} $FILE"
     done
 
-    $CLANG_TIDY_CMD -p build $FILE_LIST
+    $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_LIST
+    exit $?
 fi
