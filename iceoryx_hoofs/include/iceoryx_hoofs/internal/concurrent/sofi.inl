@@ -17,15 +17,12 @@
 #ifndef IOX_HOOFS_CONCURRENT_SOFI_INL
 #define IOX_HOOFS_CONCURRENT_SOFI_INL
 
+#include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
+
 namespace iox
 {
 namespace concurrent
 {
-template <class ValueType, uint64_t CapacityValue>
-SoFi<ValueType, CapacityValue>::SoFi() noexcept
-{
-}
-
 template <class ValueType, uint64_t CapacityValue>
 uint64_t SoFi<ValueType, CapacityValue>::capacity() const noexcept
 {
@@ -35,8 +32,8 @@ uint64_t SoFi<ValueType, CapacityValue>::capacity() const noexcept
 template <class ValueType, uint64_t CapacityValue>
 uint64_t SoFi<ValueType, CapacityValue>::size() const noexcept
 {
-    uint64_t readPosition;
-    uint64_t writePosition;
+    uint64_t readPosition{0};
+    uint64_t writePosition{0};
     do
     {
         readPosition = m_readPosition.load(std::memory_order_relaxed);
@@ -55,8 +52,8 @@ bool SoFi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcep
     {
         m_size = newInternalSize;
 
-        m_readPosition.store(0u, std::memory_order_release);
-        m_writePosition.store(0u, std::memory_order_release);
+        m_readPosition.store(0, std::memory_order_release);
+        m_writePosition.store(0, std::memory_order_release);
 
         return true;
     }
@@ -67,8 +64,8 @@ bool SoFi<ValueType, CapacityValue>::setCapacity(const uint64_t newSize) noexcep
 template <class ValueType, uint64_t CapacityValue>
 bool SoFi<ValueType, CapacityValue>::empty() const noexcept
 {
-    uint64_t currentReadPosition;
-    bool isEmpty;
+    uint64_t currentReadPosition{0};
+    bool isEmpty{false};
 
     do
     {
@@ -95,7 +92,7 @@ template <typename Verificator_T>
 inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Verificator_T& verificator) noexcept
 {
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
-    uint64_t nextReadPosition;
+    uint64_t nextReadPosition{0};
 
     bool popWasSuccessful{true};
     do
@@ -117,7 +114,7 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
             /// @brief first we need to peak valueOut if it is fitting the condition and then we have to verify
             ///        if valueOut is not am invalid object, this could be the case if the read position has
             ///        changed
-            if (m_readPosition.load(std::memory_order_relaxed) == currentReadPosition && verificator(valueOut) == false)
+            if (m_readPosition.load(std::memory_order_relaxed) == currentReadPosition && !verificator(valueOut))
             {
                 popWasSuccessful = false;
                 nextReadPosition = currentReadPosition;

@@ -61,7 +61,7 @@ class SoFi
 
   public:
     /// @brief default constructor which constructs an empty sofi
-    SoFi() noexcept;
+    SoFi() noexcept = default;
 
     /// @brief pushs an element into sofi. if sofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
@@ -86,7 +86,7 @@ class SoFi
     ///                                                    |-----C-------|
     ///                                     (’D’ is returned as value_out)
     ///
-    ///###################################################################
+    /// ###################################################################
     ///
     /// (if SOFI is not FULL , calling push() add new data)
     ///     Start|-------------|
@@ -151,13 +151,15 @@ class SoFi
     uint64_t size() const noexcept;
 
   private:
+    // safe access is guaranteed since the array is wrapped inside the SoFi
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     ValueType m_data[INTERNAL_SOFI_SIZE];
     uint64_t m_size = INTERNAL_SOFI_SIZE;
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not
     /// reordered (read or written too late)
-    std::atomic<uint64_t> m_readPosition{0u};
-    std::atomic<uint64_t> m_writePosition{0u};
+    std::atomic<uint64_t> m_readPosition{0};
+    std::atomic<uint64_t> m_writePosition{0};
 };
 
 } // namespace concurrent
