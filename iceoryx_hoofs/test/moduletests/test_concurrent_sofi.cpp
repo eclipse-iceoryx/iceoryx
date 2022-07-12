@@ -17,25 +17,25 @@
 
 #include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
 
+#include <cstdlib>
 #include <gtest/gtest.h>
-#include <stdlib.h>
 
 namespace
 {
 class CUnitTestContainerSoFi : public ::testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
     }
 
     /// @brief returns the ID of the current test in the format "TestCaseName.TestName"
     /// @return std::string: the id of the test
-    std::string testId();
+    static std::string testId();
 
     /// @brief pushes some serial numbers to the SoFi with the expectation to not overflow
     /// @param[in] serNumStart is the offset for the serial numbers to push into the SoFi
@@ -74,6 +74,7 @@ class CUnitTestContainerSoFi : public ::testing::Test
     void checkMultiOverflow(const std::string& scope, int serNumStart);
 
     static constexpr uint64_t TEST_SOFI_CAPACITY = 10;
+    // NOLINTNEXTLINE(cppcoreguidelines-non-private-member-variables-in-classes) only used in test file
     iox::concurrent::SoFi<int, TEST_SOFI_CAPACITY> m_sofi;
 };
 
@@ -83,10 +84,11 @@ std::string CUnitTestContainerSoFi::testId()
            + std::string(::testing::UnitTest::GetInstance()->current_test_info()->name());
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
 int CUnitTestContainerSoFi::pushSome(int serNumStart, uint32_t numberOfItems)
 {
     int valIn = serNumStart;
-    int valOut;
+    int valOut{-1};
 
     // fill the SoFi; SoFi has an internal capacity with two more items than specified the ones
     // the write position must always point to an empty position
@@ -101,9 +103,10 @@ int CUnitTestContainerSoFi::pushSome(int serNumStart, uint32_t numberOfItems)
     return valIn;
 }
 
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
 void CUnitTestContainerSoFi::popSome(int serNumOldest, uint32_t numberOfItems)
 {
-    int valOut;
+    int valOut{-2};
     for (uint32_t i = 0; i < numberOfItems; i++)
     {
         valOut = -2; // set valOut to a value not present in the SoFi
@@ -269,7 +272,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushes)
     // check if a new instace of the SoFi is empty
     EXPECT_TRUE(m_sofi.empty());
 
-    int ret;
+    int ret{-1};
 
     // Push 10 items till SoFi is full and check size
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
@@ -288,7 +291,7 @@ TEST_F(CUnitTestContainerSoFi, SoFiSizeEqualsNumberOfPushesOverflow)
     // check if a new instace of the SoFi is empty
     EXPECT_TRUE(m_sofi.empty());
 
-    int ret;
+    int ret{-1};
 
     // Push 11 items to provoke overflow and check size
     for (uint32_t i = 0; i < TEST_SOFI_CAPACITY; i++)
@@ -328,7 +331,7 @@ TEST_F(CUnitTestContainerSoFi, MultiOverflow)
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingASingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9c7c43d8-939c-4fa8-b1b9-b379515931e9");
-    int ret;
+    int ret{-1};
     m_sofi.push(123, ret);
     EXPECT_EQ(m_sofi.setCapacity(4), false);
 }
@@ -336,7 +339,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingASingleElement)
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a98bd656-7d39-4274-a77f-bc918a2c1301");
-    int ret;
+    int ret{-1};
     m_sofi.push(123, ret);
     m_sofi.push(13, ret);
     m_sofi.push(23, ret);
@@ -346,7 +349,7 @@ TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenContainingAMultipleElements)
 TEST_F(CUnitTestContainerSoFi, ResizeFailsWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6f58b6dd-20ab-42c7-9006-fbbcadb04f42");
-    for (int ret; !m_sofi.push(123, ret);)
+    for (int ret{-1}; !m_sofi.push(123, ret);)
     {
     }
     EXPECT_EQ(m_sofi.setCapacity(4), false);
@@ -388,12 +391,12 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeFillUp)
         EXPECT_EQ(m_sofi.setCapacity(i), true);
         for (uint32_t k = 0; k < i; ++k)
         {
-            int temp;
+            int temp{-1};
             EXPECT_EQ(m_sofi.push(static_cast<int>(k), temp), true);
         }
         for (uint32_t k = 0; k < i; ++k)
         {
-            int temp;
+            int temp{-1};
             EXPECT_EQ(m_sofi.pop(temp), true);
             EXPECT_EQ(temp, static_cast<int>(k));
         }
@@ -403,12 +406,12 @@ TEST_F(CUnitTestContainerSoFi, ResizeAndSizeFillUp)
 TEST_F(CUnitTestContainerSoFi, PopIfWithValidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f149035c-21cc-4f7d-ba4d-564a645e933b");
-    int returnValue;
+    int returnValue{-1};
     m_sofi.push(10, returnValue);
     m_sofi.push(11, returnValue);
     m_sofi.push(12, returnValue);
 
-    int output;
+    int output{-1};
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 20; });
 
     EXPECT_EQ(result, true);
@@ -418,12 +421,12 @@ TEST_F(CUnitTestContainerSoFi, PopIfWithValidCondition)
 TEST_F(CUnitTestContainerSoFi, PopIfWithInvalidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a494c28-928f-48f4-8b01-e68dfbd7563e");
-    int returnValue;
+    int returnValue{-1};
     m_sofi.push(15, returnValue);
     m_sofi.push(16, returnValue);
     m_sofi.push(17, returnValue);
 
-    int output;
+    int output{-1};
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 5; });
 
     EXPECT_EQ(result, false);
@@ -432,7 +435,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfWithInvalidCondition)
 TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "960ad78f-cb9b-4c34-a077-6adb343a841c");
-    int output;
+    int output{-1};
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 7; });
 
     EXPECT_EQ(result, false);
@@ -441,11 +444,13 @@ TEST_F(CUnitTestContainerSoFi, PopIfOnEmpty)
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "167f2f01-f926-4442-bc4f-ff5e7cfe9fe0");
-    int output;
+    int output{-1};
     constexpr int INITIAL_VALUE = 100;
     constexpr int OFFSET = 2;
     for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + OFFSET; i++)
+    {
         m_sofi.push(i + INITIAL_VALUE, output);
+    }
 
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 150; });
 
@@ -456,9 +461,11 @@ TEST_F(CUnitTestContainerSoFi, PopIfFullWithValidCondition)
 TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)
 {
     ::testing::Test::RecordProperty("TEST_ID", "672881b9-eebd-471d-9d62-e792a8b8013f");
-    int output;
+    int output{-1};
     for (int i = 0; i < static_cast<int>(m_sofi.capacity()) + 2; i++)
+    {
         m_sofi.push(i + 100, output);
+    }
 
     bool result = m_sofi.popIf(output, [](const int& peek) { return peek < 50; });
 
@@ -468,7 +475,7 @@ TEST_F(CUnitTestContainerSoFi, PopIfFullWithInvalidCondition)
 TEST_F(CUnitTestContainerSoFi, PopIfValidEmptyAfter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19444dcd-7746-4e6b-a3b3-398c9d62317d");
-    int output;
+    int output{-1};
     m_sofi.push(2, output);
 
     m_sofi.popIf(output, [](const int& peek) { return peek < 50; });
@@ -479,13 +486,11 @@ TEST_F(CUnitTestContainerSoFi, PopIfValidEmptyAfter)
 TEST_F(CUnitTestContainerSoFi, PopIfInvalidNotEmptyAfter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cadd7f02-6fe5-49a5-bd5d-837f5fcb2a71");
-    int output;
+    int output{-1};
     m_sofi.push(200, output);
 
     m_sofi.popIf(output, [](const int& peek) { return peek < 50; });
 
     EXPECT_EQ(m_sofi.empty(), false);
 }
-
-/// @todo popif empty test
 } // namespace

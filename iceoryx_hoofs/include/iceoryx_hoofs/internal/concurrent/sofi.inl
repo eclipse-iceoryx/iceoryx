@@ -139,14 +139,14 @@ inline bool SoFi<ValueType, CapacityValue>::popIf(ValueType& valueOut, const Ver
 }
 
 template <class ValueType, uint64_t CapacityValue>
-bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept
+bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueIn, ValueType& valueOut) noexcept
 {
     constexpr bool SOFI_OVERFLOW{false};
 
     uint64_t currentWritePosition = m_writePosition.load(std::memory_order_relaxed);
     uint64_t nextWritePosition = currentWritePosition + 1U;
 
-    m_data[currentWritePosition % m_size] = valueOut;
+    m_data[currentWritePosition % m_size] = valueIn;
     m_writePosition.store(nextWritePosition, std::memory_order_release);
 
     uint64_t currentReadPosition = m_readPosition.load(std::memory_order_acquire);
@@ -179,7 +179,7 @@ bool SoFi<ValueType, CapacityValue>::push(const ValueType& valueOut, ValueType& 
     if (m_readPosition.compare_exchange_strong(
             currentReadPosition, nextReadPosition, std::memory_order_acq_rel, std::memory_order_relaxed))
     {
-        std::memcpy(&f_paramOut_r, &m_data[currentReadPosition % m_size], sizeof(ValueType));
+        std::memcpy(&valueOut, &m_data[currentReadPosition % m_size], sizeof(ValueType));
         return SOFI_OVERFLOW;
     }
 

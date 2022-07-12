@@ -65,9 +65,9 @@ class SoFi
 
     /// @brief pushs an element into sofi. if sofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
-    /// @param[in] valueOut value which should be stored
-    /// @param[out] f_paramOut_r if sofi is overflowing  the value of the overridden value
-    ///                            is stored here
+    /// @param[in] valueIn value which should be stored
+    /// @param[out] valueOut if sofi is overflowing  the value of the overridden value
+    ///                      is stored here
     /// @concurrent restricted thread safe: single pop, single push no
     ///             push calls from multiple contexts
     /// @return return true if push was sucessfull else false.
@@ -84,7 +84,7 @@ class SoFi
     ///                        |-----A-------|
     ///                                      |-----B-------|
     ///                                                    |-----C-------|
-    ///                                     (’D’ is returned as value_out)
+    ///                                     (’D’ is returned as valueOut)
     ///
     /// ###################################################################
     ///
@@ -98,7 +98,7 @@ class SoFi
     ///                                                     |-------------|
     ///                                                      (New Data)
     /// @endcode
-    bool push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept;
+    bool push(const ValueType& valueIn, ValueType& valueOut) noexcept;
 
     /// @brief pop the oldest element
     /// @param[out] valueOut storage of the pop'ed value
