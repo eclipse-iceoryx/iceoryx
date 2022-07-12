@@ -27,6 +27,7 @@ using namespace ::testing;
 struct TestData
 {
     TestData() = default;
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) used only for test purposes
     constexpr TestData(uint32_t f_index, uint32_t f_counter, uint64_t f_timestamp)
         : index(f_index)
         , counter(f_counter)

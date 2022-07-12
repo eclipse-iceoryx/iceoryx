@@ -36,6 +36,8 @@ enum class TACOMode
     DenyDataFromSameContext
 };
 
+constexpr uint32_t DEFAULT_MAX_NUMBER_OF_CONTEXT = 500;
+
 /// @brief
 /// TACO is an acronym for Thread Aware exChange Ownership.
 /// Exchanging data between thread needs some synchonization mechanism.
@@ -112,7 +114,7 @@ enum class TACOMode
 ///     return 0;
 /// }
 /// @endcode
-template <typename T, typename Context, uint32_t MaxNumberOfContext = 500>
+template <typename T, typename Context, uint32_t MaxNumberOfContext = DEFAULT_MAX_NUMBER_OF_CONTEXT>
 class TACO
 {
   private:
@@ -127,23 +129,26 @@ class TACO
     std::atomic<uint32_t> m_pendingTransaction;
 
     static constexpr uint32_t NumberOfContext = static_cast<uint32_t>(Context::END_OF_LIST);
+
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     // the corresponding transaction indices for the thread context;
-    // the value of m_indicex[Context] contains the index of the m_transactions array which is owned by the context
+    // the value of m_indices[Context] contains the index of the m_transactions array which is owned by the context
     // so it's save to access m_transactions[m_indices[Context]]
-    uint32_t m_indices[NumberOfContext];
+    uint32_t m_indices[NumberOfContext]{0};
     // this is a local buffer for the transaction, one for each thread that might access the TACO
     // and there needs to be one more element which is the one ready for consumption
     Transaction m_transactions[NumberOfContext + 1];
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 
   public:
     /// Create a TACO instance with the specified mode
     /// @param [in] mode the TACO operates
-    TACO(TACOMode mode)
+    explicit TACO(TACOMode mode)
         : m_mode(mode)
         , m_pendingTransaction(NumberOfContext)
     {
         static_assert(std::is_enum<Context>::value, "TACO Context must be an enum class!");
-        static_assert(std::is_convertible<Context, uint32_t>::value == false,
+        static_assert(!std::is_convertible<Context, uint32_t>::value,
                       "TACO Context must be an enum class, not just an enum!");
         static_assert(std::is_same<uint32_t, typename std::underlying_type<Context>::type>::value,
                       "TACO Context underlying type must be uint32_t!");
@@ -163,6 +168,8 @@ class TACO
     TACO(TACO&&) = delete;
     TACO& operator=(const TACO&) = delete;
     TACO& operator=(TACO&&) = delete;
+
+    ~TACO() = default;
 
     /// Takes the data from the TACO and supplies new data
     /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
