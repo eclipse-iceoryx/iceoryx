@@ -152,9 +152,9 @@ and maybe for a whole function but not more.
 #### Examples
 
 ```cpp
-/// @NOLINTJUSTIFICATION we require the 'construct' to implement XXX and the safe usage
-///                         is guaranteed through YYY
-/// @NOLINTBEGIN(some-warning)
+// NOLINTJUSTIFICATION we require the 'construct' to implement XXX and the safe usage
+//                         is guaranteed through YYY
+// NOLINTBEGIN(some-warning)
 auto a = myLineOfCodeWithWarning();
 ```
 
