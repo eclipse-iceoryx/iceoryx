@@ -88,6 +88,8 @@ TEST_F(ReferenceCounter_test, DestructorAfterCopyCTor)
     uint64_t var2{0};
     {
         ReferenceCounter<uint64_t> sut2(&var2);
+        /// @NOLINTJUSTIFICATION unused variable is required to verify the decrementing side effect of the dtor
+        /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         ReferenceCounter<uint64_t> sut3(sut2);
     }
     EXPECT_THAT(var2, Eq(0));

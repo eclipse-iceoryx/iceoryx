@@ -28,18 +28,14 @@ namespace
 class Foo
 {
   public:
-    Foo()
-    {
-    }
+    Foo() = default;
 
-    Foo(int data)
+    explicit Foo(int data)
         : m_data(data)
     {
     }
 
-    ~Foo()
-    {
-    }
+    ~Foo() = default;
 
     int m_data{0};
 };
@@ -59,11 +55,11 @@ using namespace iox::cxx;
 class CxxSet_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         internal::CaptureStderr();
     }
-    virtual void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
