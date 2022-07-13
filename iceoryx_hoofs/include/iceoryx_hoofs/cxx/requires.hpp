@@ -33,8 +33,12 @@ void Require(
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-expects
 /// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
-/// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+/// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
+/// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
+/// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 #define Expects(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+/// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+/// @NOLINTEND(cppcoreguidelines-macro-usage)
 
 // implementing C++ Core Guideline, I.8. Prefer Ensures
 // see:

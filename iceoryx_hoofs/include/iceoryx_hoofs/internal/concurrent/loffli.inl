@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOFFLI_INL
 #define IOX_HOOFS_CONCURRENT_LOFFLI_INL
 
+#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+
 namespace iox
 {
 namespace concurrent

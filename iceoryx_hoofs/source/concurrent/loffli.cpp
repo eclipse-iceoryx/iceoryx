@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 
 #include <cassert>
