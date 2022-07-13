@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
 #include <iostream>
+#include <cstdint>
 
 namespace iox
 {
@@ -29,7 +30,8 @@ namespace internal
 /// @NOLINTJUSTIFICATION todo #1196 will be obsolote with new error handler
 /// @NOLINTNEXTLINE(readability-function-size)
 void Require(
-    const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
+    const bool condition, const char* file, const int32_t line, const char* function, const char* conditionString)
+    noexcept
 {
     if (!condition)
     {

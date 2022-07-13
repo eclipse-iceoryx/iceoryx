@@ -311,7 +311,9 @@ class Foo
   }
 };
 ```
-
+*_NOTE:_* <br/>
+What to do with the usage of the QAC++ suppression syntax in our current code base? <br/>
+We should check them manually and replace them with Axivion syntax.
 ### Header
 
 Each source file needs to have this header:

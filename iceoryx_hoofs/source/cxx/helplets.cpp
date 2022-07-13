@@ -19,6 +19,7 @@
 
 namespace iox
 {
+constexpr uint64_t IOX_MEMORY_ADDRESS_SIZE = sizeof(void*);
 namespace cxx
 {
 void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
@@ -27,7 +28,7 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
     // memory is already aligned and we have to do nothing
     // low-level memory management, no other approach then to use malloc to acquire heap memory
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc,cppcoreguidelines-no-malloc)
-    auto memory = reinterpret_cast<uint64_t>(malloc(size + alignment + sizeof(void*) - 1));
+    auto memory = reinterpret_cast<uint64_t>(malloc(size + alignment + IOX_MEMORY_ADDRESS_SIZE - 1));
     if (memory == 0)
     {
         return nullptr;
@@ -45,15 +46,16 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
     return reinterpret_cast<void*>(alignedMemory);
 }
 
-void alignedFree(void* const memory) noexcept
+// AXIVION Construct AutosarC++19_03-M7.1.2 : idiomatic for deallocate
+void alignedFree(void* const alignedMemory) noexcept
 {
-    if (memory != nullptr)
+    if (alignedMemory != nullptr)
     {
         // low-level memory management
         // NOLINTNEXTLINE(cppcoreguidelines-owning-memory, cppcoreguidelines-no-malloc,
         // cppcoreguidelines-pro-bounds-pointer-arithmetic)
         // NOLINTNEXTLINE
-        free(reinterpret_cast<void**>(memory)[-1]);
+        free(reinterpret_cast<void**>(alignedMemory)[-1]);
     }
 }
 } // namespace cxx
