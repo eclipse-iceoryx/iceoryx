@@ -133,6 +133,31 @@ information about logging and error handling.
 * Objects created from a method returning a `cxx::expected<Foo, FooError>` shall
 contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
 
+### clang-tidy suppressions
+
+If required constructs create clang-tidy warnings one can suppress them with a
+justification and either `NOLINTNEXTLINE(warning-type)` or
+`NOLINTBEGIN(warning-type)` & `NOLINTEND(warning-type)`.
+
+Those suppressions always require a justification which has to be provided with
+`NOLINTJUSTIFICATION`. But do not repeat yourself in the justification. If the
+doxygen documentation, or a suppression in the header for the same declaration
+provides already an argument please refer to it.
+A justification should always state why the suppressed construct is required
+and how the code ensures the safe usage.
+
+Furthermore, `NOLINTBEGIN` should only be used for a range as small as possible
+and maybe for a whole function but not more.
+
+#### Examples
+
+```cpp
+/// @NOLINTJUSTIFICATION we require the 'construct' to implement XXX and the safe usage
+///                         is guaranteed through YYY
+/// @NOLINTBEGIN(some-warning)
+auto a = myLineOfCodeWithWarning();
+```
+
 ### Doxygen
 
 Please use [doxygen](http://www.doxygen.nl/) to document your code.
