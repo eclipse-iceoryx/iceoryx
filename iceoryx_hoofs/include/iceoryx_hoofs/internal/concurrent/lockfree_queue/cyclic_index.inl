@@ -14,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_CYCLIC_INDEX_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_CYCLIC_INDEX_INL
+
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
 
 namespace iox
@@ -99,3 +102,5 @@ int64_t CyclicIndex<CycleLength, ValueType>::operator-(const CyclicIndex<CycleLe
 }
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_CYCLIC_INDEX_INL

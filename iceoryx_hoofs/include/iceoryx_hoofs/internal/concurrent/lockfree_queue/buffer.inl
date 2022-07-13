@@ -14,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
+
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.hpp"
 
 namespace iox
@@ -60,3 +63,5 @@ ElementType* Buffer<ElementType, Capacity, index_t>::toPtr(index_t index) const 
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL

@@ -51,6 +51,8 @@ class Buffer
   private:
     using byte_t = uint8_t;
 
+    // NOLINTJUSTIFICATION required by low level buffer building block and encapsulated in abstraction
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     alignas(ElementType) byte_t m_buffer[Capacity * sizeof(ElementType)];
 
     ElementType* toPtr(index_t index) const noexcept;

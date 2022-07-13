@@ -35,7 +35,7 @@ struct Integer
     {
     }
 
-    uint64_t value = 0;
+    uint64_t value{0};
 
     // so that it behaves like an int for comparison purposes
     // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests

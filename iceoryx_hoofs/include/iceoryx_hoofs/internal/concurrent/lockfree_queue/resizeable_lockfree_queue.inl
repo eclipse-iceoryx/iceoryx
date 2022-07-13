@@ -14,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL
+
 #include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
 
 namespace iox
@@ -220,3 +223,5 @@ iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL

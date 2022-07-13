@@ -112,10 +112,12 @@ class IndexQueue
     using Index = CyclicIndex<Capacity>;
     using Cell = std::atomic<Index>;
 
-    ///    this member has to be initialized explicitly in the constructor since
-    ///    the default atomic constructor does not call the default constructor of the
-    ///    underlying class.
-    ///    See, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0883r0.pdf
+    /// the array entries have to be initialized explicitly in the constructor since
+    /// the default atomic constructor does not call the default constructor of the
+    /// underlying class.
+    /// See, http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0883r0.pdf
+    // NOLINTJUSTIFICATION we need an initialized array here and will not use std::array for now
+    // NOLINTNEXTLINE(*avoid-c-arrays)
     Cell m_cells[Capacity];
 
     std::atomic<Index> m_readPosition;

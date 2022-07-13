@@ -36,7 +36,6 @@ class LockFreeQueueBufferTest : public ::testing::Test
 
     ~LockFreeQueueBufferTest() override = default;
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init) false positive
     Buffer buffer;
 
     void fillBuffer(int startValue)

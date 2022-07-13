@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
 
 namespace iox
@@ -22,8 +25,7 @@ namespace iox
 namespace concurrent
 {
 template <uint64_t Capacity, typename ValueType>
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) no variable, false positive
-IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
+inline IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
@@ -34,7 +36,6 @@ IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) no variable, false positive
 IndexQueue<Capacity, ValueType>::IndexQueue(ConstructFull_t) noexcept
     : m_readPosition(Index(0U))
     , m_writePosition(Index(Capacity))
@@ -331,3 +332,5 @@ IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::m
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL

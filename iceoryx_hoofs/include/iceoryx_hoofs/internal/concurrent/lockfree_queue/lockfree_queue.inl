@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
+
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 
@@ -175,3 +178,5 @@ void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& inde
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
