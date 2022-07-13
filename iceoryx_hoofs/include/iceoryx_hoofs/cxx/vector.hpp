@@ -196,12 +196,15 @@ class vector
     iterator erase(iterator position) noexcept;
 
   private:
+    T& at_unchecked(const uint64_t index) noexcept;
+    const T& at_unchecked(const uint64_t index) const noexcept;
+
     /// @todo #1196 Replace with UninitializedArray
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays)
-    uint64_t m_size = 0U;
+    uint64_t m_size{0U};
 };
 } // namespace cxx
 } // namespace iox

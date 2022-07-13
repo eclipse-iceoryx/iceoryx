@@ -88,6 +88,11 @@ class vector_test : public Test
             return *this;
         }
 
+        bool operator==(const CTorTest& rhs) const
+        {
+            return value == rhs.value;
+        }
+
         ~CTorTest()
         {
             dTor++;
@@ -123,7 +128,6 @@ uint64_t vector_test::copyAssignment;
 uint64_t vector_test::dTor;
 uint64_t vector_test::classValue;
 std::vector<uint64_t> vector_test::dtorOrder;
-
 
 TEST_F(vector_test, NewlyCreatedVectorIsEmpty)
 {
@@ -354,6 +358,10 @@ TEST_F(vector_test, CopyConstructorWithFullVector)
     }
 
     vector<CTorTest, 10> sut2(sut1);
+    for (uint64_t i = 0; i < 10; ++i)
+    {
+        EXPECT_THAT(sut2.at(i).value, Eq(i));
+    }
 
     EXPECT_THAT(copyCTor, Eq(10U));
     EXPECT_THAT(sut2.size(), Eq(10U));
@@ -398,6 +406,11 @@ TEST_F(vector_test, MoveConstructorWithFullVector)
     }
 
     vector<CTorTest, 10U> sut2(std::move(sut1));
+
+    for (uint64_t i = 0; i < 10; ++i)
+    {
+        EXPECT_THAT(sut2.at(i).value, Eq(i));
+    }
 
     EXPECT_THAT(moveCTor, Eq(10U));
     EXPECT_THAT(sut2.size(), Eq(10U));
