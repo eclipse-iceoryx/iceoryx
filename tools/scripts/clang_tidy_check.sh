@@ -38,11 +38,9 @@ then
     CLANG_TIDY_MAJOR_VERSION=$(clang-tidy --version | sed -rn 's/.*([0-9][0-9])\.[0-9].*/\1/p')
     if [[ $CLANG_TIDY_MAJOR_VERSION -lt "$CLANG_TIDY_VERSION" ]]; then
         echo "Warning: clang-tidy version $CLANG_TIDY_VERSION or higher is not installed."
-        echo "Code will not be linted."
-        exit 0
-    else
-        CLANG_TIDY_CMD="clang-tidy"
+        echo "This may cause undetected warnings or that warnings suppressed by NOLINTBEGIN/NOLINTEND will not be suppressed."
     fi
+    CLANG_TIDY_CMD="clang-tidy"
 fi
 
 
