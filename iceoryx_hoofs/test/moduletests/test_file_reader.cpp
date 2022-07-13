@@ -46,7 +46,7 @@ const char* TestFileContent = "This is a test file.\n"
 class FileReader_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         internal::CaptureStdout();
 
@@ -61,7 +61,7 @@ class FileReader_test : public Test
         }
         fs.close();
     }
-    void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStdout();
         if (Test::HasFailure())
@@ -159,6 +159,8 @@ TEST_F(FileReader_test, errorTerminateMode)
     ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(
         {
             iox::cxx::FileReader reader("ISaidNo!", "InTheMiddleOfNowhere", iox::cxx::FileReader::ErrorMode::Terminate);

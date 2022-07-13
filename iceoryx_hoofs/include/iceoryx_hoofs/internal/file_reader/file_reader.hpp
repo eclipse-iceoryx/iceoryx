@@ -50,9 +50,9 @@ class FileReader
 
     /// Opens a file and creates a FileReader object. The file path argument is optional and is ignored if empty. The
     /// error mode is evaluated when an error occurs.
-    FileReader(const std::string& f_fileName,
-               const std::string& f_filePath = "",
-               ErrorMode f_errorMode = ErrorMode::Inform) noexcept;
+    explicit FileReader(const std::string& f_fileName,
+                        const std::string& f_filePath = "",
+                        ErrorMode f_errorMode = ErrorMode::Inform) noexcept;
 
     FileReader(const FileReader&) = delete;
     FileReader(FileReader&&) = delete;
@@ -70,6 +70,8 @@ class FileReader
 #ifdef _WIN32
     static constexpr char PATH_SEPARATOR[] = "\\";
 #else
+    // safe access guaranteed since constexpr and null-terminated
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     static constexpr char PATH_SEPARATOR[] = "/";
 #endif
     std::fstream m_fileStream;
