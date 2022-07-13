@@ -35,14 +35,21 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
 
 void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
+    /// @todo replace Expects with IOX_ASSERT
+    // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Expects(size > 0);
 
+    /// @todo replace Expects with IOX_ASSERT
+    // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Expects(
         !m_allocationFinalized
         && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
     uint64_t alignedPosition = cxx::align(currentAddress, static_cast<uint64_t>(alignment));
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
 
     byte_t* l_returnValue = nullptr;
@@ -59,6 +66,8 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
                   << " when there are already " << alignedPosition << " aligned bytes in use." << std::endl;
         std::cerr << "Only " << m_length - alignedPosition << " bytes left." << std::endl;
 
+        /// @todo replace Expects with IOX_ASSERT
+        // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         cxx::Expects(false && "Not enough space left in shared memory");
     }
 
