@@ -31,8 +31,6 @@ hicpp-*,
 -readability-use-anyofallof,
 -readability-named-parameter,
 
-- bugprone-easily-swappable-parameters
-
 '
 
 ### Temporarily disabled because massive API changes:
