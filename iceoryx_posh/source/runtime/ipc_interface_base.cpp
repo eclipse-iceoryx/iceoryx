@@ -162,7 +162,10 @@ bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) n
 
     m_channelSide = channelSide;
     platform::IoxIpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
+        .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); })
+        .or_else([](auto& err) {
+            LogError() << "unable to create ipc channel with error code: " << static_cast<uint8_t>(err);
+        });
 
     return m_ipcChannel.isInitialized();
 }
