@@ -31,7 +31,7 @@ class ReferenceCounter
   public:
     /// @brief increments f_referenceCounter if f_referenceCounter != nullptr
     /// @param[in] referenceCounter pointer to the underlying number where the reference count is stored
-    ReferenceCounter(T* const referenceCounter) noexcept;
+    explicit ReferenceCounter(T* const referenceCounter) noexcept;
 
     /// @brief copy constructor, increments the rhs managed reference counter if it is != nullptr
     ReferenceCounter(const ReferenceCounter& rhs) noexcept;

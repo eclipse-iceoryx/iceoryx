@@ -39,6 +39,9 @@ namespace cxx
 ///       optimized_storage would have a dynamic memory fallback when static memory is
 ///       insufficent.
 template <uint64_t Capacity, uint64_t Align = 1>
+/// @NOLINTJUSTIFICATION static_storage provides uninitialized memory, correct initialization is the users
+///                      responsibility whenever memory with "allocate" is acquired
+/// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class static_storage
 {
   public:
@@ -95,6 +98,8 @@ class static_storage
     static constexpr uint64_t allocation_size() noexcept;
 
   private:
+    /// @NOLINTJUSTIFICATION todo #1196 will be replaced by uninitialized array
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
 
