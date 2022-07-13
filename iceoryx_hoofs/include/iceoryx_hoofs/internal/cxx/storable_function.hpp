@@ -65,9 +65,17 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
+    /// @NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
+    ///                      explicit would require a static_cast. Furthermore, the storable_functor stores a copy
+    ///                      which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(const Functor& functor) noexcept;
 
     /// @brief construct from function pointer (including static functions)
+    /// @NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
+    ///                      explicit would require a static_cast. Furthermore, the storable_functor stores a copy
+    ///                      which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(ReturnType (*function)(Args...)) noexcept;
 
     /// @brief construct from object reference and member function
@@ -154,6 +162,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
         operations& operator=(const operations& other) noexcept = default;
         operations(operations&& other) noexcept = default;
         operations& operator=(operations&& other) noexcept = default;
+        ~operations() = default;
 
         void copy(const storable_function& src, storable_function& dest) noexcept;
 
