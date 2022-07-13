@@ -27,19 +27,22 @@ namespace iox
 {
 namespace concurrent
 {
+constexpr uint32_t NODE_ALIGNMENT{8};
+constexpr uint32_t NODE_SIZE{8};
+
 class LoFFLi
 {
   public:
     using Index_t = uint32_t;
 
   private:
-    struct alignas(8) Node
+    struct alignas(NODE_ALIGNMENT) Node
     {
         Index_t indexToNextFreeIndex;
         uint32_t abaCounter;
     };
 
-    static_assert(sizeof(Node) <= 8U,
+    static_assert(sizeof(Node) <= NODE_SIZE,
                   "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
 
     /// @todo introduce typesafe indices with the properties listed below
