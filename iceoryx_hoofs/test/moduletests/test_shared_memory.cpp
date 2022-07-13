@@ -50,9 +50,10 @@ class SharedMemory_Test : public Test
         }
     }
 
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only
     static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
-    iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
+    static iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
     createSut(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
     {
         return iox::posix::SharedMemoryBuilder()
@@ -64,26 +65,29 @@ class SharedMemory_Test : public Test
             .create();
     }
 
-    std::unique_ptr<int, std::function<void(int*)>> createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    static std::unique_ptr<int, std::function<void(int*)>>
+    createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
+        // NOLINTBEGIN(hicpp-signed-bitwise) enum types defined by POSIX are required
         auto result = iox::posix::posixCall(iox_shm_open)((std::string("/") + name.c_str()).c_str(),
                                                           O_RDWR | O_CREAT,
                                                           S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
                           .failureReturnValue(SharedMemory::INVALID_HANDLE)
                           .evaluate();
+        // NOLINTEND(hicpp-signed-bitwise)
         if (result.has_error())
         {
             return std::unique_ptr<int, std::function<void(int*)>>();
         }
 
-        return std::unique_ptr<int, std::function<void(int*)>>(new int(result->value), [=](int* fd) {
-            this->cleanupSharedMemory(name);
+        return std::unique_ptr<int, std::function<void(int*)>>(new int(result->value), [=](const int* fd) {
+            cleanupSharedMemory(name);
             iox_close(*fd);
             delete fd;
         });
     }
 
-    bool cleanupSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    static bool cleanupSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
         auto result = iox::posix::SharedMemory::unlinkIfExist(name);
         if (result.has_error())
@@ -95,6 +99,7 @@ class SharedMemory_Test : public Test
     }
 };
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays) test only
 constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
 
 TEST_F(SharedMemory_Test, CTorWithValidArguments)
@@ -121,6 +126,8 @@ TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2844c9c5-856e-4b51-890d-1418f79f1a80");
+
+    // NOLINTNEXTLINE(cppcoreguidelines-init-variables) initialized before read
     int handle;
 
     auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
@@ -151,6 +158,7 @@ TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
 TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11f0b2f2-b891-41e4-bb82-648a9541582f");
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only
     constexpr const char SHM_NAME[] = "its_a_mee_monukulius";
     auto rawSharedMemory = createRawSharedMemory(SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));

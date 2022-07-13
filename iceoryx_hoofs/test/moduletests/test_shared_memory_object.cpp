@@ -41,12 +41,15 @@ class SharedMemoryObject_Test : public Test
         }
     }
 
-    void PerformDeathTest(const std::function<void()>& deathTest)
+    static void PerformDeathTest(const std::function<void()>& deathTest)
     {
         std::set_terminate([]() { std::cout << "", std::abort(); });
 
         internal::GetCapturedStderr();
+        // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
+        // hiccpp-vararg) death test
         EXPECT_DEATH({ deathTest(); }, ".*");
+        // NOLINTEND
         internal::CaptureStderr();
     }
 };
@@ -134,7 +137,7 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4b054aac-1d49-4260-afc0-908b184e0b12");
-    uint64_t memorySize{8u};
+    uint64_t memorySize{8U};
 
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
@@ -152,7 +155,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bb3c7fc-0f15-4487-8479-b27d1d4a17d3");
-    uint64_t memorySize{8u};
+    uint64_t memorySize{8U};
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(memorySize)
