@@ -51,7 +51,7 @@ constexpr uint32_t DEFAULT_MAX_NUMBER_OF_CONTEXT = 500;
 /// @param T       DataType to be stored
 /// @param Context Enum class with all the thread context that access the TACO.
 ///                The enum must start with 0, must have ascending values and
-///                the last vaule must be called END_OF_LIST.
+///                the last value must be called END_OF_LIST.
 ///
 /// @code
 /// #include "iceoryx_hoofs/internal/concurrent/taco.hpp"
@@ -120,44 +120,44 @@ class TACO
   public:
     /// Create a TACO instance with the specified mode
     /// @param [in] mode the TACO operates
-    explicit TACO(TACOMode mode);
+    explicit TACO(TACOMode mode) noexcept;
 
     TACO(const TACO&) = delete;
     TACO(TACO&&) = delete;
     TACO& operator=(const TACO&) = delete;
     TACO& operator=(TACO&&) = delete;
 
-    ~TACO() = default;
+    ~TACO() noexcept = default;
 
     /// Takes the data from the TACO and supplies new data
     /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
     /// @param [in] context of the thread which performs the exchange
     /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
     /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> exchange(const T& data, Context context);
+    cxx::optional<T> exchange(const T& data, Context context) noexcept;
 
     /// Takes the data which is ready for consumption. The data isn't available for other access anymore.
     /// @param [in] context of the thread which takes the data
     /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
     /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> take(const Context context);
+    cxx::optional<T> take(const Context context) noexcept;
 
     /// Supplies data for consumption
     /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
     /// @param [in] context of the thread which performs the exchange
-    void store(const T& data, const Context context);
+    void store(const T& data, const Context context) noexcept;
 
   private:
-    cxx::optional<T> exchange(const Context context);
+    cxx::optional<T> exchange(const Context context) noexcept;
 
   private:
     struct Transaction
     {
         Context context{Context::END_OF_LIST};
-        cxx::optional<T> data{cxx::nullopt_t()};
+        cxx::optional<T> data;
     };
 
-    TACOMode m_mode;
+    TACOMode m_mode{TACOMode::DenyDataFromSameContext};
     // this is the index of the transaction currently available for consumption
     std::atomic<uint32_t> m_pendingTransaction;
 

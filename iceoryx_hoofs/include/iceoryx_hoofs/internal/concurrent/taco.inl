@@ -24,7 +24,7 @@ namespace iox
 namespace concurrent
 {
 template <typename T, typename Context, uint32_t MaxNumberOfContext>
-inline TACO<T, Context, MaxNumberOfContext>::TACO(TACOMode mode)
+inline TACO<T, Context, MaxNumberOfContext>::TACO(TACOMode mode) noexcept
     : m_mode(mode)
     , m_pendingTransaction(NumberOfContext)
 {
@@ -46,7 +46,7 @@ inline TACO<T, Context, MaxNumberOfContext>::TACO(TACOMode mode)
 }
 
 template <typename T, typename Context, uint32_t MaxNumberOfContext>
-inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::exchange(const T& data, Context context)
+inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::exchange(const T& data, Context context) noexcept
 {
     cxx::Expects(context < Context::END_OF_LIST);
     m_transactions[m_indices[static_cast<uint32_t>(context)]].data.emplace(data);
@@ -54,7 +54,7 @@ inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::exchange(const T& 
 }
 
 template <typename T, typename Context, uint32_t MaxNumberOfContext>
-inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::take(const Context context)
+inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::take(const Context context) noexcept
 {
     cxx::Expects(context < Context::END_OF_LIST);
     // there is no need to set the transaction for the corresponding context to nullopt_t, the exchange function
@@ -63,14 +63,14 @@ inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::take(const Context
 }
 
 template <typename T, typename Context, uint32_t MaxNumberOfContext>
-inline void TACO<T, Context, MaxNumberOfContext>::store(const T& data, const Context context)
+inline void TACO<T, Context, MaxNumberOfContext>::store(const T& data, const Context context) noexcept
 {
     cxx::Expects(context < Context::END_OF_LIST);
     exchange(data, context);
 }
 
 template <typename T, typename Context, uint32_t MaxNumberOfContext>
-inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::exchange(const Context context)
+inline cxx::optional<T> TACO<T, Context, MaxNumberOfContext>::exchange(const Context context) noexcept
 {
     auto contextIndex = static_cast<uint32_t>(context);
     auto transactionIndexOld = m_indices[contextIndex];
