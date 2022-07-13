@@ -31,18 +31,16 @@ fail() {
     exit 1
 }
 
-CLANG_TIDY_VERSION=12
+CLANG_TIDY_VERSION=15
 CLANG_TIDY_CMD="clang-tidy-$CLANG_TIDY_VERSION"
 if ! command -v $CLANG_TIDY_CMD &> /dev/null
 then
     CLANG_TIDY_MAJOR_VERSION=$(clang-tidy --version | sed -rn 's/.*([0-9][0-9])\.[0-9].*/\1/p')
     if [[ $CLANG_TIDY_MAJOR_VERSION -lt "$CLANG_TIDY_VERSION" ]]; then
         echo "Warning: clang-tidy version $CLANG_TIDY_VERSION or higher is not installed."
-        echo "Code will not be linted."
-        exit 0
-    else
-        CLANG_TIDY_CMD="clang-tidy"
+        echo "This may cause undetected warnings or that warnings suppressed by NOLINTBEGIN/NOLINTEND will not be suppressed."
     fi
+    CLANG_TIDY_CMD="clang-tidy"
 fi
 
 
@@ -52,8 +50,11 @@ cd "${WORKSPACE}"
 if ! [[ -f build/compile_commands.json ]]; then
     export CXX=clang++
     export CC=clang
-    cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DBUILD_EXAMPLES=ON
+    cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON
 fi
+
+echo "Using clang-tidy version:"
+$CLANG_TIDY_CMD --version
 
 if [[ "$MODE" == "hook"* ]]; then
     FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
@@ -87,6 +88,21 @@ elif [[ "$MODE" == "ci_pull_request"* ]]; then
     if [ -z "$FILES" ]; then
           echo "No modified files to check, skipping clang-tidy"
     else
-        $CLANG_TIDY_CMD -p build $FILES
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILES
+        exit $?
     fi
+elif [[ "$MODE" == "scan_list"* ]]; then
+    FILE_WITH_SCAN_LIST=$2
+    echo " "
+    echo "Reading files from $2"
+    for FILE in $(cat  $FILE_WITH_SCAN_LIST); do
+        # add files until the comment section starts
+        if [[ "$(echo $FILE | grep "#" | wc -l)" == "1" ]]; then
+            break
+        fi
+        FILE_LIST="${FILE_LIST} $FILE"
+    done
+
+    $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_LIST
+    exit $?
 fi

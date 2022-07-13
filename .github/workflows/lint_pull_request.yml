@@ -6,29 +6,29 @@ on:
 
 jobs:
   clang-tidy-review:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: compiler versions
-        run: |
-          echo $(gcc --version)
-          echo $(clang --version)
-
       - name: Install iceoryx dependencies and clang-tidy
-        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev clang-tidy-12 clang-12
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libacl1-dev libncurses5-dev
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 15 all ## uses clang version 15
+          sudo rm /usr/bin/clang
+          sudo rm /usr/bin/clang++
+          sudo rm /usr/bin/clang-tidy
+          sudo ln -s /usr/bin/clang-15 /usr/bin/clang
+          sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
+          sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
 
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Get git diff
-        id: changed_files
-        uses: Ana06/get-changed-files@v2.1.0
-      - name: Clang-Tidy of added files
-        run: |
-          for diff_file in ${{ steps.changed_files.outputs.added }}; do
-            ./tools/scripts/clang_tidy_check.sh ci_pull_request ${diff_file}
-          done
+      - name: clang-tidy for all files in "clang-tidy-files-to-scan.txt"
+        run: ./tools/scripts/clang_tidy_check.sh scan_list clang-tidy-files-to-scan.txt
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-latest

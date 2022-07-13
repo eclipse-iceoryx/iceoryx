@@ -87,14 +87,14 @@ inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 }
 
 /// @NOLINTJUSTIFICATION iox-#1196 todo convert must be refactored
-/// @NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers)
+/// @NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 template <>
 inline bool convert::fromString<string<100>>(const char* v, string<100>& dest) noexcept
 {
     dest = string<100>(TruncateToCapacity, v);
     return true;
 }
-/// @NOLINTEND(cppcoreguidelines-avoid-magic-numbers)
+/// @NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 inline bool convert::stringIsNumber(const char* v, const NumberType type) noexcept
 {
