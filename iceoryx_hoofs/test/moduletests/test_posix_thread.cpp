@@ -29,17 +29,8 @@ using namespace iox::cxx;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
-class Thread_test : public Test
+struct Thread_test : public Test
 {
-  public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-
     optional<Thread> sut;
 };
 
