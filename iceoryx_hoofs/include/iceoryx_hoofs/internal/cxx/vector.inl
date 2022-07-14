@@ -192,6 +192,7 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
         at_unchecked(i) = std::move(at_unchecked(i - 1U));
     }
 
+    at(position).~T();
     new (&at(position)) T(std::forward<Targs>(args)...);
     return true;
 }
@@ -248,7 +249,7 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
 template <typename T, uint64_t Capacity>
 inline T* vector<T, Capacity>::data() noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // AXIVION Next Line AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const vector<T, Capacity>*>(this)->data());
 }
@@ -271,9 +272,7 @@ template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at(const uint64_t index) const noexcept
 {
     cxx::Expects((index < m_size) && "Out of bounds access");
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by template parameter
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<const T*>(m_data)[index];
+    return at_unchecked(index);
 }
 
 template <typename T, uint64_t Capacity>

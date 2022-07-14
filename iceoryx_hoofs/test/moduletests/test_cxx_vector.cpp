@@ -452,6 +452,31 @@ TEST_F(vector_test, DestructorWithFullVector)
     EXPECT_THAT(dTor, Eq(10U));
 }
 
+TEST_F(vector_test, EmplacingElementInTheMiddleCallsDTor)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "09a217bb-690e-4120-8e06-198e9056e26e");
+    constexpr uint64_t CAPACITY_OF_VECTOR{10U};
+    constexpr uint64_t EXPECTED_NUMBER_OF_CTOR_CALLS{CAPACITY_OF_VECTOR};
+    constexpr uint64_t EMPLACE_POSITION{5U};
+    {
+        vector<CTorTest, CAPACITY_OF_VECTOR> sut;
+        for (uint64_t i = 0U; i < sut.capacity() - 1U; ++i)
+        {
+            sut.emplace_back(1234U);
+        }
+
+        EXPECT_THAT(customCTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS - 1U));
+        EXPECT_TRUE(sut.emplace(EMPLACE_POSITION, 42U));
+        EXPECT_THAT(customCTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS));
+        EXPECT_THAT(moveAssignment, Eq(EMPLACE_POSITION - 1U));
+        EXPECT_THAT(dTor, Eq(1U));
+    }
+    // Last element in the vector is moved and not constructed, hence #moveCTor + #customCTor = #dTor
+    EXPECT_THAT(moveCTor, Eq(1U));
+    EXPECT_THAT(customCTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS));
+    EXPECT_THAT(dTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS + 1U));
+}
+
 TEST_F(vector_test, CopyAssignmentWithEmptySource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f64706d-b370-41b4-91e1-3e319cd6c14a");
