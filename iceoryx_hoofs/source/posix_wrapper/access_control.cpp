@@ -94,15 +94,19 @@ AccessController::createACL(const int32_t f_numEntries) noexcept
     cxx::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
+        /// NOLINTJUSTIFICATION will be replaced with refactored error handling
+        /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
+    /// NOLINTJUSTIFICATION required to restore type of the acquired acl_t pointer
+    /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall->value), freeACL);
 }
 
 bool AccessController::addPermissionEntry(const Category f_category,
                                           const Permission f_permission,
-                                          const string_t& f_name) noexcept
+                                          const permissionString_t& f_name) noexcept
 {
     switch (f_category)
     {
@@ -119,12 +123,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
         {
             return false;
         }
-        else
-        {
-            return addPermissionEntry(f_category, f_permission, id.value());
-        }
 
-        break;
+        return addPermissionEntry(f_category, f_permission, id.value());
     }
     case Category::SPECIFIC_GROUP:
     {
@@ -139,12 +139,8 @@ bool AccessController::addPermissionEntry(const Category f_category,
         {
             return false;
         }
-        else
-        {
-            return addPermissionEntry(f_category, f_permission, id.value());
-        }
 
-        break;
+        return addPermissionEntry(f_category, f_permission, id.value());
     }
     default:
     {

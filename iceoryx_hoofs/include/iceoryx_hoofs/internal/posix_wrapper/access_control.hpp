@@ -41,7 +41,9 @@ namespace posix
 class AccessController
 {
   public:
-    using string_t = cxx::string<100>;
+    /// @brief maximum size of a string in addPermissionEntry
+    static constexpr uint64_t PERMISSION_STRING_SIZE = 100U;
+    using permissionString_t = cxx::string<PERMISSION_STRING_SIZE>;
 
     enum class AccessControllerError : uint8_t
     {
@@ -80,6 +82,9 @@ class AccessController
         NONE = 0
     };
 
+    /// @brief Value for an invalid user or group id
+    static constexpr uint32_t INVALID_ID = std::numeric_limits<uint32_t>::max();
+
     /// @brief define and store a specific permission entry to be used by writePermissionsToFile.
     /// @param[f_id] id of the user or group. For Category::SPECIFIC_USER or Category::SPECIFIC_GROUP the id is
     /// required. Otherwise writing the permission entry to a file will fail. For the default user/group/others
@@ -88,11 +93,14 @@ class AccessController
     /// @param[f_permission] Permissions which should be applied to the category.
     /// @param[f_id] The group or user id - depending on the category. For Category::USER, Category::GROUP and
     ///   Category::OTHER the f_id is not required for everything else a valid group or user id is mandatory.
-    bool
-    addPermissionEntry(const Category f_category, const Permission f_permission, const uint32_t f_id = -1u) noexcept;
+    bool addPermissionEntry(const Category f_category,
+                            const Permission f_permission,
+                            const uint32_t f_id = INVALID_ID) noexcept;
 
     /// @brief just like addPermissionEntry(Category, Permission, int) but using a name instead of an id.
-    bool addPermissionEntry(const Category f_category, const Permission f_permission, const string_t& f_name) noexcept;
+    bool addPermissionEntry(const Category f_category,
+                            const Permission f_permission,
+                            const permissionString_t& f_name) noexcept;
 
     /// @brief Write permission entries stored by the AccessController to a file identified by a file descriptor.
     /// @param[f_fileDescriptor] identifier for a file (can be regular file, shared memory file, message queue file...

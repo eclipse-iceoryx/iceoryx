@@ -15,13 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32) && !defined(__APPLE__) && !defined(unix) && !defined(__unix) && !defined(__unix__)
+#if defined(__linux__)
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/platform/pwd.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
 #include "test.hpp"
-
-#include <stdlib.h>
 
 namespace
 {
@@ -33,21 +31,17 @@ constexpr const char* TestFileName = "/tmp/AclTestFile.tmp";
 class AccessController_test : public Test
 {
   public:
-    AccessController_test()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         internal::CaptureStderr();
         m_fileStream = fopen(TestFileName, "w");
         m_fileDescriptor = fileno(m_fileStream);
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        fclose(m_fileStream);
-        std::remove(TestFileName);
+        IOX_DISCARD_RESULT(fclose(m_fileStream));
+        IOX_DISCARD_RESULT(std::remove(TestFileName));
 
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -56,13 +50,9 @@ class AccessController_test : public Test
         }
     }
 
-    ~AccessController_test()
-    {
-    }
-
     iox::posix::AccessController m_accessController;
-    FILE* m_fileStream;
-    int m_fileDescriptor;
+    FILE* m_fileStream = nullptr;
+    int m_fileDescriptor = 0;
 };
 
 TEST_F(AccessController_test, writeStandardPermissions)
@@ -110,7 +100,9 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    /// NOLINTJUSTIFICATION not used in a concurrent context
+    /// NOLINTNEXTLINE(concurrency-mt-unsafe)
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
@@ -154,7 +146,7 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::string_t groupName = "root";
+    AccessController::permissionString_t groupName = "root";
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
@@ -192,8 +184,11 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
 TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
+    /// NOLINTJUSTIFICATION not used in a concurrent context
+    /// NOLINTBEGIN(concurrency-mt-unsafe)
     std::string currentUserName(getpwuid(geteuid())->pw_name);
     uid_t currentUserId(getpwuid(geteuid())->pw_uid);
+    /// NOLINTEND(concurrency-mt-unsafe)
     gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
@@ -235,7 +230,9 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
-    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    /// NOLINTJUSTIFICATION not used in a concurrent context
+    /// NOLINTNEXTLINE(concurrency-mt-unsafe)
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
 
     // this is not allowed as the default user should not be named explicitly
     m_accessController.addPermissionEntry(
@@ -251,9 +248,9 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 TEST_F(AccessController_test, addManyPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
-    AccessController::string_t groupName = "root";
+    AccessController::permissionString_t groupName = "root";
 
-    bool entryAdded;
+    bool entryAdded = false;
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
     {
         entryAdded = m_accessController.addPermissionEntry(
