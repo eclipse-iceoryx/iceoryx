@@ -250,7 +250,7 @@ TEST_F(AccessController_test, addManyPermissions)
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
     AccessController::permissionString_t groupName = "root";
 
-    bool entryAdded = false;
+    bool entryAdded{false};
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
     {
         entryAdded = m_accessController.addPermissionEntry(
