@@ -36,13 +36,16 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
   public:
     // no system restrictions at all, except available memory. MAX_MESSAGE_SIZE and MAX_NUMBER_OF_MESSAGES can be
     // increased as long as there is enough memory available
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 4U * 1024U;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = 4096U;
     static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = 10U;
     static_assert(MAX_NUMBER_OF_MESSAGES < IOX_SEM_VALUE_MAX,
                   "The maximum number of supported messages must be less than the maximum allowed semaphore value");
 
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 0U;
     static constexpr units::Duration CYCLE_TIME = units::Duration::fromMilliseconds(10);
+
+    /// NOLINTJUSTIFICATION used as safe compile time string literal
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char NAMED_PIPE_PREFIX[] = "iox_np_";
 
     using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
@@ -131,6 +134,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
         NamedPipeData& operator=(const NamedPipeData&) = delete;
         NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
+        ~NamedPipeData() = default;
 
         UnnamedSemaphore& sendSemaphore() noexcept;
         UnnamedSemaphore& receiveSemaphore() noexcept;
@@ -150,6 +154,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
+        /// NOLINTJUSTIFICATION todo iox-#1196 replace with cxx::array implementation
+        /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
         cxx::optional<UnnamedSemaphore> semaphores[2U];
     };
 
