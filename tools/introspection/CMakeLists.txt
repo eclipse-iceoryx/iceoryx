@@ -27,7 +27,7 @@ find_package(iceoryx_posh REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 
-iox_make_unique_includedir()
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)
