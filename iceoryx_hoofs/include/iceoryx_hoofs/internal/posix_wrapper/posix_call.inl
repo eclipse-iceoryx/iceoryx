@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+
 namespace iox
 {
 namespace posix
@@ -24,6 +26,8 @@ namespace internal
 {
 template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallBuilder<ReturnType, FunctionArguments...>
+/// NOLINTJUSTIFICATION this function is never used directly, only be the macro posixCall
+/// NOLINTNEXTLINE(readability-function-size)
 createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
                        const char* posixFunctionName,
                        const char* file,
@@ -35,6 +39,9 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
 }
 
 template <typename ReturnType>
+/// NOLINTJUSTIFICATION used only internally, the function and file name are provided by
+///                     compiler macros and are of type char*
+/// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionName,
                                                       const char* file,
                                                       int line,
@@ -51,7 +58,11 @@ inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionN
 template <typename T>
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, std::strerror(errnum));
+    /// NOLINTJUSTIFICATION todo iox-#1196 replace with upcoming uninitialized array
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    char buffer[POSIX_CALL_ERROR_STRING_SIZE];
+    IOX_DISCARD_RESULT(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE));
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, &buffer[0]);
 }
 
 template <typename ReturnType, typename... FunctionArguments>
@@ -161,7 +172,8 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     {
         return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
     }
-    else if (!m_details.hasSilentErrno)
+
+    if (!m_details.hasSilentErrno)
     {
         auto flags = std::cerr.flags();
         std::cerr << m_details.file << ":" << std::dec << m_details.line << " { " << m_details.callingFunction << " -> "
