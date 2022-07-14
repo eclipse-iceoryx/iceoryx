@@ -67,13 +67,6 @@ class FileReader
     bool readLine(std::string& f_string) noexcept;
 
   private:
-#ifdef _WIN32
-    static constexpr char PATH_SEPARATOR[] = "\\";
-#else
-    // safe access guaranteed since constexpr and null-terminated
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    static constexpr char PATH_SEPARATOR[] = "/";
-#endif
     std::fstream m_fileStream;
     std::string m_file;
     ErrorMode m_errorMode;
