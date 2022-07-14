@@ -21,10 +21,12 @@ namespace iox
 namespace cxx
 {
 // start with 1, just in case we want to use 0 for a special purpose later on
-std::atomic<uint64_t> UniqueId::g_IdCounter{1U};
+/// @NOLINTJUSTIFICATION see argument in header
+/// @NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+std::atomic<uint64_t> UniqueId::m_IdCounter{1U};
 
 UniqueId::UniqueId() noexcept
-    : ThisType(newtype::internal::ProtectedConstructor, g_IdCounter.fetch_add(1U, std::memory_order_relaxed))
+    : ThisType(newtype::internal::ProtectedConstructor, m_IdCounter.fetch_add(1U, std::memory_order_relaxed))
 {
 }
 } // namespace cxx

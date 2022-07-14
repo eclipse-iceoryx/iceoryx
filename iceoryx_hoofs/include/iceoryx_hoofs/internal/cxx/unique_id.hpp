@@ -45,7 +45,10 @@ class UniqueId : public cxx::NewType<uint64_t,
     UniqueId() noexcept;
 
   private:
-    static std::atomic<value_type> g_IdCounter; // initialized in corresponding cpp file
+    /// @NOLINTJUSTIFICATION only accessible by this class. the global variable is required to
+    ///                      generate a unique id from it incrementing value
+    /// @NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+    static std::atomic<value_type> m_IdCounter; // initialized in corresponding cpp file
 };
 
 } // namespace cxx
