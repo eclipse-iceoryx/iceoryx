@@ -90,7 +90,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     /// @brief try to send a message to the queue for a given timeout duration using std::string
     cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
-    cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
+    static cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
     MessageQueue(const IpcChannelName_t& name,
@@ -120,6 +120,9 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     static constexpr int TIMEOUT_ERRNO = ETIMEDOUT;
 #endif
     // read/write permissions
+    /// NOLINTJUSTIFICATION used inside the wrapper so that the user does not have to use this
+    ///                     construct from outside
+    /// NOLINTNEXTLINE(hicpp-signed-bitwise)
     static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
 };
 } // namespace posix
