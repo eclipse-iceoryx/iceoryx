@@ -111,22 +111,6 @@ Macro(install_package_files_and_export)
     )
 endMacro()
 
-Macro(iox_make_unique_includedir)
-    option(MAKE_UNIQUE_INCLUDEDIR
-      "When ON headers are installed to a path ending with folders called \
-      iceoryx/vX.Y.Z/ . This avoids include directory search order issues when \
-      overriding this package from a merged catkin, ament, or colcon workspace."
-      ON)
-
-    if(MAKE_UNIQUE_INCLUDEDIR)
-      set(_unique_dir "iceoryx/v${IOX_VERSION_STRING}")
-      if(PREFIX STREQUAL "")
-        set(PREFIX "${_unique_dir}")
-      else()
-        set(PREFIX "${PREFIX}/${_unique_dir}")
-      endif()
-    endif()
-endMacro()
 
 Macro(iox_set_rpath)
     set(switches IS_EXECUTABLE)
@@ -205,7 +189,7 @@ endMacro()
 Macro(iox_add_executable)
     set(switches USE_C_LANGUAGE PLACE_IN_BUILD_ROOT)
     set(arguments TARGET STACK_SIZE)
-    set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE 
+    set(multiArguments FILES LIBS INCLUDE_DIRECTORIES LIBS_QNX LIBS_LINUX LIBS_UNIX LIBS_WIN32 LIBS_APPLE
         BUILD_INTERFACE INSTALL_INTERFACE)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 

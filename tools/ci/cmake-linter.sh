@@ -40,12 +40,6 @@ performCmakeLinting()
             echo "  please do not use the cmake command \"add_executable\", use \"iox_add_executable\" instead"
             EXIT_CODE=1
         fi
-
-         if ! [[ $(cat $FILE | grep "MAKE_UNIQUE_INCLUDEDIR" | wc -l) == "0" ]]
-        then
-            echo "  please do not access MAKE_UNIQUE_INCLUDEDIR directly, use \"iox_make_unique_includedir()\" and access it via the variable \"PREFIX\""
-            EXIT_CODE=1
-        fi
     done
 }
 

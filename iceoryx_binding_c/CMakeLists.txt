@@ -31,7 +31,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-iox_make_unique_includedir()
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
 #
 ########## build building-block library ##########

@@ -44,8 +44,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-iox_make_unique_includedir()
-
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 include(cmake/iceoryxversions.cmake)
 
 ########## Multiple libraries are exported, the setup and installation is done
@@ -288,7 +287,7 @@ install(
 
 # install deployment file to make posh config accessible by other packages
 install(
-    FILES 
+    FILES
         cmake/IceoryxPoshDeployment.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
