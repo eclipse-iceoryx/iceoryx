@@ -78,10 +78,12 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
     ::testing::Test::RecordProperty("TEST_ID", "9deed5c0-19d8-4469-a5c3-f185d4d881f1");
     iox::posix::Allocator sut(memory, memorySize);
     std::set_terminate([]() { std::cout << "", std::abort(); });
+    // todo #1196 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg) death test
+    // hiccpp-vararg)
     EXPECT_DEATH({ sut.allocate(memorySize + 1, MEMORY_ALIGNMENT); }, ".*");
-    // NOLINTEND
+    // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
+    // hiccpp-vararg)
 }
 
 TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
@@ -95,10 +97,12 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
+    // todo #1196 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg) death test
+    // hiccpp-vararg)
     EXPECT_DEATH({ sut.allocate(1, MEMORY_ALIGNMENT); }, ".*");
-    // NOLINTEND
+    // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
+    // hiccpp-vararg)
 }
 
 TEST_F(Allocator_Test, allocateAndAlignment)
@@ -115,10 +119,12 @@ TEST_F(Allocator_Test, allocateElementOfSizeZero)
     ::testing::Test::RecordProperty("TEST_ID", "17caa50c-94bf-4a1d-a1ec-dfda563caa0b");
     iox::posix::Allocator sut(memory, memorySize);
 
+    // todo #1196 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg) death test
+    // hiccpp-vararg)
     EXPECT_DEATH(sut.allocate(0, MEMORY_ALIGNMENT), ".*");
-    // NOLINTEND
+    // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
+    // hiccpp-vararg)
 }
 
 TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
@@ -140,9 +146,11 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
 
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
+    // todo #1196 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg) death test
+    // hiccpp-vararg)
     EXPECT_DEATH({ sut.allocate(5, MEMORY_ALIGNMENT); }, ".*");
-    // NOLINTEND
+    // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
+    // hiccpp-vararg)
 }
 } // namespace
