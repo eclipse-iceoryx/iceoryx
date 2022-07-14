@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ using namespace ::testing;
 // use a non-POD type for testing (just a boxed version of int)
 struct Integer
 {
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
     Integer(uint64_t value = 0)
         : value(value)
     {
@@ -37,6 +38,7 @@ struct Integer
     uint64_t value{0};
 
     // so that it behaves like an int for comparison purposes
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
     operator uint64_t() const
     {
         return value;
@@ -47,21 +49,9 @@ template <typename T>
 class ResizeableLockFreeQueueTest : public ::testing::Test
 {
   protected:
-    ResizeableLockFreeQueueTest()
-    {
-    }
+    ResizeableLockFreeQueueTest() = default;
 
-    ~ResizeableLockFreeQueueTest()
-    {
-    }
-
-    void SetUp()
-    {
-    }
-
-    void TearDown()
-    {
-    }
+    ~ResizeableLockFreeQueueTest() override = default;
 
     void fillQueue(uint64_t start = 0)
     {
@@ -481,7 +471,8 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 
     uint64_t element = 0U;
     while (q.tryPush(element++))
-        ;
+    {
+    }
 
     const auto CAP2 = CAP + MAX_CAP / 4U; // roughly 3 quarters of max (integer division)
     q.setCapacity(CAP2);
@@ -513,7 +504,9 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueue)
 
     element = 0U;
     while (q.tryPush(element++))
-        ;
+    {
+    }
+
 
     for (element = 0U; element < CAP3; ++element)
     {
@@ -541,7 +534,8 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
 
     uint64_t element = 0U;
     while (q.tryPush(element++))
-        ;
+    {
+    }
 
     const auto CAP2 = CAP + MAX_CAP / 4U; // roughly 3 quarters of max (integer division)
     q.setCapacity(CAP2);
@@ -583,7 +577,9 @@ TYPED_TEST(ResizeableLockFreeQueueTest, DecreaseCapacityOfAPartiallyFilledQueueW
 
     element = 0U;
     while (q.tryPush(element++))
-        ;
+    {
+    }
+
 
     for (element = 0U; element < CAP3; ++element)
     {

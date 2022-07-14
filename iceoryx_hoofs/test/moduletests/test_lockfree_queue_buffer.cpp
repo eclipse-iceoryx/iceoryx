@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,21 +32,9 @@ class LockFreeQueueBufferTest : public ::testing::Test
     using Buffer = T;
 
   protected:
-    LockFreeQueueBufferTest()
-    {
-    }
+    LockFreeQueueBufferTest() = default;
 
-    ~LockFreeQueueBufferTest()
-    {
-    }
-
-    void SetUp()
-    {
-    }
-
-    void TearDown()
-    {
-    }
+    ~LockFreeQueueBufferTest() override = default;
 
     Buffer buffer;
 
@@ -64,6 +52,7 @@ class LockFreeQueueBufferTest : public ::testing::Test
 
 struct Integer
 {
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
     Integer(int value = 0)
         : value(value)
     {
@@ -72,6 +61,7 @@ struct Integer
     int value{0};
 
     // so that it behaves like an int for comparison purposes
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
     operator int() const
     {
         return value;
@@ -82,8 +72,9 @@ TEST(LockFreeQueueBufferTest, capacityIsCorrect)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ac31a08-77b2-4fd2-a214-81298cada00c");
     constexpr uint64_t capacity = 7;
-    Buffer<int, capacity> buffer;
-    EXPECT_EQ(buffer.capacity(), capacity);
+    // NOLINTNEXTLINE(hicpp-member-init, cppcoreguidelines-pro-type-member-init) false positive
+    Buffer<int, capacity> sut;
+    EXPECT_EQ(sut.capacity(), capacity);
 }
 
 typedef ::testing::Types<Buffer<int, 10>, Buffer<Integer, 10>> TestBuffers;

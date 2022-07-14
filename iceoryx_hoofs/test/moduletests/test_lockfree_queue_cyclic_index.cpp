@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,21 +31,9 @@ class LockFreeQueueCyclicIndexTest : public ::testing::Test
     using Index = T;
 
   protected:
-    LockFreeQueueCyclicIndexTest()
-    {
-    }
+    LockFreeQueueCyclicIndexTest() = default;
 
-    ~LockFreeQueueCyclicIndexTest()
-    {
-    }
-
-    void SetUp()
-    {
-    }
-
-    void TearDown()
-    {
-    }
+    ~LockFreeQueueCyclicIndexTest() override = default;
 };
 
 typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, CyclicIndex<1000>> TestIndices;

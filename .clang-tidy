@@ -18,6 +18,10 @@ concurrency-*,
 performance-*,
 hicpp-*,
 
+-cppcoreguidelines-non-private-member-variables-in-classes,
+
+-hicpp-named-parameter,
+
 -readability-avoid-const-params-in-decls,
 -readability-identifier-length,
 -readability-redundant-access-specifiers,
@@ -25,6 +29,7 @@ hicpp-*,
 
 -readability-identifier-naming,
 -readability-use-anyofallof,
+-readability-named-parameter,
 
 '
 
@@ -88,7 +93,35 @@ hicpp-*,
 #
 # * rule: readability-use-anyofallof
 #   justification: requires C++20 and std::ranges but we only use C++14
-
+#
+# * rule: cppcoreguidelines-non-private-member-variables-in-classes
+#   justification: Sometimes it makes sense to have protected members to extend the base class.
+#                  Even public members are useful in lightweight classes (effectively structs).
+#                  This unnecessarily limits design options.
+#
+# * rule: readability-named-parameter, -hicpp-named-parameter
+#   justicfication: For tag types which just guide overloading no name is needed.
+#                   Declaration of private functions does not require a name (no doxygen comment).
+#                   For callbacks omitting the name is less verbose than to cast an unsued parameter to void.
+#   callbacks
+#   bad:
+#       auto callable = [] (auto /*foo*/) {...};
+#   good:
+#       auto callable = [] (auto) {};
+#   tag types
+#   optional:
+#       void foo(Tag1 tag); // (1) called with Tag1 type
+#       void foo(Tag2 tag); // (2) called with Tag2 type
+#       // dispatch site
+#       Tag1 tag;
+#       foo(tag); // calls (1)
+#   also ok:
+#       void foo(Tag1); // (1)
+#       void foo(Tag2); // (2)
+#       // dispatch site
+#       Tag1 tag;
+#       foo(tag); // calls (1)
+#
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments
 # -bugprone-easily-swappable-parameters

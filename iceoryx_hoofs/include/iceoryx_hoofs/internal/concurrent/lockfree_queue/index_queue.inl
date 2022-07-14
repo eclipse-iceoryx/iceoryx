@@ -1,4 +1,5 @@
 // Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,12 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL
+
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+
 namespace iox
 {
 namespace concurrent
 {
 template <uint64_t Capacity, typename ValueType>
-IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
+inline IndexQueue<Capacity, ValueType>::IndexQueue(ConstructEmpty_t) noexcept
     : m_readPosition(Index(Capacity))
     , m_writePosition(Index(Capacity))
 {
@@ -226,9 +232,9 @@ bool IndexQueue<Capacity, ValueType>::popIfFull(ValueType& index) noexcept
 }
 
 template <uint64_t Capacity, typename ValueType>
-bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t requiredSize, ValueType& index) noexcept
+bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t minSize, ValueType& index) noexcept
 {
-    if (requiredSize == 0)
+    if (minSize == 0)
     {
         return pop(index);
     }
@@ -257,7 +263,7 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t required
     }
 
     // delta is positive, therefore the conversion is fine (it surely fits into uint64_t)
-    if (static_cast<uint64_t>(delta) >= requiredSize)
+    if (static_cast<uint64_t>(delta) >= minSize)
     {
         auto value = loadvalueAt(readPosition, std::memory_order_relaxed);
         Index newReadPosition(readPosition + 1U);
@@ -326,3 +332,5 @@ IndexQueue<Capacity, ValueType>::loadvalueAt(const Index& position, const std::m
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_INDEX_QUEUE_INL

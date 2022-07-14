@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL
 
 #include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
 
@@ -220,3 +223,5 @@ iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_RESIZEABLE_LOCKFREE_QUEUE_INL
