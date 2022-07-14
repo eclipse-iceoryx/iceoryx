@@ -47,11 +47,13 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                                   static_cast<int32_t>(m_flags),
                                   m_fileDescriptor,
                                   m_offset)
+
+                      // NOLINTJUSTIFICATION cast required, type of error MAP_FAILED defined by POSIX to be void*
                       // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr,
                       // cppcoreguidelines-pro-type-reinterpret-cast)
-                      // cast required, type of error MAP_FAILED defined by POSIX to be void*
                       .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
-                      // NOLINTEND
+                      // NOLINTEND(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr,
+                      // cppcoreguidelines-pro-type-reinterpret-cast)
                       .evaluate();
 
     if (result)

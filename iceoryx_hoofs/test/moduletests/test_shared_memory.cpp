@@ -127,12 +127,9 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2844c9c5-856e-4b51-890d-1418f79f1a80");
 
-    // NOLINTNEXTLINE(cppcoreguidelines-init-variables) initialized before read
-    int handle;
-
     auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
-    handle = sut->getHandle();
+    int handle = sut->getHandle();
     {
         iox::posix::SharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));

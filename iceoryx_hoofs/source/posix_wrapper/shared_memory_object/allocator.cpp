@@ -35,12 +35,8 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
 
 void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
-    /// @todo replace Expects with IOX_ASSERT
-    // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Expects(size > 0);
 
-    /// @todo replace Expects with IOX_ASSERT
-    // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Expects(
         !m_allocationFinalized
         && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
