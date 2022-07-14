@@ -26,6 +26,10 @@ namespace iox
 namespace posix
 {
 /// @brief A unnamed posix semaphore.
+/// NOLINTJUSTIFICATION m_handle is always initialized during create in the UnnamedSemaphoreBuilder
+///                     hence it is impossible to create a UnnamedSemaphore without an initialized
+///                     m_handle
+/// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaphore>
 {
   public:
@@ -61,7 +65,7 @@ class UnnamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
-    cxx::expected<SemaphoreError> create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) noexcept;
+    cxx::expected<SemaphoreError> create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix
 } // namespace iox

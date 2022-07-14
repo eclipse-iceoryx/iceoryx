@@ -31,7 +31,7 @@ inline bool setSemaphoreToZeroAndVerifyValue(SemaphoreType& semaphore, const uin
         {
             return false;
         }
-        if (*result == false)
+        if (!*result)
         {
             return (count == expectedValue);
         }
