@@ -45,15 +45,7 @@ class SemaphoreInterfaceTest : public Test
     using SutFactory = T;
     using SutType = typename SutFactory::SutType;
 
-    SemaphoreInterfaceTest()
-    {
-    }
-
-    ~SemaphoreInterfaceTest()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
         ASSERT_TRUE(SutFactory::create(sut, 0U));
@@ -65,7 +57,7 @@ class SemaphoreInterfaceTest : public Test
         return SutFactory::create(sut, value);
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -148,7 +140,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
         return;
     }
 
-    uint32_t INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX);
+    auto INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX);
 
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
