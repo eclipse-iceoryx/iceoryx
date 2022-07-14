@@ -26,7 +26,7 @@ namespace iox
 {
 namespace posix
 {
-bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) const noexcept
+bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) const noexcept
 {
     if (m_permissions.empty())
     {
@@ -69,7 +69,7 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = posixCall(acl_set_fd)(f_fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
+    auto aclSetFdCall = posixCall(acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
     if (aclSetFdCall.has_error())
     {
         std::cerr << "Error: Could not set file ACL." << std::endl;
@@ -80,10 +80,10 @@ bool AccessController::writePermissionsToFile(const int32_t f_fileDescriptor) co
 }
 
 cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
-AccessController::createACL(const int32_t f_numEntries) noexcept
+AccessController::createACL(const int32_t numEntries) noexcept
 {
     // allocate memory for a new ACL
-    auto aclInitCall = posixCall(acl_init)(f_numEntries).failureReturnValue(nullptr).evaluate();
+    auto aclInitCall = posixCall(acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
 
     if (aclInitCall.has_error())
     {
@@ -104,43 +104,43 @@ AccessController::createACL(const int32_t f_numEntries) noexcept
     return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall->value), freeACL);
 }
 
-bool AccessController::addPermissionEntry(const Category f_category,
-                                          const Permission f_permission,
-                                          const permissionString_t& f_name) noexcept
+bool AccessController::addPermissionEntry(const Category category,
+                                          const Permission permission,
+                                          const permissionString_t& name) noexcept
 {
-    switch (f_category)
+    switch (category)
     {
     case Category::SPECIFIC_USER:
     {
-        if (f_name.empty())
+        if (name.empty())
         {
             std::cerr << "Error: specific users must have an explicit name." << std::endl;
             return false;
         }
 
-        auto id = posix::PosixUser::getUserID(f_name);
+        auto id = posix::PosixUser::getUserID(name);
         if (!id.has_value())
         {
             return false;
         }
 
-        return addPermissionEntry(f_category, f_permission, id.value());
+        return addPermissionEntry(category, permission, id.value());
     }
     case Category::SPECIFIC_GROUP:
     {
-        if (f_name.empty())
+        if (name.empty())
         {
             std::cerr << "Error: specific groups must have an explicit name." << std::endl;
             return false;
         }
 
-        auto id = posix::PosixGroup::getGroupID(f_name);
+        auto id = posix::PosixGroup::getGroupID(name);
         if (!id.has_value())
         {
             return false;
         }
 
-        return addPermissionEntry(f_category, f_permission, id.value());
+        return addPermissionEntry(category, permission, id.value());
     }
     default:
     {
@@ -150,9 +150,9 @@ bool AccessController::addPermissionEntry(const Category f_category,
     return false;
 }
 
-bool AccessController::addPermissionEntry(const Category f_category,
-                                          const Permission f_permission,
-                                          const uint32_t f_id) noexcept
+bool AccessController::addPermissionEntry(const Category category,
+                                          const Permission permission,
+                                          const uint32_t id) noexcept
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
@@ -160,11 +160,11 @@ bool AccessController::addPermissionEntry(const Category f_category,
         return false;
     }
 
-    switch (f_category)
+    switch (category)
     {
     case Category::SPECIFIC_USER:
     {
-        if (!posix::PosixUser::getUserName(f_id).has_value())
+        if (!posix::PosixUser::getUserName(id).has_value())
         {
             std::cerr << "Error: No such user" << std::endl;
             return false;
@@ -175,7 +175,7 @@ bool AccessController::addPermissionEntry(const Category f_category,
     }
     case Category::SPECIFIC_GROUP:
     {
-        if (!posix::PosixGroup::getGroupName(f_id).has_value())
+        if (!posix::PosixGroup::getGroupName(id).has_value())
         {
             std::cerr << "Error: No such group" << std::endl;
             return false;
@@ -189,15 +189,15 @@ bool AccessController::addPermissionEntry(const Category f_category,
     }
     }
 
-    m_permissions.emplace_back(PermissionEntry{static_cast<uint32_t>(f_category), f_permission, f_id});
+    m_permissions.emplace_back(PermissionEntry{static_cast<uint32_t>(category), permission, id});
     return true;
 }
 
-bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& f_entry) noexcept
+bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept
 {
     // create new entry in acl
     acl_entry_t newEntry{};
-    acl_t l_ACL{f_ACL};
+    acl_t l_ACL{ACL};
 
     auto aclCreateEntryCall = posixCall(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
 
@@ -208,7 +208,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 
     // set tag type for new entry (user, group, ...)
-    auto tagType = static_cast<acl_tag_t>(f_entry.m_category);
+    auto tagType = static_cast<acl_tag_t>(entry.m_category);
     auto aclSetTagTypeCall = posixCall(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
 
     if (aclSetTagTypeCall.has_error())
@@ -218,16 +218,16 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 
     // set qualifier for new entry (names of specific users or groups)
-    switch (f_entry.m_category)
+    switch (entry.m_category)
     {
     case ACL_USER:
     {
         auto aclSetQualifierCall =
-            posixCall(acl_set_qualifier)(newEntry, &(f_entry.m_id)).successReturnValue(0).evaluate();
+            posixCall(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
-            std::cerr << "Error: Could not set ACL qualifier of user " << f_entry.m_id << std::endl;
+            std::cerr << "Error: Could not set ACL qualifier of user " << entry.m_id << std::endl;
             return false;
         }
 
@@ -236,11 +236,11 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     case ACL_GROUP:
     {
         auto aclSetQualifierCall =
-            posixCall(acl_set_qualifier)(newEntry, &(f_entry.m_id)).successReturnValue(0).evaluate();
+            posixCall(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
-            std::cerr << "Error: Could not set ACL qualifier of group " << f_entry.m_id << std::endl;
+            std::cerr << "Error: Could not set ACL qualifier of group " << entry.m_id << std::endl;
             return false;
         }
         break;
@@ -261,7 +261,7 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
         return false;
     }
 
-    switch (f_entry.m_permission)
+    switch (entry.m_permission)
     {
     case Permission::READ:
     {
@@ -290,9 +290,9 @@ bool AccessController::createACLEntry(const acl_t f_ACL, const PermissionEntry& 
     }
 }
 
-bool AccessController::addAclPermission(acl_permset_t f_permset, acl_perm_t f_perm) noexcept
+bool AccessController::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
 {
-    auto aclAddPermCall = posixCall(acl_add_perm)(f_permset, f_perm).successReturnValue(0).evaluate();
+    auto aclAddPermCall = posixCall(acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
 
     if (aclAddPermCall.has_error())
     {

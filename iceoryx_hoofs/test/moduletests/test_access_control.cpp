@@ -19,21 +19,21 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/platform/pwd.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "test.hpp"
 
 namespace
 {
-using namespace ::testing;
 using namespace iox::posix;
 
 constexpr const char* TestFileName = "/tmp/AclTestFile.tmp";
 
-class AccessController_test : public Test
+class AccessController_test : public ::testing::Test
 {
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
+        ::testing::internal::CaptureStderr();
         m_fileStream = fopen(TestFileName, "w");
         m_fileDescriptor = fileno(m_fileStream);
     }
@@ -43,7 +43,7 @@ class AccessController_test : public Test
         IOX_DISCARD_RESULT(fclose(m_fileStream));
         IOX_DISCARD_RESULT(std::remove(TestFileName));
 
-        std::string output = internal::GetCapturedStderr();
+        std::string output = ::testing::internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;
@@ -54,6 +54,38 @@ class AccessController_test : public Test
     FILE* m_fileStream = nullptr;
     int m_fileDescriptor = 0;
 };
+
+struct PwUidResult
+{
+    static constexpr uint64_t BUFFER_SIZE{2048U};
+    passwd pwd;
+    /// NOLINTJUSTIFICATION required as memory buffer for the getpwuid_r result
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    char buff[BUFFER_SIZE];
+};
+
+iox::cxx::optional<PwUidResult> iox_getpwuid(const uid_t uid)
+{
+    passwd* resultPtr = nullptr;
+    /// NOLINTJUSTIFICATION will be initialized by the getpwuid_r call below
+    /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+    PwUidResult result;
+    auto call = posixCall(getpwuid_r)(uid, &result.pwd, &result.buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
+                    .returnValueMatchesErrno()
+                    .evaluate();
+    if (call.has_error())
+    {
+        EXPECT_TRUE(false);
+        return iox::cxx::nullopt;
+    }
+
+    if (resultPtr == nullptr)
+    {
+        return iox::cxx::nullopt;
+    }
+
+    return result;
+}
 
 TEST_F(AccessController_test, writeStandardPermissions)
 {
@@ -100,9 +132,8 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    /// NOLINTJUSTIFICATION not used in a concurrent context
-    /// NOLINTNEXTLINE(concurrency-mt-unsafe)
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity,
+                                                         iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
@@ -184,11 +215,8 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
 TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
-    /// NOLINTJUSTIFICATION not used in a concurrent context
-    /// NOLINTBEGIN(concurrency-mt-unsafe)
-    std::string currentUserName(getpwuid(geteuid())->pw_name);
-    uid_t currentUserId(getpwuid(geteuid())->pw_uid);
-    /// NOLINTEND(concurrency-mt-unsafe)
+    std::string currentUserName(iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
+    uid_t currentUserId(iox_getpwuid(geteuid()).expect("failed").pwd.pw_uid);
     gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
@@ -230,9 +258,8 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
-    /// NOLINTJUSTIFICATION not used in a concurrent context
-    /// NOLINTNEXTLINE(concurrency-mt-unsafe)
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity,
+                                                         iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
 
     // this is not allowed as the default user should not be named explicitly
     m_accessController.addPermissionEntry(
