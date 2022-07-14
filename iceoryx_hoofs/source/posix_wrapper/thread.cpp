@@ -35,9 +35,10 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 
 ThreadName_t getThreadName(iox_pthread_t thread) noexcept
 {
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    char tempName[MAX_THREAD_NAME_LENGTH + 1U]; // required as name buffer for iox_pthread_getname_np
 
-    posixCall(iox_pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+    posixCall(iox_pthread_getname_np)(thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
         .or_else([](auto& r) {
@@ -47,9 +48,10 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
             cxx::Ensures(false && "internal logic error");
         });
 
-    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
 
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static) not possible after PR #1441 is merged
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
                                                  const Thread::callable_t& callable) noexcept
 {
@@ -100,6 +102,7 @@ Thread::~Thread() noexcept
     }
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const) method will be removed in PR #1441
 void Thread::setName(const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
@@ -113,9 +116,10 @@ void Thread::setName(const ThreadName_t& name) noexcept
 
 ThreadName_t Thread::getName() const noexcept
 {
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    char tempName[MAX_THREAD_NAME_LENGTH + 1U]; // required as name buffer for iox_pthread_getname_np
 
-    posixCall(iox_pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+    posixCall(iox_pthread_getname_np)(m_threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to retrieve the thread name.");
@@ -123,7 +127,7 @@ ThreadName_t Thread::getName() const noexcept
     /// and errors possible for open(2) can be retrieved. Handle them here?
     /// @todo Do we really want to terminate here?
 
-    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
 
 ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
@@ -145,8 +149,7 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
         LogError() << "no appropriate permission to set required scheduling policy or parameters";
         return ThreadError::INSUFFICIENT_PERMISSIONS;
     default:
-        LogError() << "an unexpected error occurred in thread - this should never happen! errno: "
-                   << strerror(errnoValue);
+        LogError() << "an unexpected error occurred in thread - this should never happen!";
         return ThreadError::UNDEFINED;
     }
 }
