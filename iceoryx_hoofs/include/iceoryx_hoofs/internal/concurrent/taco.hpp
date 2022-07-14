@@ -36,6 +36,8 @@ enum class TACOMode
     DenyDataFromSameContext
 };
 
+constexpr uint32_t DEFAULT_MAX_NUMBER_OF_CONTEXT = 500;
+
 /// @brief
 /// TACO is an acronym for Thread Aware exChange Ownership.
 /// Exchanging data between thread needs some synchonization mechanism.
@@ -49,7 +51,7 @@ enum class TACOMode
 /// @param T       DataType to be stored
 /// @param Context Enum class with all the thread context that access the TACO.
 ///                The enum must start with 0, must have ascending values and
-///                the last vaule must be called END_OF_LIST.
+///                the last value must be called END_OF_LIST.
 ///
 /// @code
 /// #include "iceoryx_hoofs/internal/concurrent/taco.hpp"
@@ -112,111 +114,68 @@ enum class TACOMode
 ///     return 0;
 /// }
 /// @endcode
-template <typename T, typename Context, uint32_t MaxNumberOfContext = 500>
+template <typename T, typename Context, uint32_t MaxNumberOfContext = DEFAULT_MAX_NUMBER_OF_CONTEXT>
 class TACO
 {
-  private:
-    struct Transaction
-    {
-        Context context{Context::END_OF_LIST};
-        cxx::optional<T> data{cxx::nullopt_t()};
-    };
-
-    TACOMode m_mode;
-    // this is the index of the transaction currently available for consumption
-    std::atomic<uint32_t> m_pendingTransaction;
-
-    static constexpr uint32_t NumberOfContext = static_cast<uint32_t>(Context::END_OF_LIST);
-    // the corresponding transaction indices for the thread context;
-    // the value of m_indicex[Context] contains the index of the m_transactions array which is owned by the context
-    // so it's save to access m_transactions[m_indices[Context]]
-    uint32_t m_indices[NumberOfContext];
-    // this is a local buffer for the transaction, one for each thread that might access the TACO
-    // and there needs to be one more element which is the one ready for consumption
-    Transaction m_transactions[NumberOfContext + 1];
-
   public:
     /// Create a TACO instance with the specified mode
     /// @param [in] mode the TACO operates
-    TACO(TACOMode mode)
-        : m_mode(mode)
-        , m_pendingTransaction(NumberOfContext)
-    {
-        static_assert(std::is_enum<Context>::value, "TACO Context must be an enum class!");
-        static_assert(std::is_convertible<Context, uint32_t>::value == false,
-                      "TACO Context must be an enum class, not just an enum!");
-        static_assert(std::is_same<uint32_t, typename std::underlying_type<Context>::type>::value,
-                      "TACO Context underlying type must be uint32_t!");
-        static_assert(static_cast<uint32_t>(Context::END_OF_LIST) < MaxNumberOfContext,
-                      "TACO exceeded max number of contexts!");
-
-        // initially assign the indices to the corresponding contexts
-        uint32_t i = 0;
-        for (auto& index : m_indices)
-        {
-            index = i;
-            i++;
-        }
-    }
+    explicit TACO(TACOMode mode) noexcept;
 
     TACO(const TACO&) = delete;
     TACO(TACO&&) = delete;
     TACO& operator=(const TACO&) = delete;
     TACO& operator=(TACO&&) = delete;
 
+    ~TACO() noexcept = default;
+
     /// Takes the data from the TACO and supplies new data
     /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
     /// @param [in] context of the thread which performs the exchange
     /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
     /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> exchange(const T& data, Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        m_transactions[m_indices[static_cast<uint32_t>(context)]].data.emplace(data);
-        return exchange(context);
-    }
+    cxx::optional<T> exchange(const T& data, Context context) noexcept;
 
     /// Takes the data which is ready for consumption. The data isn't available for other access anymore.
     /// @param [in] context of the thread which takes the data
     /// @return the data a previous operation supplied for consumption or nullopt_t if there was either no data or the
     /// data was supplied from the same context and the mode disallows data from the same context
-    cxx::optional<T> take(const Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        // there is no need to set the transaction for the corresponding context to nullopt_t, the exchange function
-        // either moves the data, which leaves a nullopt_t or resets the data, which also results in a nullopt_t
-        return exchange(context);
-    }
+    cxx::optional<T> take(const Context context) noexcept;
 
     /// Supplies data for consumption
     /// @param [in] data to supply for consumption, it's copied into a local cache in the TACO
     /// @param [in] context of the thread which performs the exchange
-    void store(const T& data, const Context context)
-    {
-        cxx::Expects(context < Context::END_OF_LIST);
-        exchange(data, context);
-    }
+    void store(const T& data, const Context context) noexcept;
 
   private:
-    cxx::optional<T> exchange(const Context context)
+    cxx::optional<T> exchange(const Context context) noexcept;
+
+  private:
+    struct Transaction
     {
-        auto contextIndex = static_cast<uint32_t>(context);
-        auto transactionIndexOld = m_indices[contextIndex];
-        m_transactions[transactionIndexOld].context = context;
+        Context context{Context::END_OF_LIST};
+        cxx::optional<T> data;
+    };
 
-        m_indices[contextIndex] = m_pendingTransaction.exchange(transactionIndexOld, std::memory_order_acq_rel);
-        auto transactionIndexNew = m_indices[contextIndex];
+    TACOMode m_mode{TACOMode::DenyDataFromSameContext};
+    // this is the index of the transaction currently available for consumption
+    std::atomic<uint32_t> m_pendingTransaction;
 
-        if (m_mode == TACOMode::AccecptDataFromSameContext || m_transactions[transactionIndexNew].context != context)
-        {
-            return std::move(m_transactions[transactionIndexNew].data);
-        }
+    static constexpr uint32_t NumberOfContext = static_cast<uint32_t>(Context::END_OF_LIST);
 
-        m_transactions[transactionIndexNew].data.reset();
-        return cxx::nullopt_t();
-    }
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    // the corresponding transaction indices for the thread context;
+    // the value of m_indices[Context] contains the index of the m_transactions array which is owned by the context
+    // so it's save to access m_transactions[m_indices[Context]]
+    uint32_t m_indices[NumberOfContext]{0};
+    // this is a local buffer for the transaction, one for each thread that might access the TACO
+    // and there needs to be one more element which is the one ready for consumption
+    Transaction m_transactions[NumberOfContext + 1];
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 };
 } // namespace concurrent
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/concurrent/taco.inl"
 
 #endif // IOX_HOOFS_CONCURRENT_TACO_HPP

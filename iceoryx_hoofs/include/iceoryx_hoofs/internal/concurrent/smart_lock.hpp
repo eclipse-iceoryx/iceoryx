@@ -78,7 +78,7 @@ class smart_lock
 
   public:
     /// @brief c'tor creating empty smart_lock
-    smart_lock() noexcept = default;
+    smart_lock() = default;
 
     /// @brief c'tor forwarding all args to the underlying object
     /// @param[in] ForwardArgsToCTor is a compile time constant to indicate that this constructor forwards all arguments
