@@ -32,11 +32,7 @@ const std::string TestFileName = "/tmp/PosixAccessRights_test.tmp";
 class PosixAccessRights_test : public Test
 {
   public:
-    PosixAccessRights_test()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
@@ -46,13 +42,13 @@ class PosixAccessRights_test : public Test
             .evaluate()
             .or_else([](auto& r) {
                 std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
-                exit(EXIT_FAILURE);
+                std::terminate();
             });
 
         internal::CaptureStderr();
     }
 
-    void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -64,10 +60,6 @@ class PosixAccessRights_test : public Test
             std::cerr << "Failed to remove temporary file '" << TestFileName
                       << "'. You'll have to remove it by yourself.";
         }
-    }
-
-    ~PosixAccessRights_test()
-    {
     }
 
     std::fstream fileStream;
