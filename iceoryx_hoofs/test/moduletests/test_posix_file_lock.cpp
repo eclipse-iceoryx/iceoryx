@@ -25,8 +25,12 @@ using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
 
+/// NOLINTJUSTIFICATION compile time string literal used only in tests
+/// NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr char TEST_NAME[] = "TestProcess";
 constexpr char ANOTHER_TEST_NAME[] = "AnotherTestProcess";
+/// NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+
 
 /// @req
 /// @brief This test suite verifies the RAII behaviour of FileLock
@@ -36,11 +40,7 @@ constexpr char ANOTHER_TEST_NAME[] = "AnotherTestProcess";
 class FileLock_test : public Test
 {
   public:
-    FileLock_test()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         auto maybeFileLock =
             iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::cxx::perms::owner_all).create();
@@ -49,14 +49,11 @@ class FileLock_test : public Test
         ASSERT_TRUE(m_sut.has_value());
     }
 
-    void TearDown()
+    void TearDown() override
     {
         m_sut.reset();
     }
 
-    ~FileLock_test()
-    {
-    }
     optional<FileLock> m_sut;
 };
 
@@ -91,7 +88,7 @@ TEST_F(FileLock_test, MaxStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cf3418d-51d1-4ead-9001-e0d8e61617f0");
     const FileLock::FileName_t maxString(iox::cxx::TruncateToCapacity,
-                                         std::string(FileLock::FileName_t().capacity(), 'x'));
+                                         std::string(FileLock::FileName_t::capacity(), 'x'));
     auto sut2 = iox::posix::FileLockBuilder().name(maxString).create();
     ASSERT_FALSE(sut2.has_error());
 }

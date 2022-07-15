@@ -60,6 +60,8 @@ class FileLock
 {
   public:
     static constexpr int32_t INVALID_FD = -1;
+    /// NOLINTJUSTIFICATION Required as a safe and null terminated compile time string literal
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char LOCK_FILE_SUFFIX[] = ".lock";
     static constexpr uint64_t PATH_SEPARATOR_LENGTH = 1U;
     static constexpr uint64_t LOCK_FILE_SUFFIX_LENGTH = sizeof(LOCK_FILE_SUFFIX) / sizeof(char);
@@ -88,6 +90,8 @@ class FileLock
   private:
     enum class LockOperation : int32_t
     {
+        /// NOLINTJUSTIFICATION abstracted in enum as value so that the user does not have to use bit operations
+        /// NOLINTNEXTLINE(hicpp-signed-bitwise)
         LOCK = LOCK_EX | LOCK_NB,
         UNLOCK = LOCK_UN
     };

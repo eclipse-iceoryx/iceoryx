@@ -30,6 +30,8 @@ namespace iox
 {
 namespace posix
 {
+/// NOLINTJUSTIFICATION see declaration
+/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
 cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
@@ -112,7 +114,7 @@ FileLock& FileLock::operator=(FileLock&& rhs) noexcept
         }
 
         m_fileLockPath = std::move(rhs.m_fileLockPath);
-        m_fd = std::move(rhs.m_fd);
+        m_fd = rhs.m_fd;
 
         rhs.invalidate();
     }
@@ -217,7 +219,7 @@ FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const 
     }
     case ENOENT:
     {
-        LogError() << "directory \"" << platform::IOX_LOCK_FILE_PATH_PREFIX << "\""
+        LogError() << "directory \"" << &platform::IOX_LOCK_FILE_PATH_PREFIX[0] << "\""
                    << " does not exist.";
         return FileLockError::NO_SUCH_DIRECTORY;
     }
