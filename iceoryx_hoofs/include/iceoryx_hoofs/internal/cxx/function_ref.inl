@@ -39,10 +39,10 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
     // AXIVION Next Line AutosarC++19_03-A15.4.4 : Lambda not 'noexcept' as callable might throw
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
-        // AXIVION Next Construct AutosarC++19_03-A5.2.4, CertC++-EXP36 : Type-safety ensured by casting from type
-        // AXIVION Next Construct AutosarC++19_03-A5.3.2, AutosarC++19_03-M5.2.8 : Check for 'nullptr' is performed on
-        // call
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4, CertC++-EXP36 : The class design ensures a cast to the actual
+        // type of target
+        // AXIVION Next Construct AutosarC++19_03-A5.3.2, AutosarC++19_03-M5.2.8 : Check for 'nullptr' is
+        // performed on call NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);
     })
@@ -53,7 +53,7 @@ template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
     // the cast is required to work on POSIX systems
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting
-    // back on call
+    // back function pointer on call
     // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
     : m_pointerToCallable(reinterpret_cast<void*>(function))
     ,
@@ -61,7 +61,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function
     // (required by the C++ standard)
     m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
         using PointerType = ReturnType (*)(ArgTypes...);
-        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by casting from type
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : The class design ensures a cast to the actual type of target
         // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         PointerType f = reinterpret_cast<PointerType>(target);
         // AXIVION Next Line AutosarC++19_03-A5.3.2 : Check for 'nullptr' is performed on call

@@ -91,7 +91,7 @@ class function_ref<ReturnType(ArgTypes...)> final
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
-    // For justification see c'tor above
+    // Implicit conversion needed for method pointers
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
 
@@ -113,6 +113,9 @@ class function_ref<ReturnType(ArgTypes...)> final
     void* m_pointerToCallable{nullptr};
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
+
+template <class ReturnType, class... ArgTypes>
+void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox
