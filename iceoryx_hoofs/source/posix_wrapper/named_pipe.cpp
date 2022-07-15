@@ -25,6 +25,8 @@ namespace iox
 {
 namespace posix
 {
+/// NOLINTJUSTIFICATION see declaration in header
+/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
 constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
@@ -47,10 +49,10 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     // parameters MAX_MSG_SIZE and MAX_MSG_NUMBER from which the Message_t size and m_messages queue
     // size is obtained. Reducing the max message size / number of messages even further would not gain
     // reduced memory usage or decreased runtime. See issue #832.
-    if (name.size() + strlen(NAMED_PIPE_PREFIX) > MAX_MESSAGE_SIZE)
+    if (name.size() + strlen(&NAMED_PIPE_PREFIX[0]) > MAX_MESSAGE_SIZE)
     {
         std::cerr << "The named pipe name: \"" << name
-                  << "\" is too long. Maxium name length is: " << MAX_MESSAGE_SIZE - strlen(NAMED_PIPE_PREFIX)
+                  << "\" is too long. Maxium name length is: " << MAX_MESSAGE_SIZE - strlen(&NAMED_PIPE_PREFIX[0])
                   << std::endl;
         m_isInitialized = false;
         m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -136,7 +138,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         CreationPattern_t::operator=(std::move(rhs));
 
         m_sharedMemory = std::move(rhs.m_sharedMemory);
-        m_data = std::move(rhs.m_data);
+        m_data = rhs.m_data;
         rhs.m_data = nullptr;
     }
 
