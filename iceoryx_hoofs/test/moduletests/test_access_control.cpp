@@ -22,6 +22,8 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "test.hpp"
 
+#include <memory>
+
 namespace
 {
 using namespace iox::posix;
@@ -51,8 +53,8 @@ class AccessController_test : public ::testing::Test
     }
 
     iox::posix::AccessController m_accessController;
-    FILE* m_fileStream = nullptr;
-    int m_fileDescriptor = 0;
+    FILE* m_fileStream{nullptr};
+    int m_fileDescriptor{0};
 };
 
 struct PwUidResult
@@ -64,24 +66,22 @@ struct PwUidResult
     char buff[BUFFER_SIZE];
 };
 
-iox::cxx::optional<PwUidResult> iox_getpwuid(const uid_t uid)
+std::unique_ptr<PwUidResult> iox_getpwuid(const uid_t uid)
 {
     passwd* resultPtr = nullptr;
-    /// NOLINTJUSTIFICATION will be initialized by the getpwuid_r call below
-    /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-    PwUidResult result;
-    auto call = posixCall(getpwuid_r)(uid, &result.pwd, &result.buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
+    std::unique_ptr<PwUidResult> result = std::make_unique<PwUidResult>();
+    auto call = posixCall(getpwuid_r)(uid, &result->pwd, &result->buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
                     .returnValueMatchesErrno()
                     .evaluate();
     if (call.has_error())
     {
         EXPECT_TRUE(false);
-        return iox::cxx::nullopt;
+        return nullptr;
     }
 
     if (resultPtr == nullptr)
     {
-        return iox::cxx::nullopt;
+        return nullptr;
     }
 
     return result;
@@ -132,8 +132,9 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity,
-                                                         iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
@@ -215,8 +216,11 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
 TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
-    std::string currentUserName(iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
-    uid_t currentUserId(iox_getpwuid(geteuid()).expect("failed").pwd.pw_uid);
+
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    std::string currentUserName(name->pwd.pw_name);
+    uid_t currentUserId(name->pwd.pw_uid);
     gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
@@ -258,8 +262,9 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity,
-                                                         iox_getpwuid(geteuid()).expect("failed").pwd.pw_name);
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
     // this is not allowed as the default user should not be named explicitly
     m_accessController.addPermissionEntry(
