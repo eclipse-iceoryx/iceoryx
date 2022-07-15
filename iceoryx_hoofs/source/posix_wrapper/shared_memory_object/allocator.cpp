@@ -33,6 +33,8 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
     /// @todo memset to set memory and to avoid the usage of unavailable memory
 }
 
+// NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     cxx::Expects(size > 0);
