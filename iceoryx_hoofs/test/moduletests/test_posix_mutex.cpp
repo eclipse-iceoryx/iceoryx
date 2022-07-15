@@ -51,7 +51,7 @@ class Mutex_test : public Test
         doWaitForThread.store(false, std::memory_order_relaxed);
     }
 
-    void waitForThread()
+    void waitForThread() const
     {
         while (doWaitForThread.load(std::memory_order_relaxed))
         {
@@ -114,6 +114,8 @@ TEST_F(Mutex_test, CallingDestructorOnLockedMutexLeadsToTermination)
     std::string output = internal::GetCapturedStderr();
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
+    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(
         {
             iox::posix::mutex mtx{false};
