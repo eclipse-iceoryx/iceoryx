@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.2.3 : <type_traits> is included
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.2.3 : <type_traits> is included through "type_traits.hpp"
 
 #ifndef IOX_HOOFS_CXX_FUNCTION_REF_HPP
 #define IOX_HOOFS_CXX_FUNCTION_REF_HPP

@@ -25,21 +25,21 @@ namespace
 using namespace ::testing;
 using namespace iox::cxx;
 
-constexpr int freeFuncTestValue = 42 + 42;
-constexpr int functorTestValue = 11;
-constexpr int memberFuncTestValue = 4273;
-constexpr int sameSignatureIntTestValue = 12345;
-constexpr int sameSignatureVoidTestValue = 12346;
-constexpr int sameSignatureIntIntTestValue = 12347;
+constexpr int FREE_FUNC_TEST_VALUE = 42 + 42;
+constexpr int FUNCTOR_TEST_VALUE = 11;
+constexpr int MEMBER_FUNC_TEST_VALUE = 4273;
+constexpr int SAME_SIGNATURE_INT_TEST_VALUE = 12345;
+constexpr int SAME_SIGNATURE_VOID_TEST_VALUE = 12346;
+constexpr int SAME_SIGNATURE_INT_INT_TEST_VALUE = 12347;
 
 int freeFunction()
 {
-    return freeFuncTestValue;
+    return FREE_FUNC_TEST_VALUE;
 }
 
 void freeVoidFunction(int& arg)
 {
-    arg = freeFuncTestValue;
+    arg = FREE_FUNC_TEST_VALUE;
 }
 
 class Functor
@@ -47,7 +47,7 @@ class Functor
   public:
     int operator()()
     {
-        return functorTestValue;
+        return FUNCTOR_TEST_VALUE;
     }
 };
 
@@ -59,14 +59,7 @@ struct ComplexType
 
     bool operator==(const ComplexType& rhs) const
     {
-        if (a == rhs.a && b == rhs.b && c == rhs.c)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (a == rhs.a && b == rhs.b && c == rhs.c);
     }
 };
 
@@ -77,7 +70,7 @@ ComplexType returnComplexType(ComplexType foo)
 
 int SameSignature(function_ref<int(int)> callback)
 {
-    return callback(sameSignatureIntTestValue);
+    return callback(SAME_SIGNATURE_INT_TEST_VALUE);
 }
 
 int SameSignature(function_ref<int(void)> callback)
@@ -87,7 +80,7 @@ int SameSignature(function_ref<int(void)> callback)
 
 int SameSignature(function_ref<int(int, int)> callback)
 {
-    return callback(sameSignatureIntIntTestValue, sameSignatureIntIntTestValue);
+    return callback(SAME_SIGNATURE_INT_INT_TEST_VALUE, SAME_SIGNATURE_INT_INT_TEST_VALUE);
 }
 
 class function_refTest : public Test
@@ -101,9 +94,9 @@ class function_refTest : public Test
     {
     }
 
-    int foobar()
+    static int foobar()
     {
-        return memberFuncTestValue;
+        return MEMBER_FUNC_TEST_VALUE;
     }
 
     uint8_t m_iter{0};
@@ -172,6 +165,8 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
     auto lambda = []() -> int { return 7654; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2{std::move(sut1)};
+    // Use after move is tested here
+    // NOLINTNEXTLINE (bugprone-use-after-move)
     EXPECT_DEATH(sut1(), "Empty function_ref invoked");
 }
 
@@ -218,7 +213,7 @@ TEST_F(function_refTest, CreateValidWithFreeFunctionResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aaf49b6b-054a-4f8f-b176-6d92bb2918da");
     function_ref<int()> sut(freeFunction);
-    EXPECT_THAT(sut(), Eq(freeFuncTestValue));
+    EXPECT_THAT(sut(), Eq(FREE_FUNC_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CreateValidWithComplexTypeResultEqual)
@@ -234,15 +229,15 @@ TEST_F(function_refTest, CreateValidWithFunctorResultEqual)
     ::testing::Test::RecordProperty("TEST_ID", "6fd3609b-3254-429a-96ae-20f6dbe99b2a");
     Functor foo;
     function_ref<int()> sut(foo);
-    EXPECT_THAT(sut(), Eq(functorTestValue));
+    EXPECT_THAT(sut(), Eq(FUNCTOR_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CreateValidWithStdBindResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f5f82896-44db-4d2d-96d0-c1b0fbbe5508");
-    auto callable = std::bind(&function_refTest::foobar, this);
+    auto callable = std::bind(&function_refTest::foobar);
     function_ref<int()> sut(callable);
-    EXPECT_THAT(sut(), Eq(memberFuncTestValue));
+    EXPECT_THAT(sut(), Eq(MEMBER_FUNC_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CreateValidWithStdFunctionResultEqual)
@@ -268,21 +263,21 @@ TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3910ee08-305a-4764-82b3-8b8aa7e7038e");
     auto value = SameSignature([](int value) -> int { return value; });
-    EXPECT_THAT(value, Eq(sameSignatureIntTestValue));
+    EXPECT_THAT(value, Eq(SAME_SIGNATURE_INT_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfVoid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ca8e8384-0b20-4e4a-b372-698c4e6672b7");
-    auto value = SameSignature([](void) -> int { return sameSignatureVoidTestValue; });
-    EXPECT_THAT(value, Eq(sameSignatureVoidTestValue));
+    auto value = SameSignature([](void) -> int { return SAME_SIGNATURE_VOID_TEST_VALUE; });
+    EXPECT_THAT(value, Eq(SAME_SIGNATURE_VOID_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CallOverloadedFunctionResultsInCallOfIntInt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b37158b6-8100-4f80-bd62-d2957a7d9c46");
     auto value = SameSignature([](int value1, int value2 IOX_MAYBE_UNUSED) -> int { return value1; });
-    EXPECT_THAT(value, Eq(sameSignatureIntIntTestValue));
+    EXPECT_THAT(value, Eq(SAME_SIGNATURE_INT_INT_TEST_VALUE));
 }
 
 TEST_F(function_refTest, CreationWithFunctionPointerWorks)
@@ -292,7 +287,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWorks)
     function_ref<int(void)> sut(fp);
 
     auto result = sut();
-    EXPECT_EQ(result, freeFuncTestValue);
+    EXPECT_EQ(result, FREE_FUNC_TEST_VALUE);
 }
 
 TEST_F(function_refTest, CreationWithFunctionPointerWithRefArgWorks)
@@ -303,7 +298,7 @@ TEST_F(function_refTest, CreationWithFunctionPointerWithRefArgWorks)
 
     int arg{0};
     sut(arg);
-    EXPECT_EQ(arg, freeFuncTestValue);
+    EXPECT_EQ(arg, FREE_FUNC_TEST_VALUE);
 }
 
 TEST_F(function_refTest, CreationWithFunctionPointerWithComplexTypeArgWorks)

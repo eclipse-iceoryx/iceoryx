@@ -29,9 +29,9 @@ namespace cxx
 {
 template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
-// AXIVION Next Line AutosarC++19_03-A12.1.2 : Members are initialized in the same manner, NSDMI with nullptr is
+// AXIVION Next Construct AutosarC++19_03-A12.1.2 : Members are initialized in the same manner, NSDMI with nullptr is
 // explicit
-// AXIVION Next Line AutosarC++19_03-A8.4.6 : Only ArgTypes needs to be forwarded
+// AXIVION Next Construct AutosarC++19_03-A8.4.6 : Only ArgTypes needs to be forwarded
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by
     // casting back on call
@@ -53,7 +53,8 @@ template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
     // the cast is required to work on POSIX systems
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting
-    // back on call NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+    // back on call
+    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
     : m_pointerToCallable(reinterpret_cast<void*>(function))
     ,
     // the lambda does not capture and is thus convertible to a function pointer
