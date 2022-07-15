@@ -38,6 +38,9 @@ MessageQueue::MessageQueue() noexcept
 // NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
 MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelSide channelSide,
+                           /// NOLINTJUSTIFICATION todo(iox-#832) should be solved when the arguments are put in a
+                           ///                      struct
+                           /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                            const size_t maxMsgSize,
                            const uint64_t maxMsgNumber) noexcept
     : m_channelSide(channelSide)
@@ -119,9 +122,9 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
         CreationPattern_t::operator=(std::move(other));
 
         m_name = std::move(other.m_name);
-        m_attributes = std::move(other.m_attributes);
-        m_mqDescriptor = std::move(other.m_mqDescriptor);
-        m_channelSide = std::move(other.m_channelSide);
+        m_attributes = other.m_attributes;
+        m_mqDescriptor = other.m_mqDescriptor;
+        m_channelSide = other.m_channelSide;
         other.m_mqDescriptor = INVALID_DESCRIPTOR;
     }
 
@@ -130,18 +133,21 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
 
 cxx::expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
-    IpcChannelName_t l_name;
-    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
+    auto sanitizedIpcChannelName = sanitizeIpcChannelName(name);
+    if (sanitizedIpcChannelName.has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
 
-    auto mqCall = posixCall(mq_unlink)(l_name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+    auto mqCall = posixCall(mq_unlink)(sanitizedIpcChannelName->c_str())
+                      .failureReturnValue(ERROR_CODE)
+                      .ignoreErrnos(ENOENT)
+                      .evaluate();
 
     if (mqCall.has_error())
     {
-        return createErrorFromErrnum(l_name, mqCall.get_error().errnum);
+        return createErrorFromErrnum(*sanitizedIpcChannelName, mqCall.get_error().errnum);
     }
     return cxx::success<bool>(mqCall->errnum != ENOENT);
 }
@@ -190,9 +196,11 @@ cxx::expected<IpcChannelError> MessageQueue::send(const std::string& msg) const 
 
 cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
 {
+    /// NOLINTJUSTIFICATION required as raw memory buffer for mq_receive
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     char message[MAX_MESSAGE_SIZE];
 
-    auto mqCall = posixCall(mq_receive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr)
+    auto mqCall = posixCall(mq_receive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr)
                       .failureReturnValue(ERROR_CODE)
                       .evaluate();
 
@@ -207,22 +215,23 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::receive() const noexce
 cxx::expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
                                                          const IpcChannelSide channelSide) noexcept
 {
-    IpcChannelName_t l_name;
-    if (sanitizeIpcChannelName(name).and_then([&](IpcChannelName_t& name) { l_name = std::move(name); }).has_error())
+    auto sanitizedIpcChannelName = sanitizeIpcChannelName(name);
+    if (sanitizedIpcChannelName.has_error())
     {
         return cxx::error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-
     int32_t openFlags = O_RDWR;
     if (channelSide == IpcChannelSide::SERVER)
     {
+        /// NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
+        /// NOLINTNEXTLINE(hicpp-signed-bitwise)
         openFlags |= O_CREAT;
     }
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
     mode_t umaskSaved = umask(0);
-    auto mqCall = posixCall(iox_mq_open4)(l_name.c_str(), openFlags, m_filemode, &m_attributes)
+    auto mqCall = posixCall(iox_mq_open4)(sanitizedIpcChannelName->c_str(), openFlags, m_filemode, &m_attributes)
                       .failureReturnValue(INVALID_DESCRIPTOR)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
@@ -255,24 +264,24 @@ cxx::expected<IpcChannelError> MessageQueue::unlink() noexcept
     {
         return cxx::success<void>();
     }
-    else
-    {
-        auto mqCall = posixCall(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
-        if (mqCall.has_error())
-        {
-            return createErrorFromErrnum(mqCall.get_error().errnum);
-        }
 
-        return cxx::success<void>();
+    auto mqCall = posixCall(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
+    if (mqCall.has_error())
+    {
+        return createErrorFromErrnum(mqCall.get_error().errnum);
     }
+
+    return cxx::success<void>();
 }
 
 cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const noexcept
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
+    /// NOLINTJUSTIFICATION required as internal buffer for receive
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     char message[MAX_MESSAGE_SIZE];
 
-    auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, message, MAX_MESSAGE_SIZE, nullptr, &timeOut)
+    auto mqCall = posixCall(mq_timedreceive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
                       // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
                       .ignoreErrnos(TIMEOUT_ERRNO)
@@ -282,7 +291,8 @@ cxx::expected<std::string, IpcChannelError> MessageQueue::timedReceive(const uni
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
     }
-    else if (mqCall->errnum == TIMEOUT_ERRNO)
+
+    if (mqCall->errnum == TIMEOUT_ERRNO)
     {
         return createErrorFromErrnum(ETIMEDOUT);
     }
@@ -313,7 +323,8 @@ cxx::expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg,
     {
         return createErrorFromErrnum(mqCall.get_error().errnum);
     }
-    else if (mqCall->errnum == TIMEOUT_ERRNO)
+
+    if (mqCall->errnum == TIMEOUT_ERRNO)
     {
         return createErrorFromErrnum(ETIMEDOUT);
     }
@@ -373,9 +384,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannel
     }
     default:
     {
-        // NOLINTNEXTLINE(concurrency-mt-unsafe) impossible case
-        std::cerr << "internal logic error in message queue \"" << name << "\" occurred [errno: " << errnum << ": "
-                  << strerror(errnum) << "]" << std::endl;
+        std::cerr << "internal logic error in message queue \"" << name << "\" occurred" << std::endl;
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
     }
@@ -394,14 +403,12 @@ MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
     }
     // name is checked for emptiness, so it's ok to get a first member
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    else if (name.c_str()[0] != '/')
+    if (name.c_str()[0] != '/')
     {
         return cxx::success<IpcChannelName_t>(IpcChannelName_t("/").append(iox::cxx::TruncateToCapacity, name));
     }
-    else
-    {
-        return cxx::success<IpcChannelName_t>(name);
-    }
+
+    return cxx::success<IpcChannelName_t>(name);
 }
 
 } // namespace posix
