@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/atomic_relocatable_pointer.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
