@@ -15,15 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.2.3 : <type_traits> is included through "type_traits.hpp"
+
 #ifndef IOX_HOOFS_CXX_FUNCTION_REF_HPP
 #define IOX_HOOFS_CXX_FUNCTION_REF_HPP
 
+// AXIVION Next Line AutosarC++19_03-A16.2.2 : Needed for Expects and Ensures macros
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 
-#include <cstddef>
-#include <iostream>
-#include <memory>
 #include <type_traits>
 
 namespace iox
@@ -33,6 +33,12 @@ namespace cxx
 template <typename SignatureType>
 class function_ref;
 
+/// @brief Type trait which checks for the same decayed type
+/// @tparam[in] T1 first type
+/// @tparam[in] T2 second type
+template <typename T1, typename T2>
+using has_same_decayed_type = typename std::
+    integral_constant<bool, bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
 /// @brief cxx::function_ref is a non-owning reference to a callable.
 ///
@@ -61,29 +67,23 @@ class function_ref;
 ///         callback();
 /// @endcode
 template <class ReturnType, class... ArgTypes>
-class function_ref<ReturnType(ArgTypes...)>
+class function_ref<ReturnType(ArgTypes...)> final
 {
-    using SignatureType = ReturnType(ArgTypes...);
-
-    template <typename T1, typename T2>
-    using has_same_decayed_type = typename std::integral_constant<
-        bool,
-        bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
-
   public:
     ~function_ref() noexcept = default;
 
     function_ref(const function_ref&) noexcept = default;
 
-    function_ref& operator=(const function_ref&) noexcept = default;
+    function_ref& operator=(const function_ref&) & noexcept = default;
 
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
-              typename = std::enable_if_t<!is_function_pointer<CallableType>::value
-                                          && !has_same_decayed_type<CallableType, function_ref>::value
-                                          && is_invocable<CallableType, ArgTypes...>::value>>
-    function_ref(CallableType&& callable) noexcept;
+              typename = std::enable_if_t<(!is_function_pointer<CallableType>::value)
+                                          && (!has_same_decayed_type<CallableType, function_ref>::value)
+                                          && (is_invocable<CallableType, ArgTypes...>::value)>>
+    // AXIVION Next Line AutosarC++19_03-A12.1.4 : Implicit conversion is needed for lambdas
+    function_ref(CallableType&& callable) noexcept; // NOLINT(hicpp-explicit-conversions)
 
     /// @brief Creates a function_ref from a function pointer
     /// @param[in] function function reference to function we want to reference
@@ -91,11 +91,13 @@ class function_ref<ReturnType(ArgTypes...)>
     /// @note This overload is needed, as the general implementation
     /// will not work properly for function pointers.
     /// This ctor is not needed anymore once we can use user-defined-deduction guides (C++17)
+    // Implicit conversion needed for method pointers
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     function_ref(ReturnType (&function)(ArgTypes...)) noexcept;
 
     function_ref(function_ref&& rhs) noexcept;
 
-    function_ref& operator=(function_ref&& rhs) noexcept;
+    function_ref& operator=(function_ref&& rhs) & noexcept;
 
     /// @brief Calls the provided callable
     /// @param[in] Arguments are forwarded to the underlying function pointer
@@ -112,9 +114,13 @@ class function_ref<ReturnType(ArgTypes...)>
     ReturnType (*m_functionPointer)(void*, ArgTypes...){nullptr};
 };
 
+template <class ReturnType, class... ArgTypes>
+void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept;
+
 } // namespace cxx
 } // namespace iox
 
+// AXIVION Next Line AutosarC++19_03-M16.0.1 : Include needed to split template declaration and definition
 #include "iceoryx_hoofs/internal/cxx/function_ref.inl"
 
-#endif
+#endif // IOX_HOOFS_CXX_FUNCTION_REF_HPP
