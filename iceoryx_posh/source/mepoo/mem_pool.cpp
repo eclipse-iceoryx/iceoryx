@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,15 +90,15 @@ void* MemPool::getChunk() noexcept
     m_usedChunks.fetch_add(1U, std::memory_order_relaxed);
     adjustMinFree();
 
-    return m_rawMemory + l_index * m_chunkSize;
+    return m_rawMemory.get() + l_index * m_chunkSize;
 }
 
 void MemPool::freeChunk(const void* chunk) noexcept
 {
-    cxx::Expects(m_rawMemory <= chunk
-                 && chunk <= m_rawMemory + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1U)));
+    cxx::Expects(m_rawMemory.get() <= chunk
+                 && chunk <= m_rawMemory.get() + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1U)));
 
-    auto offset = static_cast<const uint8_t*>(chunk) - m_rawMemory;
+    auto offset = static_cast<const uint8_t*>(chunk) - m_rawMemory.get();
     cxx::Expects(offset % m_chunkSize == 0);
 
     uint32_t index = static_cast<uint32_t>(offset / m_chunkSize);

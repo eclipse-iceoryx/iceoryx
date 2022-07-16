@@ -84,9 +84,9 @@ inline T* RelativePointer<T>::get() const noexcept
 }
 
 template <typename T>
-inline RelativePointer<T>::operator T*() const noexcept
+inline RelativePointer<T>::operator bool() const noexcept
 {
-    return get();
+    return get() != nullptr;
 }
 
 template <typename T>

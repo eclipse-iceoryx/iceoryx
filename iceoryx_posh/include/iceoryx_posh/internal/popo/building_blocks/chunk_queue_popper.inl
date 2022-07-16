@@ -145,7 +145,7 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::unsetConditionVariable() noexc
 template <typename ChunkQueueDataType>
 inline bool ChunkQueuePopper<ChunkQueueDataType>::isConditionVariableSet() const noexcept
 {
-    return getMembers()->m_conditionVariableDataPtr;
+    return getMembers()->m_conditionVariableDataPtr != nullptr;
 }
 
 } // namespace popo

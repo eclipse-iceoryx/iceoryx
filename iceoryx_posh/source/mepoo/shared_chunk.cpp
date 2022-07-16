@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ void SharedChunk::decrementReferenceCounter() noexcept
 
 void SharedChunk::freeChunk() noexcept
 {
-    m_chunkManagement->m_mempool->freeChunk(m_chunkManagement->m_chunkHeader);
+    m_chunkManagement->m_mempool->freeChunk(static_cast<void*>(m_chunkManagement->m_chunkHeader.get()));
     m_chunkManagement->m_chunkManagementPool->freeChunk(m_chunkManagement);
     m_chunkManagement = nullptr;
 }
@@ -129,7 +129,7 @@ ChunkHeader* SharedChunk::getChunkHeader() const noexcept
 {
     if (m_chunkManagement != nullptr)
     {
-        return m_chunkManagement->m_chunkHeader;
+        return m_chunkManagement->m_chunkHeader.get();
     }
     else
     {

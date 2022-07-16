@@ -82,9 +82,9 @@ class RelativePointer : public BaseRelativePointer
     /// @return a pointer to the underlying object
     T* get() const noexcept;
 
-    /// @brief converts the RelativePointer to a pointer of the type of the underlying object
-    /// @return a pointer of type T pointing to the underlying object
-    operator T*() const noexcept;
+    /// @brief converts the RelativePointer to bool
+    /// @return bool which contains true if the RelativePointer contains a pointer
+    explicit operator bool() const noexcept;
 
     /// @brief checks if this and ptr point to the same pointee
     /// @param[in] ptr is the pointer whose pointee is compared with this' pointee
