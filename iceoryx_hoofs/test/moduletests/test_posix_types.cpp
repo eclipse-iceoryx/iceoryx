@@ -37,8 +37,11 @@ TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
 TEST(TypesTest, ConvertToOflagFromOpenModeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95fa55c9-2d64-4296-8bbb-41ff3c9dac3f");
+    // used for test purposes; operands have positive values and result is within integer range
+    // NOLINTBEGIN(hicpp-signed-bitwise)
     EXPECT_THAT(convertToOflags(OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
+    // NOLINTEND(hicpp-signed-bitwise)
     EXPECT_THAT(convertToOflags(OpenMode::OPEN_OR_CREATE), Eq(O_CREAT));
     EXPECT_THAT(convertToOflags(OpenMode::OPEN_EXISTING), Eq(0));
     EXPECT_THAT(convertToOflags(INVALID_OPEN_MODE), Eq(0));
@@ -47,6 +50,8 @@ TEST(TypesTest, ConvertToOflagFromOpenModeWorks)
 TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ea6823c-2ecd-48a5-bcea-0ea0585bee72");
+    // used for test purposes; operands have positive values and result is within integer range
+    // NOLINTBEGIN(hicpp-signed-bitwise)
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::EXCLUSIVE_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::PURGE_AND_CREATE), Eq(O_RDONLY | O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE), Eq(O_RDONLY | O_CREAT));
@@ -61,6 +66,7 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
 
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
+    // NOLINTEND(hicpp-signed-bitwise)
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OPEN_OR_CREATE), Eq(O_CREAT));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::OPEN_EXISTING), Eq(0));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, INVALID_OPEN_MODE), Eq(0));

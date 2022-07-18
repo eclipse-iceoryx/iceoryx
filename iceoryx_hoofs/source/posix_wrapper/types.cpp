@@ -45,8 +45,10 @@ int convertToOflags(const OpenMode openMode) noexcept
     case OpenMode::OPEN_OR_CREATE:
         return O_CREAT;
     case OpenMode::EXCLUSIVE_CREATE:
-        return O_CREAT | O_EXCL;
     case OpenMode::PURGE_AND_CREATE:
+        // wrapped inside function so that the user does not have to use bitwise operations; operands have positive
+        // values and result is within integer range
+        // NOLINTNEXTLINE(hicpp-signed-bitwise)
         return O_CREAT | O_EXCL;
     }
 
@@ -56,6 +58,9 @@ int convertToOflags(const OpenMode openMode) noexcept
 
 int convertToOflags(const AccessMode accessMode, const OpenMode openMode) noexcept
 {
+    // wrapped inside function so that the user does not have to use bitwise operations; operands have positive
+    // values and result is within integer range
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
     return convertToOflags(accessMode) | convertToOflags((openMode));
 }
 } // namespace posix
