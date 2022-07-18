@@ -35,13 +35,15 @@ MemPoolSegmentManagerMemoryBlock::~MemPoolSegmentManagerMemoryBlock() noexcept
 
 uint64_t MemPoolSegmentManagerMemoryBlock::size() const noexcept
 {
-    return cxx::align(sizeof(mepoo::SegmentManager<>), mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    const uint64_t segmentManagerSize = sizeof(mepoo::SegmentManager<>);
+    return cxx::align(segmentManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::SegmentManager<>::requiredManagementMemorySize(m_segmentConfig);
 }
 
 uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
 {
-    return algorithm::max(alignof(mepoo::SegmentManager<>), mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
+    const uint64_t segmentManagerAlignment = alignof(mepoo::SegmentManager<>);
+    return algorithm::max(segmentManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept

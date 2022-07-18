@@ -95,7 +95,7 @@ class LoFFLi
     /// Calculates the required memory size for a free-list
     /// @param [in] capacity is the number of elements of the free-list
     /// @return the required memory size for a free-list with the requested capacity
-    static inline constexpr std::size_t requiredIndexMemorySize(const uint32_t capacity) noexcept;
+    static inline constexpr uint64_t requiredIndexMemorySize(const uint64_t capacity) noexcept;
 };
 
 } // namespace concurrent

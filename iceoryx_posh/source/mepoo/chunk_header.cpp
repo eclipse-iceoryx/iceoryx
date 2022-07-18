@@ -83,7 +83,8 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         // the most complex case with a user-header
         auto addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
         uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader) + userHeaderSize;
-        uint64_t anticipatedBackOffsetAddress = iox::cxx::align(headerEndAddress, alignof(UserPayloadOffset_t));
+        uint64_t userPayloadOffsetAlignment = alignof(UserPayloadOffset_t);
+        uint64_t anticipatedBackOffsetAddress = iox::cxx::align(headerEndAddress, userPayloadOffsetAlignment);
         uint64_t unalignedUserPayloadAddress = anticipatedBackOffsetAddress + sizeof(UserPayloadOffset_t);
         uint64_t alignedUserPayloadAddress =
             iox::cxx::align(unalignedUserPayloadAddress, static_cast<uint64_t>(userPayloadAlignment));

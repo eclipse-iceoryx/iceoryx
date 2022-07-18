@@ -115,7 +115,7 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooConfig) noexcept
 {
     uint64_t memorySize{0U};
-    uint32_t sumOfAllChunks{0U};
+    uint64_t sumOfAllChunks{0U};
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;

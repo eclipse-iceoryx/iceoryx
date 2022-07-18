@@ -44,22 +44,28 @@ else()
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} /W0) # TODO iox-#33 set to /W1
+    set(ICEORYX_C_WARNINGS PRIVATE /W0) # TODO iox-#33 set to /W1
+    set(ICEORYX_CXX_WARNINGS PRIVATE ${ICEORYX_C_WARNINGS})
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible,
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
+    set(ICEORYX_C_WARNINGS PRIVATE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
+    set(ICEORYX_CXX_WARNINGS PRIVATE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -Wuseless-cast)
+        set(ICEORYX_CXX_WARNINGS PRIVATE ${ICEORYX_CXX_WARNINGS} -Wuseless-cast)
     endif()
 endif()
 
 if(BUILD_STRICT)
     if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-        set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} /W0) # TODO iox-#33 set to /WX
+        set(ICEORYX_C_WARNINGS ${ICEORYX_C_WARNINGS} /W0)
+        set(ICEORYX_CXX_WARNINGS ${ICEORYX_CXX_WARNINGS} /W0) # TODO iox-#33 set to /WX
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
+        set(ICEORYX_C_WARNINGS ${ICEORYX_C_WARNINGS} -Werror)
+        set(ICEORYX_CXX_WARNINGS ${ICEORYX_CXX_WARNINGS} -Werror)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        set(ICEORYX_WARNINGS ${ICEORYX_WARNINGS} -Werror)
+        set(ICEORYX_C_WARNINGS ${ICEORYX_C_WARNINGS} -Werror)
+        set(ICEORYX_CXX_WARNINGS ${ICEORYX_CXX_WARNINGS} -Werror)
     endif()
 endif()
 
