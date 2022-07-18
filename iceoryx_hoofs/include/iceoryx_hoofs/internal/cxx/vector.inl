@@ -25,6 +25,8 @@ namespace iox
 {
 namespace cxx
 {
+// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept
 {
@@ -41,6 +43,8 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
     }
 }
 
+// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
@@ -58,12 +62,16 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     }
 }
 
+// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const vector& rhs) noexcept
 {
     *this = rhs;
 }
 
+// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(vector&& rhs) noexcept
 {
