@@ -41,7 +41,7 @@ struct PosixRights
 class PosixGroup
 {
   public:
-    static constexpr uint64_t MAX_GROUP_NAME_LENGTH = 128;
+    static constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
     using groupName_t = cxx::string<MAX_GROUP_NAME_LENGTH>;
     explicit PosixGroup(const gid_t f_id) noexcept;
     explicit PosixGroup(const groupName_t& f_name) noexcept;

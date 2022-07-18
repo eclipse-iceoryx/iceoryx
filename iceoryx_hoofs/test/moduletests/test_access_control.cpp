@@ -274,7 +274,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 TEST_F(AccessController_test, addManyPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
-    AccessController::permissionString_t groupName = "root";
+    PosixGroup::groupName_t groupName = "root";
 
     bool entryAdded{false};
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
@@ -302,8 +302,7 @@ TEST_F(AccessController_test, addStrangeNames)
     // non-existing user name specified
     EXPECT_FALSE(entryAdded);
 
-    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE,
-                                                       "NeverEverEverSuchAGroupNameExisted");
+    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, "NonExistingGroup");
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }
