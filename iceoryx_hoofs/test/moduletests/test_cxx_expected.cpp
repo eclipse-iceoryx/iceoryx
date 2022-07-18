@@ -553,7 +553,7 @@ TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
         auto sut = expected<ClassWithMoveCtorAndNoMoveAssignment>::create_error();
         /// this should compile, if not then we enforce move assignment hidden in the implementation
         expected<ClassWithMoveCtorAndNoMoveAssignment> destination{std::move(sut)};
-        ASSERT_THAT(destination.has_error(), Eq(false));
+        ASSERT_THAT(destination.has_error(), Eq(true));
     }
 }
 } // namespace

@@ -100,7 +100,13 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
             // this lock is required for the case that multiple threads are creating multiple
             // shared memory objects concurrently
             std::lock_guard<std::mutex> lock(sigbusHandlerMutex);
-            auto memsetSigbusGuard IOX_MAYBE_UNUSED = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
+            auto memsetSigbusGuard = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
+            if (memsetSigbusGuard.has_error())
+            {
+                printErrorDetails();
+                LogError() << "Failed to temporarily override SIGBUS to safely zero the shared memory";
+                return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
+            }
 
             snprintf(
                 sigbusErrorMessage,
