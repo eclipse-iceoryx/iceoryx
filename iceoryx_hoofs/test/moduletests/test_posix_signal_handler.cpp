@@ -68,6 +68,8 @@ class SignalHandler_test : public Test
     {
         struct sigaction action = {};
         sigemptyset(&action.sa_mask);
+        /// NOLINTJUSTIFICATION sigaction is a posix system construct, no other way to assign members
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-union-access)
         action.sa_handler = callback;
         action.sa_flags = 0;
 
@@ -93,9 +95,9 @@ TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7836be02-28ab-43b7-b7a7-7c43c4830eb4");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
-    auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
+    auto signalGuard IOX_MAYBE_UNUSED = registerSignalHandler(signalValue, this->signalHandler1);
 
-    raise(static_cast<int>(signalValue));
+    ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
     EXPECT_THAT(signalOfCallback1, Eq(static_cast<int>(signalValue)));
     EXPECT_THAT(signalOfCallback2, Eq(this->INVALID_SIGNAL));
@@ -107,10 +109,10 @@ TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsResto
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
     {
-        auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
+        auto signalGuard IOX_MAYBE_UNUSED = registerSignalHandler(signalValue, this->signalHandler1);
     }
 
-    raise(static_cast<int>(signalValue));
+    ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
     EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
     EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));
@@ -121,10 +123,11 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardCallbackWorks)
     ::testing::Test::RecordProperty("TEST_ID", "8fcf886b-babb-41ab-a8ee-6ba123224aef");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
+    ASSERT_FALSE(signalGuard.has_error());
 
-    SignalGuard signalGuard2(std::move(signalGuard));
+    SignalGuard signalGuard2(std::move(*signalGuard));
 
-    raise(static_cast<int>(signalValue));
+    ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
     EXPECT_THAT(signalOfCallback1, Eq(static_cast<int>(signalValue)));
     EXPECT_THAT(signalOfCallback2, Eq(this->INVALID_SIGNAL));
@@ -138,10 +141,11 @@ TYPED_TEST(SignalHandler_test, MoveConstructedSignalGuardRestoresPreviousState)
 
     {
         auto signalGuard = registerSignalHandler(signalValue, this->signalHandler1);
-        SignalGuard signalGuard2(std::move(signalGuard));
+        ASSERT_FALSE(signalGuard.has_error());
+        SignalGuard signalGuard2(std::move(*signalGuard));
     }
 
-    raise(static_cast<int>(signalValue));
+    ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
     EXPECT_THAT(signalOfCallback1, Eq(this->INVALID_SIGNAL));
     EXPECT_THAT(signalOfCallback2, Eq(static_cast<int>(signalValue)));

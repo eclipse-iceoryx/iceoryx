@@ -34,8 +34,10 @@ void internalSignalHandler(int) noexcept
         {
             // we use write since internalSignalHandler can be called from within a
             // signal handler and write is signal safe
+            /// NOLINTJUSTIFICATION used as safe and null terminated compile time string literal
+            /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
             constexpr const char MSG[] = "Unable to increment semaphore in signal handler";
-            auto result = write(STDERR_FILENO, MSG, strlen(MSG));
+            auto result = write(STDERR_FILENO, &MSG[0], strlen(&MSG[0]));
             IOX_DISCARD_RESULT(result);
             std::abort();
         }
@@ -43,8 +45,9 @@ void internalSignalHandler(int) noexcept
 }
 
 SignalWatcher::SignalWatcher() noexcept
-    : m_sigTermGuard(registerSignalHandler(Signal::TERM, internalSignalHandler))
-    , m_sigIntGuard(registerSignalHandler(Signal::INT, internalSignalHandler))
+    : m_sigTermGuard(
+        registerSignalHandler(Signal::TERM, internalSignalHandler).expect("Unable to register Signal::TERM"))
+    , m_sigIntGuard(registerSignalHandler(Signal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
 {
     UnnamedSemaphoreBuilder()
         .isInterProcessCapable(false)

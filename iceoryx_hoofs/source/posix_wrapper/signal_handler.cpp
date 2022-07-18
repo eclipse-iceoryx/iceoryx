@@ -55,7 +55,8 @@ void SignalGuard::restorePreviousAction() noexcept
     }
 }
 
-SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallback_t callback) noexcept
+cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+                                                                   const SignalHandlerCallback_t callback) noexcept
 {
     struct sigaction action = {};
 
@@ -66,8 +67,7 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
         LogError() << "This should never happen! Unable to create an empty sigaction set while registering a signal "
                       "handler for the signal ["
                    << static_cast<int>(signal) << "]. No signal handler will be registered!";
-        /// todo iox-#1196 we require an error handling concept for failures which should never occur
-        cxx::Ensures(false);
+        return cxx::error<SignalGuardError>(SignalGuardError::INVALID_SIGNAL_ENUM_VALUE);
     }
 
     // system struct, no way to avoid union
@@ -87,11 +87,10 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
     {
         LogError() << "This should never happen! An error occurred while registering a signal handler for the signal ["
                    << static_cast<int>(signal) << "]. ";
-        /// todo iox-#1196 we require an error handling concept for failures which should never occur
-        cxx::Ensures(false);
+        return cxx::error<SignalGuardError>(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);
     }
 
-    return SignalGuard(signal, previousAction);
+    return cxx::success<SignalGuard>(SignalGuard(signal, previousAction));
 }
 } // namespace posix
 } // namespace iox
