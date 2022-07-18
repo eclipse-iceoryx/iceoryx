@@ -65,7 +65,6 @@ class SignalGuard
 
   private:
     void restorePreviousAction() noexcept;
-    SignalGuard() noexcept = default;
     SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept;
 
   private:
