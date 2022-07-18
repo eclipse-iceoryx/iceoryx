@@ -25,12 +25,10 @@ namespace iox
 {
 namespace cxx
 {
-constexpr char FileReader::PATH_SEPARATOR[];
-
 FileReader::FileReader(const std::string& f_fileName, const std::string& f_filePath, ErrorMode f_errorMode) noexcept
     : m_errorMode{f_errorMode}
 {
-    m_file = f_filePath.empty() ? f_fileName : f_filePath + PATH_SEPARATOR + f_fileName;
+    m_file = f_filePath.empty() ? f_fileName : f_filePath + platform::IOX_PATH_SEPARATORS[0] + f_fileName;
     m_fileStream.open(m_file, std::fstream::in);
 
     if (!isOpen())
