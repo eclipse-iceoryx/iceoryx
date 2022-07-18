@@ -49,8 +49,10 @@ void signalHandler(int)
 
 int main()
 {
-    auto sigTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, signalHandler);
-    auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, signalHandler);
+    auto sigTermGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, signalHandler).expect("failed to register SIGTERM");
+    auto sigIntGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::INT, signalHandler).expect("failed to register SIGINT");
 
     //! [initialize runtime]
     iox::runtime::PoshRuntime::initRuntime(APP_NAME);
