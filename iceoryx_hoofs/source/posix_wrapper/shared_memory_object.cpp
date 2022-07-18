@@ -100,7 +100,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
             // this lock is required for the case that multiple threads are creating multiple
             // shared memory objects concurrently
             std::lock_guard<std::mutex> lock(sigbusHandlerMutex);
-            auto memsetSigbusGuard = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
+            auto memsetSigbusGuard IOX_MAYBE_UNUSED = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
 
             snprintf(
                 sigbusErrorMessage,
