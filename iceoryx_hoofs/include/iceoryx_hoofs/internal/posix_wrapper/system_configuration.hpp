@@ -17,17 +17,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
-
 #include <cstdint>
 
 namespace iox
 {
 namespace posix
 {
-constexpr uint64_t MaxPageSize = 1024u * 512u;
-
 /// @brief returns the page size of the system
 uint64_t pageSize() noexcept;
 

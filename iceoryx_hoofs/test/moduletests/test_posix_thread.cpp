@@ -29,25 +29,8 @@ using namespace iox::cxx;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
-class Thread_test : public Test
+struct Thread_test : public Test
 {
-  public:
-    Thread_test()
-    {
-    }
-
-    void SetUp()
-    {
-    }
-
-    void TearDown()
-    {
-    }
-
-    ~Thread_test()
-    {
-    }
-
     optional<Thread> sut;
 };
 
@@ -128,7 +111,7 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
     ::testing::Test::RecordProperty("TEST_ID", "b5141d3c-2721-478c-b3d1-f35fb3321117");
     ASSERT_FALSE(
         ThreadBuilder().create(sut, [] { std::this_thread::sleep_for(std::chrono::milliseconds(10)); }).has_error());
-    char stringShorterThanThreadNameCapacitiy[] = "I'm short";
+    ThreadName_t stringShorterThanThreadNameCapacitiy = "I'm short";
 
     sut->setName(stringShorterThanThreadNameCapacitiy);
     auto getResult = sut->getName();
