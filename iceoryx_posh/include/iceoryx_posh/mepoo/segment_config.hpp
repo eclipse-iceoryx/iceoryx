@@ -31,8 +31,8 @@ struct SegmentConfig
 {
     struct SegmentEntry
     {
-        SegmentEntry(const posix::PosixGroup::string_t& readerGroup,
-                     const posix::PosixGroup::string_t& writerGroup,
+        SegmentEntry(const posix::PosixGroup::groupName_t& readerGroup,
+                     const posix::PosixGroup::groupName_t& writerGroup,
                      const MePooConfig& memPoolConfig,
                      iox::mepoo::MemoryInfo memoryInfo = iox::mepoo::MemoryInfo()) noexcept
             : m_readerGroup(readerGroup)
@@ -43,8 +43,8 @@ struct SegmentConfig
         {
         }
 
-        posix::PosixGroup::string_t m_readerGroup;
-        posix::PosixGroup::string_t m_writerGroup;
+        posix::PosixGroup::groupName_t m_readerGroup;
+        posix::PosixGroup::groupName_t m_writerGroup;
         MePooConfig m_mempoolConfig;
         iox::mepoo::MemoryInfo m_memoryInfo;
     };
