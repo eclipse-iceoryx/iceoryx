@@ -135,6 +135,13 @@ contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
 
 ### clang-tidy suppressions
 
+**WARNING:** never suppress `concurrency-mt-unsafe`!
+This warning can be emitted by free c functions. When such a function is used
+in a class one is not allowed to create multiple instances of such a class and
+access them from different threads. Even when every instance is contained in only
+one thread, the underlying thread-unsafe function is maybe accessed concurrently
+which can result in race conditions.
+
 If required constructs create clang-tidy warnings one can suppress them with a
 justification and either `NOLINTNEXTLINE(warning-type)` or
 `NOLINTBEGIN(warning-type)` & `NOLINTEND(warning-type)`.
