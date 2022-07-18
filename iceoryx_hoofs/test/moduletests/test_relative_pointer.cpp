@@ -78,7 +78,7 @@ class RelativePointer_test : public Test
 
     // NOLINTJUSTIFICATION Ok-ish for tests
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE]{0};
+    uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE]{{0}};
 };
 
 typedef testing::Types<uint8_t, int8_t, double> Types;
