@@ -82,8 +82,7 @@ bool Event_t::reset() noexcept
 {
     if (isInitialized())
     {
-        // isInitialized == true ensures that the invalidationCallback is set
-        IOX_DISCARD_RESULT(m_invalidationCallback(m_eventId));
+        m_invalidationCallback(m_eventId);
 
         m_eventId = INVALID_ID;
         m_origin = nullptr;

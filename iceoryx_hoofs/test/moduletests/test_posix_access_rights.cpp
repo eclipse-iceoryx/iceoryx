@@ -41,7 +41,7 @@ class PosixAccessRights_test : public Test
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
 
-        iox::posix::posixCall(system)(std::string("groups > " + TestFileName).c_str())
+        iox::posix::posixCall(system)(("groups > " + TestFileName).c_str())
             .failureReturnValue(-1)
             .evaluate()
             .or_else([](auto& r) {

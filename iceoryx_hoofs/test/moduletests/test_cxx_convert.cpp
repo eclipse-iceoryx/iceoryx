@@ -212,7 +212,7 @@ TEST_F(convert_test, fromString_Double_Success)
     std::string source = "123.04";
     double destination = 0.0;
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
-    EXPECT_THAT(destination, Eq(static_cast<double>(123.04)));
+    EXPECT_THAT(destination, Eq(123.04));
 }
 
 TEST_F(convert_test, fromString_Double_Fail)

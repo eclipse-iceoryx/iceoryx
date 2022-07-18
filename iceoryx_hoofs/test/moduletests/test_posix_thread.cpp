@@ -76,7 +76,7 @@ TEST_F(Thread_test, DtorOfThreadBlocksUntilCallbackHasFinished)
     sut.reset();
     end = std::chrono::steady_clock::now();
 
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
+    EXPECT_THAT((end - start).count(), Gt(TEST_WAIT_TIME.toNanoseconds()));
 }
 
 TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)

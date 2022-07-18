@@ -99,9 +99,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
-    /// NOLINTJUSTIFICATION required to restore type of the acquired acl_t pointer
-    /// NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall->value), freeACL);
+    return cxx::success<smartAclPointer_t>(aclInitCall->value, freeACL);
 }
 
 bool AccessController::addPermissionEntry(const Category category,

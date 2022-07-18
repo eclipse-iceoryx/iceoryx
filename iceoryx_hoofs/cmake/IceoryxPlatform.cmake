@@ -48,6 +48,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     # todo: '/O2' and '/RTC1' (set by default) options are incompatible,
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wno-noexcept-type -Wconversion)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        set(ICEORYX_WARNINGS PRIVATE ${ICEORYX_WARNINGS} -Wuseless-cast)
+    endif()
 endif()
 
 if(BUILD_STRICT)

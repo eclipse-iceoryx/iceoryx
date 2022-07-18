@@ -87,14 +87,14 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSiz
         // the most simple case with no user-header and the user-payload adjacent to the ChunkHeader
         if (userPayloadAlignment <= alignof(mepoo::ChunkHeader))
         {
-            uint64_t requiredChunkSize = static_cast<uint64_t>(sizeof(ChunkHeader)) + userPayloadSize;
+            uint64_t requiredChunkSize = sizeof(ChunkHeader) + userPayloadSize;
 
             return requiredChunkSize;
         }
 
         // the second most simple case with no user-header but the user-payload alignment
         // exceeds the ChunkHeader alignment and is therefore not necessarily adjacent
-        uint64_t preUserPayloadAlignmentOverhang = static_cast<uint64_t>(sizeof(ChunkHeader) - alignof(ChunkHeader));
+        uint64_t preUserPayloadAlignmentOverhang = sizeof(ChunkHeader) - alignof(ChunkHeader);
         uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + userPayloadAlignment + userPayloadSize;
 
         return requiredChunkSize;
@@ -103,7 +103,7 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSiz
     // the most complex case with a user-header
     constexpr uint64_t SIZE_OF_USER_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::UserPayloadOffset_t)};
     constexpr uint64_t ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T{alignof(ChunkHeader::UserPayloadOffset_t)};
-    uint64_t headerSize = static_cast<uint64_t>(sizeof(ChunkHeader) + userHeaderSize);
+    uint64_t headerSize = sizeof(ChunkHeader) + userHeaderSize;
     uint64_t preUserPayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
     uint64_t maxPadding = algorithm::max(SIZE_OF_USER_PAYLOAD_OFFSET_T, static_cast<uint64_t>(userPayloadAlignment));
     uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + maxPadding + userPayloadSize;

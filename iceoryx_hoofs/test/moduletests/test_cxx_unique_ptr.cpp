@@ -103,7 +103,7 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
         auto* object = new Position();
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
-            auto anotherSut = iox::cxx::unique_ptr<Position>(std::move(sut));
+            auto anotherSut = std::move(sut);
 
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);

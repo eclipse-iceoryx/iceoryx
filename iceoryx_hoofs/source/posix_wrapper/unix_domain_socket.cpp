@@ -392,122 +392,122 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     case EACCES:
     {
         std::cerr << "permission to create unix domain socket denied \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::ACCESS_DENIED);
+        return IpcChannelError::ACCESS_DENIED;
     }
     case EAFNOSUPPORT:
     {
         std::cerr << "address family not supported for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_ARGUMENTS);
+        return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EINVAL:
     {
         std::cerr << "provided invalid arguments for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_ARGUMENTS);
+        return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EMFILE:
     {
         std::cerr << "process limit reached for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::PROCESS_LIMIT);
+        return IpcChannelError::PROCESS_LIMIT;
     }
     case ENFILE:
     {
         std::cerr << "system limit reached for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::SYSTEM_LIMIT);
+        return IpcChannelError::SYSTEM_LIMIT;
     }
     case ENOBUFS:
     {
         std::cerr << "queue is full for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::OUT_OF_MEMORY);
+        return IpcChannelError::OUT_OF_MEMORY;
     }
     case ENOMEM:
     {
         std::cerr << "out of memory for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::OUT_OF_MEMORY);
+        return IpcChannelError::OUT_OF_MEMORY;
     }
     case EPROTONOSUPPORT:
     {
         std::cerr << "protocol type not supported for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_ARGUMENTS);
+        return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EADDRINUSE:
     {
         std::cerr << "unix domain socket already in use \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::CHANNEL_ALREADY_EXISTS);
+        return IpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EBADF:
     {
         std::cerr << "invalid file descriptor for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_FILE_DESCRIPTOR);
+        return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case ENOTSOCK:
     {
         std::cerr << "invalid unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_FILE_DESCRIPTOR);
+        return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case EADDRNOTAVAIL:
     {
         std::cerr << "interface or address error for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EFAULT:
     {
         std::cerr << "outside address space error for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ELOOP:
     {
         std::cerr << "too many symbolic links for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENAMETOOLONG:
     {
         std::cerr << "name too long for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOTDIR:
     {
         std::cerr << "not a directory error for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOENT:
     {
         // no error message needed since this is a normal use case
-        return IpcChannelError(IpcChannelError::NO_SUCH_CHANNEL);
+        return IpcChannelError::NO_SUCH_CHANNEL;
     }
     case EROFS:
     {
         std::cerr << "read only error for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_CHANNEL_NAME);
+        return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EIO:
     {
         std::cerr << "I/O for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::I_O_ERROR);
+        return IpcChannelError::I_O_ERROR;
     }
     case ENOPROTOOPT:
     {
         std::cerr << "invalid option for unix domain socket \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::INVALID_ARGUMENTS);
+        return IpcChannelError::INVALID_ARGUMENTS;
     }
     case ECONNREFUSED:
     {
         // no error message needed since this is a normal use case
-        return IpcChannelError(IpcChannelError::NO_SUCH_CHANNEL);
+        return IpcChannelError::NO_SUCH_CHANNEL;
     }
     case ECONNRESET:
     {
         std::cerr << "connection was reset by peer for \"" << m_name << "\"" << std::endl;
-        return IpcChannelError(IpcChannelError::CONNECTION_RESET_BY_PEER);
+        return IpcChannelError::CONNECTION_RESET_BY_PEER;
     }
     case EWOULDBLOCK:
     {
         // no error message needed since this is a normal use case
-        return IpcChannelError(IpcChannelError::TIMEOUT);
+        return IpcChannelError::TIMEOUT;
     }
     default:
     {
         std::cerr << "internal logic error in unix domain socket \"" << m_name << "\" occurred" << std::endl;
-        return IpcChannelError(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return IpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }
 }

@@ -110,8 +110,7 @@ void TriggerHandle::reset() noexcept
         return;
     }
 
-    // constructor ensured that resetCallback is valid
-    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueTriggerId));
+    m_resetCallback(m_uniqueTriggerId);
 
     invalidate();
 }

@@ -223,7 +223,7 @@ TEST_F(ServiceDescription_test,
                                                      testHash[1],
                                                      testHash[2],
                                                      testHash[3],
-                                                     static_cast<uint16_t>(testScope),
+                                                     testScope,
                                                      invalidInterfaceSource);
 
     auto deserializationResult = ServiceDescription::deserialize(serialObj);
