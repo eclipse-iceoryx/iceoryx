@@ -113,6 +113,17 @@ struct NonTrivialTestClass
     bool m_moved{false};
 };
 
+struct ClassWithMoveCtorAndNoMoveAssignment
+{
+    ClassWithMoveCtorAndNoMoveAssignment() = default;
+    ClassWithMoveCtorAndNoMoveAssignment(const ClassWithMoveCtorAndNoMoveAssignment&) = delete;
+    ClassWithMoveCtorAndNoMoveAssignment(ClassWithMoveCtorAndNoMoveAssignment&&) = default;
+    ~ClassWithMoveCtorAndNoMoveAssignment() = default;
+
+    ClassWithMoveCtorAndNoMoveAssignment& operator=(const ClassWithMoveCtorAndNoMoveAssignment&) = delete;
+    ClassWithMoveCtorAndNoMoveAssignment& operator=(ClassWithMoveCtorAndNoMoveAssignment&&) = delete;
+};
+
 class expected_test : public Test
 {
 };
@@ -525,5 +536,24 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
     optional<int> value = sut.to_optional();
 
     ASSERT_THAT(value.has_value(), Eq(false));
+}
+
+TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "71cd336f-798b-4f08-9ab6-be3c429c1674");
+    {
+        auto sut = expected<ClassWithMoveCtorAndNoMoveAssignment, int>::create_value();
+        /// this should compile, if not then we enforce move assignment hidden in the implementation
+        expected<ClassWithMoveCtorAndNoMoveAssignment, int> destination{std::move(sut)};
+        ASSERT_THAT(destination.has_error(), Eq(false));
+    }
+
+    /// same test with the error only expected
+    {
+        auto sut = expected<ClassWithMoveCtorAndNoMoveAssignment>::create_error();
+        /// this should compile, if not then we enforce move assignment hidden in the implementation
+        expected<ClassWithMoveCtorAndNoMoveAssignment> destination{std::move(sut)};
+        ASSERT_THAT(destination.has_error(), Eq(false));
+    }
 }
 } // namespace
