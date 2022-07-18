@@ -40,10 +40,13 @@ using IpcChannelTypes = Types<UnixDomainSocket, NamedPipe>;
 using IpcChannelTypes = Types<MessageQueue, UnixDomainSocket, NamedPipe>;
 #endif
 
+/// NOLINTJUSTIFICATION only used in testing
+/// NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr char goodName[] = "channel_test";
 constexpr char anotherGoodName[] = "horst";
 constexpr char theUnknown[] = "WhoeverYouAre";
 constexpr char slashName[] = "/miau";
+/// NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 
 /// @req
 /// @brief This test suite verifies that the abstract interface IpcChannelType is fulfilled by both the UnixDomainSocket
@@ -58,7 +61,7 @@ class IpcChannel_test : public Test
   public:
     using IpcChannelType = T;
 
-    void SetUp()
+    void SetUp() override
     {
         IOX_DISCARD_RESULT(IpcChannelType::unlinkIfExists(goodName));
 
@@ -72,17 +75,13 @@ class IpcChannel_test : public Test
         client = std::move(clientResult.value());
     }
 
-    void TearDown()
+    void TearDown() override
     {
         std::string output = ::testing::internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;
         }
-    }
-
-    ~IpcChannel_test()
-    {
     }
 
     static const size_t MaxMsgSize;

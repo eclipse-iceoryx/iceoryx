@@ -55,6 +55,9 @@ enum class ThreadError
 /// optional<Thread> myThread;
 /// ThreadBuilder().create(myThread, callable).expect("Couldn't create a thread.");
 /// @endcode
+/// NOLINTJUSTIFICATION m_threadHandle is always initialized during create in the ThreadBuilder hence it is impossible
+/// to create a Thread without an initialized m_threadHandle
+/// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 class Thread
 {
   public:

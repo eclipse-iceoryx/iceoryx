@@ -47,6 +47,8 @@ mutex::mutex(bool f_isRecursive) noexcept
     isInitialized &= !posixCall(pthread_mutex_init)(&m_handle, &attr).returnValueMatchesErrno().evaluate().has_error();
     isInitialized &= !posixCall(pthread_mutexattr_destroy)(&attr).returnValueMatchesErrno().evaluate().has_error();
 
+    /// NOLINTJUSTIFICATION is fixed in the PR iox-#1443
+    /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Ensures(isInitialized && "Unable to create mutex");
 }
 
@@ -54,6 +56,8 @@ mutex::~mutex() noexcept
 {
     auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
 
+    /// NOLINTJUSTIFICATION is fixed in the PR iox-#1443
+    /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     cxx::Ensures(!destroyCall.has_error() && "Could not destroy mutex");
 }
 

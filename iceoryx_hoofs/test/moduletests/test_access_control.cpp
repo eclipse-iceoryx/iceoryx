@@ -15,55 +15,77 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#if !defined(_WIN32) && !defined(__APPLE__) && !defined(unix) && !defined(__unix) && !defined(__unix__)
+#if defined(__linux__)
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/platform/pwd.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "test.hpp"
 
-#include <stdlib.h>
+#include <memory>
 
 namespace
 {
-using namespace ::testing;
 using namespace iox::posix;
 
 constexpr const char* TestFileName = "/tmp/AclTestFile.tmp";
 
-class AccessController_test : public Test
+class AccessController_test : public ::testing::Test
 {
   public:
-    AccessController_test()
+    void SetUp() override
     {
-    }
-
-    void SetUp()
-    {
-        internal::CaptureStderr();
+        ::testing::internal::CaptureStderr();
         m_fileStream = fopen(TestFileName, "w");
         m_fileDescriptor = fileno(m_fileStream);
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        fclose(m_fileStream);
-        std::remove(TestFileName);
+        IOX_DISCARD_RESULT(fclose(m_fileStream));
+        IOX_DISCARD_RESULT(std::remove(TestFileName));
 
-        std::string output = internal::GetCapturedStderr();
+        std::string output = ::testing::internal::GetCapturedStderr();
         if (Test::HasFailure())
         {
             std::cout << output << std::endl;
         }
     }
 
-    ~AccessController_test()
+    iox::posix::AccessController m_accessController;
+    FILE* m_fileStream{nullptr};
+    int m_fileDescriptor{0};
+};
+
+struct PwUidResult
+{
+    static constexpr uint64_t BUFFER_SIZE{2048U};
+    passwd pwd;
+    /// NOLINTJUSTIFICATION required as memory buffer for the getpwuid_r result
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    char buff[BUFFER_SIZE];
+};
+
+std::unique_ptr<PwUidResult> iox_getpwuid(const uid_t uid)
+{
+    passwd* resultPtr = nullptr;
+    std::unique_ptr<PwUidResult> result = std::make_unique<PwUidResult>();
+    auto call = posixCall(getpwuid_r)(uid, &result->pwd, &result->buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
+                    .returnValueMatchesErrno()
+                    .evaluate();
+    if (call.has_error())
     {
+        EXPECT_TRUE(false);
+        return nullptr;
     }
 
-    iox::posix::AccessController m_accessController;
-    FILE* m_fileStream;
-    int m_fileDescriptor;
-};
+    if (resultPtr == nullptr)
+    {
+        return nullptr;
+    }
+
+    return result;
+}
 
 TEST_F(AccessController_test, writeStandardPermissions)
 {
@@ -110,7 +132,9 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
@@ -154,7 +178,7 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::string_t groupName = "root";
+    AccessController::permissionString_t groupName = "root";
 
     entryAdded = m_accessController.addPermissionEntry(
         AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
@@ -192,8 +216,11 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
 TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
-    std::string currentUserName(getpwuid(geteuid())->pw_name);
-    uid_t currentUserId(getpwuid(geteuid())->pw_uid);
+
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    std::string currentUserName(name->pwd.pw_name);
+    uid_t currentUserId(name->pwd.pw_uid);
     gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
@@ -235,7 +262,9 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
 TEST_F(AccessController_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
-    AccessController::string_t currentUserName(iox::cxx::TruncateToCapacity, getpwuid(geteuid())->pw_name);
+    auto name = iox_getpwuid(geteuid());
+    ASSERT_TRUE(name);
+    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
     // this is not allowed as the default user should not be named explicitly
     m_accessController.addPermissionEntry(
@@ -251,9 +280,9 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 TEST_F(AccessController_test, addManyPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
-    AccessController::string_t groupName = "root";
+    AccessController::permissionString_t groupName = "root";
 
-    bool entryAdded;
+    bool entryAdded{false};
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
     {
         entryAdded = m_accessController.addPermissionEntry(
