@@ -47,7 +47,7 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                                   m_fileDescriptor,
                                   m_offset)
                       // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
-                      .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
+                      .failureReturnValue(MAP_FAILED)
                       .evaluate();
 
     if (result)

@@ -219,20 +219,17 @@ Macro(iox_add_executable)
         )
     endif()
 
-    set(IOX_WARNINGS ${ICEORYX_WARNINGS})
-    if ( IOX_USE_C_LANGUAGE )
-        if("-Wno-noexcept-type" IN_LIST IOX_WARNINGS)
-            list(REMOVE_ITEM IOX_WARNINGS "-Wno-noexcept-type")
-        endif()
-    endif()
-
     if ( IOX_USE_C_LANGUAGE )
         iox_set_file_language( USE_C_LANGUAGE FILES ${IOX_FILES} )
     else()
         iox_set_file_language( FILES ${IOX_FILES} )
     endif()
 
-    target_compile_options(${IOX_TARGET} PRIVATE ${IOX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    if ( IOX_USE_C_LANGUAGE )
+        target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_C_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    else()
+        target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_CXX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    endif()
 
     if ( IOX_STACK_SIZE )
         if(WIN32)
@@ -324,7 +321,11 @@ Macro(iox_add_library)
 
     set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE ON )
 
-    target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    if ( IOX_USE_C_LANGUAGE )
+        target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_C_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    else()
+        target_compile_options(${IOX_TARGET} PRIVATE ${ICEORYX_CXX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS})
+    endif()
     target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS} PRIVATE ${IOX_PRIVATE_LIBS})
     target_include_directories(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_INCLUDES} PRIVATE ${IOX_PRIVATE_INCLUDES})
 

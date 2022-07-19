@@ -85,7 +85,7 @@ TEST_F(RpcBaseHeader_test, ConstructorWorks)
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionFromNonConstContextWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c58aa0ac-8897-4ac5-a2aa-53999902f504");
-    EXPECT_THAT(static_cast<RpcBaseHeader*>(sut)->getChunkHeader(), Eq(chunk.chunkHeader()));
+    EXPECT_THAT(sut->getChunkHeader(), Eq(chunk.chunkHeader()));
 }
 
 TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionFromConstContextWorks)
@@ -113,7 +113,7 @@ TEST_F(RpcBaseHeader_test, GetChunkHeaderFunctionCalledFromConstContextReturnsCo
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionFromNonConstContextWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7ee7b88e-8fc1-4b6b-a84b-f89c9480855e");
-    EXPECT_THAT(static_cast<RpcBaseHeader*>(sut)->getUserPayload(), Eq(chunk.chunkHeader()->userPayload()));
+    EXPECT_THAT(sut->getUserPayload(), Eq(chunk.chunkHeader()->userPayload()));
 }
 
 TEST_F(RpcBaseHeader_test, GetUserPayloadFunctionFromConstContextWorks)

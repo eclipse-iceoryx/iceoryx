@@ -85,7 +85,7 @@ inline void PeriodicTask<T>::run() noexcept
     posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
     do
     {
-        IOX_DISCARD_RESULT(m_callable());
+        m_callable();
 
         /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
         auto waitResult = m_stop->timedWait(m_interval);

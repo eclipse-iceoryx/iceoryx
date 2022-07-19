@@ -117,7 +117,7 @@ TEST_F(NotificationInfo_test, constGetOriginReturnsNullptrWithWrongType)
             errorHandlerCalled = true;
         });
 
-    const_cast<NotificationInfo&>(m_sut).getOrigin<int>();
+    const_cast<const NotificationInfo&>(m_sut).getOrigin<int>();
 
     ASSERT_TRUE(errorHandlerCalled);
     EXPECT_EQ(error, iox::PoshError::POPO__NOTIFICATION_INFO_TYPE_INCONSISTENCY_IN_GET_ORIGIN);

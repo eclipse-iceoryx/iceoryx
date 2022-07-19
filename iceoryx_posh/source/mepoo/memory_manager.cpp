@@ -115,19 +115,17 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
 uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooConfig) noexcept
 {
     uint64_t memorySize{0U};
-    uint32_t sumOfAllChunks{0U};
+    uint64_t sumOfAllChunks{0U};
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
-        memorySize +=
-            cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount)),
-                       MemPool::CHUNK_MEMORY_ALIGNMENT);
+        memorySize += cxx::align(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount),
+                                 MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
 
+    memorySize += cxx::align(sumOfAllChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
     memorySize +=
-        cxx::align(static_cast<uint64_t>(sumOfAllChunks * sizeof(ChunkManagement)), MemPool::CHUNK_MEMORY_ALIGNMENT);
-    memorySize += cxx::align(static_cast<uint64_t>(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks)),
-                             MemPool::CHUNK_MEMORY_ALIGNMENT);
+        cxx::align(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks), MemPool::CHUNK_MEMORY_ALIGNMENT);
 
     return memorySize;
 }

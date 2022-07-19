@@ -39,15 +39,15 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
-    return cxx::align(static_cast<uint64_t>(sizeof(mepoo::MemoryManager)), mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    const uint64_t memoryManagerSize = sizeof(mepoo::MemoryManager);
+    return cxx::align(memoryManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 
 uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 {
-    // algorithm::align doesn't like constexpr values
-    auto memPoolAlignment = mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT;
-    return algorithm::max(static_cast<uint64_t>(alignof(mepoo::MemoryManager)), memPoolAlignment);
+    const uint64_t memoryManagerAlignment = alignof(mepoo::MemoryManager);
+    return algorithm::max(memoryManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
