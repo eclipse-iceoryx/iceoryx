@@ -255,8 +255,11 @@ TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)
     auto sutSource = expected<NonTrivialTestClass, int>::create_value(A, B);
     auto sutDestination{std::move(sutSource)};
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_FALSE(sutSource.has_error());
     EXPECT_TRUE(sutSource.value().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_FALSE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.value().m_moved);
     EXPECT_EQ(sutDestination.value().m_a, A);
@@ -271,8 +274,11 @@ TEST_F(expected_test, CreateWithErrorAndMoveCtorLeadsToMovedSource)
     auto sutSource = expected<int, NonTrivialTestClass>::create_error(A, B);
     auto sutDestination{std::move(sutSource)};
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutSource.has_error());
     EXPECT_TRUE(sutSource.get_error().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.get_error().m_moved);
     EXPECT_EQ(sutDestination.get_error().m_a, A);
@@ -287,8 +293,11 @@ TEST_F(expected_test, CreateWithValueAndMoveAssignmentLeadsToMovedSource)
     auto sutSource = expected<NonTrivialTestClass, int>::create_value(A, B);
     auto sutDestination = std::move(sutSource);
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_FALSE(sutSource.has_error());
     EXPECT_TRUE(sutSource.value().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_FALSE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.value().m_moved);
     EXPECT_EQ(sutDestination.value().m_a, A);
@@ -303,8 +312,11 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToMovedSource)
     auto sutSource = expected<int, NonTrivialTestClass>::create_error(A, B);
     auto sutDestination = std::move(sutSource);
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutSource.has_error());
     EXPECT_TRUE(sutSource.get_error().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.get_error().m_moved);
     EXPECT_EQ(sutDestination.get_error().m_a, A);
@@ -406,6 +418,8 @@ TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueMoveCtorLeadsToNoError
     ::testing::Test::RecordProperty("TEST_ID", "2b7feb2c-c0bd-4c10-bc0c-d980eec4f0ca");
     auto sutSource = expected<NonTrivialTestClass>::create_value();
     auto sutDestination{std::move(sutSource)};
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(sutSource.has_error());
     EXPECT_FALSE(sutDestination.has_error());
 }
@@ -415,6 +429,8 @@ TEST_F(expected_test, ErrorTypeOnlyCreateValueWithoutValueMoveAssignmentLeadsToN
     ::testing::Test::RecordProperty("TEST_ID", "75d3f30e-d927-46bf-83a4-fb8361542333");
     auto sutSource = expected<NonTrivialTestClass>::create_value();
     auto sutDestination = std::move(sutSource);
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(sutSource.has_error());
     EXPECT_FALSE(sutDestination.has_error());
 }
@@ -427,8 +443,11 @@ TEST_F(expected_test, ErrorTypeOnlyMoveCtorLeadsToMovedSource)
     auto sutSource = expected<NonTrivialTestClass>::create_error(A, B);
     auto sutDestination{std::move(sutSource)};
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutSource.has_error());
     EXPECT_TRUE(sutSource.get_error().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.get_error().m_moved);
     EXPECT_EQ(sutDestination.get_error().m_a, A);
@@ -443,8 +462,11 @@ TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToMovedSource)
     auto sutSource = expected<NonTrivialTestClass>::create_error(A, B);
     auto sutDestination = std::move(sutSource);
 
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTBEGIN(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutSource.has_error());
     EXPECT_TRUE(sutSource.get_error().m_moved);
+    // NOLINTEND(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     ASSERT_TRUE(sutDestination.has_error());
     EXPECT_FALSE(sutDestination.get_error().m_moved);
     EXPECT_EQ(sutDestination.get_error().m_a, A);

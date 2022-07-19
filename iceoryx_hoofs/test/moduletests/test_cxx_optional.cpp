@@ -285,6 +285,8 @@ TEST_F(Optional_test, MoveCTorWithValue)
     ASSERT_THAT(sut2.has_value(), Eq(true));
     EXPECT_THAT(sut2->value, Eq(4711));
     EXPECT_THAT(sut2->secondValue, Eq(1337));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -296,6 +298,8 @@ TEST_F(Optional_test, MoveCTorWithNoValue)
     iox::cxx::optional<TestClass> sut2(std::move(sut));
 
     ASSERT_THAT(sut2.has_value(), Eq(false));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -408,6 +412,8 @@ TEST_F(Optional_test, DestructorOnMoveCTor)
             DTorTest::dtorCounter = 0;
             iox::cxx::optional<DTorTest> sut2{std::move(sut)};
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut
+            // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(sut.has_value(), Eq(false));
             DTorTest::dtorCounter = 0;
         }
@@ -558,12 +564,13 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithPodRVal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de7e36ea-44f9-4b82-9b0d-0bce8af2a10a");
-    int8_t val = 23;
+    constexpr int8_t VALUE = 23;
+    int8_t val = VALUE;
     // move constructor of TestStructForInPlaceConstruction is called
     // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, std::move(val));
     ASSERT_TRUE(sut.has_value());
-    EXPECT_THAT(sut->val, Eq(DEFAULT_MULTIPLICATOR * val));
+    EXPECT_THAT(sut->val, Eq(DEFAULT_MULTIPLICATOR * VALUE));
     ASSERT_TRUE(sut->ptr);
     EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
 }

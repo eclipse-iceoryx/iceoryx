@@ -30,9 +30,6 @@ namespace cxx
 template <uint64_t Capacity>
 class string;
 
-template <uint64_t Capacity>
-using charArray = char[Capacity];
-
 namespace internal
 {
 template <typename Derived, class = void>

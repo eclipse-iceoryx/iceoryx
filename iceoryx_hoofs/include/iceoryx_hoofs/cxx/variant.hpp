@@ -262,9 +262,9 @@ class variant
 
   private:
     /// @todo #1196 Replace with UninitializedArray
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     alignas(algorithm::max(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0U};
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     uint64_t m_type_index{INVALID_VARIANT_INDEX};
 
   private:
