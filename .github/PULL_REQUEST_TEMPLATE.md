@@ -3,7 +3,7 @@
 1. [ ] Code follows the coding style of [CONTRIBUTING.md][contributing]
 1. [ ] Tests follow the [best practice for testing][testing]
 1. [ ] Changelog updated [in the unreleased section][changelog] including API breaking changes
-1. [ ] Branch follows the naming format (`iox-#123-this-is-a-branch`)
+1. [ ] Branch follows the naming format (`iox-123-this-is-a-branch`)
 1. [ ] Commits messages are according to this [guideline][commit-guidelines]
     - [ ] Commit messages have the issue ID (`iox-#123 commit text`)
     - [ ] Commit messages are signed (`git commit -s`)
