@@ -99,7 +99,7 @@ struct call_at_index
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             reinterpret_cast<T*>(ptr)->~T();
         }
         else
@@ -113,7 +113,7 @@ struct call_at_index
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             *reinterpret_cast<T*>(destination) = std::move(*reinterpret_cast<T*>(source));
         }
         else
@@ -127,7 +127,7 @@ struct call_at_index
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             new (destination) T(std::move(*reinterpret_cast<T*>(source)));
         }
         else
@@ -141,7 +141,7 @@ struct call_at_index
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             *reinterpret_cast<T*>(destination) = *reinterpret_cast<const T*>(source);
         }
         else
@@ -155,7 +155,7 @@ struct call_at_index
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             new (destination) T(*reinterpret_cast<const T*>(source));
         }
         else
@@ -169,13 +169,13 @@ template <uint64_t N, typename T>
 struct call_at_index<N, T>
 {
     // d'tor changes the data to which source is pointing to
-    // NOLINTNEXTLINE (readability-non-const-parameter)
+    // NOLINTNEXTLINE(readability-non-const-parameter)
     static void destructor(const uint64_t index, byte_t* ptr) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             reinterpret_cast<T*>(ptr)->~T();
         }
         else
@@ -185,13 +185,13 @@ struct call_at_index<N, T>
     }
 
     // move c'tor changes the data to which source is pointing to
-    // NOLINTNEXTLINE (readability-non-const-parameter)
+    // NOLINTNEXTLINE(readability-non-const-parameter)
     static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             *reinterpret_cast<T*>(destination) = std::move(*reinterpret_cast<T*>(source));
         }
         else
@@ -201,13 +201,13 @@ struct call_at_index<N, T>
     }
 
     // Both 'source' and 'destination' will be changed and can't be const
-    // NOLINTNEXTLINE (readability-non-const-parameter)
+    // NOLINTNEXTLINE(readability-non-const-parameter)
     static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             new (destination) T(std::move(*reinterpret_cast<T*>(source)));
         }
         else
@@ -221,7 +221,7 @@ struct call_at_index<N, T>
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             *reinterpret_cast<T*>(destination) = *reinterpret_cast<const T*>(source);
         }
         else
@@ -231,13 +231,13 @@ struct call_at_index<N, T>
     }
 
     // 'operator new()' needs non-const 'destination'
-    // NOLINTNEXTLINE (readability-non-const-parameter)
+    // NOLINTNEXTLINE(readability-non-const-parameter)
     static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
-            // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             new (destination) T(*reinterpret_cast<const T*>(source));
         }
         else

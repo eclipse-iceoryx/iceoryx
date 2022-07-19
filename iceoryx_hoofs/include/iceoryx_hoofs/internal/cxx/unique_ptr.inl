@@ -77,7 +77,7 @@ template <typename T>
 const T* unique_ptr<T>::operator->() const noexcept
 {
     // Avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(get());
 }
 
@@ -97,7 +97,7 @@ template <typename T>
 const T* unique_ptr<T>::get() const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<unique_ptr<T>*>(this)->get();
 }
 

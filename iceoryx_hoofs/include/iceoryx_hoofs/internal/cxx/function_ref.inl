@@ -35,7 +35,7 @@ template <typename CallableType, typename>
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by
     // casting back on call
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast)
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
     // AXIVION Next Line AutosarC++19_03-A15.4.4 : Lambda not 'noexcept' as callable might throw
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
@@ -54,7 +54,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function
     // the cast is required to work on POSIX systems
     // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting
     // back function pointer on call
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     : m_pointerToCallable(reinterpret_cast<void*>(function))
     ,
     // the lambda does not capture and is thus convertible to a function pointer
@@ -62,7 +62,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function
     m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
         using PointerType = ReturnType (*)(ArgTypes...);
         // AXIVION Next Construct AutosarC++19_03-A5.2.4 : The class design ensures a cast to the actual type of target
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,hicpp-use-auto)
         PointerType f = reinterpret_cast<PointerType>(target);
         // AXIVION Next Line AutosarC++19_03-A5.3.2 : Check for 'nullptr' is performed on call
         return f(args...);

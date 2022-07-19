@@ -62,7 +62,7 @@ TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
     ::testing::Test::RecordProperty("TEST_ID", "ab877f29-cab0-48ae-a2c0-054633b6415a");
     decltype(this->m_loffli) loFFLi;
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(loFFLi.init(nullptr, 1), ".*");
 }
 
@@ -73,7 +73,7 @@ TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(loFFLi.init(memoryLoFFLi, 0), ".*");
 }
 
@@ -84,7 +84,7 @@ TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(loFFLi.init(memoryLoFFLi, UINT32_MAX - 1), ".*");
 }
 

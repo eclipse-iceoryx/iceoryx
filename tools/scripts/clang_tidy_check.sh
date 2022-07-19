@@ -56,6 +56,13 @@ fi
 echo "Using clang-tidy version:"
 $CLANG_TIDY_CMD --version
 
+noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | xargs grep -h "// NOLINTNEXTLINE (")
+if [[ -n "$noSpaceInSuppressions" ]]; then
+    echo -e "\e[1;31mRemove space between NOLINTNEXTLINE and '('!\e[m"
+    echo "$noSpaceInSuppressions"
+    false
+fi
+
 if [[ "$MODE" == "hook"* ]]; then
     FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
     # List only added files

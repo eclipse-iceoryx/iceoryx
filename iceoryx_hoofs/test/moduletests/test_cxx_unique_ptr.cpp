@@ -108,7 +108,7 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
             // check if move is invalidating the object
-            // NOLINTNEXTLINE (bugprone-use-after-move)
+            // NOLINTNEXTLINE(bugprone-use-after-move)
             EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
@@ -134,7 +134,7 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
             // check if move is invalidating the object
-            // NOLINTNEXTLINE (bugprone-use-after-move)
+            // NOLINTNEXTLINE(bugprone-use-after-move)
             EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
@@ -165,7 +165,7 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAno
             // SUT deleter not called during move
             EXPECT_FALSE(m_deleterCalled);
             // check if move is invalidating the object
-            // NOLINTNEXTLINE (bugprone-use-after-move)
+            // NOLINTNEXTLINE(bugprone-use-after-move)
             EXPECT_FALSE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }

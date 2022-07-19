@@ -33,7 +33,7 @@ PoorMansHeap<Interface, TypeSize, TypeAlignment>::~PoorMansHeap() noexcept
     deleteInstance();
 }
 
-// NOLINTNEXTLINE (cppcoreguidelines-pro-type-member-init,hicpp-member-init) justification in header
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init) justification in header
 template <typename Interface, uint64_t TypeSize, uint64_t TypeAlignment>
 template <typename Type, typename... CTorArgs>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header

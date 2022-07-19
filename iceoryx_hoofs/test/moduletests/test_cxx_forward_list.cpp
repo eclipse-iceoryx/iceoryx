@@ -293,7 +293,7 @@ TEST_F(forward_list_test, FullWhenFilledWithMoreThanCapacityElements)
 
     EXPECT_THAT(sut.full(), Eq(true));
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.emplace_front(), "");
 }
 TEST_F(forward_list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
@@ -667,7 +667,7 @@ TEST_F(forward_list_test, EmplaceAfterWithWrongListIterator)
     }
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut11.emplace_after(iterOfSut12, cnt), "");
 }
 
@@ -1167,37 +1167,37 @@ TEST_F(forward_list_test, IteratorComparisonOfDifferentLists)
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.before_begin();
     iterSut2 = sut12.before_begin();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.before_begin();
     iterSut2 = sut12.before_begin();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 }
 
@@ -1987,7 +1987,7 @@ TEST_F(forward_list_test, invalidIteratorErase)
     sut.pop_front();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.erase_after(iter), "");
 }
 
@@ -2004,7 +2004,7 @@ TEST_F(forward_list_test, invalidIteratorIncrement)
     sut.pop_front();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(++iter, "");
 }
 
@@ -2021,7 +2021,7 @@ TEST_F(forward_list_test, invalidIteratorComparison)
     sut.pop_front();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
 
@@ -2038,7 +2038,7 @@ TEST_F(forward_list_test, invalidIteratorComparisonUnequal)
     auto iter2 = sut.cbegin();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter2 != iter), "");
 }
 
@@ -2055,7 +2055,7 @@ TEST_F(forward_list_test, invalidIteratorDereferencing)
     sut.pop_front();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.remove(*iter), "");
 }
 
@@ -2072,7 +2072,7 @@ TEST_F(forward_list_test, invalidIteratorAddressOfOperator)
     sut.pop_front();
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
 }
 

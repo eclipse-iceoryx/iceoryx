@@ -37,7 +37,7 @@ inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
 template <typename... Types>
 template <uint64_t N, typename... CTorArguments>
 // First param is helper struct only
-// NOLINTNEXTLINE (hicpp-named-parameter)
+// NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArguments&&... args) noexcept
 {
     emplace_at_index<N>(std::forward<CTorArguments>(args)...);
@@ -46,7 +46,7 @@ inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArgume
 template <typename... Types>
 template <typename T, typename... CTorArguments>
 // First param is helper struct only
-// NOLINTNEXTLINE (hicpp-named-parameter)
+// NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... args) noexcept
 {
     emplace<T>(std::forward<CTorArguments>(args)...);
@@ -139,7 +139,7 @@ inline void variant<Types...>::call_element_destructor() noexcept
 }
 
 // Correct return type is used through enable_if
-// NOLINTNEXTLINE (cppcoreguidelines-c-copy-assignment-signature)
+// NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature)
 template <typename... Types>
 template <typename T>
 inline typename std::enable_if<!std::is_same<T, variant<Types...>&>::value, variant<Types...>>::type&
@@ -224,7 +224,7 @@ variant<Types...>::get_at_index() const noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
 }
 
@@ -237,7 +237,7 @@ inline const T* variant<Types...>::get() const noexcept
         return nullptr;
     }
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return static_cast<const T*>(static_cast<const void*>(m_storage));
 }
 
@@ -246,7 +246,7 @@ template <typename T>
 inline T* variant<Types...>::get() noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const variant*>(this)->get<T>());
 }
 
@@ -255,7 +255,7 @@ template <typename T>
 inline T* variant<Types...>::get_if(T* defaultValue) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const variant*>(this)->get_if<T>(const_cast<const T*>(defaultValue)));
 }
 
