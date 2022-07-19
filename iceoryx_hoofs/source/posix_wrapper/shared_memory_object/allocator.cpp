@@ -64,8 +64,6 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
                   << " when there are already " << alignedPosition << " aligned bytes in use." << std::endl;
         std::cerr << "Only " << m_length - alignedPosition << " bytes left." << std::endl;
 
-        /// @todo replace Expects with IOX_ASSERT
-        // NOLINTNEXTLINE(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         cxx::Expects(false && "Not enough space left in shared memory");
     }
 
