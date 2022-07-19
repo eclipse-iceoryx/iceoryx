@@ -50,8 +50,8 @@ Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
 2. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
-3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
-4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+3. All branches have the following naming format: `iox-[issue]-branch-name` e.g. `iox-123-super-duper-feature`
+4. All commits have the following naming format: `iox-#[issue] Commit message` e.g. `iox-#123 Implement super-duper feature`
 5. All commits have been signed with `git commit -s`
 6. The `iceoryx-unreleased.md` in `doc/website/release-notes` is updated with the GitHub issue
    that is closed by the Pull-Request

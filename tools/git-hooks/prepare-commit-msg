@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,27 +19,44 @@
 # This script prepares the commit messages to include
 # the issued ID at the beginning of the message.
 
-branch_name=$(git rev-parse --abbrev-ref HEAD)
+COLOR_RESET='\033[0m'
+COLOR_GREEN='\033[1;32m'
+COLOR_YELLOW='\033[1;33m'
 
-if [[ "$branch_name" =~ ^iox-#[0-9]+ ]]; then
-    branch_name="$(echo "$branch_name" | grep -Eo 'iox-#[0-9]+')"
+branch_name=$(git rev-parse --abbrev-ref HEAD)
+branch_issue_number='0'
+
+if [[ "$branch_name" =~ ^iox-[0-9]+ ]]; then
+    branch_issue_number="$(echo "$branch_name" | grep -Eo 'iox-[0-9]+' | grep -Eo '[0-9]+')"
+elif [[ "$branch_name" =~ ^iox-#[0-9]+ ]]; then
+    branch_issue_number="$(echo "$branch_name" | grep -Eo 'iox-#[0-9]+' | grep -Eo '[0-9]+')"
+    echo -e "$COLOR_YELLOW"
+    echo -e "Warning: The branch name uses an obsolet convention with a hash in front of the issue number."
+    echo -e "Please don't use this pattern in the future!"
+    echo -e "$COLOR_RESET"
 else
-    echo "Warning: The branch name doesn't follow the convention of 'iox-#ISSUE_NUMBER'."
-    echo "Commit message won't be autoformatted."
+    echo -e "$COLOR_YELLOW"
+    echo -e "Warning: The branch name doesn't follow the convention of 'iox-ISSUE_NUMBER'."
+    echo -e "Commit message won't be autoformatted."
+    echo -e "$COLOR_RESET"
     exit 0
 fi
 
 commit_msg=$(cat $1)
 if [[ $commit_msg =~ ^iox-#[0-9]+ ]]; then
-    commit_msg="$(echo "$commit_msg" | grep -Eo 'iox-#[0-9]+')"
-    if [[ "$commit_msg" != "$branch_name" ]]; then
-        echo "Warning: Commit message ticket number does not fit to branch ticket number: $commit_msg."
-        echo "Is this on purpose?"
-        echo "Commit message will not be autoformatted."
+    commit_issue_number="$(echo "$commit_msg" | grep -Eo 'iox-#[0-9]+' | grep -Eo '[0-9]+')"
+    if [[ "$commit_issue_number" != "$branch_issue_number" ]]; then
+        echo -e "$COLOR_YELLOW"
+        echo -e "Warning: Commit message issue number does not fit to branch issue number: '$branch_issue_number'"
+        echo -e "Is this on purpose?"
+        echo -e "Commit message will not be autoformatted."
+        echo -e "$COLOR_RESET"
         exit 0
     fi
 else
-    echo "Info: Commit message does not start with issue number: $commit_msg."
-    echo "Commit message will be autoformatted."
-    echo -e "$branch_name $(cat $1)" > $1
+    echo -e "$COLOR_GREEN"
+    echo -e "Info: Commit message does not start with issue number: '$commit_msg'"
+    echo -e "Commit message will be autoformatted."
+    echo -e "iox-#$branch_issue_number $(cat $1)" > $1
+    echo -e "$COLOR_RESET"
 fi
