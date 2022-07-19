@@ -340,9 +340,8 @@ template <typename ErrorType>
 template <typename... Targs>
 inline expected<ErrorType> expected<ErrorType>::create_error(Targs&&... args) noexcept
 {
-    expected<ErrorType> returnValue(variant<ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...));
-
-    return returnValue;
+    return static_cast<expected<ErrorType>>(
+        variant<ErrorType>(in_place_index<ERROR_INDEX>(), std::forward<Targs>(args)...));
 }
 
 template <typename ErrorType>
