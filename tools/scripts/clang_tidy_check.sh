@@ -56,11 +56,11 @@ fi
 echo "Using clang-tidy version:"
 $CLANG_TIDY_CMD --version
 
-noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | xargs grep -h "// NOLINTNEXTLINE (")
+noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | xargs -I {} grep -h '// NOLINTNEXTLINE (' {} || true)
 if [[ -n "$noSpaceInSuppressions" ]]; then
     echo -e "\e[1;31mRemove space between NOLINTNEXTLINE and '('!\e[m"
     echo "$noSpaceInSuppressions"
-    false
+    exit 1
 fi
 
 if [[ "$MODE" == "hook"* ]]; then
