@@ -168,7 +168,7 @@ struct call_at_index
 template <uint64_t N, typename T>
 struct call_at_index<N, T>
 {
-    // d'tor changes the data to which source is pointing to
+    // NOLINTJUSTIFICATION d'tor changes the data to which source is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
     static void destructor(const uint64_t index, byte_t* ptr) noexcept
     {
@@ -184,7 +184,7 @@ struct call_at_index<N, T>
         }
     }
 
-    // move c'tor changes the data to which source is pointing to
+    // NOLINTJUSTIFICATION move c'tor changes the data to which source is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
     static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
@@ -200,7 +200,7 @@ struct call_at_index<N, T>
         }
     }
 
-    // Both 'source' and 'destination' will be changed and can't be const
+    // NOLINTJUSTIFICATION Both 'source' and 'destination' will be changed and can't be const
     // NOLINTNEXTLINE(readability-non-const-parameter)
     static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
     {
@@ -230,7 +230,7 @@ struct call_at_index<N, T>
         }
     }
 
-    // 'operator new()' needs non-const 'destination'
+    // NOLINTJUSTIFICATION 'operator new()' needs non-const 'destination'
     // NOLINTNEXTLINE(readability-non-const-parameter)
     static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
     {

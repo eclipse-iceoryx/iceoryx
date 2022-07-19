@@ -36,7 +36,7 @@ inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
 
 template <typename... Types>
 template <uint64_t N, typename... CTorArguments>
-// First param is helper struct only
+// NOLINTJUSTIFICATION First param is helper struct only
 // NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArguments&&... args) noexcept
 {
@@ -45,7 +45,7 @@ inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArgume
 
 template <typename... Types>
 template <typename T, typename... CTorArguments>
-// First param is helper struct only
+// NOLINTJUSTIFICATION First param is helper struct only
 // NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... args) noexcept
 {
@@ -138,7 +138,7 @@ inline void variant<Types...>::call_element_destructor() noexcept
     }
 }
 
-// Correct return type is used through enable_if
+// NOLINTJUSTIFICATION Correct return type is used through enable_if
 // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature)
 template <typename... Types>
 template <typename T>

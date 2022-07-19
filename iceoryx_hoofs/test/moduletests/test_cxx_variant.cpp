@@ -46,7 +46,7 @@ class variant_Test : public Test
     class ComplexClass
     {
       public:
-        // Ok-ish for tests
+        // NOLINTJUSTIFICATION Ok-ish for tests
         // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
         ComplexClass(int a, float b)
             : a(a)
@@ -231,7 +231,7 @@ TEST_F(variant_Test, GetVariantWithIncorrectValueFails)
 TEST_F(variant_Test, ConstGetOnUninitializedVariantFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "16b511c8-e56a-48c9-bbff-5a7d07e7a500");
-    // Re-use 'sut' and testing const methods
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Eq(nullptr));
 }
@@ -240,7 +240,7 @@ TEST_F(variant_Test, constGetVariantWithCorrectValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4419f569-0541-43ab-8448-9ba10556b459");
     sut.emplace<float>(123.12F);
-    // Re-use 'sut' and testing const methods
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Ne(nullptr));
 }
@@ -249,7 +249,7 @@ TEST_F(variant_Test, ConstGetVariantWithIncorrectValueFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "979e1131-e981-4f67-bef2-a1fe4770c5a6");
     sut.emplace<float>(123.12F);
-    // Re-use 'sut' and testing const methods
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<int>(), Eq(nullptr));
 }
@@ -313,7 +313,7 @@ TEST_F(variant_Test, CopyCTorWithoutValueResultsInInvalidVariant)
 {
     ::testing::Test::RecordProperty("TEST_ID", "31b12efc-4f2d-4b3c-ad72-c12ca8a0cfc3");
     iox::cxx::variant<int, char> schlomo;
-    // Copy c'tor shall be tested
+    // NOLINTJUSTIFICATION Copy c'tor shall be tested
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     iox::cxx::variant<int, char> ignatz(schlomo);
     ASSERT_THAT(ignatz.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
@@ -354,7 +354,7 @@ TEST_F(variant_Test, MoveCTorWithValueLeadsToSameValue)
     iox::cxx::variant<int, char> ignatz(std::move(schlomo));
     ASSERT_THAT(ignatz.get<int>(), Ne(nullptr));
     EXPECT_THAT(*ignatz.get<int>(), Eq(123));
-    // check if move is invalidating the object
+    // NOLINTJUSTIFICATION check if move is invalidating the object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(schlomo.index(), Eq(0U));
 }
@@ -402,7 +402,7 @@ TEST_F(variant_Test, CreatingSecondObjectViaCopyCTorResultsInTwoDTorCalls)
         ignatz.emplace<DTorTest>();
         DTorTest::dtorWasCalled = false;
         {
-            // Copy c'tor shall be tested
+            // NOLINTJUSTIFICATION Copy c'tor shall be tested
             // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             iox::cxx::variant<int, DTorTest> schlomo(ignatz);
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
@@ -442,7 +442,7 @@ TEST_F(variant_Test, CreatingSecondObjectViaMoveCTorResultsInTwoDTorCalls)
         {
             iox::cxx::variant<int, DTorTest> schlomo(std::move(ignatz));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
-            // check if move is invalidating the object
+            // NOLINTJUSTIFICATION check if move is invalidating the object
             // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(ignatz.index(), Eq(1U));
         }
@@ -463,7 +463,7 @@ TEST_F(variant_Test, CreatingSecondObjectViaMoveAssignmentResultsInTwoDTorCalls)
             iox::cxx::variant<int, DTorTest> schlomo;
             schlomo.emplace<int>(123);
             schlomo = std::move(ignatz);
-            // check if move is invalidating the object
+            // NOLINTJUSTIFICATION check if move is invalidating the object
             // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(ignatz.index(), Eq(1U));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
@@ -607,7 +607,7 @@ TEST_F(variant_Test, ComplexDTorWithCopyCTor)
     DoubleDelete::dtorCalls = 0;
     {
         iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
-        // Copy c'tor shall be tested
+        // NOLINTJUSTIFICATION Copy c'tor shall be tested
         // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         iox::cxx::variant<int, DoubleDelete> sut{schlomo};
     }

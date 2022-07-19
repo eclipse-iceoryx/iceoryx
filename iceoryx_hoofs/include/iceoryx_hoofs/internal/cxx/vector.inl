@@ -25,7 +25,7 @@ namespace iox
 {
 namespace cxx
 {
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// NOLINTJUSTIFICATION See header and todo, using UninitializedArray will solve the issue
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept
