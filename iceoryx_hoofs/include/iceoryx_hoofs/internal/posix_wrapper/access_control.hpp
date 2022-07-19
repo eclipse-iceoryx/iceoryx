@@ -42,10 +42,6 @@ namespace posix
 class AccessController
 {
   public:
-    /// @brief maximum size of a string in addPermissionEntry
-    static constexpr uint64_t PERMISSION_STRING_SIZE = 100U;
-    using permissionString_t = cxx::string<PERMISSION_STRING_SIZE>;
-
     enum class AccessControllerError : uint8_t
     {
         COULD_NOT_ALLOCATE_NEW_ACL,

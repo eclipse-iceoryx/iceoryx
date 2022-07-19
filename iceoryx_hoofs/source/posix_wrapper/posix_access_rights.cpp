@@ -30,22 +30,22 @@ namespace iox
 {
 namespace posix
 {
-PosixRights::PosixRights(bool f_read, bool f_write, bool f_execute) noexcept
-    : m_read(f_read)
-    , m_write(f_write)
-    , m_execute(f_execute)
+PosixRights::PosixRights(bool read, bool write, bool execute) noexcept
+    : m_read(read)
+    , m_write(write)
+    , m_execute(execute)
 {
 }
 
-PosixGroup::PosixGroup(gid_t f_id) noexcept
-    : m_id(f_id)
-    , m_doesExist(getGroupName(f_id).has_value())
+PosixGroup::PosixGroup(gid_t id) noexcept
+    : m_id(id)
+    , m_doesExist(getGroupName(id).has_value())
 {
 }
 
-PosixGroup::PosixGroup(const PosixGroup::groupName_t& f_name) noexcept
+PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
 {
-    auto id = getGroupID(f_name);
+    auto id = getGroupID(name);
     if (id.has_value())
     {
         m_id = id.value();
@@ -67,26 +67,26 @@ PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
     return PosixGroup(getegid());
 }
 
-cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& f_name) noexcept
+cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
 {
-    auto getgrnamCall = posixCall(getgrnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getgrnamCall = posixCall(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getgrnamCall.has_error())
     {
-        std::cerr << "Error: Could not find group '" << f_name << "'." << std::endl;
+        std::cerr << "Error: Could not find group '" << name << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
     return cxx::make_optional<gid_t>(getgrnamCall->value->gr_gid);
 }
 
-cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t f_id) noexcept
+cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
 {
-    auto getgrgidCall = posixCall(getgrgid)(f_id).failureReturnValue(nullptr).evaluate();
+    auto getgrgidCall = posixCall(getgrgid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getgrgidCall.has_error())
     {
-        std::cerr << "Error: Could not find group with id '" << f_id << "'." << std::endl;
+        std::cerr << "Error: Could not find group with id '" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
@@ -114,25 +114,25 @@ bool PosixGroup::doesExist() const noexcept
     return m_doesExist;
 }
 
-cxx::optional<uid_t> PosixUser::getUserID(const userName_t& f_name) noexcept
+cxx::optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
-    auto getpwnamCall = posixCall(getpwnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getpwnamCall = posixCall(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getpwnamCall.has_error())
     {
-        std::cerr << "Error: Could not find user '" << f_name << "'." << std::endl;
+        std::cerr << "Error: Could not find user '" << name << "'." << std::endl;
         return cxx::nullopt_t();
     }
     return cxx::make_optional<uid_t>(getpwnamCall->value->pw_uid);
 }
 
-cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t f_id) noexcept
+cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
 {
-    auto getpwuidCall = posixCall(getpwuid)(f_id).failureReturnValue(nullptr).evaluate();
+    auto getpwuidCall = posixCall(getpwuid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getpwuidCall.has_error())
     {
-        std::cerr << "Error: Could not find user with id'" << f_id << "'." << std::endl;
+        std::cerr << "Error: Could not find user with id'" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
     return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
@@ -186,15 +186,15 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     return vec;
 }
 
-PosixUser::PosixUser(uid_t f_id) noexcept
-    : m_id(f_id)
-    , m_doesExist(getUserName(f_id).has_value())
+PosixUser::PosixUser(uid_t id) noexcept
+    : m_id(id)
+    , m_doesExist(getUserName(id).has_value())
 {
 }
 
-PosixUser::PosixUser(const PosixUser::userName_t& f_name) noexcept
+PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
 {
-    auto id = getUserID(f_name);
+    auto id = getUserID(name);
     if (id.has_value())
     {
         m_id = id.value();

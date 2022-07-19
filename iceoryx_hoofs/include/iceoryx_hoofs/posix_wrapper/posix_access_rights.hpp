@@ -32,7 +32,7 @@ static constexpr int MaxNumberOfGroups = 888;
 
 struct PosixRights
 {
-    PosixRights(bool f_read, bool f_write, bool f_execute) noexcept;
+    PosixRights(bool read, bool write, bool execute) noexcept;
     bool m_read;
     bool m_write;
     bool m_execute;
@@ -43,8 +43,8 @@ class PosixGroup
   public:
     static constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
     using groupName_t = cxx::string<MAX_GROUP_NAME_LENGTH>;
-    explicit PosixGroup(const gid_t f_id) noexcept;
-    explicit PosixGroup(const groupName_t& f_name) noexcept;
+    explicit PosixGroup(const gid_t id) noexcept;
+    explicit PosixGroup(const groupName_t& name) noexcept;
 
     bool operator==(const PosixGroup& other) const noexcept;
 
@@ -55,8 +55,8 @@ class PosixGroup
 
     static PosixGroup getGroupOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getGroupID(const groupName_t& f_name) noexcept;
-    static cxx::optional<groupName_t> getGroupName(gid_t f_id) noexcept;
+    static cxx::optional<uid_t> getGroupID(const groupName_t& name) noexcept;
+    static cxx::optional<groupName_t> getGroupName(gid_t id) noexcept;
 
   private:
     gid_t m_id;
@@ -71,8 +71,8 @@ class PosixUser
     static constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
     using userName_t = cxx::string<MAX_USER_NAME_LENGTH>;
 
-    explicit PosixUser(const uid_t f_id) noexcept;
-    explicit PosixUser(const userName_t& f_name) noexcept;
+    explicit PosixUser(const uid_t id) noexcept;
+    explicit PosixUser(const userName_t& name) noexcept;
 
     groupVector_t getGroups() const noexcept;
     userName_t getName() const noexcept;
@@ -82,8 +82,8 @@ class PosixUser
 
     static PosixUser getUserOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getUserID(const userName_t& f_name) noexcept;
-    static cxx::optional<userName_t> getUserName(uid_t f_id) noexcept;
+    static cxx::optional<uid_t> getUserID(const userName_t& name) noexcept;
+    static cxx::optional<userName_t> getUserName(uid_t id) noexcept;
 
   private:
     uid_t m_id;
