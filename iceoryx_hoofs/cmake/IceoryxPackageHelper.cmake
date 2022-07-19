@@ -379,4 +379,7 @@ Macro(iox_add_library)
             INCLUDE_DIRECTORY include/
         )
     endif()
+
+    unset(IOX_NO_PACKAGE_SETUP)
+    unset(IOX_NO_FIND_PACKAGE_SUPPORT)
 endMacro()
