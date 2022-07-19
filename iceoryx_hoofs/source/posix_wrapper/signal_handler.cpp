@@ -15,6 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -29,11 +31,10 @@ SignalGuard::SignalGuard(const Signal signal, const struct sigaction& previousAc
 }
 
 SignalGuard::SignalGuard(SignalGuard&& rhs) noexcept
+    : m_signal{rhs.m_signal}
+    , m_previousAction{rhs.m_previousAction}
+    , m_doRestorePreviousAction{rhs.m_doRestorePreviousAction}
 {
-    m_signal = std::move(rhs.m_signal);
-    m_previousAction = std::move(rhs.m_previousAction);
-    m_doRestorePreviousAction = std::move(rhs.m_doRestorePreviousAction);
-
     rhs.m_doRestorePreviousAction = false;
 }
 
@@ -54,8 +55,8 @@ void SignalGuard::restorePreviousAction() noexcept
     }
 }
 
-
-SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallback_t callback) noexcept
+cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+                                                                   const SignalHandlerCallback_t callback) noexcept
 {
     struct sigaction action = {};
 
@@ -63,10 +64,10 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
     if (posixCall(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
     {
-        std::cerr << "This should never happen! Unable to create an empty sigaction set while registering a signal "
-                     "handler for the signal ["
-                  << static_cast<int>(signal) << "]. No signal handler will be registered!" << std::endl;
-        return SignalGuard();
+        LogError() << "This should never happen! Unable to create an empty sigaction set while registering a signal "
+                      "handler for the signal ["
+                   << static_cast<int>(signal) << "]. No signal handler will be registered!";
+        return cxx::error<SignalGuardError>(SignalGuardError::INVALID_SIGNAL_ENUM_VALUE);
     }
 
     // system struct, no way to avoid union
@@ -84,12 +85,12 @@ SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallba
             .evaluate()
             .has_error())
     {
-        std::cerr << "This should never happen! An error occurred while registering a signal handler for the signal ["
-                  << static_cast<int>(signal) << "]. " << std::endl;
-        return SignalGuard();
+        LogError() << "This should never happen! An error occurred while registering a signal handler for the signal ["
+                   << static_cast<int>(signal) << "]. ";
+        return cxx::error<SignalGuardError>(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);
     }
 
-    return SignalGuard(signal, previousAction);
+    return cxx::success<SignalGuard>(SignalGuard(signal, previousAction));
 }
 } // namespace posix
 } // namespace iox

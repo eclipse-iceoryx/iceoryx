@@ -37,6 +37,7 @@ enum class SharedMemoryObjectError
 {
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
+    INTERNAL_LOGIC_FAILURE,
 };
 
 class SharedMemoryObjectBuilder;

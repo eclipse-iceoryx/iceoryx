@@ -38,8 +38,10 @@ int main()
     constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
 
     // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+    auto signalIntGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
+    auto signalTermGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-grouping");
     //! [create waitset]

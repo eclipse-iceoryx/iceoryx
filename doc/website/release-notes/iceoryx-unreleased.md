@@ -60,6 +60,7 @@
 - Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Remove implicit conversion from `cxx::expected` to `cxx::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
+- `SignalHandler` returns an `expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 
 **New API features:**
 
@@ -236,4 +237,17 @@
     // after
     units::Duration duration = 42_ms;
     timveal tv = duration.timeval();
+    ```
+
+13. `registerSignalHandler` returns guard packed inside expected
+    ```cpp
+    // before
+    //// unable to determine if an error occurred in the underlying posix calls
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+
+    // after
+    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    if (signalGuard.has_error()) {
+        // perform error handling
+    }
     ```

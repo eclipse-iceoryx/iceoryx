@@ -67,7 +67,7 @@ TEST_F(SignalWatcher_test, SignalWasNotTriggeredWhenNotTriggeredBefore)
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGINTWasTriggeredBefore)
 {
     ::testing::Test::RecordProperty("TEST_ID", "48e18aae-af21-43c4-a444-70fc371d328f");
-    raise(SIGINT);
+    ASSERT_EQ(raise(SIGINT), 0);
     EXPECT_TRUE(sut->wasSignalTriggered());
     EXPECT_TRUE(hasTerminationRequested());
 }
@@ -75,12 +75,14 @@ TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGINTWasTriggeredBefore)
 TEST_F(SignalWatcher_test, SignalIsTriggeredWhenSIGTERMWasTriggeredBefore)
 {
     ::testing::Test::RecordProperty("TEST_ID", "639708fa-3327-4573-92e2-cdbbff2cbdec");
-    raise(SIGTERM);
+    ASSERT_EQ(raise(SIGTERM), 0);
     EXPECT_TRUE(sut->wasSignalTriggered());
     EXPECT_TRUE(hasTerminationRequested());
 }
 
 void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
+                                           /// NOLINTJUSTIFICATION only used inside this test
+                                           /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                                            const int signal,
                                            const uint32_t numberOfWaiters,
                                            const std::function<void()>& wait)
@@ -104,7 +106,7 @@ void unblocksWhenSignalWasRaisedForWaiters(SignalWatcher_test& test,
     std::this_thread::sleep_for(test.waitingTime);
 
     EXPECT_TRUE(isThreadFinished.load() == 0);
-    raise(signal);
+    ASSERT_EQ(raise(signal), 0);
 
     while (isThreadFinished.load() != numberOfWaiters)
     {

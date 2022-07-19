@@ -67,8 +67,10 @@ int main()
 
     discoveryPtr = &discovery;
 
-    auto sigTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
-    auto sigIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
+    auto sigTermGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
+    auto sigIntGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
 
     //! [define search query]
     auto query = [&]() {

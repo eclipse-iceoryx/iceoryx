@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/platform/signal.hpp"
 
 namespace iox
@@ -35,6 +36,12 @@ enum class Signal : int
     ABORT = SIGABRT,
     /// @attention never add SIGKILL or SIGSTOP into this list, they cannot be caught
     ///            and sigaction returns the errno EINVAL
+};
+
+enum class SignalGuardError
+{
+    INVALID_SIGNAL_ENUM_VALUE,
+    UNDEFINED_ERROR_IN_SYSTEM_CALL
 };
 
 /// @attention NEVER USE THIS CLASS AS A MEMBER VARIABLE! A class which should be used
@@ -61,11 +68,11 @@ class SignalGuard
     SignalGuard& operator=(const SignalGuard& rhs) = delete;
     SignalGuard& operator=(SignalGuard&& rhs) = delete;
 
-    friend SignalGuard registerSignalHandler(const Signal, const SignalHandlerCallback_t) noexcept;
+    friend cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal,
+                                                                              const SignalHandlerCallback_t) noexcept;
 
   private:
     void restorePreviousAction() noexcept;
-    SignalGuard() noexcept = default;
     SignalGuard(const Signal signal, const struct sigaction& previousAction) noexcept;
 
   private:
@@ -82,8 +89,10 @@ class SignalGuard
 ///             callback is restored which was active when the last SignalGuard which is going out of scope was created.
 /// @param[in] Signal the signal to which the callback should be attached
 /// @param[in] callback the callback which should be called when the signal is raised.
-/// @return SignalGuard, when it goes out of scope the previous signal action is restored.
-SignalGuard registerSignalHandler(const Signal signal, const SignalHandlerCallback_t callback) noexcept;
+/// @return SignalGuard on success - when it goes out of scope the previous signal action is restored. On error
+///         SignalGuardError is returned which describes the error.
+cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+                                                                   const SignalHandlerCallback_t callback) noexcept;
 } // namespace posix
 } // namespace iox
 #endif

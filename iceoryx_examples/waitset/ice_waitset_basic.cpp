@@ -49,8 +49,10 @@ int main()
     waitset.emplace();
 
     // register signal handler to handle termination of the loop
-    auto signalGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+    auto signalGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
+    auto signalTermGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
 
     // create subscriber
     iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});

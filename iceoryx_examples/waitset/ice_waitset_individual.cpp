@@ -35,8 +35,10 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 int main()
 {
     // register sigHandler
-    auto signalIntGuard = iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler);
-    auto signalTermGuard = iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler);
+    auto signalIntGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
+    auto signalTermGuard =
+        iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-individual");
 
