@@ -25,7 +25,7 @@ namespace concurrent
 {
 inline constexpr uint64_t LoFFLi::requiredIndexMemorySize(const uint64_t capacity) noexcept
 {
-    return (static_cast<uint64_t>(capacity) + 1U) * sizeof(LoFFLi::Index_t);
+    return (capacity + 1U) * sizeof(LoFFLi::Index_t);
 }
 
 } // namespace concurrent

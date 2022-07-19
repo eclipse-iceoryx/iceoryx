@@ -22,6 +22,9 @@ namespace cxx
 {
 namespace internal
 {
+/// We use this as an alternative to "static_cast<void>(someVar)" to signal the
+/// compiler an unused variable. "static_cast" produces an useless-cast warning
+/// on gcc and this approach solves it cleanly.
 template <typename T>
 inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 {
