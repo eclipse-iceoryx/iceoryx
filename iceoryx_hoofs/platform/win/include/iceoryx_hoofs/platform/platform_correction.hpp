@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@
 // Usage Instructions: This header has to be ALWAYS the last header which
 // is included otherwise some windows header pops up and defines some macros
 
+#include <cstring>
+
 #ifndef __PRETTY_FUNCTION__
 #define __PRETTY_FUNCTION__ __FUNCSIG__
 #endif
@@ -38,3 +40,7 @@
 #undef CreateSemaphore
 #undef NO_ERROR
 #undef OPEN_EXISTING
+
+/// todo iox-#1196 required by posix but defined in libc header string.h
+///      move it into the upcoming libc layer in platform
+#define strerror_r(errnum, buf, buflen) strerror_s(buf, buflen, errnum)

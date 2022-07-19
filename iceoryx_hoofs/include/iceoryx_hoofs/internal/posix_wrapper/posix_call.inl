@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+
 namespace iox
 {
 namespace posix
@@ -24,6 +26,8 @@ namespace internal
 {
 template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallBuilder<ReturnType, FunctionArguments...>
+/// NOLINTJUSTIFICATION this function is never used directly, only be the macro posixCall
+/// NOLINTNEXTLINE(readability-function-size)
 createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
                        const char* posixFunctionName,
                        const char* file,
@@ -35,6 +39,9 @@ createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
 }
 
 template <typename ReturnType>
+/// NOLINTJUSTIFICATION used only internally, the function and file name are provided by
+///                     compiler macros and are of type char*
+/// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionName,
                                                       const char* file,
                                                       int line,
@@ -46,12 +53,30 @@ inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionN
 {
 }
 
+/// the overload is required since on most linux systems there are two different implementations
+/// of "strerror_r", the posix compliant one which returns an int and stores the message in the buffer
+/// and a gnu version which returns a pointer to the message and sometimes stores the message
+/// in the buffer
+inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode IOX_MAYBE_UNUSED,
+                                                                      char* const buffer)
+{
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, buffer);
+}
+
+inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg,
+                                                                      char* const buffer IOX_MAYBE_UNUSED)
+{
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, msg);
+}
 } // namespace internal
 
 template <typename T>
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, std::strerror(errnum));
+    /// NOLINTJUSTIFICATION todo iox-#1196 replace with upcoming uninitialized array
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    char buffer[POSIX_CALL_ERROR_STRING_SIZE];
+    return internal::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
 }
 
 template <typename ReturnType, typename... FunctionArguments>
@@ -161,7 +186,8 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     {
         return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
     }
-    else if (!m_details.hasSilentErrno)
+
+    if (!m_details.hasSilentErrno)
     {
         auto flags = std::cerr.flags();
         std::cerr << m_details.file << ":" << std::dec << m_details.line << " { " << m_details.callingFunction << " -> "

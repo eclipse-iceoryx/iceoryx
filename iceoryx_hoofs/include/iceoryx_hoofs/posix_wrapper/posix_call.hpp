@@ -102,6 +102,9 @@ struct PosixCallDetails
 ///        // when your posix call signals failure by returning the errno value instead of setting the errno use
 ///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
 /// @endcode
+/// NOLINTJUSTIFICATION a template or constexpr function does not have access to source code origin file, line, function
+///                     name
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define posixCall(f)                                                                                                   \
     internal::createPosixCallBuilder(                                                                                  \
         f,                                                                                                             \
