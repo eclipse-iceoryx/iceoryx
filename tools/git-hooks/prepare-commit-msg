@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@
 COLOR_RESET='\033[0m'
 COLOR_GREEN='\033[1;32m'
 COLOR_YELLOW='\033[1;33m'
-FONT_BOLD='\033[1m'
-COLOR_RED='\033[1;31m'
 
 branch_name=$(git rev-parse --abbrev-ref HEAD)
 branch_issue_number='0'
