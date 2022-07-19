@@ -47,11 +47,9 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     AccessController accessController;
     if (!(readerGroup == writerGroup))
     {
-        accessController.addPermissionEntry(
-            AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READ, readerGroup.getName());
+        accessController.addGroupPermission(AccessController::Permission::READ, readerGroup.getName());
     }
-    accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, writerGroup.getName());
+    accessController.addGroupPermission(AccessController::Permission::READWRITE, writerGroup.getName());
     accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
     accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READWRITE);
     accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);

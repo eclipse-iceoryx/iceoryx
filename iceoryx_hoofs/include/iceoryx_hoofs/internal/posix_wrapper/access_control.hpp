@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/platform/acl.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -41,10 +42,6 @@ namespace posix
 class AccessController
 {
   public:
-    /// @brief maximum size of a string in addPermissionEntry
-    static constexpr uint64_t PERMISSION_STRING_SIZE = 100U;
-    using permissionString_t = cxx::string<PERMISSION_STRING_SIZE>;
-
     enum class AccessControllerError : uint8_t
     {
         COULD_NOT_ALLOCATE_NEW_ACL,
@@ -96,9 +93,17 @@ class AccessController
     bool
     addPermissionEntry(const Category category, const Permission permission, const uint32_t id = INVALID_ID) noexcept;
 
-    /// @brief just like addPermissionEntry(Category, Permission, int) but using a name instead of an id.
-    bool
-    addPermissionEntry(const Category category, const Permission permission, const permissionString_t& name) noexcept;
+    /// @brief See addPermissionEntry, but one provides the user name instead of user id
+    /// @param[in] permissions The permissions which should be applied to the category.
+    /// @param[in] name the user name to which the permissions should be applied
+    /// @return true when the permissions are applied, on failure false
+    bool addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept;
+
+    /// @brief See addPermissionEntry, but one provides the user group instead of group id
+    /// @param[in] permissions The permissions which should be applied to the category.
+    /// @param[in] name the group name to which the permissions should be applied
+    /// @return true when the permissions are applied, on failure false
+    bool addGroupPermission(const Permission permission, const PosixGroup::groupName_t& name) noexcept;
 
     /// @brief Write permission entries stored by the AccessController to a file identified by a file descriptor.
     /// @param[fileDescriptor] identifier for a file (can be regular file, shared memory file, message queue file...

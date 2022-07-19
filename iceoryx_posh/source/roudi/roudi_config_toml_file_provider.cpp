@@ -145,8 +145,8 @@ TomlRouDiConfigFileProvider::parse() noexcept
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, reader),
-             iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, writer),
+            {iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, reader),
+             iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, writer),
              mempoolConfig});
     }
 

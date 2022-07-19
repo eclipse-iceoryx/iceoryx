@@ -134,10 +134,9 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
 
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
+    PosixUser::userName_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
-    entryAdded = m_accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserName);
+    entryAdded = m_accessController.addUserPermission(AccessController::Permission::READWRITE, currentUserName);
     EXPECT_TRUE(entryAdded);
 
     bool entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
@@ -178,10 +177,9 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     // no name specified
     EXPECT_FALSE(entryAdded);
 
-    AccessController::permissionString_t groupName = "root";
+    PosixGroup::groupName_t groupName = "root";
 
-    entryAdded = m_accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
+    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
     EXPECT_TRUE(entryAdded);
 
     bool entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
@@ -264,11 +262,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    AccessController::permissionString_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
-
-    // this is not allowed as the default user should not be named explicitly
-    m_accessController.addPermissionEntry(
-        AccessController::Category::USER, AccessController::Permission::READWRITE, currentUserName);
+    PosixUser::userName_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
 
     m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
     m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
@@ -280,19 +274,17 @@ TEST_F(AccessController_test, addNameInWrongPlace)
 TEST_F(AccessController_test, addManyPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
-    AccessController::permissionString_t groupName = "root";
+    PosixGroup::groupName_t groupName = "root";
 
     bool entryAdded{false};
     for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
     {
-        entryAdded = m_accessController.addPermissionEntry(
-            AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
+        entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
 
         ASSERT_TRUE(entryAdded);
     }
 
-    entryAdded = m_accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupName);
+    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
 
     EXPECT_FALSE(entryAdded);
 
@@ -305,15 +297,12 @@ TEST_F(AccessController_test, addManyPermissions)
 TEST_F(AccessController_test, addStrangeNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "916c4d31-9ce3-4412-8d78-8e8f529589ef");
-    bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_USER,
-                                                            AccessController::Permission::READWRITE,
-                                                            "VeryUnlikelyThatThisUserExistsOnThisMachine123456");
+    bool entryAdded =
+        m_accessController.addUserPermission(AccessController::Permission::READWRITE, "VeryUnlikelyThatThisUserExists");
     // non-existing user name specified
     EXPECT_FALSE(entryAdded);
 
-    entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_GROUP,
-                                                       AccessController::Permission::READWRITE,
-                                                       "NeverEverEverSuchAGroupNameExisted");
+    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, "NonExistingGroup");
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }

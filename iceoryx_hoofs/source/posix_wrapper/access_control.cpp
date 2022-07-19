@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <iostream>
@@ -104,50 +103,38 @@ AccessController::createACL(const int32_t numEntries) noexcept
     return cxx::success<smartAclPointer_t>(reinterpret_cast<acl_t>(aclInitCall->value), freeACL);
 }
 
-bool AccessController::addPermissionEntry(const Category category,
-                                          const Permission permission,
-                                          const permissionString_t& name) noexcept
+bool AccessController::addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept
 {
-    switch (category)
+    if (name.empty())
     {
-    case Category::SPECIFIC_USER:
+        std::cerr << "Error: specific users must have an explicit name." << std::endl;
+        return false;
+    }
+
+    auto id = posix::PosixUser::getUserID(name);
+    if (!id.has_value())
     {
-        if (name.empty())
-        {
-            std::cerr << "Error: specific users must have an explicit name." << std::endl;
-            return false;
-        }
-
-        auto id = posix::PosixUser::getUserID(name);
-        if (!id.has_value())
-        {
-            return false;
-        }
-
-        return addPermissionEntry(category, permission, id.value());
+        return false;
     }
-    case Category::SPECIFIC_GROUP:
+
+    return addPermissionEntry(Category::SPECIFIC_USER, permission, id.value());
+}
+
+bool AccessController::addGroupPermission(const Permission permission, const PosixGroup::groupName_t& name) noexcept
+{
+    if (name.empty())
     {
-        if (name.empty())
-        {
-            std::cerr << "Error: specific groups must have an explicit name." << std::endl;
-            return false;
-        }
-
-        auto id = posix::PosixGroup::getGroupID(name);
-        if (!id.has_value())
-        {
-            return false;
-        }
-
-        return addPermissionEntry(category, permission, id.value());
+        std::cerr << "Error: specific groups must have an explicit name." << std::endl;
+        return false;
     }
-    default:
+
+    auto id = posix::PosixGroup::getGroupID(name);
+    if (!id.has_value())
     {
-        std::cerr << "Error: Cannot add a name to a default file owner" << std::endl;
+        return false;
     }
-    }
-    return false;
+
+    return addPermissionEntry(Category::SPECIFIC_GROUP, permission, id.value());
 }
 
 bool AccessController::addPermissionEntry(const Category category,
