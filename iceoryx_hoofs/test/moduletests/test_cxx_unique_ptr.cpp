@@ -102,6 +102,8 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
 {
     ::testing::Test::RecordProperty("TEST_ID", "88ae1d4c-d893-4633-9256-766d7e42bcc6");
     {
+        // NOLINTJUSTIFICATION check if move is invalidating the object
+        // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
         auto* object = new Position();
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {

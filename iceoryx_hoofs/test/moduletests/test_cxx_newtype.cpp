@@ -36,24 +36,14 @@ struct ComplexType
     {
     }
 
-    ComplexType(const ComplexType& other)
-        : value{other.value}
-    {
-    }
+    ComplexType(const ComplexType& other) noexcept = default;
     ComplexType(ComplexType&& other) noexcept
         : value{other.value}
     {
         other.value = 0;
     }
 
-    ComplexType& operator=(const ComplexType& rhs)
-    {
-        if (this != &rhs)
-        {
-            value = rhs.value;
-        }
-        return *this;
-    }
+    ComplexType& operator=(const ComplexType& rhs) noexcept = default;
 
     ComplexType& operator=(ComplexType&& rhs) noexcept
     {

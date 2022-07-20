@@ -262,7 +262,7 @@ TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSizeCapaResultsInSizeCapa
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testChar[i] = 'M';
     }
     testChar[STRINGCAP - 1U] = '\0';
@@ -296,11 +296,11 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeCapaResultsInSi
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testChar[i] = 'M';
     }
     testChar[STRINGCAP - 1U] = '\0';
-    string<STRINGCAP> testSubject(TruncateToCapacity, testChar);
+    string<STRINGCAP> testSubject(TruncateToCapacity, &testChar[0]);
     EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1U));
     EXPECT_THAT(testSubject.c_str(), StrEq(&testChar[0]));
@@ -317,7 +317,7 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeGreaterCapaResu
     for (uint64_t i = 0U; i < STRINGCAP; i++)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testChar[i] = 'M';
     }
     testChar[STRINGCAP] = '\0';
@@ -504,7 +504,7 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaWithOperatorResultsInSizeCap
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testChar[i] = 'M';
     }
     testChar[STRINGCAP - 1U] = '\0';
@@ -609,7 +609,7 @@ TYPED_TEST(stringTyped_test, AssignCStringOfSizeCapaResultsInSizeCapa)
     for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testChar[i] = 'M';
     }
     testChar[STRINGCAP - 1U] = '\0';
@@ -1146,7 +1146,7 @@ TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP] = '\0';
@@ -1169,7 +1169,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP] = '\0';
@@ -1193,13 +1193,13 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'L';
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
 
-    const std::string testStdString = testCharArray;
+    const std::string testStdString = &testCharArray[0];
     EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
 }
 
@@ -1233,7 +1233,7 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferent
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP] = '\0';
@@ -1258,7 +1258,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa
     for (uint64_t i = 0U; i < STRINGCAP + 1U; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP + 1U] = '\0';
@@ -1279,6 +1279,8 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositiveWithDifferentCapa
     char testCharArray[STRINGCAP];
     for (uint64_t i = 0U; i < STRINGCAP - 1U; ++i)
     {
+        // NOLINTJUSTIFICATION no other way to populate testCharArray
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP - 1U] = '\0';
@@ -1504,7 +1506,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     for (uint64_t i = 0U; i < STRINGCAP; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'L';
     }
     testCharArray[STRINGCAP] = '\0';
@@ -1572,7 +1574,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     for (uint64_t i = 0U; i < STRINGCAP + 5U; ++i)
     {
         // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index,-warnings-as-errors)
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         testCharArray[i] = 'M';
     }
     testCharArray[STRINGCAP] = '\0';
