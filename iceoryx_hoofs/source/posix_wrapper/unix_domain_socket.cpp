@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,8 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
     *this = std::move(other);
 }
 
-// @todo(iox-#832): make a struct out of arguments
+// @todo iox-#832
+// NOLINTJUSTIFICATION make a struct out of arguments in #832
 // NOLINTBEGIN(readability-function-size, bugprone-easily-swappable-parameters)
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
@@ -79,13 +80,14 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 {
 }
 
-// @todo(iox-#832): make a struct out of arguments
+// @todo iox-#832
+// NOLINTJUSTIFICATION make a struct out of arguments in #832
 // NOLINTBEGIN(readability-function-size, bugprone-easily-swappable-parameters)
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
                                    const IpcChannelSide channelSide,
                                    const size_t maxMsgSize,
-                                   const uint64_t maxMsgNumber IOX_MAYBE_UNUSED) noexcept
+                                   const uint64_t) noexcept
     // NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
     : m_name(name)
     , m_channelSide(channelSide)
@@ -132,6 +134,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
 
         CreationPattern_t::operator=(std::move(other));
 
+        // @todo iox-#1036
         // NOLINTJUSTIFICATION will be fixed with refactoring in #1036
         // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
         m_name = std::move(other.m_name);
