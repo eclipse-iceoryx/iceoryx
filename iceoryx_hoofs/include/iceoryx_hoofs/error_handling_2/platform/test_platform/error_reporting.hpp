@@ -1,15 +1,11 @@
 #pragma once
 
 #include "default_handler.hpp"
-#include "polymorphic_singleton.hpp"
+#include "polymorphic_handler.hpp"
 
 namespace eh
 {
-using ErrorHandler = PolymorphicSingleton<HandlerInterface, DefaultHandler>;
-
-// NB: this special case would allow anything dervied from DefaultHandler (if it has a virtual interface )
-//     OR any DefaultHandler instance if it has a non-virtual interface
-// using ErrorHandler = MultimorphicSingleton<DefaultHandler>;
+using ErrorHandler = PolymorphicHandler<HandlerInterface, DefaultHandler>;
 
 // report is called by proxy (template/inline call there will be optimized and not exist as a function call)
 // 1 indirection get
@@ -26,6 +22,8 @@ void report(const SourceLocation& location, Level level, const Error& error)
     // error class
     // This is not strictly necessary if the Error classes are well-defined
     // and e.g. follow an ineritance hierarchy (possible but intentionally not required).
+
+    std::cout << "REPORT " << std::endl;
     ErrorHandler::get()(location, level, error.code(), error.module());
 }
 
