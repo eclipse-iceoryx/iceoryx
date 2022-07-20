@@ -1,6 +1,7 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/cxx/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/*
 ./iceoryx_hoofs/test/moduletests/test_cxx*
+./iceoryx_hoofs/source/cxx/
 
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
@@ -13,7 +14,6 @@
 # ./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/*
 # ./iceoryx_hoofs/test/moduletests/test_cxx*
 #
-# When all warnings are fixed we can include folders and subfolder also with 
-# wildcards like
+# When all warnings are fixed we can include folders and subfolder like
 #
-# ./iceoryx_hoofs/include/**/*
+# ./iceoryx_hoofs/*

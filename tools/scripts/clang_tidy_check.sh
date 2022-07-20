@@ -24,7 +24,6 @@ set -e
 MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting with git hooks
 
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
-FILE_BLACKLIST='(test|testing|tools|iceoryx_dds|iceoryx_binding_c|doc|iceoryx_integrationtest|iceoryx_meta|iceoryx_examples|platform)'
 
 fail() {
     printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
@@ -53,10 +52,9 @@ if ! [[ -f build/compile_commands.json ]]; then
     cmake -Bbuild -Hiceoryx_meta -DBUILD_ALL=ON
 fi
 
-echo "Using clang-tidy version:"
-$CLANG_TIDY_CMD --version
+echo "Using clang-tidy version: $($CLANG_TIDY_CMD --version | sed -n "s/.*version \([0-9.]*\)/\1/p" )"
 
-noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | xargs -I {} grep -h '// NOLINTNEXTLINE (' {} || true)
+noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | xargs -I {} grep -h '// NOLINTNEXTLINE (' {} || true)
 if [[ -n "$noSpaceInSuppressions" ]]; then
     echo -e "\e[1;31mRemove space between NOLINTNEXTLINE and '('!\e[m"
     echo "$noSpaceInSuppressions"
@@ -64,9 +62,9 @@ if [[ -n "$noSpaceInSuppressions" ]]; then
 fi
 
 if [[ "$MODE" == "hook"* ]]; then
-    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
+    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
     # List only added files
-    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
+    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
     echo "Checking files with Clang-Tidy"
     echo " "
         if [ -z "$FILES" ]; then
@@ -82,34 +80,67 @@ if [[ "$MODE" == "hook"* ]]; then
         fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
-    FILES=$(git ls-files | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST")
-    echo "Checking all files with Clang-Tidy"
-    echo " "
-    echo $FILES
-    $CLANG_TIDY_CMD -p build $FILES
-    exit $?
-elif [[ "$MODE" == "ci_pull_request"* ]]; then
-    FILES=$(echo $2 | grep -E "$FILE_FILTER" | grep -Ev "$FILE_BLACKLIST" | cat)
-    echo " "
-    echo $FILES
-    if [ -z "$FILES" ]; then
-          echo "No modified files to check, skipping clang-tidy"
+    DIRECTORY_TO_SCAN=$2
+
+    if [[ -n $DIRECTORY_TO_SCAN ]]
+    then
+        if not test -d "$DIRECTORY_TO_SCAN"
+        then
+            echo "The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist"
+            exit 1
+        fi
+
+        echo "scanning all files in '${DIRECTORY_TO_SCAN}'"
+        $CLANG_TIDY_CMD -p build $(find $DIRECTORY_TO_SCAN -type f | grep -E $FILE_FILTER )
+        exit $?
     else
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILES
+        FILES=$(git ls-files | grep -E "$FILE_FILTER")
+        echo "Checking all files with Clang-Tidy"
+        echo " "
+        echo $FILES
+        $CLANG_TIDY_CMD -p build $FILES
         exit $?
     fi
 elif [[ "$MODE" == "scan_list"* ]]; then
     FILE_WITH_SCAN_LIST=$2
-    echo " "
-    echo "Reading files from $2"
-    for FILE in $(cat  $FILE_WITH_SCAN_LIST); do
+    FILE_TO_SCAN=$3
+
+    if not test -f "$FILE_WITH_SCAN_LIST"
+    then
+        echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
+        exit 1
+    fi
+
+    for LINE in $(cat $FILE_WITH_SCAN_LIST); do
         # add files until the comment section starts
-        if [[ "$(echo $FILE | grep "#" | wc -l)" == "1" ]]; then
+        if [[ "$(echo $LINE | grep "#" | wc -l)" == "1" ]]; then
             break
         fi
-        FILE_LIST="${FILE_LIST} $FILE"
+        FILE_LIST="${FILE_LIST} $LINE"
     done
 
-    $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_LIST
+    if [[ -n $FILE_TO_SCAN ]]
+    then
+        if not test -f "$FILE_TO_SCAN"
+        then
+            echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
+            exit 1
+        fi
+
+        if [[ $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER} | grep ${FILE_TO_SCAN} | wc -l) == "0" ]]
+        then
+            echo "Skipping file '${FILE_TO_SCAN}' since it is not part of '${FILE_WITH_SCAN_LIST}'"
+            exit 0
+        fi
+
+        echo "Scanning file: ${FILE_TO_SCAN}"
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_TO_SCAN
+    else
+        echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER})
+    fi
     exit $?
+else
+    echo "Invalid mode: ${MODE}"
+    exit 1
 fi
