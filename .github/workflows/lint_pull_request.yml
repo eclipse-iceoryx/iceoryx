@@ -27,8 +27,17 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: clang-tidy for all added and changed files which are in `.clang-tidy-diff-scans.txt`
-        run: ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt
+      - name: Get git diff
+        id: changed_files
+        uses: Ana06/get-changed-files@v1.2
+      - name: diff scan, clang-tidy for all files which are in `.clang-tidy-diff-scans.txt`
+        run: |
+          for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
+            ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt ${diff_file}
+          done
+      - name: full scan, clang-tidy for all files which are in `.clang-tidy-full-scans.txt`
+        run: |
+          ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-full-scans.txt
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-latest

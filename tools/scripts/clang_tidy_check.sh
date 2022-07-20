@@ -84,7 +84,7 @@ elif [[ "$MODE" == "full"* ]]; then
 
     if [[ -n $DIRECTORY_TO_SCAN ]]
     then
-        if not test -d "$DIRECTORY_TO_SCAN"
+        if ! test -d "$DIRECTORY_TO_SCAN"
         then
             echo "The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist"
             exit 1
@@ -105,7 +105,7 @@ elif [[ "$MODE" == "scan_list"* ]]; then
     FILE_WITH_SCAN_LIST=$2
     FILE_TO_SCAN=$3
 
-    if not test -f "$FILE_WITH_SCAN_LIST"
+    if ! test -f "$FILE_WITH_SCAN_LIST"
     then
         echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
         exit 1
@@ -121,7 +121,7 @@ elif [[ "$MODE" == "scan_list"* ]]; then
 
     if [[ -n $FILE_TO_SCAN ]]
     then
-        if not test -f "$FILE_TO_SCAN"
+        if ! test -f "$FILE_TO_SCAN"
         then
             echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
             exit 1
@@ -136,6 +136,11 @@ elif [[ "$MODE" == "scan_list"* ]]; then
         echo "Scanning file: ${FILE_TO_SCAN}"
         $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_TO_SCAN
     else
+        if [[ -z $FILE_LIST ]]
+        then
+            echo "'${FILE_WITH_SCAN_LIST}' is empty skipping folder scan."
+            exit 0
+        fi
         echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
         $CLANG_TIDY_CMD --warnings-as-errors=* -p build $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER})
     fi
