@@ -40,6 +40,8 @@ using namespace iox::units;
 using sendCall_t = std::function<cxx::expected<IpcChannelError>(const std::string&)>;
 using receiveCall_t = std::function<cxx::expected<std::string, IpcChannelError>()>;
 
+// NOLINTJUSTIFICATION used only for test purposes
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 constexpr char goodName[] = "channel_test";
 
 /// @req
@@ -50,7 +52,7 @@ constexpr char goodName[] = "channel_test";
 class UnixDomainSocket_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         auto serverResult = UnixDomainSocket::create(
             goodName, IpcChannelSide::SERVER, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
@@ -64,7 +66,7 @@ class UnixDomainSocket_test : public Test
         client = std::move(clientResult.value());
     }
 
-    void TearDown()
+    void TearDown() override
     {
         std::string output = GetCapturedStderr();
         if (Test::HasFailure())
@@ -73,26 +75,27 @@ class UnixDomainSocket_test : public Test
         }
     }
 
-    ~UnixDomainSocket_test()
-    {
-    }
-
-    bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
+    static bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
     {
         bool socketCreationSuccess = true;
         static constexpr int32_t ERROR_CODE = -1;
+        // NOLINTJUSTIFICATION initialized in next line with memset
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
         struct sockaddr_un sockAddr;
 
         memset(&sockAddr, 0, sizeof(sockAddr));
         sockAddr.sun_family = AF_LOCAL;
-        strncpy(sockAddr.sun_path, name.c_str(), name.size());
+        strncpy(&(sockAddr.sun_path[0]), name.c_str(), name.size());
 
         iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
             .and_then([&](auto& r) {
-                iox::posix::posixCall(iox_bind)(
-                    r.value, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
+                iox::posix::posixCall(iox_bind)(r.value,
+                                                // NOLINTJUSTIFICATION enforced by POSIX API
+                                                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                                                reinterpret_cast<struct sockaddr*>(&sockAddr),
+                                                sizeof(sockAddr))
                     .failureReturnValue(ERROR_CODE)
                     .evaluate()
                     .or_else([&](auto&) {
@@ -112,7 +115,7 @@ class UnixDomainSocket_test : public Test
         doWaitForThread.store(false, std::memory_order_relaxed);
     }
 
-    void waitForThread()
+    void waitForThread() const
     {
         while (doWaitForThread.load(std::memory_order_relaxed))
         {
@@ -149,7 +152,8 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
 {
     ::testing::Test::RecordProperty("TEST_ID", "2fae48fb-8247-4119-a0ec-c40dda87e0c7");
     UnixDomainSocket::UdsName_t longSocketName;
-    for (uint64_t i = 0U; i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(platform::IOX_UDS_SOCKET_PATH_PREFIX) + 1;
+    for (uint64_t i = 0U;
+         i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(&platform::IOX_UDS_SOCKET_PATH_PREFIX[0]) + 1;
          ++i)
     {
         longSocketName.append(cxx::TruncateToCapacity, "o");
@@ -206,12 +210,12 @@ void successfulSendAndReceive(const std::vector<std::string>& messages,
                               const sendCall_t& send,
                               const receiveCall_t& receive)
 {
-    for (auto& m : messages)
+    for (const auto& m : messages)
     {
         ASSERT_FALSE(send(m).has_error());
     }
 
-    for (auto& sentMessage : messages)
+    for (const auto& sentMessage : messages)
     {
         auto receivedMessage = receive();
         ASSERT_FALSE(receivedMessage.has_error());
@@ -341,8 +345,8 @@ TEST_F(UnixDomainSocket_test, SuccessfulCommunicationOfMultipleMessagesWithTimed
          "hypnotoad is shown in the open sequence in Simpsons - Treehouse of Horror XXIV",
          "hypnotoad has its own tv show called: everyone loves hypnotoad",
          "his homeworld is maybe Kif Krokers homeworld",
-         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into his "
-         "eyes"},
+         "he knows the answer to the ultimate question of life, the universe, and everything - just look deep into ",
+         "his eyes"},
         [&](auto& msg) { return client.timedSend(msg, 1_ms); },
         [&]() { return server.receive(); });
 }
