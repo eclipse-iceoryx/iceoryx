@@ -37,12 +37,12 @@ struct ComplexType
     }
 
     ComplexType(const ComplexType& other)
+        : value{other.value}
     {
-        value = other.value;
     }
     ComplexType(ComplexType&& other) noexcept
+        : value{other.value}
     {
-        value = other.value;
         other.value = 0;
     }
 
