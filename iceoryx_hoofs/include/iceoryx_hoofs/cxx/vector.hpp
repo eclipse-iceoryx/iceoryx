@@ -200,10 +200,10 @@ class vector
     const T& at_unchecked(const uint64_t index) const noexcept;
 
     /// @todo #1196 Replace with UninitializedArray
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays)
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     uint64_t m_size{0U};
 };
 } // namespace cxx

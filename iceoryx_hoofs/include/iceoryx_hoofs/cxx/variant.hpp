@@ -177,8 +177,8 @@ class variant
     /// @param[in] rhs source object for the underlying move assignment
     /// @return reference to the variant itself
     template <typename T>
-    // Correct return type is used through enable_if
-    // NOLINTNEXTLINE (cppcoreguidelines-c-copy-assignment-signature)
+    // NOLINTJUSTIFICATION Correct return type is used through enable_if
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature)
     typename std::enable_if<!std::is_same<T, variant<Types...>&>::value, variant<Types...>>::type&
     operator=(T&& rhs) noexcept;
 

@@ -160,7 +160,7 @@ TEST_F(FileReader_test, errorTerminateMode)
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
     // todo #1196 remove EXPECT_DEATH
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(
         {
             iox::cxx::FileReader reader("ISaidNo!", "InTheMiddleOfNowhere", iox::cxx::FileReader::ErrorMode::Terminate);

@@ -340,8 +340,8 @@ TEST_F(vector_test, CopyConstructorWithEmptyVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "438c8835-8545-40e4-b544-d66107507e2f");
     vector<CTorTest, 10U> sut1;
-    // Testing empty copy
-    // NOLINTNEXTLINE (performance-unnecessary-copy-initialization)
+    // NOLINTJUSTIFICATION Testing empty copy
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     vector<CTorTest, 10> sut2(sut1);
     EXPECT_THAT(copyCTor, Eq(0U));
     EXPECT_THAT(sut2.size(), Eq(0U));
@@ -661,8 +661,8 @@ TEST_F(vector_test, BeginEndIteratorAreTheSameWhenEmpty)
 TEST_F(vector_test, BeginEndConstIteratorAreTheSameWhenEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51a9a205-dfff-4abe-b68e-1254d46865f0");
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() == const_cast<const decltype(sut)*>(&sut)->end(),
                 Eq(true));
 }
@@ -678,8 +678,8 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenNotEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c1a101ff-c840-45d2-acf8-f2de2fd504c7");
     sut.emplace_back(1U);
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
                 Eq(true));
 }
@@ -701,8 +701,8 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
     {
         sut.emplace_back(i);
     }
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->begin() < const_cast<const decltype(sut)*>(&sut)->end(),
                 Eq(true));
 }
@@ -735,9 +735,9 @@ TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
     const uint64_t EXPECTED_END_COUNT = sut.size();
 
     uint64_t count = 0U;
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
-    for (auto& v : *const_cast<const decltype(sut)*>(&sut))
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    for (const auto& v : *const_cast<const decltype(sut)*>(&sut))
     {
         EXPECT_THAT(v, Eq(INITIAL_VALUE + count));
         ++count;
@@ -772,8 +772,8 @@ TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
     const auto EXPECTED_END_COUNT = sut.size();
 
     int i = 0;
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     for (const auto& v : *const_cast<const decltype(sut)*>(&sut))
     {
         EXPECT_THAT(v, Eq(142 * (i++)));
@@ -790,8 +790,8 @@ TEST_F(vector_test, IterateUsingData)
 
     for (uint64_t k = 0U; k < sut.size(); ++k)
     {
-        // Bounds considered
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTJUSTIFICATION Bounds considered
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         EXPECT_THAT(sut.data()[k], Eq(127U + k));
     }
 }
@@ -805,8 +805,8 @@ TEST_F(vector_test, IterateUsingConstData)
 
     for (uint64_t k = 0U; k < sut.size(); ++k)
     {
-        // Bounds considered
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        // NOLINTJUSTIFICATION Bounds considered, const method tested
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic,cppcoreguidelines-pro-type-const-cast)
         EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->data()[k], Eq(3127U + k));
     }
 }
@@ -833,8 +833,8 @@ TEST_F(vector_test, IterateUsingConstAt)
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        // Re-use 'sut' and testing const methods
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+        // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->at(k), Eq(3127U + k));
     }
 }
@@ -861,8 +861,8 @@ TEST_F(vector_test, IterateUsingConstSquareBracket)
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
-        // Re-use 'sut' and testing const methods
-        // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+        // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
         EXPECT_THAT((*const_cast<const decltype(sut)*>(&sut))[k], Eq(4127U + k));
     }
 }
@@ -1022,8 +1022,8 @@ TEST_F(vector_test, ConstFrontPointsToFirstElement)
     sut.emplace_back(8U);
     sut.emplace_back(9U);
 
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->front(), Eq(7U));
 }
 
@@ -1034,8 +1034,8 @@ TEST_F(vector_test, ConstBackPointsToLastElement)
     sut.emplace_back(11U);
     sut.emplace_back(12U);
 
-    // Re-use 'sut' and testing const methods
-    // NOLINTNEXTLINE (cppcoreguidelines-pro-type-const-cast)
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->back(), Eq(12U));
 }
 

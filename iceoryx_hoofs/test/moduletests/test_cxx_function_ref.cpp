@@ -165,9 +165,12 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
     auto lambda = []() -> int { return 7654; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2{std::move(sut1)};
-    // Use after move is tested here
-    // NOLINTNEXTLINE (bugprone-use-after-move)
+    // NOLINTJUSTIFICATION Use after move is tested here
+    // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
+    // cppcoreguidelines-avoid-goto)
     EXPECT_DEATH(sut1(), "Empty function_ref invoked");
+    // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
+    // cppcoreguidelines-avoid-goto)
 }
 
 TEST_F(function_refTest, CreateValidAndSwapResultEqual)
@@ -219,7 +222,7 @@ TEST_F(function_refTest, CreateValidWithFreeFunctionResultEqual)
 TEST_F(function_refTest, CreateValidWithComplexTypeResultEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7c6a4bf0-989f-4d15-a905-03fddf6d80bc");
-    ComplexType fuubar{1, 2, 1.3f};
+    ComplexType fuubar{1, 2, 1.3F};
     function_ref<ComplexType(ComplexType)> sut(returnComplexType);
     EXPECT_THAT(sut(fuubar), Eq(fuubar));
 }
