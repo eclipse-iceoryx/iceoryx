@@ -348,7 +348,7 @@ TEST_F(function_test, MoveCtorMovesStoredFunctor)
     EXPECT_EQ(Functor::numMoved, 1U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
@@ -385,7 +385,7 @@ TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
     EXPECT_EQ(Functor::numMoved, 1U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
@@ -412,7 +412,7 @@ TEST_F(function_test, MoveCtorMovesStoredFreeFunction)
 
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
@@ -448,7 +448,7 @@ TEST_F(function_test, MoveAssignmentMovesStoredFreeFunction)
     EXPECT_EQ(Functor::numMoved, 0U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
@@ -480,7 +480,7 @@ TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
@@ -514,7 +514,7 @@ TEST_F(function_test, MoveAssignedNonCallableFunctionIsNotCallable)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }

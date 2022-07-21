@@ -1568,14 +1568,13 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     std::string temp(STRINGCAP, 'M');
     ASSERT_THAT(this->testSubject.unsafe_assign(temp), Eq(true));
 
-    // required to verify string literal functionality of cxx::string
+    constexpr uint64_t TEST_CHAR_ARRAY_CAPACITY = STRINGCAP + 6U;
+    // NOLINTJUSTIFICATION required to verify string literal functionality of cxx::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[STRINGCAP + 6U];
-    for (uint64_t i = 0U; i < STRINGCAP + 5U; ++i)
+    char testCharArray[TEST_CHAR_ARRAY_CAPACITY];
+    for (auto& c : testCharArray)
     {
-        // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        testCharArray[i] = 'M';
+        c = 'M';
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject < testCharArray, Eq(false));

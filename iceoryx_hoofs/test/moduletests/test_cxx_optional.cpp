@@ -285,7 +285,7 @@ TEST_F(Optional_test, MoveCTorWithValue)
     ASSERT_THAT(sut2.has_value(), Eq(true));
     EXPECT_THAT(sut2->value, Eq(4711));
     EXPECT_THAT(sut2->secondValue, Eq(1337));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
@@ -298,7 +298,7 @@ TEST_F(Optional_test, MoveCTorWithNoValue)
     iox::cxx::optional<TestClass> sut2(std::move(sut));
 
     ASSERT_THAT(sut2.has_value(), Eq(false));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
@@ -412,7 +412,7 @@ TEST_F(Optional_test, DestructorOnMoveCTor)
             DTorTest::dtorCounter = 0;
             iox::cxx::optional<DTorTest> sut2{std::move(sut)};
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut
-            // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+            // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
             // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(sut.has_value(), Eq(false));
             DTorTest::dtorCounter = 0;

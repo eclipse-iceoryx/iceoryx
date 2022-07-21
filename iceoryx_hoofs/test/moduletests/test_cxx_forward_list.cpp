@@ -1350,7 +1350,7 @@ TEST_F(forward_list_test, MoveConstructor)
     EXPECT_THAT((++iter)->m_value, Eq(ELEMENT1));
     EXPECT_THAT(sut12.empty(), Eq(false));
     EXPECT_THAT(sut12.size(), Eq(2U));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved expected
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut11.empty(), Eq(true));
 }

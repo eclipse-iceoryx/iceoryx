@@ -162,7 +162,6 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
     printOtherPermissions(stream, value);
     printSpecialBits(stream, value);
 
-    // special bits
     return stream;
 }
 
