@@ -151,6 +151,7 @@ class SoFi
     uint64_t size() const noexcept;
 
   private:
+    // @todo iox-#1196 Replace with UninitializedArray
     // safe access is guaranteed since the array is wrapped inside the SoFi
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     ValueType m_data[INTERNAL_SOFI_SIZE];
