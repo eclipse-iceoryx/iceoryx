@@ -35,9 +35,6 @@ jobs:
           for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
             ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt ${diff_file}
           done
-      - name: full scan, clang-tidy for all files which are in `.clang-tidy-full-scans.txt`
-        run: |
-          ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-full-scans.txt
 
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-latest
