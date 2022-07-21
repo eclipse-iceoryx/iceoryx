@@ -49,11 +49,9 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                                   m_offset)
 
                       // NOLINTJUSTIFICATION cast required, type of error MAP_FAILED defined by POSIX to be void*
-                      // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr,
-                      // cppcoreguidelines-pro-type-reinterpret-cast)
-                      .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
-                      // NOLINTEND(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr,
-                      // cppcoreguidelines-pro-type-reinterpret-cast)
+                      // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
+                      .failureReturnValue(MAP_FAILED)
+                      // NOLINTEND(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
                       .evaluate();
 
     if (result)
