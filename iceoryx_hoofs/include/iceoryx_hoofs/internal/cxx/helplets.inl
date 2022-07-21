@@ -81,10 +81,16 @@ inline bool isValidPathToFile(const string<StringCapacity>& name) noexcept
         return false;
     }
 
-    auto lastSeparatorPosition = name.find_last_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
-        cxx::TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
-    auto filePart = (lastSeparatorPosition) ? name.substr(*lastSeparatorPosition + 1).value() : name;
-    auto pathPart = (lastSeparatorPosition) ? name.substr(0, *lastSeparatorPosition).value() : string<StringCapacity>();
+    string<StringCapacity> filePart = name;
+    string<StringCapacity> pathPart;
+
+    name.find_last_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(cxx::TruncateToCapacity,
+                                                                           &platform::IOX_PATH_SEPARATORS[0],
+                                                                           platform::IOX_NUMBER_OF_PATH_SEPARATORS))
+        .and_then([&](auto position) {
+            name.substr(position + 1).and_then([&](auto& s) { filePart = s; });
+            name.substr(0, position).and_then([&](auto& s) { pathPart = s; });
+        });
 
     return (pathPart.empty() || isValidPathToDirectory(pathPart)) && isValidFileName(filePart);
 }
@@ -113,7 +119,7 @@ inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
         // //some///fuu////bar
         if (separatorPosition && *separatorPosition == 0)
         {
-            temp = *temp.substr(*separatorPosition + 1);
+            temp.substr(*separatorPosition + 1).and_then([&](auto& s) { temp = s; });
             continue;
         }
 
@@ -130,7 +136,7 @@ inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
                 return false;
             }
 
-            temp = *temp.substr(*separatorPosition + 1);
+            temp.substr(*separatorPosition + 1).and_then([&](auto& s) { temp = s; });
         }
         // we reached the last entry, if its a valid file name the path is valid
         else if (!separatorPosition)

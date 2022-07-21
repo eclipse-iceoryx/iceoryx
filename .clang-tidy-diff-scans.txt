@@ -1,0 +1,45 @@
+./iceoryx_hoofs/include/iceoryx_hoofs/cxx/*
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/*
+./iceoryx_hoofs/test/moduletests/test_cxx*
+./iceoryx_hoofs/source/cxx/*
+
+
+
+# IMPORTANT:
+#    after the first # everything is considered a comment, add new files and
+#    directories only at the top of this file
+#
+# When removing warnings from a single file this file can be added to the list
+# above only when it is changed in the same PR. The reason is that clang-tidy
+# performs only diff checks and we require the CI to check the file at least
+# once. When the file is not changed in the PR a manual clang-tidy scan has
+# to be performed exactly like it is described below.
+#
+#
+# Whenever a component is clang-tidy warning free one can move the whole
+# component in here but one has to perform a full local check of that
+# component to ensure that it is warning free!
+#
+# 1. Make sure you use clang-tidy 15 or later! Otherwise we may miss some
+#    warnings!
+#    If clang 15 is not installed you can use the iceoryx environment for the
+#    scan.
+#
+#       ./tools/scripts/ice_env.sh enter
+#
+# 2. Scan the folders you would like to add in here with:
+#
+#       ./tools/scripts/clang_tidy_check.sh full ./path/to/folder
+#
+#    Now get a tea and a cookie this will take some time
+#        - I am talking about hours!
+#
+# 3. When there are warnings left a single file can be scanned with
+#
+#       clang-tidy-15 --warnings-as-errors=* -p build ./path/to/file
+#
+#    This requires a cmake generated build folder with a compile_commands.json
+#    file and the scanned file must be build by the current cmake
+#    configuration. If unsure remove the build directory and recreate it with
+#
+#       cmake -Bbuild -Hiceoryx_meta -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ...

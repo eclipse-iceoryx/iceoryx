@@ -26,6 +26,8 @@ class TestClass
 {
   public:
     TestClass() noexcept = default;
+    /// NOLINTJUSTIFICATION only used in this test case
+    /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     TestClass(const uint32_t a, const uint32_t b, const uint32_t c) noexcept
         : m_a(a)
         , m_b(b)
