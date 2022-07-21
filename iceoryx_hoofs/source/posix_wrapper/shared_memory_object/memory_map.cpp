@@ -34,6 +34,7 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
         l_memoryProtection = PROT_READ;
         break;
     case AccessMode::READ_WRITE:
+        // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }
@@ -46,8 +47,11 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                                   static_cast<int32_t>(m_flags),
                                   m_fileDescriptor,
                                   m_offset)
-                      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
+
+                      // NOLINTJUSTIFICATION cast required, type of error MAP_FAILED defined by POSIX to be void*
+                      // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
                       .failureReturnValue(MAP_FAILED)
+                      // NOLINTEND(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
                       .evaluate();
 
     if (result)
@@ -148,8 +152,8 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
             std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
         }
 
-        m_baseAddress = std::move(rhs.m_baseAddress);
-        m_length = std::move(rhs.m_length);
+        m_baseAddress = rhs.m_baseAddress;
+        m_length = rhs.m_length;
 
         rhs.m_baseAddress = nullptr;
         rhs.m_length = 0U;

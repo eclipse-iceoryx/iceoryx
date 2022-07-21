@@ -187,8 +187,8 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
         destroy();
 
         m_name = rhs.m_name;
-        m_hasOwnership = std::move(rhs.m_hasOwnership);
-        m_handle = std::move(rhs.m_handle);
+        m_hasOwnership = rhs.m_hasOwnership;
+        m_handle = rhs.m_handle;
 
         rhs.reset();
     }
