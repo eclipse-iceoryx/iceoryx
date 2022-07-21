@@ -552,7 +552,8 @@ TEST(Duration_test, CreateDurationFromDaysFunctionWithZeroDays)
 TEST(Duration_test, CreateDurationFromDaysFunctionWithMultipleDays)
 {
     ::testing::Test::RecordProperty("TEST_ID", "25eeee95-1b1c-405e-a066-d1c35a9ec40e");
-    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{2U * 24U * SECONDS_PER_HOUR * NANOSECS_PER_SECOND};
+    constexpr uint64_t EXPECTED_DURATION_IN_NANOSECONDS{static_cast<uint64_t>(2U * 24U) * SECONDS_PER_HOUR
+                                                        * NANOSECS_PER_SECOND};
     auto sut1 = Duration::fromDays(2);
     auto sut2 = Duration::fromDays(2U);
 
@@ -912,7 +913,7 @@ TEST(Duration_test, ConvertDaysFromDurationMoreThanOneDay)
 TEST(Duration_test, ConvertDaysFromMaxDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32d1bc55-d2c5-4d83-8386-d199dfffb66d");
-    constexpr uint64_t SECONDS_PER_DAY{60U * 60U * 24U};
+    constexpr uint64_t SECONDS_PER_DAY{static_cast<uint64_t>(60U * 60U * 24U)};
     constexpr uint64_t EXPECTED_DAYS{std::numeric_limits<DurationAccessor::Seconds_t>::max() / SECONDS_PER_DAY};
     const auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.toDays(), Eq(EXPECTED_DAYS));
@@ -942,7 +943,7 @@ TEST(Duration_test, ConvertHoursFromDurationMoreThanOneHour)
 TEST(Duration_test, ConvertHoursFromMaxDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "622e78aa-cdc6-4f8c-8de7-3f9433752893");
-    constexpr uint64_t SECONDS_PER_HOUR{60U * 60U};
+    constexpr uint64_t SECONDS_PER_HOUR{static_cast<uint64_t>(60U * 60U)};
     constexpr uint64_t EXPECTED_HOURS{std::numeric_limits<DurationAccessor::Seconds_t>::max() / SECONDS_PER_HOUR};
     const auto sut = DurationAccessor::max();
     EXPECT_THAT(sut.toHours(), Eq(EXPECTED_HOURS));

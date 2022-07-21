@@ -23,6 +23,8 @@ namespace iox
 {
 namespace units
 {
+// NOLINTJUSTIFICATION todo iox-#1196 Seconds_t and Nanoseconds_t should use Newtype pattern to solve this issue
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
     : m_seconds(seconds)
     , m_nanoseconds(nanoseconds)
@@ -134,7 +136,7 @@ template <typename T>
 inline constexpr Duration Duration::fromDays(const T value) noexcept
 {
     auto clampedValue = positiveValueOrClampToZero(value);
-    constexpr uint64_t SECS_PER_DAY{Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR};
+    constexpr uint64_t SECS_PER_DAY{static_cast<uint64_t>(Duration::HOURS_PER_DAY * Duration::SECS_PER_HOUR)};
     constexpr uint64_t MAX_DAYS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max() / SECS_PER_DAY};
     if (clampedValue > MAX_DAYS_BEFORE_OVERFLOW)
     {
@@ -238,7 +240,7 @@ inline constexpr uint64_t Duration::toHours() const noexcept
 
 inline constexpr uint64_t Duration::toDays() const noexcept
 {
-    return m_seconds / (HOURS_PER_DAY * SECS_PER_HOUR);
+    return m_seconds / (static_cast<uint64_t>(HOURS_PER_DAY * SECS_PER_HOUR));
 }
 
 inline constexpr struct timeval Duration::timeval() const noexcept

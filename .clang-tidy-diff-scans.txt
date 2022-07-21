@@ -2,6 +2,11 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/*
 ./iceoryx_hoofs/test/moduletests/test_cxx*
 ./iceoryx_hoofs/source/cxx/*
+
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/units/*
+./iceoryx_hoofs/test/moduletests/test_unit*
+./iceoryx_hoofs/source/units/*
+
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_allocator.cpp
@@ -32,7 +37,7 @@
 #
 # 2. Scan the folders you would like to add in here with:
 #
-#       ./tools/scripts/clang_tidy_check.sh full ./path/to/folder
+#       ./tools/scripts/clang_tidy_check.sh full ./path/to/folder/*
 #
 #    Now get a tea and a cookie this will take some time
 #        - I am talking about hours!
