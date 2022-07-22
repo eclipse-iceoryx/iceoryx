@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
 #define IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
 
+// NOLINTJUSTIFICATION iox-#1036 will be replaced by builder pattern
+// NOLINTBEGIN
 #include "iceoryx_hoofs/cxx/expected.hpp"
 
 #include <utility>
@@ -145,5 +147,6 @@ class Creation
 } // namespace DesignPattern
 
 #include "iceoryx_hoofs/internal/design_pattern/creation.inl"
+// NOLINTEND
 
 #endif // IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
