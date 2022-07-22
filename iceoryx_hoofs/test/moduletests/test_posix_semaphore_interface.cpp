@@ -241,6 +241,8 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb2f5ded-7c04-4e2d-ab41-bbe231a520c7");
     constexpr uint64_t NUMBER_OF_DECREMENTS = 4U;
+    // NOLINTJUSTIFICATION user defined literal no risk of number-letter mixup
+    // NOLINTNEXTLINE(hicpp-uppercase-literal-suffix,readability-uppercase-literal-suffix)
     constexpr iox::units::Duration timeToWait = 2_us;
 
     for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
