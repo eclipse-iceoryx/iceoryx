@@ -1,0 +1,18 @@
+name: 'Install iceoryx dependencies and clang-tidy'
+runs:
+  using: "composite"
+  steps:
+    - name: Install iceoryx dependencies and clang-tidy
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libacl1-dev libncurses5-dev
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        sudo ./llvm.sh 15 all ## uses clang version 15
+        sudo rm /usr/bin/clang
+        sudo rm /usr/bin/clang++
+        sudo rm /usr/bin/clang-tidy
+        sudo ln -s /usr/bin/clang-15 /usr/bin/clang
+        sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
+        sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy

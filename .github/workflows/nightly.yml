@@ -3,12 +3,11 @@ name: Nightly iceoryx run
 on:
   schedule:
   - cron: "0 6 * * 1-5"
-  push:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   build-test-macos:
-    runs-on: macos-10.15
+    runs-on: macos-latest
     # prevent stuck jobs consuming macos runners for 6 hours
     timeout-minutes: 60
     steps:
@@ -19,24 +18,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install iceoryx dependencies and clang-tidy
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libacl1-dev libncurses5-dev
-          wget https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          sudo ./llvm.sh 15 all ## uses clang version 15
-          sudo rm /usr/bin/clang
-          sudo rm /usr/bin/clang++
-          sudo rm /usr/bin/clang-tidy
-          sudo ln -s /usr/bin/clang-15 /usr/bin/clang
-          sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
-          sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
-
       - name: Checkout
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: clang-tidy full scan of all entries in .clang-tidy-diff-scans.txt
         run: |
           ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt
