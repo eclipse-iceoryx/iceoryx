@@ -137,7 +137,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         IOX_DISCARD_RESULT(destroy());
         CreationPattern_t::operator=(std::move(rhs));
 
-        /// NOLINTJUSTIFICATION will be fixed with the builder pattern
+        /// NOLINTJUSTIFICATION iox-#1036 will be fixed with the builder pattern
         /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
         m_sharedMemory = std::move(rhs.m_sharedMemory);
         m_data = rhs.m_data;
