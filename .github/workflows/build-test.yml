@@ -17,9 +17,22 @@ jobs:
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
       - run: ./tools/ci/cmake-linter.sh
-      - name: Check unique test IDs
+      - name: Check if test cases have test IDs
         run: |
-          notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
+          numberOfTestCases=$(grep -rn --include="*.cpp" -e "^\(TEST\|TYPED_TEST\|TIMING_TEST\)" iceoryx_* | wc -l)
+          numberOfFalsePositives=$(grep -rn --include="*.cpp" TYPED_TEST_SUITE iceoryx_* | wc -l)
+          numberOfTestCasesWithoutFalsePositives=$numberOfTestCases-$numberOfFalsePositives
+          numberOfTestIDs=$(grep -rn --include="*.cpp" "::testing::Test::RecordProperty" iceoryx_* | wc -l)
+          if [[ "$numberOfTestCasesWithoutFalsePositives" -gt "$numberOfTestIDs" ]]; then
+              echo -e "\e[1;31mThe number of test IDs do not match the number of test cases!\e[m"
+              echo "number of test cases: $numberOfTestCases"
+              echo "number of false positives: $numberOfFalsePositives"
+              echo "number of test IDs: $numberOfTestIDs"
+              false
+          fi
+      - name: Check if test IDs are unique
+        run: |
+          notUniqueIds=$(grep -hr --include="*.cpp" "::testing::Test::RecordProperty" iceoryx_* | sort | uniq -d)
           if [[ -n "$notUniqueIds" ]]; then
               echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
               echo "$notUniqueIds"
