@@ -119,6 +119,8 @@ codebase follows these rules, things are work in progress.
 See [error-handling.md](./doc/design/error-handling.md) for additional
 information about logging and error handling.
 
+For formatting and linting rules on Bazel files see the [installation guide for contributors](./doc/website/advanced/installation-guide-for-contributors.md#bazel).
+
 ### Naming conventions
 
 * File names with `lower_snake_case`: `my_thing.hpp`
