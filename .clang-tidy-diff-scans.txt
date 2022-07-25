@@ -6,6 +6,7 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/units/*
 ./iceoryx_hoofs/test/moduletests/test_unit*
 ./iceoryx_hoofs/source/units/*
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.inl
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.inl
