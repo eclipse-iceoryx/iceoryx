@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,15 +39,6 @@ constexpr std::chrono::milliseconds STRESS_TIME{
 class SoFiStress : public Test
 {
   protected:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-
-
     /// @brief Sets the CPU affinity for a thread
     ///
     /// @param cpu is the CPU the thread shall use

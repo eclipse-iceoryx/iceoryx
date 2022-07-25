@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,14 +24,6 @@ namespace
 {
 struct SoFiTest : public ::testing::Test
 {
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-
     /// @brief returns the ID of the current test in the format "TestCaseName.TestName"
     /// @return std::string: the id of the test
     static std::string testId();
