@@ -7,15 +7,15 @@
 ./iceoryx_hoofs/test/moduletests/test_unit*
 ./iceoryx_hoofs/source/units/*
 
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/*
+./iceoryx_hoofs/test/moduletests/test_relative_pointer*
+./iceoryx_hoofs/source/relocatable_pointer/*
+
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.inl
 ./iceoryx_hoofs/test/moduletests/test_concurrent_sofi.cpp
 ./iceoryx_hoofs/test/stresstests/test_stress_sofi.cpp
 ./iceoryx_hoofs/source/relocatable_pointer/relative_pointer_data.cpp
-./iceoryx_hoofs/test/moduletests/test_relative_pointer_data.cpp
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.inl
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.inl
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*
@@ -29,12 +29,6 @@
 ./iceoryx_hoofs/test/moduletests/test_allocator.cpp
 ./iceoryx_hoofs/test/moduletests/test_shared_memory.cpp
 ./iceoryx_hoofs/test/moduletests/test_shared_memory_object.cpp
-# Will be activated with #1521
-# ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp
-# ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.inl
-
-
 
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
