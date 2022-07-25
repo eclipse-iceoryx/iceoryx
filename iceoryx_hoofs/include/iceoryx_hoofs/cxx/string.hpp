@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/cxx/string_internal.hpp"
-#include "optional.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
 
 #include <algorithm>
 #include <cstdint>

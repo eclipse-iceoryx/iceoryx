@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELATIVE_POINTER_HPP
 
-#include "pointer_repository.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.hpp"
 
 #include <cstdint>
 
