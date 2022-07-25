@@ -88,39 +88,39 @@ template <typename Container>
 inline Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept
 {
     Container mergedContainer;
-    uint64_t indexV1 = 0U;
-    uint64_t indexV2 = 0U;
-    uint64_t v1Size = v1.size();
-    uint64_t v2Size = v2.size();
+    uint64_t indexV1{0U};
+    uint64_t indexV2{0U};
+    const uint64_t v1Size{v1.size()};
+    const uint64_t v2Size{v2.size()};
 
-    while (indexV1 < v1Size && indexV2 < v2Size)
+    while ((indexV1 < v1Size) && (indexV2 < v2Size))
     {
         if (v1[indexV1] == v2[indexV2])
         {
-            mergedContainer.emplace_back(v1[indexV1]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1]));
             ++indexV1;
             ++indexV2;
         }
         else if (v1[indexV1] < v2[indexV2])
         {
-            mergedContainer.emplace_back(v1[indexV1]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1]));
             ++indexV1;
         }
         else
         {
-            mergedContainer.emplace_back(v2[indexV2]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v2[indexV2]));
             ++indexV2;
         }
     }
 
     while (indexV2 < v2Size)
     {
-        mergedContainer.emplace_back(v2[indexV2++]);
+        IOX_DISCARD_RESULT(mergedContainer.emplace_back(v2[indexV2++]));
     }
 
     while (indexV1 < v1Size)
     {
-        mergedContainer.emplace_back(v1[indexV1++]);
+        IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1++]));
     }
 
     return mergedContainer;
