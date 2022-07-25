@@ -178,5 +178,5 @@ bazel run //:buildifier_lint
 ```
 
 The CI will check for the correct formatting and linting.
-See the [BUILD](https://github.com/eclipse-iceoryx/iceoryx/blob/master/BUILD) file
+See the `BUILD.bazel` file
 in iceoryx workspace for available commands.
