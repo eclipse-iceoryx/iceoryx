@@ -26,11 +26,7 @@ int iox_pthread_setname_np(iox_pthread_t, const char*);
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len);
 
-inline int
-iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
-{
-    return pthread_create(thread, attr, start_routine, arg);
-}
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg);
 
 int iox_pthread_join(iox_pthread_t thread, void** retval);
 

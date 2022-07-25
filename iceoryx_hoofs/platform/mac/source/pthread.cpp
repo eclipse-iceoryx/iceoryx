@@ -18,15 +18,18 @@
 #include "iceoryx_hoofs/platform/pthread.hpp"
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <utility>
 
 /// @note Since pthread_setname_np and pthread_getname_np are missing in MacOS, their functionality is simulated via a
 /// map of thread handle and thread name.
 static std::map<iox_pthread_t, std::string> handleNameMap;
+static std::mutex handleNameMapMutex;
 
 int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 {
+    std::lock_guard<std::mutex> lock(handleNameMapMutex);
     const auto result = handleNameMap.insert(std::make_pair(thread, name));
     if (!result.second)
     {
@@ -39,6 +42,7 @@ int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 
 int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
+    std::lock_guard<std::mutex> lock(handleNameMapMutex);
     const auto result = handleNameMap.find(thread);
     if (result == handleNameMap.end())
     {
@@ -48,8 +52,16 @@ int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
     return 0;
 }
 
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg)
+{
+    return pthread_create(thread, attr, start_routine, arg);
+}
+
 int iox_pthread_join(iox_pthread_t thread, void** retval)
 {
-    handleNameMap.erase(thread);
+    {
+        std::lock_guard<std::mutex> lock(handleNameMapMutex);
+        handleNameMap.erase(thread);
+    }
     return pthread_join(thread, retval);
 }
