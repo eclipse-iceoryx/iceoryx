@@ -49,7 +49,7 @@ class SharedMemoryObject
   public:
     using Builder = SharedMemoryObjectBuilder;
 
-    static constexpr void* NO_ADDRESS_HINT = nullptr;
+    static constexpr const void* const NO_ADDRESS_HINT = nullptr;
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) noexcept = default;

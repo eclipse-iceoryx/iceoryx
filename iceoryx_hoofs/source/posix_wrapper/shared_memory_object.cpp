@@ -34,15 +34,22 @@ namespace iox
 {
 namespace posix
 {
-constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
+constexpr const void* const SharedMemoryObject::NO_ADDRESS_HINT;
 constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U + platform::IOX_MAX_SHM_NAME_LENGTH;
 
+/// NOLINTJUSTIFICATION global variables are only accessible from within this compilation unit
+/// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+///
+/// NOLINTJUSTIFICATION c array required to print a signal safe error message in memsetSigbusHandler
+/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
 static std::mutex sigbusHandlerMutex;
+/// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 static void memsetSigbusHandler(int) noexcept
 {
-    auto result = write(STDERR_FILENO, sigbusErrorMessage, strnlen(sigbusErrorMessage, SIGBUS_ERROR_MESSAGE_LENGTH));
+    auto result =
+        write(STDERR_FILENO, &sigbusErrorMessage[0], strnlen(&sigbusErrorMessage[0], SIGBUS_ERROR_MESSAGE_LENGTH));
     IOX_DISCARD_RESULT(result);
     _exit(EXIT_FAILURE);
 }
@@ -52,7 +59,10 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
     auto printErrorDetails = [this] {
         LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
                    << ", sizeInBytes = " << m_memorySizeInBytes << ", access mode = " << asStringLiteral(m_accessMode)
-                   << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
+                   << ", open mode = " << asStringLiteral(m_openMode)
+                   << ", baseAddressHint = "
+                   // NOLINTJUSTIFICATION baseAddressHint printed on failure to make debugging easier as uint64 hex
+                   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
                    << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
                                            : log::HexFormat(static_cast<uint64_t>(0U)))
                    << ((m_baseAddressHint) ? "" : " (no hint set)")
@@ -108,8 +118,11 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                 return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
-            snprintf(
-                sigbusErrorMessage,
+            // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be used signal safe in
+            //                     a possible signal call
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+            IOX_DISCARD_RESULT(snprintf(
+                &sigbusErrorMessage[0],
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
@@ -120,7 +133,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                 asStringLiteral(m_accessMode),
                 asStringLiteral(m_openMode),
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong());
+                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong()));
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }

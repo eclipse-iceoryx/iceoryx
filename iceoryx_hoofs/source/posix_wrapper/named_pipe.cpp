@@ -137,6 +137,8 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
         IOX_DISCARD_RESULT(destroy());
         CreationPattern_t::operator=(std::move(rhs));
 
+        /// NOLINTJUSTIFICATION iox-#1036 will be fixed with the builder pattern
+        /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
         m_sharedMemory = std::move(rhs.m_sharedMemory);
         m_data = rhs.m_data;
         rhs.m_data = nullptr;
@@ -153,9 +155,18 @@ NamedPipe::~NamedPipe() noexcept
 template <typename Prefix>
 IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t& name) noexcept
 {
-    return IpcChannelName_t(cxx::TruncateToCapacity,
-                            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-                            cxx::concatenate(p, (name.c_str()[0] == '/') ? *name.substr(1) : name).c_str());
+    IpcChannelName_t channelName = p;
+
+    if (name[0] == '/')
+    {
+        name.substr(1).and_then([&](auto& s) { channelName.append(cxx::TruncateToCapacity, s); });
+    }
+    else
+    {
+        channelName.append(cxx::TruncateToCapacity, name);
+    }
+
+    return channelName;
 }
 
 cxx::expected<IpcChannelError> NamedPipe::destroy() noexcept
