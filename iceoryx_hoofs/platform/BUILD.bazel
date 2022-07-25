@@ -28,6 +28,18 @@ config_setting(
     constraint_values = ["@platforms//os:freebsd"],
 )
 
+config_setting(
+    name = "linux-clang",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang"},
+    constraint_values = ["@platforms//os:linux"],
+)
+
+config_setting(
+    name = "linux-gcc",
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "gcc"},
+    constraint_values = ["@platforms//os:linux"],
+)
+
 #
 # Library: iceoryx_platform
 #

@@ -24,7 +24,8 @@ cc_library(
     ]),
     hdrs = glob(["include/**"]),
     linkopts = select({
-        "//iceoryx_hoofs/platform:linux": ["-lacl"],
+        "//iceoryx_hoofs/platform:linux-clang": ["-latomic", "-lacl"],
+        "//iceoryx_hoofs/platform:linux-gcc": ["-lacl"],
         "//iceoryx_hoofs/platform:mac": [],
         "//iceoryx_hoofs/platform:qnx": [],
         "//iceoryx_hoofs/platform:unix": [],
