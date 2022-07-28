@@ -30,14 +30,14 @@ config_setting(
 
 config_setting(
     name = "linux-clang",
-    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang"},
     constraint_values = ["@platforms//os:linux"],
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang"},
 )
 
 config_setting(
     name = "linux-gcc",
-    flag_values = {"@bazel_tools//tools/cpp:compiler": "gcc"},
     constraint_values = ["@platforms//os:linux"],
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "gcc"},
 )
 
 #

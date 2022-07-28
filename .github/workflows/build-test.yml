@@ -137,7 +137,10 @@ jobs:
         with:
           path: "~/.cache/bazel"
           key: bazel
-      - run: bazel test //...
+      # Build everything including stresstests
+      - run: bazel build //...
+      # We exclude the sofi stresstest in CI since we cannot set the CPU Affinity in the GitHub Action Runners
+      - run: bazel test //... --deleted_packages=iceoryx_hoofs/test/stresstests
 
   coverage-and-docs:
     runs-on: ubuntu-20.04

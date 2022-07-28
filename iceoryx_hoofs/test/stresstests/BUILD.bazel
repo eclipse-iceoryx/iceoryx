@@ -14,40 +14,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_test")
 
-cc_library(
-    name = "iceoryx_hoofs",
-    srcs = glob([
-        "source/**/*.cpp",
-        "source/**/*.hpp",
-    ]),
-    hdrs = glob(["include/**"]),
+cc_test(
+    name = "test_stress_sofi",
+    srcs = ["test_stress_sofi.cpp"],
     linkopts = select({
-        "//iceoryx_hoofs/platform:linux-clang": [
-            "-latomic",
-            "-lacl",
-        ],
-        "//iceoryx_hoofs/platform:linux-gcc": ["-lacl"],
+        "//iceoryx_hoofs/platform:linux": ["-ldl"],
         "//iceoryx_hoofs/platform:mac": [],
         "//iceoryx_hoofs/platform:qnx": [],
         "//iceoryx_hoofs/platform:unix": [],
         "//iceoryx_hoofs/platform:win": [],
-        "//conditions:default": ["-lacl"],
+        "//conditions:default": ["-ldl"],
     }),
-    strip_include_prefix = "include",
-    visibility = ["//visibility:public"],
-    deps = ["//iceoryx_hoofs/platform:iceoryx_platform"],
-)
-
-cc_library(
-    name = "iceoryx_hoofs_testing",
-    srcs = glob(["testing/**/*.cpp"]),
-    hdrs = glob(["testing/include/**"]),
-    strip_include_prefix = "testing/include",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":iceoryx_hoofs",
-        "@googletest//:gtest",
-    ],
+    tags = ["exclusive"],
+    visibility = ["//visibility:private"],
+    deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )

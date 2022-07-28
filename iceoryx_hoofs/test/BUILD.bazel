@@ -63,23 +63,3 @@ cc_test(
     visibility = ["//visibility:private"],
     deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )
-
-cc_test(
-    name = "test_stress_sofi",
-    srcs = ["stresstests/test_stress_sofi.cpp"],
-    includes = [
-        ".",
-        "integrationtests",
-    ],
-    linkopts = select({
-        "//iceoryx_hoofs/platform:linux": ["-ldl"],
-        "//iceoryx_hoofs/platform:mac": [],
-        "//iceoryx_hoofs/platform:qnx": [],
-        "//iceoryx_hoofs/platform:unix": [],
-        "//iceoryx_hoofs/platform:win": [],
-        "//conditions:default": ["-ldl"],
-    }),
-    tags = ["exclusive"],
-    visibility = ["//visibility:private"],
-    deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
-)
