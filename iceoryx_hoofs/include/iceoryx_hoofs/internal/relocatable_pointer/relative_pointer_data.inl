@@ -17,12 +17,14 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
 #define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
 
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp"
+
 namespace iox
 {
 namespace rp
 {
 constexpr RelativePointerData::RelativePointerData(id_t id, offset_t offset) noexcept
-    : m_idAndOffset(static_cast<uint64_t>(id) | (offset << 16U))
+    : m_idAndOffset(static_cast<uint64_t>(id) | (offset << ID_BIT_SIZE))
 {
     if (id > MAX_VALID_ID || offset > MAX_VALID_OFFSET)
     {

@@ -68,8 +68,12 @@ class RelativePointerData
     static constexpr offset_t NULL_POINTER_OFFSET{OFFSET_RANGE};
     /// @note the maximum offset which can be represented
     static constexpr offset_t MAX_VALID_OFFSET{OFFSET_RANGE - 1U};
+    /// @note the maximum allowed size of RelativePointerData
+    static constexpr uint64_t MAX_ALLOWED_SIZE_OF_RELATIVE_POINTER_DATA{8U};
+    /// @note offset in bits for storing and reading the id
+    static constexpr uint64_t ID_BIT_SIZE{16U};
     /// @note internal representation of a nullptr
-    static constexpr offset_t LOGICAL_NULLPTR{NULL_POINTER_OFFSET << 16 | NULL_POINTER_ID};
+    static constexpr offset_t LOGICAL_NULLPTR{NULL_POINTER_OFFSET << ID_BIT_SIZE | NULL_POINTER_ID};
 
   private:
     uint64_t m_idAndOffset{LOGICAL_NULLPTR};
