@@ -70,9 +70,6 @@ class Thread
 
     ~Thread() noexcept;
 
-    // @todo set name during creation and remove method
-    void setName(const ThreadName_t& name) noexcept;
-
     /// @brief Returns the name of the thread
     /// @return An iox::cxx::string containing the name of the thread
     ThreadName_t getName() const noexcept;
@@ -94,6 +91,9 @@ class Thread
 
 class ThreadBuilder
 {
+    /// @brief Set the name of the thread
+    IOX_BUILDER_PARAMETER(ThreadName_t, name, "")
+
   public:
     /// @brief Creates a thread
     /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored

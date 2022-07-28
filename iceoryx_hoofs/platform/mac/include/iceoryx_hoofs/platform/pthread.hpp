@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,26 +22,12 @@
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 
-inline int iox_pthread_setname_np(iox_pthread_t, const char*)
-{
-    // Not implemeted due to missing functionality in MacOS
-    return 0;
-}
+int iox_pthread_setname_np(iox_pthread_t, const char*);
 
-inline int iox_pthread_getname_np(iox_pthread_t, char*, size_t)
-{
-    // Not implemeted due to missing functionality in MacOS
-    return 0;
-}
+int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len);
 
-inline int iox_pthread_create(iox_pthread_t*, const iox_pthread_attr_t*, void* (*)(void*), void*)
-{
-    return 0;
-}
+int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* (*start_routine)(void*), void* arg);
 
-inline int iox_pthread_join(iox_pthread_t, void**)
-{
-    return 0;
-}
+int iox_pthread_join(iox_pthread_t thread, void** retval);
 
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP

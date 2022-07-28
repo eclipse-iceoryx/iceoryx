@@ -80,6 +80,14 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
+    posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
+        .successReturnValue(0)
+        .evaluate()
+        .expect("This should never happen! Failed to set thread name.");
+    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// and errors possible for open(2) can be retrieved. Handle them here?
+    /// @todo iox-#1365 Do we really want to terminate?
+
     return cxx::success<>();
 }
 
@@ -103,18 +111,6 @@ Thread::~Thread() noexcept
     }
 }
 
-// NOLINTNEXTLINE(readability-make-member-function-const) method will be removed in PR #1441
-void Thread::setName(const ThreadName_t& name) noexcept
-{
-    posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to set thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
-}
-
 ThreadName_t Thread::getName() const noexcept
 {
     // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
@@ -125,9 +121,9 @@ ThreadName_t Thread::getName() const noexcept
         .successReturnValue(0)
         .evaluate()
         .expect("This should never happen! Failed to retrieve the thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
+    /// @todo iox-#1365 Do we really want to terminate?
 
     return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
@@ -137,8 +133,8 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
     switch (errnoValue)
     {
     case EAGAIN:
-        /// @todo add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both, the name of
-        /// the new thread and the name of the thread which created the new one
+        /// @todo iox-#1365 add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both,
+        /// the name of the new thread and the name of the thread which created the new one
         LogError() << "insufficient resources to create another thread";
         return ThreadError::INSUFFICIENT_RESOURCES;
     case EINVAL:
