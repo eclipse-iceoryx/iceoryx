@@ -90,6 +90,6 @@ class CyclicIndex
 } // namespace concurrent
 } // namespace iox
 
-#include "cyclic_index.inl"
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.inl"
 
 #endif // IOX_HOOFS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP

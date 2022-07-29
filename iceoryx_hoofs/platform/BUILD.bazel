@@ -1,0 +1,91 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+#
+# Config & Platform support
+#
+config_setting(
+    name = "linux",
+    constraint_values = ["@platforms//os:linux"],
+)
+
+config_setting(
+    name = "qnx",
+    constraint_values = ["@platforms//os:qnx"],
+)
+
+config_setting(
+    name = "mac",
+    constraint_values = ["@platforms//os:osx"],
+)
+
+config_setting(
+    name = "win",
+    constraint_values = ["@platforms//os:windows"],
+)
+
+config_setting(
+    name = "unix",
+    constraint_values = ["@platforms//os:freebsd"],
+)
+
+config_setting(
+    name = "linux-clang",
+    constraint_values = ["@platforms//os:linux"],
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "clang"},
+)
+
+config_setting(
+    name = "linux-gcc",
+    constraint_values = ["@platforms//os:linux"],
+    flag_values = {"@bazel_tools//tools/cpp:compiler": "gcc"},
+)
+
+#
+# Library: iceoryx_platform
+#
+cc_library(
+    name = "iceoryx_platform",
+    srcs = select({
+        ":linux": glob(["linux/source/**"]),
+        ":mac": glob(["mac/source/**"]),
+        ":qnx": glob(["qnx/source/**"]),
+        ":unix": glob(["unix/source/**"]),
+        ":win": glob(["win/source/**"]),
+        "//conditions:default": glob(["linux/source/**"]),
+    }),
+    hdrs = select({
+        ":linux": glob(["linux/include/**"]),
+        ":mac": glob(["mac/include/**"]),
+        ":qnx": glob(["qnx/include/**"]),
+        ":unix": glob(["unix/include/**"]),
+        ":win": glob(["win/include/**"]),
+        "//conditions:default": glob(["linux/include/**"]),
+    }),
+    includes = select({
+        ":linux": ["linux/include"],
+        ":mac": ["mac/include/**"],
+        ":qnx": ["qnx/include"],
+        ":unix": ["unix/include/**"],
+        ":win": ["win/include/**"],
+        "//conditions:default": ["linux/include/**"],
+    }),
+    linkopts = select({
+        ":linux": [
+            "-lpthread",
+            "-lrt",
+        ],
+        ":mac": [],
+        ":qnx": ["-lsocket"],
+        ":unix": [
+            "-lpthread",
+            "-lrt",
+        ],
+        ":win": [],
+        "//conditions:default": [
+            "-lpthread",
+            "-lrt",
+        ],
+    }),
+    visibility = ["//visibility:public"],
+    deps = [],
+)

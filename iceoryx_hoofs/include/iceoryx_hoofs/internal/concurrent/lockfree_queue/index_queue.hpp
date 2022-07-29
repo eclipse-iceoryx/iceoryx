@@ -148,6 +148,6 @@ class IndexQueue
 } // namespace concurrent
 } // namespace iox
 
-#include "index_queue.inl"
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.inl"
 
 #endif // IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
