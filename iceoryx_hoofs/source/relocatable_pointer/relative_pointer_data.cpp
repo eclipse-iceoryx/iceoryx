@@ -29,26 +29,26 @@ static_assert(sizeof(RelativePointerData) <= RelativePointerData::MAX_ALLOWED_SI
 // This ensures that the address of the RelativePointerData object is appropriately aligned to be accessed within one
 // CPU cycle, i.e. if the size is 8 and the alignment is 4 it could be placed at an address with modulo 4 which would
 // also result in torn writes.
-static_assert(sizeof(RelativePointerData) == alignof(RelativePointerData),
+static_assert((sizeof(RelativePointerData)) == (alignof(RelativePointerData)),
               "A RelativePointerData must be placed on an address which does not cross the native alignment!");
 // This is important for the use in the SOFI where under some conditions the copy operation could work on partially
 // obsolet data and therefore non-trivial copy ctor/assignment operator or dtor would work on corrupted data.
 static_assert(std::is_trivially_copyable<RelativePointerData>::value,
               "The RelativePointerData must be trivially copyable!");
 
-constexpr RelativePointerData::id_t RelativePointerData::ID_RANGE;
-constexpr RelativePointerData::id_t RelativePointerData::NULL_POINTER_ID;
-constexpr RelativePointerData::id_t RelativePointerData::MAX_VALID_ID;
+constexpr RelativePointerData::identifier_t RelativePointerData::ID_RANGE;
+constexpr RelativePointerData::identifier_t RelativePointerData::NULL_POINTER_ID;
+constexpr RelativePointerData::identifier_t RelativePointerData::MAX_VALID_ID;
 constexpr RelativePointerData::offset_t RelativePointerData::OFFSET_RANGE;
 constexpr RelativePointerData::offset_t RelativePointerData::NULL_POINTER_OFFSET;
 constexpr RelativePointerData::offset_t RelativePointerData::MAX_VALID_OFFSET;
 constexpr uint64_t RelativePointerData::MAX_ALLOWED_SIZE_OF_RELATIVE_POINTER_DATA;
 constexpr uint64_t RelativePointerData::ID_BIT_SIZE;
-constexpr uint64_t RelativePointerData::LOGICAL_NULLPTR;
+constexpr RelativePointerData::offset_t RelativePointerData::LOGICAL_NULLPTR;
 
-RelativePointerData::id_t RelativePointerData::id() const noexcept
+RelativePointerData::identifier_t RelativePointerData::id() const noexcept
 {
-    return static_cast<id_t>(m_idAndOffset & ID_RANGE);
+    return static_cast<identifier_t>(m_idAndOffset & ID_RANGE);
 }
 
 RelativePointerData::offset_t RelativePointerData::offset() const noexcept
