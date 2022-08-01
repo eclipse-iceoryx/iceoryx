@@ -297,28 +297,11 @@ setup_install_directories_and_export_package(
     INCLUDE_DIRECTORY include/
 )
 
-if(ROUDI_ENVIRONMENT OR BUILD_TEST)
-    #
-    ######### posh roudi environment ##########
-    #
-    find_package(iceroyx_hoofs_testing)
-    iox_add_library(
-        STATIC
-        TARGET                  iceoryx_posh_testing
-        NAMESPACE               iceoryx_posh_testing
-        PROJECT_PREFIX          ${PREFIX}
-        BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/testing/include
-        INSTALL_INTERFACE       include/${PREFIX}
-        PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
-                                iceoryx_hoofs::iceoryx_hoofs
-                                iceoryx_posh::iceoryx_posh_roudi
-                                iceoryx_hoofs_testing::iceoryx_hoofs_testing
-        FILES
-            testing/roudi_environment/runtime_test_interface.cpp
-            testing/roudi_environment/roudi_environment.cpp
-    )
+if(ROUDI_ENVIRONMENT OR BUILD_TESTING)
+    detect_gtest_package()
+    add_subdirectory(testing)
 endif()
 
-if(BUILD_TEST)
+if(BUILD_TESTING)
     add_subdirectory(test)
 endif()
