@@ -127,10 +127,10 @@ class NewType : public Policies<NewType<T, Policies...>>...
     friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
 
     template <typename Type>
-    friend Type& newtype::internal::preIncrement(Type&) noexcept;
+    friend typename Type::value_type newtype::internal::preIncrement(Type&) noexcept;
 
     template <typename Type>
-    friend Type& newtype::internal::preDecrement(Type&) noexcept;
+    friend typename Type::value_type newtype::internal::preDecrement(Type&) noexcept;
 
   private:
     T m_value;
@@ -169,7 +169,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
         using ThisType::operator=;                                                                                     \
                                                                                                                        \
         TypeName() noexcept = default;                                                                                 \
-        ~TypeName() noexcept = default;                                                                                \
         TypeName(const TypeName&) noexcept = default;                                                                  \
         TypeName(TypeName&&) noexcept = default;                                                                       \
         TypeName& operator=(const TypeName&) noexcept = default;                                                       \

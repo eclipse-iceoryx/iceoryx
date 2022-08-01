@@ -30,29 +30,33 @@ template <typename T>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Arithmetic
 {
-    friend T operator+(const T& rhs, const T& lhs) noexcept
-    {
-        return internal::newTypeAccessor(rhs) + internal::newTypeAccessor(lhs);
-    }
-
-    friend T operator-(const T& rhs, const T& lhs) noexcept
-    {
-        return internal::newTypeAccessor(rhs) - internal::newTypeAccessor(lhs);
-    }
-
-    friend T operator*(const T& rhs, const T& lhs) noexcept
-    {
-        return internal::newTypeAccessor(rhs) * internal::newTypeAccessor(lhs);
-    }
-
-    friend T operator/(const T& rhs, const T& lhs) noexcept
-    {
-        return internal::newTypeAccessor(rhs) / internal::newTypeAccessor(lhs);
-    }
-
   protected:
     ~Arithmetic() = default;
 };
+
+template <typename T>
+auto operator+(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+{
+    return internal::newTypeAccessor(rhs) + internal::newTypeAccessor(lhs);
+}
+
+template <typename T>
+auto operator-(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+{
+    return internal::newTypeAccessor(rhs) - internal::newTypeAccessor(lhs);
+}
+
+template <typename T>
+auto operator*(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+{
+    return internal::newTypeAccessor(rhs) * internal::newTypeAccessor(lhs);
+}
+
+template <typename T>
+auto operator/(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+{
+    return internal::newTypeAccessor(rhs) / internal::newTypeAccessor(lhs);
+}
 
 } // namespace newtype
 } // namespace iox

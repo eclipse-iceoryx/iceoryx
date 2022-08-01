@@ -108,6 +108,9 @@ inline NewType<T, Policies...>& NewType<T, Policies...>::operator=(T&& rhs) noex
     return *this;
 }
 
+/// @todo iox-#1196 Should operators + - * / ++ -- be added here with a static_assert for nicer error message (not done
+/// for Sortable)?
+
 template <typename T, template <typename> class... Policies>
 inline NewType<T, Policies...>::operator T() const noexcept
 {

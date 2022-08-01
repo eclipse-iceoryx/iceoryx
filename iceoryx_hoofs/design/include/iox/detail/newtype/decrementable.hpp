@@ -30,20 +30,23 @@ template <typename T>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Decrementable
 {
-    friend T& operator--(T& rhs) noexcept
-    {
-        return internal::preDecrement(rhs);
-    }
-    // NOLINTJUSTIFICATION Readability is not affected
-    // NOLINTNEXTLINE(readability-const-return-type)
-    friend const T operator++(T& rhs, int) noexcept
-    {
-        return internal::newTypeAccessor(rhs)--;
-    }
-
   protected:
     ~Decrementable() = default;
 };
+
+template <typename T>
+auto operator--(T& rhs) noexcept -> typename T::value_type
+{
+    return internal::preDecrement(rhs);
+}
+
+template <typename T>
+auto operator--(T& rhs, int) noexcept -> typename T::value_type
+{
+    auto value = internal::newTypeAccessor(rhs);
+    internal::preDecrement(rhs);
+    return value;
+}
 
 } // namespace newtype
 } // namespace iox

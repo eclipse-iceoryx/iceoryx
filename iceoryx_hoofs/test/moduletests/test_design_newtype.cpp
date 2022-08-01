@@ -272,4 +272,104 @@ TEST(NewType, CreatingNewTypeWithMacroWorks)
     EXPECT_FALSE(a == b);
 }
 
+TEST(NewType, NewTypeIsIncrementable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6d03b24b-fc72-409b-aa2a-f19228ff152c");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Incrementable,
+                                newtype::MoveConstructable,
+                                newtype::CopyConstructable,
+                                newtype::Comparable,
+                                newtype::ConstructByValueCopy>>;
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType pre{++a};
+    SutType post{a++};
+    EXPECT_THAT(pre, Eq(SutType{START_VALUE + 1}));
+    EXPECT_THAT(post, Eq(SutType{START_VALUE + 1}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE + 2}));
+}
+
+TEST(NewType, NewTypeIsDecrementable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "27262c86-2509-4c55-8bff-a37337e79b67");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Decrementable,
+                                newtype::MoveConstructable,
+                                newtype::CopyConstructable,
+                                newtype::ConstructByValueCopy,
+                                newtype::Comparable>>;
+    constexpr uint64_t START_VALUE{24};
+    SutType a{START_VALUE};
+    SutType pre{--a};
+    SutType post{a--};
+    EXPECT_THAT(pre, Eq(SutType{START_VALUE - 1}));
+    EXPECT_THAT(post, Eq(SutType{START_VALUE - 1}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE - 2}));
+}
+
+TEST(NewType, NewTypeCanBeAdded)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a36d1031-e7b0-4931-bd08-a67ffa367ffe");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Arithmetic,
+                                newtype::MoveConstructable,
+                                newtype::ConstructByValueCopy,
+                                newtype::CopyConstructable,
+                                newtype::Comparable>>;
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType b{START_VALUE};
+    SutType c{a + b};
+    EXPECT_THAT(c, Eq(SutType{START_VALUE + START_VALUE}));
+}
+
+TEST(NewType, NewTypeCanBeSubstracted)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3bc5fdc7-33b1-4556-b4aa-c6c18ccb9e1d");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Arithmetic,
+                                newtype::MoveConstructable,
+                                newtype::ConstructByValueCopy,
+                                newtype::CopyConstructable,
+                                newtype::Comparable>>;
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType b{START_VALUE};
+    SutType c{a - b};
+    EXPECT_THAT(c, Eq(SutType{START_VALUE - START_VALUE}));
+}
+
+TEST(NewType, NewTypeCanBeMultiplied)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e51f9818-8a52-466a-92ef-bbd7258d96b8");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Arithmetic,
+                                newtype::MoveConstructable,
+                                newtype::CopyConstructable,
+                                newtype::ConstructByValueCopy,
+                                newtype::Comparable>>;
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType b{START_VALUE};
+    SutType c{a * b};
+    EXPECT_THAT(c, Eq(SutType{START_VALUE * START_VALUE}));
+}
+
+TEST(NewType, NewTypeCanBeDivided)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "95c15cc9-7fb2-4deb-838b-f387c718ece8");
+    using SutType = Sut<NewType<uint64_t,
+                                newtype::Arithmetic,
+                                newtype::MoveConstructable,
+                                newtype::CopyConstructable,
+                                newtype::ConstructByValueCopy,
+                                newtype::Comparable>>;
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType b{START_VALUE};
+    SutType c{a / b};
+    EXPECT_THAT(c, Eq(SutType{START_VALUE / START_VALUE}));
+}
+
 } // namespace
