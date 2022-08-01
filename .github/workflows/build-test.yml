@@ -93,17 +93,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - name: install newest clang version
-        run: |
-         wget https://apt.llvm.org/llvm.sh
-         chmod +x llvm.sh
-         sudo ./llvm.sh 15 all ## uses clang version 15
-         sudo rm /usr/bin/clang
-         sudo rm /usr/bin/clang++
-         sudo ln -s /usr/bin/clang-15 /usr/bin/clang
-         sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
       - name: build with sanitizers
         run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
