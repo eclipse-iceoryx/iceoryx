@@ -69,6 +69,7 @@
 **Workflow:**
 
 - Remove hash from the branch names [\#1530](https://github.com/eclipse-iceoryx/iceoryx/issues/1530)
+- Automate check for test cases to have UUIDs [\#1540](https://github.com/eclipse-iceoryx/iceoryx/issues/1540)
 
 **New API features:**
 

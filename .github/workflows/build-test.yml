@@ -16,15 +16,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
+      - run: ./tools/scripts/check_test_ids.sh
       - run: ./tools/ci/cmake-linter.sh
-      - name: Check unique test IDs
-        run: |
-          notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
-          if [[ -n "$notUniqueIds" ]]; then
-              echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
-              echo "$notUniqueIds"
-              false
-          fi
 
   build-test-ubuntu:
     runs-on: ubuntu-20.04
