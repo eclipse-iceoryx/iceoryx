@@ -30,13 +30,6 @@ namespace iox
 {
 namespace posix
 {
-PosixRights::PosixRights(bool read, bool write, bool execute) noexcept
-    : m_read(read)
-    , m_write(write)
-    , m_execute(execute)
-{
-}
-
 PosixGroup::PosixGroup(gid_t id) noexcept
     : m_id(id)
     , m_doesExist(getGroupName(id).has_value())

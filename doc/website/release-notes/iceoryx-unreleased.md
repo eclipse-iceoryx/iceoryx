@@ -65,6 +65,7 @@
 - Remove implicit conversion from `cxx::expected` to `cxx::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
 - `SignalHandler` returns an `expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
+- Remove the unused `PosixRights` struct [\#1556](https://github.com/eclipse-iceoryx/iceoryx/issues/1556)
 
 **Workflow:**
 
