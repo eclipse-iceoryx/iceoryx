@@ -19,6 +19,8 @@
 # This script does a sanity check for the number of tests and the number of test IDs and
 # checks for unique test IDs
 
+set -e
+
 ## sanity check for number of tests and test IDs
 numberOfTestCases=$(grep -rn --include="*.cpp" -e "^\(TEST\|TYPED_TEST\|TIMING_TEST\)" iceoryx_* | wc -l)
 numberOfFalsePositives=$(grep -rn --include="*.cpp" TYPED_TEST_SUITE iceoryx_* | wc -l)
