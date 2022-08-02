@@ -23,7 +23,7 @@
 #=====================================================
 
 
-BLACKLISTED_NAMESPACE=(aux)
+BLACKLISTED_NAMESPACE=(foo)
 OBJECTFILE=$1
 
 MATCH_NAMESPACES="\(\([A-Za-z]\+::\)\+[A-Za-z]\+\)"
