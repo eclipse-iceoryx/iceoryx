@@ -21,13 +21,17 @@ namespace iox
 {
 namespace rp
 {
-BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t& id) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
 {
 }
 
-BaseRelativePointer::BaseRelativePointer(const offset_t offset, const id_t& id) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::BaseRelativePointer(const offset_t offset, const id_t id) noexcept
     : m_id(id)
     , m_offset(offset)
 {
@@ -102,17 +106,23 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_
     return getRepository().registerPtr(ptr, size);
 }
 
-bool BaseRelativePointer::registerPtr(const id_t& id, const ptr_t ptr, uint64_t size) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(static_cast<id_underlying_t>(id), ptr, size);
 }
 
-bool BaseRelativePointer::unregisterPtr(const id_t& id) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+bool BaseRelativePointer::unregisterPtr(const id_t id) noexcept
 {
     return getRepository().unregisterPtr(static_cast<id_underlying_t>(id));
 }
 
-BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr(const id_t& id) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr(const id_t id) noexcept
 {
     return getRepository().getBasePtr(static_cast<id_underlying_t>(id));
 }
@@ -122,7 +132,9 @@ void BaseRelativePointer::unregisterAll() noexcept
     getRepository().unregisterAll();
 }
 
-BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t& id, const_ptr_t ptr) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, const_ptr_t ptr) noexcept
 {
     if (static_cast<id_underlying_t>(id) == NULL_POINTER_ID)
     {
@@ -134,7 +146,9 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t& id, con
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
 
-BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t& id, const offset_t offset) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offset_t offset) noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
     {
@@ -155,7 +169,9 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::searchId(ptr_t ptr) no
     return getRepository().searchId(ptr);
 }
 
-bool BaseRelativePointer::isValid(id_t& id) noexcept
+// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+bool BaseRelativePointer::isValid(id_t id) noexcept
 {
     return getRepository().isValid(static_cast<id_underlying_t>(id));
 }

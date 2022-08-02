@@ -54,6 +54,7 @@ class BaseRelativePointer
   public:
     struct id_t : public cxx::NewType<uint64_t,
                                       cxx::newtype::DefaultConstructable,
+                                      cxx::newtype::CopyConstructable,
                                       cxx::newtype::Convertable,
                                       cxx::newtype::ConstructByValueCopy,
                                       cxx::newtype::MoveConstructable>
@@ -69,12 +70,12 @@ class BaseRelativePointer
     /// @brief constructs a BaseRelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
-    BaseRelativePointer(const ptr_t ptr, const id_t& id) noexcept;
+    BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept;
 
     /// @brief constructs a BaseRelativePointer from a given offset and segment id
     /// @param[in] offset is the offset
     /// @param[in] id is the unique id of the segment
-    BaseRelativePointer(const offset_t offset, const id_t& id) noexcept;
+    BaseRelativePointer(const offset_t offset, const id_t id) noexcept;
 
     /// @brief constructs a BaseRelativePointer pointing to the same pointer as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -130,17 +131,17 @@ class BaseRelativePointer
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return true if successful (id not occupied), false otherwise
-    static bool registerPtr(const id_t& id, const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief unregisters ptr with given id
     /// @param[in] id is the id of the segment
     /// @return true if successful (ptr was registered with this id before), false otherwise
-    static bool unregisterPtr(const id_t& id) noexcept;
+    static bool unregisterPtr(const id_t id) noexcept;
 
     /// @brief get the base ptr associated with the given id
     /// @param[in] id is the id of the segment
     /// @return ptr registered at the given id, nullptr if none was registered
-    static ptr_t getBasePtr(const id_t& id) noexcept;
+    static ptr_t getBasePtr(const id_t id) noexcept;
 
     /// @brief unregisters all ptr id pairs (leads to initial state)
     static void unregisterAll() noexcept;
@@ -149,13 +150,13 @@ class BaseRelativePointer
     /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] ptr is the pointer whose offset should be calculated
     /// @return offset
-    static offset_t getOffset(const id_t& id, const_ptr_t ptr) noexcept;
+    static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept;
 
     /// @brief get the pointer from id and offset ("inverse" to getOffset)
     /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] offset is the offset for which the pointer should be calculated
     /// @return the pointer from id and offset
-    static ptr_t getPtr(const id_t& id, const offset_t offset) noexcept;
+    static ptr_t getPtr(const id_t id, const offset_t offset) noexcept;
 
     /// @brief get the id for a given ptr
     /// @param[in] ptr the pointer whose corresponding id is searched for
@@ -165,7 +166,7 @@ class BaseRelativePointer
     /// @brief checks if given id is valid
     /// @param[in] id is the id to be checked
     /// @return true if the given id is valid, otherwise false
-    static bool isValid(id_t& id) noexcept;
+    static bool isValid(id_t id) noexcept;
 
     /// @brief returns the pointer repository
     /// @return the pointer repository
