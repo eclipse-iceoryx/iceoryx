@@ -20,6 +20,7 @@ project(example_complexdata)
 
 include(GNUInstallDirs)
 
+find_package(iceoryx_dust CONFIG REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
@@ -44,6 +45,7 @@ iox_add_executable(
     TARGET  iox-cpp-publisher-complexdata
     FILES   ./iox_publisher_complexdata.cpp
     LIBS    iceoryx_posh::iceoryx_posh
+            iceoryx_posh::iceoryx_posh
 )
 
 iox_add_executable(

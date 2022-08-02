@@ -23,7 +23,7 @@ First off, let's include the publisher, the runtime and the signal handler:
 
 <!--[geoffrey][iceoryx_examples/icedelivery/iox_publisher_untyped.cpp][includes]-->
 ```cpp
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
@@ -130,7 +130,7 @@ Similar to the publisher, we include the topic data, the subscriber, the runtime
 ```cpp
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```

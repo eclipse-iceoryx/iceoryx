@@ -36,7 +36,7 @@ At first, the includes for the client port, request-response types, WaitSet, and
 #include "request_and_response_types.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -176,7 +176,7 @@ At first, the includes for the server port, Listener, request-response types and
 ```cpp
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"

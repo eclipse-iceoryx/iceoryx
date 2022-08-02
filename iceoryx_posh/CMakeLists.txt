@@ -88,6 +88,7 @@ iox_add_library(
                             source/version
                             source/runtime
     PUBLIC_LIBS             iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_dust::iceoryx_dust
     PRIVATE_LIBS            ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE_LIBS_LINUX      rt
     FILES
