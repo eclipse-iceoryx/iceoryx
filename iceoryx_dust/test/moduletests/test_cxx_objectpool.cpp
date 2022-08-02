@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/objectpool/objectpool.hpp"
+#include "iceoryx_dust/cxx/objectpool.hpp"
 
 #include <vector>
 

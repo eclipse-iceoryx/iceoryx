@@ -32,6 +32,7 @@ set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
     GTest::gtest
     GTest::gmock
+    iceoryx_dust::iceoryx_dust
     iceoryx_hoofs::iceoryx_hoofs
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
 )

@@ -58,3 +58,10 @@ iox_add_library(
 if(NOT GTest_FOUND AND BUILD_TEST)
     find_package(GTest CONFIG REQUIRED)
 endif()
+
+if(GTest_FOUND)
+    message(STATUS "GTest was found, building iceoryx_hoofs_testing enabled.")
+    if(BUILD_TEST)
+        add_subdirectory(test)
+    endif()
+endif()
