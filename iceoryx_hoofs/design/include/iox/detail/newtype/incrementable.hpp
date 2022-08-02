@@ -34,8 +34,9 @@ struct Incrementable
     {
         return internal::preIncrement(rhs);
     }
-
-    friend T operator++(T& rhs, int) noexcept
+    // NOLINTJUSTIFICATION Readability is not affected
+    // NOLINTNEXTLINE(readability-const-return-type)
+    friend const T operator++(T& rhs, int) noexcept
     {
         return internal::newTypeAccessor(rhs)++;
     }
