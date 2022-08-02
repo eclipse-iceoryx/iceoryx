@@ -26,9 +26,6 @@
 ./iceoryx_hoofs/source/posix_wrapper/*
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
-./iceoryx_hoofs/test/moduletests/test_allocator.cpp
-./iceoryx_hoofs/test/moduletests/test_shared_memory.cpp
-./iceoryx_hoofs/test/moduletests/test_shared_memory_object.cpp
 
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
