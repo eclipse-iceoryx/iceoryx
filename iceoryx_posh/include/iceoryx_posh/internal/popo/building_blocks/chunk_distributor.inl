@@ -54,7 +54,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
     const auto alreadyKnownReceiver =
         std::find_if(getMembers()->m_queues.begin(),
                      getMembers()->m_queues.end(),
-                     [&](const ChunkQueueData_t* const queue) { return queue == queueToAdd; });
+                     [&](const rp::RelativePointer<ChunkQueueData_t> queue) { return queue.get() == queueToAdd; });
 
     // check if the queue is not already in the list
     if (alreadyKnownReceiver == getMembers()->m_queues.end())
@@ -176,14 +176,19 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
             //          and without this intersection we would deliver to dead queues
             typename MemberType_t::LockGuard_t lock(*getMembers());
             typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
-            std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end());
-            std::sort(remainingQueues.begin(), remainingQueues.end());
+            auto greaterThan = [](rp::RelativePointer<ChunkQueueData_t>& a,
+                                  rp::RelativePointer<ChunkQueueData_t>& b) -> bool {
+                return reinterpret_cast<uint64_t>(a.get()) > reinterpret_cast<uint64_t>(b.get());
+            };
+            std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), greaterThan);
+            std::sort(remainingQueues.begin(), remainingQueues.end(), greaterThan);
 
             auto iter = std::set_intersection(getMembers()->m_queues.begin(),
                                               getMembers()->m_queues.end(),
                                               remainingQueues.begin(),
                                               remainingQueues.end(),
-                                              queueIntersection.begin());
+                                              queueIntersection.begin(),
+                                              greaterThan);
             queueIntersection.resize(static_cast<uint64_t>(iter - queueIntersection.begin()));
             remainingQueues = queueIntersection;
 

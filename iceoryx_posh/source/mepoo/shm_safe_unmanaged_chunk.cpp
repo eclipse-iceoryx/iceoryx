@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
     }
     auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
     m_chunkManagement.reset();
-    return SharedChunk(chunkMgmt);
+    return SharedChunk(chunkMgmt.get());
 }
 
 SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
@@ -70,7 +70,7 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
     }
     auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
     chunkMgmt->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
-    return SharedChunk(chunkMgmt);
+    return SharedChunk(chunkMgmt.get());
 }
 
 bool ShmSafeUnmanagedChunk::isLogicalNullptr() const noexcept
@@ -85,7 +85,7 @@ ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
         return nullptr;
     }
     auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
-    return chunkMgmt->m_chunkHeader;
+    return chunkMgmt->m_chunkHeader.get();
 }
 
 const ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() const noexcept
