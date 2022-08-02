@@ -16,9 +16,3 @@ iceoryx.
 * User defined memory provider to support hardware accelerators
 * Man page for RouDi and the runtime
 * Packages for linux distributions like debian, archlinux, gentoo
-
-## iceoryx v2.0
-
-* Windows support
-* Request-response communication
-* Service Discovery
