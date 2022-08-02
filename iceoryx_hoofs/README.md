@@ -130,14 +130,11 @@ abstractions or add a new one when using POSIX resources like semaphores, shared
 |:----------------------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`AccessController`                  | i        | Interface for Access Control Lists (ACL).                                                                                                                                                        |
 |`FileLock`                          |          | File lock C++ wrapping class.                                                                                                                                                                    |
-|`NamedPipe`                         |          | Shared memory based ipc channel. Mainly a `UnixDomainSocket` replacement on Windows.                                                                                                             |
 |`IpcChannel`                        | i        | Helper types used by the `MessageQueue`and the `UnixDomainSocket`.                                                                                                                               |
-|`MessageQueue`                      | i        | Interface for Message Queues, see [ManPage mq_overview](https://www.man7.org/linux/man-pages/man7/mq_overview.7.html).                                                                           |
 |`mutex`                             | i        | Mutex interface, see [ManPage pthread_mutex_lock](https://man7.org/linux/man-pages/man3/pthread_mutex_lock.3p.html).                                                                             |
 |`posix_access_rights`               |          | Rights and user management interface.                                                                                                                                                            |
 |`posixCall`                         |          | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
 |`SignalGuard`                       |          | Helper class for signal handler registration.                                                                                                                                                    |
-|`SignalWatcher`                     |          | Batteries included signal handling with polling and optional blocking wait for `SIGINT` and `SIGTERM`.                                                                                           |
 |`Semaphore`                         |          | Semaphore interface, see [ManPage sem_overview](https://man7.org/linux/man-pages/man7/sem_overview.7.html)                                                                                       |
 |`shared_memory_object/Allocator`    | i        | Helper class for the `SharedMemoryObject`.                                                                                                                                                       |
 |`shared_memory_object/MemoryMap`    | i        | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.                                                                                                                   |
@@ -162,25 +159,6 @@ setTimeout(5_ms); // 5 milliseconds
 | class               | internal | description                                                                                                                                 |
 |:-------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------|
 |`Duration`           | i        | Represents the unit time, is convertible to `timespec` and `timeval`. User defined literals are available for convenience and readability.  |
-
-### objectpool
-
-| class                 | internal | description                                              |
-|:---------------------:|:--------:|:---------------------------------------------------------|
-|`ObjectPool`           | i        |   | Container which stores raw objects without calling the ctor of the objects.  |
-
-### graphs
-
-| class                   | internal | maybe obsolete | description |
-|:-----------------------:|:--------:|:--------------:|:------------|
-|`DirectedGraph`          | i |   | Creates and manages a [directed graph](https://en.wikipedia.org/wiki/Directed_graph).  |
-|`DirectedAcyclicGraph`   | i |   | Like the `DirectedGraph` but additional checks prohibit to create edges which have a cyclic dependency.  |
-
-### file-reader
-
-| class                | internal | maybe obsolete | description |
-|:--------------------:|:--------:|:--------------:|:------------|
-|`FileReader`          | i | X | Wrapper for opening files and reading them. |
 
 <center>
 [Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->
