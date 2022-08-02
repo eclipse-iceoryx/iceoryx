@@ -18,6 +18,9 @@
 #define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
 #include "iox/algorithm.hpp"
+#include "iox/detail//newtype/decrementable.hpp"
+#include "iox/detail//newtype/incrementable.hpp"
+#include "iox/detail/newtype/arithmetic.hpp"
 #include "iox/detail/newtype/assignment.hpp"
 #include "iox/detail/newtype/comparable.hpp"
 #include "iox/detail/newtype/constructor.hpp"
@@ -25,6 +28,8 @@
 #include "iox/detail/newtype/internal.hpp"
 #include "iox/detail/newtype/protected_constructor.hpp"
 #include "iox/detail/newtype/sortable.hpp"
+
+#include <type_traits>
 
 namespace iox
 {
@@ -121,6 +126,12 @@ class NewType : public Policies<NewType<T, Policies...>>...
     template <typename Type>
     friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
 
+    template <typename Type>
+    friend Type& newtype::internal::preIncrement(Type&) noexcept;
+
+    template <typename Type>
+    friend Type& newtype::internal::preDecrement(Type&) noexcept;
+
   private:
     T m_value;
 };
@@ -158,6 +169,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
         using ThisType::operator=;                                                                                     \
                                                                                                                        \
         TypeName() noexcept = default;                                                                                 \
+        ~TypeName() noexcept = default;                                                                                \
         TypeName(const TypeName&) noexcept = default;                                                                  \
         TypeName(TypeName&&) noexcept = default;                                                                       \
         TypeName& operator=(const TypeName&) noexcept = default;                                                       \

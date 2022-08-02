@@ -38,6 +38,21 @@ inline typename T::value_type newTypeAccessor(const T& b) noexcept
 {
     return b.m_value;
 }
+
+template <typename T>
+inline T& preIncrement(T& b) noexcept
+{
+    ++b.m_value;
+    return b;
+}
+
+template <typename T>
+inline T& preDecrement(T& b) noexcept
+{
+    --b.m_value;
+    return b;
+}
+
 } // namespace internal
 } // namespace newtype
 } // namespace iox
