@@ -30,14 +30,6 @@ namespace posix
 {
 static constexpr int MaxNumberOfGroups = 888;
 
-struct PosixRights
-{
-    PosixRights(bool read, bool write, bool execute) noexcept;
-    bool m_read;
-    bool m_write;
-    bool m_execute;
-};
-
 class PosixGroup
 {
   public:
