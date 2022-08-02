@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_FILE_READER_FILE_READER_HPP
-#define IOX_HOOFS_FILE_READER_FILE_READER_HPP
+#ifndef IOX_DUST_FILE_READER_FILE_READER_HPP
+#define IOX_DUST_FILE_READER_FILE_READER_HPP
 
 #include <fstream>
 
@@ -75,4 +75,4 @@ class FileReader
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_FILE_READER_FILE_READER_HPP
+#endif // IOX_DUST_FILE_READER_FILE_READER_HPP
