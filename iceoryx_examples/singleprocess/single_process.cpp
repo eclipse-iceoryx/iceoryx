@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/log/logmanager.hpp"
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"

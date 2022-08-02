@@ -45,7 +45,6 @@ iox_add_executable(
     TARGET  iox-cpp-publisher-complexdata
     FILES   ./iox_publisher_complexdata.cpp
     LIBS    iceoryx_posh::iceoryx_posh
-            iceoryx_posh::iceoryx_posh
 )
 
 iox_add_executable(
