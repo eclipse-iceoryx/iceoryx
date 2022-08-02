@@ -349,7 +349,7 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
     ASSERT_THAT(segmentId.has_value(), Eq(true));
     // the segment id being monotonic increasing is an implementation detail, in the case that the implementation
     // changes, just remove this check, since we already check to get a valid result
-    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset + 1));
+    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset + 1U));
 }
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)

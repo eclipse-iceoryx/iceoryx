@@ -40,8 +40,9 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-            rp::BaseRelativePointer::registerPtr(
-                segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+            rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segmentId},
+                                                 sharedMemoryObject.getBaseAddress(),
+                                                 sharedMemoryObject.getSizeInBytes());
             LogDebug() << "Application registered management segment "
                        << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
                        << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
@@ -56,7 +57,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                         const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    auto ptr = rp::BaseRelativePointer::getPtr(segmentId, segmentManagerAddressOffset);
+    auto ptr = rp::BaseRelativePointer::getPtr(rp::BaseRelativePointer::id_t{segmentId}, segmentManagerAddressOffset);
     auto segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
@@ -76,8 +77,9 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                rp::BaseRelativePointer::registerPtr(
-                    segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segment.m_segmentId},
+                                                     sharedMemoryObject.getBaseAddress(),
+                                                     sharedMemoryObject.getSizeInBytes());
 
                 LogDebug() << "Application registered payload data segment "
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))

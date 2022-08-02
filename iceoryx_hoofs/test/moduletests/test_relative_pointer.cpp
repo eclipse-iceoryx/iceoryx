@@ -29,6 +29,8 @@ using namespace iox::rp;
 
 struct Data
 {
+    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     Data(uint32_t i, uint32_t j)
         : Data1(i)
         , Data2(j)
@@ -38,9 +40,9 @@ struct Data
     uint32_t Data2 = 72;
 };
 
-static constexpr uint64_t SHARED_MEMORY_SIZE = 4096 * 32;
-static constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
-static uint8_t memoryPatternValue = 1U;
+constexpr uint64_t SHARED_MEMORY_SIZE = 4096UL * 32UL;
+constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
+uint8_t memoryPatternValue = 1U;
 
 template <typename T>
 class RelativePointer_test : public Test
@@ -49,7 +51,8 @@ class RelativePointer_test : public Test
     void SetUp() override
     {
         internal::CaptureStderr();
-        memset(memoryPartition, memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
+        memset(
+            static_cast<void*>(memoryPartition), memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
         ++memoryPatternValue;
     }
 
@@ -65,10 +68,17 @@ class RelativePointer_test : public Test
 
     uint8_t* partitionPtr(uint32_t partition)
     {
+        // NOLINTJUSTIFICATION Ok-ish for tests
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index,
+        // cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         return memoryPartition[partition];
+        // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index,
+        // cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     }
 
-    uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE];
+    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE]{0};
 };
 
 typedef testing::Types<uint8_t, int8_t, double> Types;
@@ -86,72 +96,88 @@ TYPED_TEST_SUITE(RelativePointer_test, Types);
 TYPED_TEST(RelativePointer_test, ConstrTests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cae7b4d4-86eb-42f6-b938-90a76f01bea5");
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, this->memoryPartition[0], SHARED_MEMORY_SIZE), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, this->memoryPartition[1], SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{1U},
+                                               static_cast<void*>(this->memoryPartition[0]),
+                                               SHARED_MEMORY_SIZE),
+              true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{2U},
+                                               static_cast<void*>(this->memoryPartition[1]),
+                                               SHARED_MEMORY_SIZE),
+              true);
 
-    auto ptr0 = this->partitionPtr(0);
-    auto ptr1 = this->partitionPtr(1);
+    auto* ptr0 = this->partitionPtr(0U);
+    auto* ptr1 = this->partitionPtr(1U);
 
     {
-        auto offset = SHARED_MEMORY_SIZE / 2;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        auto offset = SHARED_MEMORY_SIZE / 2U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
 
         RelativePointer<TypeParam> rp;
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 1U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0);
+        auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr0));
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), 0);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 1U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE / 2;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        auto offset = SHARED_MEMORY_SIZE / 2U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 1U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE - 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        auto offset = SHARED_MEMORY_SIZE - 1U;
+        // Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 1U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1);
+        auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr1));
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), 0);
-        EXPECT_EQ(rp.getId(), 2);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE / 2;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
+        auto offset = SHARED_MEMORY_SIZE / 2U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 2);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE - 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
+        auto offset = SHARED_MEMORY_SIZE - 1U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 2);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
@@ -161,8 +187,10 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE + 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
+        auto offset = SHARED_MEMORY_SIZE + 1U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_NE(rp, nullptr);
     }
@@ -171,67 +199,75 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
 TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cd0c4a6a-7779-4dc3-97dc-58ef40a58715");
-    auto ptr0 = this->partitionPtr(0);
-    auto ptr1 = this->partitionPtr(1);
+    auto* ptr0 = this->partitionPtr(0U);
+    auto* ptr1 = this->partitionPtr(1U);
 
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, ptr0, SHARED_MEMORY_SIZE), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, ptr1, SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, ptr0, SHARED_MEMORY_SIZE), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{2U}, ptr1, SHARED_MEMORY_SIZE), true);
 
     {
         RelativePointer<TypeParam> rp;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0);
+        auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr0));
+        rp = typedPtr;
+        EXPECT_EQ(rp.getOffset(), 0U);
+        EXPECT_EQ(rp.getId(), 1U);
+        EXPECT_NE(rp, nullptr);
+    }
+
+    {
+        auto offset = SHARED_MEMORY_SIZE / 2U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        RelativePointer<TypeParam> rp;
+        rp = typedPtr;
+        EXPECT_EQ(rp.getOffset(), offset);
+        EXPECT_EQ(rp.getId(), 1U);
+        EXPECT_NE(rp, nullptr);
+    }
+
+    {
+        auto offset = SHARED_MEMORY_SIZE - 1U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        RelativePointer<TypeParam> rp;
+        rp = typedPtr;
+        EXPECT_EQ(rp.getOffset(), offset);
+        EXPECT_EQ(rp.getId(), 1U);
+        EXPECT_NE(rp, nullptr);
+    }
+
+    {
+        RelativePointer<TypeParam> rp;
+        auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr1));
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), 0);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE / 2;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        auto offset = SHARED_MEMORY_SIZE / 2U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp;
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 1);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
     {
-        auto offset = SHARED_MEMORY_SIZE - 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr0 + offset);
+        auto offset = SHARED_MEMORY_SIZE - 1U;
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp;
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 1);
-        EXPECT_NE(rp, nullptr);
-    }
-
-    {
-        RelativePointer<TypeParam> rp;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1);
-        rp = typedPtr;
-        EXPECT_EQ(rp.getOffset(), 0);
-        EXPECT_EQ(rp.getId(), 2);
-        EXPECT_NE(rp, nullptr);
-    }
-
-    {
-        auto offset = SHARED_MEMORY_SIZE / 2;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
-        RelativePointer<TypeParam> rp;
-        rp = typedPtr;
-        EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 2);
-        EXPECT_NE(rp, nullptr);
-    }
-
-    {
-        auto offset = SHARED_MEMORY_SIZE - 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
-        RelativePointer<TypeParam> rp;
-        rp = typedPtr;
-        EXPECT_EQ(rp.getOffset(), offset);
-        EXPECT_EQ(rp.getId(), 2);
+        EXPECT_EQ(rp.getId(), 2U);
         EXPECT_NE(rp, nullptr);
     }
 
@@ -243,143 +279,148 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
 
     {
         auto offset = SHARED_MEMORY_SIZE + 1;
-        auto typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
+        // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+        auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp;
         rp = typedPtr;
         EXPECT_NE(rp, nullptr);
     }
 }
 
-TYPED_TEST(RelativePointer_test, IdAndOffset)
+TYPED_TEST(RelativePointer_test, IdAndOffsetAreTranslatedToRawPointerCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a29a074-d68d-4431-88b9-bdd26b1a41f7");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* ptr = this->partitionPtr(0U);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
-    EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(ptr));
-    EXPECT_EQ(rp1.getId(), 1);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
+    // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(typedPtr));
+    EXPECT_EQ(rp1.getId(), 1U);
 
-    int offset = SHARED_MEMORY_SIZE / 2;
-    auto addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
+    int offset = SHARED_MEMORY_SIZE / 2U;
+    // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+    auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::BaseRelativePointer::id_t{1U});
     EXPECT_EQ(rp2.getOffset(), offset);
-    EXPECT_EQ(rp2.getId(), 1);
+    EXPECT_EQ(rp2.getId(), 1U);
     EXPECT_EQ(rp2.get(), addressAtOffset);
 }
 
-TYPED_TEST(RelativePointer_test, getOffset)
+TYPED_TEST(RelativePointer_test, GetOffsetReturnsCorrectOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b493337-ee55-498a-9cac-8bb5741f72f0");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* ptr = this->partitionPtr(0U);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, ptr), 0);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
+    EXPECT_EQ(BaseRelativePointer::getOffset(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), 0U);
 
-    int offset = SHARED_MEMORY_SIZE / 2;
-    auto addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
-    EXPECT_EQ(BaseRelativePointer::getOffset(1, addressAtOffset), offset);
+    int offset = SHARED_MEMORY_SIZE / 2U;
+    // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+    auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::BaseRelativePointer::id_t{1U});
+    EXPECT_EQ(BaseRelativePointer::getOffset(iox::rp::BaseRelativePointer::id_t{1U}, addressAtOffset), offset);
 }
 
-TYPED_TEST(RelativePointer_test, getPtr)
+TYPED_TEST(RelativePointer_test, GetPtrReturnsAddressWithCorrectOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fadf89f-69c0-4058-8995-a98e2e3334b2");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, 0), ptr);
+    auto* ptr = this->partitionPtr(0U);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
+    EXPECT_EQ(BaseRelativePointer::getPtr(iox::rp::BaseRelativePointer::id_t{1U}, 0), typedPtr);
 
     uint64_t offset = SHARED_MEMORY_SIZE / 2U;
-    auto addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, 1);
-    EXPECT_EQ(BaseRelativePointer::getPtr(1, offset), addressAtOffset);
+    // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+    auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::BaseRelativePointer::id_t{1});
+    EXPECT_EQ(BaseRelativePointer::getPtr(iox::rp::BaseRelativePointer::id_t{1U}, offset), addressAtOffset);
 }
 
-TYPED_TEST(RelativePointer_test, registerPtr)
+TYPED_TEST(RelativePointer_test, RegisteringAndUnregisteringRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f08ab46-c778-468a-bab1-ecd71aa800f4");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
 
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), false);
-    EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), false);
+    EXPECT_EQ(rp1.unregisterPtr(iox::rp::BaseRelativePointer::id_t{1U}), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
 }
 
 
-TYPED_TEST(RelativePointer_test, unRegisterPointerTest_Valid)
+TYPED_TEST(RelativePointer_test, UnRegisteringOneRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cc09122e-74e8-4d24-83ec-6500471becac");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* ptr = this->partitionPtr(0U);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
 
-    rp1.registerPtr(1, ptr);
-    EXPECT_EQ(rp1.unregisterPtr(1), true);
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr), true);
+    rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, ptr);
+    EXPECT_EQ(rp1.unregisterPtr(iox::rp::BaseRelativePointer::id_t{1U}), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
 }
 
-TYPED_TEST(RelativePointer_test, unregisterPointerAll)
+TYPED_TEST(RelativePointer_test, UnregisteringAllRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e793b3e8-5077-499d-b628-608ecfd91b9e");
-    auto ptr0 = this->partitionPtr(0);
-    auto typedPtr0 = reinterpret_cast<TypeParam*>(ptr0);
-    auto ptr1 = this->partitionPtr(1);
-    auto typedPtr1 = reinterpret_cast<TypeParam*>(ptr1);
+    auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
+    auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr0, 1);
-    RelativePointer<TypeParam> rp2(typedPtr1, 9999);
+    RelativePointer<TypeParam> rp1(typedPtr0, iox::rp::BaseRelativePointer::id_t{1U});
+    RelativePointer<TypeParam> rp2(typedPtr1, iox::rp::BaseRelativePointer::id_t{9999U});
 
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtr(9999, typedPtr1), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtr(iox::rp::BaseRelativePointer::id_t{9999U}, typedPtr1), true);
     BaseRelativePointer::unregisterAll();
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtr(9999, typedPtr1), true);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtr(iox::rp::BaseRelativePointer::id_t{9999U}, typedPtr1), true);
 }
 
-TYPED_TEST(RelativePointer_test, registerPtrWithId)
+TYPED_TEST(RelativePointer_test, RegisterPtrWithIdFailsWhenTooLarge)
 {
     ::testing::Test::RecordProperty("TEST_ID", "87521383-6aea-4b43-a182-3a21499be710");
-    auto ptr0 = this->partitionPtr(0);
-    auto typedPtr0 = reinterpret_cast<TypeParam*>(ptr0);
-    auto ptr1 = this->partitionPtr(1);
-    auto typedPtr1 = reinterpret_cast<TypeParam*>(ptr1);
+    auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
+    auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr0, 1);
-    RelativePointer<TypeParam> rp2(typedPtr1, 10000);
+    RelativePointer<TypeParam> rp1(typedPtr0, iox::rp::BaseRelativePointer::id_t{1U});
+    RelativePointer<TypeParam> rp2(typedPtr1, iox::rp::BaseRelativePointer::id_t{10000U});
 
-    EXPECT_EQ(rp1.registerPtr(1, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtr(10000, typedPtr1), false);
+    EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtr(iox::rp::BaseRelativePointer::id_t{10000U}, typedPtr1), false);
 }
 
-TYPED_TEST(RelativePointer_test, basePointerValid)
+TYPED_TEST(RelativePointer_test, BasePointerIsSameAfterRegistering)
 {
     ::testing::Test::RecordProperty("TEST_ID", "40e649bc-b159-45ab-891f-2194a0dcf0e6");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
-    EXPECT_EQ(rp1.getBasePtr(1), nullptr);
-    rp1.registerPtr(1, typedPtr);
-    EXPECT_EQ(ptr, rp1.getBasePtr(1));
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
+    EXPECT_EQ(rp1.getBasePtr(iox::rp::BaseRelativePointer::id_t{1U}), nullptr);
+    rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr);
+    EXPECT_EQ(typedPtr, rp1.getBasePtr(iox::rp::BaseRelativePointer::id_t{1U}));
 }
 
-TYPED_TEST(RelativePointer_test, assignmentOperator)
+TYPED_TEST(RelativePointer_test, AssignmentOperatorResultsInSameBasePointerIdAndOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98e2eb78-ee5d-4d87-9753-5ac42b90b9d6");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
+    // NOLINTJUSTIFICATION Copy needed for tests
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     RelativePointer<TypeParam> rp2 = rp1;
 
     EXPECT_EQ(rp1.getBasePtr(), rp2.getBasePtr());
@@ -387,14 +428,13 @@ TYPED_TEST(RelativePointer_test, assignmentOperator)
     EXPECT_EQ(rp1.getOffset(), rp2.getOffset());
 }
 
-TYPED_TEST(RelativePointer_test, dereferencingOperator)
+TYPED_TEST(RelativePointer_test, DereferencingOperatorResultsInSameValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d8c1105e-1041-418f-9327-27958f788119");
-    auto ptr = this->partitionPtr(0);
-    auto typedPtr = reinterpret_cast<TypeParam*>(ptr);
+    auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     *typedPtr = static_cast<TypeParam>(88);
-    RelativePointer<TypeParam> rp1(typedPtr, 1);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
 
     EXPECT_EQ(*rp1, *typedPtr);
     *typedPtr = static_cast<TypeParam>(99);
@@ -404,16 +444,19 @@ TYPED_TEST(RelativePointer_test, dereferencingOperator)
 /// central use case of the relative pointer:
 /// it is tested that changing the (static) lookup table of a relative pointer causes existing
 /// relative pointers point to changed locations relative to the new lookup table
-TYPED_TEST(RelativePointer_test, memoryRemapping)
+TYPED_TEST(RelativePointer_test, MemoryRemappingWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "48452388-a7ac-486d-963d-c8d4e5eb55a0");
     constexpr size_t BLOCK_SIZE = 1024;
     // simulate 3 consecutive memory blocks on the stack
+    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     uint8_t block1[BLOCK_SIZE];
     uint8_t block2[BLOCK_SIZE];
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 
-    uint8_t* base1 = block1;
-    uint8_t* base2 = block2;
+    auto* base1 = static_cast<uint8_t*>(block1);
+    auto* base2 = static_cast<uint8_t*>(block2);
 
     // uint8 write
     *base1 = 37U;
@@ -422,9 +465,12 @@ TYPED_TEST(RelativePointer_test, memoryRemapping)
     EXPECT_EQ(*base1, 37U);
     EXPECT_EQ(*base2, 73U);
 
-    int offset = BLOCK_SIZE / 2;
-    auto adr1 = reinterpret_cast<int*>(base1 + offset);
-    auto adr2 = reinterpret_cast<int*>(base2 + offset);
+    int offset = BLOCK_SIZE / 2U;
+    // NOLINTJUSTIFICATION pointer arithmetic needed for tests
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    auto* adr1 = reinterpret_cast<int*>(base1 + offset);
+    auto* adr2 = reinterpret_cast<int*>(base2 + offset);
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     // int write
     *adr1 = 12;
@@ -433,16 +479,16 @@ TYPED_TEST(RelativePointer_test, memoryRemapping)
     EXPECT_EQ(*adr1, 12);
     EXPECT_EQ(*adr2, 21);
 
-    EXPECT_EQ(BaseRelativePointer::registerPtr(1, base1), true);
-    EXPECT_EQ(BaseRelativePointer::registerPtr(2, base2), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, base1), true);
+    EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{2U}, base2), true);
 
     {
         // the relative pointers point to base 1 and base 2l
-        RelativePointer<uint8_t> rp1(base1, 1);
-        RelativePointer<uint8_t> rp2(base2, 2);
+        RelativePointer<uint8_t> rp1(base1, iox::rp::BaseRelativePointer::id_t{1U});
+        RelativePointer<uint8_t> rp2(base2, iox::rp::BaseRelativePointer::id_t{2U});
 
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp2.getId(), 2);
+        EXPECT_EQ(rp1.getId(), 1U);
+        EXPECT_EQ(rp2.getId(), 2U);
 
         EXPECT_EQ(rp1.getOffset(), 0);
         EXPECT_EQ(rp2.getOffset(), 0);
@@ -453,11 +499,11 @@ TYPED_TEST(RelativePointer_test, memoryRemapping)
 
     {
         // now test with a type that is larger than 1 byte
-        RelativePointer<int> rp1(reinterpret_cast<int*>(adr1), 1);
-        RelativePointer<int> rp2(reinterpret_cast<int*>(adr2), 2);
+        RelativePointer<int> rp1(adr1, iox::rp::BaseRelativePointer::id_t{1U});
+        RelativePointer<int> rp2(adr2, iox::rp::BaseRelativePointer::id_t{2U});
 
-        EXPECT_EQ(rp1.getId(), 1);
-        EXPECT_EQ(rp2.getId(), 2);
+        EXPECT_EQ(rp1.getId(), 1U);
+        EXPECT_EQ(rp2.getId(), 2U);
 
         // relative to their respective memory block base adress both have the same offset
         EXPECT_EQ(rp1.getOffset(), offset);
@@ -468,11 +514,11 @@ TYPED_TEST(RelativePointer_test, memoryRemapping)
         EXPECT_EQ(*rp2, 21);
 
         // simulate a remapping, index 1 now refers to base 2 and vice versa ...
-        EXPECT_EQ(BaseRelativePointer::unregisterPtr(1), true);
-        EXPECT_EQ(BaseRelativePointer::unregisterPtr(2), true);
+        EXPECT_EQ(BaseRelativePointer::unregisterPtr(iox::rp::BaseRelativePointer::id_t{1U}), true);
+        EXPECT_EQ(BaseRelativePointer::unregisterPtr(iox::rp::BaseRelativePointer::id_t{2U}), true);
 
-        EXPECT_EQ(BaseRelativePointer::registerPtr(1, base2), true);
-        EXPECT_EQ(BaseRelativePointer::registerPtr(2, base1), true);
+        EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{1}, base2), true);
+        EXPECT_EQ(BaseRelativePointer::registerPtr(iox::rp::BaseRelativePointer::id_t{2}, base1), true);
 
         // which, despite the relative pointer objects not having changed themselves,
         // leads to them referencing the respective other value now (compared to *** above)
@@ -484,7 +530,7 @@ TYPED_TEST(RelativePointer_test, memoryRemapping)
     }
 }
 
-TYPED_TEST(RelativePointer_test, defaultConstructedRelativePtrIsNull)
+TYPED_TEST(RelativePointer_test, DefaultConstructedRelativePtrIsNull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be25f19c-912c-438e-97b1-6fcacb879453");
     RelativePointer<TypeParam> rp1;

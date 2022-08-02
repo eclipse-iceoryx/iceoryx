@@ -108,7 +108,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
     }
 
-    for (auto memoryBlock : m_memoryBlocks)
+    for (auto* memoryBlock : m_memoryBlocks)
     {
         memoryBlock->destroy();
     }
@@ -117,9 +117,9 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        rp::BaseRelativePointer::unregisterPtr(m_segmentId);
+        rp::BaseRelativePointer::unregisterPtr(rp::BaseRelativePointer::id_t{m_segmentId});
         m_memory = nullptr;
-        m_size = 0u;
+        m_size = 0U;
     }
 
     return destructionResult;

@@ -621,7 +621,7 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
 
 void notifyServiceDiscovery(SubscriberPortData& portData)
 {
-    ConditionNotifier(*portData.m_chunkReceiverData.m_conditionVariableDataPtr, 0).notify();
+    ConditionNotifier(*portData.m_chunkReceiverData.m_conditionVariableDataPtr.get(), 0).notify();
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWorks, Repeat(5), [&] {
