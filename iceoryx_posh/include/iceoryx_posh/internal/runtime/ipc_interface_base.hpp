@@ -41,8 +41,15 @@
 #include <process.h>
 #endif
 
+
 namespace iox
 {
+namespace platform
+{
+#if defined(_WIN32)
+using IoxIpcChannelType = iox::posix::NamedPipe;
+#endif
+} // namespace platform
 namespace runtime
 {
 enum class IpcMessageType : int32_t
