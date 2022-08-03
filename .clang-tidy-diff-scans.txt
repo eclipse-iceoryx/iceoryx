@@ -19,8 +19,8 @@
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*
-./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern*
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/design_pattern/*
+
+./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/source/posix_wrapper/*
@@ -30,7 +30,7 @@
 ./iceoryx_hoofs/test/moduletests/test_shared_memory.cpp
 ./iceoryx_hoofs/test/moduletests/test_shared_memory_object.cpp
 # Will be activated with #1521
-# ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp 
+# ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp
 # ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.inl
 
