@@ -93,18 +93,12 @@ iox_add_library(
 ########## hoofs testing ##########
 #
 
-# Finding gtest and adding the subdirectories is split to support the use case of
-# building the testing lib without the tests by providing gtest externally
-if(NOT GTest_FOUND AND BUILD_TEST)
-    find_package(GTest CONFIG REQUIRED)
-endif()
 
-if(GTest_FOUND)
-    message(STATUS "GTest was found, building iceoryx_hoofs_testing enabled.")
+
+if(BUILD_TEST)
+    detect_gtest_package()
     add_subdirectory(testing)
-    if(BUILD_TEST)
-        add_subdirectory(test)
-    endif()
+    add_subdirectory(test)
 endif()
 
 install(

@@ -32,8 +32,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
-    GTest::gtest
-    GTest::gmock
+    ${IOX_GTEST_LIBS}
     iceoryx_hoofs::iceoryx_hoofs
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
 )

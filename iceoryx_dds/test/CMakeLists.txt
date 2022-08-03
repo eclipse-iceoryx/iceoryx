@@ -19,7 +19,6 @@ project(test_iox_to_dds VERSION 0)
 
 find_package(iceoryx_hoofs_testing REQUIRED)
 find_package(iceoryx_posh_testing REQUIRED)
-find_package(GTest CONFIG REQUIRED)
 
 set(PROJECT_PREFIX "dds_gateway")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
@@ -28,8 +27,7 @@ file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
-    GTest::gtest
-    GTest::gmock
+    ${IOX_GTEST_LIBS}
     iceoryx_hoofs::iceoryx_hoofs
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
     iceoryx_posh::iceoryx_posh

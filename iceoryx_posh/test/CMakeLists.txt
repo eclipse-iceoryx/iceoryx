@@ -24,10 +24,6 @@ find_package(iceoryx_posh_testing REQUIRED)
 
 set(ICEORYX_POSH_TEST_STACK_SIZE 5000000)
 
-if(BUILD_TEST AND NOT GTest_FOUND)
-    find_package(GTest CONFIG REQUIRED)
-endif(BUILD_TEST AND NOT GTest_FOUND)
-
 set(PROJECT_PREFIX "posh")
 
 # Set path for input files in test
@@ -46,8 +42,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
-    GTest::gtest
-    GTest::gmock
+    ${IOX_GTEST_LIBS}
     iceoryx_hoofs::iceoryx_hoofs
     iceoryx_hoofs::iceoryx_platform
     iceoryx_hoofs_testing::iceoryx_hoofs_testing

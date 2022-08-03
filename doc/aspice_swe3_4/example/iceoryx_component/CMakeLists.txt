@@ -42,17 +42,16 @@ iox_add_library(
 ########## test ##########
 #
 
-if(BUILD_TEST AND NOT GTest_FOUND)
-    find_package(GTest CONFIG REQUIRED)
-endif(BUILD_TEST AND NOT GTest_FOUND)
+if(BUILD_TEST)
+  detect_gtest_package()
 
-set(PROJECT_PREFIX "iceoryx_component")
+  set(PROJECT_PREFIX "iceoryx_component")
 
-file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/test/moduletests/*.cpp")
+  file(GLOB_RECURSE MODULETESTS_SRC
+       "${CMAKE_CURRENT_SOURCE_DIR}/test/moduletests/*.cpp")
 
-set(TEST_LINK_LIBS
-    GTest::gtest
-    GTest::gmock
+  set(TEST_LINK_LIBS
+    ${IOX_GTEST_LIBS}
     iceoryx_component::iceoryx_component
 )
 
@@ -64,3 +63,4 @@ iox_add_executable(
     LIBS                    ${TEST_LINK_LIBS}
     LIBS_LINUX              dl
 )
+endif()

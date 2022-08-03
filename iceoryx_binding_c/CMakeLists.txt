@@ -76,5 +76,6 @@ iox_add_library(
 ########## build test executables ##########
 #
 if(BUILD_TEST)
+    detect_gtest_package()
     add_subdirectory(test)
 endif()

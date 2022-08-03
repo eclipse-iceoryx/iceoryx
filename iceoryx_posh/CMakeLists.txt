@@ -297,11 +297,11 @@ setup_install_directories_and_export_package(
     INCLUDE_DIRECTORY include/
 )
 
-if(ROUDI_ENVIRONMENT OR BUILD_TESTING)
+if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     detect_gtest_package()
     add_subdirectory(testing)
 endif()
 
-if(BUILD_TESTING)
+if(BUILD_TEST)
     add_subdirectory(test)
 endif()

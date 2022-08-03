@@ -23,16 +23,17 @@
 iox_add_library(
     STATIC
     TARGET                  ${PROJECT_NAME}_testing
+    ${IOX_GTEST_GMOCK_INCLUDE}
     NAMESPACE               iceoryx_hoofs_testing
     PROJECT_PREFIX          ${PREFIX}
-    PUBLIC_LIBS             GTest::gtest
-                            GTest::gmock
+    PUBLIC_LIBS             ${IOX_GTEST_LIBS}
     PRIVATE_LIBS            ${CODE_COVERAGE_LIBS}
                             iceoryx_hoofs
                             ${CMAKE_DL_LIBS}
     PRIVATE_LIBS_LINUX      rt
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
+    ${IOX_EXPORT_GTEST_LIBS}
     FILES
         mocks/time_mock.cpp
         mocks/error_handler_mock.cpp
