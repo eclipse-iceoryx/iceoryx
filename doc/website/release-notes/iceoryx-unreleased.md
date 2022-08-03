@@ -70,7 +70,7 @@
 - Removed unused classes from `iceoryx_hoofs` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
   - `cxx::PoorMansHeap`
   - Other `internal` classes
-
+- Cleanup helplets [\#1560](https://github.com/eclipse-iceoryx/iceoryx/issues/1560)
 
 **Workflow:**
 
@@ -265,4 +265,51 @@
     if (signalGuard.has_error()) {
         // perform error handling
     }
+    ```
+
+14. Remove `forEach` from helplets
+    ```cpp
+    // before
+    iox::cxx::forEach(container, [&] (element) { /* do stuff with element */ });
+
+    // after
+    for (const auto& element: container) { /* do stuff with element */ }
+    ```
+
+15. Remove `enumTypeAsUnderlyingType`
+    ```cpp
+    constexpr const char* SOME_ENUM_STRINGS[] = {"FOO", "BAR"};
+
+    // before
+    std::cout << SOME_ENUM_STRINGS[iox::cxx::enumTypeAsUnderlyingType(someEnum)] << std::endl;
+
+    // after
+    std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
+    ```
+
+16. Remove `convertEnumToString`
+    ```cpp
+    constexpr const char* SOME_ENUM_STRINGS[] = {"FOO", "BAR"};
+
+    // before
+    std::cout << iox::cxx::convertEnumToString(SOME_ENUM_STRINGS, someEnum] << std::endl;
+
+    // after
+    std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
+    ```
+
+17. Replace `strlen2` with more generic `arrayCapacity`
+    ```cpp
+    constexpr const char LITERAL1[] {"FOO"};
+    constexpr const char LITERAL2[20] {"BAR"};
+    constexpr const uint32_t ARRAY[42] {};
+
+    // before
+    std::cout << iox::cxx::strlen2(LITERAL1) << std::endl; // prints 3
+    std::cout << iox::cxx::strlen2(LITERAL2) << std::endl; // prints 19
+
+    // after
+    std::cout << arrayCapacity(LITERAL1) << std::endl; // prints 4
+    std::cout << arrayCapacity(LITERAL2) << std::endl; // prints 20
+    std::cout << arrayCapacity(ARRAY) << std::endl;    // prints 42
     ```
