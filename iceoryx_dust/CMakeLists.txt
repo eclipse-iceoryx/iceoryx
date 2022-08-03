@@ -60,7 +60,6 @@ if(NOT GTest_FOUND AND BUILD_TEST)
 endif()
 
 if(GTest_FOUND)
-    message(STATUS "GTest was found, building iceoryx_hoofs_testing enabled.")
     if(BUILD_TEST)
         add_subdirectory(test)
     endif()
