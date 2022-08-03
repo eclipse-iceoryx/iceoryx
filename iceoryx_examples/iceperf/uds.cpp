@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ void UDS::initSocketAddress(sockaddr_un& socketAddr, const std::string& socketNa
 {
     memset(&socketAddr, 0, sizeof(sockaddr_un));
     socketAddr.sun_family = AF_LOCAL;
-    const uint64_t maxDestinationLength = iox::cxx::strlen2(socketAddr.sun_path);
+    constexpr uint64_t NULL_TERMINATION_SIZE{1};
+    const uint64_t maxDestinationLength = iox::cxx::arrayCapacity(socketAddr.sun_path) - NULL_TERMINATION_SIZE;
     iox::cxx::Ensures(maxDestinationLength >= socketName.size() && "Socketname too large!");
     strncpy(socketAddr.sun_path, socketName.c_str(), socketName.size());
 }

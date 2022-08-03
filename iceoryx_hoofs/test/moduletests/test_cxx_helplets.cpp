@@ -143,6 +143,17 @@ TEST_F(Helplets_test, maxAlignment)
     EXPECT_THAT((iox::cxx::maxAlignment<FooBar, FuBar>()), Eq(alignof(FooBar)));
 }
 
+TEST_F(Helplets_test, arrayCapacityReturnsCorrectValues)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8392b2ba-04ef-45e6-8b47-4c0c90d98f61");
+    constexpr uint64_t CAPACITY{42};
+    // NOLINTJUSTIFICATION Used only for test purposes
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    constexpr uint32_t SUT[CAPACITY]{};
+
+    EXPECT_EQ(iox::cxx::arrayCapacity(SUT), CAPACITY);
+}
+
 TEST_F(Helplets_test, bestFittingTypeUsesUint8WhenValueSmaller256)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6704aaf9-c0a4-495c-8128-15c126cbcd9b");
