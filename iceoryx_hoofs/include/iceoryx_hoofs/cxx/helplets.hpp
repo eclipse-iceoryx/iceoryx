@@ -197,13 +197,6 @@ constexpr size_t maxSize() noexcept
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
-/// Convert Enum class type to string
-template <typename T, typename Enumeration>
-const char* convertEnumToString(T port, const Enumeration source) noexcept
-{
-    return port[static_cast<size_t>(source)];
-}
-
 /// @brief Get the capacity of a C array at compile time. This can be used to get the capacity
 /// of arrays defined by a third party.
 /// @code

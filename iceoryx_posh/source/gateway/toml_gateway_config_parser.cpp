@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,10 +55,9 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     catch (const std::exception& parserException)
     {
         auto parserError = iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER;
-
-        LogWarn() << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                   parserError)
-                  << ": " << parserException.what();
+        auto errorStringIndex = static_cast<uint64_t>(parserError);
+        LogWarn() << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
+                  << parserException.what();
 
         return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }

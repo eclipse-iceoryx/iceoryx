@@ -1,4 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,9 +41,9 @@ int main(int argc, char* argv[]) noexcept
 
     if (roudiConfig.has_error())
     {
+        auto errorStringIndex = static_cast<uint64_t>(roudiConfig.get_error());
         iox::LogFatal() << "Couldn't parse config file. Error: "
-                        << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                         roudiConfig.get_error());
+                        << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex];
         return EXIT_FAILURE;
     }
 
