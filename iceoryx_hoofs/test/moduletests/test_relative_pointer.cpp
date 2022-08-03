@@ -29,7 +29,7 @@ using namespace iox::rp;
 
 struct Data
 {
-    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTJUSTIFICATION Used only for test purposes
     // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
     Data(uint32_t i, uint32_t j)
         : Data1(i)
@@ -68,7 +68,7 @@ class RelativePointer_test : public Test
 
     uint8_t* partitionPtr(uint32_t partition)
     {
-        // NOLINTJUSTIFICATION Ok-ish for tests
+        // NOLINTJUSTIFICATION Used only for test purposes
         // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index,
         // cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         return memoryPartition[partition];
@@ -76,7 +76,7 @@ class RelativePointer_test : public Test
         // cppcoreguidelines-pro-bounds-array-to-pointer-decay)
     }
 
-    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTJUSTIFICATION Used only for test purposes
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     uint8_t memoryPartition[NUMBER_OF_MEMORY_PARTITIONS][SHARED_MEMORY_SIZE]{{0}};
 };
@@ -122,6 +122,7 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
     }
 
     {
+        // No pointer arithmetic involved hence reinterpret_cast can be avoided
         auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr0));
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), 0);
@@ -152,6 +153,7 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
     }
 
     {
+        // No pointer arithmetic involved hence reinterpret_cast can be avoided
         auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr1));
         RelativePointer<TypeParam> rp(typedPtr);
         EXPECT_EQ(rp.getOffset(), 0);
@@ -207,6 +209,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
+        // No pointer arithmetic involved hence reinterpret_cast can be avoided
         auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr0));
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), 0U);
@@ -240,6 +243,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
 
     {
         RelativePointer<TypeParam> rp;
+        // No pointer arithmetic involved hence reinterpret_cast can be avoided
         auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr1));
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), 0);
@@ -292,6 +296,7 @@ TYPED_TEST(RelativePointer_test, IdAndOffsetAreTranslatedToRawPointerCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a29a074-d68d-4431-88b9-bdd26b1a41f7");
     auto* ptr = this->partitionPtr(0U);
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -315,6 +320,7 @@ TYPED_TEST(RelativePointer_test, GetOffsetReturnsCorrectOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b493337-ee55-498a-9cac-8bb5741f72f0");
     auto* ptr = this->partitionPtr(0U);
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -333,6 +339,7 @@ TYPED_TEST(RelativePointer_test, GetPtrReturnsAddressWithCorrectOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4fadf89f-69c0-4058-8995-a98e2e3334b2");
     auto* ptr = this->partitionPtr(0U);
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
     EXPECT_EQ(rp1.registerPtr(iox::rp::BaseRelativePointer::id_t{1U}, typedPtr), true);
@@ -349,6 +356,7 @@ TYPED_TEST(RelativePointer_test, GetPtrReturnsAddressWithCorrectOffset)
 TYPED_TEST(RelativePointer_test, RegisteringAndUnregisteringRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3f08ab46-c778-468a-bab1-ecd71aa800f4");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -364,6 +372,7 @@ TYPED_TEST(RelativePointer_test, UnRegisteringOneRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cc09122e-74e8-4d24-83ec-6500471becac");
     auto* ptr = this->partitionPtr(0U);
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -376,6 +385,8 @@ TYPED_TEST(RelativePointer_test, UnRegisteringOneRelativePointerWorks)
 TYPED_TEST(RelativePointer_test, UnregisteringAllRelativePointerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e793b3e8-5077-499d-b628-608ecfd91b9e");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
     auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
@@ -392,6 +403,7 @@ TYPED_TEST(RelativePointer_test, UnregisteringAllRelativePointerWorks)
 TYPED_TEST(RelativePointer_test, RegisterPtrWithIdFailsWhenTooLarge)
 {
     ::testing::Test::RecordProperty("TEST_ID", "87521383-6aea-4b43-a182-3a21499be710");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
     auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
@@ -405,6 +417,7 @@ TYPED_TEST(RelativePointer_test, RegisterPtrWithIdFailsWhenTooLarge)
 TYPED_TEST(RelativePointer_test, BasePointerIsSameAfterRegistering)
 {
     ::testing::Test::RecordProperty("TEST_ID", "40e649bc-b159-45ab-891f-2194a0dcf0e6");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -416,6 +429,7 @@ TYPED_TEST(RelativePointer_test, BasePointerIsSameAfterRegistering)
 TYPED_TEST(RelativePointer_test, AssignmentOperatorResultsInSameBasePointerIdAndOffset)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98e2eb78-ee5d-4d87-9753-5ac42b90b9d6");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     RelativePointer<TypeParam> rp1(typedPtr, iox::rp::BaseRelativePointer::id_t{1U});
@@ -431,6 +445,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorResultsInSameBasePointerIdAnd
 TYPED_TEST(RelativePointer_test, DereferencingOperatorResultsInSameValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d8c1105e-1041-418f-9327-27958f788119");
+    // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     *typedPtr = static_cast<TypeParam>(88);
@@ -449,7 +464,7 @@ TYPED_TEST(RelativePointer_test, MemoryRemappingWorks)
     ::testing::Test::RecordProperty("TEST_ID", "48452388-a7ac-486d-963d-c8d4e5eb55a0");
     constexpr size_t BLOCK_SIZE = 1024;
     // simulate 3 consecutive memory blocks on the stack
-    // NOLINTJUSTIFICATION Ok-ish for tests
+    // NOLINTJUSTIFICATION Used only for test purposes
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     uint8_t block1[BLOCK_SIZE];
     uint8_t block2[BLOCK_SIZE];

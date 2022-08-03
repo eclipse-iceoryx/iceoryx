@@ -21,7 +21,7 @@ namespace iox
 {
 namespace rp
 {
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept
     : m_id(id)
@@ -29,7 +29,7 @@ BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t id) noexcep
 {
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::BaseRelativePointer(const offset_t offset, const id_t id) noexcept
     : m_id(id)
@@ -106,21 +106,21 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_
     return getRepository().registerPtr(ptr, size);
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(static_cast<id_underlying_t>(id), ptr, size);
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::unregisterPtr(const id_t id) noexcept
 {
     return getRepository().unregisterPtr(static_cast<id_underlying_t>(id));
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr(const id_t id) noexcept
 {
@@ -132,7 +132,7 @@ void BaseRelativePointer::unregisterAll() noexcept
     getRepository().unregisterAll();
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, const_ptr_t ptr) noexcept
 {
@@ -146,7 +146,7 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, cons
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offset_t offset) noexcept
 {
@@ -169,7 +169,7 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::searchId(ptr_t ptr) no
     return getRepository().searchId(ptr);
 }
 
-// NOLINTJUSTIFICATION NewType is trivially copyable, hence pass by value is preferred
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::isValid(id_t id) noexcept
 {

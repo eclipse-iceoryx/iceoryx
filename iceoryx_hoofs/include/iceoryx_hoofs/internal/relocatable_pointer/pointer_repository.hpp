@@ -51,6 +51,9 @@ class PointerRepository
     static constexpr id_t MIN_ID{1U};
     static constexpr id_t MAX_ID{CAPACITY - 1U};
 
+    static_assert(MAX_ID >= MIN_ID, "MAX_ID must be greater or equal than MIN_ID!");
+    static_assert(CAPACITY >= 2, "CAPACITY must be at least 2!");
+
   public:
     static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
 
