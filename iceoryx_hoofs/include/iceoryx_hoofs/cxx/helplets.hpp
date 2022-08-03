@@ -204,13 +204,6 @@ const char* convertEnumToString(T port, const Enumeration source) noexcept
     return port[static_cast<size_t>(source)];
 }
 
-/// cast an enum to its underlying type
-template <typename EnumType>
-auto enumTypeAsUnderlyingType(EnumType const value) noexcept -> typename std::underlying_type<EnumType>::type
-{
-    return static_cast<typename std::underlying_type<EnumType>::type>(value);
-}
-
 /// @brief Get the capacity of a C array at compile time. This can be used to get the capacity
 /// of arrays defined by a third party.
 /// @code
