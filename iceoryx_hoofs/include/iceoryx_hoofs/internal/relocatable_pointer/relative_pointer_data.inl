@@ -23,10 +23,11 @@ namespace iox
 {
 namespace rp
 {
-constexpr RelativePointerData::RelativePointerData(id_t id, offset_t offset) noexcept
+// AXIVION Next Construct AutosarC++19_03-A12.1.2 : NSDMI with null value is more explicit
+constexpr RelativePointerData::RelativePointerData(identifier_t id, offset_t offset) noexcept
     : m_idAndOffset(static_cast<uint64_t>(id) | (offset << ID_BIT_SIZE))
 {
-    if (id > MAX_VALID_ID || offset > MAX_VALID_OFFSET)
+    if ((id > MAX_VALID_ID) || (offset > MAX_VALID_OFFSET))
     {
         m_idAndOffset = LOGICAL_NULLPTR;
     }

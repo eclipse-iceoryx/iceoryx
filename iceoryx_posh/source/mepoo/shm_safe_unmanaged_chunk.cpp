@@ -47,7 +47,7 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
         cxx::Ensures(id <= rp::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
         cxx::Ensures(offset <= rp::RelativePointerData::OFFSET_RANGE
                      && "RelativePointer offset must fit into offset type!");
-        m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::id_t>(id), offset);
+        m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::identifier_t>(id), offset);
     }
 }
 
