@@ -37,6 +37,7 @@ cstdio
 cstdlib
 cstring
 ctime
+functional
 initializer_list
 iomanip
 iostream
@@ -51,5 +52,6 @@ regex
 sstream
 string
 thread
+tuple
 type_traits
 utility
