@@ -93,8 +93,8 @@ by the `Impl` template parameter and the latter by deriving from the logger.
 
 #### Macro with lazy evaluation
 
-The buildup of the log message is only done when the log level is above the output
-threshold. This is accomplished by a macro with an incomplete if-statement.
+The buildup of the log message is only done when the condition to log the message
+is fulfilled. This is accomplished by a macro with an incomplete if-statement.
 
 ```cpp
 #define LAZY() if (cond)
@@ -158,7 +158,7 @@ The default console logger can be replaced at runtime to a custom logger which
 can be used to forward the log messages to a logger of another framework.
 
 This is done by deriving from the base `Logger` class and implementing the pure
-virtual `setupNewLogMessage` and `flush` methods. Finally, the derived logger
+virtual `createLogMessageHeader` and `flush` methods. Finally, the derived logger
 must be activated by calling the static `Logger::activeLogger` function and
 passing the new logger as argument to the function. The logger must have a static
 lifetime and should therefore be placed in the data segment.
@@ -200,7 +200,7 @@ public:
   void setLogLevel(LogLevel logLevel);
 protected:
   virtual void initLogger(LogLevel logLevel);
-  virtual void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel);
+  virtual void createLogMessageHeader(const char* file, const int line, const char* function, LogLevel logLevel);
   virtual void flush();
   std::tuple<const char*, uint64_t> getLogBuffer() const;
   void assumeFlushed();
@@ -333,7 +333,11 @@ class MyLogger : public iox::log::Logger
     }
 
   private:
-    void setupNewLogMessage(const char*, const int, const char*, iox::log::LogLevel logLevel) override
+    void createLogMessageHeader(
+        const char* file IOX_MAYBE_UNUSED,
+        const int line IOX_MAYBE_UNUSED,
+        const char* function IOX_MAYBE_UNUSED,
+        iox::log::LogLevel logLevel) override
     {
         switch(logLevel) {
             case iox::log::LogLevel::FATAL:

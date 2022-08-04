@@ -27,7 +27,7 @@ class ConsoleLogger {
   + void setLogLevel(LogLevel logLevel)
   # ConsoleLogger()
   # {abstract} void initLogger(LogLevel logLevel)
-  # {abstract} void setupNewLogMessage(const char* file, const int line, const char* function, LogLevel logLevel)
+  # {abstract} void createLogMessageHeader(const char* file, const int line, const char* function, LogLevel logLevel)
   # {abstract} void flush()
   # std::tuple<const char*, uint64_t> getLogBuffer() const
   # void assumeFlushed()

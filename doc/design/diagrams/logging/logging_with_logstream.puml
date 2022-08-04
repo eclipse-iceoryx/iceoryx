@@ -22,7 +22,7 @@ Logger -> loggerInstance **
 return
 return
 
-LogStream -> loggerInstance ++ : setupNewLogMessage
+LogStream -> loggerInstance ++ : createLogMessageHeader
 return
 
 return
