@@ -43,6 +43,10 @@
 ///     // END
 ///   };
 /// @endcode
+// NOLINTJUSTIFICATION brackets around macro parameter would lead in this case to compile time failures
+// NOLINTBEGIN(bugprone-macro-parentheses)
+// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_BUILDER_PARAMETER(type, name, defaultValue)                                                                \
   public:                                                                                                              \
     decltype(auto) name(type const& value)&&                                                                           \
@@ -59,5 +63,6 @@
                                                                                                                        \
   private:                                                                                                             \
     type m_##name{defaultValue};
+// NOLINTEND(bugprone-macro-parentheses)
 
 #endif
