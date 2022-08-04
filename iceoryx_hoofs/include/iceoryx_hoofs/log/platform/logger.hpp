@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,15 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "logging_internal.hpp"
+#ifndef IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
+#define IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
+
+#include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 
 namespace iox
 {
-namespace log
+namespace platform
 {
-// NOLINTNEXTLINE(readability-identifier-naming)
-constexpr char LoggingComponent::Ctx[];
-// NOLINTNEXTLINE(readability-identifier-naming)
-constexpr char LoggingComponent::Description[];
-} // namespace log
+using LogLevel = pbb::LogLevel;
+using pbb::asStringLiteral;
+using pbb::logLevelFromEnvOr;
+
+using Logger = pbb::Logger<pbb::ConsoleLogger>;
+using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
+
+} // namespace platform
 } // namespace iox
+
+#endif // IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP

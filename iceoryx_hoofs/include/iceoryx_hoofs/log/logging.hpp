@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,97 +13,46 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_LOG_LOGGING_HPP
 #define IOX_HOOFS_LOG_LOGGING_HPP
 
-#include "iceoryx_hoofs/log/logcommon.hpp"
-#include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
-
-#include <chrono>
-#include <string>
-
 namespace iox
 {
 namespace log
 {
-Logger& createLogger(const std::string& ctxId,
-                     const std::string& ctxDescription,
-                     const LogLevel appDefLogLevel = LogLevel::kWarn) noexcept;
+/// @brief Only for internal usage
+// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
+// NOLINTBEGIN(cppcoreguidelines-macro-usage)
+#define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
+    if ((level) <= iox::log::Logger::minimalLogLevel()                                                                 \
+        && (iox::log::Logger::ignoreLogLevel() || (level) <= iox::log::Logger::getLogLevel()))                         \
+    iox::log::LogStream(file, line, function, level).self()
 
-inline constexpr LogHex8 HexFormat(uint8_t value) noexcept
-{
-    return LogHex8(value);
-}
-inline constexpr LogHex8 HexFormat(int8_t value) noexcept
-{
-    return LogHex8(static_cast<uint8_t>(value));
-}
-inline constexpr LogHex16 HexFormat(uint16_t value) noexcept
-{
-    return LogHex16(value);
-}
-inline constexpr LogHex16 HexFormat(int16_t value) noexcept
-{
-    return LogHex16(static_cast<uint16_t>(value));
-}
-inline constexpr LogHex32 HexFormat(uint32_t value) noexcept
-{
-    return LogHex32(value);
-}
-inline constexpr LogHex32 HexFormat(int32_t value) noexcept
-{
-    return LogHex32(static_cast<uint32_t>(value));
-}
-inline constexpr LogHex64 HexFormat(uint64_t value) noexcept
-{
-    return LogHex64(value);
-}
-inline constexpr LogHex64 HexFormat(int64_t value) noexcept
-{
-    return LogHex64(static_cast<uint64_t>(value));
-}
+/// @brief Macro for logging
+/// @param[in] level is the log level to be used for the log message
+/// @code
+///     IOX_LOG(INFO) << "Hello World";
+/// @endcode
+// NOLINTJUSTIFICATION __PRETTY_FUNCTION__ would work better in lambdas but especially with templates the resulting
+// string is too large; we also get the file name and the line of the invocation which should be sufficient for
+// debugging
+// NOLINTBEGIN(bugprone-lambda-function-name)
+// NOLINTJUSTIFICATION needed for source code location, safely wrapped in macro
+// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay,-warnings-as-errors)
+#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
+// NOLINTEND(bugprone-lambda-function-name)
 
-inline constexpr LogBin8 BinFormat(uint8_t value) noexcept
-{
-    return LogBin8(value);
-}
-inline constexpr LogBin8 BinFormat(int8_t value) noexcept
-{
-    return LogBin8(static_cast<uint8_t>(value));
-}
-inline constexpr LogBin16 BinFormat(uint16_t value) noexcept
-{
-    return LogBin16(value);
-}
-inline constexpr LogBin16 BinFormat(int16_t value) noexcept
-{
-    return LogBin16(static_cast<uint16_t>(value));
-}
-inline constexpr LogBin32 BinFormat(uint32_t value) noexcept
-{
-    return LogBin32(value);
-}
-inline constexpr LogBin32 BinFormat(int32_t value) noexcept
-{
-    return LogBin32(static_cast<uint32_t>(value));
-}
-inline constexpr LogBin64 BinFormat(uint64_t value) noexcept
-{
-    return LogBin64(value);
-}
-inline constexpr LogBin64 BinFormat(int64_t value) noexcept
-{
-    return LogBin64(static_cast<uint64_t>(value));
-}
-
-template <typename T, typename std::enable_if<!std::is_pointer<T>::value, std::nullptr_t>::type = nullptr>
-inline constexpr LogRawBuffer RawBuffer(const T& value) noexcept
-{
-    // LogRawBuffer is used with the streaming operator which converts the data into a string,
-    // therefore we shouldn't get lifetime issues
-    return LogRawBuffer{reinterpret_cast<const uint8_t*>(&value), sizeof(T)};
-}
+/// @todo iox-#1345 for transition only; remove this macros
+#define LogFatal() IOX_LOG(FATAL)
+#define LogError() IOX_LOG(ERROR)
+#define LogWarn() IOX_LOG(WARN)
+#define LogInfo() IOX_LOG(INFO)
+#define LogDebug() IOX_LOG(DEBUG)
+#define LogTrace() IOX_LOG(TRACE)
+#define LogVerbose() IOX_LOG(TRACE)
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 } // namespace log
 } // namespace iox
