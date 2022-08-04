@@ -37,5 +37,8 @@ cc_test(
     }),
     tags = ["exclusive"],
     visibility = ["//visibility:private"],
-    deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
+    deps = [
+        "//iceoryx_dust",
+        "//iceoryx_hoofs:iceoryx_hoofs_testing",
+    ],
 )
