@@ -18,6 +18,8 @@
 #ifndef IOX_HOOFS_PLATFORM_SUPPORT_LOGGER_HPP
 #define IOX_HOOFS_PLATFORM_SUPPORT_LOGGER_HPP
 
+#include "iceoryx_hoofs/platform/time.hpp"
+
 #include <atomic>
 #include <cstdio>
 #include <cstring>
@@ -244,10 +246,16 @@ class ConsoleLogger
         }
 
         time_t time = timestamp.tv_sec;
+        // TODO move to platform
+#if defined(_WIN32)
+        // seems to be thread-safe on Windows
+        auto* timeInfo = localtime(&time);
+#else
         struct tm calendarData;
 
         // TODO check whether localtime_s would be the better solution
         auto* timeInfo = localtime_r(&time, &calendarData);
+#endif
         if (timeInfo == nullptr)
         {
             // TODO an error occurred; what to do next? return? don't use the timestamp? call error handler?
