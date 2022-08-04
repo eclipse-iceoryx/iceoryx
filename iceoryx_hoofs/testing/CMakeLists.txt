@@ -23,7 +23,6 @@
 iox_add_library(
     STATIC
     TARGET                  ${PROJECT_NAME}_testing
-    ${IOX_GTEST_GMOCK_INCLUDE}
     NAMESPACE               iceoryx_hoofs_testing
     PROJECT_PREFIX          ${PREFIX}
     PUBLIC_LIBS             ${IOX_GTEST_LIBS}
@@ -33,12 +32,13 @@ iox_add_library(
     PRIVATE_LIBS_LINUX      rt
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
-    ${IOX_EXPORT_GTEST_LIBS}
     FILES
         mocks/time_mock.cpp
         mocks/error_handler_mock.cpp
         timing_test.cpp
         compile_test.cpp
+    ${IOX_EXPORT_GTEST_LIBS} # ADDITIONAL_EXPORT_TARGETS Argument set on request
+    ${IOX_GTEST_GMOCK_INCLUDE} # PUBLIC_INCLUDES Argument set on request
 )
 
 if(TEST_WITH_ADDITIONAL_USER)
