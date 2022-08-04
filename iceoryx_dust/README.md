@@ -1,5 +1,5 @@
 
-# Eclipse iceoryx hoofs overview
+# Eclipse iceoryx dust overview
 
 Similar to iceoryx hoofs `iceoryx_dust` (**D**eemed **u**seful **s**oftware **t**hingies) is a library for basic building blocks.
 Compared to hoofs classes in `iceoryx_dust`, the difference is that the classes in dust only conform to quality level 2.

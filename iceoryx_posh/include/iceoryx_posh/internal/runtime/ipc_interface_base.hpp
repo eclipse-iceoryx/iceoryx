@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/platform/errno.hpp"
@@ -34,6 +33,8 @@
 
 #if defined(_WIN32)
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+#else
+#include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #endif
 
 #include <cstdint>
@@ -52,6 +53,8 @@ namespace platform
 {
 #if defined(_WIN32)
 using IoxIpcChannelType = iox::posix::NamedPipe;
+#else
+using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 #endif
 } // namespace platform
 namespace runtime
