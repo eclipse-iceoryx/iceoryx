@@ -51,6 +51,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Cla
     set(ICEORYX_C_WARNINGS PRIVATE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
     set(ICEORYX_CXX_WARNINGS PRIVATE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 
+    # ToDo: Enable compiler warning: https://github.com/eclipse-iceoryx/iceoryx/issues/1558
+    set(TEST_CXX_FLAGS -Wno-sign-compare)
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         set(ICEORYX_CXX_WARNINGS PRIVATE ${ICEORYX_CXX_WARNINGS} -Wuseless-cast)
     endif()
