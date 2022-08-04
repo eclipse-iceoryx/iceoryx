@@ -111,7 +111,7 @@ bool isValidFileCharacter(const int32_t i) noexcept
 
 constexpr uint64_t FILE_PATH_LENGTH = 128U;
 
-TEST_F(Helplets_test, maxSize)
+TEST_F(Helplets_test, MaxSizeWorksAsExpected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b3e938d-aec5-478d-b1c1-49ff2cc4e3ef");
     EXPECT_THAT(iox::cxx::maxSize<Foo>(), Eq(sizeof(Foo)));
@@ -127,7 +127,7 @@ TEST_F(Helplets_test, maxSize)
     EXPECT_THAT((iox::cxx::maxSize<FooBar, FuBar>()), Eq(sizeof(FooBar)));
 }
 
-TEST_F(Helplets_test, maxAlignment)
+TEST_F(Helplets_test, MaxAlignmentWorksAsExpected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7d5d3de1-f22c-47c1-b7fd-cacc35eef13c");
     EXPECT_THAT(iox::cxx::maxAlignment<Foo>(), Eq(alignof(Foo)));
@@ -143,7 +143,7 @@ TEST_F(Helplets_test, maxAlignment)
     EXPECT_THAT((iox::cxx::maxAlignment<FooBar, FuBar>()), Eq(alignof(FooBar)));
 }
 
-TEST_F(Helplets_test, arrayCapacityReturnsCorrectValues)
+TEST_F(Helplets_test, ArrayCapacityReturnsCorrectValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8392b2ba-04ef-45e6-8b47-4c0c90d98f61");
     constexpr uint64_t CAPACITY{42};
@@ -154,61 +154,61 @@ TEST_F(Helplets_test, arrayCapacityReturnsCorrectValues)
     EXPECT_EQ(iox::cxx::arrayCapacity(SUT), CAPACITY);
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint8WhenValueSmaller256)
+TEST_F(Helplets_test, BestFittingTypeUsesUint8WhenValueSmaller256)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6704aaf9-c0a4-495c-8128-15c126cbcd9b");
     EXPECT_TRUE((std::is_same<BestFittingType_t<123U>, uint8_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint8WhenValueEqualTo255)
+TEST_F(Helplets_test, BestFittingTypeUsesUint8WhenValueEqualTo255)
 {
     ::testing::Test::RecordProperty("TEST_ID", "10bbca50-95a7-436b-ab54-43b37cc7048f");
     EXPECT_TRUE((std::is_same<BestFittingType_t<255U>, uint8_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint16WhenValueEqualTo256)
+TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueEqualTo256)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d67306ff-c0cc-4769-9160-ef14e9f482dc");
     EXPECT_TRUE((std::is_same<BestFittingType_t<256U>, uint16_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint16WhenValueBetween256And65535)
+TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueBetween256And65535)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff50f669-d9d3-454f-9994-a4dd3a19029d");
     EXPECT_TRUE((std::is_same<BestFittingType_t<8172U>, uint16_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint16WhenValueEqualTo65535)
+TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueEqualTo65535)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b71d99b4-bd4e-46d6-8b22-6e796b611824");
     EXPECT_TRUE((std::is_same<BestFittingType_t<65535U>, uint16_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueEqualTo65536)
+TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueEqualTo65536)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe53df8e-a797-4547-8503-0ff5850ab22e");
     EXPECT_TRUE((std::is_same<BestFittingType_t<65536U>, uint32_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueBetween2p16And2p32)
+TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueBetween2p16And2p32)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f07b1301-faf1-4945-aab0-a7af0ac967d7");
     EXPECT_TRUE((std::is_same<BestFittingType_t<81721U>, uint32_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueEqualTo4294967295)
+TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueEqualTo4294967295)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f63335ef-c29f-49f0-bd77-ea9a548ef9fa");
     EXPECT_TRUE((std::is_same<BestFittingType_t<4294967295U>, uint32_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint64WhenValueEqualTo4294967296)
+TEST_F(Helplets_test, BestFittingTypeUsesUint64WhenValueEqualTo4294967296)
 {
     ::testing::Test::RecordProperty("TEST_ID", "23f6ff5c-4cad-440c-839f-bd6cde5fa5d4");
     EXPECT_TRUE((std::is_same<BestFittingType_t<4294967296U>, uint64_t>::value));
 }
 
-TEST_F(Helplets_test, bestFittingTypeUsesUint32WhenValueGreater2p32)
+TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueGreater2p32)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8fddfb4c-0efb-4b21-9b15-8f49af779f84");
     EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961U>, uint64_t>::value));
@@ -825,7 +825,7 @@ TEST(Helplets_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhenIt
 }
 
 
-TEST(Helplets_test_from, fromWorksAsConstexpr)
+TEST(Helplets_test_from, FromWorksAsConstexpr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b7cac32-c0ef-4f29-8314-59ed8850d1f5");
     constexpr A FROM_VALUE{A::A1};
@@ -834,7 +834,7 @@ TEST(Helplets_test_from, fromWorksAsConstexpr)
     EXPECT_EQ(SUT, TO_VALUE);
 }
 
-TEST(Helplets_test_into, intoWorksWhenFromIsSpecialized)
+TEST(Helplets_test_into, IntoWorksWhenFromIsSpecialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1d4331e5-f603-4e50-bdb2-75df57b0b517");
     constexpr A FROM_VALUE{A::A2};
