@@ -13,7 +13,7 @@
 
 #define IOX_RAISE(level, error) \
     if(requires_handling(eh::level)) \
-        eh::create_proxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
+        eh::createProxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
 
 #define IOX_FATAL(error) IOX_RAISE(FATAL, error)
 
@@ -21,12 +21,12 @@
 #define IOX_RAISE_IF(expr, level, error) \
     if(requires_handling(eh::level)) \
         if([&]() -> bool { return expr; }()) \
-             eh::create_proxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
+             eh::createProxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
 
 #define IOX_ASSERT(expr, error) \
     if(requires_handling(eh::FATAL)) \
         if([&]() -> bool { return !(expr); }()) \
-            eh::create_proxy(SOURCE_LOCATION, eh::FATAL, eh::create_error(error))
+            eh::createProxy(SOURCE_LOCATION, eh::FATAL, eh::create_error(error))
 
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, error) IOX_ASSERT(expr, error)

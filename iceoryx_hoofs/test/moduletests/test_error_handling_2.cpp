@@ -28,7 +28,7 @@ using B_Code = module_B::ErrorCode;
 using A_Error = module_A::Error;
 using A_Code = module_A::ErrorCode;
 
-static bool g_terminateCalled;
+bool g_terminateCalled;
 
 #ifdef TEST_PLATFORM
 // optional handlers to be used in addition
@@ -45,16 +45,16 @@ ThrowHandler& throwHandler()
 }
 
 template <typename Code>
-RuntimeError to_error(Code code)
+RuntimeError toError(Code code)
 {
     return RuntimeError::from_error(create_error(code));
 }
 #endif
 
-class EH_test : public Test
+class ErrorHandling_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
         // TODO this does not return so is not really useful to track terminate was called
         // (distinguish crash and terminate call - if not needed we can use death tests)
@@ -66,7 +66,7 @@ class EH_test : public Test
         ErrorHandler::reset();
 #endif
     }
-    virtual void TearDown()
+    void TearDown() override
     {
         std::set_terminate(terminateHandler);
     }
@@ -74,14 +74,14 @@ class EH_test : public Test
     std::terminate_handler terminateHandler;
 };
 
-TEST_F(EH_test, fatalError)
+TEST_F(ErrorHandling_test, fatalError)
 {
     // when we just want to abort the program (gracefully)
     // equivalent to IOX_RAISE(FATAL, code);
     IOX_FATAL(A_Code::Unknown);
 }
 
-TEST_F(EH_test, raiseSpecific)
+TEST_F(ErrorHandling_test, raiseSpecific)
 {
     // when we know and care about the specific error
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
@@ -89,13 +89,13 @@ TEST_F(EH_test, raiseSpecific)
     IOX_RAISE(FATAL, A_Code::OutOfMemory);
 }
 
-TEST_F(EH_test, raiseFromDifferentModules)
+TEST_F(ErrorHandling_test, raiseFromDifferentModules)
 {
     module_A::function();
     module_B::function();
 }
 
-TEST_F(EH_test, raiseConditionally)
+TEST_F(ErrorHandling_test, raiseConditionally)
 {
     // shorthand notation
     int x = 11;
@@ -105,7 +105,7 @@ TEST_F(EH_test, raiseConditionally)
     IOX_RAISE_IF(f, FATAL, B_Code::OutOfMemory);
 }
 
-TEST_F(EH_test, assertCondition)
+TEST_F(ErrorHandling_test, assertCondition)
 {
     // shorthand notation, always fatal
     int x = 10;
@@ -115,56 +115,56 @@ TEST_F(EH_test, assertCondition)
     IOX_ASSERT(f, A_Code::OutOfMemory);
 }
 
-TEST_F(EH_test, debugAssert)
+TEST_F(ErrorHandling_test, debugAssert)
 {
     // fatal but a NOOP in release mode (like assert but with
     // custom handling when active)
     IOX_DEBUG_ASSERT(false, A_Code::OutOfBounds);
 }
 
-TEST_F(EH_test, additionalOutput)
+TEST_F(ErrorHandling_test, additionalOutput)
 {
     // works with any macro but currently the underlying stream
     // is not exclusive stream for error handling (TODO)
     IOX_RAISE(FATAL, A_Code::OutOfMemory) << " additional error message " << 21 << "\n";
 }
 
-TEST_F(EH_test, conditionalAdditionalOutput)
+TEST_F(ErrorHandling_test, conditionalAdditionalOutput)
 {
     // add additional output if an error occurred
     IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds) << "this is printed\n";
     IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds) << "this is not\n";
 }
 
-TEST_F(EH_test, conditionalFunctionCall)
+TEST_F(ErrorHandling_test, conditionalFunctionCall)
 {
     // call some function custom arguments if an error occurred
     // syntactic sugar
     int x{0};
     auto f = [&](int a) { x = a; };
 
-    IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds).IF_RAISED(f, 21);
+    IOX_RAISE_IF(true, ERROR, A_Code::OutOfBounds).onError(f, 21);
     EXPECT_EQ(x, 21);
 
-    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds).IF_RAISED(f, 12);
+    IOX_RAISE_IF(false, ERROR, A_Code::OutOfBounds).onError(f, 12);
     EXPECT_EQ(x, 21);
 }
 
-TEST_F(EH_test, fullFunctionality)
+TEST_F(ErrorHandling_test, fullFunctionality)
 {
     int x = 10;
     int n = 0;
     auto f = [&](int a) { n += a; };
 
-    IOX_RAISE_IF(x <= 10, ERROR, A_Code::OutOfBounds).IF_RAISED(f, 5) << "this is printed\n";
-    IOX_RAISE_IF(x > 10, ERROR, A_Code::OutOfBounds).IF_RAISED(f, 3) << "this is not\n";
+    IOX_RAISE_IF(x <= 10, ERROR, A_Code::OutOfBounds).onError(f, 5) << "this is printed\n";
+    IOX_RAISE_IF(x > 10, ERROR, A_Code::OutOfBounds).onError(f, 3) << "this is not\n";
 
     EXPECT_EQ(n, 5);
 }
 
 // recovery proposoal (it is always possible to do it with conditionals in
 // a straightfoward way)
-TEST_F(EH_test, errorRecovery)
+TEST_F(ErrorHandling_test, errorRecovery)
 {
     using namespace iox::cxx;
 
@@ -175,8 +175,8 @@ TEST_F(EH_test, errorRecovery)
     auto tryRecover1 = [&](int a) { result = f(a); }; // retry, but this will fail again
     auto tryRecover2 = [&](int a) { result = a; };    // try an alternative algorithm
 
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover1, x);
-    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).IF_RAISED(tryRecover2, x);
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).onError(tryRecover1, x);
+    IOX_RAISE_IF(!result, ERROR, B_Code::Unknown).onError(tryRecover2, x);
     IOX_RAISE_IF(!result, FATAL, B_Code::Unknown) << "recovery failed";
 
     // can be made more elegant but already hides the branching
@@ -189,12 +189,12 @@ TEST_F(EH_test, errorRecovery)
 
 
 #ifdef TEST_PLATFORM
-TEST_F(EH_test, verifyError1)
+TEST_F(ErrorHandling_test, verifyError1)
 {
     // activate throwing behavior
     ErrorHandler::set(throwHandler());
 
-    auto expectedError = to_error(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory);
     try
     {
         // calling f which raises multiple errors would be a problem
@@ -212,12 +212,12 @@ TEST_F(EH_test, verifyError1)
 }
 
 // alternative with EXPECT_THROW check and rethrow
-TEST_F(EH_test, verifyError2)
+TEST_F(ErrorHandling_test, verifyError2)
 {
     // activate throwing behavior
     ErrorHandler::set(throwHandler());
 
-    auto expectedError = to_error(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory);
     EXPECT_THROW(
         {
             try
@@ -234,7 +234,7 @@ TEST_F(EH_test, verifyError2)
 }
 
 // alternative with custom bookkeeping of errors
-TEST_F(EH_test, verifyError3)
+TEST_F(ErrorHandling_test, verifyError3)
 {
     // ErrorHandler::finalize(); // will abort if we try to set the handler afterwards
     // activate
@@ -242,7 +242,7 @@ TEST_F(EH_test, verifyError3)
     ErrorHandler::set(handler);
     // set cannot fail so we know handler was set
 
-    auto expectedError = to_error(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory);
 
     EXPECT_EQ(handler.errors().count(expectedError), 0);
 

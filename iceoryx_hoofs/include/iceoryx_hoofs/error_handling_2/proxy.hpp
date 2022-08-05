@@ -21,34 +21,30 @@ struct ErrorProxy
     template <class Error>
     ErrorProxy(const SourceLocation& location, Level level, Error error)
     {
-        // TODO: stream can be a thread local (check new LogStream)
-        log(m_stream, location, level, error);
+        log(location, level, error);
         report(location, level, error);
     }
-
-    ErrorProxy(ErrorProxy&&)
-    {
-        // should not be used (exists for RVO in C++14)
-        std::terminate();
-    }
-
-    // it may throw if the user defined handler does
-    // this is dangerous (if used incorrectly) but well-defined: if a destructor throws
-    // while an exception is propagated, terminate is called
-    // immediately and no further propagation takes place
-    //
-    // this is no problem for us since we do not use exceptions in our
-    // handler and even if we do during testing (ONLY!) we should not have
-    // a problem as long as we never use IOX_RAISE in dtors
-    // for non-fatal errors
 
     ~ErrorProxy() noexcept(false)
     {
         raise();
     }
 
+    ErrorProxy(const ErrorProxy&) = delete;
+
+    // we can do without but then the macros get a little uglier
+    ErrorProxy(ErrorProxy&&) noexcept
+    {
+        // will not be used (exists for RVO in C++14)
+        std::terminate();
+    }
+
+    ErrorProxy& operator=(const ErrorProxy&) = delete;
+    ErrorProxy& operator=(ErrorProxy&&) = delete;
+
+
     template <class F, class... Args>
-    ErrorProxy& IF_RAISED(const F& f, Args&&... args)
+    ErrorProxy& onError(const F& f, Args&&... args)
     {
         f(std::forward<Args>(args)...);
         return *this;
@@ -57,23 +53,19 @@ struct ErrorProxy
     template <class T>
     ErrorProxy& operator<<(const T& value)
     {
-        m_stream << value;
+        errorStream() << value;
         return *this;
     }
 
   private:
-    // TODO: optimization where it only has a stream when needed by operator <<
-    //       (is this possible?)
-    ErrorStream m_stream;
-
     void raise()
     {
-        std::cout << m_stream.str(); // flush to logger
+        flush();
         if (is_fatal<Level>::value)
         {
-            preterminate(); // hook exists
+            preterminate(); // hook
 #ifndef TEST_PLATFORM
-            // TODO: how to deal ensure it cannot be overridden but also is not active in (all) tests?
+            // TODO: how to ensure it cannot be overridden but also is not active in (all) tests?
             //       do we want to make it available in platform as hook?
             terminate();
 #endif
@@ -82,7 +74,7 @@ struct ErrorProxy
 };
 
 template <class Level, class Error>
-auto create_proxy(const SourceLocation& location, Level level, const Error& error)
+auto createProxy(const SourceLocation& location, Level level, const Error& error)
 {
     return ErrorProxy<Level>(location, level, error);
 }
