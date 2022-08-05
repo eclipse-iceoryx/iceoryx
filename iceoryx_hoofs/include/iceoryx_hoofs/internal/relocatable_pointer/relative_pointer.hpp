@@ -51,7 +51,7 @@ class RelativePointer : public BaseRelativePointer
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    RelativePointer(ptr_t ptr) noexcept;
+    explicit RelativePointer(ptr_t ptr) noexcept;
 
     /// @brief assigns the RelativePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -62,20 +62,10 @@ class RelativePointer : public BaseRelativePointer
     /// @tparam U a template parameter to enable the dereferencing operator only for non-void T
     /// @return a reference to the underlying object
     template <typename U = T>
-    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*() noexcept;
-
-    /// @brief access to the underlying object
-    /// @return a pointer to the underlying object
-    T* operator->() noexcept;
-
-    /// @brief dereferencing operator which returns a const reference to the underlying object
-    /// @tparam U a template parameter to enable the dereferencing operator only for non-void T
-    /// @return a const reference to the underlying object
-    template <typename U = T>
     typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept;
 
     /// @brief read-only access to the underlying object
-    /// @return a const pointer to the underlying object
+    /// @return a pointer to the underlying object
     T* operator->() const noexcept;
 
     /// @brief access the underlying object

@@ -76,8 +76,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
-                this->setSegmentId(iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
-                                                                             sharedMemoryObject.getSizeInBytes()));
+                this->setSegmentId(static_cast<uint64_t>(iox::rp::BaseRelativePointer::registerPtr(
+                    sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes())));
 
                 LogDebug() << "Roudi registered payload data segment "
                            << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))

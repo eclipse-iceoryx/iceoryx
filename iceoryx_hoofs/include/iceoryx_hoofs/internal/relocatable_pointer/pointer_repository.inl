@@ -40,10 +40,11 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t
     if (m_info[id].basePtr == nullptr)
     {
         m_info[id].basePtr = ptr;
-        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back to the
-        // original type
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back to
+        // the original type
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
+
         if (id > m_maxRegistered)
         {
             m_maxRegistered = id;
@@ -61,10 +62,11 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t pt
         if (m_info[id].basePtr == nullptr)
         {
             m_info[id].basePtr = ptr;
-            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back to
-            // the original type
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back
+            // to the original type
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
+
             if (id > m_maxRegistered)
             {
                 m_maxRegistered = id;
@@ -73,7 +75,7 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t pt
         }
     }
 
-    return INVALID_ID;
+    return id_t{INVALID_ID};
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>

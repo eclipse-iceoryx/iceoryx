@@ -43,7 +43,7 @@ Don't get too frightened of the API when strolling through the examples. Think o
 "plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
 instead the typed C++ API. The normal use case is that iceoryx is integrated as high-performance IPC transport layer in
 a bigger framework with additional API layers.
-An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Others are listed in the next section.
+An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/).
 
 You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io). <!--NOLINT explicit link to website-->
 
@@ -116,13 +116,14 @@ Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) for a quick read-up abo
 
 Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md](./PLANNED_FEATURES.md).
 
-## Innovations enabled by iceoryx
+## Bindings and innovations enabled by iceoryx
 
-|Name | Description | Technologies |
-|---|---|---|
-| [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
-| [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
-| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
+|Name                                                                                 | Description                                                      | Technologies |
+|-------------------------------------------------------------------------------------|------------------------------------------------------------------|--------------|
+| [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs)                         | Rust binding for iceoryx                                         | Rust         |
+| [iceoryx-automotive-soa](https://github.com/eclipse-iceoryx/iceoryx-automotive-soa) | Binding for automotive frameworks like AUTOSAR Adaptive ara::com | C++          |
+| [iceray](https://github.com/elBoberido/iceray)                                      | An iceoryx introspection client written in Rust                  | Rust         |
+| [Larry.Robotics](https://gitlab.com/larry.robotics)                                 | An iceoryx demonstrator for tinker, thinker and toddler          | Demonstrator |
 
 ## Frequently Asked Questions (FAQ)
 
