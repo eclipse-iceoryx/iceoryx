@@ -22,6 +22,7 @@ project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
 find_package(Threads REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
+find_package(iceoryx_dust REQUIRED)
 
 option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module" ON)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
