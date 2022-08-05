@@ -105,7 +105,7 @@ constexpr auto dereferencingReturns()
 
 struct Data
 {
-    Data(uint32_t value = 0)
+    explicit Data(uint32_t value = 0)
         : value(value)
     {
     }
@@ -115,7 +115,7 @@ struct Data
 class RelocatableType
 {
   public:
-    RelocatableType(int value)
+    explicit RelocatableType(int value)
         : data(value)
         , rp(&this->data)
     {
@@ -479,10 +479,6 @@ TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
     {
         GTEST_FAIL();
     }
-    else
-    {
-        GTEST_SUCCEED();
-    }
 }
 
 TEST_F(Relocatable_ptr_test, dereferencingWorks)
@@ -535,12 +531,16 @@ TEST_F(Relocatable_ptr_test, relocationWorks)
     ::testing::Test::RecordProperty("TEST_ID", "b1b85836-2a4f-4859-a8f9-796e20fbb735");
     using T = RelocatableType;
     using storage_t = std::aligned_storage<sizeof(T), alignof(T)>::type;
-    storage_t sourceStorage, destStorage;
+    storage_t sourceStorage;
+    storage_t destStorage;
 
     void* sourcePtr = new (&sourceStorage) T(37);
     void* destPtr = &destStorage;
+    // NOLINTJUSTIFICATION explicit cast to void* required for memcpy of relocatable type with copy ctor
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
     T* source = reinterpret_cast<T*>(sourcePtr);
     T* dest = reinterpret_cast<T*>(destPtr);
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
     EXPECT_EQ(source->data, 37);
     EXPECT_EQ(*source->rp, 37);

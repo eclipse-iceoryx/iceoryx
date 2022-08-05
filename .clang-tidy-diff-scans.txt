@@ -16,6 +16,8 @@
 ./iceoryx_hoofs/test/moduletests/test_concurrent_sofi.cpp
 ./iceoryx_hoofs/test/stresstests/test_stress_sofi.cpp
 ./iceoryx_hoofs/source/relocatable_pointer/relative_pointer_data.cpp
+./iceoryx_hoofs/test/moduletests/test_relative_pointer_data.cpp
+./iceoryx_hoofs/include/iceoryx_hoofs/test/moduletests/test_relocatable_ptr.cpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*
