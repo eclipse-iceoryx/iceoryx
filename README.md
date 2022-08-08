@@ -122,6 +122,7 @@ Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md]
 |-------------------------------------------------------------------------------------|------------------------------------------------------------------|--------------|
 | [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs)                         | Rust binding for iceoryx                                         | Rust         |
 | [iceoryx-automotive-soa](https://github.com/eclipse-iceoryx/iceoryx-automotive-soa) | Binding for automotive frameworks like AUTOSAR Adaptive ara::com | C++          |
+| [iceoryx-gateway-dds](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds)       | Gateway for Cyclone DDS                                          | DDS          |
 | [iceray](https://github.com/elBoberido/iceray)                                      | An iceoryx introspection client written in Rust                  | Rust         |
 | [Larry.Robotics](https://gitlab.com/larry.robotics)                                 | An iceoryx demonstrator for tinker, thinker and toddler          | Demonstrator |
 

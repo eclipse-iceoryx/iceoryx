@@ -46,7 +46,6 @@ if(BUILD_DOC)
     return()
 endif()
 
-
 # ===== Extras
 if(INTROSPECTION)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../tools/introspection ${CMAKE_BINARY_DIR}/iceoryx_introspection)

@@ -15,14 +15,6 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
 - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool (only for Linux, QNX and MacOS).
 
-#### Optional, Cyclone DDS Gateway
-
-The Cyclone DDS gateway depends currently on [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds).
-When building it with the CMake option `-DDDS_GATEWAY=ON` it will be automatically installed as a dependency.
-Furthermore, you have to install:
-
-- [GNU Bison](https://www.gnu.org/software/bison/manual/), 3.0.4 or later
-
 ### Mac OS
 
 Before installing iceoryx you need to install XCode and git. Optionally, ncurses library is required for
