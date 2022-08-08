@@ -103,7 +103,6 @@ Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of th
 | iceoryx_dust          | 2             | 2                 | 2                                       |
 | iceoryx_binding_c     | 2             | 2                 | 2                                       |
 | iceoryx_examples      | 5             | 4                 | 4                                       |
-| iceoryx_dds           | 4             | 4                 | 4                                       |
 | iceoryx_introspection | 5             | 4                 | 4                                       |
 | iceoryx_meta          | 5             | 5                 | 5                                       |
 
