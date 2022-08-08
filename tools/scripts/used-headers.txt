@@ -51,6 +51,5 @@ regex
 sstream
 string
 thread
-tuple
 type_traits
 utility

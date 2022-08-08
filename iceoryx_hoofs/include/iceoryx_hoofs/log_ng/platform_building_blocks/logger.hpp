@@ -25,7 +25,6 @@
 #include <cstring>
 #include <ctime>
 #include <mutex>
-#include <tuple>
 
 namespace iox
 {
@@ -206,6 +205,12 @@ class Logger : public LoggerImpl
     static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 };
 
+struct LogBuffer
+{
+    const char* buffer;
+    uint64_t writeIndex;
+};
+
 class ConsoleLogger
 {
   private:
@@ -315,9 +320,9 @@ class ConsoleLogger
         assumeFlushed();
     };
 
-    std::tuple<const char*, uint64_t> getLogBuffer() const
+    LogBuffer getLogBuffer() const
     {
-        return std::make_tuple(m_buffer, m_bufferWriteIndex);
+        return LogBuffer{m_buffer, m_bufferWriteIndex};
     }
 
     void assumeFlushed()
