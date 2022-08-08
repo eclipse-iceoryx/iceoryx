@@ -197,8 +197,7 @@ constexpr size_t maxSize() noexcept
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
-/// @brief Get the capacity of a C array at compile time. This can be used to get the capacity
-/// of arrays defined by a third party.
+/// @brief Get the capacity of a C array at compile time
 /// @code
 /// constexpr uint32_t FOO[42]{};
 /// std::cout << arrayCapacity(FOO) << std::endl; // will print 42
