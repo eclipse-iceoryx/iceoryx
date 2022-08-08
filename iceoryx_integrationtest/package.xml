@@ -18,6 +18,7 @@
   <test_depend>iceoryx_binding_c</test_depend>
   <test_depend>iceoryx_posh</test_depend>
   <test_depend>iceoryx_hoofs</test_depend>
+  <test_depend>iceoryx_dust</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

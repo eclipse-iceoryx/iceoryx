@@ -89,7 +89,10 @@ cc_library(
     ],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
-    deps = ["//iceoryx_hoofs"],
+    deps = [
+        "//iceoryx_dust",
+        "//iceoryx_hoofs",
+    ],
 )
 
 #

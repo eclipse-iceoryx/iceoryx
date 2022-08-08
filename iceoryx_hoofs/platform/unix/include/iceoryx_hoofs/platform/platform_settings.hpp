@@ -21,11 +21,6 @@
 
 namespace iox
 {
-namespace posix
-{
-class UnixDomainSocket;
-} // namespace posix
-
 namespace platform
 {
 /// defined in the man sem_overview
@@ -41,7 +36,6 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/'};
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024;
 constexpr const char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
 constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "/tmp/";
-using IoxIpcChannelType = iox::posix::UnixDomainSocket;
 } // namespace platform
 } // namespace iox
 

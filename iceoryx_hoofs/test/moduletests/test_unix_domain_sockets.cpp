@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32)
-#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"

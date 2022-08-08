@@ -20,7 +20,7 @@
 //! [include publisher]
 #include "iceoryx_posh/popo/publisher.hpp"
 //! [include publisher]
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <iostream>

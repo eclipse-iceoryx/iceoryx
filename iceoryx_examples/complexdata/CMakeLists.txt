@@ -20,6 +20,7 @@ project(example_complexdata)
 
 include(GNUInstallDirs)
 
+find_package(iceoryx_dust CONFIG REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 

@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
+#include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"

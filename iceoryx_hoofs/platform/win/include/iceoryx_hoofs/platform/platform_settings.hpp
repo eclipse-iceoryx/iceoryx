@@ -20,11 +20,6 @@
 
 namespace iox
 {
-namespace posix
-{
-class NamedPipe;
-}
-
 namespace platform
 {
 /// defined so that it is consistent to linux
@@ -41,7 +36,6 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/', 
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\Windows\\Temp\\";
-using IoxIpcChannelType = iox::posix::NamedPipe;
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 128U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 

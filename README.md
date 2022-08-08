@@ -96,15 +96,16 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of the quality measures according to ROS 2 guidelines.
 
-|CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS | Comment                             |
-|-----------------------|:-------------:|:-----------------:|:---------------------------------------:|:-----------------------------------:|
-| iceoryx_hoofs         | 2             | 1+                | 1                                       | Except code in the namespace `aux`  |
-| iceoryx_posh          | 2             | 1+, 2             | 1                                       | Except code in the namespace `aux`  |
-| iceoryx_binding_c     | 2             | 1+                | 1                                       |                                     |
-| iceoryx_examples      | 5             | 4                 | 4                                       | All example code in this folder     |
-| iceoryx_dds           | 4             | 4                 | 4                                       |                                     |
-| iceoryx_introspection | 5             | 4                 | 4                                       |                                     |
-| iceoryx_meta          | 5             | 5                 | 5                                       |                                     |
+|CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS |
+|-----------------------|:-------------:|:-----------------:|:---------------------------------------:|
+| iceoryx_hoofs         | 2             | 1+                | 1                                       |
+| iceoryx_posh          | 2             | 1+, 2             | 1                                       |
+| iceoryx_dust          | 2             | 2                 | 2                                       |
+| iceoryx_binding_c     | 2             | 2                 | 2                                       |
+| iceoryx_examples      | 5             | 4                 | 4                                       |
+| iceoryx_dds           | 4             | 4                 | 4                                       |
+| iceoryx_introspection | 5             | 4                 | 4                                       |
+| iceoryx_meta          | 5             | 5                 | 5                                       |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 

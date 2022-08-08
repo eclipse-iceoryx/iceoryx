@@ -46,7 +46,6 @@ iox_add_library(
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES
-        source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp
         source/cxx/deadline_timer.cpp
@@ -57,7 +56,6 @@ iox_add_library(
         source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/file_reader/file_reader.cpp
         source/log/hoofs_logging.cpp
         source/log/logcommon.cpp
         source/log/logger.cpp
@@ -67,9 +65,7 @@ iox_add_library(
         source/log/logstream.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
-        source/posix_wrapper/message_queue.cpp
         source/posix_wrapper/mutex.cpp
-        source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/named_semaphore.cpp
         source/posix_wrapper/posix_access_rights.cpp
         source/posix_wrapper/semaphore_interface.cpp
@@ -78,7 +74,6 @@ iox_add_library(
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
-        source/posix_wrapper/signal_watcher.cpp
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
         source/posix_wrapper/types.cpp

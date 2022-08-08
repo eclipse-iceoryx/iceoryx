@@ -47,10 +47,6 @@ package iceoryx_hoofs  {
 
       }
       component posix <<namespace>>
-
-      ' Building blocks which only meet quality level 5
-      ' Can be analysed with tools/analyse_blacklisted_namespaces_in_binary.sh
-      ' component aux <<namespace>>
    }
 }
 

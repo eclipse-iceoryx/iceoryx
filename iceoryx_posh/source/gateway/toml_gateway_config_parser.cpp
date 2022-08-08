@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
-#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
+#include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_posh/internal/log/posh_config_logging.hpp"
 
 #include <cpptoml.h>

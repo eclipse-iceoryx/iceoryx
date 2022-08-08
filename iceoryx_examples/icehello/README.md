@@ -65,7 +65,7 @@ In iceoryx, a publisher and a subscriber are connected only if all three IDs mat
 For exiting on Ctrl+C, we use the `SignalWatcher`
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include sig watcher]-->
 ```cpp
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 ```
 
 and loop in our `while` loop until it states that `SIGINT` or `SIGTERM` was sent via
@@ -125,7 +125,7 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 ```cpp
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 ```
