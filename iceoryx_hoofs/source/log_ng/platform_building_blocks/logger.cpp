@@ -17,6 +17,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log_ng/platform_building_blocks/logger.hpp"
+#include "iceoryx_hoofs/log_ng/platform_building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log_ng/platform_building_blocks/logcommon.hpp"
 
 #include <atomic>
 
@@ -32,7 +34,7 @@ std::atomic<LogLevel> ConsoleLogger::m_activeLogLevel{LogLevel::INFO};
 thread_local char ConsoleLogger::m_buffer[ConsoleLogger::NULL_TERMINATED_BUFFER_SIZE]{0};
 thread_local uint32_t ConsoleLogger::m_bufferWriteIndex{0U};
 
-LogLevel logLevelFromEnvOr(const LogLevel logLevel)
+LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
 {
     if (const auto* logLevelString = std::getenv("IOX_LOG_LEVEL"))
     {

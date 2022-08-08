@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +24,6 @@ namespace iox
 namespace log
 {
 using LogLevel = platform::LogLevel;
-using platform::asStringLiteral;
 using platform::logLevelFromEnvOr;
 
 using Logger = platform::Logger;

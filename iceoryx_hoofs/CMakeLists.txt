@@ -63,6 +63,7 @@ iox_add_library(
         source/log/logging.cpp
         source/log/logmanager.cpp
         source/log/logstream.cpp
+        source/log_ng/platform_building_blocks/console_logger.cpp
         source/log_ng/platform_building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
