@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,8 +144,8 @@ void Logger::Print(const LogEntry& entry) noexcept
     auto milliseconds = entry.time.count() % 1000;
     buffer << "\033[0;90m" << std::put_time(timeInfo, "%Y-%m-%d %H:%M:%S");
     buffer << "." << std::right << std::setfill('0') << std::setw(3) << milliseconds << " ";
-    buffer << LogLevelColor[cxx::enumTypeAsUnderlyingType(entry.level)]
-           << LogLevelText[cxx::enumTypeAsUnderlyingType(entry.level)];
+    auto index = static_cast<uint64_t>(entry.level);
+    buffer << LogLevelColor[index] << LogLevelText[index];
     buffer << "\033[m: " << entry.message << std::endl;
     std::clog << buffer.str();
 }

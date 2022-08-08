@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -165,7 +165,10 @@ inline void ListenerImpl<Capacity>::threadLoop() noexcept
     {
         auto activateNotificationIds = m_conditionListener.wait();
 
-        cxx::forEach(activateNotificationIds, [this](auto id) { m_events[id]->executeCallback(); });
+        for (auto& id : activateNotificationIds)
+        {
+            m_events[id]->executeCallback();
+        }
     }
 }
 

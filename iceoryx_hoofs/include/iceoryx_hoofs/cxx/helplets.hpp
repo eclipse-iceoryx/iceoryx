@@ -197,44 +197,21 @@ constexpr size_t maxSize() noexcept
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
-/// Convert Enum class type to string
-template <typename T, typename Enumeration>
-const char* convertEnumToString(T port, const Enumeration source) noexcept
-{
-    return port[static_cast<size_t>(source)];
-}
-
-/// cast an enum to its underlying type
-template <typename EnumType>
-auto enumTypeAsUnderlyingType(EnumType const value) noexcept -> typename std::underlying_type<EnumType>::type
-{
-    return static_cast<typename std::underlying_type<EnumType>::type>(value);
-}
-
-/// calls a given functor for every element in a given container
-/// @tparam[in] Container type which must be iteratable
-/// @tparam[in] Functor which has one argument, the element type of the container
-/// @param[in] c container which should be iterated
-/// @param[in] f functor which should be applied to every element
-template <typename Container, typename Functor>
-void forEach(Container& c, const Functor& f) noexcept
-{
-    for (auto& element : c)
-    {
-        f(element);
-    }
-}
-
-/// @brief Get the size of a string represented by a char array at compile time.
-/// @tparam The size of the char array filled out by the compiler.
-/// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
-/// @return Returns the size of a char array at compile time.
-template <uint64_t SizeValue>
-// returning capacity of c array at compile time is safe, no possibility of out of bounds access
+/// @brief Get the capacity of a C array at compile time
+/// @code
+/// constexpr uint32_t FOO[42]{};
+/// std::cout << arrayCapacity(FOO) << std::endl; // will print 42
+/// @endcode
+/// @tparam T the type of the array filled out by the compiler.
+/// @tparam CapacityValue the capacity of the array filled out by the compiler.
+/// @param[in] The actual content of the array is not of interest. Its just the capacity of the array that matters.
+/// @return Returns the capacity of the array at compile time.
+template <typename T, uint64_t CapacityValue>
+// returning capacity of C array at compile time is safe, no possibility of out of bounds access
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue]) noexcept
+static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityValue]) noexcept
 {
-    return SizeValue - 1;
+    return CapacityValue;
 }
 
 /// @brief get the best fitting unsigned integer type for a given value at compile time

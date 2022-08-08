@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -75,8 +75,8 @@ void LogManager::SetDefaultLogLevel(const LogLevel logLevel, const LogLevelOutpu
 
     if (logLevelOutput == LogLevelOutput::kDisplayLogLevel)
     {
-        std::clog << "Log level set to: " << LogLevelColor[cxx::enumTypeAsUnderlyingType(logLevel)]
-                  << LogLevelText[cxx::enumTypeAsUnderlyingType(logLevel)] << "\033[m" << std::endl;
+        auto index = static_cast<uint64_t>(logLevel);
+        std::clog << "Log level set to: " << LogLevelColor[index] << LogLevelText[index] << "\033[m" << std::endl;
     }
 }
 
