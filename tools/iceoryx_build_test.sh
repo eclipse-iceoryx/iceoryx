@@ -39,7 +39,6 @@ TEST_FLAG="OFF"
 COV_FLAG="OFF"
 TEST_SCOPE="all" #possible values for test scope: 'all', 'unit', 'integration'
 RUN_TEST=false
-DDS_GATEWAY_FLAG="OFF"
 BINDING_C_FLAG="ON"
 ONE_TO_MANY_ONLY_FLAG="OFF"
 SANITIZE_FLAG="OFF"
@@ -111,11 +110,6 @@ while (( "$#" )); do
     "test-add-user")
         TEST_ADD_USER="ON"
         "$WORKSPACE"/tools/scripts/add_test_users.sh check
-        shift 1
-        ;;
-    "dds-gateway")
-        echo " [i] Including DDS gateway in build"
-        DDS_GATEWAY_FLAG="ON"
         shift 1
         ;;
     "binding-c")
@@ -288,7 +282,6 @@ if [ "$NO_BUILD" == false ]; then
           -DEXAMPLES=$EXAMPLE_FLAG \
           -DTOML_CONFIG=$TOML_FLAG \
           -DBUILD_DOC=$BUILD_DOC \
-          -DDDS_GATEWAY=$DDS_GATEWAY_FLAG \
           -DBINDING_C=$BINDING_C_FLAG \
           -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
           -DBUILD_SHARED_LIBS=$BUILD_SHARED \
