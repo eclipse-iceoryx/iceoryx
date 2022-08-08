@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log_ng/logger.hpp"
 
-#include <functional>
 #include <string>
 
 namespace iox
@@ -176,10 +176,11 @@ class LogStream
         return *this;
     }
 
-    // TODO this is something we might want to have in cxx::function_ref to avoid the dependency to std::function
-    using CallableSignature = LogStream&(LogStream&);
+    /// @code
+    /// IOX_LOG(INFO) << "#### Hello " << [] (auto& stream) -> auto& { stream << "World"; return stream; };
+    /// @endcode
     template <typename Callable,
-              typename = std::enable_if_t<std::is_convertible<Callable&&, std::function<CallableSignature>>::value>>
+              typename = std::enable_if_t<cxx::is_invocable_r<LogStream&, Callable, LogStream&>::value>>
     LogStream& operator<<(const Callable&& c)
     {
         return c(*this);
