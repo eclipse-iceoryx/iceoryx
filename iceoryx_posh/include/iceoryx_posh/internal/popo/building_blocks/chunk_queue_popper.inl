@@ -118,7 +118,8 @@ inline void ChunkQueuePopper<ChunkQueueDataType>::clear() noexcept
 {
     while (auto maybeUnmanagedChunk = getMembers()->m_queue.pop())
     {
-        // PRQA S 4117 4 # d'tor of SharedChunk will release the memory, so RAII has the side effect here
+        // AXIVION Next Construct AutosarC++19_03-A0.1.2 : d'tor of SharedChunk will release the memory, so RAII has the
+        // side effect here and return value does not need to be evaluated
         maybeUnmanagedChunk.value().releaseToSharedChunk();
     }
 }
