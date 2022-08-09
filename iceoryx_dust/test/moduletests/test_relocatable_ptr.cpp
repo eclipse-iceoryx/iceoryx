@@ -484,9 +484,10 @@ TYPED_TEST(Relocatable_ptr_typed_test, positiveNullPointerCheckWithIfWorks)
 TEST_F(Relocatable_ptr_test, dereferencingWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ea67f218-6ff8-4a82-a81e-52ae988546dc");
-    int x = 666;
+    constexpr int VALUE = 666;
+    int x = VALUE;
     iox::rp::relocatable_ptr<int> rp(&x);
-    EXPECT_EQ(*rp, x);
+    EXPECT_EQ(*rp, VALUE);
 
     constexpr bool isNotConst = dereferencingReturns<decltype(rp), int&>();
     EXPECT_TRUE(isNotConst);
@@ -495,9 +496,10 @@ TEST_F(Relocatable_ptr_test, dereferencingWorks)
 TEST_F(Relocatable_ptr_test, dereferencingConstWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "64a7e44e-b9eb-428a-bd50-3bd9e14400bc");
-    int x = 314;
+    constexpr int VALUE = 314;
+    int x = VALUE;
     const iox::rp::relocatable_ptr<int> rp(&x);
-    EXPECT_EQ(*rp, x);
+    EXPECT_EQ(*rp, VALUE);
 
     constexpr bool isConst = dereferencingReturns<decltype(rp), const int&>();
     EXPECT_TRUE(isConst);
@@ -506,7 +508,8 @@ TEST_F(Relocatable_ptr_test, dereferencingConstWorks)
 TEST_F(Relocatable_ptr_test, dereferencingComplexTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e4a2bda1-c3f2-424e-b6dd-a4da6703b699");
-    Data x(69);
+    constexpr int VALUE = 69;
+    Data x(VALUE);
     iox::rp::relocatable_ptr<Data> rp(&x);
     EXPECT_EQ((*rp).value, x.value);
     EXPECT_EQ(rp->value, x.value);
@@ -515,7 +518,8 @@ TEST_F(Relocatable_ptr_test, dereferencingComplexTypeWorks)
 TEST_F(Relocatable_ptr_test, dereferencingConstComplexTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b60f0fd5-ff9b-40a5-ad0d-d13965eff578");
-    Data x(42);
+    constexpr int VALUE = 69;
+    Data x(VALUE);
     const iox::rp::relocatable_ptr<Data> rp(&x);
     EXPECT_EQ((*rp).value, x.value);
     EXPECT_EQ(rp->value, x.value);
@@ -534,7 +538,10 @@ TEST_F(Relocatable_ptr_test, relocationWorks)
     storage_t sourceStorage;
     storage_t destStorage;
 
-    void* sourcePtr = new (&sourceStorage) T(37);
+    constexpr uint32_t SOURCE_VALUE{37};
+    constexpr uint32_t NEW_VALUE{73};
+
+    void* sourcePtr = new (&sourceStorage) T(SOURCE_VALUE);
     void* destPtr = &destStorage;
     // NOLINTJUSTIFICATION explicit cast to void* required for memcpy of relocatable type with copy ctor
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -542,22 +549,22 @@ TEST_F(Relocatable_ptr_test, relocationWorks)
     T* dest = reinterpret_cast<T*>(destPtr);
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 
-    EXPECT_EQ(source->data, 37);
-    EXPECT_EQ(*source->rp, 37);
+    EXPECT_EQ(source->data, SOURCE_VALUE);
+    EXPECT_EQ(*source->rp, SOURCE_VALUE);
 
     // structure is relocated by memcopy
     std::memcpy(destPtr, sourcePtr, sizeof(T));
     source->clear();
 
     EXPECT_EQ(source->data, 0);
-    EXPECT_EQ(dest->data, 37);
+    EXPECT_EQ(dest->data, SOURCE_VALUE);
 
     // points to relocated data automatically
-    EXPECT_EQ(*dest->rp, 37);
-    dest->data = 73;
+    EXPECT_EQ(*dest->rp, SOURCE_VALUE);
+    dest->data = NEW_VALUE;
 
     EXPECT_EQ(source->data, 0);
-    EXPECT_EQ(*dest->rp, 73);
+    EXPECT_EQ(*dest->rp, NEW_VALUE);
 
     source->~T();
     dest->~T();
