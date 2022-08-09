@@ -36,6 +36,8 @@ enum class LogLevel : uint8_t
     // optimize this out and there wouldn't be a performance hit
 };
 
+// NOLINTJUSTIFICATION used for fast string literal lookup
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char* LOG_LEVEL_COLOR[] = {
     "",                 // nothing
     "\033[0;1;97;41m",  // bold bright white on red
@@ -46,6 +48,8 @@ constexpr const char* LOG_LEVEL_COLOR[] = {
     "\033[0;1;36m",     // bold cyan
 };
 
+// NOLINTJUSTIFICATION used for fast string literal lookup
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char* LOG_LEVEL_TEXT[] = {
     "[ Off ]", // nothing
     "[Fatal]", // bold bright white on red

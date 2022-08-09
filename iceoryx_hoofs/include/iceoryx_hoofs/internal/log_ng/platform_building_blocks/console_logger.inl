@@ -25,6 +25,8 @@ namespace iox
 namespace pbb
 {
 template <uint32_t N>
+// NOLINTJUSTIFICATION see at declaration in header
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 inline constexpr uint32_t ConsoleLogger::bufferSize(const char (&)[N]) noexcept
 {
     return N;
@@ -39,6 +41,8 @@ template <typename T>
 inline void ConsoleLogger::logArithmetik(const T value, const char* format) noexcept
 {
     auto retVal =
+        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         snprintf(&m_buffer[m_bufferWriteIndex],
                  NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex,
                  format,

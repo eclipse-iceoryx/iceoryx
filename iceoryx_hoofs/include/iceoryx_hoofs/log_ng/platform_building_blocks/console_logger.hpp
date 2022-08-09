@@ -35,6 +35,14 @@ class ConsoleLogger
 
     void setLogLevel(const LogLevel logLevel) noexcept;
 
+    virtual ~ConsoleLogger() = default;
+
+    ConsoleLogger(const ConsoleLogger&) = delete;
+    ConsoleLogger(ConsoleLogger&&) = delete;
+
+    ConsoleLogger& operator=(const ConsoleLogger&) = delete;
+    ConsoleLogger& operator=(ConsoleLogger&&) = delete;
+
   protected:
     ConsoleLogger() noexcept = default;
 
@@ -59,6 +67,8 @@ class ConsoleLogger
 
   private:
     template <uint32_t N>
+    // NOLINTJUSTIFICATION safe access is guaranteed since the char array is not accessed but only the size is obtained
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     inline static constexpr uint32_t bufferSize(const char (&)[N]) noexcept;
 
     template <typename T>
@@ -68,15 +78,18 @@ class ConsoleLogger
     inline void logArithmetik(const T value, const char* format) noexcept;
 
   private:
-    // TODO with the introduction of m_isActive this shouldn't need to be static -> check ... on the other side, when
-    // the log level shall be changed after Logger::init, this needs to stay an atomic and m_isActive needs to be
-    // changed to a counter with 0 being inactive
-    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
-
     static constexpr uint32_t BUFFER_SIZE{1024}; // TODO compile time option?
     static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+
+    // NOLINTJUSTIFICATION needed for the functionality and a private member of the class
+    // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
+
+    // NOLINTJUSTIFICATION safe access is guaranteed since the char array is wrapped inside the class
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
     thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
+    // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
     // TODO thread local storage with thread id
 };
 

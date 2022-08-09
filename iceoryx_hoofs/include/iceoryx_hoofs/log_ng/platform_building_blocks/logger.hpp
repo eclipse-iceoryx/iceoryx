@@ -35,8 +35,16 @@ class LogStream;
 namespace pbb
 {
 template <uint32_t N>
+// NOLINTJUSTIFICATION required for C-style string comparison; safety guaranteed by strncmp
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 
+/// @brief Tries to get the log level from the 'IOX_LOG_LEVEL' env variable or uses the specified one if the env
+/// variable is not set
+/// @param[in] logLevel is the log level to be used when the env variable is not set
+/// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
+/// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this reason
+/// the function should only be used in the startup phase of the application and only in the main thread.
 LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept;
 
 template <typename BaseLogger>

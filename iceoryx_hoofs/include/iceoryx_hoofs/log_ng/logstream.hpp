@@ -82,7 +82,7 @@ class LogStream
 
     inline LogStream& operator<<(const char* cstr) noexcept;
 
-    // TODO instead of using std::string we could also accecpt everything with a c_str() method and avoid the
+    // TODO instead of using std::string we could also accept everything with a c_str() method and avoid the
     // std::string dependency
     inline LogStream& operator<<(const std::string& str) noexcept;
 

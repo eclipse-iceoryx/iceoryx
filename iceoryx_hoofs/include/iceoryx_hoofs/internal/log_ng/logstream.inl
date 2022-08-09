@@ -41,6 +41,8 @@ inline constexpr LogHex<T> hex(const T value) noexcept
 
 inline LogHex<uint64_t> hex(const void* const ptr) noexcept
 {
+    // JUSTIFICATION needed to print the pointer
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return LogHex<uint64_t>(reinterpret_cast<uint64_t>(ptr));
 }
 

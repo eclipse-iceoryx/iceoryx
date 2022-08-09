@@ -30,6 +30,8 @@ namespace iox
 namespace pbb
 {
 template <uint32_t N>
+// NOLINTJUSTIFICATION see at declaration in header
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
 {
     return strncmp(lhs, rhs, N) == 0;
@@ -52,7 +54,8 @@ inline constexpr bool Logger<BaseLogger>::ignoreLogLevel() noexcept
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {
-    // TODO is static required with thread_local
+    // NOLINTJUSTIFICATION needed for the functionality
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     thread_local static Logger* logger = Logger::activeLogger();
     if (!logger->m_isActive.load(std::memory_order_relaxed))
     {
@@ -83,6 +86,9 @@ inline Logger<BaseLogger>* Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
     static std::mutex mtx;
     std::lock_guard<std::mutex> lock(mtx);
     static Logger defaultLogger;
+
+    // NOLINTJUSTIFICATION needed for the functionality
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     static Logger* logger{&defaultLogger};
 
     if (newLogger)

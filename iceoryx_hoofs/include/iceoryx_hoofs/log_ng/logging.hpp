@@ -22,28 +22,22 @@ namespace iox
 {
 namespace log
 {
-// TODO use environment variable to set file or function for custom filter
-// ... environment variables for this should be read in initLogger
-inline bool custom(const char* file, const char* function)
-{
-    static_cast<void>(file);
-    static_cast<void>(function);
-    return false;
-}
-
-// TODO how shall the filter work?
-// - (ignoreLogLevel || level <= getLogLevel) && custom
-// - ignoreLogLevel || (level <= getLogLevel && custom) <- this might be the best
-// - ignoreLogLevel || level <= getLogLevel  || custom  <- or this if we pass the log level to the custom
-// filter
-
+/// @brief Only for internal usage
+// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
     if ((level) <= iox::log::Logger::minimalLogLevel()                                                                 \
         && (iox::log::Logger::ignoreLogLevel() || (level) <= iox::log::Logger::getLogLevel()                           \
             || iox::log::custom(file, function)))                                                                      \
     iox::log::LogStream(file, line, function, level).self()
 
-// use this
+/// @brief Macro for logging
+/// @param[in] level is the log level to be used for the log message
+/// @code
+///     IOX_LOG(INFO) << "Hello World";
+/// @endcode
+// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
 
 } // namespace log

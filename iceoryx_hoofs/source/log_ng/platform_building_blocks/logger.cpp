@@ -17,11 +17,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log_ng/platform_building_blocks/logger.hpp"
-#include "iceoryx_hoofs/log_ng/platform_building_blocks/console_logger.hpp"
 #include "iceoryx_hoofs/log_ng/platform_building_blocks/logcommon.hpp"
 
 #include <atomic>
-
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -30,46 +28,49 @@ namespace iox
 {
 namespace pbb
 {
-std::atomic<LogLevel> ConsoleLogger::m_activeLogLevel{LogLevel::INFO};
-thread_local char ConsoleLogger::m_buffer[ConsoleLogger::NULL_TERMINATED_BUFFER_SIZE]{0};
-thread_local uint32_t ConsoleLogger::m_bufferWriteIndex{0U};
-
 LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
 {
+    auto specifiedLogLevel = logLevel;
+
+    // AXIVION Next Construct AutosarC++19_03-M18.0.3 : Use of getenv is allowed in MISRA amendment#6312
+    // JUSTIFICATION getenv is required for the functionality of this function; see also declaration in header
+    // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (const auto* logLevelString = std::getenv("IOX_LOG_LEVEL"))
     {
         if (equalStrings(logLevelString, "off"))
         {
-            return LogLevel::OFF;
+            specifiedLogLevel = LogLevel::OFF;
         }
         else if (equalStrings(logLevelString, "fatal"))
         {
-            return LogLevel::FATAL;
+            specifiedLogLevel = LogLevel::FATAL;
         }
         else if (equalStrings(logLevelString, "error"))
         {
-            return LogLevel::ERROR;
+            specifiedLogLevel = LogLevel::ERROR;
         }
         else if (equalStrings(logLevelString, "warn"))
         {
-            return LogLevel::WARN;
+            specifiedLogLevel = LogLevel::WARN;
         }
         else if (equalStrings(logLevelString, "info"))
         {
-            return LogLevel::INFO;
+            specifiedLogLevel = LogLevel::INFO;
         }
         else if (equalStrings(logLevelString, "debug"))
         {
-            return LogLevel::DEBUG;
+            specifiedLogLevel = LogLevel::DEBUG;
         }
         else if (equalStrings(logLevelString, "trace"))
         {
-            return LogLevel::TRACE;
+            specifiedLogLevel = LogLevel::TRACE;
         }
-
-        puts("Invalide value for 'IOX_LOG_LEVEL' environment variable!'");
+        else
+        {
+            puts("Invalide value for 'IOX_LOG_LEVEL' environment variable!'");
+        }
     }
-    return logLevel;
+    return specifiedLogLevel;
 }
 
 } // namespace pbb
