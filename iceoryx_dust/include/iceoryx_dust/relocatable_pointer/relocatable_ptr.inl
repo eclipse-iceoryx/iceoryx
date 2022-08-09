@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ inline relocatable_ptr<T>::relocatable_ptr(const relocatable_ptr& other) noexcep
 }
 
 template <typename T>
-inline relocatable_ptr<T>::relocatable_ptr(relocatable_ptr&& other)
+inline relocatable_ptr<T>::relocatable_ptr(relocatable_ptr&& other) noexcept
     : m_offset(to_offset(other.get()))
 {
     other.m_offset = NULL_POINTER_OFFSET;
@@ -120,6 +120,7 @@ inline relocatable_ptr<T>::operator const T*() const noexcept
 template <typename T>
 inline typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::self() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) cast required to obtain object address as offset
     return reinterpret_cast<offset_t>(this);
 }
 
@@ -130,6 +131,7 @@ inline typename relocatable_ptr<T>::offset_t relocatable_ptr<T>::to_offset(const
     {
         return NULL_POINTER_OFFSET;
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) cast required to obtain offset from ptr
     auto p = reinterpret_cast<offset_t>(ptr);
     return p - self();
 }
@@ -141,6 +143,7 @@ inline T* relocatable_ptr<T>::from_offset(offset_t offset) const noexcept
     {
         return nullptr;
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) cast required to ptr from offset
     return reinterpret_cast<T*>(offset + self());
 }
 

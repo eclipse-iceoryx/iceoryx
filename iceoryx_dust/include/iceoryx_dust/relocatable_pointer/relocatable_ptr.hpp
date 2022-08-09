@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,13 +55,17 @@ class relocatable_ptr
     using ptr_t = T*;
 
     /// @brief Construct from raw pointer.
+    // NOLINTJUSTIFICATION implicit conversion from raw pointer is intentional in design of relocatable structures
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     relocatable_ptr(T* ptr = nullptr) noexcept;
 
     /// @brief Construct from other relocatable pointer.
     relocatable_ptr(const relocatable_ptr& other) noexcept;
 
     /// @brief Move construct from other relocatable pointer.
-    relocatable_ptr(relocatable_ptr&& other);
+    relocatable_ptr(relocatable_ptr&& other) noexcept;
+
+    ~relocatable_ptr() = default;
 
     /// @brief Assign from relocatable pointer rhs.
     relocatable_ptr& operator=(const relocatable_ptr& rhs) noexcept;
@@ -100,10 +104,14 @@ class relocatable_ptr
 
     /// @brief Convert to the corresponding raw pointer.
     /// @return corresponding raw pointer
+    // NOLINTJUSTIFICATION implicit conversion to raw pointer is intentional in design of relocatable structures
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator T*() noexcept;
 
     /// @brief Convert to the corresponding const raw pointer.
     /// @return corresponding const raw pointer
+    // NOLINTJUSTIFICATION implicit conversion to raw pointer is intentional in design of relocatable structures
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator const T*() const noexcept;
 
   private:
