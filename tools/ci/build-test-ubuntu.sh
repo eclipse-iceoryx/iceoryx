@@ -27,7 +27,7 @@ WORKSPACE=$(git rev-parse --show-toplevel)
 cd ${WORKSPACE}
 
 msg "installing build dependencies"
-sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev bison
+sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 
 msg "creating local test users and groups for testing access control"
 sudo ./tools/scripts/add_test_users.sh

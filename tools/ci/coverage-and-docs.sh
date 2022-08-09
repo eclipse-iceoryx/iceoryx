@@ -28,7 +28,7 @@ cd "${WORKSPACE}"
 
 msg "installing dependencies"
 sudo apt-get update
-sudo apt-get install -y libacl1-dev libncurses5-dev bison doxygen graphviz texlive-font-utils lcov \
+sudo apt-get install -y libacl1-dev libncurses5-dev doxygen graphviz texlive-font-utils lcov \
     plantuml texlive-latex-base texlive-latex-extra texlive-latex-recommended texlive-fonts-recommended
 
 msg "compiler versions:

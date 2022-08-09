@@ -28,7 +28,6 @@ ENV ICEORYX_BUILD=$B_ICEORYX_BUILD
 # Dependencies
 RUN apt-get update && apt-get install -y \
         cmake \
-        bison \
         libacl1-dev \
         libncurses5-dev \
         pkg-config \

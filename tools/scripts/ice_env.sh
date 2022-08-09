@@ -49,7 +49,7 @@ setup_docker_image() {
     # ubuntu/debian and derivatives
     if command -v apt &>/dev/null; then
         apt update
-        apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev wget lsb-release software-properties-common vim
+        apt -y install g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev wget lsb-release software-properties-common vim
         install_cmake
 
         # install newest clang
@@ -71,7 +71,7 @@ setup_docker_image() {
         install_cmake
     else
         echo Please install the following packages to have a working iceoryx environment:
-        echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
+        echo g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
     fi
 
     git config --global --add safe.directory /iceoryx

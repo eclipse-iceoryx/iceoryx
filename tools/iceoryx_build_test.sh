@@ -204,7 +204,6 @@ while (( "$#" )); do
         echo "    clang                 Build with clang compiler (should be installed already)"
         echo "    no-build              Does not trigger a build, can be used in combination with 'clean' to remove the build dir"
         echo "    clean                 Delete the build/ directory before build-step"
-        echo "    dds-gateway           Build the iceoryx dds gateway"
         echo "    debug                 Build debug configuration -g"
         echo "    doc                   Build and generate doxygen"
         echo "    help                  Print this help"
