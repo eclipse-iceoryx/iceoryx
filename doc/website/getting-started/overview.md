@@ -190,7 +190,7 @@ The following table gives an overview of the different terminologies and the cur
 |-----------------------------------------------------------------------------------|---------|------------------|------------------------|
 | [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx/)                               | Type    | Namespace/Topic  | -                      |
 | AUTOSAR                                                                           | Service | Instance         | Event                  |
-| [DDS Gateway](../../../iceoryx_dds)                                               | -       | -                | /Group/Instance/Topic  |
+| [DDS Gateway](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds/)            | -       | -                | /Group/Instance/Topic  |
 | [Cyclone DDS](https://github.com/ros2/rmw_cyclonedds)                             | -       | Type Name        | Topic Name             |
 
 Service is related to instance like classes are related to objects in C++. A service describes an abstract topic and an

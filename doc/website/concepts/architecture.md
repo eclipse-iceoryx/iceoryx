@@ -55,7 +55,7 @@ The module `iceoryx_binding_c` makes the inter-process communication features of
 The package `iceoryx_dds` provides a bi-directional DDS gateway using [Eclipse Cyclone DDS](https://cyclonedds.io/).
 The gateway can be used to send data over a network e.g. via Ethernet.
 
-For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds/Readme.md).
+For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds/blob/main/README.md).
 
 ### iceoryx introspection
 
