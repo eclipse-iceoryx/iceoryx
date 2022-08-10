@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
 #define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
 
-#include "iceoryx_hoofs/log_ng/platform_building_blocks/logcommon.hpp"
+#include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -84,6 +84,6 @@ class Logger : public BaseLogger
 } // namespace pbb
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log_ng/platform_building_blocks/logger.inl"
+#include "iceoryx_hoofs/internal/log/platform_building_blocks/logger.inl"
 
 #endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP

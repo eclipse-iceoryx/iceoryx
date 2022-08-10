@@ -14,21 +14,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_LOGGER_HPP
-#define IOX_HOOFS_LOG_LOGGER_HPP
+#ifndef IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
+#define IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
 
-#include "iceoryx_hoofs/log_ng/platform/logger.hpp"
+#include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 
 namespace iox
 {
-namespace log
+namespace platform
 {
-using LogLevel = platform::LogLevel;
-using platform::logLevelFromEnvOr;
+using LogLevel = pbb::LogLevel;
+using pbb::logLevelFromEnvOr;
 
-using Logger = platform::Logger;
+using Logger = pbb::Logger<pbb::ConsoleLogger>;
+using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
 
-} // namespace log
+} // namespace platform
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_LOGGER_HPP
+#endif // IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP

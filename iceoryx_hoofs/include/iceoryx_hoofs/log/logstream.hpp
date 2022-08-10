@@ -1,5 +1,5 @@
-// Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,158 +14,113 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logcommon.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 
-#include <bitset>
-#include <chrono>
-#include <iostream>
-#include <sstream>
 #include <string>
 
 namespace iox
 {
 namespace log
 {
-// helper struct for SFINAE of LogStream& operator<<
-struct LogHex
+class LogStream;
+
+template <typename T>
+class LogHex
 {
+  public:
+    friend class LogStream;
+
+    template <typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+    inline explicit constexpr LogHex(const T value) noexcept;
+
+  private:
+    T m_value;
 };
 
-struct LogHex8 : private LogHex
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+inline constexpr LogHex<T> hex(const T value) noexcept;
+
+inline LogHex<uint64_t> hex(const void* const ptr) noexcept;
+
+template <typename T>
+class LogOct
 {
-    uint8_t value;
-    constexpr LogHex8(uint8_t value) noexcept
-        : value(value)
-    {
-    }
+  public:
+    friend class LogStream;
+
+    template <typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+    inline explicit constexpr LogOct(const T value) noexcept;
+
+  private:
+    T m_value;
 };
 
-struct LogHex16 : private LogHex
-{
-    uint16_t value;
-    constexpr LogHex16(uint16_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogHex32 : private LogHex
-{
-    uint32_t value;
-    constexpr LogHex32(uint32_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogHex64 : private LogHex
-{
-    uint64_t value;
-    constexpr LogHex64(uint64_t value) noexcept
-        : value(value)
-    {
-    }
-};
-
-// helper struct for SFINAE of LogStream& operator<<
-struct LogBin
-{
-};
-
-struct LogBin8 : private LogBin
-{
-    uint8_t value;
-    constexpr LogBin8(uint8_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogBin16 : private LogBin
-{
-    uint16_t value;
-    constexpr LogBin16(uint16_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogBin32 : private LogBin
-{
-    uint32_t value;
-    constexpr LogBin32(uint32_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogBin64 : private LogBin
-{
-    uint64_t value;
-    constexpr LogBin64(uint64_t value) noexcept
-        : value(value)
-    {
-    }
-};
-struct LogRawBuffer
-{
-    const uint8_t* data;
-    uint8_t size;
-};
-
-class Logger;
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+inline constexpr LogOct<T> oct(const T value) noexcept;
 
 class LogStream
 {
   public:
-    LogStream(Logger& logger, LogLevel logLevel = LogLevel::kWarn) noexcept;
+    inline LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
-    virtual ~LogStream() noexcept;
+    inline virtual ~LogStream() noexcept;
 
-    void Flush() noexcept;
+    LogStream(const LogStream&) = delete;
+    LogStream(LogStream&&) = delete;
 
-    LogStream& operator<<(const char* cstr) noexcept;
+    LogStream& operator=(const LogStream&) = delete;
+    LogStream& operator=(LogStream&&) = delete;
 
-    LogStream& operator<<(const std::string& str) noexcept;
+    inline void flush() noexcept;
 
-    template <typename T, typename std::enable_if<std::is_arithmetic<T>::value, int>::type = 0>
-    LogStream& operator<<(const T val) noexcept
-    {
-        m_logEntry.message.append(cxx::convert::toString(val));
-        m_flushed = false;
-        return *this;
-    }
+    inline LogStream& self() noexcept;
 
-    template <typename T, typename std::enable_if<std::is_base_of<LogHex, T>::value, int>::type = 0>
-    LogStream& operator<<(const T val) noexcept
-    {
-        std::stringstream ss;
-        // the '+val' is there to not interpret the uint8_t as char and print the character instead of the hex value
-        ss << "0x" << std::hex << +val.value;
-        m_logEntry.message.append(ss.str());
-        m_flushed = false;
-        return *this;
-    }
+    inline LogStream& operator<<(const char* cstr) noexcept;
 
-    template <typename T, typename std::enable_if<std::is_base_of<LogBin, T>::value, int>::type = 0>
-    LogStream& operator<<(const T val) noexcept
-    {
-        m_logEntry.message.append("0b");
-        m_logEntry.message.append(std::bitset<std::numeric_limits<decltype(val.value)>::digits>(val.value).to_string());
-        m_flushed = false;
-        return *this;
-    }
+    // TODO instead of using std::string we could also accept everything with a c_str() method and avoid the
+    // std::string dependency
+    inline LogStream& operator<<(const std::string& str) noexcept;
 
-    LogStream& operator<<(const LogRawBuffer& value) noexcept;
+    template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int> = 0>
+    inline LogStream& operator<<(const T val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int> = 0>
+    inline LogStream& operator<<(const T val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int> = 0>
+    inline LogStream& operator<<(const LogHex<T>&& val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int> = 0>
+    inline LogStream& operator<<(const LogHex<T>&& val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int> = 0>
+    inline LogStream& operator<<(const LogOct<T>&& val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int> = 0>
+    inline LogStream& operator<<(const LogOct<T>&& val) noexcept;
+
+    /// @code
+    /// IOX_LOG(INFO) << "#### Hello " << [] (auto& stream) -> auto& { stream << "World"; return stream; };
+    /// @endcode
+    template <typename Callable,
+              typename = std::enable_if_t<cxx::is_invocable_r<LogStream&, Callable, LogStream&>::value>>
+    inline LogStream& operator<<(const Callable&& c);
+
+    inline LogStream& operator<<(const LogLevel value) noexcept;
 
   private:
-    Logger& m_logger;
+    Logger& m_logger{Logger::get()};
     bool m_flushed{false};
-    LogEntry m_logEntry;
 };
-
-LogStream& operator<<(LogStream& out, LogLevel value) noexcept;
 
 } // namespace log
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/log/logstream.inl"
 
 #endif // IOX_HOOFS_LOG_LOGSTREAM_HPP

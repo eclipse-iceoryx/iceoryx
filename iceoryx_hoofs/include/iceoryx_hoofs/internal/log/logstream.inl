@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_INL
 #define IOX_HOOFS_LOG_LOGSTREAM_INL
 
-#include "iceoryx_hoofs/log_ng/logstream.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 
 #include <string>
 

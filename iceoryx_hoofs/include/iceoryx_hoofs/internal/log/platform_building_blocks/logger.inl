@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_INL
 #define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_INL
 
-#include "iceoryx_hoofs/log_ng/platform_building_blocks/logger.hpp"
+#include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -124,7 +124,7 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
     }
     else
     {
-        BaseLogger::setupNewLogMessage(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
+        BaseLogger::createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
         BaseLogger::logString("Multiple initLogger calls");
         BaseLogger::flush();
         // TODO call error handler
