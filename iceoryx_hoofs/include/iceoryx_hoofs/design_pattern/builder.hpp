@@ -43,19 +43,23 @@
 ///     // END
 ///   };
 /// @endcode
-// NOLINTJUSTIFICATION brackets around macro parameter would lead in this case to compile time failures
+// AXIVION Next Construct AutosarC++19_03-M16.0.1 this macro is used to prevent a large amount of boilerplate code
+// which cannot be realized with templates or constexpr functions
+// AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead in this case to compile
+// time failures
+// AXIVION Next Construct AutosarC++19_03-M16.3.1 multiple '##' operators are required to declare and use a variable
+// AXIVION Next Construct AutosarC++19_03-M16.3.2 the '##' operator is required to be able to reduce boilerplate code
 // NOLINTBEGIN(bugprone-macro-parentheses)
-// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_BUILDER_PARAMETER(type, name, defaultValue)                                                                \
   public:                                                                                                              \
-    decltype(auto) name(type const& value)&&                                                                           \
+    decltype(auto) name(type const& value)&& noexcept                                                                  \
     {                                                                                                                  \
         m_##name = value;                                                                                              \
         return std::move(*this);                                                                                       \
     }                                                                                                                  \
                                                                                                                        \
-    decltype(auto) name(type&& value)&&                                                                                \
+    decltype(auto) name(type&& value)&& noexcept                                                                       \
     {                                                                                                                  \
         m_##name = std::move(value);                                                                                   \
         return std::move(*this);                                                                                       \
