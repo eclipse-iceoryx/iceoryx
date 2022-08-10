@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 #define IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 
+#if 0
+
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
@@ -37,5 +39,7 @@ class Logger_Mock : public iox::log::Logger
 
     mutable std::vector<iox::log::LogEntry> m_logs;
 };
+
+#endif
 
 #endif // IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP

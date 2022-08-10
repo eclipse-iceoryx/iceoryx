@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"

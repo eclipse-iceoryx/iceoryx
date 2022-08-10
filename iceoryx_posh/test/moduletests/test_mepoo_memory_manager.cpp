@@ -509,6 +509,7 @@ TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
     EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
 }
 
+#if 0
 TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4a3539e5-5465-4352-b2b7-a850e104c173");
@@ -524,5 +525,6 @@ TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
 }
+#endif
 
 } // namespace

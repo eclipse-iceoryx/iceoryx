@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
 #define IOX_POSH_RUNTIME_IPC_MESSAGE_HPP
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include <cstdint>
 #include <sstream>

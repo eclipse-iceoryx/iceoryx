@@ -21,7 +21,7 @@
 enum iox_LogLevel
 {
     Iceoryx_LogLevel_Off = 0,
-    Iceoryx_LogLevel_Verbose,
+    Iceoryx_LogLevel_Trace,
     Iceoryx_LogLevel_Debug,
     Iceoryx_LogLevel_Info,
     Iceoryx_LogLevel_Warn,

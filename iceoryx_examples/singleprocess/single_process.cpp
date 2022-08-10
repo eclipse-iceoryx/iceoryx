@@ -17,7 +17,7 @@
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
@@ -112,7 +112,7 @@ int main()
 {
     // set the log level to error to see the essence of the example
     //! [log level]
-    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+    iox::log::Logger::init(iox::log::LogLevel::ERROR);
     //! [log level]
 
     //! [roudi config]

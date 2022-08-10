@@ -14,6 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#if 0
+
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
@@ -68,3 +70,5 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
 }
 
 } // namespace
+
+#endif

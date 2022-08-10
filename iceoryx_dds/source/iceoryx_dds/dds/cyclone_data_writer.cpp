@@ -18,7 +18,7 @@
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
 #include "iceoryx_dds/Mempool.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <string>

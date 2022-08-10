@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
@@ -88,8 +88,8 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
     m_size = totalSize;
     m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
-    LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
-               << " with size " << m_size << " to id " << m_segmentId;
+    LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
+               << m_segmentId;
 
     iox::posix::Allocator allocator(m_memory, m_size);
 

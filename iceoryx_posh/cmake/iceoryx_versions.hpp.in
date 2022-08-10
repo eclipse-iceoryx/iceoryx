@@ -10,7 +10,7 @@
 #define ICEORYX_BUILDDATE                 "@ICEORYX_BUILDDATE@"
 #define ICEORYX_SHA1                      "@ICEORYX_SHA1@"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #define ICEORYX_PRINT_BUILDINFO()     iox::LogInfo() << "Built: " << ICEORYX_BUILDDATE;
 

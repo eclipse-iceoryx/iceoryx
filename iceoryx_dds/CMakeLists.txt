@@ -58,8 +58,6 @@ iox_add_library(
                             iceoryx_posh::iceoryx_posh_config
                             iceoryx_posh::iceoryx_posh_gateway
                             iceoryx_hoofs::iceoryx_hoofs
-    FILES
-        source/iceoryx_dds/log/logging.cpp
     )
 
 if(USE_CYCLONE_DDS)

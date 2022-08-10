@@ -22,7 +22,6 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_hoofs/log/logmanager.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/platform/resource.hpp"
 #include "iceoryx_hoofs/platform/semaphore.hpp"
@@ -30,7 +29,6 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
@@ -59,7 +57,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     // be silent if not running
     if (m_run)
     {
-        iox::log::LogManager::GetLogManager().SetDefaultLogLevel(m_logLevel);
+        iox::log::Logger::get().setLogLevel(m_logLevel);
 
         LogVerbose() << "Command line parameters are:\n" << cmdLineArgs;
     }

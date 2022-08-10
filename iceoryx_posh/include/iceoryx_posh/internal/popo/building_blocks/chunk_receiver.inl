@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_INL
 
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 
 namespace iox

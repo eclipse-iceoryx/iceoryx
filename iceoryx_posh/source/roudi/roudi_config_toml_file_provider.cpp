@@ -19,9 +19,9 @@
 #include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 
 #include <cpptoml.h>

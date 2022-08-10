@@ -57,7 +57,6 @@ iceory_posh_extra_roudi_files = [
 
 # Special file handling - part 2: Files which are part of "iceoryx_posh_config"
 iceory_posh_config_files = [
-    "source/log/posh_config_logging.cpp",
     "source/gateway/gateway_config.cpp",
     "source/gateway/toml_gateway_config_parser.cpp",
     "source/roudi/roudi_config_toml_file_provider.cpp",

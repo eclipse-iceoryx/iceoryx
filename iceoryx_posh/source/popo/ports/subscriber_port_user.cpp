@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {

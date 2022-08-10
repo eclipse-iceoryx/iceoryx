@@ -17,7 +17,7 @@
 
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId,
@@ -99,14 +99,16 @@ iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
     // Ignore Invalid IoxChunkDatagramHeader
     if (nextSampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        auto log = LogError();
-        log << "[CycloneDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
-            << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
-        if (nextSampleSize >= 1)
-        {
-            log << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
-                << "! Dropped sample!";
-        }
+        LogError() << "[CycloneDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
+                   << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize
+                   << [&nextSampleSize, &nextSamplePayload](auto& log) -> iox::log::LogStream& {
+            if (nextSampleSize >= 1)
+            {
+                log << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
+                    << "! Dropped sample!";
+            }
+            return log;
+        };
         return dropSample();
     }
 
