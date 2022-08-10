@@ -478,37 +478,37 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 
 namespace duration_literals
 {
-inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept
 {
     return Duration::fromNanoseconds(value);
 }
 
-inline constexpr Duration operator"" _us(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _us(unsigned long long int value) noexcept
 {
     return Duration::fromMicroseconds(value);
 }
 
-inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept
 {
     return Duration::fromMilliseconds(value);
 }
 
-inline constexpr Duration operator"" _s(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _s(unsigned long long int value) noexcept
 {
     return Duration::fromSeconds(value);
 }
 
-inline constexpr Duration operator"" _m(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _m(unsigned long long int value) noexcept
 {
     return Duration::fromMinutes(value);
 }
 
-inline constexpr Duration operator"" _h(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _h(unsigned long long int value) noexcept
 {
     return Duration::fromHours(value);
 }
 
-inline constexpr Duration operator"" _d(unsigned long long int value) noexcept // PRQA S 48
+inline constexpr Duration operator"" _d(unsigned long long int value) noexcept
 {
     return Duration::fromDays(value);
 }

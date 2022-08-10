@@ -61,7 +61,8 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
     {
         if (getMembers()->m_queues.size() < getMembers()->m_queues.capacity())
         {
-            // PRQA S 3804 1 # we checked the capacity, so pushing will be fine
+            // AXIVION Next Construct AutosarC++19_03-A0.1.2, AutosarC++19_03-M0-3-2 : we checked the capacity, so
+            // pushing will be fine
             getMembers()->m_queues.push_back(rp::RelativePointer<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
@@ -105,7 +106,7 @@ inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDat
     const auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
     if (iter != getMembers()->m_queues.end())
     {
-        // PRQA S 3804 1 # we don't use iter any longer so return value can be ignored
+        // AXIVION Next Construct AutosarC++19_03-A0.1.2 : we don't use iter any longer so return value can be ignored
         getMembers()->m_queues.erase(iter);
 
         return cxx::success<void>();
@@ -300,11 +301,12 @@ inline void ChunkDistributor<ChunkDistributorDataType>::addToHistoryWithoutDeliv
         {
             auto chunkToRemove = getMembers()->m_history.begin();
             chunkToRemove->releaseToSharedChunk();
-            // PRQA S 3804 1 # we are not iterating here, so return value can be ignored
+            // AXIVION Next Construct AutosarC++19_03-A0.1.2 : we are not iterating here, so return value can be ignored
             getMembers()->m_history.erase(chunkToRemove);
         }
-        // PRQA S 3804 1 # we ensured that there is space in the history, so return value can be ignored
-        getMembers()->m_history.push_back(chunk); // PRQA S 3804
+        // AXIVION Next Construct AutosarC++19_03-A0.1.2, AutosarC++19_03-M0-3-2 : we ensured that there is space in the
+        // history, so return value can be ignored
+        getMembers()->m_history.push_back(chunk);
     }
 }
 

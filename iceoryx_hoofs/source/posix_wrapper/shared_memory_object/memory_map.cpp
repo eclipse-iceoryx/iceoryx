@@ -38,8 +38,7 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }
-    // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
-
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
                                   m_length,
