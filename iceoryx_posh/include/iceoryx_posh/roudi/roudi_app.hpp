@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_APP_HPP
 #define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
-#include "iceoryx_hoofs/log/logcommon.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -51,7 +51,7 @@ class RouDiApp
                  "'iceoryx_dust/posix_wrapper/signal_watcher.hpp'")]] bool
     waitForSignal() noexcept;
 
-    iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
+    iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
     bool m_run{true};
     RouDiConfig_t m_config;

@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
@@ -74,8 +73,6 @@ class PortManager_test : public Test
     uint16_t m_instIdCounter, m_eventIdCounter, m_sIdCounter;
 
     iox::RuntimeName_t m_runtimeName{"TestApp"};
-
-    cxx::ScopeGuard suppressLogging = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
 
     cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
     const capro::ServiceDescription serviceRegistry{

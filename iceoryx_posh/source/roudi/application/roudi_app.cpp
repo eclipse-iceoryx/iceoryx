@@ -1,5 +1,5 @@
-// Copyright (c) 2019, 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_hoofs/log/logmanager.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_platform/getopt.hpp"
@@ -30,7 +29,6 @@
 #include "iceoryx_platform/semaphore.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
@@ -59,7 +57,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     // be silent if not running
     if (m_run)
     {
-        iox::log::LogManager::GetLogManager().SetDefaultLogLevel(m_logLevel);
+        iox::log::Logger::get().setLogLevel(m_logLevel);
 
         LogVerbose() << "Command line parameters are:\n" << cmdLineArgs;
     }

@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/errno.hpp"
@@ -171,6 +171,9 @@ void FileLock::invalidate() noexcept
     m_fileLockPath.assign("");
 }
 
+// NOLINTJUSTIFICATION the function size is unavoidable due to the errno translation and the cognitive complexity
+// results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 FileLockError FileLock::convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept
 {
     switch (errnum)

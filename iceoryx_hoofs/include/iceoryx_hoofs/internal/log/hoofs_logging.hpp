@@ -1,4 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,12 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_LOG_HOOFS_LOGGING_HPP
+#define IOX_HOOFS_LOG_HOOFS_LOGGING_HPP
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+// @todo iox-#1345 for transition only; delete this file
 
-namespace iox
-{
-constexpr char LoggingComponentPosh::Ctx[];
-constexpr char LoggingComponentPosh::Description[];
+#include "iceoryx_hoofs/log/logging.hpp"
 
-} // namespace iox
+#endif

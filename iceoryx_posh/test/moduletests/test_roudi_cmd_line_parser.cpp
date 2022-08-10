@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -242,17 +242,17 @@ TEST_F(CmdLineParser_test, LogLevelOptionsLeadToCorrectLogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "25799d7a-9f34-4bcd-bb01-f6dbe270fac3");
     constexpr uint8_t NUMBER_OF_ARGS{3U};
-    LogLevel loglevelArray[] = {LogLevel::kOff,
-                                LogLevel::kFatal,
-                                LogLevel::kError,
-                                LogLevel::kWarn,
-                                LogLevel::kInfo,
-                                LogLevel::kDebug,
-                                LogLevel::kVerbose};
+    LogLevel loglevelArray[] = {LogLevel::OFF,
+                                LogLevel::FATAL,
+                                LogLevel::ERROR,
+                                LogLevel::WARN,
+                                LogLevel::INFO,
+                                LogLevel::DEBUG,
+                                LogLevel::TRACE};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char optionArray[][20] = {"-l", "--log-level"};
-    char valueArray[][10] = {"off", "fatal", "error", "warning", "info", "debug", "verbose"};
+    char valueArray[][10] = {"off", "fatal", "error", "warning", "info", "debug", "trace"};
     args[0] = &appName[0];
 
     for (auto optionValue : optionArray)

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
@@ -27,25 +27,25 @@ LogLevel toLogLevel(enum iox_LogLevel level)
     switch (level)
     {
     case Iceoryx_LogLevel_Off:
-        return LogLevel::kOff;
-    case Iceoryx_LogLevel_Verbose:
-        return LogLevel::kVerbose;
+        return LogLevel::OFF;
+    case Iceoryx_LogLevel_Trace:
+        return LogLevel::TRACE;
     case Iceoryx_LogLevel_Debug:
-        return LogLevel::kDebug;
+        return LogLevel::DEBUG;
     case Iceoryx_LogLevel_Info:
-        return LogLevel::kInfo;
+        return LogLevel::INFO;
     case Iceoryx_LogLevel_Warn:
-        return LogLevel::kWarn;
+        return LogLevel::WARN;
     case Iceoryx_LogLevel_Error:
-        return LogLevel::kError;
+        return LogLevel::ERROR;
     case Iceoryx_LogLevel_Fatal:
-        return LogLevel::kFatal;
+        return LogLevel::FATAL;
     default:
-        return LogLevel::kVerbose;
+        return LogLevel::TRACE;
     }
 }
 
 void iox_set_loglevel(enum iox_LogLevel level)
 {
-    LogManager::GetLogManager().SetDefaultLogLevel(toLogLevel(level), LogLevelOutput::kHideLogLevel);
+    iox::log::Logger::get().setLogLevel(toLogLevel(level));
 }

@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @todo iox-#1345 re-enable in follow-up PR
+#if 0
+
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
@@ -400,3 +403,5 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
     EXPECT_THAT(this->loggerMock.m_logs[0].message, Eq(iox::cxx::convert::toString(this->ConstexprLogValueMax)));
 }
 } // namespace
+
+#endif
