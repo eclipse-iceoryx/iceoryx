@@ -43,7 +43,7 @@
 ///     // END
 ///   };
 /// @endcode
-// AXIVION Next Construct AutosarC++19_03-M16.0.1 this macro is used to prevent a large amount of boilerplate code
+// AXIVION Next Construct AutosarC++19_03-A16.0.1 this macro is used to prevent a large amount of boilerplate code
 // which cannot be realized with templates or constexpr functions
 // AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead in this case to compile
 // time failures
