@@ -1,6 +1,6 @@
 #pragma once
 
-#include "proxy.hpp"
+#include "error_proxy.hpp"
 
 // macros are required for SOURCE_LOCATION
 // macros start with IOX_ but constants do not (avoids some clashes)
@@ -12,21 +12,21 @@
 // clang-format off
 
 #define IOX_RAISE(level, error) \
-    if(requires_handling(eh::level)) \
-        eh::createProxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
+    if(requiresHandling(eh::level)) \
+        eh::createProxy(SOURCE_LOCATION, eh::level, eh::createError(error))
 
 #define IOX_FATAL(error) IOX_RAISE(FATAL, error)
 
 // note that the check for expr occurs at runtime (while the other does not, allows to optimize the whole branch away)
 #define IOX_RAISE_IF(expr, level, error) \
-    if(requires_handling(eh::level)) \
+    if(requiresHandling(eh::level)) \
         if([&]() -> bool { return expr; }()) \
-             eh::createProxy(SOURCE_LOCATION, eh::level, eh::create_error(error))
+             eh::createProxy(SOURCE_LOCATION, eh::level, eh::createError(error))
 
 #define IOX_ASSERT(expr, error) \
-    if(requires_handling(eh::FATAL)) \
+    if(requiresHandling(eh::FATAL)) \
         if([&]() -> bool { return !(expr); }()) \
-            eh::createProxy(SOURCE_LOCATION, eh::FATAL, eh::create_error(error))
+            eh::createProxy(SOURCE_LOCATION, eh::FATAL, eh::createError(error))
 
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr, error) IOX_ASSERT(expr, error)

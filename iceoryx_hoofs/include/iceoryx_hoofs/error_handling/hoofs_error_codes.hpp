@@ -63,7 +63,7 @@ struct Hoofs_Error
 namespace eh
 {
 // module specific overload is required in eh
-iox::Hoofs_Error create_error(iox::HoofsErrorCode code)
+iox::Hoofs_Error createError(iox::HoofsErrorCode code)
 {
     return iox::Hoofs_Error(code);
 }

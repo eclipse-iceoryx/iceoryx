@@ -3,6 +3,8 @@
 #include "default_handler.hpp"
 #include "polymorphic_handler.hpp"
 
+#include "iceoryx_hoofs/error_handling_2/location.hpp"
+
 namespace eh
 {
 using ErrorHandler = PolymorphicHandler<HandlerInterface, DefaultHandler>;

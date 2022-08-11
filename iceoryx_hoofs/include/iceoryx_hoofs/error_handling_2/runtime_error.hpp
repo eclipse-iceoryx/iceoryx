@@ -44,9 +44,9 @@ class RuntimeError
     }
 
     template <typename Error>
-    static RuntimeError from_error(const Error& e)
+    static RuntimeError from(const Error& error)
     {
-        return RuntimeError(e.module(), e.code());
+        return RuntimeError(error.module(), error.code());
     }
 };
 } // namespace eh

@@ -14,6 +14,8 @@ namespace eh
 
 struct HandlerInterface
 {
+    virtual ~HandlerInterface() = default;
+
     virtual void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module) = 0;
     virtual void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module) = 0;
     virtual void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module) = 0;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iceoryx_hoofs/error_handling_2/error_level.hpp"
+#include <type_traits>
 
 // ***
 // *** TO BE IMPLEMENTED BY CLIENT - platform defines error levels
@@ -8,16 +9,24 @@
 
 namespace eh
 {
+
 // define which levels shall exist for the platform, Fatal is mandatory and already exists (with code 0)
 // codes are currently unused as we can rely on the C++ type system instead (which has advantages
 // for e.g. compile time dispatch and type annotations)
+enum class ErrorLevel : error_level_t
+{
+    ERROR = 1,
+    WARNING = 2
+};
+
+// prefer types to avoid switch satements and the like and allow annotations (such as name here)
 struct Error
 {
     static constexpr char const* name = "Error";
 
-    operator error_level_t()
+    explicit operator ErrorLevel()
     {
-        return 1;
+        return ErrorLevel::ERROR;
     }
 };
 
@@ -25,9 +34,9 @@ struct Warning
 {
     static constexpr char const* name = "Warning";
 
-    operator error_level_t()
+    explicit operator ErrorLevel()
     {
-        return 2;
+        return ErrorLevel::WARNING;
     }
 };
 
@@ -40,30 +49,23 @@ constexpr Warning WARNING{};
 // Could also define type traits but constexpr functions are more convenient here
 
 template <class Level>
-bool constexpr requires_handling(Level)
+bool constexpr requiresHandling(Level)
 {
     return true;
 }
 
 // exclude warnings from handling at compile time(!)
 template <>
-bool constexpr requires_handling<Warning>(Warning)
+bool constexpr requiresHandling<Warning>(Warning)
 {
     return false;
 }
 
 template <>
-bool constexpr requires_handling<Error>(Error)
+bool constexpr requiresHandling<Error>(Error)
 {
     // return false;
     return true;
 }
-
-// NB: this cannot be overridden by design
-// template <>
-// bool constexpr requires_handling<Fatal>(Fatal)
-// {
-//     return false;
-// }
 
 } // namespace eh

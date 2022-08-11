@@ -22,11 +22,11 @@ using namespace eh;
 using std::cout;
 using std::endl;
 
-using B_Error = module_B::Error;
-using B_Code = module_B::ErrorCode;
+using B_Error = module_b::Error;
+using B_Code = module_b::ErrorCode;
 
-using A_Error = module_A::Error;
-using A_Code = module_A::ErrorCode;
+using A_Error = module_a::Error;
+using A_Code = module_a::ErrorCode;
 
 bool g_terminateCalled;
 
@@ -47,7 +47,7 @@ ThrowHandler& throwHandler()
 template <typename Code>
 RuntimeError toError(Code code)
 {
-    return RuntimeError::from_error(create_error(code));
+    return RuntimeError::from(createError(code));
 }
 #endif
 
@@ -91,8 +91,8 @@ TEST_F(ErrorHandling_test, raiseSpecific)
 
 TEST_F(ErrorHandling_test, raiseFromDifferentModules)
 {
-    module_A::function();
-    module_B::function();
+    module_a::function();
+    module_b::function();
 }
 
 TEST_F(ErrorHandling_test, raiseConditionally)

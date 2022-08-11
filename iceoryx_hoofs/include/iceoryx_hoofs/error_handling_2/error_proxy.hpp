@@ -67,7 +67,7 @@ struct ErrorProxy
 #ifndef TEST_PLATFORM
             // TODO: how to ensure it cannot be overridden but also is not active in (all) tests?
             //       do we want to make it available in platform as hook?
-            terminate();
+            std::terminate();
 #endif
         }
     }

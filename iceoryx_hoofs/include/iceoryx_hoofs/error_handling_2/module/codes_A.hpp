@@ -6,7 +6,7 @@
 
 #include "iceoryx_hoofs/error_handling_2/error_code.hpp"
 
-namespace module_A
+namespace module_a
 {
 using error_code_t = eh::error_code_t;
 using module_id_t = eh::module_id_t;
@@ -20,14 +20,14 @@ enum class ErrorCode : error_code_t
 
 static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
 
-struct Error
+class Error
 {
   private:
-    ErrorCode code_;
+    ErrorCode m_code;
 
   public:
-    Error(ErrorCode code = ErrorCode::Unknown)
-        : code_(code)
+    explicit Error(ErrorCode code = ErrorCode::Unknown)
+        : m_code(code)
     {
     }
 
@@ -38,13 +38,13 @@ struct Error
 
     error_code_t code() const
     {
-        return (error_code_t)code_;
+        return (error_code_t)m_code;
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
-        return errorNames[(error_code_t)code_];
+        return errorNames[(error_code_t)m_code];
     }
 
     static constexpr eh::module_id_t MODULE_ID = 73;
@@ -55,8 +55,8 @@ struct Error
 namespace eh
 {
 // module specific overload is required in eh
-module_A::Error create_error(module_A::ErrorCode code)
+module_a::Error createError(module_a::ErrorCode code)
 {
-    return module_A::Error(code);
+    return module_a::Error(code);
 }
 } // namespace eh

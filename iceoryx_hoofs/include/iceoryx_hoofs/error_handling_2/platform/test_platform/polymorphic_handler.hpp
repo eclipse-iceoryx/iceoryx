@@ -98,8 +98,8 @@ class PolymorphicHandler
 
     static PolymorphicHandler& instance()
     {
-        static PolymorphicHandler h;
-        return h;
+        static PolymorphicHandler handler;
+        return handler;
     }
 
     // the assumption is that this class manages the default but not any

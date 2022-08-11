@@ -3,7 +3,7 @@
 #include "codes_B.hpp"
 #include "iceoryx_hoofs/error_handling_2/api.hpp"
 
-namespace module_B
+namespace module_b
 {
 void function()
 {

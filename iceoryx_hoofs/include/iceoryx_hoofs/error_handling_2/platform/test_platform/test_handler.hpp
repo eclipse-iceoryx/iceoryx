@@ -2,6 +2,7 @@
 
 #include "error_storage.hpp"
 #include "handler_interface.hpp"
+#include "iceoryx_hoofs/error_handling_2/location.hpp"
 
 #include <atomic>
 #include <iostream>
@@ -10,25 +11,25 @@ namespace eh
 {
 struct TestHandler : public HandlerInterface
 {
-    void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module) override
     {
         (void)location;
         storeError(code, module);
     }
 
-    void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module) override
     {
         (void)location;
         storeError(code, module);
     }
 
-    void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module) override
     {
         (void)location;
         storeError(code, module);
     }
 
-    void preterminate()
+    void preterminate() override
     {
         std::cout << "COUNTING HANDLER WILL TERMINATE!" << std::endl;
     }
@@ -58,7 +59,7 @@ struct TestHandler : public HandlerInterface
 
 struct ThrowHandler : public HandlerInterface
 {
-    void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module) override
     {
         (void)location;
         // note that throwing earlier in the static part is more general as we
@@ -67,19 +68,19 @@ struct ThrowHandler : public HandlerInterface
         throw(RuntimeError(module, code));
     }
 
-    void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module) override
     {
         (void)location;
         throw(RuntimeError(module, code));
     }
 
-    void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module)
+    void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module) override
     {
         (void)location;
         throw(RuntimeError(module, code));
     }
 
-    void preterminate()
+    void preterminate() override
     {
         std::cout << "THROWING HANDLER WILL TERMINATE!" << std::endl;
     }
