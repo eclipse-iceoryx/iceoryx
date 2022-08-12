@@ -34,10 +34,11 @@ iox_add_library(
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
     FILES
+        compile_test.cpp
+        logger.cpp
         mocks/time_mock.cpp
         mocks/error_handler_mock.cpp
         timing_test.cpp
-        compile_test.cpp
 )
 
 if(TEST_WITH_ADDITIONAL_USER)

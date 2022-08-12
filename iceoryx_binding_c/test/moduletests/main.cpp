@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/logger.hpp"
+
 #include "test.hpp"
 
 /// just to check that no non-existing headers are included
@@ -37,6 +39,8 @@ TEST(SanityCheck, CheckStorageSizeAndAlingment)
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    iox::testing::Logger::init();
 
     return RUN_ALL_TESTS();
 }

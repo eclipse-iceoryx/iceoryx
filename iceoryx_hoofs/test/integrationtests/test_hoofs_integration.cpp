@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/logger.hpp"
+
 #include "test.hpp"
 
 using namespace ::testing;
@@ -23,5 +25,8 @@ using ::testing::_;
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    iox::testing::Logger::init();
+
     return RUN_ALL_TESTS();
 }
