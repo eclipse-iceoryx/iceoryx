@@ -32,12 +32,6 @@ unique_ptr<T>::unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexc
 }
 
 template <typename T>
-unique_ptr<T>::unique_ptr(const function<void(T*)>& deleter) noexcept
-    : unique_ptr(nullptr, std::move(deleter))
-{
-}
-
-template <typename T>
 unique_ptr<T>& unique_ptr<T>::operator=(std::nullptr_t) noexcept
 {
     reset();
@@ -84,12 +78,13 @@ const T* unique_ptr<T>::operator->() const noexcept
 template <typename T>
 unique_ptr<T>::operator bool() const noexcept
 {
-    return get() != nullptr;
+    return m_ptr != nullptr;
 }
 
 template <typename T>
 T* unique_ptr<T>::get() noexcept
 {
+    cxx::Expects(m_ptr != nullptr);
     return m_ptr;
 }
 
