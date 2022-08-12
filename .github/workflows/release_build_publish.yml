@@ -44,7 +44,7 @@ jobs:
 
       - name: Build debian package
         run: |
-          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean dds-gateway package
+          $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean package
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v2

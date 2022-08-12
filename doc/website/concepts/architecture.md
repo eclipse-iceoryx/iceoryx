@@ -40,7 +40,7 @@ protocol, which is used by `iceoryx_posh` to connect and discover `popo::Publish
 
 #### Gatway library
 
-* The gateway library and its namespace `gw` contain generic abstractions to create a gateway. They are used by `iceoryx_dds`.
+* The gateway library and its namespace `gw` contain generic abstractions to create a gateway. They are used by [`iceoryx_dds`](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds).
 
 #### RouDi library
 
@@ -55,7 +55,7 @@ The module `iceoryx_binding_c` makes the inter-process communication features of
 The package `iceoryx_dds` provides a bi-directional DDS gateway using [Eclipse Cyclone DDS](https://cyclonedds.io/).
 The gateway can be used to send data over a network e.g. via Ethernet.
 
-For more information, refer to the [Readme](../../../iceoryx_dds/README.md).
+For more information, refer to the [Readme](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds/).
 
 ### iceoryx introspection
 

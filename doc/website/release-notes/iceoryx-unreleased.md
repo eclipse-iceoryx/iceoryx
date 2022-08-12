@@ -71,6 +71,8 @@
   - `cxx::PoorMansHeap`
   - Other `internal` classes
 - Cleanup helplets [\#1560](https://github.com/eclipse-iceoryx/iceoryx/issues/1560)
+- Moved package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
+
 
 **Workflow:**
 

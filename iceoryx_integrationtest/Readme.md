@@ -54,7 +54,6 @@ iceoryx_workspace
         ├── cmake
         ├── doc
         ├── iceoryx_binding_c
-        ├── iceoryx_dds
         ├── iceoryx_examples
         ├── iceoryx_hoofs
         ├── iceoryx_integrationtest

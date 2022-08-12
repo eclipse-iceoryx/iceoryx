@@ -275,7 +275,7 @@ You can do this with one command in the iceoryx folder like this:
 ./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
 
-Optionally, you can use the build-all option to get the coverage for extensions like DDS or the C-Binding.
+Optionally, you can use the build-all option to get the coverage for extensions like the C-Binding.
 The -c flag indicates that you want to generate a coverage report and requires you to pass the test level.
 By default the test level is set to `all`.
 

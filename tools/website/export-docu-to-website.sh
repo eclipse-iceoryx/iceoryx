@@ -47,11 +47,11 @@ git checkout "$BRANCH"
 # Generate doxygen
 cmake -Bbuild -Hiceoryx_meta -DBUILD_DOC=ON
 cd "$WORKSPACE"/build
-make -j8 doxygen_iceoryx_posh doxygen_iceoryx_hoofs doxygen_iceoryx_binding_c doxygen_iceoryx_dds doxygen_iceoryx_introspection
+make -j8 doxygen_iceoryx_posh doxygen_iceoryx_hoofs doxygen_iceoryx_binding_c doxygen_iceoryx_introspection
 
 cd "$WORKSPACE"
 
-PACKAGES="hoofs posh c-binding DDS-gateway introspection"
+PACKAGES="hoofs posh c-binding introspection"
 
 # Generate doxybook2 config files, to have correct links in doxygen docu
 mkdir -p "$WORKSPACE"/tools/website/generated/
@@ -84,9 +84,6 @@ doxybook2 --input $BUILD_FOLDER/iceoryx_posh/xml/ --output $DOC_FOLDER/posh --co
 
 mkdir -p "$DOC_FOLDER"/c-binding
 doxybook2 --input $BUILD_FOLDER/iceoryx_binding_c/xml/ --output $DOC_FOLDER/c-binding --config $CONFIG_FOLDER/doxybook2-c-binding.json
-
-mkdir -p "$DOC_FOLDER"/DDS-gateway
-doxybook2 --input $BUILD_FOLDER/iceoryx_dds/xml/ --output $DOC_FOLDER/DDS-gateway --config $CONFIG_FOLDER/doxybook2-DDS-gateway.json
 
 mkdir -p "$DOC_FOLDER"/introspection
 doxybook2 --input $BUILD_FOLDER/iceoryx_introspection/xml/ --output $DOC_FOLDER/introspection --config $CONFIG_FOLDER/doxybook2-introspection.json

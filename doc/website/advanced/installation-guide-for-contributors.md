@@ -12,7 +12,7 @@ cmake --build build
 ```
 
 CMake automatically installs GoogleTest as a local dependency and builds the tests against it. Please note that
-if you want to build tests for extensions like the DDS-Gateway you need to enable this extension as well in the
+if you want to build tests for extensions like the C binding you need to enable this extension as well in the
 CMake build. To build the tests for all extensions simply add `-DBUILD_ALL` to the CMake command.
 
 !!! hint
@@ -105,7 +105,7 @@ In the default case, the iceoryx libraries are installed by `make install` into 
 As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path`
 as build flag for the CMake file in iceoryx_meta.
 
-iceoryx_meta collects all libraries (hoofs, posh etc.) and extensions (binding_c, dds) and can be a starting point for
+iceoryx_meta collects all libraries (hoofs, posh etc.) and extensions (binding_c) and can be a starting point for
 the CMake build. The provided build script `tools/iceoryx_build_test.sh` uses iceoryx_meta.
 
 Per default, iceoryx is built as static lib for better usability.
