@@ -27,6 +27,10 @@ namespace iox
 {
 namespace cxx
 {
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Basic numerical type of char shall be used
+// AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1: C-style arrays are used to acquire size of c
+// array safely, strnlen only accesses N elements which is the maximum capacity of the array
+// where N is a compile time constant
 template <uint64_t>
 class string;
 
@@ -42,13 +46,13 @@ using charArray = char[N];
 template <typename T>
 struct GetCapa
 {
-    static constexpr uint64_t capa = 0U;
+    static constexpr uint64_t capa{0U};
 };
 
 template <uint64_t N>
 struct GetCapa<string<N>>
 {
-    static constexpr uint64_t capa = N;
+    static constexpr uint64_t capa{N};
 };
 
 template <uint64_t N>
@@ -56,13 +60,13 @@ template <uint64_t N>
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetCapa<char[N]>
 {
-    static constexpr uint64_t capa = N - 1U;
+    static constexpr uint64_t capa{N - 1U};
 };
 
 template <>
 struct GetCapa<char>
 {
-    static constexpr uint64_t capa = 1U;
+    static constexpr uint64_t capa{1U};
 };
 
 /// @brief struct to get size of iox::cxx::string/std::string/char array/char
@@ -147,6 +151,8 @@ struct GetData<char>
 {
     static const char* call(const char& data) noexcept
     {
+        // AXIVION Next Construct AutosarC++19_03-A7.5.1 : Used for template meta-programming and
+        // safe in this context
         return &data;
     }
 };
@@ -158,15 +164,17 @@ struct SumCapa;
 template <>
 struct SumCapa<>
 {
-    static constexpr uint64_t value = 0U;
+    static constexpr uint64_t value{0U};
 };
 
 template <typename T, typename... Targs>
 struct SumCapa<T, Targs...>
 {
-    static constexpr uint64_t value = GetCapa<T>::capa + SumCapa<Targs...>::value;
+    static constexpr uint64_t value{GetCapa<T>::capa + SumCapa<Targs...>::value};
 };
 } // namespace internal
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
+// AXIVION ENABLE STYLE AutosarC++19_03-A18.1.1
 } // namespace cxx
 } // namespace iox
 #endif // IOX_HOOFS_CXX_STRING_INTERNAL_HPP
