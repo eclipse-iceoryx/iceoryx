@@ -84,7 +84,7 @@ inline const T& SmartChunk<TransmissionInterface, T, H>::operator*() const noexc
 template <typename TransmissionInterface, typename T, typename H>
 inline SmartChunk<TransmissionInterface, T, H>::operator bool() const noexcept
 {
-    return get() != nullptr;
+    return m_members.smartChunkUniquePtr.operator bool();
 }
 
 template <typename TransmissionInterface, typename T, typename H>
