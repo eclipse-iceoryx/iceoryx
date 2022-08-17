@@ -65,7 +65,7 @@ class CmdLineParser
   protected:
     bool m_run{true};
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
-    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
+    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::OFF};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
