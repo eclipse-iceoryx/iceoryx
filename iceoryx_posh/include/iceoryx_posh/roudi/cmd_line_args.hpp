@@ -28,7 +28,7 @@ namespace config
 {
 struct CmdLineArgs_t
 {
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::ON};
+    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
     iox::log::LogLevel logLevel{iox::log::LogLevel::kWarn};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};

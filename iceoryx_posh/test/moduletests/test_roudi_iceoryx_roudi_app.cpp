@@ -133,7 +133,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
 
     EXPECT_TRUE(roudi.getVariableRun());
     EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::kWarn);
-    EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::ON);
+    EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::OFF);
 }
 
 TEST_F(IceoryxRoudiApp_test, CreateTwoRoudiAppIsSuccessful)
