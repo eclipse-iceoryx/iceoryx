@@ -24,6 +24,7 @@ namespace iox
 {
 namespace cxx
 {
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : False positive, the class doesn't require a delegating ctor
 template <typename T>
 inline unique_ptr<T>::unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept
     : m_ptr(object)
@@ -69,7 +70,7 @@ inline T* unique_ptr<T>::operator->() noexcept
 template <typename T>
 inline const T* unique_ptr<T>::operator->() const noexcept
 {
-    // Avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<unique_ptr<T>*>(this)->operator->();
 }
@@ -83,7 +84,7 @@ inline T* unique_ptr<T>::get() noexcept
 template <typename T>
 inline const T* unique_ptr<T>::get() const noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<unique_ptr<T>*>(this)->get();
 }
@@ -91,7 +92,8 @@ inline const T* unique_ptr<T>::get() const noexcept
 template <typename T>
 inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 {
-    auto ptr = ptrToBeReleased.m_ptr;
+    // AXIVION Next Line AutosarC++19_03-A7.1.1 : Pointer is explicitly not const to adhere to return type
+    auto* ptr = ptrToBeReleased.m_ptr;
     ptrToBeReleased.m_ptr = nullptr;
     return ptr;
 }
@@ -99,7 +101,7 @@ inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 template <typename T>
 inline void unique_ptr<T>::destroy() noexcept
 {
-    if (m_ptr)
+    if (m_ptr != nullptr)
     {
         m_deleter(m_ptr);
     }
@@ -113,6 +115,8 @@ inline void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
     std::swap(m_deleter, other.m_deleter);
 }
 
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5 : See header
+
 template <typename T, typename U>
 inline bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept
 {
@@ -124,6 +128,8 @@ inline bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexc
 {
     return !(lhs == rhs);
 }
+
+// AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5 : See header
 } // namespace cxx
 } // namespace iox
 
