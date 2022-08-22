@@ -209,9 +209,7 @@ Macro(iox_add_executable)
         target_link_libraries(${IOX_TARGET} ${IOX_LIBS_UNIX})
     endif()
 
-    # TODO iox-#1287 lasting fix for rpath without implicit posh dependencies
-    #                and auto lib detection
-    ### iox_set_rpath( IS_EXECUTABLE TARGET ${IOX_TARGET} )
+    iox_set_rpath( IS_EXECUTABLE TARGET ${IOX_TARGET} )
 
     if ( IOX_PLACE_IN_BUILD_ROOT )
         set_target_properties(${IOX_TARGET} PROPERTIES
@@ -342,9 +340,7 @@ Macro(iox_add_library)
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_WIN32} PRIVATE ${IOX_PRIVATE_LIBS_WIN32})
     endif ( LINUX )
 
-    # TODO iox-#1287 lasting fix for rpath without implicit posh dependencies
-    #                and auto lib detection
-    ### iox_set_rpath( TARGET ${IOX_TARGET} )
+    iox_set_rpath( TARGET ${IOX_TARGET} )
 
     foreach(INTERFACE ${IOX_BUILD_INTERFACE})
         target_include_directories(${IOX_TARGET}
