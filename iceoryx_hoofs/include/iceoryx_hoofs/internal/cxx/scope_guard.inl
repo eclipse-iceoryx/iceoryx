@@ -15,24 +15,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_GENERIC_RAII_INL
-#define IOX_HOOFS_CXX_GENERIC_RAII_INL
+#ifndef IOX_HOOFS_CXX_SCOPE_GUARD_INL
+#define IOX_HOOFS_CXX_SCOPE_GUARD_INL
 
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 
 namespace iox
 {
 namespace cxx
 {
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
+inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
     const cxx::function<void(), Capacity>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
+inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
     const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
@@ -40,21 +40,21 @@ inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacit
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::~GenericRAIIWithVariableCapacity() noexcept
+inline ScopeGuardWithVariableCapacity<Capacity>::~ScopeGuardWithVariableCapacity() noexcept
 {
     destroy();
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>::GenericRAIIWithVariableCapacity(
-    GenericRAIIWithVariableCapacity&& rhs) noexcept
+inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
+    ScopeGuardWithVariableCapacity&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
 template <uint64_t Capacity>
-inline GenericRAIIWithVariableCapacity<Capacity>&
-GenericRAIIWithVariableCapacity<Capacity>::operator=(GenericRAIIWithVariableCapacity<Capacity>&& rhs) noexcept
+inline ScopeGuardWithVariableCapacity<Capacity>&
+ScopeGuardWithVariableCapacity<Capacity>::operator=(ScopeGuardWithVariableCapacity<Capacity>&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -66,7 +66,7 @@ GenericRAIIWithVariableCapacity<Capacity>::operator=(GenericRAIIWithVariableCapa
 }
 
 template <uint64_t Capacity>
-inline void GenericRAIIWithVariableCapacity<Capacity>::destroy() noexcept
+inline void ScopeGuardWithVariableCapacity<Capacity>::destroy() noexcept
 {
     if (m_cleanupFunction)
     {

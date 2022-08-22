@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_GENERIC_RAII_HPP
-#define IOX_HOOFS_CXX_GENERIC_RAII_HPP
+#ifndef IOX_HOOFS_CXX_SCOPE_GUARD_HPP
+#define IOX_HOOFS_CXX_SCOPE_GUARD_HPP
 
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
@@ -24,7 +24,7 @@ namespace iox
 {
 namespace cxx
 {
-/// @brief The GenericRAII class is a simple helper class to apply the C++ RAII
+/// @brief The ScopeGuard class is a simple helper class to apply the C++ RAII
 ///             idiom quickly. You set 2 functions, one which is called in the
 ///             constructor and another function is called in the destructor
 ///             which can be useful when handling resources.
@@ -42,31 +42,31 @@ namespace cxx
 /// }
 /// @endcode
 template <uint64_t CleanupCapacity = DEFAULT_FUNCTION_CAPACITY>
-class GenericRAIIWithVariableCapacity
+class ScopeGuardWithVariableCapacity
 {
   public:
-    /// @brief constructor which creates GenericRAII that calls only the cleanupFunction on destruction
+    /// @brief constructor which creates ScopeGuard that calls only the cleanupFunction on destruction
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    explicit GenericRAIIWithVariableCapacity(const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
+    explicit ScopeGuardWithVariableCapacity(const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
 
     /// @brief constructor which calls initFunction and stores the cleanupFunction which will be
     ///           called in the destructor
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
-    GenericRAIIWithVariableCapacity(const function_ref<void()>& initFunction,
-                                    const function<void()>& cleanupFunction) noexcept;
+    ScopeGuardWithVariableCapacity(const function_ref<void()>& initFunction,
+                                   const function<void()>& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
-    ~GenericRAIIWithVariableCapacity() noexcept;
+    ~ScopeGuardWithVariableCapacity() noexcept;
 
-    GenericRAIIWithVariableCapacity(const GenericRAIIWithVariableCapacity&) = delete;
-    GenericRAIIWithVariableCapacity& operator=(const GenericRAIIWithVariableCapacity&) = delete;
+    ScopeGuardWithVariableCapacity(const ScopeGuardWithVariableCapacity&) = delete;
+    ScopeGuardWithVariableCapacity& operator=(const ScopeGuardWithVariableCapacity&) = delete;
 
-    /// @brief move constructor which moves a generic raii object without calling the cleanupFunction
-    GenericRAIIWithVariableCapacity(GenericRAIIWithVariableCapacity&& rhs) noexcept;
+    /// @brief move constructor which moves a ScopeGuard object without calling the cleanupFunction
+    ScopeGuardWithVariableCapacity(ScopeGuardWithVariableCapacity&& rhs) noexcept;
 
-    /// @brief move assignment which moves a generic raii object without calling the cleanupFunction
-    GenericRAIIWithVariableCapacity& operator=(GenericRAIIWithVariableCapacity&& rhs) noexcept;
+    /// @brief move assignment which moves a ScopeGuard object without calling the cleanupFunction
+    ScopeGuardWithVariableCapacity& operator=(ScopeGuardWithVariableCapacity&& rhs) noexcept;
 
   private:
     void destroy() noexcept;
@@ -76,11 +76,11 @@ class GenericRAIIWithVariableCapacity
 };
 
 // This alias can be removed with C++17 and class template argument deduction
-using GenericRAII = GenericRAIIWithVariableCapacity<>;
+using ScopeGuard = ScopeGuardWithVariableCapacity<>;
 
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/generic_raii.inl"
+#include "iceoryx_hoofs/internal/cxx/scope_guard.inl"
 
-#endif // IOX_HOOFS_CXX_GENERIC_RAII_HPP
+#endif // IOX_HOOFS_CXX_SCOPE_GUARD_HPP

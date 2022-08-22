@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "test.hpp"
@@ -35,7 +35,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdWorks)
     // we cannot ensure that setUniqueRouDiId wasn't called before, therefore we ignore the error
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
     auto uniqueRouDiIdResetScopeGuard =
-        GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
+        ScopeGuard{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
     EXPECT_EQ(iox::popo::UniquePortId::getUniqueRouDiId(), someId);
 }
@@ -52,7 +52,7 @@ TEST(UniquePortId_test, SettingTheRouDiIdTwiceFails)
             detectedErrorLevel.emplace(errorLevel);
         });
     auto uniqueRouDiIdResetScopeGuard =
-        GenericRAII{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
+        ScopeGuard{[] {}, [] { iox::popo::UniquePortId::setUniqueRouDiId(iox::roudi::DEFAULT_UNIQUE_ROUDI_ID); }};
 
     iox::popo::UniquePortId::setUniqueRouDiId(someId);
     // we don't know if setUniqueRouDiId was called before, therefore ignore any error

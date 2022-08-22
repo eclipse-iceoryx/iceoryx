@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
@@ -323,7 +323,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
     mode_t umaskSaved = umask(S_IXUSR | S_IXGRP | S_IRWXO);
     // Reset to old umask when going out of scope
-    cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+    cxx::ScopeGuard umaskGuard([&] { umask(umaskSaved); });
 
     auto socketCall = posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
                           .failureReturnValue(ERROR_CODE)
