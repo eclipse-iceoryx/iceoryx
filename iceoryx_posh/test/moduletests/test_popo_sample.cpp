@@ -38,7 +38,7 @@ TEST_F(Sample_test, SendCallsInterfaceMockWithSuccessResult)
 
     sutProducer.publish();
 
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMock)
@@ -49,7 +49,7 @@ TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMock)
     auto movedSut = std::move(sutProducer);
     movedSut.publish();
 
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Sample_test, PublishingAlreadyPublishedSampleCallsErrorHandler)

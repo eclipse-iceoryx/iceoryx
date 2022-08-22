@@ -44,6 +44,7 @@
   - This bug was not part of a release but introduce during the v3 development
 - Add "inline" keyword to smart_lock method implementation [\#1551](https://github.com/eclipse-iceoryx/iceoryx/issues/1551)
 - Fix RouDi crash due to uninitialized `ServiceRegistry` chunk [\#1575](https://github.com/eclipse-iceoryx/iceoryx/issues/1575)
+- Add check in `cxx::unique_ptr::get` to avoid `nullptr` dereferencing [\#1571](https://github.com/eclipse-iceoryx/iceoryx/issues/1571)
 
 **Refactoring:**
 

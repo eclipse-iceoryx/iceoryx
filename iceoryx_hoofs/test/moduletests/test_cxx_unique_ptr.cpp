@@ -59,18 +59,6 @@ class UniquePtrTest : public Test
     };
 };
 
-TEST_F(UniquePtrTest, CtorWithOnlyDeleterSetsPtrToNullAndDoesntCallDeleter)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a562a5d3-c9e1-49db-bf6c-7f9ee702c306");
-    {
-        auto sut = iox::cxx::unique_ptr<Position>(deleter);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(sut.get(), nullptr);
-    }
-    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
-    EXPECT_FALSE(m_deleterCalled);
-}
-
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "85a90fc3-e8b1-4c3d-a15c-ee7f64070b57");
@@ -84,18 +72,6 @@ TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
     }
     // SUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
-}
-
-TEST_F(UniquePtrTest, CtorWithObjectPtrToNullAndDeleterSetsPtrToObjectAndDoesntCallsDeleter)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4b0377db-3db9-4103-870d-a7635d90f5b0");
-    {
-        auto sut = iox::cxx::unique_ptr<Position>(nullptr, deleter);
-        EXPECT_FALSE(sut);
-        EXPECT_EQ(sut.get(), nullptr);
-    }
-    // SUT is out of scope but shouldn't have called deleter as SUT is NULL
-    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
@@ -224,21 +200,13 @@ TEST_F(UniquePtrTest, ReleaseAnObjectResultsInUniquePtrBeingInvalidAndReturnOfOb
     EXPECT_EQ(sut.release(), object);
     EXPECT_FALSE(sut);
     delete object;
+    EXPECT_FALSE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, ReleaseNullObjectResultsInUniquePtrBeingInvalidAndReturnOfNull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "056697e8-16e1-4a42-94a4-500cd2169cf7");
     auto sut = iox::cxx::unique_ptr<Position>(nullptr, deleter);
-
-    EXPECT_EQ(sut.release(), nullptr);
-    EXPECT_FALSE(sut);
-}
-
-TEST_F(UniquePtrTest, ReleaseDeleterOnlyUniquePtrResultsInUniquePtrBeingInvalidAndReturnOfNull)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2d20f154-7823-4332-a6f2-c56338e2b312");
-    auto sut = iox::cxx::unique_ptr<Position>(deleter);
 
     EXPECT_EQ(sut.release(), nullptr);
     EXPECT_FALSE(sut);
@@ -298,54 +266,32 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
     EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
-TEST_F(UniquePtrTest, SwapUniquePtrWithADeleterOnlyUniquePtrLeadsToDeletedUniquePtr)
+TEST_F(UniquePtrTest, SwapUniquePtrWithUniquePtrLeadsToCleanupOfBothInReverseOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9017ba22-ff18-41d4-8590-ccb0d7729435");
     {
         // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
+        // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
         auto* object = new Position();
+        auto* anotherObject = new Position();
+        // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
-            auto anotherSut = iox::cxx::unique_ptr<Position>(anotherDeleter);
+            auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
             sut.swap(anotherSut);
 
             // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
-            EXPECT_FALSE(sut);
+            EXPECT_TRUE(sut);
             EXPECT_EQ(anotherSut.get(), object);
         }
         // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
+        EXPECT_FALSE(m_anotherDeleterCalled);
     }
-    // SUT is out of scope not calling its anotherDeleter as it's NULL
-    EXPECT_FALSE(m_anotherDeleterCalled);
-}
-
-TEST_F(UniquePtrTest, SwapADeleterOnlyUniquePtrWithUniquePtrLeadsToOneValidAndOneInvalidUniquePtrs)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "0e7f9cf8-c240-468e-accf-27415fa0fcb1");
-    {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* anotherObject = new Position();
-        auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
-        {
-            auto sut = iox::cxx::unique_ptr<Position>(deleter);
-
-            sut.swap(anotherSut);
-
-            // no deleter calls during swap
-            EXPECT_FALSE(m_anotherDeleterCalled);
-            EXPECT_FALSE(anotherSut);
-            EXPECT_EQ(sut.get(), anotherObject);
-        }
-        // SUT is out of scope and calls its anotherDeleter, which has been swapped
-        EXPECT_TRUE(m_anotherDeleterCalled);
-    }
-    // anotherSUT is out of scope not calling its deleter as it's NULL
-    EXPECT_FALSE(m_deleterCalled);
+    // SUT is out of scope and calling anotherDeleter
+    EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
 TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)
@@ -460,11 +406,15 @@ TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrDeletesTheManagedObject)
 TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eacf4bf4-0fa8-42dd-b0a7-c343a1959282");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    sut = nullptr;
-    EXPECT_EQ(nullptr, sut.get());
+    EXPECT_DEATH(
+        {
+            // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
+            // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
+            auto* object = new Position();
+            auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
+            sut = nullptr;
+            EXPECT_EQ(nullptr, sut.get());
+        },
+        "EXPECTS_ENSURES_FAILED");
 }
 } // namespace

@@ -37,11 +37,6 @@ class unique_ptr
     unique_ptr() = delete;
 
     ///
-    /// @brief unique_ptr Creates an empty unique ptr that owns nothing. Can be passed ownership later via reset.
-    ///
-    explicit unique_ptr(const function<void(T*)>& deleter) noexcept;
-
-    ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
     /// @details A deleter must always be provided as no default can be provided given that no heap is used.
     /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
@@ -56,7 +51,7 @@ class unique_ptr
     unique_ptr& operator=(unique_ptr&& rhs) noexcept;
 
     ///
-    /// Automatically deletes the managed object on destruction.
+    /// @brief Automatically deletes the managed object on destruction.
     ///
     ~unique_ptr() noexcept;
 
@@ -65,13 +60,13 @@ class unique_ptr
 
     ///
     /// @brief operator -> Transparent access to the managed object.
-    /// @return
+    /// @return Pointer to the stored object
     ///
     T* operator->() noexcept;
 
     ///
     /// @brief operator -> Transparent access to the managed object.
-    /// @return
+    /// @return Const pointer to the stored object
     ///
     const T* operator->() const noexcept;
 
@@ -83,14 +78,14 @@ class unique_ptr
     ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
-    /// @return Pointer to managed object or nullptr if none owned.
+    /// @return Pointer to managed object or errorHandler call if none owned.
     ///
     T* get() noexcept;
 
     ///
     /// @brief get Retrieve the underlying raw pointer.
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
-    /// @return Pointer to managed object or nullptr if none owned.
+    /// @return Const pointer to managed object or errorHandler call if none owned.
     ///
     const T* get() const noexcept;
 

@@ -58,11 +58,11 @@ TYPED_TEST(SmartChunkTest, SmartChunkIsInvalidatedAfterMoveConstruction)
     ::testing::Test::RecordProperty("TEST_ID", "90c8db15-6cf2-4dfc-a9ca-cb1333081fe3");
 
     typename TestFixture::SutProducerType producer(std::move(this->variation.sutProducer));
-    EXPECT_THAT(this->variation.sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(this->variation.sutProducer);
     EXPECT_THAT(producer.get(), Eq(this->variation.chunkMock.sample()));
 
     typename TestFixture::SutConsumerType consumer(std::move(this->variation.sutConsumer));
-    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(nullptr));
+    EXPECT_FALSE(this->variation.sutConsumer);
     EXPECT_THAT(consumer.get(), Eq(this->variation.chunkMock.sample()));
 }
 
@@ -73,13 +73,13 @@ TYPED_TEST(SmartChunkTest, SmartChunkIsInvalidatedAfterMoveAssignment)
     this->variation.sutProducerForMove = std::move(this->variation.sutProducer);
     EXPECT_FALSE(this->variation.sutProducer);
     EXPECT_TRUE(this->variation.sutProducerForMove);
-    EXPECT_THAT(this->variation.sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(this->variation.sutProducer);
     EXPECT_THAT(this->variation.sutProducerForMove.get(), Eq(this->variation.chunkMock.sample()));
 
     this->variation.sutConsumerForMove = std::move(this->variation.sutConsumer);
     EXPECT_FALSE(this->variation.sutConsumer);
     EXPECT_TRUE(this->variation.sutConsumerForMove);
-    EXPECT_THAT(this->variation.sutConsumer.get(), Eq(nullptr));
+    EXPECT_FALSE(this->variation.sutConsumer);
     EXPECT_THAT(this->variation.sutConsumerForMove.get(), Eq(this->variation.chunkMock.sample()));
 }
 
