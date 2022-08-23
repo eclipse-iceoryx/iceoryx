@@ -22,96 +22,127 @@
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
+
 namespace iox
 {
 namespace posix
 {
-cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializedMutex) noexcept
+/// @brief Internal struct used during mutex construction to handle all the mutex attribute settings
+struct MutexAttributes
 {
-    pthread_mutexattr_t mutexAttributes;
-    auto result = posixCall(pthread_mutexattr_init)(&mutexAttributes).returnValueMatchesErrno().evaluate();
-    if (result.has_error())
+  public:
+    MutexAttributes() noexcept = default;
+    MutexAttributes(const MutexAttributes&) = delete;
+    MutexAttributes(MutexAttributes&&) = delete;
+    MutexAttributes& operator=(const MutexAttributes&) = delete;
+    MutexAttributes& operator=(MutexAttributes&&) = delete;
+
+    ~MutexAttributes() noexcept
     {
-        switch (result.get_error().errnum)
+        if (m_attributes)
         {
-        case ENOMEM:
-            LogError() << "Not enough memory to initialize required mutex attributes";
-            return cxx::error<MutexError>(MutexError::INSUFFICIENT_MEMORY);
-        default:
-            LogError()
-                << "This should never happen. An unknown error occurred while initializing the mutex attributes.";
+            auto destroyResult =
+                posixCall(pthread_mutexattr_destroy)(&*m_attributes).returnValueMatchesErrno().evaluate();
+            if (destroyResult.has_error())
+            {
+                LogError()
+                    << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+            }
+        }
+    }
+
+    cxx::expected<MutexError> init() noexcept
+    {
+        m_attributes.emplace();
+        auto result = posixCall(pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
+        if (result.has_error())
+        {
+            switch (result.get_error().errnum)
+            {
+            case ENOMEM:
+                LogError() << "Not enough memory to initialize required mutex attributes";
+                return cxx::error<MutexError>(MutexError::INSUFFICIENT_MEMORY);
+            default:
+                LogError()
+                    << "This should never happen. An unknown error occurred while initializing the mutex attributes.";
+                return cxx::error<MutexError>(MutexError::UNDEFINED);
+            }
+        }
+
+        return cxx::success<>();
+    }
+
+    cxx::expected<MutexError> enableIpcSupport(const bool enableIpcSupport) noexcept
+    {
+        auto result =
+            posixCall(pthread_mutexattr_setpshared)(
+                &*m_attributes, static_cast<int>((enableIpcSupport) ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE))
+                .returnValueMatchesErrno()
+                .evaluate();
+        if (result.has_error())
+        {
+            switch (result.get_error().errnum)
+            {
+            case ENOTSUP:
+                LogError() << "The platform does not support shared mutex (inter process mutex)";
+                return cxx::error<MutexError>(MutexError::INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM);
+            default:
+                LogError() << "This should never happen. An unknown error occurred while setting up the inter process "
+                              "configuration.";
+                return cxx::error<MutexError>(MutexError::UNDEFINED);
+            }
+        }
+
+        return cxx::success<>();
+    }
+
+    cxx::expected<MutexError> setType(const MutexType mutexType) noexcept
+    {
+        auto result = posixCall(pthread_mutexattr_settype)(&*m_attributes, static_cast<int>(mutexType))
+                          .returnValueMatchesErrno()
+                          .evaluate();
+        if (result.has_error())
+        {
+            LogError() << "This should never happen. An unknown error occurred while setting up the mutex type.";
             return cxx::error<MutexError>(MutexError::UNDEFINED);
         }
+
+        return cxx::success<>();
     }
 
-
-    cxx::GenericRAII mutexAttributesCleanup([&] {
-        auto destroyResult =
-            posixCall(pthread_mutexattr_destroy)(&mutexAttributes).returnValueMatchesErrno().evaluate();
-        if (destroyResult.has_error())
+    cxx::expected<MutexError> setProtocol(const MutexPriorityInheritance priorityInheritance)
+    {
+        auto result = posixCall(pthread_mutexattr_setprotocol)(&*m_attributes, static_cast<int>(priorityInheritance))
+                          .returnValueMatchesErrno()
+                          .evaluate();
+        if (result.has_error())
         {
-            LogError() << "This should never happen. An unknown error occurred while cleaning up the mutex attributes.";
+            switch (result.get_error().errnum)
+            {
+            case ENOSYS:
+                LogError() << "The system does not support mutex priorities";
+                return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
+            case ENOTSUP:
+                LogError() << "The used mutex priority is not supported by the platform";
+                return cxx::error<MutexError>(MutexError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
+            case EPERM:
+                LogError() << "Unsufficient permissions to set mutex priorities";
+                return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
+            default:
+                LogError()
+                    << "This should never happen. An unknown error occurred while setting up the mutex priority.";
+                return cxx::error<MutexError>(MutexError::UNDEFINED);
+            }
         }
-    });
 
-
-    result = posixCall(pthread_mutexattr_setpshared)(
-                 &mutexAttributes,
-                 static_cast<int>((m_isInterProcessCapable) ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE))
-                 .returnValueMatchesErrno()
-                 .evaluate();
-    if (result.has_error())
-    {
-        switch (result.get_error().errnum)
-        {
-        case ENOTSUP:
-            LogError() << "The platform does not support shared mutex (inter process mutex)";
-            return cxx::error<MutexError>(MutexError::INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM);
-        default:
-            LogError() << "This should never happen. An unknown error occurred while setting up the inter process "
-                          "configuration.";
-            return cxx::error<MutexError>(MutexError::UNDEFINED);
-        }
+        return cxx::success<>();
     }
 
-
-    result = posixCall(pthread_mutexattr_settype)(&mutexAttributes, static_cast<int>(m_mutexType))
-                 .returnValueMatchesErrno()
-                 .evaluate();
-    if (result.has_error())
+    cxx::expected<MutexError> setPrioCeiling(const int32_t priorityCeiling) noexcept
     {
-        LogError() << "This should never happen. An unknown error occurred while setting up the mutex type.";
-        return cxx::error<MutexError>(MutexError::UNDEFINED);
-    }
-
-
-    result = posixCall(pthread_mutexattr_setprotocol)(&mutexAttributes, static_cast<int>(m_priorityInheritance))
-                 .returnValueMatchesErrno()
-                 .evaluate();
-    if (result.has_error())
-    {
-        switch (result.get_error().errnum)
-        {
-        case ENOSYS:
-            LogError() << "The system does not support mutex priorities";
-            return cxx::error<MutexError>(MutexError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
-        case ENOTSUP:
-            LogError() << "The used mutex priority is not supported by the platform";
-            return cxx::error<MutexError>(MutexError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
-        case EPERM:
-            LogError() << "Unsufficient permissions to set mutex priorities";
-            return cxx::error<MutexError>(MutexError::PERMISSION_DENIED);
-        default:
-            LogError() << "This should never happen. An unknown error occurred while setting up the mutex priority.";
-            return cxx::error<MutexError>(MutexError::UNDEFINED);
-        }
-    }
-
-    if (m_priorityInheritance == MutexPriorityInheritance::PROTECT)
-    {
-        result = posixCall(pthread_mutexattr_setprioceiling)(&mutexAttributes, static_cast<int>(m_priorityCeiling))
-                     .returnValueMatchesErrno()
-                     .evaluate();
+        auto result = posixCall(pthread_mutexattr_setprioceiling)(&*m_attributes, static_cast<int>(priorityCeiling))
+                          .returnValueMatchesErrno()
+                          .evaluate();
         if (result.has_error())
         {
             switch (result.get_error().errnum)
@@ -127,37 +158,87 @@ cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializ
                 auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
                 auto maximumPriority = getSchedulerPriorityMaximum(Scheduler::FIFO);
 
-                LogError() << "The priority ceiling \"" << m_priorityCeiling
-                           << "\" is not in the valid priority range [ " << minimumPriority << ", " << maximumPriority
-                           << "] of the Scheduler::FIFO.";
+                LogError() << "The priority ceiling \"" << priorityCeiling << "\" is not in the valid priority range [ "
+                           << minimumPriority << ", " << maximumPriority << "] of the Scheduler::FIFO.";
                 return cxx::error<MutexError>(MutexError::INVALID_PRIORITY_CEILING_VALUE);
             }
             }
         }
+
+        return cxx::success<>();
     }
 
+    cxx::expected<MutexError> setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
+    {
+        auto result = posixCall(pthread_mutexattr_setrobust)(&*m_attributes, static_cast<int>(behavior))
+                          .returnValueMatchesErrno()
+                          .evaluate();
+        if (result.has_error())
+        {
+            LogError() << "This should never happen. An unknown error occurred while setting up the mutex thread "
+                          "termination behavior.";
+            return cxx::error<MutexError>(MutexError::UNDEFINED);
+        }
 
-    result = posixCall(pthread_mutexattr_setrobust)(&mutexAttributes, static_cast<int>(m_threadTerminationBehavior))
-                 .returnValueMatchesErrno()
-                 .evaluate();
+        return cxx::success<>();
+    }
+
+    cxx::optional<pthread_mutexattr_t> m_attributes;
+};
+
+cxx::expected<MutexError> MutexBuilder::create(cxx::optional<Mutex>& uninitializedMutex) noexcept
+{
+    MutexAttributes mutexAttributes;
+
+    auto result = mutexAttributes.init();
     if (result.has_error())
     {
-        LogError() << "This should never happen. An unknown error occurred while setting up the mutex thread "
-                      "termination behavior.";
-        return cxx::error<MutexError>(MutexError::UNDEFINED);
+        return result;
     }
 
+    result = mutexAttributes.enableIpcSupport(m_isInterProcessCapable);
+    if (result.has_error())
+    {
+        return result;
+    }
+
+    result = mutexAttributes.setType(m_mutexType);
+    if (result.has_error())
+    {
+        return result;
+    }
+
+    result = mutexAttributes.setProtocol(m_priorityInheritance);
+    if (result.has_error())
+    {
+        return result;
+    }
+
+    if (m_priorityInheritance == MutexPriorityInheritance::PROTECT)
+    {
+        result = mutexAttributes.setPrioCeiling(m_priorityCeiling);
+        if (result.has_error())
+        {
+            return result;
+        }
+    }
+
+    result = mutexAttributes.setThreadTerminationBehavior(m_threadTerminationBehavior);
+    if (result.has_error())
+    {
+        return result;
+    }
 
     uninitializedMutex.emplace();
-    result = posixCall(pthread_mutex_init)(&uninitializedMutex->m_handle, &mutexAttributes)
-                 .returnValueMatchesErrno()
-                 .evaluate();
-    if (result.has_error())
+    auto initResult = posixCall(pthread_mutex_init)(&uninitializedMutex->m_handle, &*mutexAttributes.m_attributes)
+                          .returnValueMatchesErrno()
+                          .evaluate();
+    if (initResult.has_error())
     {
         uninitializedMutex->m_isDescructable = false;
         uninitializedMutex.reset();
 
-        switch (result.get_error().errnum)
+        switch (initResult.get_error().errnum)
         {
         case EAGAIN:
             LogError() << "Not enough resources to initialize another mutex.";
