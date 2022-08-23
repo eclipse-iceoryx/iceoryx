@@ -55,17 +55,17 @@ using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 /// @endcode
 ///
 template <typename>
-constexpr bool always_false_v = false;
-
+constexpr bool always_false_v{false};
 // windows defines __cplusplus as 199711L
-#if __cplusplus < 201703L && !defined(_WIN32)
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: TODO
+#if (__cplusplus < 201703L) && !defined(_WIN32)
 template <typename C, typename... Cargs>
 using invoke_result = std::result_of<C(Cargs...)>;
-#elif __cplusplus >= 201703L || defined(_WIN32)
+#elif (__cplusplus >= 201703L) || defined(_WIN32)
 template <typename C, typename... Cargs>
 using invoke_result = std::invoke_result<C, Cargs...>;
 #endif
-
+// AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1:
 ///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
@@ -80,6 +80,8 @@ struct is_invocable
         return {};
     }
 
+    // AXIVION Next Construct AutosarC++19_03-A8.4.1 : we require a SFINEA failure case where all
+    // parameter types (non invokable ones) are allowed, this can be achieved with variadic arguments
     // This is chosen if Callable(ArgTypes) does not resolve to a valid type.
     template <typename C, typename... As>
     /// @NOLINTJUSTIFICATION we require a SFINEA failure case where all parameter types (non invokable ones) are
@@ -91,7 +93,7 @@ struct is_invocable
     }
 
     // Test with nullptr as this can stand in for a pointer to any type.
-    static constexpr bool value = decltype(test<Callable, ArgTypes...>(nullptr))::value;
+    static constexpr bool value{decltype(test<Callable, ArgTypes...>(nullptr))::value};
 };
 
 ///
@@ -110,7 +112,8 @@ struct is_invocable_r
     {
         return {};
     }
-
+    // AXIVION Next Construct AutosarC++19_03-A8.4.1 : we require a SFINEA failure case where all
+    // parameter types (non invokable ones) are allowed, this can be achieved with variadic arguments
     template <typename C, typename... As>
     /// @NOLINTJUSTIFICATION we require a SFINEA failure case where all parameter types (non invokable ones) are
     ///                      allowed, this can be achieved with variadic arguments
@@ -121,7 +124,7 @@ struct is_invocable_r
     }
 
     // Test with nullptr as this can stand in for a pointer to any type.
-    static constexpr bool value = decltype(test<Callable, ArgTypes...>(nullptr))::value;
+    static constexpr bool value{decltype(test<Callable, ArgTypes...>(nullptr))::value};
 };
 
 ///
