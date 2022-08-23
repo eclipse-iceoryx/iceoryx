@@ -77,6 +77,10 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
+    ASSERT_TRUE(index.has_value());
+    // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
+    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(index.value());
     EXPECT_FALSE(q.empty());
 }
@@ -88,6 +92,10 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 
     auto index = this->fullQueue.pop();
 
+    ASSERT_TRUE(index.has_value());
+    // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
+    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(index.value());
     EXPECT_FALSE(q.empty());
     q.pop();
@@ -148,6 +156,10 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
 
+    ASSERT_TRUE(index.has_value());
+    // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
+    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // NOLINTNEXTLINE(clang-analyzer-core.uninitialized.Assign)
     index_t rawIndex = index.value();
 
     EXPECT_TRUE(index.has_value());
@@ -172,6 +184,7 @@ TYPED_TEST(IndexQueueTest, poppedElementsAreInFifoOrder)
     for (uint64_t i = 0U; i < capacity; ++i)
     {
         auto index = this->fullQueue.pop();
+        ASSERT_TRUE(index.has_value());
         EXPECT_EQ(index.value(), expected++);
         q.push(index.value());
     }
@@ -250,6 +263,9 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneE
     auto& q = this->queue;
     auto index = this->fullQueue.pop();
     ASSERT_TRUE(index.has_value());
+    // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
+    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(*index);
 
     index = q.popIfSizeIsAtLeast(0U);
