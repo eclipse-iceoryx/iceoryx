@@ -132,7 +132,7 @@ create_docker() {
                --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
     echo -e "  ${COLOR_CYAN}setting up iceoryx development environment${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
 
-    docker exec -it $CONTAINER_NAME /iceoryx/$(git rev-parse --show-prefix)/$0 setup $OS_VERSION
+    docker exec -it $CONTAINER_NAME /iceoryx/$(realpath $0 --relative-to=$ICEORYX_PATH) setup $OS_VERSION
 }
 
 startup_docker() {
