@@ -31,13 +31,15 @@ int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept
         LogError() << "The \"sched_get_priority_min\" should never fail. This can only be caused by an internal logic "
                       "error or a non posix compliant system.";
 
+        // NOLINTJUSTIFICATION Required to provide an error message to the user
+        // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         iox::cxx::Ensures(
             false
             && "This should never happen! Either the system is not posix compliant or and invalid integer was "
                "casted to the enum class Scheduler.");
         return -1;
     }
-    return static_cast<int32_t>(result.value().value);
+    return result.value().value;
 }
 
 int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
@@ -48,13 +50,15 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
         LogError() << "The \"sched_get_priority_max\" should never fail. This can only be caused by an internal logic "
                       "error or a non posix compliant system.";
 
+        // NOLINTJUSTIFICATION Required to provide an error message to the user
+        // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         iox::cxx::Ensures(
             false
             && "This should never happen! Either the system is not posix compliant or and invalid integer was "
                "casted to the enum class Scheduler.");
         return -1;
     }
-    return static_cast<int32_t>(result.value().value);
+    return result.value().value;
 }
 } // namespace posix
 } // namespace iox

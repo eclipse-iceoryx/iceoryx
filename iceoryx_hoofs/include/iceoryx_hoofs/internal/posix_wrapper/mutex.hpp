@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/platform/pthread.hpp"
+#include <pthread.h>
 
 namespace iox
 {
@@ -39,6 +40,7 @@ enum class MutexError
     DEADLOCK_CONDITION,
     NOT_OWNED_BY_THREAD,
     INVALID_PRIORITY_CEILING_VALUE,
+    HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED,
     UNDEFINED
 };
 
@@ -80,8 +82,9 @@ class Mutex
     /// @todo iox-#1036 remove this, introduced to keep current API temporarily
     explicit Mutex(const bool f_isRecursive) noexcept;
 
-    /// @brief Destroyes the mutex. When the is still locked this will fail and the
-    ///        mutex is leaked!
+    /// @brief Destroys the mutex. When the mutex is still locked this will fail and the
+    ///        mutex is leaked! If the MutexThreadTerminationBehavior is set to RELEASE_WHEN_LOCKED
+    ///        a locked mutex is unlocked and the handle is cleaned up correctly.
     ~Mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
@@ -99,7 +102,7 @@ class Mutex
     ///          * will be non blocking when the lock call comes from the same thread and the
     ///              mutex type is MutexType::RECURSIVE
     ///          * will be blocking when for all non MutexType::RECURSIVE
-    ///          * will be a MutexError::DEADLOCK_CONDITION when it is a
+    ///          * will return a MutexError::DEADLOCK_CONDITION when it is a
     ///              MutexType::WITH_DEADLOCK_DETECTION
 
     cxx::expected<MutexError> lock() noexcept;
@@ -119,6 +122,12 @@ class Mutex
     ///         On failure it returns MutexError describing the failure.
     cxx::expected<MutexTryLock, MutexError> try_lock() noexcept;
 
+    /// @brief When a mutex owning thread/process with MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED dies then the
+    ///        next instance which would like to acquire the lock will get an
+    ///        MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts the mutex again into a
+    ///        consistent state. If the mutex is already in a consistent state it will do nothing.
+    void make_consistent() noexcept;
+
   private:
     Mutex() noexcept = default;
 
@@ -126,8 +135,9 @@ class Mutex
     friend class MutexBuilder;
     friend class cxx::optional<Mutex>;
 
-    pthread_mutex_t m_handle;
+    pthread_mutex_t m_handle = PTHREAD_MUTEX_INITIALIZER;
     bool m_isDescructable = true;
+    bool m_hasInconsistentState = false;
 };
 
 /// @todo iox-#1036 remove this, introduced to keep current API temporarily
@@ -151,7 +161,8 @@ enum class MutexType : int32_t
     WITH_DEADLOCK_DETECTION = PTHREAD_MUTEX_ERRORCHECK,
 };
 
-/// @brief Describes the priority setting of the mutex.
+/// @brief Describes how the priority of a mutex owning thread changes when another thread
+///        with an higher priority would like to acquire the mutex.
 enum class MutexPriorityInheritance : int32_t
 {
     /// @brief No priority setting.
@@ -170,11 +181,14 @@ enum class MutexPriorityInheritance : int32_t
 /// @brief Defines the behavior when a mutex owning thread is terminated
 enum class MutexThreadTerminationBehavior : int32_t
 {
-    /// @brief The mutex stays locked is unlockable and no longer usable.
+    /// @brief The mutex stays locked, is unlockable and no longer usable.
     ///        This can also lead to a mutex leak in the destructor.
     STALL_WHEN_LOCKED = PTHREAD_MUTEX_STALLED,
 
-    /// @brief The mutex is unlocked when the thread is terminated.
+    /// @brief It implies the same behavior as MutexType::WITH_DEADLOCK_DETECTION. Additionally, when a mutex owning
+    ///        thread/process dies the mutex is put into an inconsistent state which can be recovered with
+    ///        Mutex::make_consistent(). The inconsistent state is detected by the next instance which calls
+    ///        Mutex::lock() or Mutex::try_lock() by the error value MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED
     RELEASE_WHEN_LOCKED = PTHREAD_MUTEX_ROBUST,
 };
 

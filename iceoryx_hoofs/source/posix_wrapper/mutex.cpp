@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 #include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
-#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
 
 #include "iceoryx_hoofs/platform/platform_correction.hpp"
 namespace iox
@@ -217,7 +217,7 @@ Mutex::~Mutex() noexcept
             switch (destroyCall.get_error().errnum)
             {
             case EBUSY:
-                LogError() << "Tried to remove a locked mutex which failed. The mutex resource is now leaked and "
+                LogError() << "Tried to remove a locked mutex which failed. The mutex handle is now leaked and "
                               "cannot be removed anymore!";
                 break;
             default:
@@ -225,6 +225,16 @@ Mutex::~Mutex() noexcept
                 break;
             }
         }
+    }
+}
+
+void Mutex::make_consistent() noexcept
+{
+    if (this->m_hasInconsistentState)
+    {
+        posixCall(pthread_mutex_consistent)(&m_handle).returnValueMatchesErrno().evaluate().or_else(
+            [](auto) { LogError() << "This should never happen. Unable to put robust mutex in a consistent state!"; });
+        this->m_hasInconsistentState = false;
     }
 }
 
@@ -246,6 +256,11 @@ cxx::expected<MutexError> Mutex::lock() noexcept
         case EDEADLK:
             LogError() << "Deadlock in mutex detected.";
             return cxx::error<MutexError>(MutexError::DEADLOCK_CONDITION);
+        case EOWNERDEAD:
+            LogError() << "The thread/process which owned the mutex died. The mutex is now in an inconsistent state "
+                          "and must be put into a consistent state again with Mutex::make_consistent()";
+            this->m_hasInconsistentState = true;
+            return cxx::error<MutexError>(MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
             LogError() << "This should never happen. An unknown error occurred while locking the mutex. "
                           "This can indicate a either corrupted or non-posix compliant system.";
@@ -291,6 +306,11 @@ cxx::expected<MutexTryLock, MutexError> Mutex::try_lock() noexcept
             LogError() << "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
                           "priority is greater than the mutex priority.";
             return cxx::error<MutexError>(MutexError::PRIORITY_MISMATCH);
+        case EOWNERDEAD:
+            LogError() << "The thread/process which owned the mutex died. The mutex is now in an inconsistent state "
+                          "and must be put into a consistent state again with Mutex::make_consistent()";
+            this->m_hasInconsistentState = true;
+            return cxx::error<MutexError>(MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
             LogError() << "This should never happen. An unknown error occurred while try locking the mutex. "
                           "This can indicate a either corrupted or non-posix compliant system.";
