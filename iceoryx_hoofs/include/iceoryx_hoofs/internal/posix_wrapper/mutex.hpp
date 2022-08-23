@@ -21,7 +21,6 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/platform/pthread.hpp"
-#include <pthread.h>
 
 namespace iox
 {
