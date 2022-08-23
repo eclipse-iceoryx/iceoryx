@@ -132,6 +132,11 @@ int pthread_mutexattr_setprioceiling(pthread_mutexattr_t* attr, int prioceiling)
     return 0;
 }
 
+int pthread_mutex_consistent(pthread_mutex_t* mutex)
+{
+    return 0;
+}
+
 int pthread_mutex_destroy(pthread_mutex_t* mutex)
 {
     if (!mutex->isInterprocessMutex)
