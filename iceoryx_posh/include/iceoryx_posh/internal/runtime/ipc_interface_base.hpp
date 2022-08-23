@@ -31,11 +31,9 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
-#if defined(_WIN32)
+#include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
-#else
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#endif
 
 #include <cstdint>
 #include <cstdio>

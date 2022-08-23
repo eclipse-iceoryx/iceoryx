@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_dust/posix_wrapper/message_queue.hpp"
+#include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 #include "test.hpp"
@@ -100,7 +100,7 @@ const size_t IpcChannel_test<T>::MaxMsgSize = IpcChannelType::MAX_MESSAGE_SIZE;
 template <typename T>
 constexpr uint64_t IpcChannel_test<T>::MaxMsgNumber;
 
-TYPED_TEST_SUITE(IpcChannel_test, IpcChannelTypes);
+TYPED_TEST_SUITE(IpcChannel_test, IpcChannelTypes, );
 
 
 TYPED_TEST(IpcChannel_test, CreateWithTooLargeMessageSizeWillBeClampedToMaxMessageSize)
@@ -144,7 +144,7 @@ TYPED_TEST(IpcChannel_test, CreateAgainWorks)
 TYPED_TEST(IpcChannel_test, CreateAgainAndEmptyWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c6bf30dc-661d-47f9-8365-2cda5ca067f9");
-    if (std::is_same<typename TestFixture::IpcChannelType, NamedPipe>::value)
+    if (std::is_same<typename TestFixture::IpcChannelType, runtime::IpcInterface<NamedPipe>>::value)
     {
         // A NamedPipe server creates and destroys a pipe only when it was created
         // by itself. It is a normal use case that multiple instances can send
