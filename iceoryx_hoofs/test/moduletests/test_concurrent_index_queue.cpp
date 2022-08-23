@@ -31,11 +31,6 @@ class IndexQueueTest : public ::testing::Test
     using Queue = T;
     using index_t = typename Queue::value_t;
 
-  protected:
-    IndexQueueTest() = default;
-
-    ~IndexQueueTest() override = default;
-
     Queue queue;
     Queue fullQueue{Queue::ConstructFull};
 };

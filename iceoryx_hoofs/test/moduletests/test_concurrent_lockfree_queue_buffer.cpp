@@ -30,13 +30,7 @@ class LockFreeQueueBufferTest : public ::testing::Test
 {
   public:
     using Buffer = T;
-
-  protected:
-    LockFreeQueueBufferTest() = default;
-
-    ~LockFreeQueueBufferTest() override = default;
-
-    Buffer buffer;
+    Buffer buffer{};
 
     void fillBuffer(int startValue)
     {

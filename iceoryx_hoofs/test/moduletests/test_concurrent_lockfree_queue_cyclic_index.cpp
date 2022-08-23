@@ -29,11 +29,6 @@ class LockFreeQueueCyclicIndexTest : public ::testing::Test
 {
   public:
     using Index = T;
-
-  protected:
-    LockFreeQueueCyclicIndexTest() = default;
-
-    ~LockFreeQueueCyclicIndexTest() override = default;
 };
 
 typedef ::testing::Types<CyclicIndex<1>, CyclicIndex<2>, CyclicIndex<10>, CyclicIndex<1000>> TestIndices;

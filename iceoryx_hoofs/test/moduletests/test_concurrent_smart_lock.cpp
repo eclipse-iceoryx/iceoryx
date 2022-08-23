@@ -178,6 +178,8 @@ TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, std::move(tester));
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
+    /// NOLINTJUSTIFICATION we want to test defined behavior of a moved smart_lock
+    /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_TRUE(tester.isMoved());
 }
 
