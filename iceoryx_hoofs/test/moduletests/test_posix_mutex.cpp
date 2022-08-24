@@ -177,7 +177,7 @@ TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
     lockedMutexBlocks(this, *sutRecursive);
 }
 
-#if !defined(_WIN32)
+#ifndef _WIN32
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "feb07935-674d-4ebc-abaa-66664751719a");
