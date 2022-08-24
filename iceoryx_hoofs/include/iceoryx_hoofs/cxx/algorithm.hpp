@@ -26,6 +26,8 @@ namespace iox
 {
 namespace algorithm
 {
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
 /// @brief Returns the maximum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which is required as generic
 ///          recursive template endpoint.
@@ -35,6 +37,8 @@ namespace algorithm
 template <typename T>
 constexpr T max(const T& left) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
 /// @brief Returns the maximum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which takes two arguments and returns the
 ///          greater one.
@@ -45,6 +49,9 @@ constexpr T max(const T& left) noexcept;
 template <typename T>
 constexpr T max(const T& left, const T& right) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
+// max value of more than two values, initializer list from STL uses heap
 /// @brief Returns the maximum gained with operator<() of an arbitrary amount
 ///          of variables of the same type.
 /// @param T type which implements operator<()
@@ -55,6 +62,8 @@ constexpr T max(const T& left, const T& right) noexcept;
 template <typename T, typename... Targs>
 constexpr T max(const T& left, const T& right, const Targs&... args) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which is required as generic
 ///          recursive template endpoint.
@@ -64,6 +73,8 @@ constexpr T max(const T& left, const T& right, const Targs&... args) noexcept;
 template <typename T>
 constexpr T min(const T& left) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which takes two arguments and returns the
 ///          smaller one.
@@ -74,6 +85,8 @@ constexpr T min(const T& left) noexcept;
 template <typename T>
 constexpr T min(const T& left, const T& right) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type.
 /// @param T type which implements operator<()

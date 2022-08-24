@@ -23,36 +23,48 @@ namespace iox
 {
 namespace algorithm
 {
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T>
 inline constexpr T max(const T& left) noexcept
 {
     return left;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T>
 inline constexpr T max(const T& left, const T& right) noexcept
 {
     return (right < left) ? left : right;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// maximum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T, typename... Targs>
 inline constexpr T max(const T& left, const T& right, const Targs&... args) noexcept
 {
     return max(max(left, right), args...);
 }
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T>
 inline constexpr T min(const T& left) noexcept
 {
     return left;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T>
 inline constexpr T min(const T& left, const T& right) noexcept
 {
     return (left < right) ? left : right;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : standard library function intentionally overridden to retrieve the
+// minimum of an arbitrary amount of arguments without using an initializer list which uses the heap
 template <typename T, typename... Targs>
 inline constexpr T min(const T& left, const T& right, const Targs&... args) noexcept
 {
@@ -71,6 +83,7 @@ inline constexpr bool doesContainType() noexcept
     return doesContainType<T, CompareType>() || doesContainType<T, Next, Remainder...>();
 }
 
+// AXIVION Next Construct AutosarC++19_03-A0.1.4 : function finalizes compile time recursion of doesContainValue
 template <typename T>
 inline constexpr bool doesContainValue(const T v IOX_MAYBE_UNUSED) noexcept
 {
