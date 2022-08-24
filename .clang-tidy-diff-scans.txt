@@ -11,23 +11,22 @@
 ./iceoryx_hoofs/test/moduletests/test_relative_pointer*
 ./iceoryx_hoofs/source/relocatable_pointer/*
 
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.hpp
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/sofi.inl
-./iceoryx_hoofs/test/moduletests/test_concurrent_sofi.cpp
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/*
+./iceoryx_hoofs/include/iceoryx_hoofs/concurrent/*
+./iceoryx_hoofs/source/concurrent/*
+./iceoryx_hoofs/test/moduletests/test_concurrent_*
 ./iceoryx_hoofs/test/stresstests/test_stress_sofi.cpp
-./iceoryx_hoofs/source/relocatable_pointer/relative_pointer_data.cpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*
-
-./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
-
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/source/posix_wrapper/*
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
 
-./iceoryx_dust/include/iceoryx_dust/test/moduletests/test_relocatable_ptr.cpp
+./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
+
+./iceoryx_dust/test/moduletests/test_relocatable_ptr.cpp
 
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and

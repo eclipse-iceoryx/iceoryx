@@ -44,7 +44,7 @@ class LoFFLi_test : public Test
   public:
     void SetUp() override
     {
-        m_loffli.init(m_memoryLoFFLi, Size);
+        m_loffli.init(&m_memoryLoFFLi[0], Size);
     }
 
     void TearDown() override
@@ -53,7 +53,7 @@ class LoFFLi_test : public Test
 
     using LoFFLiIndex_t = typename LoFFLiType::Index_t;
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for LoFFLi::init
-    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)];
+    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)]{0};
     LoFFLiType m_loffli;
 };
 
@@ -74,7 +74,7 @@ TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
     decltype(this->m_loffli) loFFLi;
     // todo #1196 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(loFFLi.init(memoryLoFFLi, 0), ".*");
+    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], 0), ".*");
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
@@ -85,7 +85,7 @@ TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
     decltype(this->m_loffli) loFFLi;
     // todo #1196 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(loFFLi.init(memoryLoFFLi, UINT32_MAX - 1), ".*");
+    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1), ".*");
 }
 
 

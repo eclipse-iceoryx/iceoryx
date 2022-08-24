@@ -48,11 +48,7 @@ struct Integer
 template <typename T>
 class ResizeableLockFreeQueueTest : public ::testing::Test
 {
-  protected:
-    ResizeableLockFreeQueueTest() = default;
-
-    ~ResizeableLockFreeQueueTest() override = default;
-
+  public:
     void fillQueue(uint64_t start = 0)
     {
         uint64_t element{start};

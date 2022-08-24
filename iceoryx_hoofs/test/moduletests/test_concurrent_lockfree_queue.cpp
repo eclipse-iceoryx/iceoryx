@@ -52,11 +52,7 @@ struct Integer
 template <typename Config>
 class LockFreeQueueTest : public ::testing::Test
 {
-  protected:
-    LockFreeQueueTest() = default;
-
-    ~LockFreeQueueTest() override = default;
-
+  public:
     void SetUp() override
     {
         // reduce capacity before running the tests if required by config
