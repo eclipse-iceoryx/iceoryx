@@ -17,21 +17,21 @@
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 #define IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 
 namespace iox
 {
 namespace cxx
 {
 /// @todo better name
-/// create a GenericRAII object to cleanup a static optional object at the end of the scope
+/// create a ScopeGuard object to cleanup a static optional object at the end of the scope
 /// @tparam [in] T memory container which has emplace(...) and reset
 /// @tparam [in] CTorArgs ctor types for the object to construct
 /// @param [in] memory is a reference to a memory container, e.g. cxx::optional
 /// @param [in] ctorArgs ctor arguments for the object to construct
-/// @return cxx::GenericRAII
+/// @return cxx::ScopeGuard
 template <typename T, typename... CTorArgs>
-GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
+ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
 } // namespace cxx
 } // namespace iox
 

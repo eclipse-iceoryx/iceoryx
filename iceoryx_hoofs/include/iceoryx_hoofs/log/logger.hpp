@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_LOG_LOGGER_HPP
 #define IOX_HOOFS_LOG_LOGGER_HPP
 
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/log/logcommon.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 
@@ -55,12 +55,12 @@ class Logger
     // NOLINTNEXTLINE(readability-identifier-naming)
     void SetLogLevel(const LogLevel logLevel) noexcept;
 
-    /// @brief Sets the LogLevel to the given level for the lifetime of the GenericRAII object and then sets it back to
+    /// @brief Sets the LogLevel to the given level for the lifetime of the ScopeGuard object and then sets it back to
     /// the previous one
     /// @param[in] logLevel to be set temporarily
     /// @return a scope guard which resets the LogLevel to the value at the time when this method was called
     // NOLINTNEXTLINE(readability-identifier-naming)
-    cxx::GenericRAII SetLogLevelForScope(const LogLevel logLevel) noexcept;
+    cxx::ScopeGuard SetLogLevelForScope(const LogLevel logLevel) noexcept;
 
     // NOLINTNEXTLINE(readability-identifier-naming)
     void SetLogMode(const LogMode logMode) noexcept;

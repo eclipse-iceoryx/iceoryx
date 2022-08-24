@@ -76,6 +76,7 @@
 - Moved package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
 - Set `SOVERSION` with project major version for shared libraries in CMake [\#1308](https://github.com/eclipse-iceoryx/iceoryx/issues/1308)
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
+- Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 
 **Workflow:**
 
@@ -317,4 +318,28 @@
     std::cout << arrayCapacity(LITERAL1) << std::endl; // prints 4
     std::cout << arrayCapacity(LITERAL2) << std::endl; // prints 20
     std::cout << arrayCapacity(ARRAY) << std::endl;    // prints 42
+    ```
+
+18. Rename `cxx::GenericRAII` to `cxx::ScopeGuard`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/generic_raii.hpp"
+    iox::cxx::GenericRAII {[]()
+    {
+        // do on creation
+    },[]()
+    {
+        // do on destruction
+    }};
+
+    // after
+    #include "iceoryx_hoofs/cxx/scope_guard.hpp"
+    iox::cxx::ScopeGuard {[]()
+    {
+        // do on creation
+    },[]()
+    {
+        // do on destruction
+    }};
     ```

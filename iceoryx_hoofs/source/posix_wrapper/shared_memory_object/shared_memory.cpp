@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/platform/mman.hpp"
 #include "iceoryx_hoofs/platform/stat.hpp"
@@ -72,7 +72,7 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
     int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
     {
-        cxx::GenericRAII umaskGuard([&] { umask(umaskSaved); });
+        cxx::ScopeGuard umaskGuard([&] { umask(umaskSaved); });
 
         if (m_openMode == OpenMode::PURGE_AND_CREATE)
         {

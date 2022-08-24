@@ -44,7 +44,7 @@ class ErrorHandlerMock : protected ErrorHandler
 {
   public:
     template <typename Error>
-    static cxx::GenericRAII setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
+    static cxx::ScopeGuard setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
 
   protected:
     static std::mutex m_handlerMutex;
@@ -76,10 +76,10 @@ inline void errorHandlerForTest(const uint32_t error, const char* errorName, con
 }
 
 template <typename Error>
-inline cxx::GenericRAII
+inline cxx::ScopeGuard
 ErrorHandlerMock::setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept
 {
-    return cxx::GenericRAII(
+    return cxx::ScopeGuard(
         [&newHandler] {
             std::lock_guard<std::mutex> lock(m_handlerMutex);
             typedHandler<Error>.emplace(newHandler);
