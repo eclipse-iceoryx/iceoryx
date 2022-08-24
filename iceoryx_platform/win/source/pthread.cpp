@@ -185,6 +185,7 @@ static HANDLE acquireMutexHandle(pthread_mutex_t* mutex)
 
 int pthread_mutex_init(pthread_mutex_t* mutex, const pthread_mutexattr_t* attr)
 {
+    *mutex = pthread_mutex_t();
     mutex->isInterprocessMutex = (attr != NULL && attr->isInterprocessMutex);
 
     if (!mutex->isInterprocessMutex)
