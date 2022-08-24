@@ -65,14 +65,15 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     uninitializedThread.emplace();
     uninitializedThread->m_callable = callable;
 
+    uninitializedThread->m_threadName = m_name;
+
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
-    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_threadHandle,
-                                                      threadAttributes,
-                                                      Thread::startRoutine,
-                                                      &uninitializedThread->m_callable)
-                            .successReturnValue(0)
-                            .evaluate();
+    auto createResult =
+        posixCall(iox_pthread_create)(
+            &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread)
+            .successReturnValue(0)
+            .evaluate();
     uninitializedThread->m_isThreadConstructed = !createResult.has_error();
     if (!uninitializedThread->m_isThreadConstructed)
     {
@@ -80,10 +81,10 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
-    posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to set thread name.");
+    // posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
+    //.successReturnValue(0)
+    //.evaluate()
+    //.expect("This should never happen! Failed to set thread name.");
     /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
     /// and errors possible for open(2) can be retrieved. Handle them here?
     /// @todo iox-#1365 Do we really want to terminate?
@@ -154,7 +155,22 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 
 void* Thread::startRoutine(void* callable)
 {
-    (*static_cast<callable_t*>(callable))();
+    auto* self = static_cast<Thread*>(callable);
+    posixCall(iox_pthread_setname_np)(self->m_threadHandle, self->m_threadName.c_str())
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([&self](auto&) {
+            std::cout << "failed to set name" << std::endl;
+            self->m_threadName.clear();
+        });
+    //.expect("This should never happen! Failed to set thread name.");
+    char name[MAX_THREAD_NAME_LENGTH + 1U];
+
+    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
+    /// and errors possible for open(2) can be retrieved. Handle them here?
+    /// @todo iox-#1365 Do we really want to terminate?
+    self->m_callable();
+    //(*static_cast<callable_t*>(callable))();
     return nullptr;
 }
 } // namespace posix
