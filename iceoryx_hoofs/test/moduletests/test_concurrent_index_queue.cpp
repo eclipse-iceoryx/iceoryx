@@ -79,7 +79,7 @@ TYPED_TEST(IndexQueueTest, queueIsNotEmptyAfterPush)
 
     ASSERT_TRUE(index.has_value());
     // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
-    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // value with Queue::ConstructFull
     // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(index.value());
     EXPECT_FALSE(q.empty());
@@ -94,7 +94,7 @@ TYPED_TEST(IndexQueueTest, queueIsEmptyAgainAfterPushFollowedByPop)
 
     ASSERT_TRUE(index.has_value());
     // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
-    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // value with Queue::ConstructFull
     // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(index.value());
     EXPECT_FALSE(q.empty());
@@ -158,7 +158,7 @@ TYPED_TEST(IndexQueueTest, pushAndPopSingleElement)
 
     ASSERT_TRUE(index.has_value());
     // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
-    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // value with Queue::ConstructFull
     // NOLINTNEXTLINE(clang-analyzer-core.uninitialized.Assign)
     index_t rawIndex = index.value();
 
@@ -264,7 +264,7 @@ TYPED_TEST(IndexQueueTest, popIfSizeIsAtLeastZeroReturnsIndexIfQueueContainsOneE
     auto index = this->fullQueue.pop();
     ASSERT_TRUE(index.has_value());
     // NOLINTJUSTIFICATION false positive, we checked that index.has_value() and the fullQueue has initialized every
-    // value with Queue::ConstructFull and the fullQueue has initialized every value with Queue::ConstructFull
+    // value with Queue::ConstructFull
     // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage)
     q.push(*index);
 
