@@ -37,4 +37,9 @@ iox_pthread_t iox_pthread_self();
 int pthread_mutexattr_setrobust(pthread_mutexattr_t*, int);
 
 
+inline int pthread_mutex_consistent(pthread_mutex_t*)
+{
+    return 0;
+}
+
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP
