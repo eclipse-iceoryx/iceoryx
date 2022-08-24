@@ -18,6 +18,7 @@
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 #include "test.hpp"
@@ -269,7 +270,7 @@ TYPED_TEST(IpcChannel_test, SendMoreThanAllowedLeadsToError)
     EXPECT_EQ(shortMessage, receivedMessage);
 }
 
-#if !defined(__APPLE__)
+#if !(defined(__APPLE__) || defined(__FreeBSD__))
 TYPED_TEST(IpcChannel_test, TimedSendWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "12fe0ee5-37f8-4c34-ba44-ed50872a5fd9");
@@ -278,8 +279,7 @@ TYPED_TEST(IpcChannel_test, TimedSendWorks)
 
     runtime::IpcMessage msg;
     msg << "ISG rules. And some more                                                                        "
-           "data to have a bit                                                                              "
-           "longer message";
+           "data to have a bit longer message                                                               ";
 
     Duration maxTimeout = 100_ms;
 
