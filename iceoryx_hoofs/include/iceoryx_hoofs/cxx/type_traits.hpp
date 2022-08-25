@@ -22,6 +22,7 @@
 #include <type_traits>
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/platform/platform_settings.hpp"
 
 namespace iox
 {
@@ -56,16 +57,7 @@ using add_const_conditionally_t = typename add_const_conditionally<T, C>::type;
 ///
 template <typename>
 constexpr bool always_false_v{false};
-// windows defines __cplusplus as 199711L
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: TODO
-#if (__cplusplus < 201703L) && !defined(_WIN32)
-template <typename C, typename... Cargs>
-using invoke_result = std::result_of<C(Cargs...)>;
-#elif (__cplusplus >= 201703L) || defined(_WIN32)
-template <typename C, typename... Cargs>
-using invoke_result = std::invoke_result<C, Cargs...>;
-#endif
-// AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1:
+
 ///
 /// @brief Verifies whether the passed Callable type is in fact invocable with the given arguments
 ///
@@ -75,7 +67,7 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-    static constexpr std::true_type test(typename cxx::invoke_result<C, As...>::type* f IOX_MAYBE_UNUSED) noexcept
+    static constexpr std::true_type test(typename platform::invoke_result<C, As...>::type* f IOX_MAYBE_UNUSED) noexcept
     {
         return {};
     }
@@ -107,7 +99,7 @@ struct is_invocable_r
 {
     template <typename C, typename... As>
     static constexpr std::true_type
-    test(std::enable_if_t<std::is_convertible<typename cxx::invoke_result<C, As...>::type, ReturnType>::value>* f
+    test(std::enable_if_t<std::is_convertible<typename platform::invoke_result<C, As...>::type, ReturnType>::value>* f
              IOX_MAYBE_UNUSED) noexcept
     {
         return {};

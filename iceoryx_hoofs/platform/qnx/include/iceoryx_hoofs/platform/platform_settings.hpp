@@ -35,6 +35,9 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/'};
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 2048;
 constexpr const char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
 constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "/var/lock/";
+
+template <typename C, typename... Cargs>
+using invoke_result = std::result_of<C(Cargs...)>;
 } // namespace platform
 } // namespace iox
 

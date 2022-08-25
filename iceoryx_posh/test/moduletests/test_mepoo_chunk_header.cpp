@@ -142,7 +142,7 @@ TEST(ChunkHeader_test, ChunkHeaderBinaryCompatibilityCheck)
 TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "540e2e95-0890-4522-ae7f-c6d867679e0b");
-    using ChunkSize_t = iox::cxx::invoke_result<decltype(&MemPool::getChunkSize), MemPool>::type;
+    using ChunkSize_t = iox::platform::invoke_result<decltype(&MemPool::getChunkSize), MemPool>::type;
 
     auto maxOfChunkSizeType = std::numeric_limits<ChunkSize_t>::max();
     auto maxOfUserPayloadSizeType = std::numeric_limits<decltype(std::declval<ChunkHeader>().userPayloadSize())>::max();
