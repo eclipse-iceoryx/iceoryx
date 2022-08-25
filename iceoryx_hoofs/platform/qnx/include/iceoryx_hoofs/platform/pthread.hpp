@@ -43,4 +43,9 @@ inline int iox_pthread_join(iox_pthread_t thread, void** retval)
     return pthread_join(thread, retval);
 }
 
+inline iox_pthread_t iox_pthread_self()
+{
+    return pthread_self();
+}
+
 #endif // IOX_HOOFS_QNX_PLATFORM_PTHREAD_HPP

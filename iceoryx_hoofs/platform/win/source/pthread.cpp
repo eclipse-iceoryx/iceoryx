@@ -78,12 +78,18 @@ int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, vo
     }
 
     *thread = result.value;
+
     return result.error;
 }
 
 int iox_pthread_join(iox_pthread_t thread, void**)
 {
     return Win32Call(WaitForSingleObject, thread, INFINITE).error;
+}
+
+iox_pthread_t iox_pthread_self()
+{
+    return GetCurrentThread();
 }
 
 int pthread_mutexattr_destroy(pthread_mutexattr_t* attr)

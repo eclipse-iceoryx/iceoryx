@@ -30,4 +30,7 @@ int iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, vo
 
 int iox_pthread_join(iox_pthread_t thread, void** retval);
 
+iox_pthread_t iox_pthread_self();
+
+
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP

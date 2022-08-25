@@ -70,7 +70,7 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
 
     auto createResult =
         posixCall(iox_pthread_create)(
-            &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread)
+            &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
             .successReturnValue(0)
             .evaluate();
     uninitializedThread->m_isThreadConstructed = !createResult.has_error();
@@ -135,7 +135,9 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 void* Thread::startRoutine(void* callable)
 {
     auto* self = static_cast<Thread*>(callable);
-    posixCall(iox_pthread_setname_np)(self->m_threadHandle, self->m_threadName.c_str())
+    auto threadHandle = iox_pthread_self();
+
+    posixCall(iox_pthread_setname_np)(threadHandle, self->m_threadName.c_str())
         .successReturnValue(0)
         .evaluate()
         .or_else([&self](auto&) {

@@ -230,10 +230,22 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     const T&& value() const&& noexcept;
 
   private:
+    // the hasValue member should be first member in the memory layout to reveal casting
+    // bugs early.
+    //
+    // See the following problem:
+    //   void initHandle(void * ptr) {
+    //     Handle * handle = static_cast<Handle>(ptr);
+    //   }
+    //   void doStuff(cxx::optional<Handle> & handle) {
+    //     // uses optional<Handle> instead of handle, if the bool is the second parameter such
+    //     // mistakes can be introduced quickly in low level c abstraction classes
+    //     initHandle(&handle);
+    //   }
+    bool m_hasValue{false};
     // safe access is guaranteed since the array is wrapped inside the optional
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(T) byte_t m_data[sizeof(T)];
-    bool m_hasValue{false};
 
   private:
     template <typename... Targs>
