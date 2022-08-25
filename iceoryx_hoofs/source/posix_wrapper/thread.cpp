@@ -52,7 +52,6 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
     return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static) not possible after PR #1441 is merged
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
                                                  const Thread::callable_t& callable) noexcept
 {
@@ -81,14 +80,6 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
-    // posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
-    //.successReturnValue(0)
-    //.evaluate()
-    //.expect("This should never happen! Failed to set thread name.");
-    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo iox-#1365 Do we really want to terminate?
-
     return cxx::success<>();
 }
 
@@ -114,19 +105,7 @@ Thread::~Thread() noexcept
 
 ThreadName_t Thread::getName() const noexcept
 {
-    // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
-
-    posixCall(iox_pthread_getname_np)(m_threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to retrieve the thread name.");
-    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo iox-#1365 Do we really want to terminate?
-
-    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
+    return m_threadName;
 }
 
 ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
@@ -160,17 +139,11 @@ void* Thread::startRoutine(void* callable)
         .successReturnValue(0)
         .evaluate()
         .or_else([&self](auto&) {
-            std::cout << "failed to set name" << std::endl;
+            LogWarn() << "failed to set thread name " << self->m_threadName;
             self->m_threadName.clear();
         });
-    //.expect("This should never happen! Failed to set thread name.");
-    char name[MAX_THREAD_NAME_LENGTH + 1U];
 
-    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo iox-#1365 Do we really want to terminate?
     self->m_callable();
-    //(*static_cast<callable_t*>(callable))();
     return nullptr;
 }
 } // namespace posix
