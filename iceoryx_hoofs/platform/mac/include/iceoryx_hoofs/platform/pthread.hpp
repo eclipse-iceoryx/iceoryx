@@ -32,5 +32,4 @@ int iox_pthread_join(iox_pthread_t thread, void** retval);
 
 iox_pthread_t iox_pthread_self();
 
-
 #endif // IOX_HOOFS_MAC_PLATFORM_PTHREAD_HPP
