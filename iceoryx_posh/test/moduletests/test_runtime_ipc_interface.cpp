@@ -36,10 +36,12 @@ using namespace iox::units::duration_literals;
 using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>>;
 #elif defined(_WIN32)
 using IpcChannelTypes = Types<runtime::IpcInterface<NamedPipe>>;
-#elif defined(unix) || defined(__unix) || defined(__unix__)
+#elif defined(__linux) || defined(__gnu_linux__) || defined(linux) || defined(__linux__)
 using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>,
                               runtime::IpcInterface<NamedPipe>,
                               runtime::IpcInterface<MessageQueue>>;
+#elif defined(unix) || defined(__unix) || defined(__unix__)
+using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>, runtime::IpcInterface<NamedPipe>>;
 #else
 using IpcChannelTypes = Types<runtime::IpcInterface<UnixDomainSocket>,
                               runtime::IpcInterface<NamedPipe>,
