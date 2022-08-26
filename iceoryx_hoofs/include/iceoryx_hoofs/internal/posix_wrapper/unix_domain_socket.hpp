@@ -94,41 +94,23 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
-    /// @brief c'tor
-    /// @param name for the unix domain socket
-    /// @param channel side client or server
-    /// @param maxMsgSize max message size that can be transmitted
-    /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    /// @brief c'tor
-    /// @param NoPathPrefix signalling that this constructor does not add a path prefix
-    /// @param name for the unix domain socket
-    /// @param channel side client or server
-    /// @param maxMsgSize max message size that can be transmitted
-    /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    /// @brief close the unix domain socket.
     cxx::expected<IpcChannelError> destroy() noexcept;
 
-    /// @brief initializes the unix domain socket
-    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
 
-    /// @brief create an IpcChannelError from the provides error code
-    /// @return IpcChannelError if error occured
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
 
-    /// @brief Tries to close the file descriptor
-    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:

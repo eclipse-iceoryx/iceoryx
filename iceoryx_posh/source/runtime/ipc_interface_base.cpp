@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -167,7 +167,10 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const posix::IpcChannelSide ch
 {
     m_channelSide = channelSide;
     IpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
-        .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); });
+        .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); })
+        .or_else([](auto& err) {
+            LogError() << "unable to create ipc channel with error code: " << static_cast<uint8_t>(err);
+        });
 
     return m_ipcChannel.isInitialized();
 }

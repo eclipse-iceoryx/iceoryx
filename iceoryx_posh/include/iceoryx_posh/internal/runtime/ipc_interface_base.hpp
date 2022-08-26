@@ -141,9 +141,10 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 class IpcInterfaceUser;
 class IpcInterfaceCreator;
 
-/// @brief Base-Class should never be used by the end-user.
-///     Handles the common properties and methods for the childs. The handling of
+/// @brief Class should never be used by the end-user.
+///     Handles the common properties and methods for the IpcChannelType. The handling of
 ///     the IPC channels must be done by the children.
+/// @tparam IpcChannelType the type of ipc channel, supported types are MessageQueue, NamedPipe and UnixDomainSocket
 /// @note This class won't uniquely identify if another object is using the same IPC channel
 template <typename IpcChannelType>
 class IpcInterface
