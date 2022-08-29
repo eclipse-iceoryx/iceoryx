@@ -54,7 +54,7 @@ class ScopeGuardWithVariableCapacity
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
     ScopeGuardWithVariableCapacity(const function_ref<void()>& initFunction,
-                                   const function<void()>& cleanupFunction) noexcept;
+                                   const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~ScopeGuardWithVariableCapacity() noexcept;

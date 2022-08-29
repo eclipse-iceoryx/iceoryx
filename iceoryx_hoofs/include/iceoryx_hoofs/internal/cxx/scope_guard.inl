@@ -24,54 +24,54 @@ namespace iox
 {
 namespace cxx
 {
-template <uint64_t Capacity>
-inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
-    const cxx::function<void(), Capacity>& cleanupFunction) noexcept
+template <uint64_t CleanupCapacity>
+inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
+    const cxx::function<void(), CleanupCapacity>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
 }
 
-template <uint64_t Capacity>
-inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
-    const function_ref<void()>& initFunction, const function<void()>& cleanupFunction) noexcept
+template <uint64_t CleanupCapacity>
+inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
+    const function_ref<void()>& initFunction, const function<void(), CleanupCapacity>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
     initFunction();
 }
 
-template <uint64_t Capacity>
-inline ScopeGuardWithVariableCapacity<Capacity>::~ScopeGuardWithVariableCapacity() noexcept
+template <uint64_t CleanupCapacity>
+inline ScopeGuardWithVariableCapacity<CleanupCapacity>::~ScopeGuardWithVariableCapacity() noexcept
 {
     destroy();
 }
 
-template <uint64_t Capacity>
-inline ScopeGuardWithVariableCapacity<Capacity>::ScopeGuardWithVariableCapacity(
+template <uint64_t CleanupCapacity>
+inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
     ScopeGuardWithVariableCapacity&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
-template <uint64_t Capacity>
-inline ScopeGuardWithVariableCapacity<Capacity>&
-ScopeGuardWithVariableCapacity<Capacity>::operator=(ScopeGuardWithVariableCapacity<Capacity>&& rhs) noexcept
+template <uint64_t CleanupCapacity>
+inline ScopeGuardWithVariableCapacity<CleanupCapacity>& ScopeGuardWithVariableCapacity<CleanupCapacity>::operator=(
+    ScopeGuardWithVariableCapacity<CleanupCapacity>&& rhs) noexcept
 {
     if (this != &rhs)
     {
         destroy();
         m_cleanupFunction = rhs.m_cleanupFunction;
-        rhs.m_cleanupFunction = function<void()>();
+        rhs.m_cleanupFunction = function<void(), CleanupCapacity>();
     }
     return *this;
 }
 
-template <uint64_t Capacity>
-inline void ScopeGuardWithVariableCapacity<Capacity>::destroy() noexcept
+template <uint64_t CleanupCapacity>
+inline void ScopeGuardWithVariableCapacity<CleanupCapacity>::destroy() noexcept
 {
     if (m_cleanupFunction)
     {
         m_cleanupFunction();
-        m_cleanupFunction = function<void()>();
+        m_cleanupFunction = function<void(), CleanupCapacity>();
     }
 }
 
