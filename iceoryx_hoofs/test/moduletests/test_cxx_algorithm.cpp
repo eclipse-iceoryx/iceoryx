@@ -45,37 +45,37 @@ class algorithm_test : public Test
 TEST_F(algorithm_test, MaxOfOneElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3fba70b4-252b-4c13-a98c-87b026254bba");
-    EXPECT_THAT(max(12.34F), Eq(12.34F));
+    EXPECT_THAT(maxVal(12.34F), Eq(12.34F));
 }
 
 TEST_F(algorithm_test, MaxOfTwoElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0443931f-3eb4-4ae2-99b3-029637f94d0f");
-    EXPECT_THAT(max(56.78F, 12.34F), Eq(56.78F));
+    EXPECT_THAT(maxVal(56.78F, 12.34F), Eq(56.78F));
 }
 
 TEST_F(algorithm_test, MaxOfManyElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "83c16bb2-90c5-4226-bed2-7e5cc5b34f22");
-    EXPECT_THAT(max(56.78F, 33.44F, 12.34F, -0.1F, 5.5F, 10001.F), Eq(10001.F));
+    EXPECT_THAT(maxVal(56.78F, 33.44F, 12.34F, -0.1F, 5.5F, 10001.F), Eq(10001.F));
 }
 
 TEST_F(algorithm_test, MinOfOneElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "384d8139-1a79-40ae-8caf-b468470c48d2");
-    EXPECT_THAT(min(0.0123F), Eq(0.0123F));
+    EXPECT_THAT(minVal(0.0123F), Eq(0.0123F));
 }
 
 TEST_F(algorithm_test, MinOfTwoElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0ad7d53-03f6-4ee2-9a0b-ee929dc047a7");
-    EXPECT_THAT(min(0.0123F, -91.12F), Eq(-91.12F));
+    EXPECT_THAT(minVal(0.0123F, -91.12F), Eq(-91.12F));
 }
 
 TEST_F(algorithm_test, MinOfManyElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8ec6db69-2260-4af9-83fe-73ae58c878b3");
-    EXPECT_THAT(min(0.0123F, -91.12F, 123.92F, -1021.2F, 0.0F), Eq(-1021.2F));
+    EXPECT_THAT(minVal(0.0123F, -91.12F, 123.92F, -1021.2F, 0.0F), Eq(-1021.2F));
 }
 
 TEST_F(algorithm_test, DoesContainValue_ValueListOfZeroDoesNotContainValue)

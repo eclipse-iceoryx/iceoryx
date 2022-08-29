@@ -448,7 +448,7 @@ void checkUserPayloadNotOverlappingWithUserHeader(const ChunkHeader& sut, const 
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
     const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
     const uint64_t userHeaderSizeAndPadding{
-        iox::algorithm::max(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)))};
+        iox::algorithm::maxVal(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)))};
     constexpr uint64_t BACK_OFFSET_SIZE{sizeof(UserPayloadOffset_t)};
     const uint64_t expectedRequiredSpace{sizeof(ChunkHeader) + userHeaderSizeAndPadding + BACK_OFFSET_SIZE};
 
