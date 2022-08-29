@@ -52,7 +52,6 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
     return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static) not possible after PR #1441 is merged
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
                                                  const Thread::callable_t& callable) noexcept
 {
@@ -65,28 +64,21 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     uninitializedThread.emplace();
     uninitializedThread->m_callable = callable;
 
+    uninitializedThread->m_threadName = m_name;
+
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
-    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_threadHandle,
-                                                      threadAttributes,
-                                                      Thread::startRoutine,
-                                                      &uninitializedThread->m_callable)
-                            .successReturnValue(0)
-                            .evaluate();
+    auto createResult =
+        posixCall(iox_pthread_create)(
+            &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
+            .successReturnValue(0)
+            .evaluate();
     uninitializedThread->m_isThreadConstructed = !createResult.has_error();
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
         return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
-
-    posixCall(iox_pthread_setname_np)(uninitializedThread->m_threadHandle, m_name.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to set thread name.");
-    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo iox-#1365 Do we really want to terminate?
 
     return cxx::success<>();
 }
@@ -113,19 +105,7 @@ Thread::~Thread() noexcept
 
 ThreadName_t Thread::getName() const noexcept
 {
-    // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
-
-    posixCall(iox_pthread_getname_np)(m_threadHandle, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to retrieve the thread name.");
-    /// @todo iox-#1365 thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo iox-#1365 Do we really want to terminate?
-
-    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
+    return m_threadName;
 }
 
 ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
@@ -154,7 +134,18 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
 
 void* Thread::startRoutine(void* callable)
 {
-    (*static_cast<callable_t*>(callable))();
+    auto* self = static_cast<Thread*>(callable);
+    auto threadHandle = iox_pthread_self();
+
+    posixCall(iox_pthread_setname_np)(threadHandle, self->m_threadName.c_str())
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([&self](auto&) {
+            LogWarn() << "failed to set thread name " << self->m_threadName;
+            self->m_threadName.clear();
+        });
+
+    self->m_callable();
     return nullptr;
 }
 } // namespace posix

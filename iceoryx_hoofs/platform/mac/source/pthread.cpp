@@ -65,3 +65,8 @@ int iox_pthread_join(iox_pthread_t thread, void** retval)
     }
     return pthread_join(thread, retval);
 }
+
+iox_pthread_t iox_pthread_self()
+{
+    return pthread_self();
+}

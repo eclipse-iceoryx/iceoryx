@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,6 +41,11 @@ iox_pthread_create(iox_pthread_t* thread, const iox_pthread_attr_t* attr, void* 
 inline int iox_pthread_join(iox_pthread_t thread, void** retval)
 {
     return pthread_join(thread, retval);
+}
+
+inline iox_pthread_t iox_pthread_self()
+{
+    return pthread_self();
 }
 
 #endif // IOX_HOOFS_LINUX_PLATFORM_PTHREAD_HPP
