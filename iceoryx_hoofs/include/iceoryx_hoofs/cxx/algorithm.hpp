@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -110,6 +110,9 @@ inline constexpr bool doesContainValue(const T v) noexcept;
 /// @param[in] value to look for in the ValueList
 /// @param[in] firstValueListEntry is the first variadic argument of ValueList
 /// @param[in] remainingValueListEntries are the remaining variadic arguments of ValueList
+/// @return true if value is contained in the ValueList, otherwise false
+/// @note be aware that value is tested for exact equality with the entries of ValueList which might lead to unexpected
+/// results for floating-point types
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
