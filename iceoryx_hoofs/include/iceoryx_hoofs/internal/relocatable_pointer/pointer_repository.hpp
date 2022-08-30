@@ -60,6 +60,11 @@ class PointerRepository
     /// @brief default constructor
     PointerRepository() noexcept;
 
+    PointerRepository(const PointerRepository&) = delete;
+    PointerRepository(PointerRepository&&) = delete;
+    void operator=(const PointerRepository &) = delete;
+    void operator=(PointerRepository &&) = delete;
+
     /// @brief registers the start pointer of the segment in another application with a specific id
     /// @param[in] id identifies the segment
     /// @param[in] ptr is the start pointer of the segment
