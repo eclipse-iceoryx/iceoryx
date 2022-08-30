@@ -27,19 +27,6 @@ namespace
 using namespace ::testing;
 using namespace iox::rp;
 
-struct Data
-{
-    // NOLINTJUSTIFICATION Used only for test purposes
-    // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-    Data(uint32_t i, uint32_t j)
-        : Data1(i)
-        , Data2(j)
-    {
-    }
-    uint32_t Data1 = 27;
-    uint32_t Data2 = 72;
-};
-
 constexpr uint64_t SHARED_MEMORY_SIZE = 4096UL * 32UL;
 constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
 uint8_t memoryPatternValue = 1U;
@@ -185,7 +172,7 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
 
     {
         RelativePointer<TypeParam> rp(nullptr);
-        EXPECT_EQ(rp, nullptr);
+        EXPECT_FALSE(rp);
     }
 
     {
@@ -194,7 +181,7 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
         auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp(typedPtr);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 }
 
@@ -214,7 +201,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), 0U);
         EXPECT_EQ(rp.getId(), 1U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
@@ -226,7 +213,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
@@ -238,7 +225,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 1U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
@@ -248,7 +235,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), 0);
         EXPECT_EQ(rp.getId(), 2U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
@@ -260,7 +247,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
@@ -272,13 +259,13 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         rp = typedPtr;
         EXPECT_EQ(rp.getOffset(), offset);
         EXPECT_EQ(rp.getId(), 2U);
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 
     {
         RelativePointer<TypeParam> rp;
         rp = nullptr;
-        EXPECT_EQ(rp, nullptr);
+        EXPECT_FALSE(rp);
     }
 
     {
@@ -288,7 +275,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
         auto* typedPtr = reinterpret_cast<TypeParam*>(ptr1 + offset);
         RelativePointer<TypeParam> rp;
         rp = typedPtr;
-        EXPECT_NE(rp, nullptr);
+        EXPECT_TRUE(rp);
     }
 }
 
@@ -551,8 +538,8 @@ TYPED_TEST(RelativePointer_test, DefaultConstructedRelativePtrIsNull)
     RelativePointer<TypeParam> rp1;
     RelativePointer<const TypeParam> rp2;
 
-    EXPECT_EQ(rp1, nullptr);
-    EXPECT_EQ(rp2, nullptr);
+    EXPECT_FALSE(rp1);
+    EXPECT_FALSE(rp2);
 }
 
 } // namespace
