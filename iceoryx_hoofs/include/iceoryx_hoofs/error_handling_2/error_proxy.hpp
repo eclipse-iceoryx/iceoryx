@@ -44,9 +44,9 @@ struct ErrorProxy
 
 
     template <class F, class... Args>
-    ErrorProxy& onError(const F& f, Args&&... args)
+    ErrorProxy& onError(const F& function, Args&&... args)
     {
-        f(std::forward<Args>(args)...);
+        function(std::forward<Args>(args)...);
         return *this;
     }
 
@@ -61,12 +61,16 @@ struct ErrorProxy
     void raise()
     {
         flush();
+        // use type trait for compile time evaluation
         if (is_fatal<Level>::value)
         {
-            preterminate(); // hook
+            preterminate();
 #ifndef TEST_PLATFORM
-            // TODO: how to ensure it cannot be overridden but also is not active in (all) tests?
+            // TODO: how to ensure it cannot be overridden by the userbut also is not active in (all) tests?
             //       do we want to make it available in platform as hook?
+
+            // std::terminate will always call the terminate handler and then abort
+            // (without stack unwinding)
             std::terminate();
 #endif
         }

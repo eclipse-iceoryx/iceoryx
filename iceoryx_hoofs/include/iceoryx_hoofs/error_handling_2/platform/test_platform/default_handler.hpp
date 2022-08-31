@@ -7,6 +7,7 @@ namespace eh
 {
 struct DefaultHandler : public HandlerInterface
 {
+    DefaultHandler() = default;
     ~DefaultHandler() override = default;
 
     void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module) override

@@ -25,7 +25,6 @@ void report(const SourceLocation& location, Level level, const Error& error)
     // This is not strictly necessary if the Error classes are well-defined
     // and e.g. follow an ineritance hierarchy (possible but intentionally not required).
 
-    std::cout << "REPORT " << std::endl;
     ErrorHandler::get()(location, level, error.code(), error.module());
 }
 

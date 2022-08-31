@@ -28,7 +28,7 @@ using B_Code = module_b::ErrorCode;
 using A_Error = module_a::Error;
 using A_Code = module_a::ErrorCode;
 
-bool g_terminateCalled;
+bool expectTerminate;
 
 #ifdef TEST_PLATFORM
 // optional handlers to be used in addition
@@ -44,10 +44,10 @@ ThrowHandler& throwHandler()
     return h;
 }
 
-template <typename Code>
-RuntimeError toError(Code code)
+template <typename Code, typename Level>
+RuntimeError toError(Code code, Level level)
 {
-    return RuntimeError::from(createError(code));
+    return RuntimeError::from(createError(code), level);
 }
 #endif
 
@@ -56,11 +56,8 @@ class ErrorHandling_test : public Test
   public:
     void SetUp() override
     {
-        // TODO this does not return so is not really useful to track terminate was called
-        // (distinguish crash and terminate call - if not needed we can use death tests)
-
-        g_terminateCalled = false;
-        terminateHandler = std::set_terminate([]() { g_terminateCalled = true; });
+        expectTerminate = false;
+        terminateHandler = std::set_terminate([]() { EXPECT_EQ(expectTerminate, true); });
 
 #ifdef TEST_PLATFORM
         ErrorHandler::reset();
@@ -76,14 +73,12 @@ class ErrorHandling_test : public Test
 
 TEST_F(ErrorHandling_test, fatalError)
 {
-    // when we just want to abort the program (gracefully)
-    // equivalent to IOX_RAISE(FATAL, code);
+    expectTerminate = false;
     IOX_FATAL(A_Code::Unknown);
 }
 
 TEST_F(ErrorHandling_test, raiseSpecific)
 {
-    // when we know and care about the specific error
     IOX_RAISE(WARNING, A_Code::OutOfBounds);
     IOX_RAISE(ERROR, A_Code::Unknown);
     IOX_RAISE(FATAL, A_Code::OutOfMemory);
@@ -194,7 +189,7 @@ TEST_F(ErrorHandling_test, verifyError1)
     // activate throwing behavior
     ErrorHandler::set(throwHandler());
 
-    auto expectedError = toError(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory, FATAL);
     try
     {
         // calling f which raises multiple errors would be a problem
@@ -217,7 +212,7 @@ TEST_F(ErrorHandling_test, verifyError2)
     // activate throwing behavior
     ErrorHandler::set(throwHandler());
 
-    auto expectedError = toError(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory, FATAL);
     EXPECT_THROW(
         {
             try
@@ -242,7 +237,7 @@ TEST_F(ErrorHandling_test, verifyError3)
     ErrorHandler::set(handler);
     // set cannot fail so we know handler was set
 
-    auto expectedError = toError(B_Code::OutOfMemory);
+    auto expectedError = toError(B_Code::OutOfMemory, FATAL);
 
     EXPECT_EQ(handler.errors().count(expectedError), 0);
 

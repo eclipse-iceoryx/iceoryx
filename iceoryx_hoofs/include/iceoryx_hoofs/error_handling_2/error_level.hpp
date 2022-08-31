@@ -15,9 +15,11 @@ struct Fatal
 {
     static constexpr char const* name = "Fatal";
 
+    static constexpr error_level_t value = FATAL_LEVEL;
+
     explicit operator error_level_t()
     {
-        return FATAL_LEVEL;
+        return value;
     }
 };
 

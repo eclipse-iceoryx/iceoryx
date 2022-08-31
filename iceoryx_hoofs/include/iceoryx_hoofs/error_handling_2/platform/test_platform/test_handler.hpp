@@ -2,6 +2,7 @@
 
 #include "error_storage.hpp"
 #include "handler_interface.hpp"
+#include "iceoryx_hoofs/error_handling_2/error_level.hpp"
 #include "iceoryx_hoofs/error_handling_2/location.hpp"
 
 #include <atomic>
@@ -14,19 +15,19 @@ struct TestHandler : public HandlerInterface
     void operator()(const SourceLocation& location, Fatal, error_code_t code, module_id_t module) override
     {
         (void)location;
-        storeError(code, module);
+        storeError(code, module, Fatal::value);
     }
 
     void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module) override
     {
         (void)location;
-        storeError(code, module);
+        storeError(code, module, Error::value);
     }
 
     void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module) override
     {
         (void)location;
-        storeError(code, module);
+        storeError(code, module, Warning::value);
     }
 
     void preterminate() override
@@ -50,10 +51,10 @@ struct TestHandler : public HandlerInterface
     ErrorStorage m_errors;
 
     // we could distinguish between error levels as well etc.
-    void storeError(error_code_t code, module_id_t module)
+    void storeError(error_code_t code, module_id_t module, error_level_t level)
     {
         std::cout << "num errors " << ++m_count << std::endl;
-        m_errors.add(RuntimeError(module, code));
+        m_errors.add(RuntimeError(module, code, level));
     }
 };
 
@@ -65,19 +66,19 @@ struct ThrowHandler : public HandlerInterface
         // note that throwing earlier in the static part is more general as we
         // have full type information about the error at this point
         // (here it is erased but still sufficient)
-        throw(RuntimeError(module, code));
+        throw(RuntimeError(module, code, Fatal::value));
     }
 
     void operator()(const SourceLocation& location, Error, error_code_t code, module_id_t module) override
     {
         (void)location;
-        throw(RuntimeError(module, code));
+        throw(RuntimeError(module, code, Error::value));
     }
 
     void operator()(const SourceLocation& location, Warning, error_code_t code, module_id_t module) override
     {
         (void)location;
-        throw(RuntimeError(module, code));
+        throw(RuntimeError(module, code, Warning::value));
     }
 
     void preterminate() override

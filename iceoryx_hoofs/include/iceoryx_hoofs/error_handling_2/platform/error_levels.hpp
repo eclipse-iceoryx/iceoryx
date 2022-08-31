@@ -23,20 +23,22 @@ enum class ErrorLevel : error_level_t
 struct Error
 {
     static constexpr char const* name = "Error";
+    static constexpr error_level_t value = static_cast<error_level_t>(ErrorLevel::ERROR);
 
-    explicit operator ErrorLevel()
+    explicit operator error_level_t()
     {
-        return ErrorLevel::ERROR;
+        return value;
     }
 };
 
 struct Warning
 {
     static constexpr char const* name = "Warning";
+    static constexpr error_level_t value = static_cast<error_level_t>(ErrorLevel::WARNING);
 
-    explicit operator ErrorLevel()
+    explicit operator error_level_t()
     {
-        return ErrorLevel::WARNING;
+        return value;
     }
 };
 
@@ -64,7 +66,6 @@ bool constexpr requiresHandling<Warning>(Warning)
 template <>
 bool constexpr requiresHandling<Error>(Error)
 {
-    // return false;
     return true;
 }
 
