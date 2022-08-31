@@ -32,13 +32,14 @@ struct TestHandler : public HandlerInterface
 
     void preterminate() override
     {
-        std::cout << "COUNTING HANDLER WILL TERMINATE!" << std::endl;
+        m_terminate = true;
     }
 
     void reset()
     {
         m_count = 0;
         m_errors.reset();
+        m_terminate = false;
     }
 
     const ErrorStorage& errors()
@@ -46,14 +47,19 @@ struct TestHandler : public HandlerInterface
         return m_errors;
     }
 
+    bool terminationRequested()
+    {
+        return m_terminate;
+    }
+
   private:
     std::atomic<int> m_count{0};
     ErrorStorage m_errors;
+    bool m_terminate{false};
 
     // we could distinguish between error levels as well etc.
     void storeError(error_code_t code, module_id_t module, error_level_t level)
     {
-        std::cout << "num errors " << ++m_count << std::endl;
         m_errors.add(RuntimeError(module, code, level));
     }
 };
@@ -83,7 +89,6 @@ struct ThrowHandler : public HandlerInterface
 
     void preterminate() override
     {
-        std::cout << "THROWING HANDLER WILL TERMINATE!" << std::endl;
     }
 };
 

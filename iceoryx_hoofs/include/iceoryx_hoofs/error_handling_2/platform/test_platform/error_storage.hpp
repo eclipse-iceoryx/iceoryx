@@ -40,6 +40,12 @@ class ErrorStorage
         return n;
     }
 
+    uint64_t size() const
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_errors.size();
+    }
+
   private:
     std::vector<RuntimeError> m_errors;
     mutable std::mutex m_mutex;
