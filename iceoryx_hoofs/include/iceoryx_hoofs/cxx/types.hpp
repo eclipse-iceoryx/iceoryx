@@ -23,8 +23,9 @@ namespace iox
 {
 namespace cxx
 {
+// aliasing for unit8_t
 using byte_t = uint8_t;
-}
+} // namespace cxx
 } // namespace iox
 
 #endif // IOX_HOOFS_CXX_TYPES_HPP

@@ -39,6 +39,9 @@ constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\Windows\\Temp\\";
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 128U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 
+template <typename C, typename... Cargs>
+using invoke_result = std::invoke_result<C, Cargs...>;
+
 namespace win32
 {
 // just increase this number to increase the maximum shared memory size supported
