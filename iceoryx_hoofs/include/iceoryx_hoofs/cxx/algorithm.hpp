@@ -99,10 +99,9 @@ template <typename T, typename CompareType, typename Next, typename... Remainder
 constexpr bool doesContainType() noexcept;
 
 /// @brief Finalizes the recursion of doesContainValue
-/// @param[in] v type of the value to check
 /// @return always false
 template <typename T>
-inline constexpr bool doesContainValue(const T v) noexcept;
+inline constexpr bool doesContainValue(const T) noexcept;
 
 /// @brief Returns true if value of T is found in the ValueList, otherwise false
 /// @tparam T type of the value to check
@@ -111,8 +110,8 @@ inline constexpr bool doesContainValue(const T v) noexcept;
 /// @param[in] firstValueListEntry is the first variadic argument of ValueList
 /// @param[in] remainingValueListEntries are the remaining variadic arguments of ValueList
 /// @return true if value is contained in the ValueList, otherwise false
-/// @note be aware that value is tested for exact equality with the entries of ValueList which might lead to unexpected
-/// results for floating-point types
+/// @note be aware that value is tested for exact equality with the entries of ValueList and regular floating-point
+/// comparison rules apply
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;

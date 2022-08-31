@@ -71,9 +71,8 @@ inline constexpr bool doesContainType() noexcept
     return doesContainType<T, CompareType>() || doesContainType<T, Next, Remainder...>();
 }
 
-// AXIVION Next Construct AutosarC++19_03-A0.1.4 : function finalizes compile time recursion of doesContainValue
 template <typename T>
-inline constexpr bool doesContainValue(const T v IOX_MAYBE_UNUSED) noexcept
+inline constexpr bool doesContainValue(const T) noexcept
 {
     return false;
 }
