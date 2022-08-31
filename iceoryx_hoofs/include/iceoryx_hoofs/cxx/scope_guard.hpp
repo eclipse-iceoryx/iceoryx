@@ -28,16 +28,17 @@ namespace cxx
 ///             idiom quickly. You set 2 functions, one which is called in the
 ///             constructor and another function is called in the destructor
 ///             which can be useful when handling resources.
+/// @tparam [in] CleanupCapacity The static storage capacity available to store a cleanup callable in bytes
 /// @code
 /// // This example leads to a console output of:
 /// // hello world
 /// // I am doing stuff
 /// // goodbye
 /// void someFunc() {
-///     auto raii{[](){ std::cout << "hello world\n"; },
+///     ScopeGuard myScopeGuard{[](){ std::cout << "hello world\n"; },
 ///                 [](){ std::cout << "goodbye\n"; }};
 ///     std::cout << "I am doing stuff\n";
-///     // raii goes out of scope here and the cleanupFunction is called in the
+///     // myScopeGuard goes out of scope here and the cleanupFunction is called in the
 ///     // destructor
 /// }
 /// @endcode
@@ -54,7 +55,7 @@ class ScopeGuardWithVariableCapacity
     /// @param[in] initFunction callable which will be called in the constructor
     /// @param[in] cleanupFunction callable which will be called in the destructor
     ScopeGuardWithVariableCapacity(const function_ref<void()>& initFunction,
-                                   const function<void()>& cleanupFunction) noexcept;
+                                   const function<void(), CleanupCapacity>& cleanupFunction) noexcept;
 
     /// @brief calls m_cleanupFunction callable if it was set in the constructor
     ~ScopeGuardWithVariableCapacity() noexcept;
