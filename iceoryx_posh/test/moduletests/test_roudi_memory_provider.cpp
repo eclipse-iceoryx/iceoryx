@@ -343,13 +343,14 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
     uint8_t dummy[DummyMemorySize];
     auto segmentIdOffset = iox::rp::BaseRelativePointer::registerPtr(dummy, DummyMemorySize);
 
+    ASSERT_TRUE(segmentIdOffset.has_value());
     ASSERT_FALSE(commonSetup().has_error());
 
     auto segmentId = sut.segmentId();
     ASSERT_THAT(segmentId.has_value(), Eq(true));
     // the segment id being monotonic increasing is an implementation detail, in the case that the implementation
     // changes, just remove this check, since we already check to get a valid result
-    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset + 1U));
+    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset.value() + 1U));
 }
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)

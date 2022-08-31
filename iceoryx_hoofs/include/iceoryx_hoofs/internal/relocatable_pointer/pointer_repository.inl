@@ -31,7 +31,7 @@ inline PointerRepository<id_t, ptr_t, CAPACITY>::PointerRepository() noexcept
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t ptr, uint64_t size) noexcept
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(id_t id, ptr_t ptr, uint64_t size) noexcept
 {
     if (id > MAX_ID)
     {
@@ -55,7 +55,8 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr, uint64_t size) noexcept
+inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
+                                                                                 uint64_t size) noexcept
 {
     for (id_t id = 1U; id <= MAX_ID; ++id)
     {
@@ -71,11 +72,11 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t pt
             {
                 m_maxRegistered = id;
             }
-            return id;
+            return cxx::make_optional<id_t>(id);
         }
     }
 
-    return id_t{INVALID_ID};
+    return cxx::nullopt;
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
@@ -132,30 +133,8 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
         }
     }
     /// @note implicitly interpret the pointer as a regular pointer if not found
-    /// by setting id to 0
-    /// rationale: test cases work without registered shared memory and require
-    /// this at the moment to avoid fundamental changes
-    return 0U;
-    // return INVALID_ID;
-}
-
-template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::isValid(id_t id) const noexcept
-{
-    return id != INVALID_ID;
-}
-
-template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline void PointerRepository<id_t, ptr_t, CAPACITY>::print() const noexcept
-{
-    for (id_t id = 0U; id < m_info.size(); ++id)
-    {
-        auto ptr = m_info[id].basePtr;
-        if (ptr != nullptr)
-        {
-            std::cout << id << " ---> " << ptr << std::endl;
-        }
-    }
+    /// by setting id to RAW_POINTER_BEHAVIOUR
+    return RAW_POINTER_BEHAVIOUR;
 }
 
 } // namespace rp
