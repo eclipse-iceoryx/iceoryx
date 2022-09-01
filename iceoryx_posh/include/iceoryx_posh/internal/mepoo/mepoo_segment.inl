@@ -76,8 +76,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
-                auto maybeSegmentId = iox::rp::BaseRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
-                                                                                sharedMemoryObject.getSizeInBytes());
+                auto maybeSegmentId = iox::rp::UntypedRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
+                                                                                   sharedMemoryObject.getSizeInBytes());
                 if (!maybeSegmentId.has_value())
                 {
                     errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);

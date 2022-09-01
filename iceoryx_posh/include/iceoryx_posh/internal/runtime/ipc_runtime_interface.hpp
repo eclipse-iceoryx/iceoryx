@@ -55,8 +55,8 @@ class IpcRuntimeInterface
     bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept;
 
     /// @brief get the adress offset of the segment manager
-    /// @return address offset as rp::BaseRelativePointer::offset_t
-    rp::BaseRelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
+    /// @return address offset as rp::RelativePointer::offset_t
+    rp::UntypedRelativePointer::offset_t getSegmentManagerAddressOffset() const noexcept;
 
     /// @brief get the size of the management shared memory object
     /// @return size in bytes
@@ -79,7 +79,7 @@ class IpcRuntimeInterface
 
   private:
     RuntimeName_t m_runtimeName;
-    cxx::optional<rp::BaseRelativePointer::offset_t> m_segmentManagerAddressOffset;
+    cxx::optional<rp::UntypedRelativePointer::offset_t> m_segmentManagerAddressOffset;
     cxx::optional<IpcInterfaceCreator> m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};

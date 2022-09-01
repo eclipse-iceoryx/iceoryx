@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -105,7 +104,7 @@ class PortManager_test : public Test
     {
         delete m_portManager;
         delete m_roudiMemoryManager;
-        iox::rp::BaseRelativePointer::unregisterAll();
+        iox::rp::UntypedRelativePointer::unregisterAll();
     }
 
     void addInternalPublisherOfPortManagerToVector()

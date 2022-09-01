@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -105,11 +104,11 @@ class SharedPointer_Test : public Test
 
     void SetUp() override
     {
-        iox::rp::BaseRelativePointer::registerPtr(memory, 4096);
+        iox::rp::UntypedRelativePointer::registerPtr(memory, 4096);
     }
     void TearDown() override
     {
-        iox::rp::BaseRelativePointer::unregisterAll();
+        iox::rp::UntypedRelativePointer::unregisterAll();
     }
 
     ChunkManagement* GetChunkManagement(void* memoryChunk)
