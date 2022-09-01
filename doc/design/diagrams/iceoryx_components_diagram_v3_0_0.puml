@@ -7,6 +7,7 @@ skinparam componentStyle uml2
 
 skinparam component {
    backgroundColor<<namespace>> yellow
+   backgroundColor<<module>> Cornsilk
 }
 
 skinparam package {
@@ -28,25 +29,35 @@ skinparam frame {
 header Eclipse iceoryx component overview
 
 ' HOOFS: Helpful Objects Optimised For Safety
-' Library containing modern C++ STL constructs
+' Library containing modern C++ STL constructs with quality level 1+
 package iceoryx_hoofs  {
    frame "hoofs library" {
-      component concurrent <<namespace>>
-      component cxx <<namespace>> {
-         component newtype <<namespace>>
-         component set <<namespace>>
-         component algorithm <<namespace>>
-      }
-      component DesignPattern <<namespace>>
-      component errors <<namespace>>
-      component log <<namespace>> {
-         component ffbb <<namespace>>
-      }
-      component units <<namespace>> {
-         component duration_literals <<namespace>>
 
-      }
-      component posix <<namespace>>
+      component "Memory & lifetime management" <<module>>
+      component Containers <<module>>
+      component "Common vocabulary types" <<module>>
+      component "Filesystem & OS" <<module>>
+      component Functional <<module>>
+      component Utility <<module>>
+      component Strings <<module>>
+      component Types <<module>>
+      component Algorithms <<module>>
+      component "Generalized design patterns" <<module>>
+      component "Error handling & logging" <<module>>
+      component Time <<module>>
+      component "Queues & communication" <<module>>
+      component "Threads & Sychronisation" <<module>>
+      component "Platform abstraction" <<module>>
+   }
+}
+
+' DUST: Deemed Useful Software Thingies
+' Library containing modern C++ STL constructs with quality level 2
+package iceoryx_dust  {
+   frame "dust library" {
+      component "Containers" <<module>> as additional_containers
+      component "Filesystem & OS" <<module>> as additional_filesystem
+      component "Queues & communication" <<module>> as additional_queues
    }
 }
 
@@ -87,6 +98,16 @@ package iceoryx_dds  {
    component gw <<namespace>> as gateway_dds
 }
 
+' AUTOSAR Adaptive: ara::com
+'
+package automotive_soa  {
+}
+
+' iceoryx-rs: Rust wrapper for iceoryx
+'
+package iceoryx_rs  {
+}
+
 ' C-Binding
 package iceoryx_binding_c  {
    component cpp2c <<namespace>>
@@ -102,7 +123,11 @@ package iceoryx_introspection  {
 }
 
 iceoryx_posh  ..>  iceoryx_hoofs  : use
+iceoryx_dust  ..>  iceoryx_hoofs : use
+iceoryx_posh  ..>  iceoryx_dust : use
 iceoryx_dds  ..>  iceoryx_posh  : use
+iceoryx_rs  ..>  iceoryx_posh  : use
+automotive_soa  ..>  iceoryx_posh  : use
 iceoryx_binding_c  ..>  iceoryx_posh  : use
 introspection  ..>  iceoryx_posh  : use
 @enduml
