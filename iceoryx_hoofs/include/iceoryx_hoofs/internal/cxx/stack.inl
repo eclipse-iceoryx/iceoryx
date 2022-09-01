@@ -23,7 +23,7 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
+inline auto stack<T, Capacity>::pop() noexcept -> cxx::optional<T>
 {
     if (m_size == 0U)
     {
