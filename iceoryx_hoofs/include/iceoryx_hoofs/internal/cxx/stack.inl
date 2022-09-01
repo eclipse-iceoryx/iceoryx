@@ -30,8 +30,9 @@ inline auto stack<T, Capacity>::pop() noexcept -> cxx::optional<T>
         return cxx::nullopt;
     }
 
-    // low level memory management with access to the topmost element on the untyped buffer;
-    // type safety is ensured by the template parameter
+    // AXIVION Next Construct CertC++-EXP36 : every entry of m_data is aligned to alignof(T)
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : low level memory management with access to the topmost element on
+    // the untyped buffer; type safety is ensured by the template parameter
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return *reinterpret_cast<T*>(m_data[--m_size]);
 }
@@ -45,8 +46,10 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
         return false;
     }
 
-    // low level memory management with access to the topmost element on the untyped buffer;
-    // type safety is ensured by the template parameter
+    // AXIVION Next Construct CertC++-MEM54, CertC++-EXP36, AutosarC++19_03-A18.5.10 : every entry of m_data is aligned
+    // to alignof(T)
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : low level memory management with access to the topmost element on
+    // the untyped buffer; type safety is ensured by the template parameter
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     new (reinterpret_cast<T*>(m_data[m_size++])) T(std::forward<Targs>(args)...);
     return true;
