@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="1411px" preserveAspectRatio="none" style="width:3050px;height:1411px;background:#00000000;" version="1.1" viewBox="0 0 3050 1411" width="3050px" zoomAndPan="magnify"><defs/><g><rect fill="none" height="11.6406" style="stroke:none;stroke-width:1.0;" width="196" x="2840" y="0"/><text fill="#888888" font-family="sans-serif" font-size="10" lengthAdjust="spacing" textLength="196" x="2840" y="9.2822">Eclipse iceoryx component overview</text><rect fill="none" height="26.2969" id="_title" style="stroke:none;stroke-width:1.0;" width="304" x="1366" y="17.6406"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="294" x="1371" y="35.6357">Eclipse iceoryx Component Overview</text><!--MD5=[415eaaaa2a07b50c6508c9baea7f95bd]
+cluster iceoryx_hoofs--><g id="cluster_iceoryx_hoofs"><path d="M2056.5,793.9375 L2168.5,793.9375 A3.75,3.75 0 0 1 2171,796.4375 L2178,816.2344 L3040.5,816.2344 A2.5,2.5 0 0 1 3043,818.7344 L3043,1402.4375 A2.5,2.5 0 0 1 3040.5,1404.9375 L2056.5,1404.9375 A2.5,2.5 0 0 1 2054,1402.4375 L2054,796.4375 A2.5,2.5 0 0 1 2056.5,793.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="2054" x2="2178" y1="816.2344" y2="816.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="111" x="2058" y="808.9326">iceoryx_hoofs</text></g><!--MD5=[b4465e90ffeb9984a7a126b6e59ae458]
+cluster hoofs library--><g id="cluster_hoofs library"><rect fill="#D2691E" height="528" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="917" x="2094" y="844.9375"/><path d="M2208,844.9375 L2208,854.2344 L2198,864.2344 L2094,864.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="2097" y="858.9326">hoofs library</text></g><!--MD5=[33efd23a80481a3dc96802ea8e830f29]
+cluster iceoryx_dust--><g id="cluster_iceoryx_dust"><path d="M1590.5,531.9375 L1693.5,531.9375 A3.75,3.75 0 0 1 1696,534.4375 L1703,554.2344 L1998.5,554.2344 A2.5,2.5 0 0 1 2001,556.7344 L2001,988.4375 A2.5,2.5 0 0 1 1998.5,990.9375 L1590.5,990.9375 A2.5,2.5 0 0 1 1588,988.4375 L1588,534.4375 A2.5,2.5 0 0 1 1590.5,531.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="1588" x2="1703" y1="554.2344" y2="554.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="102" x="1592" y="546.9326">iceoryx_dust</text></g><!--MD5=[9ccbf00999a67ca6ac4588fc5a3bec2c]
+cluster dust library--><g id="cluster_dust library"><rect fill="#D2691E" height="376" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="341" x="1620" y="582.9375"/><path d="M1725,582.9375 L1725,592.2344 L1715,602.2344 L1620,602.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="95" x="1623" y="596.9326">dust library</text></g><!--MD5=[ed7dc03aa8d539cfd7d57db110a68e55]
+cluster iceoryx_posh--><g id="cluster_iceoryx_posh"><path d="M8.5,309.9375 L113.5,309.9375 A3.75,3.75 0 0 1 116,312.4375 L123,332.2344 L1545.5,332.2344 A2.5,2.5 0 0 1 1548,334.7344 L1548,726.4375 A2.5,2.5 0 0 1 1545.5,728.9375 L8.5,728.9375 A2.5,2.5 0 0 1 6,726.4375 L6,312.4375 A2.5,2.5 0 0 1 8.5,309.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="6" x2="123" y1="332.2344" y2="332.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="104" x="10" y="324.9326">iceoryx_posh</text></g><!--MD5=[38f2323d045ecacd4478f4c7d1e06b9d]
+cluster core library--><g id="cluster_core library"><rect fill="#D2691E" height="336" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="526" x="982" y="360.9375"/><path d="M1085,360.9375 L1085,370.2344 L1075,380.2344 L982,380.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="93" x="985" y="374.9326">core library</text></g><!--MD5=[2882655244722af885eff964b671140f]
+cluster runtime library--><g id="cluster_runtime library"><rect fill="#D2691E" height="114" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="174" x="784" y="360.9375"/><path d="M916,360.9375 L916,370.2344 L906,380.2344 L784,380.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="122" x="787" y="374.9326">runtime library</text></g><!--MD5=[4997cf375c60d6f53c72389211135b42]
+cluster gateway library--><g id="cluster_gateway library"><rect fill="#D2691E" height="114" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="174" x="586" y="360.9375"/><path d="M723,360.9375 L723,370.2344 L713,380.2344 L586,380.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="127" x="589" y="374.9326">gateway library</text></g><!--MD5=[d11aad145ca7e2c3ef6ec64753ab2f2b]
+cluster config library--><g id="cluster_config library"><rect fill="#D2691E" height="114" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="174" x="388" y="360.9375"/><path d="M507,360.9375 L507,370.2344 L497,380.2344 L388,380.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="109" x="391" y="374.9326">config library</text></g><!--MD5=[c694ed67aab4c45e63f5b674f5ebdacc]
+cluster RouDi library--><g id="cluster_RouDi library"><rect fill="#D2691E" height="114" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="174" x="190" y="360.9375"/><path d="M305,360.9375 L305,370.2344 L295,380.2344 L190,380.2344 " fill="none" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="105" x="193" y="374.9326">RouDi library</text></g><!--MD5=[95dba68051f17ed836827d70d887a54a]
+cluster iceoryx_dds--><g id="cluster_iceoryx_dds"><path d="M1534.5,106.9375 L1629.5,106.9375 A3.75,3.75 0 0 1 1632,109.4375 L1639,129.2344 L1914.5,129.2344 A2.5,2.5 0 0 1 1917,131.7344 L1917,234.4375 A2.5,2.5 0 0 1 1914.5,236.9375 L1534.5,236.9375 A2.5,2.5 0 0 1 1532,234.4375 L1532,109.4375 A2.5,2.5 0 0 1 1534.5,106.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="1532" x2="1639" y1="129.2344" y2="129.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="94" x="1536" y="121.9326">iceoryx_dds</text></g><!--MD5=[addeb03e3eb587838caeece846992337]
+cluster iceoryx_binding_c--><g id="cluster_iceoryx_binding_c"><path d="M1959.5,106.9375 L2101.5,106.9375 A3.75,3.75 0 0 1 2104,109.4375 L2111,129.2344 L2339.5,129.2344 A2.5,2.5 0 0 1 2342,131.7344 L2342,234.4375 A2.5,2.5 0 0 1 2339.5,236.9375 L1959.5,236.9375 A2.5,2.5 0 0 1 1957,234.4375 L1957,109.4375 A2.5,2.5 0 0 1 1959.5,106.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="1957" x2="2111" y1="129.2344" y2="129.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="141" x="1961" y="121.9326">iceoryx_binding_c</text></g><!--MD5=[beec581614c18060e11082c458798f50]
+cluster iceoryx_introspection--><g id="cluster_iceoryx_introspection"><path d="M2376.5,55.9375 L2552.5,55.9375 A3.75,3.75 0 0 1 2555,58.4375 L2562,78.2344 L2593.5,78.2344 A2.5,2.5 0 0 1 2596,80.7344 L2596,250.4375 A2.5,2.5 0 0 1 2593.5,252.9375 L2376.5,252.9375 A2.5,2.5 0 0 1 2374,250.4375 L2374,58.4375 A2.5,2.5 0 0 1 2376.5,55.9375 " fill="#008000" style="stroke:#000000;stroke-width:1.5;"/><line style="stroke:#000000;stroke-width:1.5;" x1="2374" x2="2562" y1="78.2344" y2="78.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="175" x="2378" y="70.9326">iceoryx_introspection</text></g><!--MD5=[aa2f05b2676d7d34ffa7e771fb7634f3]
+cluster client--><g id="cluster_client"><rect fill="#FFFF00" height="130" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:1.0;" width="174" x="2398" y="98.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:1.0;" width="15" x="2552" y="103.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:1.0;" width="4" x="2550" y="105.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:1.0;" width="4" x="2550" y="109.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="2434.5" y="124.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="46" x="2462" y="141.2295">client</text></g><!--MD5=[1c4db6a2e38ba8c7a11c2b17a573d314]
+entity Memory & lifetime management--><g id="elem_Memory &amp; lifetime management"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="274" x="2110" y="879.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2364" y="884.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2362" y="886.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2362" y="890.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2206" y="912.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="234" x="2125" y="929.2295">Memory &amp; lifetime management</text></g><!--MD5=[bec63b5345253ac365421aeab3bf2f46]
+entity Containers--><g id="elem_Containers"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="118" x="2419" y="879.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2517" y="884.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2515" y="886.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2515" y="890.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2437" y="912.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="78" x="2434" y="929.2295">Containers</text></g><!--MD5=[22b5799e419f54136e80d021747cb368]
+entity Common vocabulary types--><g id="elem_Common vocabulary types"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="231" x="2572.5" y="879.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2783.5" y="884.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2781.5" y="886.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2781.5" y="890.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2647" y="912.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="191" x="2587.5" y="929.2295">Common vocabulary types</text></g><!--MD5=[5559a549b48cc6666d6052535e79a3d0]
+entity Filesystem & OS--><g id="elem_Filesystem &amp; OS"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="156" x="2839" y="879.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2975" y="884.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2973" y="886.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2973" y="890.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2876" y="912.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="116" x="2854" y="929.2295">Filesystem &amp; OS</text></g><!--MD5=[f312b80a91c48809cfe79a9a70685dbb]
+entity Functional--><g id="elem_Functional"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="114" x="2190" y="1045.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2284" y="1050.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2282" y="1052.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2282" y="1056.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2206" y="1078.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="74" x="2205" y="1095.2295">Functional</text></g><!--MD5=[e4225381f5989068811eb87c98ca5abf]
+entity Utility--><g id="elem_Utility"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="112" x="2339" y="1045.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2431" y="1050.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2429" y="1052.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2429" y="1056.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2354" y="1078.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="2368.5" y="1095.2295">Utility</text></g><!--MD5=[619dd0bc8b5af2d655b90d0a89900cfc]
+entity Strings--><g id="elem_Strings"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="112" x="2486" y="1045.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2578" y="1050.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2576" y="1052.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2576" y="1056.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2501" y="1078.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="51" x="2511.5" y="1095.2295">Strings</text></g><!--MD5=[83e6b0205965fcf6bcba419d3292a827]
+entity Types--><g id="elem_Types"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="112" x="2633" y="1045.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2725" y="1050.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2723" y="1052.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2723" y="1056.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2648" y="1078.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="2662.5" y="1095.2295">Types</text></g><!--MD5=[8e94bfdc877641be43b2f9761b4bcf24]
+entity Algorithms--><g id="elem_Algorithms"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="119" x="2187.5" y="1169.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2286.5" y="1174.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2284.5" y="1176.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2284.5" y="1180.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2206" y="1202.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="79" x="2202.5" y="1219.2295">Algorithms</text></g><!--MD5=[6423d9149d5cb7fdbda68a3eb7feed64]
+entity Generalized design patterns--><g id="elem_Generalized design patterns"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="244" x="2342" y="1169.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2566" y="1174.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2564" y="1176.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2564" y="1180.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2423" y="1202.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="204" x="2357" y="1219.2295">Generalized design patterns</text></g><!--MD5=[0508a3e2038f5fb52b39cb0650cabce4]
+entity Error handling & logging--><g id="elem_Error handling &amp; logging"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="213" x="2621.5" y="1169.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2814.5" y="1174.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2812.5" y="1176.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2812.5" y="1180.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2687" y="1202.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="173" x="2636.5" y="1219.2295">Error handling &amp; logging</text></g><!--MD5=[52244217770951987a130bd5b09c96eb]
+entity Time--><g id="elem_Time"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="112" x="2870" y="1169.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2962" y="1174.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2960" y="1176.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2960" y="1180.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2885" y="1202.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36" x="2903" y="1219.2295">Time</text></g><!--MD5=[fa45093b4ef297c1cb00a9bc1e5cfa7c]
+entity Queues & communication--><g id="elem_Queues &amp; communication"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="222" x="2136" y="1293.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2338" y="1298.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2336" y="1300.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2336" y="1304.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2206" y="1326.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="182" x="2151" y="1343.2295">Queues &amp; communication</text></g><!--MD5=[a93357d13f90eb280e7389afdbc8b9ba]
+entity Threads & Sychronisation--><g id="elem_Threads &amp; Sychronisation"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="222" x="2393" y="1293.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2595" y="1298.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2593" y="1300.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2593" y="1304.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2463" y="1326.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="182" x="2408" y="1343.2295">Threads &amp; Sychronisation</text></g><!--MD5=[2ece5e0fc2ccad7903c426a67d203651]
+entity Platform abstraction--><g id="elem_Platform abstraction"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="190" x="2650" y="1293.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2820" y="1298.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2818" y="1300.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2818" y="1304.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="2704" y="1326.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="150" x="2665" y="1343.2295">Platform abstraction</text></g><!--MD5=[2614a535bf40d1c428a76a860d8f6b73]
+entity additional_containers--><g id="elem_additional_containers"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="118" x="1636" y="617.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1734" y="622.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1732" y="624.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1732" y="628.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="1654" y="650.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="78" x="1651" y="667.2295">Containers</text></g><!--MD5=[6bec92763c9f66f17ed240113e7ada5e]
+entity additional_filesystem--><g id="elem_additional_filesystem"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="156" x="1789" y="617.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1925" y="622.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1923" y="624.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1923" y="628.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="1826" y="650.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="116" x="1804" y="667.2295">Filesystem &amp; OS</text></g><!--MD5=[2b9b853ecc023f60a99de3e1934dd068]
+entity additional_queues--><g id="elem_additional_queues"><rect fill="#FFF8DC" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="222" x="1636" y="879.9375"/><rect fill="#FFF8DC" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1838" y="884.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1836" y="886.9375"/><rect fill="#FFF8DC" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1836" y="890.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="72" x="1706" y="912.9326">«module»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="182" x="1651" y="929.2295">Queues &amp; communication</text></g><!--MD5=[ffd9c204d205bc9185ab1a43c6f1aff1]
+entity errors--><g id="elem_errors"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="30.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="151.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="149.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="149.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="45.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="43" x="74.5" y="445.2295">errors</text></g><!--MD5=[477a64901edc741ec91a401c96bc08f2]
+entity popo--><g id="elem_popo"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="998.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1119.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1117.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1117.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1013.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="38" x="1045" y="445.2295">popo</text></g><!--MD5=[ba5cc415984907cdd9d4abcea172ca01]
+entity capro--><g id="elem_capro"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="1174.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1295.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1293.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1293.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1189.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="41" x="1219.5" y="445.2295">capro</text></g><!--MD5=[09f98eabc58f714e0f010bacf40ca87c]
+entity mepoo--><g id="elem_mepoo"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="1350.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1471.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1469.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1469.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1365.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="51" x="1390.5" y="445.2295">mepoo</text></g><!--MD5=[eed5921adeb5106d45e8647997b5fa68]
+entity version--><g id="elem_version"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="998.5" y="617.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1119.5" y="622.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1117.5" y="624.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1117.5" y="628.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1013.5" y="650.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="52" x="1038" y="667.2295">version</text></g><!--MD5=[11fa01443fe50a6a26e5f9d4ef816fb0]
+entity build--><g id="elem_build"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="1174.5" y="617.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1295.5" y="622.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1293.5" y="624.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1293.5" y="628.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1189.5" y="650.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="35" x="1222.5" y="667.2295">build</text></g><!--MD5=[6857f13236cb144e56befd21da1781a5]
+entity runtime--><g id="elem_runtime"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="800.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="921.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="919.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="919.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="815.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="57" x="837.5" y="445.2295">runtime</text></g><!--MD5=[5f97cdfbafef6a5cbddfbf6bdd3803d1]
+entity gw--><g id="elem_gw"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="602.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="723.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="721.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="721.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="617.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="20" x="658" y="445.2295">gw</text></g><!--MD5=[caf660ac2a54b55a5c31b5515889e628]
+entity config--><g id="elem_config"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="404.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="525.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="523.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="523.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="419.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="45" x="447.5" y="445.2295">config</text></g><!--MD5=[f73e6e01beb5fef5d3e1c08b5afdf415]
+entity roudi--><g id="elem_roudi"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="206.5" y="395.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="327.5" y="400.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="325.5" y="402.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="325.5" y="406.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="221.5" y="428.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="36" x="254" y="445.2295">roudi</text></g><!--MD5=[4617e0b67180f9dd16cbedc18db55043]
+entity dds--><g id="elem_dds"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="1751.5" y="149.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1872.5" y="154.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1870.5" y="156.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1870.5" y="160.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1766.5" y="182.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="25" x="1804.5" y="199.2295">dds</text></g><!--MD5=[b74312c72fa74392e6ee98a94ff43660]
+entity gateway_dds--><g id="elem_gateway_dds"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="1575.5" y="149.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="1696.5" y="154.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1694.5" y="156.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="1694.5" y="160.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="1590.5" y="182.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="20" x="1631" y="199.2295">gw</text></g><!--MD5=[2d0af3a111e79514759d6541bbe61f34]
+entity automotive_soa--><g id="elem_automotive_soa"><path d="M1202.5,161.9375 L1329.5,161.9375 A3.75,3.75 0 0 1 1332,164.4375 L1339,184.2344 L1353.5,184.2344 A2.5,2.5 0 0 1 1356,186.7344 L1356,198.7344 A2.5,2.5 0 0 1 1353.5,201.2344 L1202.5,201.2344 A2.5,2.5 0 0 1 1200,198.7344 L1200,164.4375 A2.5,2.5 0 0 1 1202.5,161.9375 " fill="#008000" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1200" x2="1339" y1="184.2344" y2="184.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="114" x="1210" y="177.9326">automotive_soa</text></g><!--MD5=[7a0a0530b7442f566319cc1417466128]
+entity iceoryx_rs--><g id="elem_iceoryx_rs"><path d="M1393.5,161.9375 L1478.5,161.9375 A3.75,3.75 0 0 1 1481,164.4375 L1488,184.2344 L1502.5,184.2344 A2.5,2.5 0 0 1 1505,186.7344 L1505,198.7344 A2.5,2.5 0 0 1 1502.5,201.2344 L1393.5,201.2344 A2.5,2.5 0 0 1 1391,198.7344 L1391,164.4375 A2.5,2.5 0 0 1 1393.5,161.9375 " fill="#008000" style="stroke:#181818;stroke-width:0.5;"/><line style="stroke:#181818;stroke-width:0.5;" x1="1391" x2="1488" y1="184.2344" y2="184.2344"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="72" x="1401" y="177.9326">iceoryx_rs</text></g><!--MD5=[fc4286d0b2a052e711aae933c9ad3727]
+entity cpp2c--><g id="elem_cpp2c"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="2176.5" y="149.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2297.5" y="154.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2295.5" y="156.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2295.5" y="160.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="2191.5" y="182.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="2220" y="199.2295">cpp2c</text></g><!--MD5=[e16426ebbb4af2a750e421465750c76a]
+entity c2cpp--><g id="elem_c2cpp"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="2000.5" y="149.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2121.5" y="154.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2119.5" y="156.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2119.5" y="160.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="2015.5" y="182.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="44" x="2044" y="199.2295">c2cpp</text></g><!--MD5=[38dbeb4b243ea6dae1c7e5b7ff87398b]
+entity introspection--><g id="elem_introspection"><rect fill="#FFFF00" height="62.5938" rx="2.5" ry="2.5" style="stroke:#181818;stroke-width:0.5;" width="141" x="2414.5" y="149.9375"/><rect fill="#FFFF00" height="10" style="stroke:#181818;stroke-width:0.5;" width="15" x="2535.5" y="154.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2533.5" y="156.9375"/><rect fill="#FFFF00" height="2" style="stroke:#181818;stroke-width:0.5;" width="4" x="2533.5" y="160.9375"/><text fill="#000000" font-family="sans-serif" font-size="14" font-style="italic" lengthAdjust="spacing" textLength="101" x="2429.5" y="182.9326">«namespace»</text><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="98" x="2431" y="199.2295">introspection</text></g><!--MD5=[c6bc123b88581d7893511edbb3afda00]
+link iceoryx_posh to iceoryx_hoofs--><g id="link_iceoryx_posh_iceoryx_hoofs"><path d="M1548.5912,428.4159 C1549.6021,428.4169 1550.6968,428.419 1551.8725,428.4225 C1554.224,428.4296 1556.8993,428.4426 1559.8754,428.4644 C1571.7796,428.5517 1588.4958,428.7802 1608.5422,429.3392 C1648.635,430.4572 1702.0488,432.8969 1756.93,438.1713 C1866.6925,448.72 1982.325,470.6075 2009,515.9375 C2053.505,591.578 2066.8975,689.259 2069.0938,768.4964 C2069.231,773.4487 2069.3245,778.329 2069.3792,783.1274 C2069.4065,785.5265 2069.4241,787.9052 2069.4326,790.2622 C2069.4369,791.4407 2069.4389,792.6138 2069.4386,793.7813 " fill="none" id="iceoryx_posh-to-iceoryx_hoofs" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="2069.4386,793.7813,2073.4386,784.7813,2069.4386,788.7813,2065.4386,784.7813,2069.4386,793.7813" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="2070" y="654.0044">use</text></g><!--MD5=[789bae7a0e1705160d5933b82c1d66fe]
+link iceoryx_dust to iceoryx_hoofs--><g id="link_iceoryx_dust_iceoryx_hoofs"><path d="M2001.2299,681.4477 C2001.4094,682.1238 2001.5911,682.8086 2001.7751,683.5019 C2002.5112,686.2751 2003.2833,689.1846 2004.0877,692.2152 C2010.5222,716.4598 2019.0131,748.4549 2027.5038,780.4491 C2035.9944,812.4433 2044.4847,844.4365 2050.918,868.6773 C2051.7221,871.7074 2052.4941,874.6163 2053.23,877.389 C2053.414,878.0822 2053.5957,878.7668 2053.7751,879.4427 C2053.8199,879.6117 2053.8646,879.7801 2053.9092,879.948 " fill="none" id="iceoryx_dust-to-iceoryx_hoofs" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="2053.9092,879.948,2055.4667,870.2231,2052.6266,875.1153,2047.7343,872.2752,2053.9092,879.948" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="2025" y="766.0044">use</text></g><!--MD5=[ba36a0802a862251e02220d024c46d0f]
+link iceoryx_posh to iceoryx_dust--><g id="link_iceoryx_posh_iceoryx_dust"><path d="M1548.6422,429.0004 C1549.108,429.0324 1549.5914,429.0658 1550.0921,429.1006 C1552.0949,429.2398 1554.3747,429.4016 1556.9127,429.5867 C1567.0646,430.3272 1581.3464,431.4405 1598.5447,432.9734 C1632.9413,436.0391 1679.0038,440.7828 1727.025,447.5774 C1823.0675,461.1665 1926.945,482.959 1961,515.9375 C1963.6775,518.5304 1966.1467,521.3059 1968.423,524.2315 C1969.5612,525.6943 1970.6512,527.1946 1971.6949,528.7285 C1972.2167,529.4955 1972.727,530.2708 1973.226,531.054 C1973.3507,531.2498 1973.4748,531.4461 1973.5981,531.6429 " fill="none" id="iceoryx_posh-to-iceoryx_dust" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1973.5981,531.6429,1972.2079,521.8926,1970.9428,527.4062,1965.4292,526.1411,1973.5981,531.6429" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="1947" y="504.0044">use</text></g><!--MD5=[923ab2d2a35521c01aa04bd91104d3ef]
+link iceoryx_dds to iceoryx_posh--><g id="link_iceoryx_dds_iceoryx_posh"><path d="M1540,237.5431 C1540,238.3427 1540,239.1478 1540,239.9583 C1540,246.4421 1540,253.2669 1540,260.3189 C1540,274.4229 1540,289.4359 1540,304.4488 C1540,305.3871 1540,306.3254 1540,307.2634 C1540,307.7325 1540,308.2014 1540,308.6703 C1540,308.9048 1540,309.1392 1540,309.3736 " fill="none" id="iceoryx_dds-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1540,309.3736,1544,300.3736,1540,304.3736,1536,300.3736,1540,309.3736" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="1541" y="282.0044">use</text></g><!--MD5=[0849cf4ebcd2e43f7ea270bd3535bf86]
+link iceoryx_rs to iceoryx_posh--><g id="link_iceoryx_rs_iceoryx_posh"><path d="M1459.96,201.0675 C1473.35,222.6475 1494.89,259.6475 1508,293.9375 C1509.3313,297.4188 1510.6198,300.9732 1511.8659,304.5786 C1512.1774,305.4799 1512.4863,306.3844 1512.7925,307.2918 C1512.9456,307.7455 1513.098,308.1999 1513.2498,308.655 C1513.3257,308.8825 1513.4014,309.1102 1513.477,309.3381 " fill="none" id="iceoryx_rs-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1513.477,309.3381,1514.4409,299.5365,1511.9032,304.5922,1506.8475,302.0545,1513.477,309.3381" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="1506" y="282.0044">use</text></g><!--MD5=[9eb138455fa2e3111a1139ef28cb7403]
+link automotive_soa to iceoryx_posh--><g id="link_automotive_soa_iceoryx_posh"><path d="M1295.56,200.9875 C1313.45,218.8275 1342.77,245.3275 1373,260.9375 C1411.03,280.5775 1424.28,276.3675 1466,285.9375 C1484.52,290.1875 1494.24,280.8275 1508,293.9375 C1510.6988,296.5081 1513.1866,299.264 1515.4792,302.1726 C1516.6255,303.6268 1517.723,305.1193 1518.7737,306.6459 C1519.299,307.4092 1519.8126,308.181 1520.3148,308.9608 C1520.4403,309.1558 1520.5652,309.3512 1520.6893,309.5472 " fill="none" id="automotive_soa-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1520.6893,309.5472,1519.2528,299.8037,1518.0139,305.3232,1512.4944,304.0843,1520.6893,309.5472" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="1467" y="282.0044">use</text></g><!--MD5=[ef085833380be4e9d63cc0e4596daa95]
+link iceoryx_binding_c to iceoryx_posh--><g id="link_iceoryx_binding_c_iceoryx_posh"><path d="M1956.8476,198.6089 C1956.7364,198.8134 1956.624,199.0192 1956.5107,199.2265 C1956.0573,200.0554 1955.5871,200.9062 1955.1005,201.7767 C1953.1541,205.2587 1950.9453,209.0566 1948.4963,213.0363 C1938.7,228.955 1925.06,247.7825 1909,260.9375 C1840.57,317.0025 1750.11,357.97 1675.8838,385.12 C1638.7706,398.695 1605.7159,408.8156 1581.5027,415.6419 C1569.396,419.055 1559.4997,421.6445 1552.4117,423.4305 C1551.5257,423.6537 1550.6835,423.8644 1549.8864,424.0626 C1549.4879,424.1617 1549.1006,424.2576 1548.7247,424.3504 C1548.5368,424.3969 1548.3517,424.4425 1548.1695,424.4873 " fill="none" id="iceoryx_binding_c-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1548.1695,424.4873,1557.8647,426.2202,1553.0246,423.2922,1555.9525,418.4521,1548.1695,424.4873" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="1893" y="282.0044">use</text></g><!--MD5=[4b8aab564a453d286cf375876300a066]
+link introspection to iceoryx_posh--><g id="link_introspection_iceoryx_posh"><path d="M2434.52,213.1275 C2405.9,229.3775 2368.93,248.4875 2334,260.9375 C2165.555,320.9875 1968.8275,362.1875 1813.335,388.4612 C1735.5888,401.5981 1668.1513,411.0034 1619.7122,417.1677 C1595.4927,420.2498 1576.0227,422.5216 1562.3886,424.0445 C1558.9801,424.4252 1555.9363,424.7591 1553.2742,425.0472 C1551.9432,425.1912 1550.7076,425.3237 1549.5695,425.445 C1549.285,425.4753 1549.0066,425.5049 1548.7343,425.5338 " fill="none" id="introspection-to-iceoryx_posh" style="stroke:#181818;stroke-width:1.0;stroke-dasharray:7.0,7.0;"/><polygon fill="#181818" points="1548.7343,425.5338,1558.1061,428.5619,1553.7064,425.0062,1557.2621,420.6065,1548.7343,425.5338" style="stroke:#181818;stroke-width:1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacing" textLength="23" x="2293" y="282.0044">use</text></g><!--MD5=[f30d8bedaa0b7b3835efc60f1088362d]
+@startuml
+title Eclipse iceoryx Component Overview
+
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+   backgroundColor<<namespace>> yellow
+   backgroundColor<<module>> Cornsilk
+}
+
+skinparam package {
+   backgroundColor green
+}
+
+skinparam frame {
+   backgroundColor chocolate
+}
+
+' PlantUML package: CMake package
+' PlantUML frame: CMake library
+
+' @todo #539
+' RouDi split, separate files and namespaces for static/dynamic discovery
+' Implement exported libraries (add_library in iceoryx_posh/CMakeLists.txt)
+' RouDiEnvironment shall not be in roudi namespace, but in testing
+
+header Eclipse iceoryx component overview
+
+' HOOFS: Helpful Objects Optimised For Safety
+' Library containing modern C++ STL constructs with quality level 1+
+package iceoryx_hoofs  {
+   frame "hoofs library" {
+
+      component "Memory & lifetime management" <<module>>
+      component Containers <<module>>
+      component "Common vocabulary types" <<module>>
+      component "Filesystem & OS" <<module>>
+      component Functional <<module>>
+      component Utility <<module>>
+      component Strings <<module>>
+      component Types <<module>>
+      component Algorithms <<module>>
+      component "Generalized design patterns" <<module>>
+      component "Error handling & logging" <<module>>
+      component Time <<module>>
+      component "Queues & communication" <<module>>
+      component "Threads & Sychronisation" <<module>>
+      component "Platform abstraction" <<module>>
+   }
+}
+
+' DUST: Deemed Useful Software Thingies
+' Library containing modern C++ STL constructs with quality level 2
+package iceoryx_dust  {
+   frame "dust library" {
+      component "Containers" <<module>> as additional_containers
+      component "Filesystem & OS" <<module>> as additional_filesystem
+      component "Queues & communication" <<module>> as additional_queues
+   }
+}
+
+' POSH: POSIX SHared memory
+' Publish/subscribe IPC communication infrastructure based on shared memory
+package iceoryx_posh {
+   frame "core library" {
+      component popo <<namespace>>
+      component capro <<namespace>>
+      component mepoo <<namespace>>
+      component version <<namespace>>
+      component build <<namespace>>
+   }
+
+   frame "runtime library" {
+      component runtime <<namespace>>
+   }
+
+   frame "gateway library" {
+      component gw <<namespace>>
+   }
+
+   frame "config library" {
+      component config <<namespace>>
+   }
+
+   component errors <<namespace>>
+
+   frame "RouDi library" {
+      component roudi <<namespace>>
+   }
+}
+
+' DDS: Data Distribution Service
+'
+package iceoryx_dds  {
+   component dds <<namespace>>
+   component gw <<namespace>> as gateway_dds
+}
+
+' AUTOSAR Adaptive: ara::com
+'
+package automotive_soa  {
+}
+
+' iceoryx-rs: Rust wrapper for iceoryx
+'
+package iceoryx_rs  {
+}
+
+' C-Binding
+package iceoryx_binding_c  {
+   component cpp2c <<namespace>>
+   component c2cpp <<namespace>>
+}
+
+
+' Introspection
+package iceoryx_introspection  {
+   component client <<namespace>> {
+      component introspection <<namespace>>
+   }
+}
+
+iceoryx_posh  ..>  iceoryx_hoofs  : use
+iceoryx_dust  ..>  iceoryx_hoofs : use
+iceoryx_posh  ..>  iceoryx_dust : use
+iceoryx_dds  ..>  iceoryx_posh  : use
+iceoryx_rs  ..>  iceoryx_posh  : use
+automotive_soa  ..>  iceoryx_posh  : use
+iceoryx_binding_c  ..>  iceoryx_posh  : use
+introspection  ..>  iceoryx_posh  : use
+@enduml
+
+@startuml
+title Eclipse iceoryx Component Overview
+
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+   backgroundColor<<namespace>> yellow
+   backgroundColor<<module>> Cornsilk
+}
+
+skinparam package {
+   backgroundColor green
+}
+
+skinparam frame {
+   backgroundColor chocolate
+}
+
+
+
+header Eclipse iceoryx component overview
+
+package iceoryx_hoofs  {
+   frame "hoofs library" {
+
+      component "Memory & lifetime management" <<module>>
+      component Containers <<module>>
+      component "Common vocabulary types" <<module>>
+      component "Filesystem & OS" <<module>>
+      component Functional <<module>>
+      component Utility <<module>>
+      component Strings <<module>>
+      component Types <<module>>
+      component Algorithms <<module>>
+      component "Generalized design patterns" <<module>>
+      component "Error handling & logging" <<module>>
+      component Time <<module>>
+      component "Queues & communication" <<module>>
+      component "Threads & Sychronisation" <<module>>
+      component "Platform abstraction" <<module>>
+   }
+}
+
+package iceoryx_dust  {
+   frame "dust library" {
+      component "Containers" <<module>> as additional_containers
+      component "Filesystem & OS" <<module>> as additional_filesystem
+      component "Queues & communication" <<module>> as additional_queues
+   }
+}
+
+package iceoryx_posh {
+   frame "core library" {
+      component popo <<namespace>>
+      component capro <<namespace>>
+      component mepoo <<namespace>>
+      component version <<namespace>>
+      component build <<namespace>>
+   }
+
+   frame "runtime library" {
+      component runtime <<namespace>>
+   }
+
+   frame "gateway library" {
+      component gw <<namespace>>
+   }
+
+   frame "config library" {
+      component config <<namespace>>
+   }
+
+   component errors <<namespace>>
+
+   frame "RouDi library" {
+      component roudi <<namespace>>
+   }
+}
+
+package iceoryx_dds  {
+   component dds <<namespace>>
+   component gw <<namespace>> as gateway_dds
+}
+
+package automotive_soa  {
+}
+
+package iceoryx_rs  {
+}
+
+package iceoryx_binding_c  {
+   component cpp2c <<namespace>>
+   component c2cpp <<namespace>>
+}
+
+
+package iceoryx_introspection  {
+   component client <<namespace>> {
+      component introspection <<namespace>>
+   }
+}
+
+iceoryx_posh  ..>  iceoryx_hoofs  : use
+iceoryx_dust  ..>  iceoryx_hoofs : use
+iceoryx_posh  ..>  iceoryx_dust : use
+iceoryx_dds  ..>  iceoryx_posh  : use
+iceoryx_rs  ..>  iceoryx_posh  : use
+automotive_soa  ..>  iceoryx_posh  : use
+iceoryx_binding_c  ..>  iceoryx_posh  : use
+introspection  ..>  iceoryx_posh  : use
+@enduml
+
+PlantUML version 1.2022.8beta2(Unknown compile time)
+(GPL source distribution)
+Java Runtime: Java(TM) SE Runtime Environment
+JVM: Java HotSpot(TM) 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: US
+--></g></svg>
