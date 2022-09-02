@@ -60,6 +60,7 @@ class PointerRepository
 
     /// @brief default constructor
     PointerRepository() noexcept;
+    ~PointerRepository() noexcept = default;
 
     PointerRepository(const PointerRepository&) = delete;
     PointerRepository(PointerRepository&&) = delete;
