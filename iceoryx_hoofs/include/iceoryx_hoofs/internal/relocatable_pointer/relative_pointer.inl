@@ -67,13 +67,15 @@ inline T* RelativePointer<T>::operator->() const noexcept
 template <typename T>
 inline T* RelativePointer<T>::get() const noexcept
 {
-    return static_cast<T*>(computeRawPtr());
+    auto ptr = static_cast<T*>(computeRawPtr());
+    cxx::Ensures(ptr != nullptr);
+    return ptr;
 }
 
 template <typename T>
 inline RelativePointer<T>::operator bool() const noexcept
 {
-    return get() != nullptr;
+    return computeRawPtr() != nullptr;
 }
 
 template <typename T>
