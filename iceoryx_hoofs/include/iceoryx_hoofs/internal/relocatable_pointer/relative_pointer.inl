@@ -25,6 +25,8 @@ namespace iox
 namespace rp
 {
 template <typename T>
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 inline RelativePointer<T>::RelativePointer(ptr_t ptr, segment_id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
@@ -32,6 +34,8 @@ inline RelativePointer<T>::RelativePointer(ptr_t ptr, segment_id_t id) noexcept
 }
 
 template <typename T>
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 inline RelativePointer<T>::RelativePointer(offset_t offset, segment_id_t id) noexcept
     : m_id(id)
     , m_offset(offset)
