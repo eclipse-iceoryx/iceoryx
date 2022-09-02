@@ -91,6 +91,7 @@
 - Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `cxx::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Renamed `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 
 **Workflow:**
 
@@ -399,6 +400,18 @@
     {
         // Early exit
     }
+    ```
+
+20. Renamed `BaseRelativePointer` to `UntypedRelativePointer`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+    iox::rp::BaseRelativePointer myUntypedRelativePointer;
+
+    // after
+    #include "iceoryx_hoofs/memory/relative_pointer.hpp" /// @todo #605 adapt namespace and directory
+    iox::memory::UntypedRelativePointer myUntypedRelativePointer;
     ```
 
 20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`

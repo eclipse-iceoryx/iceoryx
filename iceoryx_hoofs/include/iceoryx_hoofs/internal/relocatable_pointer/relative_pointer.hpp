@@ -29,7 +29,6 @@ namespace iox
 {
 namespace rp
 {
-
 struct segment_id_t : public cxx::NewType<uint64_t,
                                           cxx::newtype::DefaultConstructable,
                                           cxx::newtype::CopyConstructable,
