@@ -351,7 +351,7 @@ INSTANTIATE_TEST_SUITE_P(ChunkSettings_test,
 uint32_t expectedChunkSizeWithUserHeader(const PayloadParams& userPayload, uint32_t userHeaderSize)
 {
     const uint32_t userHeaderSizeAndPaddingToBackOffset =
-        iox::algorithm::max(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)));
+        iox::algorithm::maxVal(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)));
 
     if (userPayload.alignment <= alignof(UserPayloadOffset_t))
     {

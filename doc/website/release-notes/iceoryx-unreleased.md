@@ -78,6 +78,7 @@
 - Set `SOVERSION` with project major version for shared libraries in CMake [\#1308](https://github.com/eclipse-iceoryx/iceoryx/issues/1308)
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
 - Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
+- Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 
 **Workflow:**
 
@@ -343,4 +344,17 @@
     {
         // do on destruction
     }};
+    ```
+
+19. Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal`
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    constexpr uint32_t MAX_VAL = algorithm::max(3, 1890, 57);
+    constexpr uint32_t MIN_VAL = algorithm::min(3, 1890, 57);
+
+    // after
+    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
+    constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```

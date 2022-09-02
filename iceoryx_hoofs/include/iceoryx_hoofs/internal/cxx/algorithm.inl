@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,39 +24,39 @@ namespace iox
 namespace algorithm
 {
 template <typename T>
-inline constexpr T max(const T& left) noexcept
+inline constexpr T maxVal(const T& left) noexcept
 {
     return left;
 }
 
 template <typename T>
-inline constexpr T max(const T& left, const T& right) noexcept
+inline constexpr T maxVal(const T& left, const T& right) noexcept
 {
     return (right < left) ? left : right;
 }
 
 template <typename T, typename... Targs>
-inline constexpr T max(const T& left, const T& right, const Targs&... args) noexcept
+inline constexpr T maxVal(const T& left, const T& right, const Targs&... args) noexcept
 {
-    return max(max(left, right), args...);
+    return maxVal(maxVal(left, right), args...);
 }
 
 template <typename T>
-inline constexpr T min(const T& left) noexcept
+inline constexpr T minVal(const T& left) noexcept
 {
     return left;
 }
 
 template <typename T>
-inline constexpr T min(const T& left, const T& right) noexcept
+inline constexpr T minVal(const T& left, const T& right) noexcept
 {
     return (left < right) ? left : right;
 }
 
 template <typename T, typename... Targs>
-inline constexpr T min(const T& left, const T& right, const Targs&... args) noexcept
+inline constexpr T minVal(const T& left, const T& right, const Targs&... args) noexcept
 {
-    return min(min(left, right), args...);
+    return minVal(minVal(left, right), args...);
 }
 
 template <typename T, typename CompareType>
@@ -72,7 +72,7 @@ inline constexpr bool doesContainType() noexcept
 }
 
 template <typename T>
-inline constexpr bool doesContainValue(const T v IOX_MAYBE_UNUSED) noexcept
+inline constexpr bool doesContainValue(const T) noexcept
 {
     return false;
 }
@@ -81,6 +81,7 @@ template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept
 {
+    // AXIVION Next Line AutosarC++19_03-M6.2.2 : intentional check for exact equality
     return (value == firstValueListEntry) ? true : doesContainValue(value, remainingValueListEntries...);
 }
 
@@ -88,39 +89,39 @@ template <typename Container>
 inline Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept
 {
     Container mergedContainer;
-    uint64_t indexV1 = 0U;
-    uint64_t indexV2 = 0U;
-    uint64_t v1Size = v1.size();
-    uint64_t v2Size = v2.size();
+    uint64_t indexV1{0U};
+    uint64_t indexV2{0U};
+    const uint64_t v1Size{v1.size()};
+    const uint64_t v2Size{v2.size()};
 
-    while (indexV1 < v1Size && indexV2 < v2Size)
+    while ((indexV1 < v1Size) && (indexV2 < v2Size))
     {
         if (v1[indexV1] == v2[indexV2])
         {
-            mergedContainer.emplace_back(v1[indexV1]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1]));
             ++indexV1;
             ++indexV2;
         }
         else if (v1[indexV1] < v2[indexV2])
         {
-            mergedContainer.emplace_back(v1[indexV1]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1]));
             ++indexV1;
         }
         else
         {
-            mergedContainer.emplace_back(v2[indexV2]);
+            IOX_DISCARD_RESULT(mergedContainer.emplace_back(v2[indexV2]));
             ++indexV2;
         }
     }
 
     while (indexV2 < v2Size)
     {
-        mergedContainer.emplace_back(v2[indexV2++]);
+        IOX_DISCARD_RESULT(mergedContainer.emplace_back(v2[indexV2++]));
     }
 
     while (indexV1 < v1Size)
     {
-        mergedContainer.emplace_back(v1[indexV1++]);
+        IOX_DISCARD_RESULT(mergedContainer.emplace_back(v1[indexV1++]));
     }
 
     return mergedContainer;

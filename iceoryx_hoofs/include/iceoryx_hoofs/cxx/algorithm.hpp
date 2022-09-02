@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace algorithm
 /// @param[in] left value which should be compared
 /// @return returns the given argument left
 template <typename T>
-constexpr T max(const T& left) noexcept;
+constexpr T maxVal(const T& left) noexcept;
 
 /// @brief Returns the maximum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which takes two arguments and returns the
@@ -43,7 +43,7 @@ constexpr T max(const T& left) noexcept;
 /// @param[in] right value which should be compared
 /// @return returns the maximum value of the set {left, right}
 template <typename T>
-constexpr T max(const T& left, const T& right) noexcept;
+constexpr T maxVal(const T& left, const T& right) noexcept;
 
 /// @brief Returns the maximum gained with operator<() of an arbitrary amount
 ///          of variables of the same type.
@@ -53,7 +53,7 @@ constexpr T max(const T& left, const T& right) noexcept;
 /// @param[in] args... an arbitrary amount of values
 /// @return returns the maximum value of the set {left, right, args...}
 template <typename T, typename... Targs>
-constexpr T max(const T& left, const T& right, const Targs&... args) noexcept;
+constexpr T maxVal(const T& left, const T& right, const Targs&... args) noexcept;
 
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which is required as generic
@@ -62,7 +62,7 @@ constexpr T max(const T& left, const T& right, const Targs&... args) noexcept;
 /// @param[in] left value which should be compared
 /// @return returns the given argument left
 template <typename T>
-constexpr T min(const T& left) noexcept;
+constexpr T minVal(const T& left) noexcept;
 
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type. Helper function which takes two arguments and returns the
@@ -72,7 +72,7 @@ constexpr T min(const T& left) noexcept;
 /// @param[in] right value which should be compared
 /// @return returns the minimum of the set {left, right}
 template <typename T>
-constexpr T min(const T& left, const T& right) noexcept;
+constexpr T minVal(const T& left, const T& right) noexcept;
 
 /// @brief Returns the minimum gained with operator<() of an arbitrary amount
 ///          of variables of the same type.
@@ -82,7 +82,7 @@ constexpr T min(const T& left, const T& right) noexcept;
 /// @param[in] args... an arbitrary amount of values
 /// @return returns the minimum of the set {left, right, args...}
 template <typename T, typename... Targs>
-constexpr T min(const T& left, const T& right, const Targs&... args) noexcept;
+constexpr T minVal(const T& left, const T& right, const Targs&... args) noexcept;
 
 /// @brief Returns true if T is equal to CompareType, otherwise false
 /// @param T type to compare to
@@ -99,10 +99,9 @@ template <typename T, typename CompareType, typename Next, typename... Remainder
 constexpr bool doesContainType() noexcept;
 
 /// @brief Finalizes the recursion of doesContainValue
-/// @param[in] v type of the value to check
 /// @return always false
 template <typename T>
-inline constexpr bool doesContainValue(const T v) noexcept;
+inline constexpr bool doesContainValue(const T) noexcept;
 
 /// @brief Returns true if value of T is found in the ValueList, otherwise false
 /// @tparam T type of the value to check
@@ -110,6 +109,9 @@ inline constexpr bool doesContainValue(const T v) noexcept;
 /// @param[in] value to look for in the ValueList
 /// @param[in] firstValueListEntry is the first variadic argument of ValueList
 /// @param[in] remainingValueListEntries are the remaining variadic arguments of ValueList
+/// @return true if value is contained in the ValueList, otherwise false
+/// @note be aware that value is tested for exact equality with the entries of ValueList and regular floating-point
+/// comparison rules apply
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
