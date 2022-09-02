@@ -40,13 +40,15 @@ class ErrorStorage
         return n;
     }
 
-    uint64_t size() const
+    uint64_t count() const
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         return m_errors.size();
     }
 
   private:
+    // std::vector should be ok as this is only used in tests
+    // otherwise we need to set a limit to the maximum number of errors we can track
     std::vector<RuntimeError> m_errors;
     mutable std::mutex m_mutex;
 };

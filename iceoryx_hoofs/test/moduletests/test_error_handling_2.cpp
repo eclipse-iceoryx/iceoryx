@@ -1,20 +1,20 @@
-#include "iceoryx_hoofs/error_handling_2/runtime_error.hpp"
-#include <gtest/gtest-death-test.h>
-#define TEST_PLATFORM
-#define DEBUG // IOX_DEBUG_ASSERT active?
+// must be defined globally before first inclusion (actually from cmake, preferably)
+#define TEST_PLATFORM // override the error handling for testing purposes
+#define DEBUG         // IOX_DEBUG_ASSERT is active
 
+#include "test.hpp"
+#include <gtest/gtest-death-test.h>
+
+// some dummy modules under test
 #include "iceoryx_hoofs/error_handling_2/module/module_A.hpp"
 #include "iceoryx_hoofs/error_handling_2/module/module_B.hpp"
 
+// must be included after modules that define the errors!
+// (not a huge issue, but can this be improved?)
+#include "iceoryx_hoofs/testing/error_checking.hpp"
+
 #include "iceoryx_hoofs/cxx/optional.hpp"
 
-#ifdef TEST_PLATFORM
-#include "iceoryx_hoofs/error_handling_2/platform/test_platform/test_handler.hpp"
-#endif
-
-#include "test.hpp"
-
-#include <exception>
 #include <iostream>
 
 namespace
@@ -30,74 +30,12 @@ using B_Code = module_b::ErrorCode;
 using A_Error = module_a::Error;
 using A_Code = module_a::ErrorCode;
 
-#ifdef TEST_PLATFORM
-
-// ********************error test utility*********************
-
-// initialize handlers on first use
-TestHandler& testHandler()
-{
-    static TestHandler h;
-    return h;
-}
-
+// some specific error handler for this test suite only
 ThrowHandler& throwHandler()
 {
     static ThrowHandler h;
     return h;
 }
-
-// TODO: these can be test utilities in a separate header but will depend on gtest
-template <typename Code, typename Level>
-RuntimeError toError(Code code, Level level)
-{
-    return RuntimeError::from(createError(code), level);
-}
-#endif
-
-uint32_t countError(const RuntimeError& error)
-{
-    return testHandler().errors().count(error);
-}
-
-bool terminationRequested()
-{
-    return testHandler().terminationRequested();
-}
-
-template <typename Code, typename Level>
-bool expectError(Code code, Level level, uint32_t count = 1)
-{
-    auto error = toError(code, level);
-    bool ret = !terminationRequested() && countError(error) == count;
-    testHandler().reset();
-    return ret;
-}
-
-template <typename Code>
-bool expectFatalError(Code code, uint32_t count = 1)
-{
-    auto error = toError(code, FATAL);
-    bool ret = terminationRequested() && countError(error) == count;
-    testHandler().reset();
-    return ret;
-}
-
-// debatable, in general we should not expect errors by default
-bool expectNoError()
-{
-    bool ret = testHandler().errors().size() == 0;
-    testHandler().reset();
-    return ret;
-}
-
-// macros, to get line numbers
-// can only deal with one error (count = 1, which could be extended)
-#define EXPECT_ERROR(code, level) EXPECT_TRUE(expectError(code, level))
-#define EXPECT_FATAL_ERROR(code) EXPECT_TRUE(expectFatalError(code))
-#define EXPECT_NO_ERROR() EXPECT_TRUE(expectNoError())
-
-// ******************************************************
 
 class ErrorHandling_test : public Test
 {
@@ -172,7 +110,14 @@ TEST_F(ErrorHandling_test, debugAssert)
     // fatal but a NOOP in release mode (like assert but with
     // custom handling when active)
     IOX_DEBUG_ASSERT(false, A_Code::OutOfBounds);
+
+// unfortunately we cannot check both cases in the same binary
+// (we explicitly want a compile time switch)
+#ifdef DEBUG
     EXPECT_FATAL_ERROR(A_Code::OutOfBounds);
+#else
+    EXPECT_NO_ERROR();
+#endif
 }
 
 TEST_F(ErrorHandling_test, additionalOutput)

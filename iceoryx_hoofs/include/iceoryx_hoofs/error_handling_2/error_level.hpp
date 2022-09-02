@@ -10,7 +10,7 @@ using error_level_t = uint32_t;
 
 constexpr error_level_t FATAL_LEVEL{0};
 
-// mandatory level
+// mandatory fatal level that always exists
 struct Fatal
 {
     static constexpr char const* name = "Fatal";

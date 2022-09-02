@@ -14,8 +14,8 @@ namespace eh
 // for e.g. compile time dispatch and type annotations)
 enum class ErrorLevel : error_level_t
 {
-    ERROR = 1,
-    WARNING = 2
+    ERROR = FATAL_LEVEL + 1,
+    WARNING
 };
 
 // prefer types to avoid switch satements and the like and allow annotations (such as name here)
