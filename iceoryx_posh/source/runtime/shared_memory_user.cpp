@@ -41,7 +41,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
             rp::UntypedRelativePointer::registerPtr(
-                rp::id_t{segmentId}, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                rp::segment_id_t{segmentId}, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
             LogDebug() << "Application registered management segment "
                        << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                        << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
@@ -56,7 +56,7 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                         const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    auto* ptr = rp::UntypedRelativePointer::getPtr(rp::id_t{segmentId}, segmentManagerAddressOffset);
+    auto* ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, segmentManagerAddressOffset);
     auto* segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
@@ -76,7 +76,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                rp::UntypedRelativePointer::registerPtr(rp::id_t{segment.m_segmentId},
+                rp::UntypedRelativePointer::registerPtr(rp::segment_id_t{segment.m_segmentId},
                                                         sharedMemoryObject.getBaseAddress(),
                                                         sharedMemoryObject.getSizeInBytes());
 

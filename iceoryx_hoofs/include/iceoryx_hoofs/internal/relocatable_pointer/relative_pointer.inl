@@ -25,14 +25,14 @@ namespace iox
 namespace rp
 {
 template <typename T>
-inline RelativePointer<T>::RelativePointer(ptr_t ptr, id_t id) noexcept
+inline RelativePointer<T>::RelativePointer(ptr_t ptr, segment_id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
 {
 }
 
 template <typename T>
-inline RelativePointer<T>::RelativePointer(offset_t offset, id_t id) noexcept
+inline RelativePointer<T>::RelativePointer(offset_t offset, segment_id_t id) noexcept
     : m_id(id)
     , m_offset(offset)
 {
@@ -124,26 +124,26 @@ inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
 }
 
 template <typename T>
-typename RelativePointer<T>::id_underlying_t RelativePointer<T>::getId() const noexcept
+inline segment_id_underlying_t RelativePointer<T>::getId() const noexcept
 {
     return m_id;
 }
 
 template <typename T>
-typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset() const noexcept
+inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset() const noexcept
 {
     return m_offset;
 }
 
 template <typename T>
-typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr() const noexcept
+inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr() const noexcept
 {
-    return getBasePtr(id_t{m_id});
+    return getBasePtr(segment_id_t{m_id});
 }
 
 template <typename T>
-typename cxx::optional<typename RelativePointer<T>::id_underlying_t> RelativePointer<T>::registerPtr(const ptr_t ptr,
-                                                                                            uint64_t size) noexcept
+inline cxx::optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(const ptr_t ptr,
+                                                                              const uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }
@@ -151,25 +151,25 @@ typename cxx::optional<typename RelativePointer<T>::id_underlying_t> RelativePoi
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline bool RelativePointer<T>::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
+inline bool RelativePointer<T>::registerPtr(const segment_id_t id, const ptr_t ptr, const uint64_t size) noexcept
 {
-    return getRepository().registerPtrWithId(static_cast<id_underlying_t>(id), ptr, size);
+    return getRepository().registerPtrWithId(static_cast<segment_id_underlying_t>(id), ptr, size);
 }
 
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline bool RelativePointer<T>::unregisterPtr(const id_t id) noexcept
+inline bool RelativePointer<T>::unregisterPtr(const segment_id_t id) noexcept
 {
-    return getRepository().unregisterPtr(static_cast<id_underlying_t>(id));
+    return getRepository().unregisterPtr(static_cast<segment_id_underlying_t>(id));
 }
 
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr(const id_t id) noexcept
+inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr(const segment_id_t id) noexcept
 {
-    return static_cast<RelativePointer<T>::ptr_t>(getRepository().getBasePtr(static_cast<id_underlying_t>(id)));
+    return static_cast<RelativePointer<T>::ptr_t>(getRepository().getBasePtr(static_cast<segment_id_underlying_t>(id)));
 }
 
 template <typename T>
@@ -181,9 +181,10 @@ inline void RelativePointer<T>::unregisterAll() noexcept
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const id_t id, const_ptr_t ptr) noexcept
+inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const segment_id_t id,
+                                                                           const_ptr_t ptr) noexcept
 {
-    if (static_cast<id_underlying_t>(id) == NULL_POINTER_ID)
+    if (static_cast<segment_id_underlying_t>(id) == NULL_POINTER_ID)
     {
         return NULL_POINTER_OFFSET;
     }
@@ -196,7 +197,8 @@ inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getPtr(const id_t id, const offset_t offset) noexcept
+inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getPtr(const segment_id_t id,
+                                                                     const offset_t offset) noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
     {
@@ -209,7 +211,7 @@ inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getPtr(const id_t 
 }
 
 template <typename T>
-inline typename RelativePointer<T>::id_underlying_t RelativePointer<T>::searchId(ptr_t ptr) noexcept
+inline segment_id_underlying_t RelativePointer<T>::searchId(ptr_t ptr) noexcept
 {
     if (ptr == nullptr)
     {
@@ -221,18 +223,18 @@ inline typename RelativePointer<T>::id_underlying_t RelativePointer<T>::searchId
 template <typename T>
 inline typename RelativePointer<T>::offset_t RelativePointer<T>::computeOffset(ptr_t ptr) const noexcept
 {
-    return getOffset(id_t{m_id}, ptr);
+    return getOffset(segment_id_t{m_id}, ptr);
 }
 
 template <typename T>
 inline typename RelativePointer<T>::ptr_t RelativePointer<T>::computeRawPtr() const noexcept
 {
-    return getPtr(id_t{m_id}, m_offset);
+    return getPtr(segment_id_t{m_id}, m_offset);
 }
 
-PointerRepository<UntypedRelativePointer::id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept
+static inline PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept
 {
-    static PointerRepository<UntypedRelativePointer::id_underlying_t, UntypedRelativePointer::ptr_t> repository;
+    static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t> repository;
     return repository;
 }
 } // namespace rp

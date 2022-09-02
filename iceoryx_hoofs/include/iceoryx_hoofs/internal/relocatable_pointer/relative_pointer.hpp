@@ -30,15 +30,17 @@ namespace iox
 namespace rp
 {
 
-struct id_t : public cxx::NewType<uint64_t, /// @todo iox-605 rename segement_id_t
-                                  cxx::newtype::DefaultConstructable,
-                                  cxx::newtype::CopyConstructable,
-                                  cxx::newtype::Convertable,
-                                  cxx::newtype::ConstructByValueCopy,
-                                  cxx::newtype::MoveConstructable>
+struct segment_id_t : public cxx::NewType<uint64_t,
+                                          cxx::newtype::DefaultConstructable,
+                                          cxx::newtype::CopyConstructable,
+                                          cxx::newtype::Convertable,
+                                          cxx::newtype::ConstructByValueCopy,
+                                          cxx::newtype::MoveConstructable>
 {
     using ThisType::ThisType;
 };
+
+using segment_id_underlying_t = typename segment_id_t::value_type;
 
 /// @brief pointer class to use when pointer and pointee are located in different shared memory segments
 /// We can have the following scenario:
@@ -68,7 +70,6 @@ class RelativePointer
   public:
     using const_ptr_t = const T*;
     using ptr_t = T*;
-    using id_underlying_t = typename id_t::value_type;
     using offset_t = std::uintptr_t;
 
     /// @brief Default constructs a RelativePointer as a logical nullptr
@@ -79,12 +80,12 @@ class RelativePointer
     /// @brief Constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr The pointer whose pointee shall be the same for this
     /// @param[in] id Is the unique id of the segment
-    RelativePointer(const ptr_t ptr, const id_t id) noexcept;
+    RelativePointer(const ptr_t ptr, const segment_id_t id) noexcept;
 
     /// @brief Constructs a RelativePointer from a given offset and segment id
     /// @param[in] offset Is the offset
     /// @param[in] id Is the unique id of the segment
-    RelativePointer(const offset_t offset, const id_t id) noexcept;
+    RelativePointer(const offset_t offset, const segment_id_t id) noexcept;
 
     /// @brief Constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -144,7 +145,7 @@ class RelativePointer
 
     /// @brief returns the id which identifies the segment
     /// @return the id which identifies the segment
-    id_underlying_t getId() const noexcept;
+    segment_id_underlying_t getId() const noexcept;
 
     /// @brief returns the offset
     /// @return the offset
@@ -158,24 +159,24 @@ class RelativePointer
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return id it was registered to
-    static cxx::optional<id_underlying_t> registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static cxx::optional<segment_id_underlying_t> registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
     /// @brief tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id is the id of the segment
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return true if successful (id not occupied), false otherwise
-    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static bool registerPtr(const segment_id_t id, const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
     /// @brief unregisters ptr with given id
     /// @param[in] id is the id of the segment
     /// @return true if successful (ptr was registered with this id before), false otherwise
-    static bool unregisterPtr(const id_t id) noexcept;
+    static bool unregisterPtr(const segment_id_t id) noexcept;
 
     /// @brief get the base ptr associated with the given id
     /// @param[in] id is the id of the segment
     /// @return ptr registered at the given id, nullptr if none was registered
-    static ptr_t getBasePtr(const id_t id) noexcept;
+    static ptr_t getBasePtr(const segment_id_t id) noexcept;
 
     /// @brief unregisters all ptr id pairs (leads to initial state)
     static void unregisterAll() noexcept;
@@ -184,18 +185,18 @@ class RelativePointer
     /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] ptr is the pointer whose offset should be calculated
     /// @return offset
-    static offset_t getOffset(const id_t id, const_ptr_t ptr) noexcept;
+    static offset_t getOffset(const segment_id_t id, const_ptr_t ptr) noexcept;
 
     /// @brief get the pointer from id and offset ("inverse" to getOffset)
     /// @param[in] id is the id of the segment and is used to get the base pointer
     /// @param[in] offset is the offset for which the pointer should be calculated
     /// @return the pointer from id and offset
-    static ptr_t getPtr(const id_t id, const offset_t offset) noexcept;
+    static ptr_t getPtr(const segment_id_t id, const offset_t offset) noexcept;
 
     /// @brief get the id for a given ptr
     /// @param[in] ptr the pointer whose corresponding id is searched for
     /// @return id the pointer was registered to
-    static id_underlying_t searchId(ptr_t ptr) noexcept;
+    static segment_id_underlying_t searchId(ptr_t ptr) noexcept;
 
     /// @brief get the offset from the start address of the segment and ptr
     /// @param[in] ptr is the pointer whose offset should be calculated
@@ -206,11 +207,11 @@ class RelativePointer
     /// @return the pointer for stored id and offset
     ptr_t computeRawPtr() const noexcept;
 
-    static constexpr id_underlying_t NULL_POINTER_ID{std::numeric_limits<id_underlying_t>::max()};
+    static constexpr segment_id_underlying_t NULL_POINTER_ID{std::numeric_limits<segment_id_underlying_t>::max()};
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
   private:
-    id_underlying_t m_id{NULL_POINTER_ID};
+    segment_id_underlying_t m_id{NULL_POINTER_ID};
     offset_t m_offset{NULL_POINTER_OFFSET};
 };
 
@@ -218,7 +219,7 @@ using UntypedRelativePointer = RelativePointer<void>;
 
 /// @brief returns the pointer repository storing untyped pointers
 /// @return the static pointer repository
-static PointerRepository<UntypedRelativePointer::id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
+static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
 
 
 } // namespace rp

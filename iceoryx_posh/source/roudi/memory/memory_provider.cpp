@@ -122,7 +122,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        rp::UntypedRelativePointer::unregisterPtr(rp::id_t{m_segmentId});
+        rp::UntypedRelativePointer::unregisterPtr(rp::segment_id_t{m_segmentId});
         m_memory = nullptr;
         m_size = 0U;
     }

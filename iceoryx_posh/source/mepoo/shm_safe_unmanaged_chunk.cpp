@@ -58,8 +58,8 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt =
-        rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), rp::id_t{m_chunkManagement.id()});
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::segment_id_t{m_chunkManagement.id()});
     m_chunkManagement.reset();
     return SharedChunk(chunkMgmt.get());
 }
@@ -70,8 +70,8 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt =
-        rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), rp::id_t{m_chunkManagement.id()});
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::segment_id_t{m_chunkManagement.id()});
     chunkMgmt->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
     return SharedChunk(chunkMgmt.get());
 }
@@ -87,8 +87,8 @@ ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
     {
         return nullptr;
     }
-    auto chunkMgmt =
-        rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), rp::id_t{m_chunkManagement.id()});
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::segment_id_t{m_chunkManagement.id()});
     return chunkMgmt->m_chunkHeader.get();
 }
 
@@ -105,7 +105,7 @@ bool ShmSafeUnmanagedChunk::isNotLogicalNullptrAndHasNoOtherOwners() const noexc
     }
 
     auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
-                                                                 rp::id_t{m_chunkManagement.id()});
+                                                                 rp::segment_id_t{m_chunkManagement.id()});
     return chunkMgmt->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 
