@@ -195,7 +195,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
     EXPECT_EQ(RelativePointer<TypeParam>::registerPtr(
                   iox::rp::segment_id_t{2U}, reinterpret_cast<TypeParam*>(ptr1), SHARED_MEMORY_SIZE),
               true);
-    // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
 
     {
         RelativePointer<TypeParam> rp;
