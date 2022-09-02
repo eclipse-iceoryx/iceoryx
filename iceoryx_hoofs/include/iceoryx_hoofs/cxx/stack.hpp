@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,18 +23,18 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized on access
+// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized on access
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
 /// @brief stack implementation with a simple push pop interface
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
-/// @NOLINTJUSTIFICATION same as AXIVION comment
 template <typename T, uint64_t Capacity>
 class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
   public:
     /// @brief returns the last pushed element when the stack contains elements
     ///         otherwise a cxx::nullopt
-    auto pop() noexcept -> cxx::optional<T>;
+    cxx::optional<T> pop() noexcept;
 
     /// @brief pushed an element into the stack by forwarding all arguments
     ///        to the constructor of T

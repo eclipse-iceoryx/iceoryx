@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-inline auto stack<T, Capacity>::pop() noexcept -> cxx::optional<T>
+inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
 {
     if (m_size == 0U)
     {
@@ -46,8 +46,8 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
         return false;
     }
 
-    // AXIVION Next Construct CertC++-MEM54, CertC++-EXP36, AutosarC++19_03-A18.5.10 : every entry of m_data is aligned
-    // to alignof(T)
+    // AXIVION Next Construct CertC++-MEM54, CertC++-EXP36, AutosarC++19_03-A18.5.10,
+    // FaultDetection-IndirectAssignmentOverflow : every entry of m_data is aligned to alignof(T)
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : low level memory management with access to the topmost element on
     // the untyped buffer; type safety is ensured by the template parameter
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
