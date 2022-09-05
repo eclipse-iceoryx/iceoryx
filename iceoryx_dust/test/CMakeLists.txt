@@ -17,7 +17,7 @@
 
 cmake_minimum_required(VERSION 3.16)
 set(test_iceoryx_dust_VERSION 0)
-project(test_iceoryx_dust VERSION ${test_iceoryx_hoofs_VERSION})
+project(test_iceoryx_dust VERSION ${test_iceoryx_dust_VERSION})
 
 find_package(Threads REQUIRED)
 find_package(iceoryx_hoofs_testing REQUIRED)
@@ -40,7 +40,7 @@ set(TEST_LINK_LIBS
 iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              acl dl rt
                     FILES                   ${MODULETESTS_SRC}
 )
 
