@@ -22,7 +22,7 @@
 
 iox_add_library(
     STATIC
-    TARGET                  ${PROJECT_NAME}_testing
+    TARGET                  iceoryx_hoofs_testing
     NAMESPACE               iceoryx_hoofs_testing
     PROJECT_PREFIX          ${PREFIX}
     PUBLIC_LIBS             GTest::gtest
