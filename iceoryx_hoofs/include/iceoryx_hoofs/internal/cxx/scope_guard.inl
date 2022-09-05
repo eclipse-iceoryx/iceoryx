@@ -34,7 +34,7 @@ inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCa
 template <uint64_t CleanupCapacity>
 inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
     const function_ref<void()>& initFunction, const function<void(), CleanupCapacity>& cleanupFunction) noexcept
-    : m_cleanupFunction(cleanupFunction)
+    : ScopeGuardWithVariableCapacity(cleanupFunction)
 {
     initFunction();
 }

@@ -43,7 +43,7 @@ namespace cxx
 /// }
 /// @endcode
 template <uint64_t CleanupCapacity = DEFAULT_FUNCTION_CAPACITY>
-class ScopeGuardWithVariableCapacity
+class ScopeGuardWithVariableCapacity final
 {
   public:
     /// @brief constructor which creates ScopeGuard that calls only the cleanupFunction on destruction
