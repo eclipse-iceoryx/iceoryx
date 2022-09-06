@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {
@@ -25,6 +27,8 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_mutex.lock())
     {
+        LogFatal() << "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
+                      "terminated or the resources were cleaned up by RouDi due to an unresponsive application.";
         errorHandler(PoshError::POPO__CHUNK_LOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
@@ -33,6 +37,8 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_mutex.unlock())
     {
+        LogFatal() << "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
+                      "by RouDi due to an unresponsive application.";
         errorHandler(PoshError::POPO__CHUNK_UNLOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
