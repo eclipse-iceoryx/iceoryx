@@ -303,7 +303,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
     ######### posh roudi environment ##########
     #
-    find_package(iceroyx_hoofs_testing)
+    find_package(iceoryx_hoofs_testing REQUIRED)
     iox_add_library(
         STATIC
         TARGET                  iceoryx_posh_testing

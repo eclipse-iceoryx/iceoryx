@@ -44,5 +44,5 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     FILES                   ${MODULETESTS_SRC}
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_APPLE              dl
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              acl dl rt
 )
