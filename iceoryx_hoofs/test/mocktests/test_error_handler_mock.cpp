@@ -80,9 +80,9 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultL
     iox::errorHandler(KnownError::TEST__FOOBAR);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError, Eq(KnownError::TEST__FOOBAR));
+    EXPECT_THAT(detectedError.value(), Eq(KnownError::TEST__FOOBAR));
     ASSERT_TRUE(detectedLevel.has_value());
-    EXPECT_THAT(detectedLevel, Eq(iox::ErrorLevel::FATAL));
+    EXPECT_THAT(detectedLevel.value(), Eq(iox::ErrorLevel::FATAL));
 }
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefaultLevelIsCaught)
@@ -99,9 +99,9 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefau
     iox::errorHandler(KnownError::TEST__FOOBAR, iox::ErrorLevel::MODERATE);
 
     ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError, Eq(KnownError::TEST__FOOBAR));
+    EXPECT_THAT(detectedError.value(), Eq(KnownError::TEST__FOOBAR));
     ASSERT_TRUE(detectedLevel.has_value());
-    EXPECT_THAT(detectedLevel, Eq(iox::ErrorLevel::MODERATE));
+    EXPECT_THAT(detectedLevel.value(), Eq(iox::ErrorLevel::MODERATE));
 }
 
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfUnknownModuleCallsGTestFail)
