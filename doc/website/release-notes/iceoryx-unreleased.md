@@ -48,6 +48,7 @@
 - Pass `CleanupCapacity` to underlying `cxx::function` in `ScopeGuard` (formerly known as `cxx::GenericRAII`) [\#1594](https://github.com/eclipse-iceoryx/iceoryx/issues/1594)
 - Add check in `RelativePointer::get` to avoid `nullptr` dereferencing [\#1596](https://github.com/eclipse-iceoryx/iceoryx/issues/1596)
 - iceoryx_posh_testing cannot find iceoryx_hoofs_testing in CMake [\#1602](https://github.com/eclipse-iceoryx/iceoryx/issues/1602)
+- ocking_policy.hpp calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
 
 **Refactoring:**
 
