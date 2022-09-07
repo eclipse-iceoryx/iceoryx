@@ -187,6 +187,33 @@ struct MutexAttributes
     cxx::optional<pthread_mutexattr_t> m_attributes;
 };
 
+cxx::expected<MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
+                                                  const pthread_mutexattr_t* const attributes) noexcept
+{
+    auto initResult = posixCall(pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
+    if (initResult.has_error())
+    {
+        switch (initResult.get_error().errnum)
+        {
+        case EAGAIN:
+            LogError() << "Not enough resources to initialize another mutex.";
+            return cxx::error<MutexCreationError>(MutexCreationError::INSUFFICIENT_RESOURCES);
+        case ENOMEM:
+            LogError() << "Not enough memory to initialize mutex.";
+            return cxx::error<MutexCreationError>(MutexCreationError::INSUFFICIENT_MEMORY);
+        case EPERM:
+            LogError() << "Unsufficient permissions to create mutex.";
+            return cxx::error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
+        default:
+            LogError() << "This should never happen. An unknown error occurred while initializing the mutex handle. "
+                          "This is possible when the handle is an already initialized mutex handle.";
+            return cxx::error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+        }
+    }
+
+    return cxx::success<>();
+}
+
 cxx::expected<MutexCreationError> MutexBuilder::create(cxx::optional<mutex>& uninitializedMutex) noexcept
 {
     if (uninitializedMutex.has_value())
@@ -240,30 +267,13 @@ cxx::expected<MutexCreationError> MutexBuilder::create(cxx::optional<mutex>& uni
     }
 
     uninitializedMutex.emplace();
-    auto initResult = posixCall(pthread_mutex_init)(&uninitializedMutex->m_handle, &*mutexAttributes.m_attributes)
-                          .returnValueMatchesErrno()
-                          .evaluate();
-    if (initResult.has_error())
-    {
-        uninitializedMutex->m_isDescructible = false;
-        uninitializedMutex.reset();
+    uninitializedMutex->m_isDescructible = false;
 
-        switch (initResult.get_error().errnum)
-        {
-        case EAGAIN:
-            LogError() << "Not enough resources to initialize another mutex.";
-            return cxx::error<MutexCreationError>(MutexCreationError::INSUFFICIENT_RESOURCES);
-        case ENOMEM:
-            LogError() << "Not enough memory to initialize mutex.";
-            return cxx::error<MutexCreationError>(MutexCreationError::INSUFFICIENT_MEMORY);
-        case EPERM:
-            LogError() << "Unsufficient permissions to create mutex.";
-            return cxx::error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
-        default:
-            LogError() << "This should never happen. An unknown error occurred while initializing the mutex handle. "
-                          "This is possible when the handle is an already initialized mutex handle.";
-            return cxx::error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
-        }
+    result = initializeMutex(&uninitializedMutex->m_handle, &*mutexAttributes.m_attributes);
+    if (result.has_error())
+    {
+        uninitializedMutex.reset();
+        return result;
     }
 
     uninitializedMutex->m_isDescructible = true;
