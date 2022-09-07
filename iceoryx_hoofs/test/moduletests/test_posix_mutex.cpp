@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by ApexAI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by ApexAI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ class Mutex_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
 
         ASSERT_FALSE(
@@ -44,11 +43,6 @@ class Mutex_test : public Test
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     void signalThreadReady()
@@ -98,14 +92,14 @@ TEST_F(Mutex_test, TryLockWithNonRecursiveMutexReturnsFailsWhenLocked)
 }
 #endif
 
-TEST_F(Mutex_test, LockAndUnlockWithNonRecursiveMutexReturnsTrue)
+TEST_F(Mutex_test, LockAndUnlockWithNonRecursiveMutexWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b83e4491-50cc-40ca-a6d0-5ad8baf346b9");
     EXPECT_FALSE(sutNonRecursive->lock().has_error());
     EXPECT_FALSE(sutNonRecursive->unlock().has_error());
 }
 
-TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexReturnsTrue)
+TEST_F(Mutex_test, RepeatedLockAndUnlockWithNonRecursiveMutexWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c01c8cc-8cb2-4869-8ff3-c52e385a2289");
     EXPECT_FALSE(sutNonRecursive->lock().has_error());
@@ -187,7 +181,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
     EXPECT_FALSE(sut->lock().has_error());
     auto result = sut->lock();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexError::DEADLOCK_CONDITION));
+    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexLockError::DEADLOCK_CONDITION));
 
     EXPECT_FALSE(sut->unlock().has_error());
 }
@@ -204,7 +198,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockIt
 
     auto result = sut->unlock();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexError::NOT_OWNED_BY_THREAD));
+    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
 }
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnlock)
@@ -218,14 +212,15 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnloc
     std::thread t([&] {
         auto result = sut->unlock();
         ASSERT_TRUE(result.has_error());
-        EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexError::NOT_OWNED_BY_THREAD));
+        EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
     });
     t.join();
     EXPECT_FALSE(sut->unlock().has_error());
 }
 
 #if !defined(__APPLE__) && !defined(_WIN32)
-TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminates)
+TEST_F(Mutex_test,
+       MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminatesAndSetsItIntoInconsistentState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");
     iox::cxx::optional<iox::posix::mutex> sut;
@@ -238,9 +233,37 @@ TEST_F(Mutex_test, MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThr
     t.join();
 
     auto result = sut->try_lock();
-    ASSERT_FALSE(result.has_error());
-    EXPECT_THAT(*result, iox::posix::MutexTryLock::LOCK_SUCCEEDED);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(),
+                iox::posix::MutexTryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
+    sut->make_consistent();
     EXPECT_FALSE(sut->unlock().has_error());
 }
+
+TEST_F(Mutex_test, MutexWithStallWhenLockedBehaviorDoesntUnlockMutexWhenThreadTerminates)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");
+    iox::cxx::optional<iox::posix::mutex> sut;
+    ASSERT_FALSE(iox::posix::MutexBuilder()
+                     .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::STALL_WHEN_LOCKED)
+                     .create(sut)
+                     .has_error());
+
+    std::thread t([&] { EXPECT_FALSE(sut->lock().has_error()); });
+    t.join();
+
+    auto result = sut->try_lock();
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, iox::posix::MutexTryLock::FAILED_TO_ACQUIRE_LOCK);
+}
 #endif
+
+TEST_F(Mutex_test, InitializingMutexTwiceResultsInError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2f26c05f-08e5-481f-8a6e-2ceca3067cf0");
+    auto result = iox::posix::MutexBuilder().create(sutRecursive);
+
+    ASSERT_THAT(result.has_error(), Eq(true));
+    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexCreationError::MUTEX_ALREADY_INITIALIZED));
+}
 } // namespace

@@ -26,21 +26,40 @@ namespace iox
 {
 namespace posix
 {
-enum class MutexError
+enum class MutexCreationError
 {
+    MUTEX_ALREADY_INITIALIZED,
     INSUFFICIENT_MEMORY,
     INSUFFICIENT_RESOURCES,
     PERMISSION_DENIED,
     INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM,
     PRIORITIES_UNSUPPORTED_BY_PLATFORM,
     USED_PRIORITY_UNSUPPORTED_BY_PLATFORM,
+    INVALID_PRIORITY_CEILING_VALUE,
+    UNKNOWN_ERROR
+};
+
+enum class MutexLockError
+{
     PRIORITY_MISMATCH,
     MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED,
     DEADLOCK_CONDITION,
+    LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED,
+    UNKNOWN_ERROR
+};
+
+enum class MutexUnlockError
+{
     NOT_OWNED_BY_THREAD,
-    INVALID_PRIORITY_CEILING_VALUE,
-    HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED,
-    UNDEFINED
+    UNKNOWN_ERROR
+};
+
+enum class MutexTryLockError
+{
+    PRIORITY_MISMATCH,
+    MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED,
+    LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED,
+    UNKNOWN_ERROR
 };
 
 enum class MutexTryLock
@@ -74,73 +93,59 @@ enum class MutexTryLock
 ///
 ///     }
 /// @endcode
-class Mutex
+class mutex
 {
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
     /// @todo iox-#1036 remove this, introduced to keep current API temporarily
-    explicit Mutex(const bool f_isRecursive) noexcept;
+    explicit mutex(const bool f_isRecursive) noexcept;
 
     /// @brief Destroys the mutex. When the mutex is still locked this will fail and the
     ///        mutex is leaked! If the MutexThreadTerminationBehavior is set to RELEASE_WHEN_LOCKED
     ///        a locked mutex is unlocked and the handle is cleaned up correctly.
-    ~Mutex() noexcept;
+    ~mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
     ///         undefined behavior or race conditions will occure if you copy
     ///         or move mutexe when its possible that they are locked or will
     ///         be locked
-    Mutex(const Mutex&) = delete;
-    Mutex(Mutex&&) = delete;
-    Mutex& operator=(const Mutex&) = delete;
-    Mutex& operator=(Mutex&&) = delete;
+    mutex(const mutex&) = delete;
+    mutex(mutex&&) = delete;
+    mutex& operator=(const mutex&) = delete;
+    mutex& operator=(mutex&&) = delete;
 
     /// @brief Locks the mutex.
-    /// @return When it fails it returns a MutexError describing the error.
-    ///         If the mutex is already locked it:
-    ///          * will be non blocking when the lock call comes from the same thread and the
-    ///              mutex type is MutexType::RECURSIVE
-    ///          * will be blocking when for all non MutexType::RECURSIVE
-    ///          * will return a MutexError::DEADLOCK_CONDITION when it is a
-    ///              MutexType::WITH_DEADLOCK_DETECTION
-
-    cxx::expected<MutexError> lock() noexcept;
+    /// @return When it fails it returns an enum describing the error.
+    cxx::expected<MutexLockError> lock() noexcept;
 
     /// @brief  Unlocks the mutex.
-    /// @return When it fails it returns a MutexError describing the error.
-    ///         If the mutex was locked by another thread and
-    ///         * MutexType::WITH_DEADLOCK_DETECTION it will return MutexError::NOT_OWNED_BY_THREAD
-    ///         * is not MutexType::WITH_DEADLOCK_DETECTION it may fail (depending on the platform)
-    ///         If the mutex was not locked it returns MutexType::NOT_OWNED_BY_THREAD
-    cxx::expected<MutexError> unlock() noexcept;
+    /// @return When it fails it returns an enum describing the error.
+    cxx::expected<MutexUnlockError> unlock() noexcept;
 
     /// @brief Tries to lock the mutex.
     /// @return If the lock was acquired MutexTryLock::LOCK_SUCCEEDED will be returned otherwise
     ///         MutexTryLock::FAILED_TO_ACQUIRE_LOCK.
     ///         If the lock is of MutexType::RECURSIVE the lock will also succeed.
-    ///         On failure it returns MutexError describing the failure.
-    cxx::expected<MutexTryLock, MutexError> try_lock() noexcept;
+    ///         On failure it returns an enum describing the failure.
+    cxx::expected<MutexTryLock, MutexTryLockError> try_lock() noexcept;
 
     /// @brief When a mutex owning thread/process with MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED dies then the
     ///        next instance which would like to acquire the lock will get an
-    ///        MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts the mutex again into a
-    ///        consistent state. If the mutex is already in a consistent state it will do nothing.
+    ///        Mutex{Try}LockError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts the mutex again into
+    ///        a consistent state. If the mutex is already in a consistent state it will do nothing.
     void make_consistent() noexcept;
 
   private:
-    Mutex() noexcept = default;
+    mutex() noexcept = default;
 
   private:
     friend class MutexBuilder;
-    friend class cxx::optional<Mutex>;
+    friend class cxx::optional<mutex>;
 
     pthread_mutex_t m_handle = PTHREAD_MUTEX_INITIALIZER;
-    bool m_isDescructable = true;
+    bool m_isDescructible = true;
     bool m_hasInconsistentState = false;
 };
-
-/// @todo iox-#1036 remove this, introduced to keep current API temporarily
-using mutex = Mutex;
 
 /// @brief Describes the type of mutex.
 enum class MutexType : int32_t
@@ -167,13 +172,12 @@ enum class MutexPriorityInheritance : int32_t
     /// @brief No priority setting.
     NONE = PTHREAD_PRIO_NONE,
 
-    /// @brief When a thread owns a mutex and another thread with a higher priority
-    ///        tries to acquire that mutex the owning thread executes with the
-    ///        priority of the highest waiting thread
+    /// @brief The priority of a thread holding the mutex is promoted to the priority of the
+    ///        highest priority thread waiting for the lock.
     INHERIT = PTHREAD_PRIO_INHERIT,
 
-    /// @brief When a thread owns a mutex it is executed with the priority ceiling
-    ///        of the mutex when it is greater than the threads priority.
+    /// @brief The priority of a thread holding the mutex is always promoted to the priority set up
+    ///        in priorityCeiling.
     PROTECT = PTHREAD_PRIO_PROTECT
 };
 
@@ -204,7 +208,7 @@ class MutexBuilder
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
 
     /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted, default: 1
-    IOX_BUILDER_PARAMETER(int32_t, priorityCeiling, 1)
+    IOX_BUILDER_PARAMETER(cxx::optional<int32_t>, priorityCeiling, cxx::nullopt)
 
     /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates,
     ///        default: MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED
@@ -216,7 +220,7 @@ class MutexBuilder
     /// @brief Initializes a provided uninitialized mutex
     /// @param[in] uninitializedMutex the uninitialized mutex which should be initialized
     /// @return On failure MutexError which explains the error
-    cxx::expected<MutexError> create(cxx::optional<Mutex>& uninitializedMutex) noexcept;
+    cxx::expected<MutexCreationError> create(cxx::optional<mutex>& uninitializedMutex) noexcept;
 };
 } // namespace posix
 } // namespace iox

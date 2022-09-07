@@ -29,7 +29,7 @@
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
 
-**Bugfixes:**
+    **Bugfixes:**
 
 - FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
 - High CPU load in blocked publisher is reduced by introducing smart busy loop waiting (adaptive_wait) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
@@ -85,6 +85,7 @@
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 
 **Workflow:**
 
@@ -363,6 +364,21 @@
     #include "iceoryx_hoofs/cxx/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
+
+20. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+    construction
+    ```cpp
+    // before
+    bool isRecursiveMutex = true;
+    mutex myMutex(isRecursiveMutex);
+    myMutex.lock();
+
+    // after
+    cxx::optional<mutex> myMutex;
+    iox::posix::MutexBuilder()
+        .mutexType(iox::posix::MutexType::RECURSIVE)
+        .create(myMutex);
+    myMutex->lock();
     ```
 
 20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
