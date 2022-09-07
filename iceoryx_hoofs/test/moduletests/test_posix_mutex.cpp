@@ -240,6 +240,7 @@ TEST_F(Mutex_test,
     EXPECT_FALSE(sut->unlock().has_error());
 }
 
+#if !defined(__FreeBSD__)
 TEST_F(Mutex_test, MutexWithStallWhenLockedBehaviorDoesntUnlockMutexWhenThreadTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9beae890-f18e-4878-a957-312920eb1833");
@@ -256,6 +257,7 @@ TEST_F(Mutex_test, MutexWithStallWhenLockedBehaviorDoesntUnlockMutexWhenThreadTe
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, iox::posix::MutexTryLock::FAILED_TO_ACQUIRE_LOCK);
 }
+#endif
 #endif
 
 TEST_F(Mutex_test, InitializingMutexTwiceResultsInError)
