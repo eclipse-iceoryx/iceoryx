@@ -31,11 +31,9 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
-#if defined(_WIN32)
+#include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
-#else
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#endif
 
 #include <cstdint>
 #include <cstdio>
@@ -143,13 +141,19 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept;
 class IpcInterfaceUser;
 class IpcInterfaceCreator;
 
-/// @brief Base-Class should never be used by the end-user.
-///     Handles the common properties and methods for the childs. The handling of
+/// @brief Class should never be used by the end-user.
+///     Handles the common properties and methods for the IpcChannelType. The handling of
 ///     the IPC channels must be done by the children.
+/// @tparam IpcChannelType the type of ipc channel, supported types are MessageQueue, NamedPipe and UnixDomainSocket
 /// @note This class won't uniquely identify if another object is using the same IPC channel
-class IpcInterfaceBase
+template <typename IpcChannelType>
+class IpcInterface
 {
   public:
+    static constexpr uint64_t MAX_MESSAGE_SIZE = IpcChannelType::MAX_MESSAGE_SIZE;
+
+    virtual ~IpcInterface() noexcept = default;
+
     /// @brief Receives a message from the IPC channel and stores it in
     ///         answer.
     /// @param[out] answer If a message is received it is stored there.
@@ -222,16 +226,15 @@ class IpcInterfaceBase
 
     /// @brief The default constructor is explicitly deleted since every
     ///         IPC channel needs a unique string to be identified with.
-    IpcInterfaceBase() = delete;
+    IpcInterface() = delete;
 
-    IpcInterfaceBase(const RuntimeName_t& runtimeName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
-    virtual ~IpcInterfaceBase() noexcept = default;
+    IpcInterface(const RuntimeName_t& runtimeName, const uint64_t maxMessages, const uint64_t messageSize) noexcept;
 
     /// @brief delete copy and move ctor and assignment since they are not needed
-    IpcInterfaceBase(const IpcInterfaceBase&) = delete;
-    IpcInterfaceBase(IpcInterfaceBase&&) = delete;
-    IpcInterfaceBase& operator=(const IpcInterfaceBase&) = delete;
-    IpcInterfaceBase& operator=(IpcInterfaceBase&&) = delete;
+    IpcInterface(const IpcInterface&) = delete;
+    IpcInterface(IpcInterface&&) = delete;
+    IpcInterface& operator=(const IpcInterface&) = delete;
+    IpcInterface& operator=(IpcInterface&&) = delete;
 
     /// @brief Set the content of answer from buffer.
     /// @param[in] buffer Raw message as char pointer
@@ -247,11 +250,6 @@ class IpcInterfaceBase
     ///             false.
     bool openIpcChannel(const posix::IpcChannelSide channelSide) noexcept;
 
-    /// @brief Closes a IPC channel
-    /// @return Returns true if the IPC channel could be closed, otherwise
-    ///             false.
-    bool closeIpcChannel() noexcept;
-
     /// @brief If a IPC channel was moved then m_runtimeName was cleared
     ///         and this object gave up the control of that specific
     ///         IPC channel and therefore shouldnt unlink or close it.
@@ -266,8 +264,10 @@ class IpcInterfaceBase
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    platform::IoxIpcChannelType m_ipcChannel;
+    IpcChannelType m_ipcChannel;
 };
+
+using IpcInterfaceBase = IpcInterface<platform::IoxIpcChannelType>;
 
 } // namespace runtime
 } // namespace iox

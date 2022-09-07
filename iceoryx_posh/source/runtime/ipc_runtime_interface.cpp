@@ -31,10 +31,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
                                          const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
     : m_runtimeName(runtimeName)
-    , m_AppIpcInterface(runtimeName)
     , m_RoudiIpcInterface(roudiName)
 {
-    if (!m_AppIpcInterface.isInitialized())
+    m_AppIpcInterface.emplace(runtimeName);
+    if (!m_AppIpcInterface->isInitialized())
     {
         errorHandler(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
         return;
@@ -123,7 +123,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
     if (regState != RegState::FINISHED)
     {
-        m_AppIpcInterface.cleanupResource();
+        m_AppIpcInterface.reset();
     }
     switch (regState)
     {
@@ -165,7 +165,7 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
         return false;
     }
 
-    if (!m_AppIpcInterface.receive(answer))
+    if (!m_AppIpcInterface->receive(answer))
     {
         LogError() << "Could not receive request via App IPC channel interface.\n";
         return false;
@@ -220,7 +220,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
         using namespace units::duration_literals;
         IpcMessage receiveBuffer;
         // wait for IpcMessageType::REG_ACK from RouDi for 1 seconds
-        if (m_AppIpcInterface.timedReceive(1_s, receiveBuffer))
+        if (m_AppIpcInterface->timedReceive(1_s, receiveBuffer))
         {
             std::string cmd = receiveBuffer.getElementAtIndex(0U);
 

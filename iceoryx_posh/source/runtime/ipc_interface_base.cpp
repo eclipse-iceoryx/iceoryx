@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,9 +59,10 @@ std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
     return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
-IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
-                                   const uint64_t maxMessages,
-                                   const uint64_t messageSize) noexcept
+template <typename IpcChannelType>
+IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
+                                           const uint64_t maxMessages,
+                                           const uint64_t messageSize) noexcept
     : m_runtimeName(runtimeName)
 {
     m_maxMessages = maxMessages;
@@ -74,7 +75,8 @@ IpcInterfaceBase::IpcInterfaceBase(const RuntimeName_t& runtimeName,
     }
 }
 
-bool IpcInterfaceBase::receive(IpcMessage& answer) const noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::receive(IpcMessage& answer) const noexcept
 {
     auto message = m_ipcChannel.receive();
     if (message.has_error())
@@ -82,18 +84,22 @@ bool IpcInterfaceBase::receive(IpcMessage& answer) const noexcept
         return false;
     }
 
-    return IpcInterfaceBase::setMessageFromString(message.value().c_str(), answer);
+    return IpcInterface<IpcChannelType>::setMessageFromString(message.value().c_str(), answer);
 }
 
-bool IpcInterfaceBase::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::timedReceive(const units::Duration timeout, IpcMessage& answer) const noexcept
 {
     return !m_ipcChannel.timedReceive(timeout)
-                .and_then([&answer](auto& message) { IpcInterfaceBase::setMessageFromString(message.c_str(), answer); })
+                .and_then([&answer](auto& message) {
+                    IpcInterface<IpcChannelType>::setMessageFromString(message.c_str(), answer);
+                })
                 .has_error()
            && answer.isValid();
 }
 
-bool IpcInterfaceBase::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::setMessageFromString(const char* buffer, IpcMessage& answer) noexcept
 {
     answer.setMessage(buffer);
     if (!answer.isValid())
@@ -104,7 +110,8 @@ bool IpcInterfaceBase::setMessageFromString(const char* buffer, IpcMessage& answ
     return true;
 }
 
-bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::send(const IpcMessage& msg) const noexcept
 {
     if (!msg.isValid())
     {
@@ -123,7 +130,8 @@ bool IpcInterfaceBase::send(const IpcMessage& msg) const noexcept
     return !m_ipcChannel.send(msg.getMessage()).or_else(logLengthError).has_error();
 }
 
-bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::timedSend(const IpcMessage& msg, units::Duration timeout) const noexcept
 {
     if (!msg.isValid())
     {
@@ -142,23 +150,23 @@ bool IpcInterfaceBase::timedSend(const IpcMessage& msg, units::Duration timeout)
     return !m_ipcChannel.timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
 }
 
-const RuntimeName_t& IpcInterfaceBase::getRuntimeName() const noexcept
+template <typename IpcChannelType>
+const RuntimeName_t& IpcInterface<IpcChannelType>::getRuntimeName() const noexcept
 {
     return m_runtimeName;
 }
 
-bool IpcInterfaceBase::isInitialized() const noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::isInitialized() const noexcept
 {
     return m_ipcChannel.isInitialized();
 }
 
-bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
-    m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to destroy previous ipc channel " << m_runtimeName; });
-
     m_channelSide = channelSide;
-    platform::IoxIpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
+    IpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel = std::move(ipcChannel); })
         .or_else([](auto& err) {
             LogError() << "unable to create ipc channel with error code: " << static_cast<uint8_t>(err);
@@ -167,33 +175,48 @@ bool IpcInterfaceBase::openIpcChannel(const posix::IpcChannelSide channelSide) n
     return m_ipcChannel.isInitialized();
 }
 
-bool IpcInterfaceBase::closeIpcChannel() noexcept
-{
-    return !m_ipcChannel.destroy().has_error();
-}
-
-bool IpcInterfaceBase::reopen() noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::reopen() noexcept
 {
     return openIpcChannel(m_channelSide);
 }
 
-bool IpcInterfaceBase::ipcChannelMapsToFile() noexcept
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::ipcChannelMapsToFile() noexcept
 {
     return !m_ipcChannel.isOutdated().value_or(true);
 }
 
-bool IpcInterfaceBase::hasClosableIpcChannel() const noexcept
+template <>
+bool IpcInterface<posix::UnixDomainSocket>::ipcChannelMapsToFile() noexcept
+{
+    return true;
+}
+
+template <>
+bool IpcInterface<posix::NamedPipe>::ipcChannelMapsToFile() noexcept
+{
+    return true;
+}
+
+template <typename IpcChannelType>
+bool IpcInterface<IpcChannelType>::hasClosableIpcChannel() const noexcept
 {
     return m_ipcChannel.isInitialized();
 }
 
-void IpcInterfaceBase::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
+template <typename IpcChannelType>
+void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const RuntimeName_t& name) noexcept
 {
     if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
         LogWarn() << "IPC channel still there, doing an unlink of " << name;
     }
 }
+
+template class IpcInterface<posix::UnixDomainSocket>;
+template class IpcInterface<posix::NamedPipe>;
+template class IpcInterface<posix::MessageQueue>;
 
 } // namespace runtime
 } // namespace iox

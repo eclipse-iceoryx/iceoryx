@@ -18,6 +18,7 @@
 #ifndef IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 #define IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 
@@ -79,7 +80,7 @@ class IpcRuntimeInterface
   private:
     RuntimeName_t m_runtimeName;
     cxx::optional<rp::BaseRelativePointer::offset_t> m_segmentManagerAddressOffset;
-    IpcInterfaceCreator m_AppIpcInterface;
+    cxx::optional<IpcInterfaceCreator> m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};

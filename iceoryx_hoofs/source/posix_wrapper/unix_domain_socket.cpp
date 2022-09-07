@@ -40,16 +40,6 @@ UnixDomainSocket::UnixDomainSocket() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static) API can be misused if IPC channel changes
-cxx::expected<bool, IpcChannelError> UnixDomainSocket::isOutdated() noexcept
-{
-    // This is for being API compatible with the message queue, but has no equivalent for socket.
-    // We return false to say that the socket is not outdated. If there is a problem,
-    // we rely on the other calls and their error returns
-
-    return cxx::success<bool>(false);
-}
-
 UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 {
     *this = std::move(other);

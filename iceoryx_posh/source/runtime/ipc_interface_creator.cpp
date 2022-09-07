@@ -53,11 +53,5 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
 
     openIpcChannel(posix::IpcChannelSide::SERVER);
 }
-
-void IpcInterfaceCreator::cleanupResource() noexcept
-{
-    m_ipcChannel.destroy().or_else(
-        [this](auto) { LogWarn() << "unable to cleanup ipc channel resource " << m_runtimeName; });
-}
 } // namespace runtime
 } // namespace iox
