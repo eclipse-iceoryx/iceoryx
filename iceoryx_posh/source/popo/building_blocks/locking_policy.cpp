@@ -28,7 +28,7 @@ void ThreadSafePolicy::lock() const noexcept
     if (!m_mutex.lock())
     {
         LogFatal() << "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
-                      "terminated or the resources were cleaned up by RouDi due to an unresponsive application.";
+                      "was terminated or the resources were cleaned up by RouDi due to an unresponsive application.";
         errorHandler(PoshError::POPO__CHUNK_LOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
