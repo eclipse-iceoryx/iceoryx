@@ -17,7 +17,9 @@
 
 cmake_minimum_required(VERSION 3.16)
 
-if(LINUX)
+if(PLATFORM_PATH)
+    set(ICEORYX_PLATFORM ${PLATFORM_PATH})
+elseif(LINUX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/linux/)
 elseif(QNX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/qnx/)
@@ -32,6 +34,7 @@ else()
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
 endif()
 
+include("${ICEORYX_PLATFORM}/settings.cmake")
 set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
 
 # this must be recurse since every platform has potentially different cpp files

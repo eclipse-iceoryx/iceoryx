@@ -22,6 +22,7 @@ set(IOX_VERSION_STRING "2.90.0")
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+add_subdirectory(platform)
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
@@ -29,7 +30,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
-add_subdirectory(platform)
 
 #
 ########## build iceoryx hoofs lib ##########
