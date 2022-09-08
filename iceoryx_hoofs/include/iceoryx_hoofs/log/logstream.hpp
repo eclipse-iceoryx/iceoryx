@@ -66,6 +66,9 @@ inline constexpr LogOct<T> oct(const T value) noexcept;
 class LogStream
 {
   public:
+    inline LogStream(
+        Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
+
     inline LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
     inline virtual ~LogStream() noexcept;
@@ -75,8 +78,6 @@ class LogStream
 
     LogStream& operator=(const LogStream&) = delete;
     LogStream& operator=(LogStream&&) = delete;
-
-    inline void flush() noexcept;
 
     inline LogStream& self() noexcept;
 
@@ -114,9 +115,11 @@ class LogStream
     inline LogStream& operator<<(const LogLevel value) noexcept;
 
   private:
+    inline void flush() noexcept;
+
     // JUSTIFICATION it is fine to use a reference since the LogStream object is internationally not movable
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-    Logger& m_logger{Logger::get()};
+    Logger& m_logger;
     bool m_flushed{false};
 };
 

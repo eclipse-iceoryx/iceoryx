@@ -59,9 +59,18 @@ inline constexpr LogOct<T> oct(const T value) noexcept
     return LogOct<T>(value);
 }
 
-inline LogStream::LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+/// @todo iox-#1345 use something like 'source_location'
+// NOLINTNEXTLINE(readability-function-size)
+inline LogStream::LogStream(
+    Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+    : m_logger(logger)
 {
     m_logger.createLogMessageHeader(file, line, function, logLevel);
+}
+
+inline LogStream::LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+    : LogStream(Logger::get(), file, line, function, logLevel)
+{
 }
 
 inline LogStream::~LogStream() noexcept

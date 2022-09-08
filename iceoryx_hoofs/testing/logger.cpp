@@ -38,6 +38,7 @@ void Logger::init()
     }
 
     auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) required by the callee
     listeners.Append(new LogPrinter);
 }
 
