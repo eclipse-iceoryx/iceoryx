@@ -49,13 +49,16 @@ You can find the full API documentation on 🌐 [https://iceoryx.io](https://ice
 
 ### Supported Platforms
 
-|Operating System| supports access rights for shared memory | command line parsing    |
-|----------------|:----------------------------------------:|:-----------------------:|
-| Linux          | yes                                      | yes                     |
-| QNX            | yes                                      | yes                     |
-| MacOS          | no, not planned for implementation       | yes                     |
-| Windows 10     | no, not planned for implementation       | will be implemented     |
-| FreeBSD (Unix) | no, not planned for implementation       | yes                     |
+Modification or addition of new platforms is described in the
+[custom iceoryx platforms](doc/website/advanced/custom-iceoryx-platform.md) article.
+
+|Operating System| Compiler  | supports access rights for shared memory | command line parsing    |
+|----------------|-----------|:----------------------------------------:|:-----------------------:|
+| Linux          | gcc/clang | yes                                      | yes                     |
+| QNX            | gcc       | yes                                      | yes                     |
+| MacOS          | clang     | no, not planned for implementation       | yes                     |
+| Windows 10     | msvc      | no, not planned for implementation       | will be implemented     |
+| FreeBSD (Unix) | clang     | no, not planned for implementation       | yes                     |
 
 In general unix platforms should work with iceoryx but we only test FreeBSD on our CI.
 
