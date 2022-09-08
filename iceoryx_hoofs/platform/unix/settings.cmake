@@ -14,15 +14,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set_global(ICEORYX_PLATFORM_STRING      "Unix")
-set_global(ICEORYX_CXX_STANDARD         17)
+set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Unix")
+set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
 
-set_global(ICEORYX_C_WARNINGS           "-W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion")
-set_global(ICEORYX_CXX_WARNINGS         "${ICEORYX_C_WARNINGS} -Wno-noexcept-type")
+set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
+set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 
 if(BUILD_STRICT)
-    set_global(ICEORYX_C_WARNINGS       "${ICEORYX_C_WARNINGS} -Werror")
-    set_global(ICEORYX_CXX_WARNINGS     "${ICEORYX_CXX_WARNINGS} -Werror")
+    set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_CXX_WARNINGS} -Werror)
 endif()
 
 

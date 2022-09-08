@@ -21,8 +21,12 @@
 # this also creates the config files
 include(GNUInstallDirs)
 
-function(set_global VAR VALUE)
-    set(${VAR} ${VALUE} CACHE INTERNAL "${VAR}")
+function(set_global)
+    set(arguments VAR )
+    set(multiValueArgs VALUE)
+    cmake_parse_arguments(IOX "" "${arguments}" "${multiValueArgs}" ${ARGN} )
+
+    set(${IOX_VAR} ${IOX_VALUE} CACHE INTERNAL "${IOX_VAR}")
 endfunction()
 
 Macro(setup_package_name_and_create_files)

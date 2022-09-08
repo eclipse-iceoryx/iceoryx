@@ -14,15 +14,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set_global(ICEORYX_PLATFORM_STRING      "QNX")
-set_global(ICEORYX_CXX_STANDARD         14)
+set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "QNX")
+set_global(VAR ICEORYX_CXX_STANDARD         VALUE 14)
 
-set_global(ICEORYX_C_WARNINGS           "-W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion")
-set_global(ICEORYX_CXX_WARNINGS         "${ICEORYX_C_WARNINGS} -Wno-noexcept-type -Wuseless-cast")
+set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
+set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type -Wuseless-cast)
 
 if(BUILD_STRICT)
-    set_global(ICEORYX_C_WARNINGS       "${ICEORYX_C_WARNINGS} -Werror")
-    set_global(ICEORYX_CXX_WARNINGS     "${ICEORYX_CXX_WARNINGS} -Werror")
+    set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE "${ICEORYX_CXX_WARNINGS} -Werror)
 endif()
 
 

@@ -14,18 +14,18 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set_global(ICEORYX_CXX_STANDARD         14)
-set_global(ICEORYX_PLATFORM_STRING      "Linux")
+set_global(VAR ICEORYX_CXX_STANDARD         VALUE 14)
+set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Linux")
 
-set_global(ICEORYX_C_WARNINGS           "-W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion")
-set_global(ICEORYX_CXX_WARNINGS         "${ICEORYX_C_WARNINGS} -Wno-noexcept-type")
+set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
+set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    set_global(ICEORYX_CXX_WARNINGS     "${ICEORYX_CXX_WARNINGS} -Wuseless-cast")
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_CXX_WARNINGS} -Wuseless-cast)
 endif()
 
 if(BUILD_STRICT)
-    set_global(ICEORYX_C_WARNINGS       "${ICEORYX_C_WARNINGS} -Werror")
-    set_global(ICEORYX_CXX_WARNINGS     "${ICEORYX_CXX_WARNINGS} -Werror")
+    set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_CXX_WARNINGS} -Werror)
 endif()
 
 
