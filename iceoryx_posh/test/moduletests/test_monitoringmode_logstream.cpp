@@ -14,11 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// @todo iox-#1345 re-enable in follow-up PR
-#if 0
-
-#include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
@@ -37,7 +32,7 @@ class MonitoringModeLogStreamTest : public Test
         m_loggerMock.m_logs.clear();
     }
 
-    Logger_Mock m_loggerMock;
+    iox::testing::Logger_Mock m_loggerMock;
 };
 
 TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
@@ -46,13 +41,11 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
     auto sut = MonitoringMode::OFF;
 
     {
-        auto logstream = iox::log::LogStream(m_loggerMock);
-        logstream << sut;
+        IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
     ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("MonitoringMode::OFF"));
-    EXPECT_THAT(m_loggerMock.m_logs[0].level, Eq(iox::log::LogLevel::kWarn));
 }
 
 TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
@@ -61,15 +54,11 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
     auto sut = MonitoringMode::ON;
 
     {
-        auto logstream = iox::log::LogStream(m_loggerMock);
-        logstream << sut;
+        IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
     ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("MonitoringMode::ON"));
-    EXPECT_THAT(m_loggerMock.m_logs[0].level, Eq(iox::log::LogLevel::kWarn));
 }
 
 } // namespace
-
-#endif

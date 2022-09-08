@@ -509,23 +509,19 @@ TEST(MemoryManagerEnumString_test, asStringLiteralConvertsEnumValuesToStrings)
     EXPECT_EQ(testedEnumValues, expectedTestedEnumValues);
 }
 
-// @todo iox-#1345 re-enable in follow-up PR
-#if 0
 TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4a3539e5-5465-4352-b2b7-a850e104c173");
-    Logger_Mock loggerMock;
+    iox::testing::Logger_Mock loggerMock;
 
     auto sut = iox::mepoo::MemoryManager::Error::MEMPOOL_OUT_OF_CHUNKS;
 
     {
-        auto logstream = iox::log::LogStream(loggerMock);
-        logstream << sut;
+        IOX_LOGSTREAM_MOCK(loggerMock) << sut;
     }
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
 }
-#endif
 
 } // namespace
