@@ -14,5 +14,20 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
-set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Windows")
+set_global(ICEORYX_PLATFORM_STRING      "Windows")
+set_global(ICEORYX_CXX_STANDARD         17)
+
+set_global(ICEORYX_C_WARNINGS           "/W0") # TODO iox-#33 set to /W1
+set_global(ICEORYX_CXX_WARNINGS         "${ICEORYX_C_WARNINGS}")
+
+if(BUILD_STRICT)
+    set_global(ICEORYX_C_WARNINGS       "/W0")
+    set_global(ICEORYX_CXX_WARNINGS     "${ICEORYX_C_WARNINGS}") # TODO iox-#33 set to /WX
+endif()
+
+
+# check platform requirements
+
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    message( FATAL_ERROR "The platform ${ICEORYX_PLATFORM_STRING} supports only the MSVC compiler and not ${CMAKE_CXX_COMPILER_ID}!" )
+endif()
