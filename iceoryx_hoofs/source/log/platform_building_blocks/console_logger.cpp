@@ -207,21 +207,9 @@ void ConsoleLogger::logString(const char* message) noexcept
     }
 }
 
-void ConsoleLogger::logI64Dec(const int64_t value) noexcept
+void ConsoleLogger::logBool(const bool value) noexcept
 {
-    logArithmetik(value, "%li");
-}
-void ConsoleLogger::logU64Dec(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%lu");
-}
-void ConsoleLogger::logU64Hex(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%x");
-}
-void ConsoleLogger::logU64Oct(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%o");
+    logString(value ? "true" : "false");
 }
 
 void ConsoleLogger::initLogger(const LogLevel) noexcept

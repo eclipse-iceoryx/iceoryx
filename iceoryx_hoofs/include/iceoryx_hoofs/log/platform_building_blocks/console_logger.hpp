@@ -59,11 +59,13 @@ class ConsoleLogger
 
     void logString(const char* message) noexcept;
 
-    /// @todo iox-#1345 add more log methods like addBool(const bool), ...
-    void logI64Dec(const int64_t value) noexcept;
-    void logU64Dec(const uint64_t value) noexcept;
-    void logU64Hex(const uint64_t value) noexcept;
-    void logU64Oct(const uint64_t value) noexcept;
+    void logBool(const bool value) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int> = 0>
+    void logDec(const T val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
+    void logHex(const T val) noexcept;
 
   private:
     template <uint32_t N>

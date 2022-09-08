@@ -37,6 +37,18 @@ inline void ConsoleLogger::unused(T&&) const noexcept
 {
 }
 
+template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int>>
+inline void ConsoleLogger::logDec(const T value) noexcept
+{
+    logArithmetik(value, LOG_FORMAT_DEC<T>);
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>>
+inline void ConsoleLogger::logHex(const T value) noexcept
+{
+    logArithmetik(value, LOG_FORMAT_HEX<T>);
+}
+
 template <typename T>
 inline void ConsoleLogger::logArithmetik(const T value, const char* format) noexcept
 {
