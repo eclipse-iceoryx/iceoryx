@@ -21,8 +21,11 @@ set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-add_subdirectory(platform)
+find_package(iceoryx_platform REQUIRED)
+
+include(IceoryxPackageHelper)
+include(settings)
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
@@ -38,9 +41,8 @@ set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 iox_add_library(
     TARGET                      iceoryx_hoofs
     NAMESPACE                   iceoryx_hoofs
-    ADDITIONAL_EXPORT_TARGETS   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
-    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_platform
+    PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
@@ -104,7 +106,6 @@ endif()
 
 install(
     FILES
-        cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}

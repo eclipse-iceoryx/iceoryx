@@ -21,6 +21,7 @@ set(IOX_VERSION_STRING "2.90.0")
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
 find_package(Threads REQUIRED)
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_dust REQUIRED)
 
@@ -38,6 +39,7 @@ endif()
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(settings)
 
 include(cmake/IceoryxPoshDeployment.cmake)
 
