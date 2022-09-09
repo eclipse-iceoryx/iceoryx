@@ -147,24 +147,24 @@ Macro(iox_set_rpath)
             # TODO: iox-#1287 implement rpath auto detection to have no dependency on posh at this level.
             "${IOX_RPATH_PREFIX}/../iceoryx_hoofs"
             "${IOX_RPATH_PREFIX}/../iceoryx_posh"
-            "${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../iceoryx_platform"
             "${IOX_RPATH_PREFIX}/../iceoryx_binding_c"
             #TODO: end iox-#1287
 
             # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
             "${IOX_RPATH_PREFIX}/../hoofs"
             "${IOX_RPATH_PREFIX}/../posh"
-            "${IOX_RPATH_PREFIX}/../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../platform"
             "${IOX_RPATH_PREFIX}/../binding_c"
             # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
             "${IOX_RPATH_PREFIX}/../../hoofs"
             "${IOX_RPATH_PREFIX}/../../posh"
-            "${IOX_RPATH_PREFIX}/../../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../../platform"
             "${IOX_RPATH_PREFIX}/../../binding_c"
             # TODO: iox-#1287 iox-roudi is stored directly in build, despite it should be stored in iceoryx_posh, adjust paths so that this works too
             "${IOX_RPATH_PREFIX}/hoofs"
             "${IOX_RPATH_PREFIX}/posh"
-            "${IOX_RPATH_PREFIX}/hoofs/platform"
+            "${IOX_RPATH_PREFIX}/platform"
             "${IOX_RPATH_PREFIX}/binding_c"
             # TODO: END iox-#1287
     )

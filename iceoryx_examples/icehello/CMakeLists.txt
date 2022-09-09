@@ -20,12 +20,14 @@ project(example_icehello)
 
 include(GNUInstallDirs)
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
 get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
 
 include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 include(IceoryxPackageHelper)
 
 iox_add_executable(

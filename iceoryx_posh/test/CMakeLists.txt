@@ -48,8 +48,8 @@ set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
     GTest::gtest
     GTest::gmock
+    iceoryx_platform::iceoryx_platform
     iceoryx_hoofs::iceoryx_hoofs
-    iceoryx_hoofs::iceoryx_platform
     iceoryx_hoofs_testing::iceoryx_hoofs_testing
     iceoryx_posh::iceoryx_posh
     iceoryx_posh::iceoryx_posh_config
