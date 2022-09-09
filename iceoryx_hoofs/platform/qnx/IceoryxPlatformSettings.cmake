@@ -22,12 +22,12 @@ set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noe
 
 if(BUILD_STRICT)
     set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)
-    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE "${ICEORYX_CXX_WARNINGS} -Werror)
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_CXX_WARNINGS} -Werror)
 endif()
 
 
 # check platform requirements
 
-if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+if(NOT CMAKE_CXX_COMPILER_ID MATCHES "QCC")
     message( FATAL_ERROR "The platform ${ICEORYX_PLATFORM_STRING} supports only the gcc compiler and not ${CMAKE_CXX_COMPILER_ID}!" )
 endif()

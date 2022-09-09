@@ -29,7 +29,7 @@ option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module"
 option(EXAMPLES "Build all iceoryx examples" OFF)
 option(INTROSPECTION "Builds the introspection client which requires the ncurses library with an activated terminfo feature" OFF)
 option(ONE_TO_MANY_ONLY "Restricts communication to 1:n pattern" OFF)
-option(PLATFORM_PATH "Overrides integrated platform detection and uses provided custom path" OFF)
+set(PLATFORM_PATH "" CACHE PATH "Overrides integrated platform detection and uses provided custom path")
 option(ROUDI_ENVIRONMENT "Build RouDi Environment for testing, is enabled when building tests" OFF)
 option(SANITIZE "Build with sanitizers" OFF)
 option(TEST_WITH_ADDITIONAL_USER "Build Test with additional user accounts for testing access control" OFF)

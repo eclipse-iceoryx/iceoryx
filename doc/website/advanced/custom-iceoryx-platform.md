@@ -3,8 +3,8 @@
 The `iceoryx_hoofs/platform` represents the lowest layer in iceoryx. Its task is to establish
 a uniform behavior of low level system calls across all supported platforms. When one would like
 to add support for another platform one can use the cmake switch `-DPLATFORM_PATH` to provide
-an absolute path to a custom platform implementation.
-This may become necessary when would like to support an unsupported compiler for a specific
+a path to a custom platform implementation.
+This may become necessary to support an unsupported compiler for a specific
 platform, would like the allowed system calls on a platform are add a new operating system.
 
 ## Build with custom iceoryx platform
