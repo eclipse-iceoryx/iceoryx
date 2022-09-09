@@ -362,3 +362,29 @@
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```
+
+20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
+
+    ```cmake
+    // before
+    cmake_minimum_required(VERSION 3.16)
+    project(example)
+    find_package(iceoryx_posh CONFIG REQUIRED)
+    find_package(iceoryx_hoofs CONFIG REQUIRED)
+
+    get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD) // obsolete
+
+    include(IceoryxPlatform)
+    include(IceoryxPackageHelper)
+
+    // after
+    cmake_minimum_required(VERSION 3.16)
+    project(example)
+    find_package(iceoryx_platform REQUIRED)         // new
+    find_package(iceoryx_posh CONFIG REQUIRED)
+    find_package(iceoryx_hoofs CONFIG REQUIRED)
+
+    include(IceoryxPlatform)
+    include(IceoryxPlatformSettings)                // new
+    include(IceoryxPackageHelper)
+    ```

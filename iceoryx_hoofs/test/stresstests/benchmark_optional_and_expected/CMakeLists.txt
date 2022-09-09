@@ -20,13 +20,12 @@ project(benchmark_optional_and_expected)
 
 include(GNUInstallDirs)
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
-get_target_property(ICEORYX_CXX_STANDARD iceoryx_hoofs::iceoryx_hoofs CXX_STANDARD)
-if ( NOT ICEORYX_CXX_STANDARD )
-    include(IceoryxPlatform)
-endif ( NOT ICEORYX_CXX_STANDARD )
+include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
 iox_add_executable(
     TARGET      iox-bm-optional-and-expected
