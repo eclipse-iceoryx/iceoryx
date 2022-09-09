@@ -25,7 +25,7 @@ find_package(iceoryx_hoofs REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
-include(settings)
+include(IceoryxPlatformSettings)
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)

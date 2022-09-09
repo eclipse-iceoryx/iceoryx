@@ -24,7 +24,7 @@ project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 find_package(iceoryx_platform REQUIRED)
 
 include(IceoryxPackageHelper)
-include(settings)
+include(IceoryxPlatformSettings)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 

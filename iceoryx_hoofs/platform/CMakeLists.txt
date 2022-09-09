@@ -48,7 +48,7 @@ endif()
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
-include("${ICEORYX_PLATFORM}/settings.cmake")
+include("${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake")
 
 set(ICEORYX_PLATFORM ${ICEORYX_PLATFORM} CACHE PATH "" FORCE)
 
@@ -73,7 +73,7 @@ iox_add_library(
 install(
     FILES
         cmake/IceoryxPackageHelper.cmake
-        ${ICEORYX_PLATFORM}/settings.cmake
+        ${ICEORYX_PLATFORM}/IceoryxPlatformSettings.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
     COMPONENT dev
 )

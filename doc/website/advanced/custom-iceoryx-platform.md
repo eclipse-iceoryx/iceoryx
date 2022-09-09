@@ -28,7 +28,7 @@ and build iceoryx as usual.
           declared functions. If certain functionalities are not implemented one can identify
           the broken feature by executing the hoofs and posh module and integrationtests
      * `source/` - directory where the implementation must be stored
-     * `settings.cmake` - file which contains the platform compile configuration
+     * `IceoryxPlatformSettings.cmake` - file which contains the platform compile configuration
         * `ICEORYX_CXX_STANDARD` - must be at least `14`
         * `ICEORYX_PLATFORM_STRING` - the name of the platform
         * `ICEORYX_C_WARNINGS` - [optional] a list of flags to enable c compiler warnings

@@ -39,7 +39,7 @@ endif()
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
-include(settings)
+include(IceoryxPlatformSettings)
 
 include(cmake/IceoryxPoshDeployment.cmake)
 
