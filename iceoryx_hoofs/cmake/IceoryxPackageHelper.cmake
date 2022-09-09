@@ -274,7 +274,7 @@ endMacro()
 
 Macro(iox_add_library)
     set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT STATIC)
-    set(arguments TARGET NAMESPACE PROJECT_PREFIX)
+    set(arguments TARGET NAMESPACE PROJECT_PREFIX EXPORT_INCLUDE_DIR)
     set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
         PUBLIC_INCLUDES PRIVATE_INCLUDES
@@ -386,7 +386,7 @@ Macro(iox_add_library)
     if ( NOT IOX_NO_EXPORT )
         setup_install_directories_and_export_package(
             TARGETS ${IOX_TARGET} ${IOX_ADDITIONAL_EXPORT_TARGETS}
-            INCLUDE_DIRECTORY include/
+            INCLUDE_DIRECTORY ${IOX_EXPORT_INCLUDE_DIR}include/
         )
     endif()
 

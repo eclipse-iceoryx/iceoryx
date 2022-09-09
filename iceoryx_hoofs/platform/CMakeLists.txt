@@ -43,13 +43,11 @@ file ( GLOB_RECURSE ICEORYX_PLATFORM_FILES
 )
 
 iox_add_library(
-    NO_EXPORT
-    NO_PACKAGE_SETUP
-    NO_FIND_PACKAGE_SUPPORT
     TARGET                      iceoryx_platform
     NAMESPACE                   iceoryx_hoofs
     BUILD_INTERFACE             ${ICEORYX_PLATFORM}/include/
     INSTALL_INTERFACE           include/${PREFIX}
+    EXPORT_INCLUDE_DIR          ${ICEORYX_PLATFORM}/
     PUBLIC_LIBS_LINUX           rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket
