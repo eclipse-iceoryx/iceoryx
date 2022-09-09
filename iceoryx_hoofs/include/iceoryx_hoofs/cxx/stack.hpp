@@ -23,7 +23,8 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized on access
+// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
+// access
 // AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
 /// @brief stack implementation with a simple push pop interface
 /// @tparam T type which the stack contains
