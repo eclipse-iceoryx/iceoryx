@@ -27,9 +27,9 @@ find_package(iceoryx_binding_c CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 find_package(iceoryx_dust CONFIG REQUIRED)
 
+include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
-include(IceoryxPackageHelper)
 
 iox_add_executable(
     TARGET      iceperf-bench-leader

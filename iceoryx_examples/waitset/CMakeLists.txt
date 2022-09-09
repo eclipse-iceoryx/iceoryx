@@ -22,9 +22,9 @@ find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
+include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
-include(IceoryxPackageHelper)
 
 iox_add_executable(
     TARGET  iox-cpp-waitset-publisher

@@ -374,8 +374,8 @@
 
     get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD) // obsolete
 
-    include(IceoryxPlatform)
     include(IceoryxPackageHelper)
+    include(IceoryxPlatform)
 
     // after
     cmake_minimum_required(VERSION 3.16)
@@ -384,7 +384,7 @@
     find_package(iceoryx_posh CONFIG REQUIRED)
     find_package(iceoryx_hoofs CONFIG REQUIRED)
 
+    include(IceoryxPackageHelper)
     include(IceoryxPlatform)
     include(IceoryxPlatformSettings)                // new
-    include(IceoryxPackageHelper)
     ```

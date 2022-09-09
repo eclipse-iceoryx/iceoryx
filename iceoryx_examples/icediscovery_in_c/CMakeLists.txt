@@ -25,9 +25,9 @@ find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
 
+include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
-include(IceoryxPackageHelper)
 
 iox_add_executable(
     USE_C_LANGUAGE
