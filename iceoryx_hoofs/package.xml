@@ -15,6 +15,7 @@
     <depend>acl</depend>
     <depend>libatomic</depend>
 
+    <depend>iceoryx_platform</depend>
     <conflict>iceoryx_utils</conflict>
     <replace>iceoryx_utils</replace>
 
