@@ -33,6 +33,8 @@ template <typename T, uint64_t Capacity>
 class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
   public:
+    ~stack() noexcept;
+
     /// @brief returns the last pushed element when the stack contains elements
     ///         otherwise a cxx::nullopt
     cxx::optional<T> pop() noexcept;

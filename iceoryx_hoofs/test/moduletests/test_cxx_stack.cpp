@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ using namespace ::testing;
 class TestClass
 {
   public:
+    static uint32_t dTor;
     TestClass() noexcept = default;
     /// NOLINTJUSTIFICATION only used in this test case
     /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -35,12 +36,19 @@ class TestClass
     {
     }
 
+    ~TestClass()
+    {
+        dTor++;
+    }
+
     bool operator==(const TestClass& rhs) const noexcept
     {
         return m_a == rhs.m_a && m_b == rhs.m_b && m_c == rhs.m_c;
     }
     uint32_t m_a = 0, m_b = 0, m_c = 0;
 };
+
+uint32_t TestClass::dTor;
 
 class stack_test : public Test
 {
@@ -56,6 +64,11 @@ class stack_test : public Test
             EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(i) + 1U));
             EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
         }
+    }
+
+    void SetUp() override
+    {
+        TestClass::dTor = 0;
     }
 };
 
@@ -118,6 +131,18 @@ TEST_F(stack_test, popCreatesSpaceForAnotherElement)
 
     EXPECT_THAT(m_sut.pop(), Ne(cxx::nullopt));
     EXPECT_TRUE(m_sut.push());
+    EXPECT_THAT(TestClass::dTor, Eq(1));
 }
 
+TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3c496cb7-898b-4a65-a405-c42cbd7f0d7b");
+    {
+        cxx::stack<TestClass, STACK_SIZE> sut;
+        sut.push();
+        sut.push(1, 2, 3);
+        EXPECT_THAT(TestClass::dTor, Eq(0));
+    }
+    EXPECT_THAT(TestClass::dTor, Eq(2));
+}
 } // namespace

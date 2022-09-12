@@ -23,6 +23,16 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>::~stack() noexcept
+{
+    for (uint64_t i = 0; i < m_size; i++)
+    {
+        // replace cast with private method "getUnchecked" and reuse in c'tors etc.
+        reinterpret_cast<T*>(&m_data[i])->~T();
+    }
+}
+
+template <typename T, uint64_t Capacity>
 inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
 {
     if (m_size == 0U)
