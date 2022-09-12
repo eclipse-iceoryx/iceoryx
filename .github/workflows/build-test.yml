@@ -42,7 +42,7 @@ jobs:
         ref: 'master'
     - name: Unix (FreeBSD) test
       id: Test
-      uses: vmactions/freebsd-vm@v0.1.6
+      uses: vmactions/freebsd-vm@v0
       with:
         usesh: true
         mem: 4096
