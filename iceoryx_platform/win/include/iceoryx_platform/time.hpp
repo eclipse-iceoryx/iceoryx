@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 #define IOX_HOOFS_WIN_PLATFORM_TIME_HPP
 
-#include "iceoryx_hoofs/platform/signal.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/signal.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <cstdint>
 #include <cstdio>

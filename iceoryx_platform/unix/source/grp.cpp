@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/grp.hpp"
+#include "iceoryx_platform/grp.hpp"
 #include <unistd.h>
 
 // NOLINTNEXTLINE(readability-function-size,readability-identifier-naming)

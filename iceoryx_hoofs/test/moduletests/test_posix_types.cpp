@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/fcntl.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iceoryx_platform/fcntl.hpp"
 #include "test.hpp"
 
 namespace

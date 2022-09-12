@@ -19,7 +19,7 @@
 
 #include <type_traits>
 
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 int __PrintLastErrorToConsole(const char* functionName, const char* file, const int line) noexcept;
 

@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/unistd.hpp"
-#include "iceoryx_hoofs/platform/handle_translator.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/unistd.hpp"
+#include "iceoryx_platform/handle_translator.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
 
 int ftruncate(int fildes, off_t length)
 {

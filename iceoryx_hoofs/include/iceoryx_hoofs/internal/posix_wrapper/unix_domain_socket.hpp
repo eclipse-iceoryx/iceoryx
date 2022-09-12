@@ -21,11 +21,11 @@
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
-#include "iceoryx_hoofs/platform/socket.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/un.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
+#include "iceoryx_platform/socket.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/un.hpp"
 
 namespace iox
 {

@@ -18,7 +18,7 @@
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 
 #include "test.hpp"

@@ -22,8 +22,8 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/platform/semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iceoryx_platform/semaphore.hpp"
 
 #include <cstdint>
 

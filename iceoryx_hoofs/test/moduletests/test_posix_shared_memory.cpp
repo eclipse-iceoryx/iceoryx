@@ -18,10 +18,10 @@
 #include "test.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/platform/mman.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/mman.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <fcntl.h>
 

@@ -18,7 +18,7 @@
 #define IOX_HOOFS_UNITS_DURATION_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/platform/time.hpp" // required for QNX
+#include "iceoryx_platform/time.hpp" // required for QNX
 
 #include <chrono>
 #include <cmath>

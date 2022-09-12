@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/ipc_handle_manager.hpp"
+#include "iceoryx_platform/ipc_handle_manager.hpp"
 
 IpcHandleManager& IpcHandleManager::getInstance() noexcept
 {

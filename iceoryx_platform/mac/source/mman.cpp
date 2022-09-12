@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_platform/mman.hpp"
 
 #include <errno.h>
 #include <sys/shm.h>

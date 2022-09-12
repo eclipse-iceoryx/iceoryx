@@ -14,18 +14,23 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_WIN_PLATFORM_WINDOWS_HPP
-#define IOX_HOOFS_WIN_PLATFORM_WINDOWS_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_FCNTL_HPP
+#define IOX_HOOFS_WIN_PLATFORM_FCNTL_HPP
 
-#define _WINSOCKAPI_
-#define WIN32_LEAN_AND_MEAN
+#include "iceoryx_platform/types.hpp"
 
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+#include <fcntl.h>
 
-#pragma comment(lib, "ws2_32.lib")
+#define O_CREAT _O_CREAT
+#define O_EXCL _O_EXCL
+#define O_TRUN _O_TRUNC
+#define O_APPEND _O_APPEND
+#define O_SYNC _O_SYNC
+#define O_RDONLY _O_RDONLY
+#define O_RDWR _O_RDWR
+#define O_WRONLY _O_WRONLY
+#define O_NONBLOCK 0x0
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+int iox_open(const char* pathname, int flags, mode_t mode);
 
-#endif // IOX_HOOFS_WIN_PLATFORM_WINDOWS_HPP
+#endif // IOX_HOOFS_WIN_PLATFORM_FCNTL_HPP

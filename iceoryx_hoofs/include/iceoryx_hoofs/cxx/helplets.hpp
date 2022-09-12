@@ -27,8 +27,8 @@
 #include <limits>
 #include <type_traits>
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 namespace iox
 {

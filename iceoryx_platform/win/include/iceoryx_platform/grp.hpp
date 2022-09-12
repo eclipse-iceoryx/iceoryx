@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_GRP_HPP
 #define IOX_HOOFS_WIN_PLATFORM_GRP_HPP
 
-#include "iceoryx_hoofs/platform/grp.hpp"
+#include "iceoryx_platform/grp.hpp"
 
 struct group
 {

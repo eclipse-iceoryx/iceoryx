@@ -17,12 +17,12 @@
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 
-#include "iceoryx_hoofs/platform/grp.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
-#include "iceoryx_hoofs/platform/pwd.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/grp.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/pwd.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <limits>
 

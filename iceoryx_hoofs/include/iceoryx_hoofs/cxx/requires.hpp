@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_REQUIRES_HPP
 #define IOX_HOOFS_CXX_REQUIRES_HPP
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {

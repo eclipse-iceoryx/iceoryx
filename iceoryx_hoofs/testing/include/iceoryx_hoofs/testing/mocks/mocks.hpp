@@ -20,7 +20,7 @@
 #define _GNU_SOURCE
 #endif
 
-#include "iceoryx_hoofs/platform/dlfcn.hpp"
+#include "iceoryx_platform/dlfcn.hpp"
 
 #include <cassert>
 #include <string>

@@ -1,7 +1,7 @@
 # Symlinked to:
 # iceoryx_hoofs/include/iceoryx_hoofs/internal/cxx/.clang-tidy
 # iceoryx_hoofs/source/cxx/.clang-tidy
-# iceoryx_hoofs/platform/.clang-tidy
+# iceoryx_platform/.clang-tidy
 
 InheritParentConfig:  true
 

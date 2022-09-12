@@ -20,8 +20,8 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/platform/pthread.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/pthread.hpp"
 
 #include <atomic>
 

@@ -22,7 +22,7 @@
 #include <type_traits>
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 namespace iox
 {

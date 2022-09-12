@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP
 #define IOX_HOOFS_WIN_PLATFORM_PTHREAD_HPP
 
-#include "iceoryx_hoofs/platform/unique_system_id.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/unique_system_id.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <thread>
 #include <type_traits>

@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_PWD_HPP
 #define IOX_HOOFS_WIN_PLATFORM_PWD_HPP
 
-#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_platform/types.hpp"
 
 struct passwd
 {

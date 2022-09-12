@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 #include <cassert>
 
