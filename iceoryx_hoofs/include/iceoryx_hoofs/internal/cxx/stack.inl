@@ -23,13 +23,58 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>::stack(const stack& rhs) noexcept
+{
+    *this = rhs;
+}
+
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        uint64_t i = 0;
+
+        // copy assignment
+        for (; i < std::min(size(), rhs.size()); i++)
+        {
+            getUnchecked(i) = rhs.getUnchecked(i);
+        }
+        // copy c'tor
+        for (; i < rhs.size(); i++)
+        {
+            new (&m_data[i]) T(rhs.getUnchecked(i));
+        }
+        // delete remaining elements
+        for (; i < size(); i++)
+        {
+            getUnchecked(i).~T();
+        }
+
+        m_size = rhs.size();
+    }
+    return *this;
+}
+
+template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::~stack() noexcept
 {
     for (uint64_t i = 0; i < m_size; i++)
     {
-        // replace cast with private method "getUnchecked" and reuse in c'tors etc.
-        reinterpret_cast<T*>(&m_data[i])->~T();
+        getUnchecked(i).~T();
     }
+}
+
+template <typename T, uint64_t Capacity>
+inline T& stack<T, Capacity>::getUnchecked(const uint64_t index) noexcept
+{
+    return const_cast<T&>(const_cast<const stack<T, Capacity>*>(this)->getUnchecked(index));
+}
+
+template <typename T, uint64_t Capacity>
+inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noexcept
+{
+    return reinterpret_cast<const T*>(&m_data)[index];
 }
 
 template <typename T, uint64_t Capacity>

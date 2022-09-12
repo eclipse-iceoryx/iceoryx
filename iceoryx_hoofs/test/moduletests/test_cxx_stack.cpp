@@ -25,7 +25,10 @@ using namespace ::testing;
 class TestClass
 {
   public:
+    static uint32_t copyCTor;
+    static uint32_t copyAssignment;
     static uint32_t dTor;
+
     TestClass() noexcept = default;
     /// NOLINTJUSTIFICATION only used in this test case
     /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
@@ -36,7 +39,25 @@ class TestClass
     {
     }
 
-    ~TestClass()
+    TestClass(const TestClass& rhs) noexcept
+        : TestClass(rhs.m_a, rhs.m_b, rhs.m_c)
+    {
+        copyCTor++;
+    }
+
+    TestClass& operator=(const TestClass& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            copyAssignment++;
+            m_a = rhs.m_a;
+            m_b = rhs.m_b;
+            m_c = rhs.m_c;
+        }
+        return *this;
+    }
+
+    ~TestClass() noexcept
     {
         dTor++;
     }
@@ -48,6 +69,8 @@ class TestClass
     uint32_t m_a = 0, m_b = 0, m_c = 0;
 };
 
+uint32_t TestClass::copyCTor;
+uint32_t TestClass::copyAssignment;
 uint32_t TestClass::dTor;
 
 class stack_test : public Test
@@ -68,6 +91,8 @@ class stack_test : public Test
 
     void SetUp() override
     {
+        TestClass::copyCTor = 0;
+        TestClass::copyAssignment = 0;
         TestClass::dTor = 0;
     }
 };
@@ -140,9 +165,120 @@ TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
     {
         cxx::stack<TestClass, STACK_SIZE> sut;
         sut.push();
-        sut.push(1, 2, 3);
+        sut.push(1U, 2U, 3U);
         EXPECT_THAT(TestClass::dTor, Eq(0));
     }
     EXPECT_THAT(TestClass::dTor, Eq(2));
+}
+
+TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCTor)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2e9d78a8-9553-42c1-b7f1-a9b26c4fc23b");
+    constexpr uint32_t ELEMENT{13};
+    m_sut.push(ELEMENT, ELEMENT, ELEMENT);
+
+    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    EXPECT_THAT(TestClass::copyCTor, Eq(1));
+    EXPECT_THAT(testStack.size(), Eq(1));
+    EXPECT_THAT(testStack.pop(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
+}
+
+TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "08bfe7d9-233e-47cc-a7ca-5520eb6b99df");
+    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    EXPECT_THAT(TestClass::copyCTor, Eq(0U));
+    EXPECT_THAT(testStack.size(), Eq(0U));
+}
+
+TEST_F(stack_test, CopyConstructorWithFullVectorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f5ff8a1c-8bd4-40a9-9b10-7e90f232d78a");
+    pushElements(STACK_SIZE);
+
+    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    EXPECT_THAT(TestClass::copyCTor, Eq(STACK_SIZE));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
+}
+
+TEST_F(stack_test, CopyAssignmentWithEmptySourceWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0b563f12-e565-49d8-ba62-7d9a2323afdb");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+
+    m_sut = testStack;
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    EXPECT_THAT(TestClass::copyAssignment, Eq(0));
+    EXPECT_THAT(TestClass::copyCTor, Eq(0));
+    EXPECT_THAT(m_sut.size(), Eq(0));
+}
+
+TEST_F(stack_test, CopyAssignmentWithEmptyDestinationWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "81ea12ea-14ad-474c-bfd7-72433c780ceb");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+
+    testStack = m_sut;
+
+    EXPECT_THAT(TestClass::dTor, Eq(0));
+    EXPECT_THAT(TestClass::copyAssignment, Eq(0));
+    EXPECT_THAT(TestClass::copyCTor, Eq(STACK_SIZE));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
+}
+
+TEST_F(stack_test, CopyAssignmentWithLargerDestinationWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2f07ec25-fd62-414f-bb41-9284ce9f69b2");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+    testStack.push(9U, 11U, 13U);
+    const auto srcSize = testStack.size();
+
+    m_sut = testStack;
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE - srcSize));
+    EXPECT_THAT(TestClass::copyAssignment, Eq(srcSize));
+    EXPECT_THAT(TestClass::copyCTor, Eq(0));
+    EXPECT_THAT(m_sut.size(), Eq(srcSize));
+    EXPECT_THAT(m_sut.pop(), Eq(TestClass(9U, 11U, 13U)));
+}
+
+TEST_F(stack_test, CopyAssignmentWithLargerSourceWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1a001c09-abc2-4518-a47a-30d41aca3be4");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+    testStack.push(17U, 19U, 23U);
+    const auto destSize = testStack.size();
+
+    testStack = m_sut;
+
+    EXPECT_THAT(TestClass::dTor, Eq(0));
+    EXPECT_THAT(TestClass::copyAssignment, Eq(destSize));
+    EXPECT_THAT(TestClass::copyCTor, Eq(STACK_SIZE - destSize));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
 }
 } // namespace
