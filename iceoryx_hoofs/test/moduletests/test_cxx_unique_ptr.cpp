@@ -415,6 +415,6 @@ TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
             sut = nullptr;
             EXPECT_EQ(nullptr, sut.get());
         },
-        "EXPECTS_ENSURES_FAILED");
+        ".*");
 }
 } // namespace
