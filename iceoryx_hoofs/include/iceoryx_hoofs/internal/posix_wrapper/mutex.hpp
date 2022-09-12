@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_platform/pthread.hpp"
 
 namespace iox
 {
@@ -68,7 +68,7 @@ enum class MutexTryLock
     FAILED_TO_ACQUIRE_LOCK
 };
 
-/// @brief Wrapper for a interprocess pthread based mutex which does not use
+/// @brief Wrapper for a inter-process pthread based mutex which does not use
 ///         exceptions!
 /// @code
 ///     #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
@@ -131,8 +131,9 @@ class mutex
 
     /// @brief When a mutex owning thread/process with MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED dies then the
     ///        next instance which would like to acquire the lock will get an
-    ///        Mutex{Try}LockError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts the mutex again into
-    ///        a consistent state. If the mutex is already in a consistent state it will do nothing.
+    ///        Mutex{Try}LockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts
+    ///        the mutex again into a consistent state. If the mutex is already in a consistent state it will do
+    ///        nothing.
     void make_consistent() noexcept;
 
   private:
@@ -143,7 +144,7 @@ class mutex
     friend class cxx::optional<mutex>;
 
     pthread_mutex_t m_handle = PTHREAD_MUTEX_INITIALIZER;
-    bool m_isDescructible = true;
+    bool m_isDestructable = true;
     bool m_hasInconsistentState = false;
 };
 
@@ -191,7 +192,8 @@ enum class MutexThreadTerminationBehavior : int32_t
     /// @brief It implies the same behavior as MutexType::WITH_DEADLOCK_DETECTION. Additionally, when a mutex owning
     ///        thread/process dies the mutex is put into an inconsistent state which can be recovered with
     ///        Mutex::make_consistent(). The inconsistent state is detected by the next instance which calls
-    ///        Mutex::lock() or Mutex::try_lock() by the error value MutexError::HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED
+    ///        Mutex::lock() or Mutex::try_lock() by the error value
+    ///        MutexError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED
     RELEASE_WHEN_LOCKED = PTHREAD_MUTEX_ROBUST,
 };
 
@@ -207,7 +209,7 @@ class MutexBuilder
     /// @brief States how thread priority is adjusted when they own the mutex, default: MutexPriorityInheritance::NONE
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
 
-    /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted, default: 1
+    /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted
     IOX_BUILDER_PARAMETER(cxx::optional<int32_t>, priorityCeiling, cxx::nullopt)
 
     /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates,

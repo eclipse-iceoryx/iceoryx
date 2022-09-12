@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/sched.hpp"
+#include "iceoryx_platform/sched.hpp"
 
 int sched_get_priority_max(int policy)
 {

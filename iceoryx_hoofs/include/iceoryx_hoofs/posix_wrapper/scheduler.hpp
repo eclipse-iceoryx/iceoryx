@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SCHEDULER_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SCHEDULER_HPP
 
-#include "iceoryx_hoofs/platform/sched.hpp"
+#include "iceoryx_platform/sched.hpp"
 
 #include <cstdint>
 

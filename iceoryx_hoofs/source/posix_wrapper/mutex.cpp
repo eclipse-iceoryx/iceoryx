@@ -16,12 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -267,7 +266,7 @@ cxx::expected<MutexCreationError> MutexBuilder::create(cxx::optional<mutex>& uni
     }
 
     uninitializedMutex.emplace();
-    uninitializedMutex->m_isDescructible = false;
+    uninitializedMutex->m_isDestructable = false;
 
     result = initializeMutex(&uninitializedMutex->m_handle, &*mutexAttributes.m_attributes);
     if (result.has_error())
@@ -276,7 +275,7 @@ cxx::expected<MutexCreationError> MutexBuilder::create(cxx::optional<mutex>& uni
         return result;
     }
 
-    uninitializedMutex->m_isDescructible = true;
+    uninitializedMutex->m_isDestructable = true;
     return cxx::success<>();
 }
 
@@ -309,7 +308,7 @@ mutex::mutex(bool f_isRecursive) noexcept
 
 mutex::~mutex() noexcept
 {
-    if (m_isDescructible)
+    if (m_isDestructable)
     {
         auto destroyCall = posixCall(pthread_mutex_destroy)(&m_handle).returnValueMatchesErrno().evaluate();
 

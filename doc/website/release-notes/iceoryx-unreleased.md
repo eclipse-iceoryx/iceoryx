@@ -29,7 +29,7 @@
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
 
-    **Bugfixes:**
+**Bugfixes:**
 
 - FreeBSD CI build is broken [\#1338](https://github.com/eclipse-iceoryx/iceoryx/issues/1338)
 - High CPU load in blocked publisher is reduced by introducing smart busy loop waiting (adaptive_wait) [\#1347](https://github.com/eclipse-iceoryx/iceoryx/issues/1347)
@@ -167,6 +167,7 @@
     ```
 
 5. `RoudiApp::waitForSignal` is deprecated
+
     ```cpp
     // before
     //// in my custom roudi app implementation
@@ -227,6 +228,7 @@
    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.
+
     ```cpp
     // before
     auto fileLock = iox::posix::FileLock::create("lockFileName")
@@ -241,6 +243,7 @@
     ```
 
 10. `isValidFilePath` is removed use `isValidPathToFile` instead.
+
     ```cpp
     // before
     bool isCorrect = isValidFilePath("/path/to/file");
@@ -250,6 +253,7 @@
     ```
 
 11. Remove implicit conversion from `cxx::expected` to `cxx::optional`
+
     ```cpp
     // before
     cxx::optional<int> myLama = someExpected;
@@ -259,6 +263,7 @@
     ```
 
 12. Replace implicit conversion of `units::Duration` to `timeval` by a conversion method
+
     ```cpp
     // before
     units::Duration duration = 42_ms;
@@ -270,6 +275,7 @@
     ```
 
 13. `registerSignalHandler` returns guard packed inside expected
+
     ```cpp
     // before
     //// unable to determine if an error occurred in the underlying posix calls
@@ -283,6 +289,7 @@
     ```
 
 14. Remove `forEach` from helplets
+
     ```cpp
     // before
     iox::cxx::forEach(container, [&] (element) { /* do stuff with element */ });
@@ -292,6 +299,7 @@
     ```
 
 15. Remove `enumTypeAsUnderlyingType`
+
     ```cpp
     constexpr const char* SOME_ENUM_STRINGS[] = {"FOO", "BAR"};
 
@@ -303,6 +311,7 @@
     ```
 
 16. Remove `convertEnumToString`
+
     ```cpp
     constexpr const char* SOME_ENUM_STRINGS[] = {"FOO", "BAR"};
 
@@ -314,6 +323,7 @@
     ```
 
 17. Replace `strlen2` with more generic `arrayCapacity`
+
     ```cpp
     constexpr const char LITERAL1[] {"FOO"};
     constexpr const char LITERAL2[20] {"BAR"};
@@ -354,6 +364,7 @@
     ```
 
 19. Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal`
+
     ```cpp
     // before
     #include "iceoryx_hoofs/cxx/algorithm.hpp"
@@ -364,21 +375,6 @@
     #include "iceoryx_hoofs/cxx/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
-
-20. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
-    construction
-    ```cpp
-    // before
-    bool isRecursiveMutex = true;
-    mutex myMutex(isRecursiveMutex);
-    myMutex.lock();
-
-    // after
-    cxx::optional<mutex> myMutex;
-    iox::posix::MutexBuilder()
-        .mutexType(iox::posix::MutexType::RECURSIVE)
-        .create(myMutex);
-    myMutex->lock();
     ```
 
 20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
@@ -447,3 +443,20 @@
     Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
+
+23. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+    construction
+
+    ```cpp
+    // before
+    bool isRecursiveMutex = true;
+    mutex myMutex(isRecursiveMutex);
+    myMutex.lock();
+
+    // after
+    cxx::optional<mutex> myMutex;
+    iox::posix::MutexBuilder()
+        .mutexType(iox::posix::MutexType::RECURSIVE)
+        .create(myMutex);
+    myMutex->lock();
+    ```
