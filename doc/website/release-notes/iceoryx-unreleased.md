@@ -83,6 +83,7 @@
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
 - Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
+- Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 
 **Workflow:**
 
@@ -387,4 +388,15 @@
     include(IceoryxPackageHelper)
     include(IceoryxPlatform)
     include(IceoryxPlatformSettings)                // new
+    ```
+
+21. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
+    be adjusted.
+
+    ```cxx
+    // before
+    #include "iceoryx_hoofs/platform/some_header.hpp"
+
+    // after
+    #include "iceoryx_platform/some_header.hpp"
     ```
