@@ -60,16 +60,17 @@ jobs:
       - run: ./tools/ci/build-test-windows.ps1
         shell: powershell
 
-  run-integration-test:
-    runs-on: ubuntu-20.04
-    needs: pre-flight-check
-    steps:
-      - name: Setup ROS
-        uses: ros-tooling/setup-ros@v0.3
-        with:
-          required-ros-distributions: foxy
-      - uses: actions/checkout@v3
-      - run: ./tools/ci/run-integration-test.sh
+          # iox-1619 temporarily deactivated, will be activated in follow up PR
+          # run-integration-test:
+          #   runs-on: ubuntu-20.04
+          #   needs: pre-flight-check
+          #   steps:
+          #     - name: Setup ROS
+          #       uses: ros-tooling/setup-ros@v0.3
+          #       with:
+          #         required-ros-distributions: foxy
+          #     - uses: actions/checkout@v3
+          #     - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-sanitizers-gcc-latest:
     runs-on: ubuntu-20.04
