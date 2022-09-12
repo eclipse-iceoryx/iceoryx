@@ -29,6 +29,12 @@ inline stack<T, Capacity>::stack(const stack& rhs) noexcept
 }
 
 template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>::stack(stack&& rhs) noexcept
+{
+    *this = std::move(rhs);
+}
+
+template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexcept
 {
     if (this != &rhs)
@@ -52,6 +58,41 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexc
         }
 
         m_size = rhs.size();
+    }
+    return *this;
+}
+
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        uint64_t i = 0;
+
+        // move assignment
+        for (; i < std::min(size(), rhs.size()); i++)
+        {
+            getUnchecked(i) = std::move(rhs.getUnchecked(i));
+        }
+        // move c'tor
+        for (; i < rhs.size(); i++)
+        {
+            new (&m_data[i]) T(std::move(rhs.getUnchecked(i)));
+        }
+        // delete remaining elements
+        for (; i < size(); i++)
+        {
+            getUnchecked(i).~T();
+        }
+
+        m_size = rhs.size();
+
+        // clear rhs
+        for (uint64_t j = 0; j < rhs.size(); j++)
+        {
+            getUnchecked(j).~T();
+        }
+        rhs.m_size = 0;
     }
     return *this;
 }

@@ -34,8 +34,10 @@ class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
   public:
     stack() noexcept = default;
-    stack& operator=(const stack& rhs) noexcept;
     stack(const stack& rhs) noexcept;
+    stack(stack&& rhs) noexcept;
+    stack& operator=(const stack& rhs) noexcept;
+    stack& operator=(stack&& rhs) noexcept;
     ~stack() noexcept;
 
     /// @brief returns the last pushed element when the stack contains elements

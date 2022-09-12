@@ -26,7 +26,9 @@ class TestClass
 {
   public:
     static uint32_t copyCTor;
+    static uint32_t moveCTor;
     static uint32_t copyAssignment;
+    static uint32_t moveAssignment;
     static uint32_t dTor;
 
     TestClass() noexcept = default;
@@ -45,11 +47,29 @@ class TestClass
         copyCTor++;
     }
 
+    TestClass(TestClass&& rhs) noexcept
+        : TestClass(rhs.m_a, rhs.m_b, rhs.m_c)
+    {
+        moveCTor++;
+    }
+
     TestClass& operator=(const TestClass& rhs) noexcept
     {
         if (this != &rhs)
         {
             copyAssignment++;
+            m_a = rhs.m_a;
+            m_b = rhs.m_b;
+            m_c = rhs.m_c;
+        }
+        return *this;
+    }
+
+    TestClass& operator=(TestClass&& rhs) noexcept
+    {
+        if (this != &rhs)
+        {
+            moveAssignment++;
             m_a = rhs.m_a;
             m_b = rhs.m_b;
             m_c = rhs.m_c;
@@ -70,7 +90,9 @@ class TestClass
 };
 
 uint32_t TestClass::copyCTor;
+uint32_t TestClass::moveCTor;
 uint32_t TestClass::copyAssignment;
+uint32_t TestClass::moveAssignment;
 uint32_t TestClass::dTor;
 
 class stack_test : public Test
@@ -92,7 +114,9 @@ class stack_test : public Test
     void SetUp() override
     {
         TestClass::copyCTor = 0;
+        TestClass::moveCTor = 0;
         TestClass::copyAssignment = 0;
+        TestClass::moveAssignment = 0;
         TestClass::dTor = 0;
     }
 };
@@ -171,7 +195,7 @@ TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
     EXPECT_THAT(TestClass::dTor, Eq(2));
 }
 
-TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCTor)
+TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e9d78a8-9553-42c1-b7f1-a9b26c4fc23b");
     constexpr uint32_t ELEMENT{13};
@@ -187,8 +211,8 @@ TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08bfe7d9-233e-47cc-a7ca-5520eb6b99df");
     cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
-    EXPECT_THAT(TestClass::copyCTor, Eq(0U));
-    EXPECT_THAT(testStack.size(), Eq(0U));
+    EXPECT_THAT(TestClass::copyCTor, Eq(0));
+    EXPECT_THAT(testStack.size(), Eq(0));
 }
 
 TEST_F(stack_test, CopyConstructorWithFullVectorWorks)
@@ -280,5 +304,123 @@ TEST_F(stack_test, CopyAssignmentWithLargerSourceWorks)
         ASSERT_TRUE(element.has_value());
         EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
     }
+}
+
+TEST_F(stack_test, MoveConstructorWorksAndCallsTestClassMoveConstructor)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e3ad8e37-a95a-4f35-bee0-c83961c626a7");
+    constexpr uint32_t ELEMENT{46};
+    m_sut.push(ELEMENT, ELEMENT, ELEMENT);
+    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+
+    EXPECT_THAT(TestClass::moveCTor, Eq(1));
+    EXPECT_THAT(testStack.size(), Eq(1));
+    EXPECT_THAT(testStack.pop(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
+    EXPECT_THAT(m_sut.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveConstructorWithEmptyStackWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2cb3bfc8-ef86-4648-90e0-c0d4375834cc");
+    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+    EXPECT_THAT(TestClass::moveCTor, Eq(0));
+    EXPECT_THAT(testStack.size(), Eq(0));
+    EXPECT_THAT(m_sut.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveConstructorWithFullStackWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "08661d3d-89d7-4ada-ba78-757e92eeb8d4");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+
+    EXPECT_THAT(TestClass::moveCTor, Eq(STACK_SIZE));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
+    EXPECT_THAT(m_sut.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveAssignmentWithEmptySourceWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a06a3f8e-a886-43e2-b119-adc66c2af799");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+
+    m_sut = std::move(testStack);
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    EXPECT_THAT(TestClass::moveAssignment, Eq(0));
+    EXPECT_THAT(TestClass::moveCTor, Eq(0));
+    EXPECT_THAT(m_sut.size(), Eq(0));
+    EXPECT_THAT(testStack.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveAssignmentWithEmptyDestinationWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b67825b9-2053-453d-a2b7-5fe544f7b16d");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+
+    testStack = std::move(m_sut);
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    EXPECT_THAT(TestClass::moveAssignment, Eq(0));
+    EXPECT_THAT(TestClass::moveCTor, Eq(STACK_SIZE));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
+    EXPECT_THAT(m_sut.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveAssignmentWithLargerDestinationWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "de0b02d2-762e-41e7-a179-bd3f57da5dc6");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+    testStack.push(9U, 11U, 13U);
+    const auto srcSize = testStack.size();
+
+    m_sut = std::move(testStack);
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    EXPECT_THAT(TestClass::moveAssignment, Eq(srcSize));
+    EXPECT_THAT(TestClass::moveCTor, Eq(0));
+    EXPECT_THAT(m_sut.size(), Eq(srcSize));
+    EXPECT_THAT(m_sut.pop(), Eq(TestClass(9U, 11U, 13U)));
+    EXPECT_THAT(testStack.size(), Eq(0));
+}
+
+TEST_F(stack_test, MoveAssignmentWithLargerSourceWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7ff5a53d-18f7-447d-8bc8-04d2f9e38caa");
+    pushElements(STACK_SIZE);
+    cxx::stack<TestClass, STACK_SIZE> testStack;
+    testStack.push(17U, 19U, 23U);
+    const auto destSize = testStack.size();
+
+    testStack = std::move(m_sut);
+
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    EXPECT_THAT(TestClass::moveAssignment, Eq(destSize));
+    EXPECT_THAT(TestClass::moveCTor, Eq(STACK_SIZE - destSize));
+    EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
+    for (uint32_t i = 0; i < STACK_SIZE; ++i)
+    {
+        auto element = testStack.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(*element, Eq(TestClass(STACK_SIZE - i, 1 + STACK_SIZE - i, 2 + STACK_SIZE - i)));
+    }
+    EXPECT_THAT(m_sut.size(), Eq(0));
 }
 } // namespace
