@@ -62,7 +62,7 @@ class ChunkHeader
 - **userHeaderId** is currently not used and set to `NO_USER_HEADER`
 - **originId** is the unique identifier of the publisher the chunk was sent from
 - **sequenceNumber** is a serial number for the sent chunks
-- **userPayloadSize** is the size of the chunk occupied by the user-header
+- **userHeaderSize** is the size of the chunk occupied by the user-header
 - **userPayloadSize** is the size of the chunk occupied by the user-payload
 - **userPayloadAlignment** is the alignment of the chunk occupied by the user-payload
 - **userPayloadOffset** is the offset of the user-payload relative to the begin of the chunk
