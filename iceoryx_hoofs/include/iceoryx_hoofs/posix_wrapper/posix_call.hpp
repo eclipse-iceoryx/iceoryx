@@ -108,7 +108,7 @@ struct PosixCallDetails
 #define posixCall(f)                                                                                                   \
     internal::createPosixCallBuilder(                                                                                  \
         f,                                                                                                             \
-        #f,                                                                                                            \
+        (#f),                                                                                                          \
         __FILE__,                                                                                                      \
         __LINE__,                                                                                                      \
         __PRETTY_FUNCTION__) // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
