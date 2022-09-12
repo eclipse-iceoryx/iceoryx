@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/semaphore.hpp"
-#include "iceoryx_hoofs/platform/time.hpp"
+#include "iceoryx_platform/semaphore.hpp"
+#include "iceoryx_platform/time.hpp"
 
 #include <chrono>
 #include <cstdarg>

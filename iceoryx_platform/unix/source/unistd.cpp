@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 int iox_close(int fd)

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_platform/file.hpp"
 
 int iox_flock(int fd, int op)
 {

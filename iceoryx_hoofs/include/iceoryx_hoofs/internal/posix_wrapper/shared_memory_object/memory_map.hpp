@@ -21,7 +21,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_platform/mman.hpp"
 
 #include <cstdint>
 

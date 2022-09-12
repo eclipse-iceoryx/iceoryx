@@ -17,7 +17,7 @@
 #define IOX_HOOFS_CXX_DEADLINETIMER_HPP
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_platform/signal.hpp"
 
 #include <chrono>
 #include <cstdint>

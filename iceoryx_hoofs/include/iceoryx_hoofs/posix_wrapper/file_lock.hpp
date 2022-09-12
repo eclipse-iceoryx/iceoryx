@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/platform/file.hpp"
+#include "iceoryx_platform/file.hpp"
 
 namespace iox
 {

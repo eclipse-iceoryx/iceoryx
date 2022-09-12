@@ -22,8 +22,8 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 namespace iox
 {

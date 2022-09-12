@@ -17,9 +17,9 @@
 
 #if defined(__linux__)
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_hoofs/platform/pwd.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/pwd.hpp"
+#include "iceoryx_platform/stat.hpp"
 #include "test.hpp"
 
 #include <memory>

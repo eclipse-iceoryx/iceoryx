@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_SOCKET_HPP
 #define IOX_HOOFS_WIN_PLATFORM_SOCKET_HPP
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <cstdint>
 

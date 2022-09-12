@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/getopt.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/getopt.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <cstdio>
 

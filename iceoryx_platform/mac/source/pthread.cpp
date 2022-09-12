@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_platform/pthread.hpp"
 
 #include <map>
 #include <mutex>

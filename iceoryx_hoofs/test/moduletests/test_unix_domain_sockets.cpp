@@ -17,9 +17,9 @@
 
 #if !defined(_WIN32)
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/platform/socket.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_platform/socket.hpp"
 
 #include "test.hpp"
 

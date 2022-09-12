@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/mqueue.hpp"
+#include "iceoryx_platform/mqueue.hpp"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 mqd_t iox_mq_open2(const char* name, int oflag)

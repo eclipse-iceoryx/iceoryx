@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/grp.hpp"
+#include "iceoryx_platform/grp.hpp"
 
 int iox_getgrouplist(const char* user, gid_t group, gid_t* groups, int* ngroups)
 {

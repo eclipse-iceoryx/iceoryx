@@ -18,7 +18,7 @@
 #define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/platform/pthread.hpp"
+#include "iceoryx_platform/pthread.hpp"
 
 #if defined(__QNX__) || defined(__APPLE__)
 #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE

@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_HANDLE_TRANSLATOR_HPP
 #define IOX_HOOFS_WIN_PLATFORM_HANDLE_TRANSLATOR_HPP
 
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/windows.hpp"
 #include <map>
 #include <mutex>
 #include <queue>
