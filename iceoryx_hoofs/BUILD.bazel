@@ -24,20 +24,20 @@ cc_library(
     ]),
     hdrs = glob(["include/**"]),
     linkopts = select({
-        "//iceoryx_hoofs/platform:linux-clang": [
+        "//iceoryx_platform:linux-clang": [
             "-latomic",
             "-lacl",
         ],
-        "//iceoryx_hoofs/platform:linux-gcc": ["-lacl"],
-        "//iceoryx_hoofs/platform:mac": [],
-        "//iceoryx_hoofs/platform:qnx": [],
-        "//iceoryx_hoofs/platform:unix": [],
-        "//iceoryx_hoofs/platform:win": [],
+        "//iceoryx_platform:linux-gcc": ["-lacl"],
+        "//iceoryx_platform:mac": [],
+        "//iceoryx_platform:qnx": [],
+        "//iceoryx_platform:unix": [],
+        "//iceoryx_platform:win": [],
         "//conditions:default": ["-lacl"],
     }),
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],
-    deps = ["//iceoryx_hoofs/platform:iceoryx_platform"],
+    deps = ["//iceoryx_platform"],
 )
 
 cc_library(
