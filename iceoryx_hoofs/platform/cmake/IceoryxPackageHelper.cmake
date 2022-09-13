@@ -21,6 +21,14 @@
 # this also creates the config files
 include(GNUInstallDirs)
 
+function(set_global)
+    set(arguments VAR )
+    set(multiValueArgs VALUE)
+    cmake_parse_arguments(IOX "" "${arguments}" "${multiValueArgs}" ${ARGN} )
+
+    set(${IOX_VAR} ${IOX_VALUE} CACHE INTERNAL "${IOX_VAR}")
+endfunction()
+
 Macro(setup_package_name_and_create_files)
     set(options )
     set(oneValueArgs NAME NAMESPACE PROJECT_PREFIX)
@@ -139,24 +147,24 @@ Macro(iox_set_rpath)
             # TODO: iox-#1287 implement rpath auto detection to have no dependency on posh at this level.
             "${IOX_RPATH_PREFIX}/../iceoryx_hoofs"
             "${IOX_RPATH_PREFIX}/../iceoryx_posh"
-            "${IOX_RPATH_PREFIX}/../iceoryx_hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../iceoryx_platform"
             "${IOX_RPATH_PREFIX}/../iceoryx_binding_c"
             #TODO: end iox-#1287
 
             # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
             "${IOX_RPATH_PREFIX}/../hoofs"
             "${IOX_RPATH_PREFIX}/../posh"
-            "${IOX_RPATH_PREFIX}/../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../platform"
             "${IOX_RPATH_PREFIX}/../binding_c"
             # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
             "${IOX_RPATH_PREFIX}/../../hoofs"
             "${IOX_RPATH_PREFIX}/../../posh"
-            "${IOX_RPATH_PREFIX}/../../hoofs/platform"
+            "${IOX_RPATH_PREFIX}/../../platform"
             "${IOX_RPATH_PREFIX}/../../binding_c"
             # TODO: iox-#1287 iox-roudi is stored directly in build, despite it should be stored in iceoryx_posh, adjust paths so that this works too
             "${IOX_RPATH_PREFIX}/hoofs"
             "${IOX_RPATH_PREFIX}/posh"
-            "${IOX_RPATH_PREFIX}/hoofs/platform"
+            "${IOX_RPATH_PREFIX}/platform"
             "${IOX_RPATH_PREFIX}/binding_c"
             # TODO: END iox-#1287
     )
@@ -266,7 +274,7 @@ endMacro()
 
 Macro(iox_add_library)
     set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT STATIC)
-    set(arguments TARGET NAMESPACE PROJECT_PREFIX)
+    set(arguments TARGET NAMESPACE PROJECT_PREFIX EXPORT_INCLUDE_DIR)
     set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
         PUBLIC_INCLUDES PRIVATE_INCLUDES
@@ -378,7 +386,7 @@ Macro(iox_add_library)
     if ( NOT IOX_NO_EXPORT )
         setup_install_directories_and_export_package(
             TARGETS ${IOX_TARGET} ${IOX_ADDITIONAL_EXPORT_TARGETS}
-            INCLUDE_DIRECTORY include/
+            INCLUDE_DIRECTORY ${IOX_EXPORT_INCLUDE_DIR}include/
         )
     endif()
 

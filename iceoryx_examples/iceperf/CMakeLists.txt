@@ -21,15 +21,15 @@ project(example_iceperf)
 
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_binding_c CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 find_package(iceoryx_dust CONFIG REQUIRED)
 
-get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-
-include(IceoryxPlatform)
 include(IceoryxPackageHelper)
+include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
 iox_add_executable(
     TARGET      iceperf-bench-leader

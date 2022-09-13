@@ -20,14 +20,14 @@ project(example_complexdata)
 
 include(GNUInstallDirs)
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_dust CONFIG REQUIRED)
 find_package(iceoryx_posh CONFIG REQUIRED)
 find_package(iceoryx_hoofs CONFIG REQUIRED)
 
-get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD)
-
-include(IceoryxPlatform)
 include(IceoryxPackageHelper)
+include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
 iox_add_executable(
     TARGET  iox-cpp-publisher-vector

@@ -13,13 +13,14 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
-@PACKAGE_INIT@
 
-include(CMakeFindDependencyMacro)
+#
+########## dummyConfig.cmake to be able to use find_package with the source tree ##########
+#
 
-find_dependency(iceoryx_platform)
-find_dependency(iceoryx_hoofs)
-find_dependency(iceoryx_posh)
+if(NOT ${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED)
+    message(STATUS "The package '${CMAKE_FIND_PACKAGE_NAME}' is used in source code version.")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND_PRINTED true CACHE INTERNAL "")
+endif()
 
-include("${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake")
-check_required_components("@PROJECT_NAME@")
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})

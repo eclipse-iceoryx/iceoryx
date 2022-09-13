@@ -21,11 +21,13 @@ set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_introspection VERSION ${IOX_VERSION_STRING})
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 

@@ -15,6 +15,7 @@
   <build_depend>ros_testing</build_depend>
 
   <test_depend>ros_testing</test_depend>
+  <test_depend>iceoryx_platform</test_depend>
   <test_depend>iceoryx_binding_c</test_depend>
   <test_depend>iceoryx_posh</test_depend>
   <test_depend>iceoryx_hoofs</test_depend>

@@ -19,6 +19,7 @@
 
 include(CMakeFindDependencyMacro)
 
+find_dependency(iceoryx_platform)
 find_dependency(iceoryx_hoofs)
 find_dependency(iceoryx_dust)
 

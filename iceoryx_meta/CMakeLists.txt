@@ -36,6 +36,7 @@ if(BUILD_SHARED_LIBS)
 endif()
 
 # ===== Core
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_hoofs/platform ${CMAKE_BINARY_DIR}/platform)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_hoofs ${CMAKE_BINARY_DIR}/hoofs)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_dust ${CMAKE_BINARY_DIR}/dust)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../iceoryx_posh ${CMAKE_BINARY_DIR}/posh)
@@ -88,7 +89,10 @@ message("       Build Properties")
 message("          platform..................: " ${ICEORYX_PLATFORM_STRING})
 message("          project name..............: " ${CMAKE_PROJECT_NAME})
 message("          c compiler................: " ${CMAKE_C_COMPILER})
+message("          c warning flags...........: " ${ICEORYX_C_WARNINGS})
+message("          c++ standard..............: " ${ICEORYX_CXX_STANDARD})
 message("          c++ compiler..............: " ${CMAKE_CXX_COMPILER})
+message("          c++ warning flags.........: " ${ICEORYX_CXX_WARNINGS})
 message("          cmake.....................: " ${CMAKE_VERSION})
 message("")
 

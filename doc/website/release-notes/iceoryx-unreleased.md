@@ -27,6 +27,7 @@
 - Add posix thread wrapper [\#1365](https://github.com/eclipse-iceoryx/iceoryx/issues/1365)
 - Apps send only the heartbeat when monitoring is enabled in roudi [\#1436](https://github.com/eclipse-iceoryx/iceoryx/issues/1436)
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
+- Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
 
 **Bugfixes:**
 
@@ -360,4 +361,30 @@
     #include "iceoryx_hoofs/cxx/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
+    ```
+
+20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
+
+    ```cmake
+    // before
+    cmake_minimum_required(VERSION 3.16)
+    project(example)
+    find_package(iceoryx_posh CONFIG REQUIRED)
+    find_package(iceoryx_hoofs CONFIG REQUIRED)
+
+    get_target_property(ICEORYX_CXX_STANDARD iceoryx_posh::iceoryx_posh CXX_STANDARD) // obsolete
+
+    include(IceoryxPackageHelper)
+    include(IceoryxPlatform)
+
+    // after
+    cmake_minimum_required(VERSION 3.16)
+    project(example)
+    find_package(iceoryx_platform REQUIRED)         // new
+    find_package(iceoryx_posh CONFIG REQUIRED)
+    find_package(iceoryx_hoofs CONFIG REQUIRED)
+
+    include(IceoryxPackageHelper)
+    include(IceoryxPlatform)
+    include(IceoryxPlatformSettings)                // new
     ```
