@@ -108,7 +108,7 @@ inline LogStream& LogStream::operator<<(const T val) noexcept
 }
 
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int>>
-inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
+inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
     m_logger.logString("0x");
     m_logger.logHex(static_cast<typename std::make_unsigned<T>::type>(val.m_value));

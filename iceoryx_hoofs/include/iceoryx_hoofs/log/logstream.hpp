@@ -78,7 +78,7 @@ class LogStream
     LogStream& operator<<(const T val) noexcept;
 
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
-    LogStream& operator<<(const LogHex<T>&& val) noexcept;
+    LogStream& operator<<(const LogHex<T> val) noexcept;
 
     /// @code
     /// IOX_LOG(INFO) << "#### Hello " << [] (auto& stream) -> auto& { stream << "World"; return stream; };
