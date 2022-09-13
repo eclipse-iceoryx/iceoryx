@@ -107,6 +107,7 @@ inline Logger<BaseLogger>& Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
         {
             logger->m_isActive.store(false);
             logger = newLogger;
+            logger->m_isActive.store(true);
         }
     }
 
