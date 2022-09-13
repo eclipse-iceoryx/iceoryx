@@ -43,7 +43,7 @@ class unique_ptr
     /// @param ptr The raw pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T& ptr, const function<void(T&)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -54,9 +54,6 @@ class unique_ptr
     /// @brief Automatically deletes the managed object on destruction.
     ///
     ~unique_ptr() noexcept;
-
-
-    unique_ptr<T>& operator=(std::nullptr_t) noexcept;
 
     ///
     /// @brief operator -> Transparent access to the managed object.
@@ -69,11 +66,6 @@ class unique_ptr
     /// @return Const pointer to the stored object
     ///
     const T* operator->() const noexcept;
-
-    ///
-    /// @brief operator bool Returns true if it points to something.
-    ///
-    explicit operator bool() const noexcept;
 
     ///
     /// @brief get Retrieve the underlying raw pointer.
@@ -93,14 +85,14 @@ class unique_ptr
     /// @brief release Release ownership of the underlying pointer.
     /// @return Pointer to the managed object or nullptr if none owned.
     ///
-    T* release() noexcept;
+    static T* release(unique_ptr&& releasedPtr) noexcept;
 
     ///
     /// @brief reset Reset the unique pointer to take ownership of the given pointer.
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(T* const ptr = nullptr) noexcept;
+    void reset(T& ptr) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
@@ -110,9 +102,14 @@ class unique_ptr
 
   private:
     T* m_ptr = nullptr;
-    function<void(T* const)> m_deleter;
+    function<void(T&)> m_deleter;
 };
 
+template <typename T, typename U>
+bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
+
+template <typename T, typename U>
+bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 } // namespace cxx
 } // namespace iox
 

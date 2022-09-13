@@ -25,21 +25,14 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-unique_ptr<T>::unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept
+inline unique_ptr<T>::unique_ptr(T& ptr, const function<void(T&)>& deleter) noexcept
     : m_ptr(ptr)
     , m_deleter(std::move(deleter))
 {
 }
 
 template <typename T>
-unique_ptr<T>& unique_ptr<T>::operator=(std::nullptr_t) noexcept
-{
-    reset();
-    return *this;
-}
-
-template <typename T>
-unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
+inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -50,25 +43,25 @@ unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 }
 
 template <typename T>
-unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
+inline unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
 {
     *this = std::move(rhs);
 }
 
 template <typename T>
-unique_ptr<T>::~unique_ptr() noexcept
+inline unique_ptr<T>::~unique_ptr() noexcept
 {
     reset();
 }
 
 template <typename T>
-T* unique_ptr<T>::operator->() noexcept
+inline T* unique_ptr<T>::operator->() noexcept
 {
     return get();
 }
 
 template <typename T>
-const T* unique_ptr<T>::operator->() const noexcept
+inline const T* unique_ptr<T>::operator->() const noexcept
 {
     // Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -76,20 +69,14 @@ const T* unique_ptr<T>::operator->() const noexcept
 }
 
 template <typename T>
-unique_ptr<T>::operator bool() const noexcept
-{
-    return m_ptr != nullptr;
-}
-
-template <typename T>
-T* unique_ptr<T>::get() noexcept
+inline T* unique_ptr<T>::get() noexcept
 {
     cxx::Expects(m_ptr != nullptr);
     return m_ptr;
 }
 
 template <typename T>
-const T* unique_ptr<T>::get() const noexcept
+inline const T* unique_ptr<T>::get() const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -97,76 +84,41 @@ const T* unique_ptr<T>::get() const noexcept
 }
 
 template <typename T>
-T* unique_ptr<T>::release() noexcept
+inline T* unique_ptr<T>::release(unique_ptr<T>&& releasedPtr) noexcept
 {
-    auto ptr = m_ptr;
-    m_ptr = nullptr;
+    auto ptr = releasedPtr.m_ptr;
+    releasedPtr.m_ptr = nullptr;
     return ptr;
 }
 
 template <typename T>
-void unique_ptr<T>::reset(T* const ptr) noexcept
+inline void unique_ptr<T>::reset(T& ptr) noexcept
 {
     if (m_ptr && m_deleter)
     {
-        m_deleter(m_ptr);
+        m_deleter(*m_ptr);
     }
-    m_ptr = ptr;
+    m_ptr = &ptr;
 }
 
 template <typename T>
-void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
+inline void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
 {
-    // release object pointers from both instances
-    auto thisPtr = release();
-    auto otherPtr = other.release();
-
-    // set new object pointers on both instances
-    reset(otherPtr);
-    other.reset(thisPtr);
-
-    // move deleters
-    auto thisDeleter = m_deleter;
-    m_deleter = other.m_deleter;
-    other.m_deleter = thisDeleter;
+    std::swap(this->m_ptr, other.m_ptr);
+    std::swap(this->m_deleter, other.m_deleter);
 }
 
 template <typename T, typename U>
-bool operator==(const unique_ptr<T>& x, const unique_ptr<U>& y) noexcept
+inline bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept
 {
-    return x.get() == y.get();
-}
-
-template <typename T>
-bool operator==(const unique_ptr<T>& x, std::nullptr_t) noexcept
-{
-    return !x;
-}
-
-template <typename T>
-bool operator==(std::nullptr_t, const unique_ptr<T>& x) noexcept
-{
-    return !x;
+    return lhs.get() == rhs.get();
 }
 
 template <typename T, typename U>
-bool operator!=(const unique_ptr<T>& x, const unique_ptr<U>& y) noexcept
+inline bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept
 {
-    return x.get() != y.get();
+    return !(lhs == rhs);
 }
-
-template <typename T>
-bool operator!=(const unique_ptr<T>& x, std::nullptr_t) noexcept
-{
-    return static_cast<bool>(x);
-}
-
-template <typename T>
-bool operator!=(std::nullptr_t, const unique_ptr<T>& x) noexcept
-{
-    return static_cast<bool>(x);
-}
-
 } // namespace cxx
 } // namespace iox
 
