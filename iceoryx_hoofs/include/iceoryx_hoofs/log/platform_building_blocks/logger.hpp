@@ -53,6 +53,16 @@ class Logger : public BaseLogger
   public:
     friend class log::LogStream;
 
+    Logger() = default;
+
+    Logger(const Logger&) = delete;
+    Logger(Logger&&) = delete;
+
+    Logger& operator=(const Logger&) = delete;
+    Logger& operator=(Logger&&) = delete;
+
+    ~Logger() = default;
+
     inline static constexpr LogLevel minimalLogLevel() noexcept;
 
     inline static constexpr bool ignoreLogLevel() noexcept;
@@ -61,10 +71,10 @@ class Logger : public BaseLogger
 
     inline static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
 
-    inline static void setActiveLogger(Logger* newLogger) noexcept;
+    inline static void setActiveLogger(Logger& newLogger) noexcept;
 
   private:
-    inline static Logger* activeLogger(Logger* newLogger = nullptr) noexcept;
+    inline static Logger& activeLogger(Logger* newLogger = nullptr) noexcept;
 
     inline void initLoggerInternal(const LogLevel logLevel) noexcept;
 

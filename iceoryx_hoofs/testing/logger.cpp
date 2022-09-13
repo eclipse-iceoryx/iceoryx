@@ -23,7 +23,7 @@ namespace testing
 void Logger::init()
 {
     static Logger logger;
-    log::Logger::setActiveLogger(&logger);
+    log::Logger::setActiveLogger(logger);
     log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::TRACE));
     // disable logger output only after initializing the logger to get error messages from initialization
     // JUSTIFICATION getenv is required for the functionality of the testing logger and will be called only once in main
