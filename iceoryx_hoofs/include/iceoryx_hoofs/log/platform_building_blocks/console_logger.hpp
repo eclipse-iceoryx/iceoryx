@@ -33,7 +33,7 @@ class ConsoleLogger
   public:
     static LogLevel getLogLevel() noexcept;
 
-    void setLogLevel(const LogLevel logLevel) noexcept;
+    static void setLogLevel(const LogLevel logLevel) noexcept;
 
     virtual ~ConsoleLogger() = default;
 

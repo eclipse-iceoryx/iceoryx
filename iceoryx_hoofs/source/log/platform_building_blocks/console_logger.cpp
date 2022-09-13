@@ -43,8 +43,6 @@ LogLevel ConsoleLogger::getLogLevel() noexcept
     return m_activeLogLevel.load(std::memory_order_relaxed);
 }
 
-// NOLINTJUSTIFICATION member access is required
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::setLogLevel(const LogLevel logLevel) noexcept
 {
     m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
