@@ -49,8 +49,8 @@ constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
 
 struct LogBuffer
 {
-    const char* buffer;
-    uint64_t writeIndex;
+    const char* buffer{nullptr};
+    uint64_t writeIndex{0};
 };
 
 namespace internal
