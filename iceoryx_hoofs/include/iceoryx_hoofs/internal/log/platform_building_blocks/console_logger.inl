@@ -61,22 +61,21 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
         /// conversion specifier; nevertheless, we might want to call the error handler after the error handler
         /// refactoring was merged
+        return;
+    }
+
+    auto stringSizeToLog = static_cast<uint32_t>(retVal);
+    auto bufferWriteIndexNext = m_bufferWriteIndex + stringSizeToLog;
+    if (bufferWriteIndexNext <= BUFFER_SIZE)
+    {
+        m_bufferWriteIndex = bufferWriteIndexNext;
     }
     else
     {
-        auto stringSizeToLog = static_cast<uint32_t>(retVal);
-        auto bufferWriteIndexNext = m_bufferWriteIndex + stringSizeToLog;
-        if (bufferWriteIndexNext <= BUFFER_SIZE)
-        {
-            m_bufferWriteIndex = bufferWriteIndexNext;
-        }
-        else
-        {
-            /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
-            /// that the log buffer will be truncated;
-            /// it is intended to flush the buffer and create a new log message later on
-            m_bufferWriteIndex = BUFFER_SIZE;
-        }
+        /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
+        /// that the log buffer will be truncated;
+        /// it is intended to flush the buffer and create a new log message later on
+        m_bufferWriteIndex = BUFFER_SIZE;
     }
 }
 
