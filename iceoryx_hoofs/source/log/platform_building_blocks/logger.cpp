@@ -67,7 +67,7 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
         }
         else
         {
-            puts("Invalide value for 'IOX_LOG_LEVEL' environment variable!'");
+            puts("Invalid value for 'IOX_LOG_LEVEL' environment variable!'");
         }
     }
     return specifiedLogLevel;

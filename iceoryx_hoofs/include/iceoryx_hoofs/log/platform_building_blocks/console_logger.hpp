@@ -77,7 +77,7 @@ class ConsoleLogger
     inline void unused(T&&) const noexcept;
 
     template <typename T>
-    inline void logArithmetik(const T value, const char* format) noexcept;
+    inline void logArithmetic(const T value, const char* format) noexcept;
 
   private:
     /// @todo iox-#1345 this could be made a compile time option
