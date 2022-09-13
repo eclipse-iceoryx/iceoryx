@@ -19,10 +19,7 @@
 #include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 #include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
 
-#include <atomic>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <cstdlib>
 
 namespace iox
 {
