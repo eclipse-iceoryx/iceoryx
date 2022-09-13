@@ -28,6 +28,10 @@ if(UNIX AND NOT APPLE)
     endif()
 endif()
 
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
+
 if(PLATFORM_PATH)
     set(ICEORYX_PLATFORM ${PLATFORM_PATH})
 elseif(LINUX)
