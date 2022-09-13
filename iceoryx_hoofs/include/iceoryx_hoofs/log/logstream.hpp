@@ -95,7 +95,7 @@ class LogStream
     // JUSTIFICATION it is fine to use a reference since the LogStream object is intentionally not movable
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     Logger& m_logger;
-    bool m_flushed{false};
+    bool m_isFlushed{false};
 };
 
 } // namespace log

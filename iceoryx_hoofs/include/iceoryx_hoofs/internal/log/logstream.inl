@@ -67,10 +67,10 @@ inline LogStream::~LogStream() noexcept
 
 inline void LogStream::flush() noexcept
 {
-    if (!m_flushed)
+    if (!m_isFlushed)
     {
         m_logger.flush();
-        m_flushed = true;
+        m_isFlushed = true;
     }
 }
 
@@ -82,14 +82,14 @@ inline LogStream& LogStream::self() noexcept
 inline LogStream& LogStream::operator<<(const char* cstr) noexcept
 {
     m_logger.logString(cstr);
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
 inline LogStream& LogStream::operator<<(const std::string& str) noexcept
 {
     m_logger.logString(str.c_str());
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
@@ -103,7 +103,7 @@ template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, in
 inline LogStream& LogStream::operator<<(const T val) noexcept
 {
     m_logger.logDec(val);
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
@@ -112,7 +112,7 @@ inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
 {
     m_logger.logString("0x");
     m_logger.logHex(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
