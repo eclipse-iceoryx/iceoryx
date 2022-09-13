@@ -2,7 +2,7 @@
 
 The `iceoryx_hoofs/platform` represents the lowest layer in iceoryx. Its task is to establish
 a uniform behavior of low level system calls across all supported platforms. When one would like
-to add support for another platform one can use the CMake argument `-DPLATFORM_PATH` to provide
+to add support for another platform one can use the CMake argument `-DIOX_PLATFORM_PATH` to provide
 a path to a custom platform implementation.
 This may become necessary to support an unsupported compiler for a specific
 platform, adjust system calls to become posix compliant or to add a new operating system.
@@ -13,7 +13,7 @@ Let's assume you have your platform stored in the absolute path `/home/user/newI
 you can configure cmake with the command:
 ```sh
 cd iceoryx
-cmake -Bbuild -Hiceoryx_meta -DPLATFORM_PATH=/home/user/newIceoryxPlatform
+cmake -Bbuild -Hiceoryx_meta -DIOX_PLATFORM_PATH=/home/user/newIceoryxPlatform
 ```
 and build iceoryx as usual.
 

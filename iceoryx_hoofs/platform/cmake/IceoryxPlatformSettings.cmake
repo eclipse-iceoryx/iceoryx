@@ -17,3 +17,7 @@
 # Dummy cmake file for source tree builds. The actual variables are sourced from
 # "IceoryxPlatformSettings.cmake" which resides either in the root path of the autodetected or
 # user provided platorm. The out of tree build uses the installed copy of that file."
+#
+# Example:
+#   1. "unix" is autodetected so the file "./unix/IceoryxPlatformSettings.cmake" is sourced
+#   2. The user defines "/src/os2_warp/" as platform path then "/src/os2_warp/IceoryxPlatformSettings.cmake" is sourced
