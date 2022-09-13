@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>iceoryx_hoofs</name>
+    <name>iceoryx_platform</name>
     <version>2.90.0</version>
-    <description>Eclipse iceoryx inter-process-communication (IPC) middleware basic building blocks</description>
+    <description>Eclipse iceoryx inter-process-communication (IPC) middleware platform</description>
     <maintainer email="iceoryx-oss-support@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
     <url type="website">https://iceoryx.io</url>
@@ -14,10 +14,6 @@
 
     <depend>acl</depend>
     <depend>libatomic</depend>
-
-    <depend>iceoryx_platform</depend>
-    <conflict>iceoryx_utils</conflict>
-    <replace>iceoryx_utils</replace>
 
     <doc_depend>doxygen</doc_depend>
 

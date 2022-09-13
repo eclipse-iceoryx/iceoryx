@@ -26,7 +26,7 @@ SCOPE=${1:-list}
 COMPONENTS=(iceoryx_hoofs iceoryx_posh)
 SOURCE_DIR=(source include)
 WORKSPACE=$(git rev-parse --show-toplevel)
-QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_hoofs/platform/qnx/
+QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_platform/qnx/
 USELIST=$WORKSPACE/tools/scripts/used-headers.txt
 CURRENTLY_USED_HEADERS=$(mktemp)
 GET_HEADER_NAME="\<\K[^<>]+(?=>)" # Matches the content between angle brackets
