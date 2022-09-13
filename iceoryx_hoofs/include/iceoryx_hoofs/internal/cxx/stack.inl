@@ -47,7 +47,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexc
     {
         uint64_t i{0};
         const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{std::min(m_size, rhsSize)};
+        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
         // copy assignment
         for (; i < minSize; i++)
@@ -78,7 +78,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
     {
         uint64_t i{0};
         const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{std::min(m_size, rhsSize)};
+        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
         // move assignment
         for (; i < minSize; i++)

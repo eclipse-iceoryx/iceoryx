@@ -16,7 +16,9 @@
 #ifndef IOX_HOOFS_CXX_STACK_HPP
 #define IOX_HOOFS_CXX_STACK_HPP
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+
 #include <cstdint>
 
 namespace iox
