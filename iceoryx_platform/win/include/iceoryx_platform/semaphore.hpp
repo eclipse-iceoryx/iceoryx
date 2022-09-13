@@ -17,12 +17,12 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_SEMAPHORE_HPP
 #define IOX_HOOFS_WIN_PLATFORM_SEMAPHORE_HPP
 
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/time.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/unique_system_id.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/time.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/unique_system_id.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <cstdint>
 #include <cstdio>

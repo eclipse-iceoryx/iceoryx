@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/unique_system_id.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/unique_system_id.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <chrono>
 #include <processthreadsapi.h>

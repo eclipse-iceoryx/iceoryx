@@ -29,7 +29,7 @@
 
 // this header must always be the last one, otherwise windows macros
 // are kicking in and nothing compiles
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {

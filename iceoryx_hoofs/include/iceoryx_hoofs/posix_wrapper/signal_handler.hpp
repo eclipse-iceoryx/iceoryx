@@ -17,7 +17,7 @@
 #define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_platform/signal.hpp"
 
 namespace iox
 {

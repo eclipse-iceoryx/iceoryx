@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_platform/mman.hpp"
 
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {

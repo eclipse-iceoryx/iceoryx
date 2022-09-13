@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/pthread.hpp"
-#include "iceoryx_hoofs/platform/ipc_handle_manager.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/pthread.hpp"
+#include "iceoryx_platform/ipc_handle_manager.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <cwchar>
 #include <vector>

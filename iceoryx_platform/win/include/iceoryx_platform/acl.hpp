@@ -1,5 +1,4 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,10 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_UNIX_PLATFORM_ACL_HPP
-#define IOX_HOOFS_UNIX_PLATFORM_ACL_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_ACL_HPP
+#define IOX_HOOFS_WIN_PLATFORM_ACL_HPP
 
-#include "iceoryx_hoofs/platform/types.hpp"
+#include "iceoryx_platform/types.hpp"
 
 #define ACL_USER_OBJ 0
 #define ACL_USER 1
@@ -38,17 +37,17 @@ using acl_perm_t = int;
 using acl_entry_t = int;
 using acl_tag_t = int;
 
-inline int acl_valid(acl_t)
+inline int acl_valid(acl_t acl)
 {
     return 0;
 }
 
-inline int acl_set_fd(int, acl_t)
+inline int acl_set_fd(int fd, acl_t acl)
 {
     return 0;
 }
 
-inline acl_t acl_init(int)
+inline acl_t acl_init(int count)
 {
     static struct __acl_ext stub;
     return &stub;
@@ -59,44 +58,44 @@ inline int acl_free(void*)
     return 0;
 }
 
-inline int acl_create_entry(acl_t*, acl_entry_t*)
+inline int acl_create_entry(acl_t* acl_p, acl_entry_t* entry_p)
 {
     return 0;
 }
 
-inline int acl_set_tag_type(acl_entry_t, acl_tag_t)
+inline int acl_set_tag_type(acl_entry_t entry_d, acl_tag_t tag_type)
 {
     return 0;
 }
 
-inline int acl_set_qualifier(acl_entry_t, const void*)
+inline int acl_set_qualifier(acl_entry_t entry_d, const void* qualifier_p)
 {
     return 0;
 }
 
-inline int acl_get_permset(acl_entry_t, acl_permset_t*)
+inline int acl_get_permset(acl_entry_t entry_d, acl_permset_t* permset_p)
 {
     return 0;
 }
 
-inline int acl_add_perm(acl_permset_t, acl_perm_t)
+inline int acl_add_perm(acl_permset_t permset_d, acl_perm_t perm)
 {
     return 0;
 }
 
-inline char* acl_to_text(acl_t, ssize_t*)
+inline char* acl_to_text(acl_t acl, ssize_t* len_p)
 {
     return nullptr;
 }
 
-inline acl_t acl_from_text(const char*)
+inline acl_t acl_from_text(const char* buf_p)
 {
     return acl_t();
 }
 
-inline acl_t acl_get_fd(int)
+inline acl_t acl_get_fd(int fd)
 {
     return acl_t();
 }
 
-#endif // IOX_HOOFS_UNIX_PLATFORM_ACL_HPP
+#endif // IOX_HOOFS_WIN_PLATFORM_ACL_HPP

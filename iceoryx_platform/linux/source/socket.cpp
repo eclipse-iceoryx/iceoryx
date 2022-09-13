@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/socket.hpp"
+#include "iceoryx_platform/socket.hpp"
 #include <unistd.h>
 
 // NOLINTNEXTLINE(readability-identifier-naming)

@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_platform/fcntl.hpp"
 
 namespace iox
 {

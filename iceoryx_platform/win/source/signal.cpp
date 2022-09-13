@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/signal.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/signal.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
 
 int sigemptyset(sigset_t* set)
 {

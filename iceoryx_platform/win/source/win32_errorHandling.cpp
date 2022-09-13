@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
 
 #include <iostream>
 #include <mutex>

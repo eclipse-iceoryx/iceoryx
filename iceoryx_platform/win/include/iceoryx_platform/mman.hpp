@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_MMAN_HPP
 #define IOX_HOOFS_WIN_PLATFORM_MMAN_HPP
 
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
-#include "iceoryx_hoofs/platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/unistd.hpp"
+#include "iceoryx_platform/win32_errorHandling.hpp"
 
 #include <cstdio>
 #include <string>
@@ -28,7 +28,7 @@
 
 // this header needs to be the last include in the file otherwise
 // windows will define some macros which makes the code uncompilable
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 #define MAP_SHARED 0x01
 #define MAP_PRIVATE 0x02

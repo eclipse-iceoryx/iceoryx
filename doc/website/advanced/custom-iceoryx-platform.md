@@ -1,6 +1,6 @@
 # Custom iceoryx platforms
 
-The `iceoryx_hoofs/platform` represents the lowest layer in iceoryx. Its task is to establish
+The `iceoryx_platform` represents the lowest layer in iceoryx. Its task is to establish
 a uniform behavior of low level system calls across all supported platforms. When one would like
 to add support for another platform one can use the CMake argument `-DIOX_PLATFORM_PATH` to provide
 a path to a custom platform implementation.
@@ -20,9 +20,9 @@ and build iceoryx as usual.
 ## Structure of a custom iceoryx platform
 
  * `newIceoryxPlatform` - root folder
-     * `include/iceoryx_hoofs/platform/` - directory where all headers must be stored
+     * `include/iceoryx_platform/` - directory where all headers must be stored
         * must contain all of the headers which you can find in
-         `iceoryx_hoofs/platform/linux/include/iceoryx_hoofs/platform`
+         `iceoryx_platform/linux/include/iceoryx_platform`
         * the headers must declare the same functions
         * every header must provide a - not necessary valid - implementation for the all the
           declared functions. If certain functionalities are not implemented one can identify

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/platform/fcntl.hpp"
+#include "iceoryx_platform/fcntl.hpp"
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 int iox_open(const char* pathname, int flags, mode_t mode)

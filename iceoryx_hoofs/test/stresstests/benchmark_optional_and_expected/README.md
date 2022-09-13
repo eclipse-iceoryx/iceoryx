@@ -6,7 +6,7 @@ In bash you could execute this one liner directly in the root directory of iceor
 cd iceoryx
 for i in $(seq 0 3); do 
     echo Optimization level $i
-    g++ iceoryx_examples/benchmark_optional_and_expected/benchmark_optional_and_expected.cpp iceoryx_hoofs/source/units/duration.cpp -Iiceoryx_hoofs/include -Iiceoryx_hoofs/platform/linux/include -pthread -O$i
+    g++ iceoryx_examples/benchmark_optional_and_expected/benchmark_optional_and_expected.cpp iceoryx_hoofs/source/units/duration.cpp -Iiceoryx_hoofs/include -Iiceoryx_platform/linux/include -pthread -O$i
     ./a.out
 done
 ```

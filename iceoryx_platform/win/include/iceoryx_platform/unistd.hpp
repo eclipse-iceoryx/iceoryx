@@ -14,15 +14,22 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_WIN_PLATFORM_UN_HPP
-#define IOX_HOOFS_WIN_PLATFORM_UN_HPP
+#ifndef IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP
+#define IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP
 
-#include "iceoryx_hoofs/platform/socket.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/windows.hpp"
 
-struct sockaddr_un
-{
-    sa_family_t sun_family;
-    char sun_path[108];
-};
+#include <io.h>
+#include <process.h>
+#include <vector>
 
-#endif // IOX_HOOFS_WIN_PLATFORM_UN_HPP
+#define _SC_PAGESIZE 1
+#define STDERR_FILENO 2
+
+
+int ftruncate(int fildes, off_t length);
+long sysconf(int name);
+int iox_close(int fd);
+
+#endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

@@ -21,8 +21,8 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/platform/acl.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_platform/acl.hpp"
 
 #include <cstdint>
 #include <iostream>

@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_TESTUTILS_COMPILE_TEST_HPP
 #define IOX_HOOFS_TESTUTILS_COMPILE_TEST_HPP
 
-#include "iceoryx_hoofs/platform/wait.hpp"
+#include "iceoryx_platform/wait.hpp"
 
 #include <cstdio>
 #include <iostream>

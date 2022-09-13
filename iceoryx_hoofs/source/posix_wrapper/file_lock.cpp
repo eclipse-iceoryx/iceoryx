@@ -17,14 +17,14 @@
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
-#include "iceoryx_hoofs/platform/errno.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iceoryx_platform/errno.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {

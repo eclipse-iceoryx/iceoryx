@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_IPC_HANDLE_MANAGER_HPP
 #define IOX_HOOFS_WIN_PLATFORM_IPC_HANDLE_MANAGER_HPP
 
-#include "iceoryx_hoofs/platform/unique_system_id.hpp"
-#include "iceoryx_hoofs/platform/windows.hpp"
+#include "iceoryx_platform/unique_system_id.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 #include <map>
 #include <mutex>
