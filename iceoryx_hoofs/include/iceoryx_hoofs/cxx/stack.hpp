@@ -30,7 +30,7 @@ namespace cxx
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
 template <typename T, uint64_t Capacity>
-class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+class stack final // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
   public:
     stack() noexcept = default;

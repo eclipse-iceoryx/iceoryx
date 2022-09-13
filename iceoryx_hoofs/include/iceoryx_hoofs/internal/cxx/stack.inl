@@ -22,7 +22,8 @@ namespace iox
 {
 namespace cxx
 {
-// NOLINTJUSTIFICATION the remaining m_data fields are explicitly initialized when a new element is pushed
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
+// element is pushed
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(const stack& rhs) noexcept
@@ -30,7 +31,8 @@ inline stack<T, Capacity>::stack(const stack& rhs) noexcept
     *this = rhs;
 }
 
-// NOLINTJUSTIFICATION the remaining m_data fields are explicitly initialized when a new element is pushed
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
+// element is pushed
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(stack&& rhs) noexcept
@@ -43,25 +45,28 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexc
 {
     if (this != &rhs)
     {
-        uint64_t i = 0;
+        uint64_t i{0};
+        const uint64_t rhsSize{rhs.size()};
+        const uint64_t minSize{std::min(m_size, rhsSize)};
 
         // copy assignment
-        for (; i < std::min(size(), rhs.size()); i++)
+        for (; i < minSize; i++)
         {
             getUnchecked(i) = rhs.getUnchecked(i);
         }
         // copy c'tor
-        for (; i < rhs.size(); i++)
+        for (; i < rhsSize; i++)
         {
+            // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
             new (&m_data[i]) T(rhs.getUnchecked(i));
         }
         // delete remaining elements
-        for (; i < size(); i++)
+        for (; i < m_size; i++)
         {
             getUnchecked(i).~T();
         }
 
-        m_size = rhs.size();
+        m_size = rhsSize;
     }
     return *this;
 }
@@ -71,28 +76,31 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        uint64_t i = 0;
+        uint64_t i{0};
+        const uint64_t rhsSize{rhs.size()};
+        const uint64_t minSize{std::min(m_size, rhsSize)};
 
         // move assignment
-        for (; i < std::min(size(), rhs.size()); i++)
+        for (; i < minSize; i++)
         {
             getUnchecked(i) = std::move(rhs.getUnchecked(i));
         }
         // move c'tor
-        for (; i < rhs.size(); i++)
+        for (; i < rhsSize; i++)
         {
+            // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
             new (&m_data[i]) T(std::move(rhs.getUnchecked(i)));
         }
         // delete remaining elements
-        for (; i < size(); i++)
+        for (; i < m_size; i++)
         {
             getUnchecked(i).~T();
         }
 
-        m_size = rhs.size();
+        m_size = rhsSize;
 
         // clear rhs
-        for (uint64_t j = 0; j < rhs.size(); j++)
+        for (uint64_t j{0}; j < rhsSize; j++)
         {
             getUnchecked(j).~T();
         }
@@ -104,7 +112,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::~stack() noexcept
 {
-    for (uint64_t i = 0; i < m_size; i++)
+    for (uint64_t i{0}; i < m_size; i++)
     {
         getUnchecked(i).~T();
     }
@@ -113,14 +121,16 @@ inline stack<T, Capacity>::~stack() noexcept
 template <typename T, uint64_t Capacity>
 inline T& stack<T, Capacity>::getUnchecked(const uint64_t index) noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const cast to avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T&>(const_cast<const stack<T, Capacity>*>(this)->getUnchecked(index));
 }
 
 template <typename T, uint64_t Capacity>
 inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noexcept
 {
-    // reinterpret_cast is safe since the size and the alignment of each array element is guaranteed
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : reinterpret_cast is safe since the size and the alignment of each
+    // array element is guaranteed
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return *reinterpret_cast<const T*>(&m_data[index]);
 }

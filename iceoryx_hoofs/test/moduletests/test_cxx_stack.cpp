@@ -358,6 +358,8 @@ TEST_F(stack_test, MoveAssignmentWithEmptySourceWorks)
     EXPECT_THAT(TestClass::moveAssignment, Eq(0));
     EXPECT_THAT(TestClass::moveCTor, Eq(0));
     EXPECT_THAT(m_sut.size(), Eq(0));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move, hicpp-invalid-access-moved, clang-analyzer-cplusplus.Move)
     EXPECT_THAT(testStack.size(), Eq(0));
 }
 
@@ -398,6 +400,8 @@ TEST_F(stack_test, MoveAssignmentWithLargerDestinationWorks)
     EXPECT_THAT(TestClass::moveCTor, Eq(0));
     EXPECT_THAT(m_sut.size(), Eq(srcSize));
     EXPECT_THAT(m_sut.pop(), Eq(TestClass(9U, 11U, 13U)));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move, hicpp-invalid-access-moved, clang-analyzer-cplusplus.Move)
     EXPECT_THAT(testStack.size(), Eq(0));
 }
 
