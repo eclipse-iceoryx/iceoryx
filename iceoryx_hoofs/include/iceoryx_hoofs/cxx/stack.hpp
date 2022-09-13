@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,11 +23,12 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized on access
+// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
+// access
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
 /// @brief stack implementation with a simple push pop interface
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
-/// @NOLINTJUSTIFICATION same as AXIVION comment
 template <typename T, uint64_t Capacity>
 class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 {
@@ -50,15 +51,15 @@ class stack // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // AXIVION Next Line AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the
-    // stack class
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
+    // the stack class
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
-    // AXIVION Next Line AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside the
-    // stack class
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
+    // the stack class
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(T) element_t m_data[Capacity];
-    uint64_t m_size = 0U;
+    uint64_t m_size{0U};
 };
 } // namespace cxx
 } // namespace iox
