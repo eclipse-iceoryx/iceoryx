@@ -22,12 +22,16 @@ namespace iox
 {
 namespace cxx
 {
+// NOLINTJUSTIFICATION the remaining m_data fields are explicitly initialized when a new element is pushed
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(const stack& rhs) noexcept
 {
     *this = rhs;
 }
 
+// NOLINTJUSTIFICATION the remaining m_data fields are explicitly initialized when a new element is pushed
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(stack&& rhs) noexcept
 {
@@ -109,13 +113,16 @@ inline stack<T, Capacity>::~stack() noexcept
 template <typename T, uint64_t Capacity>
 inline T& stack<T, Capacity>::getUnchecked(const uint64_t index) noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const cast to avoid code duplication
     return const_cast<T&>(const_cast<const stack<T, Capacity>*>(this)->getUnchecked(index));
 }
 
 template <typename T, uint64_t Capacity>
 inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noexcept
 {
-    return reinterpret_cast<const T*>(&m_data)[index];
+    // reinterpret_cast is safe since the size and the alignment of each array element is guaranteed
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return *reinterpret_cast<const T*>(&m_data[index]);
 }
 
 template <typename T, uint64_t Capacity>
