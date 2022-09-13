@@ -17,6 +17,7 @@ skinparam frame {
    backgroundColor chocolate
 }
 
+[iceoryx_platform]
 [iceoryx_dust]
 [iceoryx_hoofs]
 [iceoryx_posh]
@@ -24,11 +25,14 @@ skinparam frame {
 [C user app]
 [C++ user app]
 
-note right of iceoryx_hoofs : Basic building block library with quality level 1+
-note right of iceoryx_dust : Basic building block library with quality level 2
-note right of iceoryx_posh : Shared memory transport (POsix SHared memory)
-note left of iceoryx_binding_c : C API for iceoryx_posh
+note right of iceoryx_platform : Basic platform support library with quality level 1+
+note top of iceoryx_hoofs : Basic building block library with quality level 1+
+note top of iceoryx_dust : Basic building block library with quality level 2
+note top of iceoryx_posh : Shared memory transport (POsix SHared memory)
+note right of iceoryx_binding_c : C API for iceoryx_posh
 
+[iceoryx_hoofs]  ..>  [iceoryx_platform]
+[iceoryx_dust]  ..>  [iceoryx_platform]
 [iceoryx_posh]  ..>  [iceoryx_hoofs]
 [iceoryx_dust]  ..>  [iceoryx_hoofs]
 [iceoryx_posh]  ..>  [iceoryx_dust]

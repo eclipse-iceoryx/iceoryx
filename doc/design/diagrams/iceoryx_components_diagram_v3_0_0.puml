@@ -28,6 +28,13 @@ skinparam frame {
 
 header Eclipse iceoryx component overview
 
+' Platform Library containing platform abstraction with quality level 1
+package iceoryx_platform  {
+   frame "platform library" {
+      component "Platform abstraction" <<module>>
+   }
+}
+
 ' HOOFS: Helpful Objects Optimised For Safety
 ' Library containing modern C++ STL constructs with quality level 1+
 package iceoryx_hoofs  {
@@ -47,7 +54,6 @@ package iceoryx_hoofs  {
       component Time <<module>>
       component "Queues & communication" <<module>>
       component "Threads & Sychronisation" <<module>>
-      component "Platform abstraction" <<module>>
    }
 }
 
@@ -122,6 +128,8 @@ package iceoryx_introspection  {
    }
 }
 
+iceoryx_hoofs  ..>  iceoryx_platform  : use
+iceoryx_dust  ..>  iceoryx_platform  : use
 iceoryx_posh  ..>  iceoryx_hoofs  : use
 iceoryx_dust  ..>  iceoryx_hoofs : use
 iceoryx_posh  ..>  iceoryx_dust : use
