@@ -37,7 +37,7 @@ namespace pbb
 template <uint32_t N>
 // NOLINTJUSTIFICATION required for C-style string comparison; safety guaranteed by strncmp
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
+inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 
 /// @brief Tries to get the log level from the 'IOX_LOG_LEVEL' env variable or uses the specified one if the env
 /// variable is not set

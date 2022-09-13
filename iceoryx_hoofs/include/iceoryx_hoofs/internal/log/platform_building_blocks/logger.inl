@@ -32,7 +32,7 @@ namespace pbb
 template <uint32_t N>
 // NOLINTJUSTIFICATION see at declaration in header
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
+inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
 {
     return strncmp(lhs, rhs, N) == 0;
 }
