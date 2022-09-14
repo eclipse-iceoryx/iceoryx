@@ -143,9 +143,8 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
   private:
     /// @brief Get the SharedChunk from the provided ChunkHeader and do all that is required to send the chunk
     /// @param[in] chunkHeader of the chunk that shall be send
-    /// @param[in][out] chunk that corresponds to the chunk header
     /// @return true if there was a matching chunk with this header, false if not
-    bool getChunkReadyForSend(const mepoo::ChunkHeader* const chunkHeader, mepoo::SharedChunk& chunk) noexcept;
+    cxx::optional<mepoo::SharedChunk> getChunkReadyForSend(const mepoo::ChunkHeader* const chunkHeader) noexcept;
 
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;

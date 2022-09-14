@@ -34,8 +34,7 @@ class SharedPointer;
 class SharedChunk
 {
   public:
-    SharedChunk() noexcept = default;
-    SharedChunk(ChunkManagement* const resource) noexcept;
+    SharedChunk(ChunkManagement& resource) noexcept;
     ~SharedChunk() noexcept;
 
     SharedChunk(const SharedChunk& rhs) noexcept;
@@ -47,7 +46,7 @@ class SharedChunk
     ChunkHeader* getChunkHeader() const noexcept;
     void* getUserPayload() const noexcept;
 
-    ChunkManagement* release() noexcept;
+    static ChunkManagement* release(SharedChunk&& chunkToRelease) noexcept;
 
     bool operator==(const SharedChunk& rhs) const noexcept;
     /// @todo use the newtype pattern to avoid the void pointer
@@ -55,8 +54,6 @@ class SharedChunk
 
     bool operator!=(const SharedChunk& rhs) const noexcept;
     bool operator!=(const void* const rhs) const noexcept;
-
-    explicit operator bool() const noexcept;
 
     template <typename>
     friend class SharedPointer;

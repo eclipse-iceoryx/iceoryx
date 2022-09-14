@@ -79,7 +79,8 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
                 (requestedHistory <= currChunkHistorySize) ? currChunkHistorySize - requestedHistory : 0u;
             for (auto i = startIndex; i < currChunkHistorySize; ++i)
             {
-                pushToQueue(queueToAdd, getMembers()->m_history[i].cloneToSharedChunk());
+                getMembers()->m_history[i].cloneToSharedChunk().and_then(
+                    [&](auto& chunk) { pushToQueue(queueToAdd, chunk); });
             }
 
             return cxx::success<void>();

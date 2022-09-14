@@ -64,7 +64,7 @@ bool UsedChunkList<Capacity>::insert(mepoo::SharedChunk chunk) noexcept
 }
 
 template <uint32_t Capacity>
-bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept
+cxx::optional<mepoo::SharedChunk> UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader) noexcept
 {
     auto previous = INVALID_INDEX;
 
@@ -76,7 +76,7 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
             // does the entry match the one we want to remove?
             if (m_listData[current].getChunkHeader() == chunkHeader)
             {
-                chunk = m_listData[current].releaseToSharedChunk();
+                auto chunk = m_listData[current].releaseToSharedChunk();
 
                 // remove index from used list
                 if (current == m_usedListHead)
@@ -94,12 +94,12 @@ bool UsedChunkList<Capacity>::remove(const mepoo::ChunkHeader* chunkHeader, mepo
 
                 /// @todo can we do this cheaper with a global fence in cleanup?
                 m_synchronizer.clear(std::memory_order_release);
-                return true;
+                return chunk;
             }
         }
         previous = current;
     }
-    return false;
+    return cxx::nullopt;
 }
 
 template <uint32_t Capacity>

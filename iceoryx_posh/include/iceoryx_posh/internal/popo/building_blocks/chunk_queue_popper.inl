@@ -54,8 +54,13 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
     if (retVal.has_value())
     {
         auto chunk = retVal.value().releaseToSharedChunk();
+        if (!chunk)
+        {
+            // iox-#1104 todo
+            std::terminate();
+        }
 
-        auto receivedChunkHeaderVersion = chunk.getChunkHeader()->chunkHeaderVersion();
+        auto receivedChunkHeaderVersion = chunk->getChunkHeader()->chunkHeaderVersion();
         if (receivedChunkHeaderVersion != mepoo::ChunkHeader::CHUNK_HEADER_VERSION)
         {
             LogError() << "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion
@@ -64,7 +69,7 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
                          ErrorLevel::SEVERE);
             return cxx::nullopt_t();
         }
-        return cxx::make_optional<mepoo::SharedChunk>(chunk);
+        return cxx::make_optional<mepoo::SharedChunk>(*chunk);
     }
     else
     {

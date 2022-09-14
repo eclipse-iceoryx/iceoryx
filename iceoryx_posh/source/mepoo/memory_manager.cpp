@@ -202,7 +202,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         auto chunkHeader = new (chunk) ChunkHeader(aquiredChunkSize, chunkSettings);
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
-        return cxx::success<SharedChunk>(SharedChunk(chunkManagement));
+        return cxx::success<SharedChunk>(SharedChunk(*chunkManagement));
     }
 }
 

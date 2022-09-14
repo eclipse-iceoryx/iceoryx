@@ -55,10 +55,9 @@ class UsedChunkList
 
     /// @brief Removes a chunk from the list
     /// @param[in] chunkHeader to look for a corresponding SharedChunk
-    /// @param[out] chunk which is removed
-    /// @return true if successfully removed, otherwise false if e.g. the chunkHeader was not found in the list
+    /// @return chunk if successfully removed, otherwise nullopt if e.g. the chunkHeader was not found in the list
     /// @note only from runtime context
-    bool remove(const mepoo::ChunkHeader* chunkHeader, mepoo::SharedChunk& chunk) noexcept;
+    cxx::optional<mepoo::SharedChunk> remove(const mepoo::ChunkHeader* chunkHeader) noexcept;
 
     /// @brief Cleans up all the remaining chunks from the list.
     /// @note from RouDi context once the applications walked the plank. It is unsafe to call this if the application is

@@ -22,8 +22,8 @@ namespace iox
 {
 namespace mepoo
 {
-SharedChunk::SharedChunk(ChunkManagement* const resource) noexcept
-    : m_chunkManagement(resource)
+SharedChunk::SharedChunk(ChunkManagement& resource) noexcept
+    : m_chunkManagement(&resource)
 {
 }
 
@@ -82,7 +82,7 @@ SharedChunk& SharedChunk::operator=(SharedChunk&& rhs) noexcept
     if (this != &rhs)
     {
         decrementReferenceCounter();
-        m_chunkManagement = std::move(rhs.m_chunkManagement);
+        m_chunkManagement = rhs.m_chunkManagement;
         rhs.m_chunkManagement = nullptr;
     }
     return *this;
@@ -90,14 +90,7 @@ SharedChunk& SharedChunk::operator=(SharedChunk&& rhs) noexcept
 
 void* SharedChunk::getUserPayload() const noexcept
 {
-    if (m_chunkManagement == nullptr)
-    {
-        return nullptr;
-    }
-    else
-    {
-        return m_chunkManagement->m_chunkHeader->userPayload();
-    }
+    return m_chunkManagement->m_chunkHeader->userPayload();
 }
 
 bool SharedChunk::operator==(const SharedChunk& rhs) const noexcept
@@ -120,27 +113,15 @@ bool SharedChunk::operator!=(const void* const rhs) const noexcept
     return !(*this == rhs);
 }
 
-SharedChunk::operator bool() const noexcept
-{
-    return m_chunkManagement != nullptr;
-}
-
 ChunkHeader* SharedChunk::getChunkHeader() const noexcept
 {
-    if (m_chunkManagement != nullptr)
-    {
-        return m_chunkManagement->m_chunkHeader.get();
-    }
-    else
-    {
-        return nullptr;
-    }
+    return m_chunkManagement->m_chunkHeader.get();
 }
 
-ChunkManagement* SharedChunk::release() noexcept
+ChunkManagement* SharedChunk::release(SharedChunk&& chunkToRelease) noexcept
 {
-    ChunkManagement* returnValue = m_chunkManagement;
-    m_chunkManagement = nullptr;
+    ChunkManagement* returnValue = chunkToRelease.m_chunkManagement;
+    chunkToRelease.m_chunkManagement = nullptr;
     return returnValue;
 }
 

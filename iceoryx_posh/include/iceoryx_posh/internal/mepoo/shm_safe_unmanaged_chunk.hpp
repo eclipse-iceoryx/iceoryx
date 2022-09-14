@@ -30,16 +30,14 @@ namespace mepoo
 class ShmSafeUnmanagedChunk
 {
   public:
-    ShmSafeUnmanagedChunk() noexcept = default;
-
     /// @brief takes a SharedChunk without decrementing the chunk reference counter
     ShmSafeUnmanagedChunk(SharedChunk chunk) noexcept;
 
     /// @brief Creates a SharedChunk without incrementing the chunk reference counter and invalidates itself
-    SharedChunk releaseToSharedChunk() noexcept;
+    cxx::optional<SharedChunk> releaseToSharedChunk() noexcept;
 
     /// @brief Creates a SharedChunk with incrementing the chunk reference counter and does not invalidate itself
-    SharedChunk cloneToSharedChunk() noexcept;
+    cxx::optional<SharedChunk> cloneToSharedChunk() noexcept;
 
     /// @brief Checks if the underlying RelativePointerData to the chunk is logically a nullptr
     /// @return true if logically a nullptr otherwise false

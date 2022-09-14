@@ -89,8 +89,6 @@ ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
         }
         else
         {
-            // release the chunk
-            sharedChunk = nullptr;
             return cxx::error<ChunkReceiveResult>(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
         }
     }
@@ -100,12 +98,10 @@ ChunkReceiver<ChunkReceiverDataType>::tryGet() noexcept
 template <typename ChunkReceiverDataType>
 inline void ChunkReceiver<ChunkReceiverDataType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
-    mepoo::SharedChunk chunk(nullptr);
     // d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
-    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
-    {
+    getMembers()->m_chunksInUse.remove(chunkHeader).or_else([] {
         errorHandler(PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
-    }
+    });
 }
 
 template <typename ChunkReceiverDataType>
