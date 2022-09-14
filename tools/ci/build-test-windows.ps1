@@ -34,7 +34,7 @@ if ($?) { build\hoofs\test\Debug\hoofs_moduletests.exe --gtest_filter="-*TimingT
 if ($?) { build\hoofs\test\Debug\hoofs_mocktests.exe }
 if ($?) { build\hoofs\test\Debug\hoofs_integrationtests.exe }
 if ($?) { build\binding_c\test\Debug\binding_c_moduletests.exe --gtest_filter="-BindingC_Runtime_test.RuntimeNameLengthIsOutOfLimit:BindingC_Runtime_test.RuntimeNameIsNullptr:*TimingTest*" }
-if ($?) { build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParserSuiteTest*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*" }
+if ($?) { build\posh\test\Debug\posh_moduletests.exe --gtest_filter="-ChunkHeader_test.ChunkHeaderBinaryCompatibilityCheck:TomlGatewayConfigParserSuiteTest*:IceoryxRoudiApp_test.ConstructorCalledWithArgUniqueIdTwoTimesReturnError:IceoryxRoudiApp_test.ConstructorCalledWithArgVersionSetRunVariableToFalse:ValidTest*:ParseAllMalformedInput*:*TimingTest*:MePooSegment_test.SharedMemoryFileHandleRightsAfterConstructor" }
 if ($?) { build\posh\test\Debug\posh_integrationtests.exe --gtest_filter="-ChunkBuildingBlocks_IntegrationTest.TwoHopsThreeThreadsNoSoFi:*TimingTest*" }
 
 exit $LASTEXITCODE
