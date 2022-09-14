@@ -223,8 +223,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
 
     EXPECT_FALSE(roudi.getVariableRun());
 
-    // TODO move this to the logger as `bool isLoggerEnabledForLogLevel(const LogLevel level)`
-    if (iox::log::Logger::minimalLogLevel() >= iox::log::LogLevel::ERROR)
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
         auto logMessages = iox::testing::Logger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));
@@ -257,7 +256,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
 
     EXPECT_FALSE(roudi.getVariableRun());
 
-    if (iox::log::Logger::minimalLogLevel() >= iox::log::LogLevel::ERROR)
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
         auto logMessages = iox::testing::Logger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));

@@ -20,7 +20,7 @@ namespace iox
 {
 namespace testing
 {
-void Logger::init()
+void Logger::init() noexcept
 {
     static Logger logger;
     log::Logger::setActiveLogger(logger);
@@ -42,12 +42,12 @@ void Logger::init()
     listeners.Append(new LogPrinter);
 }
 
-void Logger::clearLogBuffer()
+void Logger::clearLogBuffer() noexcept
 {
     m_loggerData->buffer.clear();
 }
 
-void Logger::printLogBuffer()
+void Logger::printLogBuffer() noexcept
 {
     auto loggerData = m_loggerData.getScopeGuard();
     if (loggerData->buffer.empty())
@@ -62,13 +62,13 @@ void Logger::printLogBuffer()
     puts("#### Log end ####");
 }
 
-uint64_t Logger::getNumberOfLogMessages()
+uint64_t Logger::getNumberOfLogMessages() noexcept
 {
     auto& logger = dynamic_cast<Logger&>(log::Logger::get());
     return logger.m_loggerData->buffer.size();
 }
 
-std::vector<std::string> Logger::getLogMessages()
+std::vector<std::string> Logger::getLogMessages() noexcept
 {
     auto& logger = dynamic_cast<Logger&>(log::Logger::get());
     return logger.m_loggerData->buffer;
