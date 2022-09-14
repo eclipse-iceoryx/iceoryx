@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
+#include "iceoryx_hoofs/testing/test.hpp"
 
 #include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
 
@@ -391,10 +391,6 @@ using HalfFull1 = HalfFull<Data, Small>;
 using HalfFull2 = HalfFull<Data, Medium>;
 using HalfFull3 = HalfFull<Data, Large>;
 
-/// @todo these should be activated but each test takes a lot of time, occupying the CI servers
-/// need separate stress test targets and policy to run them on CI,
-/// currently only activate one suitable general configuration
-/// for this reason some less important tests are disabled for now
 /// @code
 /// typedef ::testing::
 ///    Types<Full1, Full2, Full3, Full4, AlmostFull1, AlmostFull2, AlmostFull3, HalfFull1, HalfFull2, HalfFull3>
@@ -414,7 +410,7 @@ TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
 
 ///@brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to completeness of the data, i.e. nothing is lost.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsumerCompleteness)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerCompleteness)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9640d068-5c9f-4bc4-b4a0-c0a2225c15ed");
     using Queue = typename TestFixture::Queue;
@@ -486,7 +482,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsume
 /// @brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to order of the data (monotonic, FIFO).
 /// @note this cannot be done easily together with completeness and limited memory
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsumerOrder)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a6e3e6b-7cd9-4079-a9e8-7a849ea3dfe9");
     using Queue = typename TestFixture::Queue;
@@ -539,7 +535,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_multiProducerMultiConsume
 /// data item back into the queue.
 /// Finally it is checked whether the queue still contains all elements it was initialized with
 ///(likely in a different order).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b5c7dc4-6e9a-4ac4-b2fc-6bd6dfb7ee1f");
     using Queue = typename TestFixture::Queue;
@@ -556,7 +552,8 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     {
         d.count = i;
         while (!q.tryPush(d))
-            ;
+        {
+        }
     }
 
     std::atomic<bool> run{true};
@@ -609,7 +606,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 /// aggregated over the queue and the local lists of each thread
 /// all elements occur exactly as often as there are threads + 1 (i.e. nothing was lost, the +1 is
 /// due to the initial values in the queue itself).
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer0verflow)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57516ebd-e994-42c8-813c-613c61f2410f");
     using Queue = typename TestFixture::Queue;
@@ -710,7 +707,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
 /// again it is checked that nothing is lost or created by accident.
 /// @note the tests are getting quite complicated but the complex setup is unavoidable
 /// in order to test the general case under load.
-TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiConsumer0verflowWithCapacityChange)
+TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0verflowWithCapacityChange)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6421f32a-a1f7-4fe2-978f-6ef2005e0cc9");
     using Queue = typename TestFixture::Queue;
@@ -760,7 +757,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, DISABLED_hybridMultiProducerMultiC
     }
 
     uint32_t id = numThreads + 1U;
-    uint64_t numChanges;
+    uint64_t numChanges{0};
     threads.emplace_back(changeCapacity<Queue>,
                          std::ref(q),
                          std::ref(run),

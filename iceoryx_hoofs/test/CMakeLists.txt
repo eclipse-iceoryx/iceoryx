@@ -27,6 +27,7 @@ set(PROJECT_PREFIX "hoofs")
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 file(GLOB_RECURSE MOCKTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/mocktests/*.cpp")
+file(GLOB STRESSTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/stresstests/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
@@ -59,11 +60,18 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
                     FILES                   ${INTEGRATIONTESTS_SRC}
 )
 
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_stresstests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   ${STRESSTESTS_SRC}
+)
+
 iox_add_executable( TARGET                  test_stress_sofi
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_LINUX              acl dl pthread rt
-                    FILES                   stresstests/test_stress_sofi.cpp
+                    FILES                   stresstests/sofi/test_stress_sofi.cpp
 )
 
 add_subdirectory(stresstests/benchmark_optional_and_expected)
