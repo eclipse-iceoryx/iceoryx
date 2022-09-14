@@ -43,7 +43,7 @@ class unique_ptr
     /// @param object A reference to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T& ptr, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T& object, const function<void(T*)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
