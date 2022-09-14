@@ -60,6 +60,9 @@ constexpr const char* logFormatDec();
 
 template <typename T>
 constexpr const char* logFormatHex();
+
+template <typename T>
+constexpr const char* logFormatOct();
 } // namespace internal
 
 template <typename T>
@@ -67,6 +70,9 @@ static constexpr const char* LOG_FORMAT_DEC = internal::logFormatDec<T>();
 
 template <typename T>
 static constexpr const char* LOG_FORMAT_HEX = internal::logFormatHex<T>();
+
+template <typename T>
+static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 
 } // namespace pbb
 } // namespace iox

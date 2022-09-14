@@ -67,6 +67,9 @@ class ConsoleLogger
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
     void logHex(const T val) noexcept;
 
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
+    void logOct(const T val) noexcept;
+
   private:
     template <uint32_t N>
     // NOLINTJUSTIFICATION safe access is guaranteed since the char array is not accessed but only the size is obtained

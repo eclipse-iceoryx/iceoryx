@@ -46,6 +46,19 @@ inline LogHex<uint64_t> hex(const void* const ptr) noexcept
     return LogHex<uint64_t>(reinterpret_cast<uint64_t>(ptr));
 }
 
+template <typename T>
+template <typename>
+constexpr LogOct<T>::LogOct(const T value) noexcept
+    : m_value(value)
+{
+}
+
+template <typename T, typename>
+inline constexpr LogOct<T> oct(const T value) noexcept
+{
+    return LogOct<T>(value);
+}
+
 /// @todo iox-#1345 use something like 'source_location'
 // NOLINTNEXTLINE(readability-function-size)
 inline LogStream::LogStream(
@@ -112,6 +125,15 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
     m_logger.logString("0x");
     m_logger.logHex(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
+    m_isFlushed = false;
+    return *this;
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int>>
+inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
+{
+    m_logger.logString("0o");
+    m_logger.logOct(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
     m_isFlushed = false;
     return *this;
 }

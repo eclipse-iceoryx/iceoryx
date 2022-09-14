@@ -167,7 +167,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
 #endif
 
 template <class T>
-class IoxLogStreamHexBin_test : public IoxLogStream_test
+class IoxLogStreamHexOctBinIntegral_test : public IoxLogStream_test
 {
   public:
     T LogValueLow = std::numeric_limits<T>::lowest();
@@ -175,17 +175,16 @@ class IoxLogStreamHexBin_test : public IoxLogStream_test
     T LogValueMax = std::numeric_limits<T>::max();
 };
 
-using LogHexBinTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t>;
+using LogHexOctBinIntegralTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t>;
 
 #ifdef __clang__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
-TYPED_TEST_SUITE(IoxLogStreamHexBin_test, LogHexBinTypes);
+TYPED_TEST_SUITE(IoxLogStreamHexOctBinIntegral_test, LogHexOctBinIntegralTypes);
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
-
 
 template <typename LogType>
 void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
@@ -203,22 +202,56 @@ void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(ss.str()));
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueLow)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogHex_ValueLow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bd47c99a-0808-4a19-bafb-580c65009e0d");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueLow);
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueMin)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogHex_ValueMin)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee806b08-0e2a-49fd-b16b-5ad1c8da3150");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueMin);
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogHex_ValueMax)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogHex_ValueMax)
 {
     ::testing::Test::RecordProperty("TEST_ID", "acfa2bbf-c2e1-42bf-88c6-2888d7d3a42a");
     testStreamOperatorLogHex(this->loggerMock, this->LogValueMax);
+}
+
+template <typename LogType>
+void testStreamOperatorLogOct(Logger_Mock& loggerMock, LogType logValue)
+{
+    IOX_LOGSTREAM_SUT(loggerMock) << iox::log::oct(logValue);
+
+    // we need to check negative numbers in two's complement, therefore make the output value unsigned
+    using TestType = typename std::make_unsigned<LogType>::type;
+    auto outputValue = static_cast<TestType>(logValue);
+
+    std::stringstream ss;
+    ss << "0o" << std::oct << +outputValue; // the '+' is to prevent to interpret the (u)int8_t as char
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(ss.str()));
+}
+
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueLow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0163ef2b-7e62-4ded-b093-d77cc4dc360e");
+    testStreamOperatorLogOct(this->loggerMock, this->LogValueLow);
+}
+
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueMin)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "68583225-9b47-486d-90da-31f6c1ca7480");
+    testStreamOperatorLogOct(this->loggerMock, this->LogValueMin);
+}
+
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueMax)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c4d104c3-a12a-46e1-8755-cc4b9e0e480c");
+    testStreamOperatorLogOct(this->loggerMock, this->LogValueMax);
 }
 
 #if 0
@@ -239,19 +272,19 @@ void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)
                 Eq("0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string()));
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueLow)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueLow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e4e684b7-5bcf-4e8d-8cb1-b6df95c3b37c");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueLow);
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMin)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueMin)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f13b3e6a-8f7c-48c2-ae43-35e0a195556e");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMin);
 }
 
-TYPED_TEST(IoxLogStreamHexBin_test, StreamOperatorLogBin_ValueMax)
+TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueMax)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b583014a-700f-46e3-8b7c-0a128c59598a");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMax);

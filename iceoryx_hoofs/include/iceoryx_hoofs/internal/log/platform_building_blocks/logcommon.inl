@@ -220,6 +220,38 @@ constexpr const char* logFormatHex<long double>()
 {
     return "%.5La";
 }
+
+template <typename T>
+constexpr const char* logFormatOct()
+{
+    static_assert(always_false_v<T>, "This type is not supported for octal output!");
+    return nullptr;
+}
+template <>
+constexpr const char* logFormatOct<unsigned char>()
+{
+    return "%hho";
+}
+template <>
+constexpr const char* logFormatOct<unsigned short>()
+{
+    return "%ho";
+}
+template <>
+constexpr const char* logFormatOct<unsigned int>()
+{
+    return "%o";
+}
+template <>
+constexpr const char* logFormatOct<unsigned long>()
+{
+    return "%lo";
+}
+template <>
+constexpr const char* logFormatOct<unsigned long long>()
+{
+    return "%llo";
+}
 } // namespace internal
 
 } // namespace pbb

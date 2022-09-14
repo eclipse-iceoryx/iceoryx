@@ -49,6 +49,12 @@ inline void ConsoleLogger::logHex(const T value) noexcept
     logArithmetic(value, LOG_FORMAT_HEX<T>);
 }
 
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>>
+inline void ConsoleLogger::logOct(const T value) noexcept
+{
+    logArithmetic(value, LOG_FORMAT_OCT<T>);
+}
+
 template <typename T>
 inline void ConsoleLogger::logArithmetic(const T value, const char* format) noexcept
 {
