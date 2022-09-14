@@ -304,9 +304,10 @@ TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSign
 {
     ::testing::Test::RecordProperty("TEST_ID", "71ca9773-f724-4625-8550-6c56ef135ad7");
 
-    auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::system_clock::now();
     auto result = this->sut->timedWait(this->TIMING_TEST_WAIT_TIME);
-    auto end = std::chrono::steady_clock::now();
+    auto end = std::chrono::system_clock::now();
+
 
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(iox::posix::SemaphoreWaitState::TIMEOUT));

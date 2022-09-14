@@ -280,7 +280,8 @@ TYPED_TEST(IpcInterface_test, SendMoreThanAllowedLeadsToError)
     EXPECT_EQ(shortMessage, receivedMessage);
 }
 
-#if !(defined(__APPLE__) || defined(__FreeBSD__))
+/// @todo iox-#1623 Check if blocking send is supported on all platforms
+#if !(defined(__APPLE__) || defined(unix) || defined(__unix) || defined(__unix__))
 TYPED_TEST(IpcInterface_test, TimedSendWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "12fe0ee5-37f8-4c34-ba44-ed50872a5fd9");
@@ -303,7 +304,7 @@ TYPED_TEST(IpcInterface_test, TimedSendWorks)
         {
             // Do not exceed timeout
             auto timeDiff = units::Duration(after - before);
-            EXPECT_GT(timeDiff, maxTimeout);
+            EXPECT_GE(timeDiff, maxTimeout);
 
             break;
         }
@@ -333,6 +334,6 @@ TYPED_TEST(IpcInterface_test, TimedReceiveWorks)
     auto after = system_clock::now();
 
     auto timeDiff = units::Duration(after - before);
-    EXPECT_GT(timeDiff, timeout);
+    EXPECT_GE(timeDiff, timeout);
 }
 } // namespace
