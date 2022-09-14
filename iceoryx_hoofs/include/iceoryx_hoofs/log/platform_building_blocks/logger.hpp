@@ -37,7 +37,7 @@ namespace pbb
 template <uint32_t N>
 // NOLINTJUSTIFICATION required for C-style string comparison; safety guaranteed by strncmp
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
+bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 
 /// @brief Tries to get the log level from the 'IOX_LOG_LEVEL' env variable or uses the specified one if the env
 /// variable is not set
@@ -63,20 +63,20 @@ class Logger : public BaseLogger
 
     ~Logger() = default;
 
-    inline static constexpr LogLevel minimalLogLevel() noexcept;
+    static constexpr LogLevel minimalLogLevel() noexcept;
 
-    inline static constexpr bool ignoreLogLevel() noexcept;
+    static constexpr bool ignoreLogLevel() noexcept;
 
-    inline static Logger& get() noexcept;
+    static Logger& get() noexcept;
 
-    inline static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
+    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
 
-    inline static void setActiveLogger(Logger& newLogger) noexcept;
+    static void setActiveLogger(Logger& newLogger) noexcept;
 
   private:
-    inline static Logger& activeLogger(Logger* newLogger = nullptr) noexcept;
+    static Logger& activeLogger(Logger* newLogger = nullptr) noexcept;
 
-    inline void initLoggerInternal(const LogLevel logLevel) noexcept;
+    void initLoggerInternal(const LogLevel logLevel) noexcept;
 
   private:
     std::atomic<bool> m_isActive{true};
