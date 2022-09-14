@@ -130,7 +130,14 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
+#if defined(__GNUC__) && __GNUC__ == 8 && __GNUC_MINOR__ == 3
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
         std::memcpy(&(m_rawstring[0]), other, Capacity);
+#if defined(__GNUC__) && __GNUC__ == 8 && __GNUC_MINOR__ == 3
+#pragma GCC diagnostic pop
+#endif
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
         std::cerr << "Constructor truncates the last " << count - Capacity << " characters of " << other
