@@ -66,7 +66,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                    << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
                                            : iox::log::hex(static_cast<uint64_t>(0U)))
                    << ((m_baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << iox::log::hex(static_cast<mode_t>(m_permissions)) << " ]";
+                   << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()
