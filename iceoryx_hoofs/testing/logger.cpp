@@ -91,6 +91,7 @@ void Logger::flush() noexcept
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<Logger&>(log::Logger::get()).clearLogBuffer();
+    Logger::setLogLevel(log::LogLevel::TRACE);
 
     /// @todo iox-#1345 register signal handler for sigterm to flush to logger;
     /// there might be tests to register a handler itself and when this is
