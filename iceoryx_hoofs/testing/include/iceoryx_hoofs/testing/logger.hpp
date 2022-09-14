@@ -47,7 +47,7 @@ class Logger : public platform::TestingLoggerBase
     /// @note This can be used in tests which check for a specific log output
     static inline constexpr bool doesLoggerSupportLogLevel(const log::LogLevel logLevel) noexcept
     {
-        return iox::log::Logger::minimalLogLevel() >= logLevel;
+        return platform::MINIMAL_LOG_LEVEL >= logLevel;
     }
 
   private:

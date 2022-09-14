@@ -37,20 +37,6 @@ inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
     return strncmp(lhs, rhs, N) == 0;
 }
 
-
-template <typename BaseLogger>
-inline constexpr LogLevel Logger<BaseLogger>::minimalLogLevel() noexcept
-{
-    return Logger::MINIMAL_LOG_LEVEL;
-}
-
-template <typename BaseLogger>
-inline constexpr bool Logger<BaseLogger>::ignoreLogLevel() noexcept
-{
-    return Logger::IGNORE_ACTIVE_LOG_LEVEL;
-}
-
-
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {

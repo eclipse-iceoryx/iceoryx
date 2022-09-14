@@ -27,7 +27,8 @@ namespace internal
 /// @brief Convenience function for the IOX_LOG_INTERNAL macro
 inline bool isLogLevelActive(LogLevel logLevel)
 {
-    return (logLevel) <= Logger::minimalLogLevel() && (Logger::ignoreLogLevel() || (logLevel) <= Logger::getLogLevel());
+    return (logLevel) <= platform::MINIMAL_LOG_LEVEL
+           && (platform::IGNORE_ACTIVE_LOG_LEVEL || (logLevel) <= Logger::getLogLevel());
 }
 
 /// @brief Only for internal usage

@@ -63,10 +63,6 @@ class Logger : public BaseLogger
 
     ~Logger() = default;
 
-    static constexpr LogLevel minimalLogLevel() noexcept;
-
-    static constexpr bool ignoreLogLevel() noexcept;
-
     static Logger& get() noexcept;
 
     static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
@@ -81,14 +77,6 @@ class Logger : public BaseLogger
   private:
     std::atomic<bool> m_isActive{true};
     std::atomic<bool> m_isFinalized{false};
-
-    /// @todo iox-#1345 make this a compile time option since if will reduce performance but some logger might want
-    /// to do the filtering by themself
-    static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
-
-    /// @todo iox-#1345 compile time option for minimal compiled log level, i.e. all lower log level should be
-    /// optimized out this is different than IGNORE_ACTIVE_LOG_LEVEL since m_activeLogLevel could still be set to off
-    static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 };
 
 } // namespace pbb
