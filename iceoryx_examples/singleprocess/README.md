@@ -110,7 +110,7 @@ while (!iox::posix::hasTerminationRequested())
     publisher.loan().and_then([&](auto& sample) {
         sample->counter = counter++;
         consoleOutput("Sending   ", GREEN_RIGHT_ARROW, sample->counter);
-        sample.publish();
+        publish(std::move(sample));
     });
 
     std::this_thread::sleep_for(CYCLE_TIME);

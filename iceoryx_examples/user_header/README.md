@@ -113,7 +113,7 @@ In this case it's the `Header` struct and we set the `publisherTimestamp`.
 <!-- [geoffrey] [iceoryx_examples/user_header/publisher_cxx_api.cpp] [loan was successful] -->
 ```cpp
 sample.getUserHeader().publisherTimestamp = timestamp;
-sample.publish();
+publish(std::move(sample));
 
 std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << timestamp << "ms"
           << std::endl;

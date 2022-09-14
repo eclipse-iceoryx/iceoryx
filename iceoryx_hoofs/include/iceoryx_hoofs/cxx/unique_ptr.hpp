@@ -40,7 +40,7 @@ class unique_ptr
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
     /// @details A deleter must always be provided as no default can be provided given that no heap is used.
     /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
-    /// @param ptr The raw pointer to the object to be managed.
+    /// @param object A reference to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
     unique_ptr(T& ptr, const function<void(T*)>& deleter) noexcept;
@@ -83,16 +83,17 @@ class unique_ptr
 
     ///
     /// @brief release Release ownership of the underlying pointer.
-    /// @return Pointer to the managed object or nullptr if none owned.
+    /// @param[in] releasedPtr takes ownership of releasedPtr
+    /// @return Pointer to the managed object.
     ///
     static T* release(unique_ptr&& releasedPtr) noexcept;
 
     ///
     /// @brief reset Reset the unique pointer to take ownership of the given pointer.
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
-    /// @param ptr Pointer to object to take ownership on.
+    /// @param[in] object Reference to the object to take ownership from.
     ///
-    void reset(T& ptr) noexcept;
+    void reset(T& object) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)

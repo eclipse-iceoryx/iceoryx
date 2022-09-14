@@ -25,8 +25,8 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-inline unique_ptr<T>::unique_ptr(T& ptr, const function<void(T*)>& deleter) noexcept
-    : m_ptr(&ptr)
+inline unique_ptr<T>::unique_ptr(T& object, const function<void(T*)>& deleter) noexcept
+    : m_ptr(&object)
     , m_deleter(std::move(deleter))
 {
 }
@@ -95,10 +95,10 @@ inline T* unique_ptr<T>::release(unique_ptr<T>&& releasedPtr) noexcept
 }
 
 template <typename T>
-inline void unique_ptr<T>::reset(T& ptr) noexcept
+inline void unique_ptr<T>::reset(T& object) noexcept
 {
     destroy();
-    m_ptr = &ptr;
+    m_ptr = &object;
 }
 
 template <typename T>

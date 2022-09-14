@@ -48,28 +48,20 @@ class UniquePtrTest : public Test
     bool m_deleterCalled{false};
     bool m_anotherDeleterCalled{false};
 
-    iox::cxx::function<void(Position* const)> deleter = [this](Position* const p) {
-        m_deleterCalled = true;
-        delete p;
-    };
+    iox::cxx::function<void(Position* const)> deleter = [this](Position* const) { m_deleterCalled = true; };
 
-    iox::cxx::function<void(Position* const)> anotherDeleter = [this](Position* const p) {
+    iox::cxx::function<void(Position* const)> anotherDeleter = [this](Position* const) {
         m_anotherDeleterCalled = true;
-        delete p;
     };
 };
 
-#if 0
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "85a90fc3-e8b1-4c3d-a15c-ee7f64070b57");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
+        Position object;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-        EXPECT_TRUE(sut);
-        EXPECT_EQ(sut.get(), object);
+        EXPECT_EQ(sut.get(), &object);
     }
     // SUT is out of scope and should have called deleter
     EXPECT_TRUE(m_deleterCalled);
@@ -79,19 +71,14 @@ TEST_F(UniquePtrTest, CtorUsingMoveWithObjectPtrAndDeleterSetsPtrToObjectAndCall
 {
     ::testing::Test::RecordProperty("TEST_ID", "88ae1d4c-d893-4633-9256-766d7e42bcc6");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
+        Position object;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
             auto anotherSut = std::move(sut);
 
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
-            // NOLINTJUSTIFICATION check if move is invalidating the object
-            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
-            EXPECT_FALSE(sut);
-            EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_EQ(anotherSut.get(), &object);
         }
         // anotherSUT is out of scope and should have called deleter
         EXPECT_TRUE(m_deleterCalled);
@@ -107,19 +94,14 @@ TEST_F(UniquePtrTest, MoveAssignmentUniquePtrsSetsPtrToObjectAndCallsDeleter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b3b67548-bd69-4a6f-a867-f9aaa6d869b1");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
+        Position object;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
             auto anotherSut = std::move(sut);
 
             // no deleter called during move
             EXPECT_FALSE(m_deleterCalled);
-            // NOLINTJUSTIFICATION check if move is invalidating the object
-            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
-            EXPECT_FALSE(sut);
-            EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_EQ(anotherSut.get(), &object);
         }
         // anotherSUT is out of scope and should have called deleter
         EXPECT_TRUE(m_deleterCalled);
@@ -135,14 +117,10 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAno
 {
     ::testing::Test::RecordProperty("TEST_ID", "75a853ef-fd0e-41bd-9ce7-af63e0f67fa9");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
+        Position object;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
-            // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-            // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-            auto* anotherObject = new Position();
+            Position anotherObject;
             auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
             anotherSut = std::move(sut);
@@ -151,10 +129,7 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAno
             EXPECT_TRUE(m_anotherDeleterCalled);
             // SUT deleter not called during move
             EXPECT_FALSE(m_deleterCalled);
-            // NOLINTJUSTIFICATION check if move is invalidating the object
-            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
-            EXPECT_FALSE(sut);
-            EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_EQ(anotherSut.get(), &object);
         }
         // anotherSUT is out of scope and should have called deleter that has been moved to it
         EXPECT_TRUE(m_deleterCalled);
@@ -169,9 +144,7 @@ TEST_F(UniquePtrTest, MoveAssignmentOverwriteAUniquePtrWithAnotherOneAndCallsAno
 TEST_F(UniquePtrTest, AccessUnderlyingObjectResultsInCorrectValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a3cc8f1-0744-4e79-85cf-02eb6c5cab9b");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
     EXPECT_EQ(sut->x, X_POS);
@@ -180,9 +153,7 @@ TEST_F(UniquePtrTest, AccessUnderlyingObjectResultsInCorrectValue)
 TEST_F(UniquePtrTest, AccessUnderlyingObjectViaGetResultsInCorrectValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b795fa9d-b980-4987-8b94-9ea752a4e71e");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
     auto* objectPtr = sut.get();
@@ -193,35 +164,19 @@ TEST_F(UniquePtrTest, AccessUnderlyingObjectViaGetResultsInCorrectValue)
 TEST_F(UniquePtrTest, ReleaseAnObjectResultsInUniquePtrBeingInvalidAndReturnOfObjectPtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8a1413a5-15cd-42ff-a05e-9dff158aa047");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
-    EXPECT_EQ(sut.release(), object);
-    EXPECT_FALSE(sut);
-    delete object;
+    EXPECT_EQ(iox::cxx::unique_ptr<Position>::release(std::move(sut)), &object);
     EXPECT_FALSE(m_deleterCalled);
-}
-
-TEST_F(UniquePtrTest, ReleaseNullObjectResultsInUniquePtrBeingInvalidAndReturnOfNull)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "056697e8-16e1-4a42-94a4-500cd2169cf7");
-    auto sut = iox::cxx::unique_ptr<Position>(nullptr, deleter);
-
-    EXPECT_EQ(sut.release(), nullptr);
-    EXPECT_FALSE(sut);
 }
 
 TEST_F(UniquePtrTest, ResetToAnExistingObjectPtrResultsInDeleterCalledTwice)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e5da7713-e71d-49b2-8bf6-d6108aab6366");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
-        auto* anotherObject = new Position();
-        // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
+        Position object;
+        Position anotherObject;
 
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
@@ -229,7 +184,7 @@ TEST_F(UniquePtrTest, ResetToAnExistingObjectPtrResultsInDeleterCalledTwice)
 
         // deleter called first time then SUT is resetted
         EXPECT_TRUE(m_deleterCalled);
-        EXPECT_EQ(sut.get(), anotherObject);
+        EXPECT_EQ(sut.get(), &anotherObject);
 
         // reset deleter as it's called again when SUT goes out of scope
         m_deleterCalled = false;
@@ -242,22 +197,18 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5ed18-2d92-44f3-93d9-753bd09f5c1b");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
+        Position object;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
-            // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-            // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-            auto* anotherObject = new Position();
+            Position anotherObject;
             auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
             sut.swap(anotherSut);
 
             // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
-            EXPECT_EQ(sut.get(), anotherObject);
-            EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_EQ(sut.get(), &anotherObject);
+            EXPECT_EQ(anotherSut.get(), &object);
         }
         // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
@@ -271,11 +222,8 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithUniquePtrLeadsToCleanupOfBothInReverseOrd
 {
     ::testing::Test::RecordProperty("TEST_ID", "9017ba22-ff18-41d4-8590-ccb0d7729435");
     {
-        // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-        // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-        auto* object = new Position();
-        auto* anotherObject = new Position();
-        // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
+        Position object;
+        Position anotherObject;
         auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
         {
             auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
@@ -284,8 +232,7 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithUniquePtrLeadsToCleanupOfBothInReverseOrd
 
             // no deleter calls during swap
             EXPECT_FALSE(m_deleterCalled);
-            EXPECT_TRUE(sut);
-            EXPECT_EQ(anotherSut.get(), object);
+            EXPECT_EQ(anotherSut.get(), &object);
         }
         // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
         EXPECT_TRUE(m_deleterCalled);
@@ -298,34 +245,18 @@ TEST_F(UniquePtrTest, SwapUniquePtrWithUniquePtrLeadsToCleanupOfBothInReverseOrd
 TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d12f8cf6-e37e-424a-9ed5-aea580b8bdc9");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
     EXPECT_TRUE(sut == sut);
 }
 
-TEST_F(UniquePtrTest, CompareAUniquePtrWithNullIsFalse)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "45e6ca29-8164-414c-af01-dc2cbb38de57");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-
-    EXPECT_FALSE(sut == nullptr);
-    EXPECT_FALSE(nullptr == sut);
-}
-
 TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a6135d2-1a79-49fa-a142-7e19327b6a9f");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position;
-    auto* anotherObject = new Position;
-    // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
+    Position object;
+    Position anotherObject;
+
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
     auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
@@ -336,9 +267,7 @@ TEST_F(UniquePtrTest, CompareAUniquePtrWithAnotherOneOfAnotherObjectIsFalse)
 TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithItselfIsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6305a2d9-28d7-41a0-bb0b-866912a39205");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
 
     EXPECT_FALSE(sut != sut);
@@ -347,11 +276,9 @@ TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithItselfIsFalse)
 TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "58b9cd12-82f9-4e3a-b033-8c57afbd31d7");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTBEGIN(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position;
-    auto* anotherObject = new Position;
-    // NOLINTEND(clang-analyzer-cplusplus.NewDeleteLeaks)
+    Position object;
+    Position anotherObject;
+
     auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
     auto anotherSut = iox::cxx::unique_ptr<Position>(anotherObject, anotherDeleter);
 
@@ -359,24 +286,10 @@ TEST_F(UniquePtrTest, NotEqualCompareOfAUniquePtrWithAnotherOneOfAnotherObjectIs
     EXPECT_TRUE(anotherSut != sut);
 }
 
-TEST_F(UniquePtrTest, NotEqualCompareAUniquePtrWithNullIsTrue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4fe92923-dd5b-4389-92fc-5f7987cdc5ee");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-
-    EXPECT_TRUE(sut != nullptr);
-    EXPECT_TRUE(nullptr != sut);
-}
-
 TEST_F(UniquePtrTest, CanGetUnderlyingPtrFromConstUniquePtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "75727c11-f721-4a52-816a-a9a3a61e2b43");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     const auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
     EXPECT_TRUE(sut.get() != nullptr);
 }
@@ -384,39 +297,10 @@ TEST_F(UniquePtrTest, CanGetUnderlyingPtrFromConstUniquePtr)
 TEST_F(UniquePtrTest, CanUseArrowOperatorToAccessObjectInConstUniquePtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "045a9026-74f5-41ad-9881-14c2502527c4");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
+    Position object;
     const auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
     EXPECT_EQ(X_POS, sut->x);
     EXPECT_EQ(Y_POS, sut->y);
     EXPECT_EQ(Z_POS, sut->z);
 }
-
-TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrDeletesTheManagedObject)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "42821e13-c28c-4274-9f89-10ab342bf372");
-    // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-    // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-    auto* object = new Position();
-    auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-    sut = nullptr;
-    EXPECT_TRUE(m_deleterCalled);
-}
-
-TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "eacf4bf4-0fa8-42dd-b0a7-c343a1959282");
-    EXPECT_DEATH(
-        {
-            // NOLINTJUSTIFICATION no memory leak, object is deleted in the dtor deleter callback
-            // NOLINTNEXTLINE(clang-analyzer-cplusplus.NewDeleteLeaks)
-            auto* object = new Position();
-            auto sut = iox::cxx::unique_ptr<Position>(object, deleter);
-            sut = nullptr;
-            EXPECT_EQ(nullptr, sut.get());
-        },
-        "EXPECTS_ENSURES_FAILED");
-}
-#endif
 } // namespace

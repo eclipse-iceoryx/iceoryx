@@ -93,7 +93,7 @@ if (!loanResult.has_error())
     sample->x = ct;
     sample->y = ct;
     sample->z = ct;
-    sample.publish();
+    publish(std::move(sample));
 }
 ```
 

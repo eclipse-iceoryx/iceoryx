@@ -238,7 +238,7 @@ publisher.loan()
         sample->x = sampleValue1;
         sample->y = sampleValue1;
         sample->z = sampleValue1;
-        sample.publish();
+        publish(std::move(sample));
     })
     .or_else([](auto& error) {
         // Do something with error
@@ -256,7 +256,7 @@ Usage #2 constructs the data type with the values provided in loan:
 //  * Sample can be held until ready to publish.
 //  * Data is constructed with the arguments provided.
 publisher.loan(sampleValue2, sampleValue2, sampleValue2)
-    .and_then([](auto& sample) { sample.publish(); })
+    .and_then([](auto& sample) { publish(std::move(sample)); })
     .or_else([](auto& error) {
         // Do something with error
         std::cerr << "Unable to loan sample, error: " << error << std::endl;

@@ -35,8 +35,8 @@ At first, the includes for the client port, request-response types, WaitSet, and
 ```cpp
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+#include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -122,8 +122,9 @@ client.loan()
         request->addend = ctx.fibonacciCurrent;
         std::cout << APP_NAME << " Send Request: " << ctx.fibonacciLast << " + " << ctx.fibonacciCurrent
                   << std::endl;
-        request.send().or_else(
-            [&](auto& error) { std::cout << "Could not send Request! Error: " << error << std::endl; });
+        send(std::move(request)).or_else([&](auto& error) {
+            std::cout << "Could not send Request! Error: " << error << std::endl;
+        });
     })
     .or_else([](auto& error) { std::cout << "Could not allocate Request! Error: " << error << std::endl; });
 ```
@@ -198,8 +199,9 @@ void onRequestReceived(iox::popo::Server<AddRequest, AddResponse>* server)
             .and_then([&](auto& response) {
                 response->sum = request->augend + request->addend;
                 std::cout << APP_NAME << " Send Response: " << response->sum << std::endl;
-                response.send().or_else(
-                    [&](auto& error) { std::cout << "Could not send Response! Error: " << error << std::endl; });
+                send(std::move(response)).or_else([&](auto& error) {
+                    std::cout << "Could not send Response! Error: " << error << std::endl;
+                });
             })
             .or_else([](auto& error) { std::cout << "Could not allocate Response! Error: " << error << std::endl; });
     }))
