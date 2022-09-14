@@ -193,12 +193,11 @@ TEST_F(variant_Test, EmplaceSecondValidElementWorks)
     EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(65.03F));
 }
 
-TEST_F(variant_Test, DISABLED_emplaceInvalidElement)
+TEST_F(variant_Test, EmplaceInvalidElementCompileTimeCheck)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6fa3b290-8249-4825-8eac-72235a06710e");
-    // this is a compile time check, if you uncomment this the compiler will
-    // fail
-    //    EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
+    GTEST_SKIP() << "Compile time check, if you uncomment this test, the compiler will fail";
+    // EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
 }
 
 TEST_F(variant_Test, EmplaceWhenAlreadyDifferentTypeAssignedDoesNotWork)

@@ -102,7 +102,8 @@ TEST(NewType, ComparableDoesCompile)
     EXPECT_FALSE(a == b);
 }
 
-TEST(NewType, DISABLED_NoComparableDoesNotCompile)
+#if !defined(_WIN32)
+TEST(NewType, NoComparableDoesNotCompile)
 {
     ::testing::Test::RecordProperty("TEST_ID", "17ca57e1-8a9c-4235-91bd-1905e580dbb1");
     const char* p = R"(
@@ -111,6 +112,7 @@ TEST(NewType, DISABLED_NoComparableDoesNotCompile)
     )";
     EXPECT_FALSE(compileTest.verify(p));
 }
+#endif
 
 TEST(NewType, SortableDoesCompile)
 {
