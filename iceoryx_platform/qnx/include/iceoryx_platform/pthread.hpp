@@ -29,7 +29,7 @@ inline int iox_pthread_setname_np(iox_pthread_t thread, const char* name)
 
 inline int iox_pthread_getname_np(iox_pthread_t thread, char* name, size_t len)
 {
-    return pthread_getname_np(thread, name, len);
+    return pthread_getname_np(thread, name, static_cast<int>(len));
 }
 
 inline int
