@@ -96,6 +96,9 @@ class LogStream
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
 
+    template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+    LogStream& operator<<(const LogHex<T> val) noexcept;
+
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
     LogStream& operator<<(const LogOct<T> val) noexcept;
 

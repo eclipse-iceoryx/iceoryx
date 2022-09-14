@@ -129,6 +129,14 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
     return *this;
 }
 
+template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int>>
+inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
+{
+    m_logger.logHex(val.m_value);
+    m_isFlushed = false;
+    return *this;
+}
+
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int>>
 inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 {

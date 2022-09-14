@@ -213,12 +213,12 @@ constexpr const char* logFormatHex<float>()
 template <>
 constexpr const char* logFormatHex<double>()
 {
-    return "%.5la";
+    return "%la";
 }
 template <>
 constexpr const char* logFormatHex<long double>()
 {
-    return "%.5La";
+    return "%La";
 }
 
 template <typename T>

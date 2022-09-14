@@ -43,7 +43,10 @@ inline void ConsoleLogger::logDec(const T value) noexcept
     logArithmetic(value, LOG_FORMAT_DEC<T>);
 }
 
-template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>>
+template <typename T,
+          typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
+                                        || std::is_floating_point<T>::value,
+                                    int>>
 inline void ConsoleLogger::logHex(const T value) noexcept
 {
     logArithmetic(value, LOG_FORMAT_HEX<T>);

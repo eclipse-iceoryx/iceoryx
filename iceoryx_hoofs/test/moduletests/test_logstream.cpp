@@ -292,6 +292,75 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueMax)
 
 #endif
 
+template <class T>
+class IoxLogStreamHexFloatingPoint_test : public IoxLogStream_test
+{
+  public:
+    T LogValueLow = std::numeric_limits<T>::lowest();
+    T LogValueMin = std::numeric_limits<T>::min();
+    T LogValueMax = std::numeric_limits<T>::max();
+};
+
+using LogHexFloatingPointTypes = Types<float, double, long double>;
+
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
+#endif
+TYPED_TEST_SUITE(IoxLogStreamHexFloatingPoint_test, LogHexFloatingPointTypes);
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
+
+template <typename T>
+constexpr const char* floatingPointFormatSpecifier();
+template <>
+constexpr const char* floatingPointFormatSpecifier<float>()
+{
+    return "%a";
+}
+template <>
+constexpr const char* floatingPointFormatSpecifier<double>()
+{
+    return "%la";
+}
+template <>
+constexpr const char* floatingPointFormatSpecifier<long double>()
+{
+    return "%La";
+}
+
+template <typename LogType>
+void testStreamOperatorLogHexFloatingPoint(Logger_Mock& loggerMock, LogType logValue)
+{
+    IOX_LOGSTREAM_SUT(loggerMock) << iox::log::hex(logValue);
+
+    constexpr uint64_t BUFFER_SIZE{1000};
+    char buffer[BUFFER_SIZE]{0};
+    snprintf(buffer, BUFFER_SIZE - 1, floatingPointFormatSpecifier<LogType>(), logValue);
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(buffer));
+}
+
+TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueLow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "abcad269-7e1b-478a-9535-c9fff9ba1d05");
+    testStreamOperatorLogHexFloatingPoint(this->loggerMock, this->LogValueLow);
+}
+
+TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueMin)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "78d3a9c5-3f3e-410a-baba-942c5a1db46e");
+    testStreamOperatorLogHexFloatingPoint(this->loggerMock, this->LogValueMin);
+}
+
+TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueMax)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e87982ae-58e7-4563-99bc-d08484fb60c9");
+    testStreamOperatorLogHexFloatingPoint(this->loggerMock, this->LogValueMax);
+}
+
 using ArithmeticTypes =
     Types<bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, float, double>;
 

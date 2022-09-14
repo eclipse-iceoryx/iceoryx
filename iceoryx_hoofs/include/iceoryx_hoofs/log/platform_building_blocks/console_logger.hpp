@@ -64,7 +64,10 @@ class ConsoleLogger
     template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int> = 0>
     void logDec(const T val) noexcept;
 
-    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
+    template <typename T,
+              typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
+                                            || std::is_floating_point<T>::value,
+                                        int> = 0>
     void logHex(const T val) noexcept;
 
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
