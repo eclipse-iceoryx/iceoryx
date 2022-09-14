@@ -60,7 +60,7 @@ int main()
             sample->x = ct;
             sample->y = ct;
             sample->z = ct;
-            sample.publish();
+            publish(std::move(sample));
         }
         //! [publish]
         //! [error]

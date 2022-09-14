@@ -36,9 +36,7 @@ TEST_F(Sample_test, SendCallsInterfaceMockWithSuccessResult)
     ::testing::Test::RecordProperty("TEST_ID", "2ddbbcad-704f-4f0a-849c-5db8ac339668");
     EXPECT_CALL(mockInterface, mockSend(_)).Times(1);
 
-    sutProducer.publish();
-
-    EXPECT_FALSE(sutProducer);
+    publish(std::move(sutProducer));
 }
 
 TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMock)
@@ -47,47 +45,6 @@ TEST_F(Sample_test, SendOnMoveDestinationCallsInterfaceMock)
     EXPECT_CALL(mockInterface, mockSend(_)).Times(1);
 
     auto movedSut = std::move(sutProducer);
-    movedSut.publish();
-
-    EXPECT_FALSE(sutProducer);
+    publish(std::move(movedSut));
 }
-
-TEST_F(Sample_test, PublishingAlreadyPublishedSampleCallsErrorHandler)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5b0302c9-814a-4b03-813a-fd5586fc987c");
-    EXPECT_CALL(mockInterface, mockSend(_)).Times(1);
-
-    sutProducer.publish();
-
-    iox::cxx::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
-    sutProducer.publish();
-
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
-}
-
-TEST_F(Sample_test, PublishingMovedSampleCallsErrorHandler)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4c3a9a19-0581-4e47-aed7-f55892bef7fa");
-
-    iox::cxx::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
-    auto movedSut = std::move(sutProducer);
-    sutProducer.publish();
-
-    ASSERT_TRUE(detectedError.has_value());
-    ASSERT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__PUBLISHING_EMPTY_SAMPLE));
-}
-
 } // namespace

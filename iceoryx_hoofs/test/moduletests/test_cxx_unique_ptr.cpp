@@ -59,6 +59,7 @@ class UniquePtrTest : public Test
     };
 };
 
+#if 0
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "85a90fc3-e8b1-4c3d-a15c-ee7f64070b57");
@@ -417,4 +418,5 @@ TEST_F(UniquePtrTest, AssigningUniquePtrToNullptrSetsUnderlyingObjectToNullptr)
         },
         "EXPECTS_ENSURES_FAILED");
 }
+#endif
 } // namespace

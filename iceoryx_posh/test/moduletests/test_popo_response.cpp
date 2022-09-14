@@ -36,10 +36,9 @@ TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
     ::testing::Test::RecordProperty("TEST_ID", "70361e1e-78ea-48a2-bd5c-679d604e5da4");
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
 
-    auto sendResult = sutProducer.send();
+    auto sendResult = send(std::move(sutProducer));
 
     EXPECT_FALSE(sendResult.has_error());
-    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
@@ -48,10 +47,9 @@ TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
 
     auto movedSut = std::move(sutProducer);
-    auto sendResult = movedSut.send();
+    auto sendResult = send(std::move(movedSut));
 
     EXPECT_FALSE(sendResult.has_error());
-    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
@@ -61,57 +59,10 @@ TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
     const iox::cxx::expected<ServerSendError> mockSendResult = iox::cxx::error<ServerSendError>{SERVER_SEND_ERROR};
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(mockSendResult));
 
-    auto sendResult = sutProducer.send();
+    auto sendResult = send(std::move(sutProducer));
 
     ASSERT_TRUE(sendResult.has_error());
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
-    EXPECT_FALSE(sutProducer);
-}
-
-TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "45e592d2-69d9-47cf-8cdf-b1bdf8592947");
-    constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
-    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::cxx::success<void>()));
-
-    EXPECT_FALSE(sutProducer.send().has_error());
-
-    iox::cxx::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
-    auto sendResult = sutProducer.send();
-
-    ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
-}
-
-TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4e8d7aa2-58d6-421f-9df8-f0fff3f1b9ee");
-    constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
-
-    iox::cxx::optional<iox::PoshError> detectedError;
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&detectedError](const iox::PoshError error, const auto errorLevel) {
-            detectedError.emplace(error);
-            EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
-        });
-
-    auto movedSut = std::move(sutProducer);
-    auto sendResult = sutProducer.send();
-
-    ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
-
-    ASSERT_TRUE(detectedError.has_value());
-    EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
 }
 
 TEST_F(Response_test, GetResponseHeaderWorks)

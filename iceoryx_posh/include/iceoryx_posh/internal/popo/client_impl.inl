@@ -46,7 +46,7 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-    auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), [this](auto* payload) {
+    auto request = cxx::unique_ptr<Req>(*static_cast<Req*>(payload), [this](auto* payload) {
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
@@ -65,7 +65,7 @@ template <typename Req, typename Res, typename BaseClientT>
 cxx::expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
     // take the ownership of the chunk from the Request to transfer it to `sendRequest`
-    auto payload = request.release();
+    auto payload = Request<Req>::release(std::move(request));
     auto* requestHeader = static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     return port().sendRequest(requestHeader);
 }
@@ -80,7 +80,7 @@ cxx::expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, Base
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
-    auto response = cxx::unique_ptr<const Res>(static_cast<const Res*>(payload), [this](auto* payload) {
+    auto response = cxx::unique_ptr<const Res>(*static_cast<const Res*>(payload), [this](auto* payload) {
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });

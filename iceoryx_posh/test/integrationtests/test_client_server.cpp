@@ -191,7 +191,7 @@ TEST_F(ClientServer_test, MultipleClientsWithMatchingOptionsWorks)
         ASSERT_FALSE(loanResult.has_error());
         auto& request = loanResult.value();
         request.getRequestHeader().setSequenceId(SEQUENCE_ID[i]);
-        ASSERT_FALSE(request.send().has_error());
+        ASSERT_FALSE(send(std::move(request)).has_error());
     }
 
     // take request and send response
@@ -204,7 +204,7 @@ TEST_F(ClientServer_test, MultipleClientsWithMatchingOptionsWorks)
         auto loanResult = server.loan(request, request->augend + request->addend);
         ASSERT_FALSE(loanResult.has_error());
         auto& response = loanResult.value();
-        ASSERT_FALSE(response.send().has_error());
+        ASSERT_FALSE(send(std::move(response)).has_error());
     }
 
     // take response
@@ -278,7 +278,7 @@ TEST_F(ClientServer_test, SlowServerDoesNotBlockClient)
         ASSERT_FALSE(loanResult.has_error());
         auto& request = loanResult.value();
         request.getRequestHeader().setSequenceId(SEQUENCE_ID + i);
-        EXPECT_FALSE(request.send().has_error());
+        EXPECT_FALSE(send(std::move(request)).has_error());
     }
 
     auto takeResult = server.take();
@@ -308,7 +308,7 @@ TEST_F(ClientServer_test, SlowClientDoesNotBlockServer)
             auto& request = loanResult.value();
             ++latestSequenceId;
             request.getRequestHeader().setSequenceId(latestSequenceId);
-            EXPECT_FALSE(request.send().has_error());
+            EXPECT_FALSE(iox::popo::send(std::move(request)).has_error());
         }
 
         // take request and send response
@@ -319,7 +319,7 @@ TEST_F(ClientServer_test, SlowClientDoesNotBlockServer)
             auto loanResult = server.loan(request);
             ASSERT_FALSE(loanResult.has_error());
             auto& response = loanResult.value();
-            ASSERT_FALSE(response.send().has_error());
+            ASSERT_FALSE(send(std::move(response)).has_error());
         }
     }
 
@@ -355,7 +355,7 @@ TEST_F(ClientServer_test, ServerTakeRequestUnblocksClientSendingRequest)
         auto sendRequest = [&]() {
             auto loanResult = client.loan();
             ASSERT_FALSE(loanResult.has_error());
-            EXPECT_FALSE(loanResult.value().send().has_error());
+            EXPECT_FALSE(send(std::move(loanResult.value())).has_error());
         };
 
         // send request till queue is full
@@ -405,7 +405,7 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
     {
         auto clientLoanResult = client.loan();
         ASSERT_FALSE(clientLoanResult.has_error());
-        EXPECT_FALSE(clientLoanResult.value().send().has_error());
+        EXPECT_FALSE(send(std::move(clientLoanResult.value())).has_error());
     }
 
     std::atomic_bool wasResponseSent{false};
@@ -418,7 +418,7 @@ TEST_F(ClientServer_test, ClientTakesResponseUnblocksServerSendingResponse)
             ASSERT_FALSE(takeResult.has_error());
             auto loanResult = server.loan(takeResult.value());
             ASSERT_FALSE(loanResult.has_error());
-            EXPECT_FALSE(loanResult.value().send().has_error());
+            EXPECT_FALSE(send(std::move(loanResult.value())).has_error());
         };
 
         for (uint64_t i = 0; i < clientOptions.responseQueueCapacity; ++i)

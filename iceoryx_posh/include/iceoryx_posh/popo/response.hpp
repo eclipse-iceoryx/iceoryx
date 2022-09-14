@@ -43,10 +43,10 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
     using BaseType =
         SmartChunk<RpcInterface<Response<T>, ServerSendError>, T, cxx::add_const_conditionally_t<ResponseHeader, T>>;
 
+  public:
     template <typename S, typename TT>
     using ForServerOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
-  public:
     /// @brief Constructor for a Response used by the server/client
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer (for server only) is a reference to the server to be able to use server specific methods
@@ -56,7 +56,9 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
     /// release ownership to it.
     /// @details Only available for server (non-const type T)
     template <typename S = T, typename = ForServerOnly<S, T>>
-    cxx::expected<ServerSendError> send() noexcept;
+    [[deprecated("in 3.0, removed in 4.0, use the free function send(Response&& responseToSend )")]] cxx::expected<
+        ServerSendError>
+    send() noexcept;
 
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.
@@ -65,6 +67,13 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.
     const ResponseHeader& getResponseHeader() const noexcept;
+
+  private:
+    template <typename T_, typename, typename>
+    friend cxx::expected<ServerSendError> send(Response<T_>&& responseToSend) noexcept;
+
+    template <typename S = T, typename = ForServerOnly<S, T>>
+    cxx::expected<ServerSendError> sendResponse() noexcept;
 
   private:
     template <typename, typename, typename>
@@ -76,6 +85,12 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
 
     using BaseType::m_members;
 };
+
+/// @brief Function which sends a response
+/// @param[in] responseToSend takes ownership and sends response
+/// @return on failure a ServerSendError which describes the error
+template <typename T, typename S = T, typename = typename Response<T>::template ForServerOnly<S, T>>
+cxx::expected<ServerSendError> send(Response<T>&& responseToSend) noexcept;
 } // namespace popo
 } // namespace iox
 

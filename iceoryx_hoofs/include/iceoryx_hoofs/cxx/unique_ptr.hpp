@@ -43,7 +43,7 @@ class unique_ptr
     /// @param ptr The raw pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T& ptr, const function<void(T&)>& deleter) noexcept;
+    unique_ptr(T& ptr, const function<void(T*)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -101,8 +101,11 @@ class unique_ptr
     void swap(unique_ptr& other) noexcept;
 
   private:
+    void destroy() noexcept;
+
+  private:
     T* m_ptr = nullptr;
-    function<void(T&)> m_deleter;
+    function<void(T*)> m_deleter;
 };
 
 template <typename T, typename U>

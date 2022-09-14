@@ -57,7 +57,16 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
     /// release ownership to it.
     /// @details Only available for non-const type T.
     template <typename S = T, typename = ForPublisherOnly<S, T>>
-    void publish() noexcept;
+    [[deprecated("in 3.0, removed in 4.0, use the free function publish(Sample&& sampleToPublish ) or publish(Sample&& "
+                 "sampleToPublish)")]] void
+    publish() noexcept;
+
+  private:
+    template <typename T_, typename H_, typename, typename>
+    friend void publish(Sample<T_, H_>&& sampleToPublish) noexcept;
+
+    template <typename S = T, typename = ForPublisherOnly<S, T>>
+    void publishSample() noexcept;
 
   private:
     template <typename, typename, typename>
@@ -70,6 +79,10 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
     using BaseType::m_members;
 };
 
+/// @brief Function which publishes a sample
+/// @param[in] sampleToPublish takes ownership and publishes the sample
+template <typename T, typename H, typename S = T, typename = typename Sample<T, H>::template ForPublisherOnly<S, T>>
+void publish(Sample<T, H>&& sampleToPublish) noexcept;
 } // namespace popo
 } // namespace iox
 

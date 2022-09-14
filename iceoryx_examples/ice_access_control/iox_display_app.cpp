@@ -46,7 +46,7 @@ int main()
                 sample->y = 2 * takeResult.value()->y;
                 sample->z = 2 * takeResult.value()->z;
                 std::cout << APP_NAME << " sending value: " << takeResult.value()->x << std::endl;
-                sample.publish();
+                publish(std::move(sample));
             });
         }
         else

@@ -89,7 +89,7 @@ int main()
                 handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
                 //! [fill vectors]
 
-                sample.publish();
+                publish(std::move(sample));
             })
             .or_else([](auto& error) {
                 // do something with error

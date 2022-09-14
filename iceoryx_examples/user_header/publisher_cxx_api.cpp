@@ -51,7 +51,7 @@ int main()
             .and_then([&](auto& sample) {
                 //! [loan was successful]
                 sample.getUserHeader().publisherTimestamp = timestamp;
-                sample.publish();
+                publish(std::move(sample));
 
                 std::cout << APP_NAME << " sent data: " << fibonacciCurrent << " with timestamp " << timestamp << "ms"
                           << std::endl;

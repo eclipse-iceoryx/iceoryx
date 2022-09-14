@@ -134,12 +134,6 @@ class SmartChunk
     const T& operator*() const noexcept;
 
     ///
-    /// @brief Indicates whether the smartChunk is valid, i.e. refers to allocated memory.
-    /// @return true if the smartChunk is valid, false otherwise.
-    ///
-    explicit operator bool() const noexcept;
-
-    ///
     /// @brief Mutable access to the encapsulated type loaned to the smartChunk.
     /// @return a pointer to the encapsulated type.
     ///
@@ -179,7 +173,7 @@ class SmartChunk
 
     /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
-    T* release() noexcept;
+    static T* release(SmartChunk&& releasedChunk) noexcept;
 
 
   protected:

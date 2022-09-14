@@ -136,7 +136,7 @@ void publishAndExpectReceivedData(const std::unique_ptr<iox::popo::Publisher<T>>
     ASSERT_FALSE(pub->loan()
                      .and_then([&](auto& sample) {
                          *sample = data;
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -164,7 +164,7 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
     ASSERT_FALSE(publisher->loan()
                      .and_then([&](auto& sample) {
                          *sample = TRANSMISSION_DATA;
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -296,7 +296,7 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
         ASSERT_FALSE(publisher->loan()
                          .and_then([&](auto& sample) {
                              *sample = TRANSMISSION_DATA;
-                             sample.publish();
+                             publish(std::move(sample));
                          })
                          .has_error());
 
@@ -331,7 +331,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_lis
                          sample->someNumber = 123;
                          sample->complexType.push_front("world");
                          sample->complexType.push_front("hello");
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -362,7 +362,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_list)
                          sample->complexType.push_front(77);
                          sample->complexType.push_front(66);
                          sample->complexType.push_front(55);
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -395,7 +395,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
                          sample->complexType.push_front(177);
                          sample->complexType.push_front(nullopt);
                          sample->complexType.push_front(155);
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -429,7 +429,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
                          {
                              sample->complexType.push(i + 123U);
                          }
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -461,7 +461,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_string)
                      .and_then([](auto& sample) {
                          sample->someNumber = 123;
                          sample->complexType = "You're my Heart, You're my Seal!";
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -488,7 +488,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
                          sample->complexType.emplace_back("Don't stop the hypnotoad");
                          sample->complexType.emplace_back("Be like hypnotoad");
                          sample->complexType.emplace_back("Piep, piep little satellite");
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 
@@ -518,7 +518,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
                          sample->complexType.emplace_back(in_place_index<0>(), "Be aware! Bob is a vampire!");
                          sample->complexType.emplace_back(in_place_index<1>(), 1337);
                          sample->complexType.emplace_back(in_place_index<0>(), "Bob is an acronym for Bob Only Bob");
-                         sample.publish();
+                         publish(std::move(sample));
                      })
                      .has_error());
 

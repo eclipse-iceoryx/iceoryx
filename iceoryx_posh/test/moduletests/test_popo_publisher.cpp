@@ -270,7 +270,7 @@ TEST_F(PublisherTest, PublishingSendsUnderlyingMemoryChunkOnPublisherPort)
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
-    sut.loan().and_then([](auto& sample) { sample.publish(); });
+    sut.loan().and_then([](auto& sample) { publish(std::move(sample)); });
     // ===== Verify ===== //
     // ===== Cleanup ===== //
 }

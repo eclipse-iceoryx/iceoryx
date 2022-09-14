@@ -47,8 +47,9 @@ int main()
                 .and_then([&](auto& response) {
                     response->sum = request->augend + request->addend;
                     std::cout << APP_NAME << " Send Response: " << response->sum << std::endl;
-                    response.send().or_else(
-                        [&](auto& error) { std::cout << "Could not send Response! Error: " << error << std::endl; });
+                    send(std::move(response)).or_else([&](auto& error) {
+                        std::cout << "Could not send Response! Error: " << error << std::endl;
+                    });
                 })
                 .or_else([&](auto& error) {
                     std::cout << APP_NAME << "Could not allocate Response! Error: " << error << std::endl;

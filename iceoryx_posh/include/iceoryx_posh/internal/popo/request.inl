@@ -27,16 +27,20 @@ template <typename T>
 template <typename S, typename>
 inline cxx::expected<ClientSendError> Request<T>::send() noexcept
 {
-    if (BaseType::m_members.smartChunkUniquePtr)
-    {
-        return BaseType::m_members.producerRef.get().send(std::move(*(this)));
-    }
-    else
-    {
-        LogError() << "Tried to send empty Request! Might be an already sent or moved Request!";
-        errorHandler(PoshError::POSH__SENDING_EMPTY_REQUEST, ErrorLevel::MODERATE);
-        return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
-    }
+    return BaseType::m_members.producerRef.get().send(std::move(*(this)));
+}
+
+template <typename T>
+template <typename S, typename>
+inline cxx::expected<ClientSendError> Request<T>::sendRequest() noexcept
+{
+    return BaseType::m_members.producerRef.get().send(std::move(*(this)));
+}
+
+template <typename T, typename S, typename>
+cxx::expected<ClientSendError> send(Request<T>&& requestToSend) noexcept
+{
+    return requestToSend.sendRequest();
 }
 
 template <typename T>

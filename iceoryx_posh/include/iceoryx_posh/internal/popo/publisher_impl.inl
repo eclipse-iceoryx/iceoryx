@@ -54,7 +54,7 @@ inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::pu
 
     return loanSample().and_then([&](auto& sample) {
         c(sample.get(), std::forward<ArgTypes>(args)...);
-        sample.publish();
+        publish(std::move(sample));
     });
 }
 
@@ -63,7 +63,7 @@ inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::pu
 {
     return loanSample().and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
-        sample.publish();
+        publish(std::move(sample));
     });
 }
 
@@ -86,7 +86,8 @@ inline cxx::expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePubl
 template <typename T, typename H, typename BasePublisherType>
 inline void PublisherImpl<T, H, BasePublisherType>::publish(Sample<T, H>&& sample) noexcept
 {
-    auto userPayload = sample.release(); // release the Samples ownership of the chunk before publishing
+    auto userPayload =
+        Sample<T, H>::release(std::move(sample)); // release the Samples ownership of the chunk before publishing
     auto chunkHeader = mepoo::ChunkHeader::fromUserPayload(userPayload);
     port().sendChunk(chunkHeader);
 }
@@ -95,7 +96,7 @@ template <typename T, typename H, typename BasePublisherType>
 inline Sample<T, H>
 PublisherImpl<T, H, BasePublisherType>::convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept
 {
-    return Sample<T, H>(cxx::unique_ptr<T>(reinterpret_cast<T*>(header->userPayload()),
+    return Sample<T, H>(cxx::unique_ptr<T>(*reinterpret_cast<T*>(header->userPayload()),
                                            [this](auto* userPayload) {
                                                auto chunkHeader = iox::mepoo::ChunkHeader::fromUserPayload(userPayload);
                                                this->port().releaseChunk(chunkHeader);

@@ -25,17 +25,22 @@ namespace popo
 {
 template <typename T, typename H>
 template <typename S, typename>
-void Sample<T, H>::publish() noexcept
+inline void Sample<T, H>::publish() noexcept
 {
-    if (BaseType::m_members.smartChunkUniquePtr)
-    {
-        BaseType::m_members.producerRef.get().publish(std::move(*(this)));
-    }
-    else
-    {
-        LogError() << "Tried to publish empty Sample! Might be an already published or moved Sample!";
-        errorHandler(PoshError::POSH__PUBLISHING_EMPTY_SAMPLE, ErrorLevel::MODERATE);
-    }
+    BaseType::m_members.producerRef.get().publish(std::move(*(this)));
+}
+
+template <typename T, typename H>
+template <typename S, typename>
+inline void Sample<T, H>::publishSample() noexcept
+{
+    BaseType::m_members.producerRef.get().publish(std::move(*(this)));
+}
+
+template <typename T, typename H, typename S, typename>
+inline void publish(Sample<T, H>&& sampleToPublish) noexcept
+{
+    sampleToPublish.publishSample();
 }
 } // namespace popo
 } // namespace iox

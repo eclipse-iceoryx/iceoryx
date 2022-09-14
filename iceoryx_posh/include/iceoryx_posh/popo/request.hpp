@@ -41,10 +41,10 @@ class Request
     using BaseType =
         SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, cxx::add_const_conditionally_t<RequestHeader, T>>;
 
+  public:
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
 
-  public:
     /// @brief Constructor for a Request used by the server/client
     /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
     /// @param producer (for client only) is a reference to the client to be able to use client specific methods
@@ -54,7 +54,9 @@ class Request
     /// release ownership to it.
     /// @details Only available for client (non-const type T)
     template <typename S = T, typename = ForClientOnly<S, T>>
-    cxx::expected<ClientSendError> send() noexcept;
+    [[deprecated(
+        "in 3.0, removed in 4.0, use the free function send(Request&& requestToSend )")]] cxx::expected<ClientSendError>
+    send() noexcept;
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.
@@ -63,6 +65,13 @@ class Request
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.
     const RequestHeader& getRequestHeader() const noexcept;
+
+  private:
+    template <typename T_, typename, typename>
+    friend cxx::expected<ClientSendError> send(Request<T_>&& requestToSend) noexcept;
+
+    template <typename S = T, typename = ForClientOnly<S, T>>
+    cxx::expected<ClientSendError> sendRequest() noexcept;
 
   private:
     template <typename, typename, typename>
@@ -74,6 +83,12 @@ class Request
 
     using BaseType::m_members;
 };
+
+/// @brief Function which sends a request
+/// @param[in] requestToSend takes ownership and sends request
+/// @return on failure a ClientSendError which describes the error
+template <typename T, typename S = T, typename = typename Request<T>::template ForClientOnly<S, T>>
+cxx::expected<ClientSendError> send(Request<T>&& requestToSend) noexcept;
 } // namespace popo
 } // namespace iox
 

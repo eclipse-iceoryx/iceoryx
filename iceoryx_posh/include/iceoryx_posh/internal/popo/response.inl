@@ -27,16 +27,20 @@ template <typename T>
 template <typename S, typename>
 inline cxx::expected<ServerSendError> Response<T>::send() noexcept
 {
-    if (BaseType::m_members.smartChunkUniquePtr)
-    {
-        return BaseType::m_members.producerRef.get().send(std::move(*(this)));
-    }
-    else
-    {
-        LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
-        errorHandler(PoshError::POSH__SENDING_EMPTY_RESPONSE, ErrorLevel::MODERATE);
-        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
-    }
+    return BaseType::m_members.producerRef.get().send(std::move(*(this)));
+}
+
+template <typename T>
+template <typename S, typename>
+inline cxx::expected<ServerSendError> Response<T>::sendResponse() noexcept
+{
+    return BaseType::m_members.producerRef.get().send(std::move(*(this)));
+}
+
+template <typename T, typename S, typename>
+cxx::expected<ServerSendError> send(Response<T>&& responseToSend) noexcept
+{
+    return responseToSend.sendResponse();
 }
 
 template <typename T>

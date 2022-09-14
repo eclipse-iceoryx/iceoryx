@@ -47,7 +47,7 @@ int main()
                 }
                 //! [vector emplace_back]
 
-                sample.publish();
+                publish(std::move(sample));
             })
             .or_else([](auto& error) {
                 // do something with error

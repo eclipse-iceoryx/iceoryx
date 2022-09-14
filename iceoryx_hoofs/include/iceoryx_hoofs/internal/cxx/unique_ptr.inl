@@ -25,8 +25,8 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-inline unique_ptr<T>::unique_ptr(T& ptr, const function<void(T&)>& deleter) noexcept
-    : m_ptr(ptr)
+inline unique_ptr<T>::unique_ptr(T& ptr, const function<void(T*)>& deleter) noexcept
+    : m_ptr(&ptr)
     , m_deleter(std::move(deleter))
 {
 }
@@ -36,8 +36,11 @@ inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 {
     if (this != &rhs)
     {
-        reset(rhs.release());
+        destroy();
+        m_ptr = std::move(rhs.m_ptr);
         m_deleter = std::move(rhs.m_deleter);
+
+        rhs.m_ptr = nullptr;
     }
     return *this;
 }
@@ -51,7 +54,7 @@ inline unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
 template <typename T>
 inline unique_ptr<T>::~unique_ptr() noexcept
 {
-    reset();
+    destroy();
 }
 
 template <typename T>
@@ -94,11 +97,19 @@ inline T* unique_ptr<T>::release(unique_ptr<T>&& releasedPtr) noexcept
 template <typename T>
 inline void unique_ptr<T>::reset(T& ptr) noexcept
 {
-    if (m_ptr && m_deleter)
-    {
-        m_deleter(*m_ptr);
-    }
+    destroy();
     m_ptr = &ptr;
+}
+
+template <typename T>
+inline void unique_ptr<T>::destroy() noexcept
+{
+    if (m_deleter)
+    {
+        m_deleter(m_ptr);
+    }
+
+    m_ptr = nullptr;
 }
 
 template <typename T>

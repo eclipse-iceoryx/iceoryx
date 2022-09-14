@@ -51,8 +51,9 @@ int main()
                 request->augend = fibonacciLast;
                 request->addend = fibonacciCurrent;
                 std::cout << APP_NAME << " Send Request: " << fibonacciLast << " + " << fibonacciCurrent << std::endl;
-                request.send().or_else(
-                    [&](auto& error) { std::cout << "Could not send Request! Error: " << error << std::endl; });
+                send(std::move(request)).or_else([&](auto& error) {
+                    std::cout << "Could not send Request! Error: " << error << std::endl;
+                });
             })
             .or_else([](auto& error) { std::cout << "Could not allocate Request! Error: " << error << std::endl; });
         //! [send request]

@@ -82,12 +82,6 @@ inline const T& SmartChunk<TransmissionInterface, T, H>::operator*() const noexc
 }
 
 template <typename TransmissionInterface, typename T, typename H>
-inline SmartChunk<TransmissionInterface, T, H>::operator bool() const noexcept
-{
-    return m_members.smartChunkUniquePtr.operator bool();
-}
-
-template <typename TransmissionInterface, typename T, typename H>
 inline T* SmartChunk<TransmissionInterface, T, H>::get() noexcept
 {
     return m_members.smartChunkUniquePtr.get();
@@ -127,9 +121,9 @@ inline const R& SmartChunk<TransmissionInterface, T, H>::getUserHeader() const n
 }
 
 template <typename TransmissionInterface, typename T, typename H>
-inline T* SmartChunk<TransmissionInterface, T, H>::release() noexcept
+inline T* SmartChunk<TransmissionInterface, T, H>::release(SmartChunk&& releasedChunk) noexcept
 {
-    return m_members.smartChunkUniquePtr.release();
+    return cxx::unique_ptr<T>::release(std::move(releasedChunk.m_members.smartChunkUniquePtr));
 }
 
 } // namespace popo
