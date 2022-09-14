@@ -252,6 +252,17 @@ uuid.uuid4()
 uuidgen -r
 ```
 
+In rare cases you may want to exclude a GoogleTest case from the execution (e.g. sporadic failures).
+When doing that you need to add a macro call right after the Test ID:
+
+```cpp
+::testing::Test::RecordProperty("TEST_ID", "12345678-9ab-cdef-fedc-1234567890ac");
+GTEST_SKIP() << "todo iox-#1234 Enable test once the API is supported";
+```
+
+A technical reason and a valid ticket number is needed to track the re-enabling (or removing)
+of the test.
+
 ### Integration tests
 
 Integration tests test the interaction of several classes. They are optional for new code.
