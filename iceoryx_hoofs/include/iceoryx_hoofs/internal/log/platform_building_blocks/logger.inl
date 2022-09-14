@@ -40,6 +40,8 @@ inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {
+    /// @todo iox-#1345 use the PolymorphicHandler for the handling with the logger exchange once available
+
     // NOLINTJUSTIFICATION needed for the functionality
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     thread_local static Logger* logger = &Logger::activeLogger();
