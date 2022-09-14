@@ -49,7 +49,7 @@
 - Pass `CleanupCapacity` to underlying `cxx::function` in `ScopeGuard` (formerly known as `cxx::GenericRAII`) [\#1594](https://github.com/eclipse-iceoryx/iceoryx/issues/1594)
 - Add check in `RelativePointer::get` to avoid `nullptr` dereferencing [\#1596](https://github.com/eclipse-iceoryx/iceoryx/issues/1596)
 - iceoryx_posh_testing cannot find iceoryx_hoofs_testing in CMake [\#1602](https://github.com/eclipse-iceoryx/iceoryx/issues/1602)
-- locking_policy.cpp calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
+- `locking_policy.cpp` calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
 
 **Refactoring:**
 
@@ -84,6 +84,7 @@
 - Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
+- The classes `unique_ptr`, `SmartChunk`, `Sample`, `Request` and `Response` are no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 
 **Workflow:**
 
@@ -399,4 +400,105 @@
 
     // after
     #include "iceoryx_platform/some_header.hpp"
+    ```
+
+22. The classes `unique_ptr`, `SmartChunk`, `Sample`, `Request`, `Response` are no longer nullable.
+    Example only for `unique_ptr` since the API is identical in all classes.
+
+    ```cxx
+    // before
+    cxx::unique_ptr<MyType> myPtr = cxx::unique_ptr<MyType>(pointerToMyType, deleterForMyType);
+    cxx::unique_ptr<MyType> nullableMyPtr = cxx::unique_ptr<MyType>(nullptr, deleterForMyType);
+
+    if ( myPtr ) {          // will be no longer required since the class is not nullable
+        myPtr->doStuff();
+    }
+
+    // after
+    // dereference pointerToMyType to ensure that it can never be nullptr
+    cxx::unique_ptr<MyType> myPtr = cxx::unique_ptr<MyType>(*pointerToMyType, deleterForMyType);
+    // if it shall be nullable use the cxx::optional
+    cxx::optional<cxx::unique_ptr<MyType>> nullableMyPtr = cxx::nullopt;
+
+    myPtr->doStuff(); // myPtr can be accessed directly since it is not nullable
+    ```
+
+23. `unique_ptr::release` consumes the pointer.
+
+    ```cxx
+    // before
+    auto rawPtr = myUniquePtr.release();
+
+    if ( myUniquePtr ) { // still required a check since it is nullable
+        // do stuff
+    }
+
+    // after
+    auto rawPtr = cxx::unique_ptr<MyType>::release(std::move(myUniquePtr));
+
+    myUniquePtr->doStuff(); // will lead to use after move warning at compile-time in clang-tidy, gcc and clang
+                            // behavior is defined as dereferencing a nullptr
+    ```
+
+24. `Sample::publish` is deprecated, use free function `publish` which consumes sample.
+
+    ```cxx
+    // before
+    auto mySample = myPublisher.loan().value();
+    // do stuff
+    if ( mySample ) { // required since mySample is nullable
+        mySample->data = 1234;
+        mySample.publish();
+        mySample.publish(); // second publish will cause call to error handler
+    }
+
+    // after
+    auto mySample = myPublisher.load().value();
+    // do stuff
+    mySample->data = 1234;
+    publish(std::move(mySample));
+
+    // another access will lead to use after move warning at compile-time on clang-tidy, gcc and clang
+    // behavior is defined as dereferencing a nullptr
+    mySample->data = 456;
+    ```
+
+25. `Request::send` and `Response::send` are deprecated, use free function `send` which consomes the `Request`/`Response`.
+
+    ```cxx
+    // before
+    //// client side
+    auto request = client.loan().value();
+    // do stuff
+    if ( request ) { // required since request is nullable
+        request->data = 1234;
+        request.send();
+        request.send(); // second send will cause call to error handler
+    }
+
+    //// server side
+    auto request = server.take().value();
+    auto response = server.loan(request).value();
+    // do stuff
+    if ( response ) { // required since response is nullable
+        response->data = 4567;
+        response.send();
+        response.send(); // second send will cause call to error handler
+    }
+
+    // after
+    //// client side
+    auto request = client.loan().value();
+    // do stuff
+    request->data = 1234;
+    send(std::move(request));
+    send(std::move(request)); // second send will cause use after move warning at compile-time
+
+    //// server side
+    auto request = server.take().value();
+    auto response = server.loan(request).value();
+    // do stuff
+    response->data = 4567;
+    send(std::move(response));
+    send(std::move(response)); // second send will cause use after move warning at compile-time
     ```
