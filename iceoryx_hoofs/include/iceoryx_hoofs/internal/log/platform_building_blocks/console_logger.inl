@@ -52,10 +52,13 @@ inline void ConsoleLogger::logHex(const T value) noexcept
 template <typename T>
 inline void ConsoleLogger::logArithmetic(const T value, const char* format) noexcept
 {
-    auto retVal =
-        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        snprintf(&m_buffer[m_bufferWriteIndex], NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex, format, value);
+    auto& data = getThreadLocalData();
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
+                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
+                           format,
+                           value);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
@@ -65,17 +68,17 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
     }
 
     auto stringSizeToLog = static_cast<uint32_t>(retVal);
-    auto bufferWriteIndexNext = m_bufferWriteIndex + stringSizeToLog;
-    if (bufferWriteIndexNext <= BUFFER_SIZE)
+    auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
+    if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
     {
-        m_bufferWriteIndex = bufferWriteIndexNext;
+        data.bufferWriteIndex = bufferWriteIndexNext;
     }
     else
     {
         /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
         /// that the log buffer will be truncated;
         /// it is intended to flush the buffer and create a new log message later on
-        m_bufferWriteIndex = BUFFER_SIZE;
+        data.bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;
     }
 }
 
