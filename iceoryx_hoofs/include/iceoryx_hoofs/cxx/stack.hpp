@@ -32,7 +32,7 @@ namespace cxx
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
 template <typename T, uint64_t Capacity>
-class stack final // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member-init)
+class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 {
   public:
     stack() noexcept = default;
@@ -53,6 +53,9 @@ class stack final // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member
     template <typename... Targs>
     bool push(Targs&&... args) noexcept;
 
+    /// @brief calls the destructor of all contained elements in reverse creation order
+    void clear() noexcept;
+
     /// @brief returns the stack size
     uint64_t size() const noexcept;
 
@@ -62,6 +65,8 @@ class stack final // NOLINT (cppcoreguidelines-pro-type-member-init,hicpp-member
   private:
     T& getUnchecked(const uint64_t index) noexcept;
     const T& getUnchecked(const uint64_t index) const noexcept;
+
+    void clearUntil(const uint64_t index) noexcept;
 
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
     // the stack class

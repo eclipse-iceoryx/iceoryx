@@ -61,10 +61,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexc
             new (&m_data[i]) T(rhs.getUnchecked(i));
         }
         // delete remaining elements
-        for (; i < m_size; i++)
-        {
-            getUnchecked(i).~T();
-        }
+        clearUntil(i);
 
         m_size = rhsSize;
     }
@@ -92,19 +89,10 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
             new (&m_data[i]) T(std::move(rhs.getUnchecked(i)));
         }
         // delete remaining elements
-        for (; i < m_size; i++)
-        {
-            getUnchecked(i).~T();
-        }
+        clearUntil(i);
 
         m_size = rhsSize;
-
-        // clear rhs
-        for (uint64_t j{0}; j < rhsSize; j++)
-        {
-            getUnchecked(j).~T();
-        }
-        rhs.m_size = 0;
+        rhs.clear();
     }
     return *this;
 }
@@ -112,10 +100,7 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::~stack() noexcept
 {
-    for (uint64_t i{0}; i < m_size; i++)
-    {
-        getUnchecked(i).~T();
-    }
+    clear();
 }
 
 template <typename T, uint64_t Capacity>
@@ -160,6 +145,21 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
 
     new (&m_data[m_size++]) T(std::forward<Targs>(args)...);
     return true;
+}
+
+template <typename T, uint64_t Capacity>
+inline void stack<T, Capacity>::clear() noexcept
+{
+    clearUntil(0);
+}
+
+template <typename T, uint64_t Capacity>
+inline void stack<T, Capacity>::clearUntil(const uint64_t index) noexcept
+{
+    while (m_size > index)
+    {
+        getUnchecked(--m_size).~T();
+    }
 }
 
 template <typename T, uint64_t Capacity>

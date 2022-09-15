@@ -17,10 +17,28 @@
 #include "iceoryx_hoofs/cxx/stack.hpp"
 #include "test.hpp"
 
+#include <vector>
+
 namespace
 {
 using namespace iox;
 using namespace ::testing;
+
+struct CompareOrder
+{
+    /// NOLINTJUSTIFICATION only used in this test case
+    /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
+    CompareOrder(uint32_t a, uint32_t b, uint32_t c) noexcept
+        : a(a)
+        , b(b)
+        , c(c)
+    {
+    }
+
+    uint32_t a;
+    uint32_t b;
+    uint32_t c;
+};
 
 class TestClass
 {
@@ -30,6 +48,7 @@ class TestClass
     static uint32_t copyAssignment;
     static uint32_t moveAssignment;
     static uint32_t dTor;
+    static std::vector<CompareOrder> dTorOrder;
 
     TestClass() noexcept = default;
     /// NOLINTJUSTIFICATION only used in this test case
@@ -80,12 +99,19 @@ class TestClass
     ~TestClass() noexcept
     {
         dTor++;
+        dTorOrder.emplace_back(m_a, m_b, m_c);
     }
 
     bool operator==(const TestClass& rhs) const noexcept
     {
         return m_a == rhs.m_a && m_b == rhs.m_b && m_c == rhs.m_c;
     }
+
+    bool operator==(const CompareOrder& rhs) const noexcept
+    {
+        return m_a == rhs.a && m_b == rhs.b && m_c == rhs.c;
+    }
+
     uint32_t m_a = 0, m_b = 0, m_c = 0;
 };
 
@@ -94,6 +120,8 @@ uint32_t TestClass::moveCTor;
 uint32_t TestClass::copyAssignment;
 uint32_t TestClass::moveAssignment;
 uint32_t TestClass::dTor;
+
+std::vector<CompareOrder> TestClass::dTorOrder;
 
 class stack_test : public Test
 {
@@ -118,6 +146,7 @@ class stack_test : public Test
         TestClass::copyAssignment = 0;
         TestClass::moveAssignment = 0;
         TestClass::dTor = 0;
+        TestClass::dTorOrder.clear();
     }
 };
 
@@ -193,6 +222,24 @@ TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
         EXPECT_THAT(TestClass::dTor, Eq(0));
     }
     EXPECT_THAT(TestClass::dTor, Eq(2));
+}
+
+TEST_F(stack_test, StackDestroysElementsInReverseOrder)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fb38b063-4921-46ae-bdf2-922f49a9ab41");
+    {
+        cxx::stack<TestClass, STACK_SIZE> sut;
+        for (uint32_t i{0}; i < STACK_SIZE; ++i)
+        {
+            sut.push(i + 3, i + 1, i + 2);
+        }
+    }
+    EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
+    ASSERT_THAT(TestClass::dTorOrder.size(), Eq(STACK_SIZE));
+    for (uint32_t i{0}; i < STACK_SIZE; ++i)
+    {
+        EXPECT_THAT(TestClass(i + 3, i + 1, i + 2), Eq(TestClass::dTorOrder[STACK_SIZE - 1 - i]));
+    }
 }
 
 TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
