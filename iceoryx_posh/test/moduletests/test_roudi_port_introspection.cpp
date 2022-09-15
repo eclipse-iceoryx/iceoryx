@@ -449,9 +449,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 }
 
 
-TEST_F(PortIntrospection_test, DISABLED_thread)
+TEST_F(PortIntrospection_test, Thread)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ae5b252d-0060-4bb7-a193-0c2ae0ebbb7a");
+    GTEST_SKIP() << "todo iox-#518 This test is disabled until further refactoring";
     using PortData = iox::roudi::PortIntrospectionFieldTopic;
     auto chunkPortData = std::unique_ptr<ChunkMock<PortData>>(new ChunkMock<PortData>);
 
@@ -467,8 +468,8 @@ TEST_F(PortIntrospection_test, DISABLED_thread)
     using namespace iox::units::duration_literals;
     m_introspectionAccess.setSendInterval(10_ms);
     m_introspectionAccess.run();
-    /// @todo this time can be reduced when the sleep mechanism of the port introspection thread is replace by a trigger
-    /// queue
+    /// @todo iox-#518 this time can be reduced when the sleep mechanism of the port introspection thread is replace by
+    /// a trigger queue
     std::this_thread::sleep_for(std::chrono::milliseconds(555)); // within this time, the thread should have run 6 times
     m_introspectionAccess.stop();
     std::this_thread::sleep_for(

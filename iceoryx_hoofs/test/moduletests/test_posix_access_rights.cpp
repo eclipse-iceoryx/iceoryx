@@ -66,11 +66,4 @@ class PosixAccessRights_test : public Test
 };
 
 
-TEST_F(PosixAccessRights_test, DISABLED_testGroups)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2d367d91-8ef3-41d9-b0b5-ff1068a7d59e");
-    std::string bla;
-    std::getline(fileStream, bla, ' ');
-    EXPECT_TRUE(false);
-}
 } // namespace

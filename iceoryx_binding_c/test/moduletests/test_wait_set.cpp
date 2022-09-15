@@ -172,10 +172,10 @@ void serviceDiscoveryCallbackWithContextData(iox_service_discovery_t serviceDisc
 
 } // namespace
 
-/// @todo iox-#1106 will be enabled when worked on this issue
-TEST_F(iox_ws_test, DISABLED_InitWaitSetWithNullptrForStorageReturnsNullptr)
+TEST_F(iox_ws_test, InitWaitSetWithNullptrForStorageReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0f6b413-de1f-441f-916e-aa158fbfdde3");
+    GTEST_SKIP() << "todo iox-#1106 Enable once nullptr in binding_c is implemented";
     EXPECT_EQ(iox_ws_init(nullptr), nullptr);
 }
 

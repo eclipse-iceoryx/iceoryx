@@ -16,7 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "test.hpp"
+#include <ctime>
+#include <iostream>
+#include <ostream>
 
 namespace
 {
@@ -1198,16 +1202,23 @@ TEST(Duration_test, ConvertTimespecWithMonotonicReference)
     constexpr int64_t SECONDS{4};
     constexpr int64_t NANOSECONDS{66};
 
-    auto timeSinceUnixEpoch = std::chrono::system_clock::now().time_since_epoch();
-    auto timeSinceMonotonicEpoch = std::chrono::steady_clock::now().time_since_epoch();
+    struct timespec referenceTimeForMonotonicEpoch = {};
+    ASSERT_FALSE((iox::posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &referenceTimeForMonotonicEpoch)
+                      .failureReturnValue(-1)
+                      .evaluate()
+                      .has_error()));
+
+    struct timespec referenceTimeForUnixEpoch = {};
+    ASSERT_FALSE((iox::posix::posixCall(clock_gettime)(CLOCK_REALTIME, &referenceTimeForUnixEpoch)
+                      .failureReturnValue(-1)
+                      .evaluate()
+                      .has_error()));
 
     auto duration = createDuration(SECONDS, NANOSECONDS);
     const timespec sut = duration.timespec(iox::units::TimeSpecReference::Monotonic);
 
-    auto secondsSinceUnixEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceUnixEpoch).count();
-    auto secondsSinceMonotonicEpoch = std::chrono::duration_cast<std::chrono::seconds>(timeSinceMonotonicEpoch).count();
-    EXPECT_THAT(sut.tv_sec, Lt(secondsSinceUnixEpoch));
-    EXPECT_THAT(sut.tv_sec, Gt(secondsSinceMonotonicEpoch));
+    EXPECT_THAT(sut.tv_sec, Lt(referenceTimeForUnixEpoch.tv_sec));
+    EXPECT_THAT(sut.tv_sec, Gt(referenceTimeForMonotonicEpoch.tv_sec));
 }
 
 TEST(Duration_test, ConvertTimespecWithMonotonicReferenceFromMaxDurationResultsInSaturation)

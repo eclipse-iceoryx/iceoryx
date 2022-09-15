@@ -313,9 +313,10 @@ TYPED_TEST(ChunkQueueFiFo_test, Capacity)
 }
 
 /// @note API currently not supported
-TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
+TYPED_TEST(ChunkQueueFiFo_test, SetCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2e1c144-bb55-4423-b62b-bfd8d5a64927");
+    GTEST_SKIP() << "todo iox-#615 API currently not supported";
     this->m_popper.setCapacity(this->RESIZED_CAPACITY);
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }

@@ -18,7 +18,7 @@ set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "QNX")
 set_global(VAR ICEORYX_CXX_STANDARD         VALUE 14)
 
 set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
-set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type -Wuseless-cast)
+set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type -Wno-useless-cast)
 
 if(BUILD_STRICT)
     set_global(VAR ICEORYX_C_WARNINGS       VALUE ${ICEORYX_C_WARNINGS} -Werror)
