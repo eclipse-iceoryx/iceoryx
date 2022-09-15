@@ -40,10 +40,10 @@ class unique_ptr
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
     /// @details A deleter must always be provided as no default can be provided given that no heap is used.
     /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
-    /// @param ptr The raw pointer to the object to be managed.
+    /// @param object The reference to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const ptr, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T& object, const function<void(T*)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -54,9 +54,6 @@ class unique_ptr
     /// @brief Automatically deletes the managed object on destruction.
     ///
     ~unique_ptr() noexcept;
-
-
-    unique_ptr<T>& operator=(std::nullptr_t) noexcept;
 
     ///
     /// @brief operator -> Transparent access to the managed object.
@@ -69,11 +66,6 @@ class unique_ptr
     /// @return Const pointer to the stored object
     ///
     const T* operator->() const noexcept;
-
-    ///
-    /// @brief operator bool Returns true if it points to something.
-    ///
-    explicit operator bool() const noexcept;
 
     ///
     /// @brief get Retrieve the underlying raw pointer.
@@ -93,14 +85,14 @@ class unique_ptr
     /// @brief release Release ownership of the underlying pointer.
     /// @return Pointer to the managed object or nullptr if none owned.
     ///
-    T* release() noexcept;
+    static T* release(unique_ptr&& ptrToBeReleased) noexcept;
 
     ///
     /// @brief reset Reset the unique pointer to take ownership of the given pointer.
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(T* const ptr = nullptr) noexcept;
+    void reset(T& object) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
@@ -109,9 +101,30 @@ class unique_ptr
     void swap(unique_ptr& other) noexcept;
 
   private:
+    void destroy() noexcept;
+
+  private:
     T* m_ptr = nullptr;
     function<void(T* const)> m_deleter;
 };
+
+/// @brief comparision for two distinct unique_ptr types
+/// @tparam T underlying type of lhs
+/// @tparam U underlying type of rhs
+/// @param[in] lhs left side of the comparision
+/// @param[in] rhs right side of the comparision
+/// @return true if the pointers are equal, otherwise false
+template <typename T, typename U>
+bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
+
+/// @brief inequality check for two distinct unique_ptr types
+/// @tparam T underlying type of lhs
+/// @tparam U underlying type of rhs
+/// @param[in] lhs left side of the comparision
+/// @param[in] rhs right side of the comparision
+/// @return true if the pointers are not equal, otherwise false
+template <typename T, typename U>
+bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox
