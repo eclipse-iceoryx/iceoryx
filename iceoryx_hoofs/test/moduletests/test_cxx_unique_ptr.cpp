@@ -207,6 +207,28 @@ TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
     EXPECT_TRUE(m_anotherDeleterCalled);
 }
 
+TEST_F(UniquePtrTest, SwapUniquePtrWithUniquePtrLeadsToCleanupOfBothInReverseOrder)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9017ba22-ff18-41d4-8590-ccb0d7729435");
+    {
+        auto sut = iox::cxx::unique_ptr<Position>(&object, deleter);
+        {
+            auto anotherSut = iox::cxx::unique_ptr<Position>(&anotherObject, anotherDeleter);
+
+            sut.swap(anotherSut);
+
+            // no deleter calls during swap
+            EXPECT_FALSE(m_deleterCalled);
+            EXPECT_EQ(anotherSut.get(), &object);
+        }
+        // anotherSUT is out of scope and calls its deleter, which has been swapped and is now 'deleter'
+        EXPECT_TRUE(m_deleterCalled);
+        EXPECT_FALSE(m_anotherDeleterCalled);
+    }
+    // SUT is out of scope and calling anotherDeleter
+    EXPECT_TRUE(m_anotherDeleterCalled);
+}
+
 TEST_F(UniquePtrTest, CompareAUniquePtrWithItselfIsTrue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d12f8cf6-e37e-424a-9ed5-aea580b8bdc9");
