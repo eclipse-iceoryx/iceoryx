@@ -84,6 +84,7 @@
 - Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
+- `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 
 **Workflow:**
 
@@ -399,4 +400,24 @@
 
     // after
     #include "iceoryx_platform/some_header.hpp"
+    ```
+
+22. `cxx::unique_ptr` is no longer nullable.
+
+    ```cxx
+    // before
+    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
+    cxx::unique_ptr<int> emptyPtr(nullptr, someDeleter);
+
+    myPtr.reset(ptrToOtherInt);
+    myPtr.release();
+
+
+    // after
+    cxx::unique_ptr<int> myPtr(*ptrToInt, someDeleter); // requires reference to object to ensure non nullptr
+    cxx::optional<cxx::unique_ptr<int>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
+
+    myPtr.reset(*ptrToOtherInt); // requires reference to object to ensure non nullptr
+    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
+
     ```
