@@ -90,33 +90,33 @@ inline SmartChunk<TransmissionInterface, T, H>::operator bool() const noexcept
 template <typename TransmissionInterface, typename T, typename H>
 inline T* SmartChunk<TransmissionInterface, T, H>::get() noexcept
 {
-    return m_members.smartChunkUniquePtr.get();
+    return m_members.smartChunkUniquePtr->get();
 }
 
 template <typename TransmissionInterface, typename T, typename H>
 inline const T* SmartChunk<TransmissionInterface, T, H>::get() const noexcept
 {
-    return m_members.smartChunkUniquePtr.get();
+    return m_members.smartChunkUniquePtr->get();
 }
 
 template <typename TransmissionInterface, typename T, typename H>
 inline cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>*
 SmartChunk<TransmissionInterface, T, H>::getChunkHeader() noexcept
 {
-    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get());
+    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr->get());
 }
 
 template <typename TransmissionInterface, typename T, typename H>
 inline const mepoo::ChunkHeader* SmartChunk<TransmissionInterface, T, H>::getChunkHeader() const noexcept
 {
-    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get());
+    return mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr->get());
 }
 
 template <typename TransmissionInterface, typename T, typename H>
 template <typename R, typename>
 inline cxx::add_const_conditionally_t<R, T>& SmartChunk<TransmissionInterface, T, H>::getUserHeader() noexcept
 {
-    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr.get())->userHeader());
+    return *static_cast<R*>(mepoo::ChunkHeader::fromUserPayload(m_members.smartChunkUniquePtr->get())->userHeader());
 }
 
 template <typename TransmissionInterface, typename T, typename H>
@@ -129,7 +129,9 @@ inline const R& SmartChunk<TransmissionInterface, T, H>::getUserHeader() const n
 template <typename TransmissionInterface, typename T, typename H>
 inline T* SmartChunk<TransmissionInterface, T, H>::release() noexcept
 {
-    return m_members.smartChunkUniquePtr.release();
+    auto ptr = cxx::unique_ptr<T>::release(std::move(*m_members.smartChunkUniquePtr));
+    m_members.smartChunkUniquePtr.reset();
+    return ptr;
 }
 
 } // namespace popo

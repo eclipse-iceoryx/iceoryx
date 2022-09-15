@@ -42,7 +42,7 @@ struct SmartChunkPrivateData
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::unique_ptr<T> smartChunkUniquePtr;
+    cxx::optional<cxx::unique_ptr<T>> smartChunkUniquePtr;
     std::reference_wrapper<TransmissionInterface> producerRef;
 };
 
@@ -59,7 +59,7 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::unique_ptr<const T> smartChunkUniquePtr;
+    cxx::optional<cxx::unique_ptr<const T>> smartChunkUniquePtr;
 };
 } // namespace internal
 
