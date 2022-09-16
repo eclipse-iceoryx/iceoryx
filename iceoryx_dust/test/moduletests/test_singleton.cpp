@@ -96,6 +96,7 @@ class Singleton_test : public Test
 
 TEST_F(Singleton_test, destroy)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "0de63daf-b97f-42ab-957c-ab01c59f662b");
     TestSingleton::init();
     EXPECT_TRUE(TestSingleton::isInitialized());
     TestSingleton::destroy();
@@ -106,6 +107,7 @@ TEST_F(Singleton_test, destroy)
 
 TEST_F(Singleton_test, defaultInit)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "87b41e1b-92c8-491a-b396-335aa4604455");
     EXPECT_FALSE(TestSingleton::isInitialized());
     auto& foo = TestSingleton::init();
 
@@ -116,6 +118,7 @@ TEST_F(Singleton_test, defaultInit)
 
 TEST_F(Singleton_test, initWithArguments)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "9c1c6e41-f1af-4ae0-b14d-c089936663a1");
     constexpr uint32_t VAL{73};
     EXPECT_FALSE(TestSingleton::isInitialized());
     auto& foo = TestSingleton::init(VAL);
@@ -128,6 +131,7 @@ TEST_F(Singleton_test, initWithArguments)
 
 TEST_F(Singleton_test, multiDestroyDoesCallDtorOnce)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "73aa94c1-2b11-4baf-bf3a-833f92dcc3cf");
     TestSingleton::init();
     TestSingleton::destroy();
     EXPECT_FALSE(TestSingleton::isInitialized());
@@ -139,6 +143,7 @@ TEST_F(Singleton_test, multiDestroyDoesCallDtorOnce)
 
 TEST_F(Singleton_test, reinitAfterDestroy)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "3f5558e7-7a8f-464a-b41e-662ff76a302c");
     constexpr uint32_t VAL{73};
     TestSingleton::init();
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
@@ -153,6 +158,7 @@ TEST_F(Singleton_test, reinitAfterDestroy)
 
 TEST_F(Singleton_test, nonInitDestroyDoesNotCallDtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "1a424693-60d8-4d88-acad-486d0ce3fe34");
     TestSingleton::destroy();
 
     EXPECT_FALSE(TestSingleton::isInitialized());
@@ -161,6 +167,7 @@ TEST_F(Singleton_test, nonInitDestroyDoesNotCallDtor)
 
 TEST_F(Singleton_test, nonInitInstanceCallsDefaultCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "fee1523a-3960-4326-83f6-42a0a88a4a76");
     auto& foo = TestSingleton::instance();
 
     EXPECT_TRUE(TestSingleton::isInitialized());
@@ -170,6 +177,7 @@ TEST_F(Singleton_test, nonInitInstanceCallsDefaultCtor)
 
 TEST_F(Singleton_test, initInstanceCallsNoCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "c59cd049-b6f6-4978-953a-4c39a034129c");
     constexpr uint32_t VAL{73};
     TestSingleton::init(VAL);
     EXPECT_EQ(Foo::numCtorCalls, 1);
@@ -183,6 +191,7 @@ TEST_F(Singleton_test, initInstanceCallsNoCtor)
 
 TEST_F(Singleton_test, initAfterInstanceCallsNoCtor)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "158aee30-96c9-4c80-a363-cfd325f36d30");
     constexpr uint32_t VAL{73};
     auto& foo = TestSingleton::instance();
     EXPECT_TRUE(TestSingleton::isInitialized());
@@ -197,6 +206,7 @@ TEST_F(Singleton_test, initAfterInstanceCallsNoCtor)
 
 TEST_F(Singleton_test, multiInstanceCallsDefaultCtorOnce)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a4b1829e-d7ba-4043-8fff-86156cb9cc05");
     TestSingleton::instance();
     auto& foo = TestSingleton::instance();
 
