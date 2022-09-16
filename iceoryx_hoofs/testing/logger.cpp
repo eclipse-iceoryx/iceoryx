@@ -30,7 +30,8 @@ void Logger::init() noexcept
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
     {
-        logger.m_loggerData->allowLog = pbb::equalStrings(allowLogString, "on");
+        logger.m_loggerData->allowLog =
+            pbb::equalStrings(allowLogString, "on") || pbb::equalStrings(allowLogString, "ON");
     }
     else
     {

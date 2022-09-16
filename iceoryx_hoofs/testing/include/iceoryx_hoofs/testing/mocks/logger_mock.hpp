@@ -31,6 +31,17 @@ namespace testing
 #define IOX_LOGSTREAM_MOCK(logger)                                                                                     \
     iox::log::LogStream((logger), "file", 42, "function", iox::log::LogLevel::TRACE).self()
 
+/// @brief This mock can be used to test implementations of LogStream::operator<< for custom types. It should be used
+/// with the `IOX_LOGSTREAM_MOCK` macro
+/// @code
+/// iox::testing::Logger_Mock loggerMock;
+///
+/// MyType sut;
+/// IOX_LOGSTREAM_MOCK(loggerMock) << sut;
+///
+/// ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+/// EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_STRING_REPRESENTATION);
+/// @endcode
 class Logger_Mock : public platform::TestingLoggerBase
 {
     using Base = platform::TestingLoggerBase;
@@ -38,6 +49,19 @@ class Logger_Mock : public platform::TestingLoggerBase
   public:
     Logger_Mock() noexcept = default;
 
+    struct LogEntry
+    {
+        std::string file;
+        int line{0};
+        std::string function;
+        log::LogLevel logLevel{iox::log::LogLevel::OFF};
+        std::string message;
+    };
+
+    std::vector<LogEntry> m_logs;
+
+  private:
+    /// @brief Overrides the base implementation to store the
     void createLogMessageHeader(const char* file,
                                 const int line,
                                 const char* function,
@@ -60,17 +84,6 @@ class Logger_Mock : public platform::TestingLoggerBase
         m_logs.back().message = logBuffer.buffer;
         Base::assumeFlushed();
     }
-
-    struct LogEntry
-    {
-        std::string file;
-        int line{0};
-        std::string function;
-        log::LogLevel logLevel{iox::log::LogLevel::OFF};
-        std::string message;
-    };
-
-    std::vector<LogEntry> m_logs;
 };
 
 } // namespace testing
