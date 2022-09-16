@@ -14,23 +14,31 @@ template <typename T>
 class Singleton
 {
   public:
+    static bool isInitialized()
+    {
+        return ptr().load(std::memory_order_relaxed) != nullptr;
+    }
+
     template <typename... Args>
     static void init(Args&&... args)
     {
         std::lock_guard<std::mutex> g(lock());
-        initialize(std::forward<Args>(args)...);
+        if (!isInitialized())
+        {
+            initialize(std::forward<Args>(args)...);
+        }
     }
 
-    // must be called if it is clear no one uses the singleton anymore
-    // could guard against it, but this slows down get()
+    // must ONLY be called if it is clear no one uses the singleton anymore
+    // - could guard against it with additional state,
+    //   but this slows down get() which should be fast (single load)
+    // - not an unusual requirement, applies to any concurrently used objects
     static void destroy()
     {
         std::lock_guard<std::mutex> g(lock());
-        std::cout << "destroy" << std::endl;
-        auto p = ptr().load();
+        auto p = ptr().load(std::memory_order_acquire);
         if (p)
         {
-            std::cout << "dtor" << std::endl;
             p->~T();
             ptr().store(nullptr);
         }
@@ -50,7 +58,7 @@ class Singleton
         {
             std::lock_guard<std::mutex> g(lock());
             // could have been initialized in the meantime,
-            // so we double check
+            // so we double check under lock
             auto p = ptr().load();
             if (p)
             {
@@ -58,13 +66,15 @@ class Singleton
             }
 
             p = initialize(); // lazy default initialization
-            ptr().store(std::memory_order_release);
+            ptr().store(p, std::memory_order_release);
+
+            // was initialized and stays initialized until destroy
             return *p;
         }
         return *p;
     }
 
-    // destroy only calls the dtor of T if it is was not destroyed before
+    // destroy only calls the dtor of T if it was not destroyed before
     ~Singleton()
     {
         destroy();
@@ -99,11 +109,9 @@ class Singleton
     template <typename... Args>
     static T* initialize(Args&&... args)
     {
-        std::cout << "init" << std::endl;
         static Singleton singleton; // dtor will be called later and call destroy
-        std::cout << "ctor" << std::endl;
         auto p = new (&storage()) T(std::forward<Args>(args)...);
-        ptr().store(p);
+        ptr().store(p, std::memory_order_relaxed); // memory synced by lock
         return p;
     }
 };
