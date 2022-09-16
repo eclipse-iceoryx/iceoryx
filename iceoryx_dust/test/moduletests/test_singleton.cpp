@@ -107,8 +107,9 @@ TEST_F(Singleton_test, destroy)
 TEST_F(Singleton_test, defaultInit)
 {
     EXPECT_FALSE(TestSingleton::isInitialized());
-    TestSingleton::init();
+    auto& foo = TestSingleton::init();
 
+    EXPECT_EQ(foo.value, DEFAULT_VALUE);
     EXPECT_TRUE(TestSingleton::isInitialized());
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
 }
@@ -117,10 +118,11 @@ TEST_F(Singleton_test, initWithArguments)
 {
     constexpr uint32_t VAL{73};
     EXPECT_FALSE(TestSingleton::isInitialized());
-    TestSingleton::init(VAL);
+    auto& foo = TestSingleton::init(VAL);
 
+    EXPECT_EQ(foo.value, VAL);
     EXPECT_TRUE(TestSingleton::isInitialized());
-    EXPECT_EQ(TestSingleton::get().value, VAL);
+    EXPECT_EQ(TestSingleton::instance().value, VAL);
     EXPECT_EQ(Foo::numCtorCalls, 1);
 }
 
@@ -143,7 +145,7 @@ TEST_F(Singleton_test, reinitAfterDestroy)
     TestSingleton::destroy();
     TestSingleton::init(VAL);
 
-    EXPECT_EQ(TestSingleton::get().value, VAL);
+    EXPECT_EQ(TestSingleton::instance().value, VAL);
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
     EXPECT_EQ(Foo::numCtorCalls, 1);
     EXPECT_EQ(Foo::numDtorCalls, 1);
@@ -157,21 +159,21 @@ TEST_F(Singleton_test, nonInitDestroyDoesNotCallDtor)
     EXPECT_EQ(Foo::numDtorCalls, 0);
 }
 
-TEST_F(Singleton_test, nonInitGetCallsDefaultCtor)
+TEST_F(Singleton_test, nonInitInstanceCallsDefaultCtor)
 {
-    auto& foo = TestSingleton::get();
+    auto& foo = TestSingleton::instance();
 
     EXPECT_TRUE(TestSingleton::isInitialized());
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
     EXPECT_EQ(foo.value, DEFAULT_VALUE);
 }
 
-TEST_F(Singleton_test, initGetCallsNoCtor)
+TEST_F(Singleton_test, initInstanceCallsNoCtor)
 {
     constexpr uint32_t VAL{73};
     TestSingleton::init(VAL);
     EXPECT_EQ(Foo::numCtorCalls, 1);
-    auto& foo = TestSingleton::get();
+    auto& foo = TestSingleton::instance();
 
     EXPECT_TRUE(TestSingleton::isInitialized());
     EXPECT_EQ(Foo::numCtorCalls, 1);
@@ -179,10 +181,10 @@ TEST_F(Singleton_test, initGetCallsNoCtor)
     EXPECT_EQ(foo.value, VAL);
 }
 
-TEST_F(Singleton_test, initAfterGetCallsNoCtor)
+TEST_F(Singleton_test, initAfterInstanceCallsNoCtor)
 {
     constexpr uint32_t VAL{73};
-    auto& foo = TestSingleton::get();
+    auto& foo = TestSingleton::instance();
     EXPECT_TRUE(TestSingleton::isInitialized());
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
     EXPECT_EQ(Foo::numCtorCalls, 0);
@@ -193,10 +195,10 @@ TEST_F(Singleton_test, initAfterGetCallsNoCtor)
     EXPECT_EQ(foo.value, DEFAULT_VALUE);
 }
 
-TEST_F(Singleton_test, multiGetCallsDefaultCtorOnce)
+TEST_F(Singleton_test, multiInstanceCallsDefaultCtorOnce)
 {
-    TestSingleton::get();
-    auto& foo = TestSingleton::get();
+    TestSingleton::instance();
+    auto& foo = TestSingleton::instance();
 
     EXPECT_EQ(foo.value, DEFAULT_VALUE);
     EXPECT_EQ(Foo::numDefaultCtorCalls, 1);
@@ -204,7 +206,8 @@ TEST_F(Singleton_test, multiGetCallsDefaultCtorOnce)
     EXPECT_EQ(Foo::numDtorCalls, 0);
 }
 
-// Note: automatic destruction after main cannot be checked (cannot run tests after main)
-// verify by review that destroy is called which calls the dtor unless not initialized
+// Note: automatic destruction of wrapped Foo in Singleton<Foo> after main cannot be checked
+// (cannot run tests after main)
+// verify by review that destroy is called in Singleton<Foo> dtor which calls the dtor unless not initialized
 
 } // namespace
