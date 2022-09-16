@@ -54,11 +54,11 @@ TEST_F(IoxLogStream_test, CTorDelegatesParameterToLogger)
     constexpr auto EXPECTED_LOG_LEVEL{iox::log::LogLevel::WARN};
     iox::log::LogStream(loggerMock, EXPECTED_FILE, EXPECTED_LINE, EXPECTED_FUNCTION, EXPECTED_LOG_LEVEL);
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs.back().file, StrEq(EXPECTED_FILE));
-    EXPECT_THAT(loggerMock.m_logs.back().function, StrEq(EXPECTED_FUNCTION));
-    EXPECT_THAT(loggerMock.m_logs.back().logLevel, Eq(EXPECTED_LOG_LEVEL));
-    EXPECT_THAT(loggerMock.m_logs.back().message, Eq(""));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs.back().file, StrEq(EXPECTED_FILE));
+    EXPECT_THAT(loggerMock.logs.back().function, StrEq(EXPECTED_FUNCTION));
+    EXPECT_THAT(loggerMock.logs.back().logLevel, Eq(EXPECTED_LOG_LEVEL));
+    EXPECT_THAT(loggerMock.logs.back().message, Eq(""));
 }
 
 TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
@@ -72,8 +72,8 @@ TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
 
     std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(expected));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(expected));
 }
 
 TEST_F(IoxLogStream_test, LocalLogStreamObject)
@@ -90,14 +90,14 @@ TEST_F(IoxLogStream_test, LocalLogStreamObject)
         sut << bang;
 
         // the destructor flushes the log to the logger
-        ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-        EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(""));
+        ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+        EXPECT_THAT(loggerMock.logs[0].message, StrEq(""));
     }
 
     std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs.back().message, StrEq(expected));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs.back().message, StrEq(expected));
 }
 
 TEST_F(IoxLogStream_test, StreamOperatorCharArray)
@@ -108,9 +108,9 @@ TEST_F(IoxLogStream_test, StreamOperatorCharArray)
     IOX_LOGSTREAM_SUT(loggerMock) << logValue;
     IOX_LOGSTREAM_SUT(loggerMock) << constLogValue;
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(2u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(logValue));
-    EXPECT_THAT(loggerMock.m_logs[1].message, StrEq(constLogValue));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(2u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(logValue));
+    EXPECT_THAT(loggerMock.logs[1].message, StrEq(constLogValue));
 }
 
 TEST_F(IoxLogStream_test, StreamOperatorStdString)
@@ -121,9 +121,9 @@ TEST_F(IoxLogStream_test, StreamOperatorStdString)
     IOX_LOGSTREAM_SUT(loggerMock) << logValue;
     IOX_LOGSTREAM_SUT(loggerMock) << constLogValue;
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(2u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(logValue));
-    EXPECT_THAT(loggerMock.m_logs[1].message, StrEq(constLogValue));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(2u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(logValue));
+    EXPECT_THAT(loggerMock.logs[1].message, StrEq(constLogValue));
 }
 
 TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
@@ -133,7 +133,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
     const auto logLevel = iox::log::LogLevel::WARN;
     IOX_LOGSTREAM_SUT(loggerMock) << logValue << logLevel;
 
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq("This is the iceoryx logger!LogLevel::WARN"));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("This is the iceoryx logger!LogLevel::WARN"));
 }
 
 #if 0
@@ -156,11 +156,11 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
     auto bigEndian = reinterpret_cast<volatile uint8_t*>(&endianess);
     if (*bigEndian)
     {
-        EXPECT_THAT(loggerMock.m_logs[0].message, Eq("0x[af fe de ad 00 c0 ff ee]"));
+        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[af fe de ad 00 c0 ff ee]"));
     }
     else
     {
-        EXPECT_THAT(loggerMock.m_logs[0].message, Eq("0x[fe af ad de ee ff c0 00]"));
+        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[fe af ad de ee ff c0 00]"));
     }
 }
 
@@ -198,8 +198,8 @@ void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
     std::stringstream ss;
     ss << "0x" << std::hex << +outputValue; // the '+' is to prevent to interpret the (u)int8_t as char
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(ss.str()));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(ss.str()));
 }
 
 TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogHex_ValueLow)
@@ -232,8 +232,8 @@ void testStreamOperatorLogOct(Logger_Mock& loggerMock, LogType logValue)
     std::stringstream ss;
     ss << "0o" << std::oct << +outputValue; // the '+' is to prevent to interpret the (u)int8_t as char
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(ss.str()));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(ss.str()));
 }
 
 TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueLow)
@@ -266,9 +266,9 @@ void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)
     using TestType = typename std::make_unsigned<LogType>::type;
     auto outputValue = static_cast<TestType>(logValue);
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
 
-    EXPECT_THAT(loggerMock.m_logs[0].message,
+    EXPECT_THAT(loggerMock.logs[0].message,
                 Eq("0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string()));
 }
 
@@ -339,8 +339,8 @@ void testStreamOperatorLogHexFloatingPoint(Logger_Mock& loggerMock, LogType logV
     char buffer[BUFFER_SIZE]{0};
     snprintf(buffer, BUFFER_SIZE - 1, floatingPointFormatSpecifier<LogType>(), logValue);
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(buffer));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(buffer));
 }
 
 TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueLow)
@@ -417,8 +417,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueLow)
     ::testing::Test::RecordProperty("TEST_ID", "31f1504a-9353-4c46-9c8b-d7e430b07bd6");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->LogValueLow;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->LogValueLow)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
@@ -426,8 +426,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMin)
     ::testing::Test::RecordProperty("TEST_ID", "e784ceb9-1e23-4e95-b667-855835897717");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->LogValueMin;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->LogValueMin)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
@@ -435,8 +435,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
     ::testing::Test::RecordProperty("TEST_ID", "3bff0182-07ad-4c7a-b8b7-3950a8aa9f4e");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->LogValueMax;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->LogValueMax)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueMax)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
@@ -444,8 +444,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
     ::testing::Test::RecordProperty("TEST_ID", "65cfbc9b-a535-47fa-a543-0c31ba63d4ba");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstLogValueLow;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstLogValueLow)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
@@ -453,8 +453,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMin)
     ::testing::Test::RecordProperty("TEST_ID", "fba70497-e252-4458-b00e-2dad8b94b8c8");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstLogValueMin;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstLogValueMin)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
@@ -462,8 +462,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
     ::testing::Test::RecordProperty("TEST_ID", "e5e28a6e-4321-4030-b53e-90089b3ee9b9");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstLogValueMax;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstLogValueMax)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueMax)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
@@ -471,8 +471,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
     ::testing::Test::RecordProperty("TEST_ID", "e9688979-d209-4718-9810-49684fdd9261");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstexprLogValueLow;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstexprLogValueLow)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueLow)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
@@ -480,8 +480,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMin)
     ::testing::Test::RecordProperty("TEST_ID", "f6799599-582a-454c-85b8-b2059a5d50c6");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstexprLogValueMin;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstexprLogValueMin)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueMin)));
 }
 
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
@@ -489,8 +489,8 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
     ::testing::Test::RecordProperty("TEST_ID", "4a6dc777-a53b-4a42-9ab1-e1da893ad884");
     IOX_LOGSTREAM_SUT(this->loggerMock) << this->ConstexprLogValueMax;
 
-    ASSERT_THAT(this->loggerMock.m_logs.size(), Eq(1u));
-    EXPECT_THAT(this->loggerMock.m_logs[0].message, StrEq(convertToString(this->ConstexprLogValueMax)));
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1u));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueMax)));
 }
 
 } // namespace

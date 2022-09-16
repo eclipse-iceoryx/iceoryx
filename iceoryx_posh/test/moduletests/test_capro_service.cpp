@@ -444,8 +444,8 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
         IOX_LOGSTREAM_MOCK(loggerMock) << sut;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
 }
 
 /// END SERVICEDESCRIPTION TESTS

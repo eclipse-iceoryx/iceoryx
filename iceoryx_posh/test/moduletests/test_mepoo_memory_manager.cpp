@@ -520,8 +520,8 @@ TEST(MemoryManagerEnumString_test, LogStreamConvertsEnumValueToString)
         IOX_LOGSTREAM_MOCK(loggerMock) << sut;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(iox::mepoo::asStringLiteral(sut)));
 }
 
 } // namespace

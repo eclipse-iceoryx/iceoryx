@@ -58,7 +58,7 @@ class Logger_Mock : public platform::TestingLoggerBase
         std::string message;
     };
 
-    std::vector<LogEntry> m_logs;
+    std::vector<LogEntry> logs;
 
   private:
     /// @brief Overrides the base implementation to store the
@@ -75,13 +75,13 @@ class Logger_Mock : public platform::TestingLoggerBase
         logEntry.function = function;
         logEntry.logLevel = logLevel;
 
-        m_logs.emplace_back(std::move(logEntry));
+        logs.emplace_back(std::move(logEntry));
     }
 
     void flush() noexcept override
     {
         const auto logBuffer = Base::getLogBuffer();
-        m_logs.back().message = logBuffer.buffer;
+        logs.back().message = logBuffer.buffer;
         Base::assumeFlushed();
     }
 };

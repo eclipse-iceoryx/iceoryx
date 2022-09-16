@@ -128,8 +128,8 @@ TEST(filesystem_test, streamOperatorPrintsCorrectlyWhenEverythingIsSet)
         IOX_LOGSTREAM_MOCK(loggerMock) << perms::mask;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message,
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message,
                 Eq("owner: {read, write, execute},  group: {read, write, execute},  others: {read, write, execute},  "
                    "special bits: {set_uid, set_git, sticky_bit}"));
 }
@@ -142,8 +142,8 @@ TEST(filesystem_test, streamOperatorPrintsCorrectlyWhenNothingIsSet)
         IOX_LOGSTREAM_MOCK(loggerMock) << perms::none;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message,
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message,
                 Eq("owner: {none},  group: {none},  others: {none},  special bits: {none}"));
 }
 
@@ -155,8 +155,8 @@ TEST(filesystem_test, streamOperatorPrintsCorrectlyWhenPartialPermissionsAreSet)
         IOX_LOGSTREAM_MOCK(loggerMock) << (perms::owner_write | perms::owner_exec | perms::group_read
                                            | perms::group_exec | perms::others_all | perms::sticky_bit);
     }
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message,
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message,
                 Eq("owner: {write, execute},  group: {read, execute},  others: {read, write, execute},  special bits: "
                    "{sticky_bit}"));
 }
@@ -169,8 +169,8 @@ TEST(filesystem_test, streamOperatorPrintsCorrectlyWhenSetToUnknown)
         IOX_LOGSTREAM_MOCK(loggerMock) << perms::unknown;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message, Eq("unknown permissions"));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, Eq("unknown permissions"));
 }
 
 } // namespace
