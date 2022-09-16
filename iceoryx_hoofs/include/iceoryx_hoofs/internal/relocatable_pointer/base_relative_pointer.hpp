@@ -52,6 +52,7 @@ namespace rp
 class BaseRelativePointer
 {
   public:
+    // AXIVION Next Construct AutosarC++19_03-M2.10.1 : Identifiers names fixed by design
     struct id_t : public cxx::NewType<uint64_t,
                                       cxx::newtype::DefaultConstructable,
                                       cxx::newtype::CopyConstructable,
@@ -70,8 +71,8 @@ class BaseRelativePointer
     /// @brief constructs a BaseRelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
-    BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept;
-
+    BaseRelativePointer(ptr_t const ptr, const id_t id) noexcept;
+    // AXIVION Next Construct AutosarC++19_03-M3.2.4 : False positive of missing definition
     /// @brief constructs a BaseRelativePointer from a given offset and segment id
     /// @param[in] offset is the offset
     /// @param[in] id is the unique id of the segment
@@ -79,8 +80,9 @@ class BaseRelativePointer
 
     /// @brief constructs a BaseRelativePointer pointing to the same pointer as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    explicit BaseRelativePointer(const ptr_t ptr = nullptr) noexcept;
-
+    explicit BaseRelativePointer(ptr_t const ptr = nullptr) noexcept;
+    // AXIVION DISABLE STYLE AutosarC++19_03-A12.8.6 : false positive of missing move and copy
+    // constructors
     /// @brief copy constructor
     /// @param[in] other is the copy origin
     BaseRelativePointer(const BaseRelativePointer& other) noexcept = default;
@@ -110,11 +112,17 @@ class BaseRelativePointer
 
     /// @brief returns the id which identifies the segment
     /// @return the id which identifies the segment
-    id_underlying_t getId() const noexcept;
+    id_underlying_t getId() const noexcept
+    {
+        return m_id;
+    }
 
     /// @brief returns the offset
     /// @return the offset
-    offset_t getOffset() const noexcept;
+    offset_t getOffset() const noexcept
+    {
+        return m_offset;
+    }
 
     /// @brief get the base pointer associated with this' id
     /// @return the registered base pointer
@@ -124,14 +132,14 @@ class BaseRelativePointer
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return id it was registered to
-    static id_underlying_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static id_underlying_t registerPtr(ptr_t const ptr, uint64_t size = 0U) noexcept;
 
     /// @brief tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id is the id of the segment
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return true if successful (id not occupied), false otherwise
-    static bool registerPtr(const id_t id, const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static bool registerPtr(const id_t id, ptr_t const ptr, uint64_t size = 0U) noexcept;
 
     /// @brief unregisters ptr with given id
     /// @param[in] id is the id of the segment
@@ -158,6 +166,7 @@ class BaseRelativePointer
     /// @return the pointer from id and offset
     static ptr_t getPtr(const id_t id, const offset_t offset) noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-M3.2.4 : False positive of missing definition
     /// @brief get the id for a given ptr
     /// @param[in] ptr the pointer whose corresponding id is searched for
     /// @return id the pointer was registered to
@@ -172,17 +181,19 @@ class BaseRelativePointer
     /// @return the pointer repository
     static PointerRepository<id_underlying_t, ptr_t>& getRepository() noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-M3.2.4 : False positive of missing definition
     /// @brief get the offset from the start address of the segment and ptr
     /// @param[in] ptr is the pointer whose offset should be calculated
     /// @return offset
     offset_t computeOffset(ptr_t ptr) const noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-M3.2.4 : False positive of missing definition
     /// @brief get the pointer from stored id and offset
     /// @return the pointer for stored id and offset
     ptr_t computeRawPtr() const noexcept;
 
     static constexpr id_underlying_t NULL_POINTER_ID{std::numeric_limits<id_underlying_t>::max()};
-    static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
+    static constexpr offset_t NULL_POINTER_OFFSET{std::numeric_limits<offset_t>::max()};
 
   protected:
     ~BaseRelativePointer() noexcept = default;
@@ -193,6 +204,7 @@ class BaseRelativePointer
     offset_t m_offset{NULL_POINTER_OFFSET};
     // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 };
+// AXIVION ENABLE STYLE AutosarC++19_03-A12.8.6
 } // namespace rp
 } // namespace iox
 

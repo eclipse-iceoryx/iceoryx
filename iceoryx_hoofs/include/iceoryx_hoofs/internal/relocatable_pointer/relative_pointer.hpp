@@ -36,22 +36,24 @@ class RelativePointer : public BaseRelativePointer
     using const_ptr_t = const T*;
     using ptr_t = T*;
 
+    using BaseRelativePointer::BaseRelativePointer;
+
     /// @brief default constructs a RelativePointer as a logical nullptr
     RelativePointer() noexcept = default;
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
-    RelativePointer(ptr_t ptr, id_t id) noexcept;
+    //    RelativePointer(ptr_t ptr, id_t id) noexcept;
 
     /// @brief constructs a RelativePointer from a given offset and segment id
     /// @param[in] offset is the offset
     /// @param[in] id is the unique id of the segment
-    RelativePointer(offset_t offset, id_t id) noexcept;
+    //    RelativePointer(offset_t offset, id_t id) noexcept;
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    explicit RelativePointer(ptr_t ptr) noexcept;
+    //    explicit RelativePointer(ptr_t ptr) noexcept;
 
     /// @brief assigns the RelativePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -72,19 +74,29 @@ class RelativePointer : public BaseRelativePointer
     /// @return a pointer to the underlying object
     T* get() const noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3 : Explicitly named conversions using dedicated member function
     /// @brief converts the RelativePointer to bool
     /// @return bool which contains true if the RelativePointer contains a pointer
     explicit operator bool() const noexcept;
 
+
+    // AXIVION Next Construct AutosarC++19_03-A13.5.5 : Explicitly named conversions using
+    // dedicated member function
     /// @brief checks if this and ptr point to the same pointee
     /// @param[in] ptr is the pointer whose pointee is compared with this' pointee
     /// @return true if the pointees are equal, otherwise false
-    bool operator==(T* const ptr) const noexcept;
+    bool operator==(T* const ptr) const noexcept
+    {
+        return ptr == get();
+    }
 
     /// @brief checks if this and ptr point not to the same pointee
     /// @param[in] ptr is the pointer whose pointee is compared with this' pointee
     /// @return true if the pointees are not equal, otherwise false
-    bool operator!=(T* const ptr) const noexcept;
+    bool operator!=(T* const ptr) const noexcept
+    {
+        return ptr != get();
+    }
 };
 
 } // namespace rp

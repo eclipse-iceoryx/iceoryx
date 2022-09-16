@@ -40,10 +40,10 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t
     if (m_info[id].basePtr == nullptr)
     {
         m_info[id].basePtr = ptr;
-        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back to
-        // the original type
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 , AutosarC++19_03-M5.2.9: Cast is needed
+        // for pointer arithmetic and casted back to the original type
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
+        m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + (size - 1U));
 
         if (id > m_maxRegistered)
         {
@@ -57,15 +57,15 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr, uint64_t size) noexcept
 {
-    for (id_t id = 1U; id <= MAX_ID; ++id)
+    for (id_t id{1U}; id <= MAX_ID; ++id)
     {
         if (m_info[id].basePtr == nullptr)
         {
             m_info[id].basePtr = ptr;
-            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back
-            // to the original type
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast is needed for pointer
+            // arithmetic and casted back to the original type
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
+            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + (size - 1U));
 
             if (id > m_maxRegistered)
             {
@@ -81,7 +81,7 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t pt
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline bool PointerRepository<id_t, ptr_t, CAPACITY>::unregisterPtr(id_t id) noexcept
 {
-    if (id <= MAX_ID && id >= MIN_ID)
+    if ((id <= MAX_ID) && (id >= MIN_ID))
     {
         if (m_info[id].basePtr != nullptr)
         {
@@ -108,7 +108,7 @@ inline void PointerRepository<id_t, ptr_t, CAPACITY>::unregisterAll() noexcept
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(id_t id) const noexcept
 {
-    if (id <= MAX_ID && id >= MIN_ID)
+    if ((id <= MAX_ID) && (id >= MIN_ID))
     {
         return m_info[id].basePtr;
     }
@@ -123,12 +123,15 @@ inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(id_t id) const
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const noexcept
 {
-    for (id_t id = 1U; id <= m_maxRegistered; ++id)
+    for (id_t id{1U}; id <= m_maxRegistered; ++id)
     {
         // return first id where the ptr is in the corresponding interval
-        if (ptr >= m_info[id].basePtr && ptr <= m_info[id].endPtr)
+        if (ptr >= m_info[id].basePtr)
         {
-            return id;
+            if (ptr <= m_info[id].endPtr)
+            {
+                return id;
+            }
         }
     }
     /// @note implicitly interpret the pointer as a regular pointer if not found
@@ -138,7 +141,8 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
     return 0U;
     // return INVALID_ID;
 }
-
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This function does modify state, function need
+// not be static
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline bool PointerRepository<id_t, ptr_t, CAPACITY>::isValid(id_t id) const noexcept
 {
@@ -148,7 +152,7 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::isValid(id_t id) const noe
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline void PointerRepository<id_t, ptr_t, CAPACITY>::print() const noexcept
 {
-    for (id_t id = 0U; id < m_info.size(); ++id)
+    for (id_t id{0U}; id < m_info.size(); ++id)
     {
         auto ptr = m_info[id].basePtr;
         if (ptr != nullptr)

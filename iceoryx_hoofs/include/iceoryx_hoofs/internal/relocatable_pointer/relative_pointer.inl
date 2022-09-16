@@ -24,23 +24,23 @@ namespace iox
 {
 namespace rp
 {
-template <typename T>
-inline RelativePointer<T>::RelativePointer(ptr_t ptr, id_t id) noexcept
-    : BaseRelativePointer(ptr, id)
-{
-}
-
-template <typename T>
-inline RelativePointer<T>::RelativePointer(offset_t offset, id_t id) noexcept
-    : BaseRelativePointer(offset, id)
-{
-}
-
-template <typename T>
-inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
-    : BaseRelativePointer(ptr)
-{
-}
+// template <typename T>
+// inline RelativePointer<T>::RelativePointer(ptr_t ptr, id_t id) noexcept
+//     : BaseRelativePointer(ptr, id)
+//{
+// }
+//
+// template <typename T>
+// inline RelativePointer<T>::RelativePointer(offset_t offset, id_t id) noexcept
+//     : BaseRelativePointer(offset, id)
+//{
+// }
+//
+// template <typename T>
+// inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
+//     : BaseRelativePointer(ptr)
+//{
+// }
 
 template <typename T>
 inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t ptr) noexcept
@@ -67,6 +67,7 @@ inline T* RelativePointer<T>::operator->() const noexcept
 template <typename T>
 inline T* RelativePointer<T>::get() const noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8 : cast used here has no side-effects
     auto ptr = static_cast<T*>(computeRawPtr());
     cxx::Ensures(ptr != nullptr);
     return ptr;
@@ -78,17 +79,17 @@ inline RelativePointer<T>::operator bool() const noexcept
     return computeRawPtr() != nullptr;
 }
 
-template <typename T>
-inline bool RelativePointer<T>::operator==(T* const ptr) const noexcept
-{
-    return ptr == get();
-}
+// template <typename T>
+// inline bool RelativePointer<T>::operator==(T* const ptr) const noexcept
+//{
+//     return ptr == get();
+// }
 
-template <typename T>
-inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
-{
-    return ptr != get();
-}
+// template <typename T>
+// inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
+//{
+//     return ptr != get();
+// }
 } // namespace rp
 } // namespace iox
 

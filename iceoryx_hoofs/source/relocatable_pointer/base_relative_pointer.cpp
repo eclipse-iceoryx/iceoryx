@@ -21,9 +21,10 @@ namespace iox
 {
 namespace rp
 {
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : Delegating constructor is not luseful here
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept
+BaseRelativePointer::BaseRelativePointer(ptr_t const ptr, const id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
 {
@@ -37,12 +38,13 @@ BaseRelativePointer::BaseRelativePointer(const offset_t offset, const id_t id) n
 {
 }
 
-BaseRelativePointer::BaseRelativePointer(ptr_t ptr) noexcept
+BaseRelativePointer::BaseRelativePointer(ptr_t const ptr) noexcept
     : m_id(searchId(ptr))
     , m_offset(computeOffset(ptr))
 {
 }
-
+// AXIVION DISABLE STYLE AutosarC++19_03-A12.8.6 : false positive of missing move and copy
+// constructors
 BaseRelativePointer::BaseRelativePointer(BaseRelativePointer&& other) noexcept
     : m_id(other.m_id)
     , m_offset(other.m_offset)
@@ -86,29 +88,20 @@ BaseRelativePointer::ptr_t BaseRelativePointer::get() const noexcept
     return computeRawPtr();
 }
 
-BaseRelativePointer::id_underlying_t BaseRelativePointer::getId() const noexcept
-{
-    return m_id;
-}
-
-BaseRelativePointer::offset_t BaseRelativePointer::getOffset() const noexcept
-{
-    return m_offset;
-}
 
 BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr() const noexcept
 {
     return getBasePtr(id_t{m_id});
 }
 
-BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_t ptr, uint64_t size) noexcept
+BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(ptr_t const ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }
 
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
+bool BaseRelativePointer::registerPtr(const id_t id, ptr_t const ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(static_cast<id_underlying_t>(id), ptr, size);
 }
@@ -140,8 +133,8 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, cons
     {
         return NULL_POINTER_OFFSET;
     }
-    auto* basePtr = getBasePtr(id);
-    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    auto* const basePtr{getBasePtr(id)};
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
@@ -154,8 +147,8 @@ BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offs
     {
         return nullptr;
     }
-    auto* basePtr = getBasePtr(id);
-    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    auto* const basePtr{getBasePtr(id)};
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
 }
@@ -175,10 +168,13 @@ bool BaseRelativePointer::isValid(id_t id) noexcept
 {
     return getRepository().isValid(static_cast<id_underlying_t>(id));
 }
-
+// AXIVION Next Construct AutosarC++19_03-A15.5.3, AutosarC++19_03-A15.4.2 : False positive of
+// exception violation
 PointerRepository<BaseRelativePointer::id_underlying_t, BaseRelativePointer::ptr_t>&
 BaseRelativePointer::getRepository() noexcept
 {
+    //  AXIVION Next Construct AutosarC++19_03-A3.3.2 : Does not depend on any other
+    //  static objects.
     static PointerRepository<id_underlying_t, ptr_t> repository;
     return repository;
 }
@@ -192,5 +188,7 @@ BaseRelativePointer::ptr_t BaseRelativePointer::computeRawPtr() const noexcept
 {
     return getPtr(id_t{m_id}, m_offset);
 }
+// AXIVION ENABLE STYLE AutosarC++19_03-A12.8.6
+
 } // namespace rp
 } // namespace iox

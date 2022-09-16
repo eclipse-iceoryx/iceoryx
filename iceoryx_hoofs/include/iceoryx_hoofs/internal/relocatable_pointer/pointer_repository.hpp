@@ -55,7 +55,7 @@ class PointerRepository
     static_assert(CAPACITY >= 2, "CAPACITY must be at least 2!");
 
   public:
-    static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
+    static constexpr id_t INVALID_ID{std::numeric_limits<id_t>::max()};
 
     /// @brief default constructor
     PointerRepository() noexcept;
