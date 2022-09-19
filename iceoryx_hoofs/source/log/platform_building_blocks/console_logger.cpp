@@ -111,15 +111,19 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     unused(line);
     unused(function);
 
+    constexpr const char COLOR_GRAY[]{"\033[0;90m"};
+    constexpr const char COLOR_RESET[]{"\033[m"};
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     auto retVal = snprintf(&getThreadLocalData().buffer[0],
                            ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE,
-                           "\033[0;90m%s.%03d %s%s\033[m: ",
+                           "%s%s.%03d %s%s%s: ",
+                           COLOR_GRAY,
                            &timestampString[0],
                            milliseconds,
                            logLevelDisplayColor(logLevel),
-                           logLevelDisplayText(logLevel));
+                           logLevelDisplayText(logLevel),
+                           COLOR_RESET);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
