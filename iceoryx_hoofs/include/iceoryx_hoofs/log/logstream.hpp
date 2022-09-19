@@ -152,7 +152,7 @@ class LogStream
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
 
-    /// @brief Logging support for floating point numbers in decimal format
+    /// @brief Logging support for floating point numbers in hexadecimal format
     /// @tparam[in] T is the floating point data type of the value to log
     /// @param[in] val is the number to log
     /// @return a reference to the LogStream instance

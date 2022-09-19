@@ -36,17 +36,17 @@ enum class LogLevel : uint8_t
 };
 
 /// @brief converts LogLevel into a string literal
-/// @param[in] value is the actual LogLevel to convert
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the LogLevel value
 constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal color code
-/// @param[in] value is the actual LogLevel to convert
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the corresponding color code
 constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal display text
-/// @param[in] value is the actual LogLevel to convert
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the display text
 constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
 

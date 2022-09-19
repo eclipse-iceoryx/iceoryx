@@ -77,9 +77,9 @@ class Logger : public BaseLogger
     static Logger& get() noexcept;
 
     /// @brief Initializes the logger
-    /// @param[in] logLevel is the log level which will be used to determine which messages will be logged. By default
-    /// it is everything with a log level higher than specified by the `IOX_LOG_LEVEL` environment variable or equal to
-    /// INFO if the environment variable is not set.
+    /// @param[in] logLevel the log level which will be used to determine which messages will be logged. By default it
+    /// is everything with a log level higher than specified by the `IOX_LOG_LEVEL` environment variable or equal to
+    /// `INFO` if the environment variable is not set.
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
