@@ -111,8 +111,8 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     unused(line);
     unused(function);
 
-    constexpr const char COLOR_GRAY[]{"\033[0;90m"};
-    constexpr const char COLOR_RESET[]{"\033[m"};
+    constexpr const char* COLOR_GRAY{"\033[0;90m"};
+    constexpr const char* COLOR_RESET{"\033[m"};
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     auto retVal = snprintf(&getThreadLocalData().buffer[0],
