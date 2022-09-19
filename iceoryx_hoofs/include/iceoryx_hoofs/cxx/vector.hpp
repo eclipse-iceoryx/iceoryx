@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VECTOR_HPP
 #define IOX_HOOFS_CXX_VECTOR_HPP
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 
 #include <algorithm>
@@ -64,7 +65,7 @@ class vector
     vector(vector&& rhs) noexcept;
 
     /// @brief destructs the vector and also calls the destructor of all
-    ///         contained elements
+    ///         contained elements in reverse construction order
     ~vector() noexcept;
 
     /// @brief copy assignment. if the destination vector contains more

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -563,6 +563,46 @@ TEST_F(vector_test, CopyAssignmentWithLargerSource)
     EXPECT_THAT(sut2.at(1U).value, Eq(1584122U));
     EXPECT_THAT(sut2.at(2U).value, Eq(158432U));
     EXPECT_THAT(sut2.at(3U).value, Eq(158432U));
+}
+
+TEST_F(vector_test, ReverseDestructionOrderInCopyAssignment)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "00ba138d-a805-4261-ac54-5eeea605e50c");
+    constexpr uint64_t VECTOR_CAPACITY{10};
+    vector<CTorTest, VECTOR_CAPACITY> sut1;
+    vector<CTorTest, VECTOR_CAPACITY> sut2;
+    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    {
+        sut1.emplace_back(i);
+    }
+    sut1 = sut2;
+
+    EXPECT_THAT(dTor, Eq(VECTOR_CAPACITY));
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
+    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_CAPACITY - 1 - i));
+    }
+}
+
+TEST_F(vector_test, ReverseDestructionOrderInMoveAssignment)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7a523770-7eab-4405-a9c1-a1b451534eb0");
+    constexpr uint64_t VECTOR_CAPACITY{10};
+    vector<CTorTest, VECTOR_CAPACITY> sut1;
+    vector<CTorTest, VECTOR_CAPACITY> sut2;
+    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    {
+        sut1.emplace_back(i + 1);
+    }
+    sut1 = std::move(sut2);
+
+    EXPECT_THAT(dTor, Eq(VECTOR_CAPACITY));
+    ASSERT_THAT(dtorOrder.size(), Eq(VECTOR_CAPACITY));
+    for (uint64_t i{0}; i < VECTOR_CAPACITY; ++i)
+    {
+        EXPECT_THAT(dtorOrder[i], Eq(VECTOR_CAPACITY - i));
+    }
 }
 
 TEST_F(vector_test, MoveAssignmentWithEmptySource)
