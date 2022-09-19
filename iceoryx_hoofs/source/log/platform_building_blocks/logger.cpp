@@ -65,6 +65,9 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
         else
         {
             puts("Invalid value for 'IOX_LOG_LEVEL' environment variable!'");
+            puts("Found:");
+            puts(logLevelString);
+            puts("Allowed is one of: off, fatal, error, warn, info, debug, trace");
         }
     }
     return specifiedLogLevel;
