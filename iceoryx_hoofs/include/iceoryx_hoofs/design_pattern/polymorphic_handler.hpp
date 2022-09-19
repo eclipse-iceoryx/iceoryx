@@ -5,19 +5,47 @@
 #include <mutex>
 #include <type_traits>
 
-namespace eh
+// TODO: change namespace? but DesignPattern is a bad namespace name ...
+namespace iox
 {
+
+struct Activatable
+{
+    Activatable() = default;
+
+    void activate()
+    {
+        m_active = true;
+    }
+
+    void deactivate()
+    {
+        m_active = false;
+    }
+
+    bool isActive() const
+    {
+        return m_active;
+    }
+
+  private:
+    bool m_active = true;
+};
+
 // we lose generality now wrt. the interface (require activate, deactivate etc. in the interface)
 template <typename Interface, typename Default>
 class PolymorphicHandler
 {
     static_assert(std::is_base_of<Interface, Default>::value, "Default must inherit from Interface");
 
+    // actually it suffices to provide the methods activate, deactivate, isActive
+    static_assert(std::is_base_of<Activatable, Interface>::value, "Interface must inherit from Activatable");
+
   public:
     using Self = PolymorphicHandler<Interface, Default>;
 
     // on first call (in a thread):
-    // 1. local is initialized
+    // 1. localHandler is initialized
     //    - getCurrent is called
     //    - instantiates singleton instance()
     //    - instantiates default
@@ -58,8 +86,8 @@ class PolymorphicHandler
         std::lock_guard<std::mutex> lock(ins.m_mutex);
         if (ins.m_isFinal)
         {
-            std::cerr << "SETTING THE HANDLER AFTER FINALIZE IS NOT ALLOWED!" << std::endl;
-            std::terminate(); // TODO: decide reaction, use logger?
+            std::cerr << "setting the polymorphic handler after finalize is not allowed" << std::endl;
+            std::terminate();
             return nullptr;
         }
 
