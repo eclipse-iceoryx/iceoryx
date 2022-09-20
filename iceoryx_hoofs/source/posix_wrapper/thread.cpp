@@ -55,16 +55,7 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
                                                  const Thread::callable_t& callable) noexcept
 {
-    if (!callable)
-    {
-        LogError() << "The thread cannot be created with an empty callable.";
-        return cxx::error<ThreadError>(ThreadError::EMPTY_CALLABLE);
-    }
-
-    uninitializedThread.emplace();
-    uninitializedThread->m_callable = callable;
-
-    uninitializedThread->m_threadName = m_name;
+    uninitializedThread.emplace(m_name, callable);
 
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
@@ -81,6 +72,14 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     }
 
     return cxx::success<>();
+}
+
+Thread::Thread(const ThreadName_t& name, const callable_t& callable) noexcept
+    : m_threadHandle{}
+    , m_callable{callable}
+    , m_isThreadConstructed{false}
+    , m_threadName{name}
+{
 }
 
 Thread::~Thread() noexcept

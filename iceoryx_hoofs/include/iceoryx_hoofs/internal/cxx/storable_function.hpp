@@ -54,8 +54,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
   public:
     using signature_t = signature<ReturnType, Args...>;
 
-    storable_function() noexcept = default;
-
     /// @brief construct from functor (including lambdas)
     ///
     /// @note  Will not compile for StorageType = static_storage if the functor cannot be stored.
@@ -120,12 +118,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     ///          Not specifying move or using a default implementation is fine.
     ///          This is also the case for std::function (for the gcc implementation at least).
     ///
-    ReturnType operator()(Args... args) const;
-
-
-    /// @brief indicates whether a function is currently stored
-    /// @return true if a function is stored, false otherwise
-    explicit operator bool() const noexcept;
+    ReturnType operator()(Args... args) const noexcept;
 
     /// @brief swap this with another storable function
     /// @param f the function to swap this with
@@ -188,8 +181,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept;
-
-    bool empty() const noexcept;
 
     // we need these templates to preserve the actual CallableType for the underlying call
     template <typename CallableType>

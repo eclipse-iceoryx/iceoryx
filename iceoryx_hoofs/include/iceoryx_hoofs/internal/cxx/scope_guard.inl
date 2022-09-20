@@ -60,7 +60,7 @@ inline ScopeGuardWithVariableCapacity<CleanupCapacity>& ScopeGuardWithVariableCa
     {
         destroy();
         m_cleanupFunction = rhs.m_cleanupFunction;
-        rhs.m_cleanupFunction = function<void(), CleanupCapacity>();
+        rhs.m_cleanupFunction.reset();
     }
     return *this;
 }
@@ -70,8 +70,7 @@ inline void ScopeGuardWithVariableCapacity<CleanupCapacity>::destroy() noexcept
 {
     if (m_cleanupFunction)
     {
-        m_cleanupFunction();
-        m_cleanupFunction = function<void(), CleanupCapacity>();
+        m_cleanupFunction.value()();
     }
 }
 

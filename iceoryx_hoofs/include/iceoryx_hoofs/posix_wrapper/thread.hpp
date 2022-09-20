@@ -39,7 +39,6 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept;
 
 enum class ThreadError
 {
-    EMPTY_CALLABLE,
     INSUFFICIENT_MEMORY,
     INSUFFICIENT_PERMISSIONS,
     INSUFFICIENT_RESOURCES,
@@ -78,7 +77,7 @@ class Thread
     friend class cxx::optional<Thread>;
 
   private:
-    Thread() noexcept = default;
+    Thread(const ThreadName_t& name, const callable_t& callable) noexcept;
 
     static ThreadError errnoToEnum(const int errnoValue) noexcept;
 

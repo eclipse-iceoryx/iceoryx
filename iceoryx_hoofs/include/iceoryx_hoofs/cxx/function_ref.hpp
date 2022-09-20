@@ -48,8 +48,6 @@ using has_same_decayed_type = typename std::
 ///         * Stateful lambda support
 ///         * C++11/14 support
 ///
-/// @attention Invoking an empty function_ref can lead to a program termination!
-///
 /// @code
 ///         // Usage as function parameter
 ///         void fuu(cxx::function_ref<void()> callback)
@@ -102,7 +100,6 @@ class function_ref<ReturnType(ArgTypes...)> final
     /// @brief Calls the provided callable
     /// @param[in] Arguments are forwarded to the underlying function pointer
     /// @return Returns the data type of the underlying function pointer
-    /// @attention Invoking an empty function_ref can lead to a program termination!
     ReturnType operator()(ArgTypes... args) const noexcept;
 
     /// @brief Swaps the contents of two function_ref's
