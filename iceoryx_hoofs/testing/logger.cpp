@@ -16,6 +16,8 @@
 
 #include "iceoryx_hoofs/testing/logger.hpp"
 
+#include <iostream>
+
 namespace iox
 {
 namespace testing
@@ -30,8 +32,18 @@ void Logger::init() noexcept
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
     {
-        logger.m_loggerData->allowLog =
-            pbb::equalStrings(allowLogString, "on") || pbb::equalStrings(allowLogString, "ON");
+        if (pbb::equalStrings(allowLogString, "on") || pbb::equalStrings(allowLogString, "ON"))
+        {
+            logger.m_loggerData->allowLog = true;
+        }
+        else
+        {
+            logger.m_loggerData->allowLog = false;
+            std::cout << "" << std::endl;
+            std::cout << "Invalid value for 'IOX_TESTING_ALLOW_LOG' environment variable!'" << std::endl;
+            std::cout << "Found: " << allowLogString << std::endl;
+            std::cout << "Allowed is one of: on, ON" << std::endl;
+        }
     }
     else
     {
