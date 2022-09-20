@@ -10,7 +10,9 @@ namespace iox
 {
 namespace design
 {
+
 // TODO: namespace of this concept? should not depend on templated class (e.g. PolymorphicHandler)
+// it is not internal as it is supposed to be used to design new Handlers
 
 /// @brief Implements the Activatable concept to be used in the PolymorphicHandler
 ///        The concept implements a binary switch. By default is switched on (active).
@@ -42,6 +44,24 @@ class Activatable
     bool m_active{true};
 };
 
+namespace detail
+{
+
+///@brief default hooks for the PolymorphicHandler
+///@note template hooks to avoid forced virtual inheritance (STL approach),
+template <typename Interface>
+struct DefaultHooks
+{
+    /// @brief called after if the polymorphic handler is set or reset after finalize
+    static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/)
+    {
+        std::cerr << "setting the polymorphic handler after finalize is not allowed" << std::endl;
+        std::terminate();
+    }
+};
+
+} // namespace detail
+
 /// @brief Implements a singleton handler that has a default instance and can be changed
 ///        to another instance at runtime. All instances have to derive from the same interface.
 ///        The singleton handler owns the default instance but all other instances are created externally.
@@ -54,7 +74,9 @@ class Activatable
 /// @note The PolymorphicHandler is guaranteed to provide a valid handler during the whole program lifetime (static).
 ///       It is hence not advisable to have other static variables depend on the PolymorphicHandler.
 ///       It must be ensured that the are destroyed before the PolymorphicHandler.
-template <typename Interface, typename Default>
+/// @note Hooks must implement
+///       static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
+template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>
 class PolymorphicHandler
 {
     static_assert(std::is_base_of<Interface, Default>::value, "Default must inherit from Interface");
@@ -77,8 +99,8 @@ class PolymorphicHandler
     /// @return pointer to the previous instance
     static Interface* reset();
 
-    /// @brief finalizes the instance, afterwards no further instance can be set
-    ///        during program lifetime
+    /// @brief finalizes the instance, afterwards Hooks::onSetAfterFinalize
+    ///        will be called during the remaining program lifetime
     static void finalize();
 
   private:
@@ -117,8 +139,8 @@ class PolymorphicHandler
 // under lock, we update the local handler to the new one (note that it cannot change
 // while this happens as we hold the lock)
 
-template <typename Interface, typename Default>
-Interface& PolymorphicHandler<Interface, Default>::get()
+template <typename Interface, typename Default, typename Hooks>
+Interface& PolymorphicHandler<Interface, Default, Hooks>::get()
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) false positive, thread_local
     thread_local Interface* localHandler = getCurrent(); // initialized once per thread on first call
@@ -131,8 +153,8 @@ Interface& PolymorphicHandler<Interface, Default>::get()
     return *localHandler;
 }
 
-template <typename Interface, typename Default>
-Interface* PolymorphicHandler<Interface, Default>::set(Interface& handler)
+template <typename Interface, typename Default, typename Hooks>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::set(Interface& handler)
 {
     auto& ins = instance();
 
@@ -140,8 +162,7 @@ Interface* PolymorphicHandler<Interface, Default>::set(Interface& handler)
     std::lock_guard<std::mutex> lock(ins.m_mutex);
     if (ins.m_isFinal)
     {
-        std::cerr << "setting the polymorphic handler after finalize is not allowed" << std::endl;
-        std::terminate(); // TODO, what to do by default?
+        Hooks::onSetAfterFinalize(*getCurrent(), handler);
         return nullptr;
     }
 
@@ -154,44 +175,44 @@ Interface* PolymorphicHandler<Interface, Default>::set(Interface& handler)
     return prev;
 }
 
-template <typename Interface, typename Default>
-Interface* PolymorphicHandler<Interface, Default>::reset()
+template <typename Interface, typename Default, typename Hooks>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::reset()
 {
     return set(getDefault());
 }
 
-template <typename Interface, typename Default>
-void PolymorphicHandler<Interface, Default>::finalize()
+template <typename Interface, typename Default, typename Hooks>
+void PolymorphicHandler<Interface, Default, Hooks>::finalize()
 {
     auto& ins = instance();
     std::lock_guard<std::mutex> lock(ins.m_mutex);
     ins.m_isFinal.store(true);
 }
 
-template <typename Interface, typename Default>
-PolymorphicHandler<Interface, Default>::PolymorphicHandler()
+template <typename Interface, typename Default, typename Hooks>
+PolymorphicHandler<Interface, Default, Hooks>::PolymorphicHandler()
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     //  this is set the first time we call instance()
     m_current.store(&getDefault(), std::memory_order_release);
 }
 
-template <typename Interface, typename Default>
-PolymorphicHandler<Interface, Default>& PolymorphicHandler<Interface, Default>::instance()
+template <typename Interface, typename Default, typename Hooks>
+PolymorphicHandler<Interface, Default, Hooks>& PolymorphicHandler<Interface, Default, Hooks>::instance()
 {
     static PolymorphicHandler handler;
     return handler;
 }
 
-template <typename Interface, typename Default>
-Default& PolymorphicHandler<Interface, Default>::getDefault()
+template <typename Interface, typename Default, typename Hooks>
+Default& PolymorphicHandler<Interface, Default, Hooks>::getDefault()
 {
     static Default defaultHandler;
     return defaultHandler;
 }
 
-template <typename Interface, typename Default>
-Interface* PolymorphicHandler<Interface, Default>::getCurrent()
+template <typename Interface, typename Default, typename Hooks>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrent()
 {
     auto& ins = instance();
     return ins.m_current.load(

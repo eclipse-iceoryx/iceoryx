@@ -28,6 +28,13 @@ struct Interface : public iox::design::Activatable
     virtual ~Interface() = default;
 
     virtual uint32_t id() = 0;
+
+    void reset()
+    {
+        value = 0;
+    }
+
+    uint32_t value{0};
 };
 
 constexpr uint32_t DEFAULT_ID = 73;
@@ -61,7 +68,17 @@ Alternate& alternateHandler()
     return h;
 };
 
-using Handler = iox::design::PolymorphicHandler<Interface, Default>;
+struct Hooks
+{
+    // to check whether the arguments are used correctly
+    static void onSetAfterFinalize(Interface& currentInstance, Interface& newInstance)
+    {
+        currentInstance.value = currentInstance.id();
+        newInstance.value = newInstance.id();
+    }
+};
+
+using Handler = iox::design::PolymorphicHandler<Interface, Default, Hooks>;
 
 class PolymorphicHandler_test : public Test
 {
@@ -126,28 +143,37 @@ TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
     EXPECT_EQ(handler.id(), DEFAULT_ID);
 }
 
-TEST_F(PolymorphicHandler_test, settingAfterFinalizeTerminates)
+TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
 {
     ::testing::Test::RecordProperty("TEST_ID", "171ac802-01b9-4e08-80a6-6f2defecaf6d");
 
-    auto f = [&]() {
-        Handler::finalize();
-        Handler::set(alternateHandler());
-    };
+    auto& handler = Handler::get();
+    handler.reset();
+    alternateHandler().reset();
 
-    EXPECT_DEATH(f(), "setting the polymorphic handler after finalize is not allowed");
+    // note that all following tests will also call the after finalize
+    // hook but we only check if we care whether it was called
+    Handler::finalize();
+    Handler::set(alternateHandler());
+
+    // does the hook set the values to the corresponding arguments?
+    EXPECT_EQ(handler.value, DEFAULT_ID);
+    EXPECT_EQ(alternateHandler().value, ALTERNATE_ID);
 }
 
-TEST_F(PolymorphicHandler_test, resetAfterFinalizeTerminates)
+TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
 {
     ::testing::Test::RecordProperty("TEST_ID", "996220e3-7985-4d57-bd3f-844987cf99dc");
 
-    auto f = [&]() {
-        Handler::finalize();
-        Handler::reset();
-    };
+    auto& handler = Handler::get();
+    handler.reset();
+    alternateHandler().reset();
 
-    EXPECT_DEATH(f(), "setting the polymorphic handler after finalize is not allowed");
+    Handler::finalize();
+    Handler::reset();
+
+    EXPECT_EQ(handler.value, DEFAULT_ID);
+    EXPECT_EQ(alternateHandler().value, 0);
 }
 
 class Activatable_test : public Test
