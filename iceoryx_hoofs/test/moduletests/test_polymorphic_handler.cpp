@@ -23,7 +23,7 @@ namespace
 {
 using namespace ::testing;
 
-struct Interface : public iox::Activatable
+struct Interface : public iox::design::Activatable
 {
     virtual ~Interface() = default;
 
@@ -61,7 +61,7 @@ Alternate& alternateHandler()
     return h;
 };
 
-using Handler = iox::PolymorphicHandler<Interface, Default>;
+using Handler = iox::design::PolymorphicHandler<Interface, Default>;
 
 class PolymorphicHandler_test : public Test
 {
@@ -177,7 +177,7 @@ class Activatable_test : public Test
         }
     }
 
-    iox::Activatable sut;
+    iox::design::Activatable sut;
 };
 
 TEST_F(Activatable_test, isActiveAfterConstruction)
