@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,10 +25,11 @@ namespace iox
 namespace cxx
 {
 template <typename T>
-inline unique_ptr<T>::unique_ptr(T& object, const function<void(T*)>& deleter) noexcept
-    : m_ptr(&object)
+inline unique_ptr<T>::unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept
+    : m_ptr(object)
     , m_deleter(std::move(deleter))
 {
+    Ensures(object != nullptr);
 }
 
 template <typename T>
@@ -94,10 +95,11 @@ inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 }
 
 template <typename T>
-inline void unique_ptr<T>::reset(T& object) noexcept
+inline void unique_ptr<T>::reset(T* const object) noexcept
 {
+    Ensures(object != nullptr);
     destroy();
-    m_ptr = &object;
+    m_ptr = object;
 }
 
 template <typename T>

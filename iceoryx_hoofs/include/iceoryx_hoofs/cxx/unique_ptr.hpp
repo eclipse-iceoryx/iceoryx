@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CXX_UNIQUE_PTR_HPP
 
 #include "iceoryx_hoofs/cxx/function.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 
 namespace iox
 {
@@ -40,10 +41,10 @@ class unique_ptr
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
     /// @details A deleter must always be provided as no default can be provided given that no heap is used.
     /// The unique_ptr must know how to delete the managed object when the pointer goes out of scope.
-    /// @param object The reference to the object to be managed.
+    /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T& object, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -92,7 +93,7 @@ class unique_ptr
     /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
     /// @param ptr Pointer to object to take ownership on.
     ///
-    void reset(T& object) noexcept;
+    void reset(T* const object) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)

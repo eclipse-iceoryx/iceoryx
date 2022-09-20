@@ -409,15 +409,25 @@
     cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
     cxx::unique_ptr<int> emptyPtr(nullptr, someDeleter);
 
+    if (myPtr) { // required since the object could always be null
+        std::cout << *myPtr << std::endl;
+    }
+
     myPtr.reset(ptrToOtherInt);
     myPtr.release();
 
 
     // after
-    cxx::unique_ptr<int> myPtr(*ptrToInt, someDeleter); // requires reference to object to ensure non nullptr
+    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
     cxx::optional<cxx::unique_ptr<int>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
 
-    myPtr.reset(*ptrToOtherInt); // requires reference to object to ensure non nullptr
-    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
+    // no more null check required since it is no longer nullable
+    std::cout << *myPtr << std::endl;
 
+    myPtr.reset(ptrToOtherInt);
+    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
     ```
+
+    Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
+    will warn the user with a used after move warning when one accesses a moved object. Accessing
+    a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
