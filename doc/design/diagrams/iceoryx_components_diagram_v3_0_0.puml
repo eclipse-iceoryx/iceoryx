@@ -53,7 +53,7 @@ package iceoryx_hoofs  {
       component "Error handling & logging" <<module>>
       component Time <<module>>
       component "Queues & communication" <<module>>
-      component "Threads & Sychronisation" <<module>>
+      component "Threads & sychronisation" <<module>>
    }
 }
 
