@@ -68,17 +68,11 @@ class PolymorphicHandler_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         Handler::reset();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 };
 
@@ -132,9 +126,6 @@ TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
     EXPECT_EQ(handler.id(), DEFAULT_ID);
 }
 
-// TODO: death tests abort (regardless of finalize), why?
-// how does the fork affect statics?
-#if 0
 TEST_F(PolymorphicHandler_test, settingAfterFinalizeTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "123");
@@ -158,7 +149,6 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeTerminates)
 
     EXPECT_DEATH(f(), "setting the polymorphic handler after finalize is not allowed");
 }
-#endif
 
 class Activatable_test : public Test
 {
