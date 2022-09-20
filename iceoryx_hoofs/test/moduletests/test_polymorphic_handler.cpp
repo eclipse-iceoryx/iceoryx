@@ -132,7 +132,7 @@ TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
     EXPECT_EQ(handler.id(), DEFAULT_ID);
 }
 
-// TODO: death tests abort (regadless of finalize), why?
+// TODO: death tests abort (regardless of finalize), why?
 // how does the fork affect statics?
 #if 0
 TEST_F(PolymorphicHandler_test, settingAfterFinalizeTerminates)
@@ -159,5 +159,66 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeTerminates)
     EXPECT_DEATH(f(), "setting the polymorphic handler after finalize is not allowed");
 }
 #endif
+
+class Activatable_test : public Test
+{
+  public:
+    void SetUp() override
+    {
+        internal::CaptureStderr();
+    }
+
+    void TearDown() override
+    {
+        std::string output = internal::GetCapturedStderr();
+        if (Test::HasFailure())
+        {
+            std::cout << output << std::endl;
+        }
+    }
+
+    iox::Activatable sut;
+};
+
+TEST_F(Activatable_test, isActiveAfterConstruction)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "123");
+    EXPECT_TRUE(sut.isActive());
+}
+
+TEST_F(Activatable_test, isNotActiveAfterDeactivate)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "123");
+    sut.deactivate();
+    EXPECT_FALSE(sut.isActive());
+}
+
+TEST_F(Activatable_test, isNotActiveAfterMultiDeactivate)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "123");
+    sut.deactivate();
+    sut.deactivate();
+    EXPECT_FALSE(sut.isActive());
+}
+
+TEST_F(Activatable_test, isActiveAfterReactivation)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "123");
+    sut.deactivate();
+    sut.activate();
+    EXPECT_TRUE(sut.isActive());
+}
+
+TEST_F(Activatable_test, isActiveAfterMultiActivation)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "123");
+    sut.activate();
+    EXPECT_TRUE(sut.isActive());
+
+    sut.deactivate();
+    sut.activate();
+    sut.activate();
+    EXPECT_TRUE(sut.isActive());
+}
 
 } // namespace
