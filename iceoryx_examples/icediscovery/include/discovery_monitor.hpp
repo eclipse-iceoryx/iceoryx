@@ -45,7 +45,7 @@ class Discovery
     ///       but we could hide this from the user (by e.g. accessing ServiceRegistry via singleton
     ///       and passing it)
     template <typename Callback>
-    bool registerCallback(const Callback& callback);
+    void registerCallback(const Callback& callback);
 
     /// @brief deregister the active callback (if any)
     void deregisterCallback();
@@ -64,22 +64,17 @@ class Discovery
 
     /// @note currently only one callback can be active (and there is no need to have more
     /// as we only have one event at the ServiceDiscovery to attach to - SERVICE_REGISTRY_CHANGED)
-    callback_t m_callback;
+    iox::cxx::optional<callback_t> m_callback;
 
     static void invokeCallback(ServiceDiscovery* discovery, Discovery* self);
 };
 
 //! [registerCallback]
 template <typename Callback>
-bool Discovery::registerCallback(const Callback& callback)
+void Discovery::registerCallback(const Callback& callback)
 //! [registerCallback]
 {
-    if (m_callback)
-    {
-        return false;
-    }
-
-    m_callback = callback;
+    m_callback.emplace(callback);
     auto errorHandler = [](auto) {
         std::cerr << "failed to attach to listener" << std::endl;
         std::exit(EXIT_FAILURE);
@@ -90,8 +85,6 @@ bool Discovery::registerCallback(const Callback& callback)
     m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED, invoker)
         .or_else(errorHandler);
     //! [attach listener]
-
-    return true;
 }
 
 } // namespace discovery

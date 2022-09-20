@@ -21,27 +21,25 @@ namespace iox
 {
 namespace popo
 {
-/// explicitly implemented for MSVC and QNX
-TriggerHandle::TriggerHandle() noexcept
-{
-}
-
 TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
-                             const cxx::function<void(uint64_t)> resetCallback,
+                             const cxx::function<void(uint64_t)>& resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
     : m_conditionVariableDataPtr(&conditionVariableData)
     , m_resetCallback(resetCallback)
     , m_uniqueTriggerId(uniqueTriggerId)
 {
-    if (!m_resetCallback)
-    {
-        errorHandler(PoshError::POPO__TRIGGER_HANDLE_INVALID_RESET_CALLBACK, ErrorLevel::FATAL);
-    }
 }
 
 TriggerHandle::TriggerHandle(TriggerHandle&& rhs) noexcept
+    : m_conditionVariableDataPtr{[&] {
+        rhs.m_mutex.lock();
+        return rhs.m_conditionVariableDataPtr;
+    }()}
+    , m_resetCallback{std::move(rhs.m_resetCallback)}
+    , m_uniqueTriggerId{rhs.m_uniqueTriggerId}
 {
-    *this = std::move(rhs);
+    rhs.invalidate();
+    rhs.m_mutex.unlock();
 }
 
 TriggerHandle& TriggerHandle::operator=(TriggerHandle&& rhs) noexcept
@@ -120,7 +118,7 @@ void TriggerHandle::invalidate() noexcept
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     m_conditionVariableDataPtr = nullptr;
-    m_resetCallback = cxx::function<void(uint64_t)>();
+    m_resetCallback = [](auto) {};
     m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
 }
 

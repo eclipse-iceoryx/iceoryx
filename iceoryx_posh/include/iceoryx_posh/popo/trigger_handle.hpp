@@ -37,8 +37,7 @@ namespace popo
 class TriggerHandle
 {
   public:
-    /// @note explicitly implemented for MSVC and QNX
-    TriggerHandle() noexcept;
+    TriggerHandle() noexcept = default;
 
     /// @brief Creates a TriggerHandle
     /// @param[in] conditionVariableDataRef reference to a condition variable data struct
@@ -46,7 +45,7 @@ class TriggerHandle
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
     TriggerHandle(ConditionVariableData& conditionVariableData,
-                  const cxx::function<void(uint64_t)> resetCallback,
+                  const cxx::function<void(uint64_t)>& resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
     TriggerHandle& operator=(const TriggerHandle&) = delete;
@@ -86,7 +85,7 @@ class TriggerHandle
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
-    cxx::function<void(uint64_t)> m_resetCallback;
+    cxx::function<void(uint64_t)> m_resetCallback = [](auto) {};
     uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
     mutable std::recursive_mutex m_mutex;
 };

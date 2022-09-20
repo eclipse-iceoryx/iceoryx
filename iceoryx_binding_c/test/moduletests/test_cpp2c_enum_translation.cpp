@@ -236,8 +236,7 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
     constexpr EnumMapping<iox::popo::ListenerError, iox_ListenerResult> LISTENER_ERRORS[]{
         {iox::popo::ListenerError::LISTENER_FULL, ListenerResult_LISTENER_FULL},
         {iox::popo::ListenerError::EVENT_ALREADY_ATTACHED, ListenerResult_EVENT_ALREADY_ATTACHED},
-        {iox::popo::ListenerError::EMPTY_EVENT_CALLBACK, ListenerResult_EMPTY_EVENT_CALLBACK},
-        {iox::popo::ListenerError::EMPTY_INVALIDATION_CALLBACK, ListenerResult_EMPTY_INVALIDATION_CALLBACK}};
+        {iox::popo::ListenerError::EMPTY_EVENT_CALLBACK, ListenerResult_EMPTY_EVENT_CALLBACK}};
 
     for (const auto listenerError : LISTENER_ERRORS)
     {
@@ -250,9 +249,6 @@ TEST(cpp2c_enum_translation_test, ListenerResult)
             EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
             break;
         case iox::popo::ListenerError::EMPTY_EVENT_CALLBACK:
-            EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
-            break;
-        case iox::popo::ListenerError::EMPTY_INVALIDATION_CALLBACK:
             EXPECT_EQ(cpp2c::listenerResult(listenerError.cpp), listenerError.c);
             break;
             // default intentionally left out in order to get a compiler warning if the enum gets extended and we forgot
