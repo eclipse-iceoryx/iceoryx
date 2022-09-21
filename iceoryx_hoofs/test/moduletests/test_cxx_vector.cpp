@@ -197,7 +197,7 @@ TEST_F(vector_test, NewVectorWithElementsCTorWithMoreThanCapacityElements)
     }
 }
 
-TEST_F(vector_test, EmplaceBackSuccessfullWhenSpaceAvailable)
+TEST_F(vector_test, EmplaceBackSuccessfulWhenSpaceAvailable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "98d17e04-0d2b-4575-a1f0-7b3cd918c54d");
     EXPECT_THAT(sut.emplace_back(5U), Eq(true));
@@ -213,7 +213,7 @@ TEST_F(vector_test, EmplaceBackFailsWhenSpaceNotAvailable)
     EXPECT_THAT(sut.emplace_back(5U), Eq(false));
 }
 
-TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableLValue)
+TEST_F(vector_test, PushBackSuccessfulWhenSpaceAvailableLValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42102325-91fa-45aa-a5cb-2bce785d11c1");
     const int a{5};
@@ -233,7 +233,7 @@ TEST_F(vector_test, PushBackFailsWhenSpaceNotAvailableLValue)
     EXPECT_THAT(sut.push_back(a), Eq(false));
 }
 
-TEST_F(vector_test, PushBackSuccessfullWhenSpaceAvailableRValue)
+TEST_F(vector_test, PushBackSuccessfulWhenSpaceAvailableRValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "47988e05-9c67-4b34-bdee-994552df3fa7");
     EXPECT_THAT(sut.push_back(5U), Eq(true));
@@ -912,6 +912,35 @@ TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
     ::testing::Test::RecordProperty("TEST_ID", "ff7c1c4a-4ef5-4905-a107-6f1d27462d47");
     auto* i = sut.begin() + 5U;
     EXPECT_THAT(sut.erase(i), Eq(nullptr));
+}
+
+TEST_F(vector_test, EraseReturnsCorrectIteratorWhenElementIsValid)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4ebc10a8-8cb3-4151-aa70-824d4c0b5597");
+    sut.emplace_back(1U);
+    sut.emplace_back(2U);
+    sut.emplace_back(3U);
+    sut.emplace_back(4U);
+
+    auto* iter = sut.erase(sut.begin());
+    ASSERT_THAT(sut.size(), Eq(3));
+    ASSERT_NE(iter, nullptr);
+    EXPECT_THAT(iter, Eq(sut.begin()));
+
+    iter = sut.erase(sut.end() - 1);
+    ASSERT_THAT(sut.size(), Eq(2));
+    ASSERT_NE(iter, nullptr);
+    EXPECT_THAT(iter, Eq(sut.end() - 1));
+
+    iter = sut.erase(sut.begin() + 1);
+    ASSERT_THAT(sut.size(), Eq(1));
+    ASSERT_NE(iter, nullptr);
+    EXPECT_THAT(iter, Eq(sut.begin()));
+
+    iter = sut.erase(sut.begin());
+    ASSERT_THAT(sut.size(), Eq(0));
+    ASSERT_NE(iter, nullptr);
+    EXPECT_THAT(iter, Eq(sut.end()));
 }
 
 TEST_F(vector_test, ErasingElementDecreasesSize)

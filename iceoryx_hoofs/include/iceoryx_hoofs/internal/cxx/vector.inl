@@ -370,6 +370,15 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
         }
         at(n).~T();
         m_size--;
+        if (m_size == 0)
+        {
+            return end();
+        }
+        if (index == 0)
+        {
+            return begin();
+        }
+        return &at(index - 1);
     }
     return nullptr;
 }
