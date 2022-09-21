@@ -70,14 +70,7 @@ class RelativePointer_test : public Test
 
 typedef testing::Types<uint8_t, int8_t, double> Types;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(RelativePointer_test, Types);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(RelativePointer_test, Types, );
 
 /// @todo #605 the tests should be reworked in a refactoring of relative pointers
 TYPED_TEST(RelativePointer_test, ConstrTests)

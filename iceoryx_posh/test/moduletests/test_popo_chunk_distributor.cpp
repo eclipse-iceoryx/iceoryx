@@ -39,15 +39,7 @@ using namespace iox::mepoo;
 
 using ChunkDistributorTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(ChunkDistributor_test, ChunkDistributorTestSubjects);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
+TYPED_TEST_SUITE(ChunkDistributor_test, ChunkDistributorTestSubjects, );
 
 template <typename PolicyType>
 class ChunkDistributor_test : public Test

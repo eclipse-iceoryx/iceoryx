@@ -177,14 +177,7 @@ class IoxLogStreamHexOctBinIntegral_test : public IoxLogStream_test
 
 using LogHexOctBinIntegralTypes = Types<uint8_t, int8_t, uint16_t, int16_t, uint32_t, int32_t, uint64_t, int64_t>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(IoxLogStreamHexOctBinIntegral_test, LogHexOctBinIntegralTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(IoxLogStreamHexOctBinIntegral_test, LogHexOctBinIntegralTypes, );
 
 template <typename LogType>
 void testStreamOperatorLogHex(Logger_Mock& loggerMock, LogType logValue)
@@ -303,14 +296,7 @@ class IoxLogStreamHexFloatingPoint_test : public IoxLogStream_test
 
 using LogHexFloatingPointTypes = Types<float, double, long double>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(IoxLogStreamHexFloatingPoint_test, LogHexFloatingPointTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(IoxLogStreamHexFloatingPoint_test, LogHexFloatingPointTypes, );
 
 template <typename T>
 constexpr const char* floatingPointFormatSpecifier();
@@ -364,15 +350,7 @@ TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueMax)
 using ArithmeticTypes =
     Types<bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, float, double>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(IoxLogStreamArithmetic_test, ArithmeticTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
+TYPED_TEST_SUITE(IoxLogStreamArithmetic_test, ArithmeticTypes, );
 
 template <typename Arithmetic>
 class IoxLogStreamArithmetic_test : public IoxLogStream_test

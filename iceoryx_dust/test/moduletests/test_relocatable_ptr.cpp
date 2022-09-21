@@ -185,14 +185,7 @@ class Relocatable_ptr_test : public Test
 
 typedef ::testing::Types<int, Data, void, char*, const Data, const void> TestTypes;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(Relocatable_ptr_typed_test, TestTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(Relocatable_ptr_typed_test, TestTypes, );
 
 TYPED_TEST(Relocatable_ptr_typed_test, wrappedPointerTypeIsCorrect)
 {

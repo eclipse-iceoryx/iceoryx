@@ -165,14 +165,8 @@ class ServiceRegistry_test : public Test
 constexpr auto CAPACITY = ServiceRegistry::CAPACITY;
 
 typedef ::testing::Types<PublisherTest, ServerTest> TestTypes;
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+
+TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes, );
 
 TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {

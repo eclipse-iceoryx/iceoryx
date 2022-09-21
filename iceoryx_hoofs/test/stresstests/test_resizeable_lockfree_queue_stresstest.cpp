@@ -398,15 +398,7 @@ using HalfFull3 = HalfFull<Data, Large>;
 /// @endcode
 typedef ::testing::Types<HalfFull2> TestConfigs;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
+TYPED_TEST_SUITE(ResizeableLockFreeQueueStressTest, TestConfigs, );
 
 ///@brief Tests concurrent operation of multiple producers and consumers
 ///       with respect to completeness of the data, i.e. nothing is lost.

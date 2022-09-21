@@ -73,15 +73,7 @@ TEST(LockFreeQueueBufferTest, capacityIsCorrect)
 
 typedef ::testing::Types<Buffer<int, 10>, Buffer<Integer, 10>> TestBuffers;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(LockFreeQueueBufferTest, TestBuffers);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
+TYPED_TEST_SUITE(LockFreeQueueBufferTest, TestBuffers, );
 
 TYPED_TEST(LockFreeQueueBufferTest, accessElements)
 {

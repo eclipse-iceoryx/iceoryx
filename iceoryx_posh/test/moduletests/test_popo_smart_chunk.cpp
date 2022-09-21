@@ -35,14 +35,7 @@ class SmartChunkTest : public Test
 
 using Implementations = Types<SampleTestCase, RequestTestCase, ResponseTestCase>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(SmartChunkTest, Implementations);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(SmartChunkTest, Implementations, );
 
 TYPED_TEST(SmartChunkTest, ConstructedSmartChunkIsValid)
 {

@@ -100,14 +100,8 @@ struct NamedSemaphoreTest
 };
 
 using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest>;
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+
+TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations, );
 
 TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
 {
