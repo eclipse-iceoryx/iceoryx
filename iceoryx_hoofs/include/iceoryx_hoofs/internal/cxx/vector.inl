@@ -103,10 +103,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         }
 
         // delete remaining elements
-        while (i < size())
-        {
-            IOX_DISCARD_RESULT(pop_back());
-        }
+        clearFrom(i);
 
         m_size = rhs.m_size;
     }
@@ -132,10 +129,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         }
 
         // delete remaining elements
-        while (i < size())
-        {
-            IOX_DISCARD_RESULT(pop_back());
-        }
+        clearFrom(i);
 
         m_size = rhs.m_size;
         rhs.clear();
@@ -164,9 +158,7 @@ inline uint64_t vector<T, Capacity>::capacity() const noexcept
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear() noexcept
 {
-    while (pop_back())
-    {
-    }
+    clearFrom(0);
 }
 
 template <typename T, uint64_t Capacity>
@@ -239,10 +231,7 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
 
     if (count < m_size)
     {
-        while (count != m_size)
-        {
-            pop_back();
-        }
+        clearFrom(count);
     }
     else if (count > m_size)
     {
@@ -398,6 +387,15 @@ const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
     // NOLINTJUSTIFICATION User accessible method at() performs bounds check
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return reinterpret_cast<const T*>(m_data)[index];
+}
+
+template <typename T, uint64_t Capacity>
+void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
+{
+    while (m_size > startPosition)
+    {
+        at_unchecked(--m_size).~T();
+    }
 }
 
 } // namespace cxx
