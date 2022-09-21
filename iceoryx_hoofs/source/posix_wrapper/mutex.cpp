@@ -247,15 +247,12 @@ cxx::expected<MutexCreationError> MutexBuilder::create(cxx::optional<mutex>& uni
         return result;
     }
 
-    if (m_priorityInheritance == MutexPriorityInheritance::PROTECT)
+    if (m_priorityInheritance == MutexPriorityInheritance::PROTECT && m_priorityCeiling.has_value())
     {
-        if (m_priorityCeiling.has_value())
+        result = mutexAttributes.setPrioCeiling(*m_priorityCeiling);
+        if (result.has_error())
         {
-            result = mutexAttributes.setPrioCeiling(*m_priorityCeiling);
-            if (result.has_error())
-            {
-                return result;
-            }
+            return result;
         }
     }
 
