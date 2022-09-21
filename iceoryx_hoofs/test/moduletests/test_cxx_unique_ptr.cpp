@@ -156,7 +156,7 @@ TEST_F(UniquePtrTest, AccessUnderlyingObjectViaGetResultsInCorrectValue)
     EXPECT_EQ(objectPtr->x, X_POS);
 }
 
-TEST_F(UniquePtrTest, ReleaseAnObjectResultsInDeleterBeingCalled)
+TEST_F(UniquePtrTest, ReleaseAnObjectResultsInDeleterNotBeingCalled)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8a1413a5-15cd-42ff-a05e-9dff158aa047");
     auto sut = iox::cxx::unique_ptr<Position>(&object, deleter);

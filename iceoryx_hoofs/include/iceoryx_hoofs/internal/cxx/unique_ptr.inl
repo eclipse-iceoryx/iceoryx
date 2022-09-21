@@ -95,11 +95,11 @@ inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 }
 
 template <typename T>
-inline void unique_ptr<T>::reset(T* const object) noexcept
+inline void unique_ptr<T>::reset(T* const ptr) noexcept
 {
-    Ensures(object != nullptr);
+    Ensures(ptr != nullptr);
     destroy();
-    m_ptr = object;
+    m_ptr = ptr;
 }
 
 template <typename T>

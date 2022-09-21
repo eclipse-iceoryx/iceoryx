@@ -84,16 +84,17 @@ class unique_ptr
 
     ///
     /// @brief release Release ownership of the underlying pointer.
-    /// @return Pointer to the managed object or nullptr if none owned.
+    /// @param[in] ptrToBeReleased unique_ptr which is destroyed without deleting its underlying data
+    /// @return Pointer to the managed object.
     ///
     static T* release(unique_ptr&& ptrToBeReleased) noexcept;
 
     ///
     /// @brief reset Reset the unique pointer to take ownership of the given pointer.
-    /// @details Any previously owned objects will be deleted. If no pointer given then points to nullptr.
-    /// @param ptr Pointer to object to take ownership on.
+    /// @details Any previously owned objects will be deleted.
+    /// @param ptr Pointer to object to take ownership on. It is forbidden to provide the value nullptr!
     ///
-    void reset(T* const object) noexcept;
+    void reset(T* const ptr) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
