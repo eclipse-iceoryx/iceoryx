@@ -28,6 +28,7 @@ namespace iox
 {
 namespace testing
 {
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) required to be able to easily test custom types
 #define IOX_LOGSTREAM_MOCK(logger)                                                                                     \
     iox::log::LogStream((logger), "file", 42, "function", iox::log::LogLevel::TRACE).self()
 

@@ -35,12 +35,12 @@ class LoggerSUT : public iox::pbb::ConsoleLogger
     using iox::pbb::ConsoleLogger::logString;
 };
 
-#if !defined(_WIN32)
+/// @todo todo iox-#1345 this test will be done via the integration tests with launch testing once "RouDi is ready for
+/// clients" will be printed via the logger
+#if 0
 TEST(ConsoleLogger_test, TestOutput)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67f1dac5-b425-414a-9690-268ecb06c1ee");
-    GTEST_SKIP() << "todo iox-#1345 this does not work on the CI and needs to be refactored. An alternative would be "
-                    "to run a binary which uses the logger and capture its output.";
 
     constexpr const char* LOG_FILE_NAME{"iceoryx_console_logger_output_test.txt"};
     constexpr const char* LOG_MESSAGE{"All glory to the hypnotoad!"};
@@ -79,6 +79,8 @@ TEST(ConsoleLogger_test, TestOutput)
     ASSERT_FALSE(std::getline(fileStream, logString));
 }
 #endif
+
+/// @note the actual log API is tested via the LogStream tests
 
 TEST(ConsoleLogger_test, SettingTheLogLevelWorks)
 {

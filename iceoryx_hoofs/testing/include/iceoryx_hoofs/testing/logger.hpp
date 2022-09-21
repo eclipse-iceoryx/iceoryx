@@ -46,6 +46,14 @@ class Logger : public platform::TestingLoggerBase
     using Base = platform::TestingLoggerBase;
 
   public:
+    ~Logger() override = default;
+
+    Logger(const Logger&) = delete;
+    Logger(Logger&&) = delete;
+
+    Logger& operator=(const Logger&) = delete;
+    Logger& operator=(Logger&&) = delete;
+
     /// @brief Initialized the logger. This should be called in the main function of the test binary
     /// @code
     /// #include "iceoryx_hoofs/testing/logger.hpp"
@@ -90,12 +98,6 @@ class Logger : public platform::TestingLoggerBase
 
   private:
     Logger() noexcept = default;
-
-    Logger(const Logger&) = delete;
-    Logger(Logger&&) = delete;
-
-    Logger& operator=(const Logger&) = delete;
-    Logger& operator=(Logger&&) = delete;
 
     void flush() noexcept override;
 

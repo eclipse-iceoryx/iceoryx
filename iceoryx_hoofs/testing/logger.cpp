@@ -52,7 +52,7 @@ void Logger::init() noexcept
 
     auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) required by the callee
-    listeners.Append(new LogPrinter);
+    listeners.Append(new (std::nothrow) LogPrinter);
 }
 
 void Logger::clearLogBuffer() noexcept

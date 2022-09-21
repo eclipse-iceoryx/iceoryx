@@ -49,7 +49,7 @@ TEST_P(LoggingLogLevelThreshold_test, LogLevel)
     {
         LogLevel(iox::log::LogLevel logLevel, std::string str)
             : value(logLevel)
-            , string(str)
+            , string(std::move(str))
         {
         }
         iox::log::LogLevel value;
