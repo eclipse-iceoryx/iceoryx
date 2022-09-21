@@ -20,10 +20,10 @@ namespace iox
 {
 namespace testing
 {
-void Logger::init()
+void Logger::init() noexcept
 {
     static Logger logger;
-    log::Logger::setActiveLogger(&logger);
+    log::Logger::setActiveLogger(logger);
     log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::TRACE));
     // disable logger output only after initializing the logger to get error messages from initialization
     // JUSTIFICATION getenv is required for the functionality of the testing logger and will be called only once in main
@@ -38,15 +38,16 @@ void Logger::init()
     }
 
     auto& listeners = ::testing::UnitTest::GetInstance()->listeners();
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory) required by the callee
     listeners.Append(new LogPrinter);
 }
 
-void Logger::clearLogBuffer()
+void Logger::clearLogBuffer() noexcept
 {
     m_loggerData->buffer.clear();
 }
 
-void Logger::printLogBuffer()
+void Logger::printLogBuffer() noexcept
 {
     auto loggerData = m_loggerData.getScopeGuard();
     if (loggerData->buffer.empty())
@@ -61,13 +62,13 @@ void Logger::printLogBuffer()
     puts("#### Log end ####");
 }
 
-uint64_t Logger::getNumberOfLogMessages()
+uint64_t Logger::getNumberOfLogMessages() noexcept
 {
     auto& logger = dynamic_cast<Logger&>(log::Logger::get());
     return logger.m_loggerData->buffer.size();
 }
 
-std::vector<std::string> Logger::getLogMessages()
+std::vector<std::string> Logger::getLogMessages() noexcept
 {
     auto& logger = dynamic_cast<Logger&>(log::Logger::get());
     return logger.m_loggerData->buffer;
@@ -90,6 +91,7 @@ void Logger::flush() noexcept
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<Logger&>(log::Logger::get()).clearLogBuffer();
+    Logger::setLogLevel(log::LogLevel::TRACE);
 
     /// @todo iox-#1345 register signal handler for sigterm to flush to logger;
     /// there might be tests to register a handler itself and when this is

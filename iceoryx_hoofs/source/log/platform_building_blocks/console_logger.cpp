@@ -28,23 +28,20 @@ namespace iox
 namespace pbb
 {
 // NOLINTJUSTIFICATION see at declaration in header
-// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::atomic<LogLevel> ConsoleLogger::m_activeLogLevel{LogLevel::INFO};
 
-// NOLINTJUSTIFICATION see at declaration in header
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-thread_local char ConsoleLogger::m_buffer[ConsoleLogger::NULL_TERMINATED_BUFFER_SIZE]{0};
-
-thread_local uint32_t ConsoleLogger::m_bufferWriteIndex{0U};
-// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
+ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData()
+{
+    thread_local static ThreadLocalData data;
+    return data;
+}
 
 LogLevel ConsoleLogger::getLogLevel() noexcept
 {
     return m_activeLogLevel.load(std::memory_order_relaxed);
 }
 
-// NOLINTJUSTIFICATION member access is required
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::setLogLevel(const LogLevel logLevel) noexcept
 {
     m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
@@ -114,15 +111,19 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     unused(line);
     unused(function);
 
+    constexpr const char* COLOR_GRAY{"\033[0;90m"};
+    constexpr const char* COLOR_RESET{"\033[m"};
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    auto retVal = snprintf(&m_buffer[0],
-                           NULL_TERMINATED_BUFFER_SIZE,
-                           "\033[0;90m%s.%03d %s%s\033[m: ",
+    auto retVal = snprintf(&getThreadLocalData().buffer[0],
+                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE,
+                           "%s%s.%03d %s%s%s: ",
+                           COLOR_GRAY,
                            &timestampString[0],
                            milliseconds,
                            logLevelDisplayColor(logLevel),
-                           logLevelDisplayText(logLevel));
+                           logLevelDisplayText(logLevel),
+                           COLOR_RESET);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
@@ -132,23 +133,23 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     else
     {
         auto stringSizeToLog = static_cast<uint32_t>(retVal);
-        if (stringSizeToLog <= BUFFER_SIZE)
+        if (stringSizeToLog <= ThreadLocalData::BUFFER_SIZE)
         {
-            m_bufferWriteIndex = stringSizeToLog;
+            getThreadLocalData().bufferWriteIndex = stringSizeToLog;
         }
         else
         {
             /// @todo iox-#1345 currently the buffer is large enough that this does not happen but once the file or
             /// function will also be printed, they might be too long to fit into the buffer and will be truncated; once
             /// that feature is implemented, we need to take care of it
-            m_bufferWriteIndex = BUFFER_SIZE;
+            getThreadLocalData().bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;
         }
     }
 }
 
 void ConsoleLogger::flush() noexcept
 {
-    if (std::puts(&m_buffer[0]) < 0)
+    if (std::puts(&getThreadLocalData().buffer[0]) < 0)
     {
         /// @todo iox-#1345 printing to the console failed; call the error handler after the error handler refactoring
         /// was merged
@@ -160,27 +161,32 @@ void ConsoleLogger::flush() noexcept
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 LogBuffer ConsoleLogger::getLogBuffer() const noexcept
 {
-    return LogBuffer{&m_buffer[0], m_bufferWriteIndex};
+    auto& data = getThreadLocalData();
+    return LogBuffer{&data.buffer[0], data.bufferWriteIndex};
 }
 
 // NOLINTJUSTIFICATION member access is required
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::assumeFlushed() noexcept
 {
-    m_buffer[0] = 0;
-    m_bufferWriteIndex = 0;
+    auto& data = getThreadLocalData();
+    data.buffer[0] = 0;
+    data.bufferWriteIndex = 0;
 }
 
 // NOLINTJUSTIFICATION member access is required
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::logString(const char* message) noexcept
 {
-    auto retVal =
-        // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
-        // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        snprintf(&m_buffer[m_bufferWriteIndex], NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex, "%s", message);
+    auto& data = getThreadLocalData();
+    // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
+                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
+                           "%s",
+                           message);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
     if (retVal < 0)
@@ -192,36 +198,24 @@ void ConsoleLogger::logString(const char* message) noexcept
     else
     {
         auto stringSizeToLog = static_cast<uint32_t>(retVal);
-        auto bufferWriteIndexNext = m_bufferWriteIndex + stringSizeToLog;
-        if (bufferWriteIndexNext <= BUFFER_SIZE)
+        auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
+        if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
         {
-            m_bufferWriteIndex = bufferWriteIndexNext;
+            data.bufferWriteIndex = bufferWriteIndexNext;
         }
         else
         {
             /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
             /// that the log buffer will be truncated;
             /// it is intended to flush the buffer and create a new log message later on
-            m_bufferWriteIndex = BUFFER_SIZE;
+            data.bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;
         }
     }
 }
 
-void ConsoleLogger::logI64Dec(const int64_t value) noexcept
+void ConsoleLogger::logBool(const bool value) noexcept
 {
-    logArithmetik(value, "%li");
-}
-void ConsoleLogger::logU64Dec(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%lu");
-}
-void ConsoleLogger::logU64Hex(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%x");
-}
-void ConsoleLogger::logU64Oct(const uint64_t value) noexcept
-{
-    logArithmetik(value, "%o");
+    logString(value ? "true" : "false");
 }
 
 void ConsoleLogger::initLogger(const LogLevel) noexcept

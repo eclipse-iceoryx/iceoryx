@@ -33,7 +33,7 @@ class ConsoleLogger
   public:
     static LogLevel getLogLevel() noexcept;
 
-    void setLogLevel(const LogLevel logLevel) noexcept;
+    static void setLogLevel(const LogLevel logLevel) noexcept;
 
     virtual ~ConsoleLogger() = default;
 
@@ -59,11 +59,19 @@ class ConsoleLogger
 
     void logString(const char* message) noexcept;
 
-    /// @todo iox-#1345 add more log methods like addBool(const bool), ...
-    void logI64Dec(const int64_t value) noexcept;
-    void logU64Dec(const uint64_t value) noexcept;
-    void logU64Hex(const uint64_t value) noexcept;
-    void logU64Oct(const uint64_t value) noexcept;
+    void logBool(const bool value) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int> = 0>
+    void logDec(const T val) noexcept;
+
+    template <typename T,
+              typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
+                                            || std::is_floating_point<T>::value,
+                                        int> = 0>
+    void logHex(const T val) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
+    void logOct(const T val) noexcept;
 
   private:
     template <uint32_t N>
@@ -75,23 +83,36 @@ class ConsoleLogger
     inline void unused(T&&) const noexcept;
 
     template <typename T>
-    inline void logArithmetik(const T value, const char* format) noexcept;
+    inline void logArithmetic(const T value, const char* format) noexcept;
+
+    struct ThreadLocalData
+    {
+        ThreadLocalData() noexcept = default;
+        ~ThreadLocalData() = default;
+
+        ThreadLocalData(const ThreadLocalData&) = delete;
+        ThreadLocalData(ThreadLocalData&&) = delete;
+
+        ThreadLocalData& operator=(const ThreadLocalData&) = delete;
+        ThreadLocalData& operator=(ThreadLocalData&&) = delete;
+
+        /// @todo iox-#1345 this could be made a compile time option
+        static constexpr uint32_t BUFFER_SIZE{1024};
+        static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
+
+        // NOLINTJUSTIFICATION safe access is guaranteed since the char array is wrapped inside the class
+        // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+        char buffer[NULL_TERMINATED_BUFFER_SIZE];
+        uint32_t bufferWriteIndex; // initialized in corresponding cpp file
+        /// @todo iox-#1345 add thread local storage with thread id and print it in the log messages
+    };
+
+    static ThreadLocalData& getThreadLocalData();
 
   private:
-    /// @todo iox-#1345 this could be made a compile time option
-    static constexpr uint32_t BUFFER_SIZE{1024};
-    static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
-
     // NOLINTJUSTIFICATION needed for the functionality and a private member of the class
-    // NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
     static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
-
-    // NOLINTJUSTIFICATION safe access is guaranteed since the char array is wrapped inside the class
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    thread_local static char m_buffer[NULL_TERMINATED_BUFFER_SIZE];
-    thread_local static uint32_t m_bufferWriteIndex; // initialized in corresponding cpp file
-    // NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
-    /// @todo iox-#1345 add thread local storage with thread id and print it in the log messages
 };
 
 } // namespace pbb

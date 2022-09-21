@@ -37,7 +37,7 @@ namespace pbb
 template <uint32_t N>
 // NOLINTJUSTIFICATION required for C-style string comparison; safety guaranteed by strncmp
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
+bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 
 /// @brief Tries to get the log level from the 'IOX_LOG_LEVEL' env variable or uses the specified one if the env
 /// variable is not set
@@ -53,32 +53,30 @@ class Logger : public BaseLogger
   public:
     friend class log::LogStream;
 
-    inline static constexpr LogLevel minimalLogLevel() noexcept;
+    Logger() = default;
 
-    inline static constexpr bool ignoreLogLevel() noexcept;
+    Logger(const Logger&) = delete;
+    Logger(Logger&&) = delete;
 
-    inline static Logger& get() noexcept;
+    Logger& operator=(const Logger&) = delete;
+    Logger& operator=(Logger&&) = delete;
 
-    inline static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
+    ~Logger() = default;
 
-    inline static void setActiveLogger(Logger* newLogger) noexcept;
+    static Logger& get() noexcept;
+
+    static void init(const LogLevel logLevel = logLevelFromEnvOr(LogLevel::INFO)) noexcept;
+
+    static void setActiveLogger(Logger& newLogger) noexcept;
 
   private:
-    inline static Logger* activeLogger(Logger* newLogger = nullptr) noexcept;
+    static Logger& activeLogger(Logger* newLogger = nullptr) noexcept;
 
-    inline void initLoggerInternal(const LogLevel logLevel) noexcept;
+    void initLoggerInternal(const LogLevel logLevel) noexcept;
 
   private:
     std::atomic<bool> m_isActive{true};
     std::atomic<bool> m_isFinalized{false};
-
-    /// @todo iox-#1345 make this a compile time option since if will reduce performance but some logger might want
-    /// to do the filtering by themself
-    static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
-
-    /// @todo iox-#1345 compile time option for minimal compiled log level, i.e. all lower log level should be
-    /// optimized out this is different than IGNORE_ACTIVE_LOG_LEVEL since m_activeLogLevel could still be set to off
-    static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 };
 
 } // namespace pbb

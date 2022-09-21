@@ -48,7 +48,7 @@ inline LogHex<uint64_t> hex(const void* const ptr) noexcept
 
 template <typename T>
 template <typename>
-inline constexpr LogOct<T>::LogOct(const T value) noexcept
+constexpr LogOct<T>::LogOct(const T value) noexcept
     : m_value(value)
 {
 }
@@ -59,9 +59,18 @@ inline constexpr LogOct<T> oct(const T value) noexcept
     return LogOct<T>(value);
 }
 
-inline LogStream::LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+/// @todo iox-#1345 use something like 'source_location'
+// NOLINTNEXTLINE(readability-function-size)
+inline LogStream::LogStream(
+    Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+    : m_logger(logger)
 {
     m_logger.createLogMessageHeader(file, line, function, logLevel);
+}
+
+inline LogStream::LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept
+    : LogStream(Logger::get(), file, line, function, logLevel)
+{
 }
 
 inline LogStream::~LogStream() noexcept
@@ -71,10 +80,10 @@ inline LogStream::~LogStream() noexcept
 
 inline void LogStream::flush() noexcept
 {
-    if (!m_flushed)
+    if (!m_isFlushed)
     {
         m_logger.flush();
-        m_flushed = true;
+        m_isFlushed = true;
     }
 }
 
@@ -86,66 +95,54 @@ inline LogStream& LogStream::self() noexcept
 inline LogStream& LogStream::operator<<(const char* cstr) noexcept
 {
     m_logger.logString(cstr);
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
 inline LogStream& LogStream::operator<<(const std::string& str) noexcept
 {
     m_logger.logString(str.c_str());
-    m_flushed = false;
+    m_isFlushed = false;
     return *this;
 }
 
-template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int>>
+inline LogStream& LogStream::operator<<(const bool val) noexcept
+{
+    m_logger.logBool(val);
+    return *this;
+}
+
+template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int>>
 inline LogStream& LogStream::operator<<(const T val) noexcept
 {
-    m_logger.logI64Dec(val);
-    m_flushed = false;
+    m_logger.logDec(val);
+    m_isFlushed = false;
     return *this;
 }
 
-template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int>>
-inline LogStream& LogStream::operator<<(const T val) noexcept
-{
-    m_logger.logU64Dec(val);
-    m_flushed = false;
-    return *this;
-}
-
-template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int>>
-inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int>>
+inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
     m_logger.logString("0x");
-    m_logger.logU64Hex(static_cast<uint64_t>(val.m_value));
-    m_flushed = false;
+    m_logger.logHex(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
+    m_isFlushed = false;
     return *this;
 }
 
-template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int>>
-inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
+template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int>>
+inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
-    m_logger.logString("0x");
-    m_logger.logU64Hex(val.m_value);
-    m_flushed = false;
+    m_logger.logHex(val.m_value);
+    m_isFlushed = false;
     return *this;
 }
 
-template <typename T, typename std::enable_if_t<std::is_signed<T>::value, int>>
-inline LogStream& LogStream::operator<<(const LogOct<T>&& val) noexcept
-{
-    m_logger.logString("0o");
-    m_logger.logU64Oct(static_cast<uint64_t>(val.m_value));
-    m_flushed = false;
-    return *this;
-}
-
-template <typename T, typename std::enable_if_t<std::is_unsigned<T>::value, int>>
-inline LogStream& LogStream::operator<<(const LogOct<T>&& val) noexcept
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int>>
+inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 {
     m_logger.logString("0o");
-    m_logger.logU64Oct(val.m_value);
-    m_flushed = false;
+    m_logger.logOct(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
+    m_isFlushed = false;
     return *this;
 }
 

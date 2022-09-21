@@ -19,10 +19,7 @@
 #include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 #include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
 
-#include <atomic>
-#include <iomanip>
-#include <iostream>
-#include <sstream>
+#include <cstdlib>
 
 namespace iox
 {
@@ -67,7 +64,10 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
         }
         else
         {
-            puts("Invalide value for 'IOX_LOG_LEVEL' environment variable!'");
+            puts("Invalid value for 'IOX_LOG_LEVEL' environment variable!'");
+            puts("Found:");
+            puts(logLevelString);
+            puts("Allowed is one of: off, fatal, error, warn, info, debug, trace");
         }
     }
     return specifiedLogLevel;

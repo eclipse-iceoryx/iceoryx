@@ -37,21 +37,42 @@ enum class LogLevel : uint8_t
 
 /// @brief converts LogLevel into a string literal
 /// @return string literal of the LogLevel value
-inline constexpr const char* asStringLiteral(const LogLevel value) noexcept;
+constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal color code
 /// @return string literal of the corresponding color code
-inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept;
+constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal display text
 /// @return string literal of the display text
-inline constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
+constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
 
 struct LogBuffer
 {
-    const char* buffer;
-    uint64_t writeIndex;
+    const char* buffer{nullptr};
+    uint64_t writeIndex{0};
 };
+
+namespace internal
+{
+template <typename T>
+constexpr const char* logFormatDec();
+
+template <typename T>
+constexpr const char* logFormatHex();
+
+template <typename T>
+constexpr const char* logFormatOct();
+} // namespace internal
+
+template <typename T>
+static constexpr const char* LOG_FORMAT_DEC = internal::logFormatDec<T>();
+
+template <typename T>
+static constexpr const char* LOG_FORMAT_HEX = internal::logFormatHex<T>();
+
+template <typename T>
+static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 
 } // namespace pbb
 } // namespace iox

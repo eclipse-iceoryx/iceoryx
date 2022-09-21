@@ -22,13 +22,23 @@ namespace iox
 {
 namespace log
 {
+namespace internal
+{
+/// @brief Convenience function for the IOX_LOG_INTERNAL macro
+inline bool isLogLevelActive(LogLevel logLevel)
+{
+    return (logLevel) <= platform::MINIMAL_LOG_LEVEL
+           && (platform::IGNORE_ACTIVE_LOG_LEVEL || (logLevel) <= Logger::getLogLevel());
+}
+
 /// @brief Only for internal usage
 // NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    if ((level) <= iox::log::Logger::minimalLogLevel()                                                                 \
-        && (iox::log::Logger::ignoreLogLevel() || (level) <= iox::log::Logger::getLogLevel()))                         \
+    if (iox::log::internal::isLogLevelActive(level))                                                                   \
     iox::log::LogStream(file, line, function, level).self()
+
+} // namespace internal
 
 /// @brief Macro for logging
 /// @param[in] level is the log level to be used for the log message

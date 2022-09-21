@@ -32,38 +32,26 @@ namespace pbb
 template <uint32_t N>
 // NOLINTJUSTIFICATION see at declaration in header
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-inline constexpr bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
+inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
 {
     return strncmp(lhs, rhs, N) == 0;
 }
 
-
-template <typename BaseLogger>
-inline constexpr LogLevel Logger<BaseLogger>::minimalLogLevel() noexcept
-{
-    return Logger::MINIMAL_LOG_LEVEL;
-}
-
-template <typename BaseLogger>
-inline constexpr bool Logger<BaseLogger>::ignoreLogLevel() noexcept
-{
-    return Logger::IGNORE_ACTIVE_LOG_LEVEL;
-}
-
-
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {
+    /// @todo iox-#1345 use the PolymorphicHandler for the handling with the logger exchange once available
+
     // NOLINTJUSTIFICATION needed for the functionality
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    thread_local static Logger* logger = Logger::activeLogger();
+    thread_local static Logger* logger = &Logger::activeLogger();
     if (!logger->m_isActive.load(std::memory_order_relaxed))
     {
         // no need to loop until m_isActive is true since this is an inherent race
         //   - the logger needs to be active for the whole lifetime of the application anyway
         //   - if the logger was changed again, the next call will update the logger
         //   - furthermore, it is not recommended to change the logger more than once
-        logger = Logger::activeLogger();
+        logger = &Logger::activeLogger();
     }
     return *logger;
 }
@@ -75,13 +63,13 @@ inline void Logger<BaseLogger>::init(const LogLevel logLevel) noexcept
 }
 
 template <typename BaseLogger>
-inline void Logger<BaseLogger>::setActiveLogger(Logger<BaseLogger>* newLogger) noexcept
+inline void Logger<BaseLogger>::setActiveLogger(Logger<BaseLogger>& newLogger) noexcept
 {
-    Logger::activeLogger(newLogger);
+    Logger::activeLogger(&newLogger);
 }
 
 template <typename BaseLogger>
-inline Logger<BaseLogger>* Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* newLogger) noexcept
+inline Logger<BaseLogger>& Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* newLogger) noexcept
 {
     static std::mutex mtx;
     std::lock_guard<std::mutex> lock(mtx);
@@ -107,10 +95,11 @@ inline Logger<BaseLogger>* Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
         {
             logger->m_isActive.store(false);
             logger = newLogger;
+            logger->m_isActive.store(true);
         }
     }
 
-    return logger;
+    return *logger;
 }
 
 template <typename BaseLogger>

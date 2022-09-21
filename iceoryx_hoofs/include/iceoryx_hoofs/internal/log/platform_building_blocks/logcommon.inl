@@ -96,6 +96,164 @@ inline constexpr const char* logLevelDisplayText(const LogLevel value) noexcept
 
     return "[UNDEF]";
 }
+
+namespace internal
+{
+template <typename>
+constexpr bool always_false_v{false};
+
+template <typename T>
+constexpr const char* logFormatDec()
+{
+    static_assert(always_false_v<T>, "This type is not supported for decimal output!");
+    return nullptr;
+}
+template <>
+inline constexpr const char* logFormatDec<signed char>()
+{
+    return "%hhi";
+}
+template <>
+inline constexpr const char* logFormatDec<unsigned char>()
+{
+    return "%hhu";
+}
+template <>
+inline constexpr const char* logFormatDec<short>()
+{
+    return "%hi";
+}
+template <>
+inline constexpr const char* logFormatDec<unsigned short>()
+{
+    return "%hu";
+}
+template <>
+inline constexpr const char* logFormatDec<int>()
+{
+    return "%i";
+}
+template <>
+inline constexpr const char* logFormatDec<unsigned int>()
+{
+    return "%u";
+}
+template <>
+inline constexpr const char* logFormatDec<long>()
+{
+    return "%li";
+}
+template <>
+inline constexpr const char* logFormatDec<unsigned long>()
+{
+    return "%lu";
+}
+template <>
+inline constexpr const char* logFormatDec<long long>()
+{
+    return "%lli";
+}
+template <>
+inline constexpr const char* logFormatDec<unsigned long long>()
+{
+    return "%llu";
+}
+template <>
+inline constexpr const char* logFormatDec<float>()
+{
+    return "%.5e";
+}
+template <>
+inline constexpr const char* logFormatDec<double>()
+{
+    return "%.5le";
+}
+template <>
+inline constexpr const char* logFormatDec<long double>()
+{
+    return "%.5Le";
+}
+
+template <typename T>
+constexpr const char* logFormatHex()
+{
+    static_assert(always_false_v<T>, "This type is not supported for hexadecimal output!");
+    return nullptr;
+}
+template <>
+constexpr const char* logFormatHex<unsigned char>()
+{
+    return "%hhx";
+}
+template <>
+constexpr const char* logFormatHex<unsigned short>()
+{
+    return "%hx";
+}
+template <>
+constexpr const char* logFormatHex<unsigned int>()
+{
+    return "%x";
+}
+template <>
+constexpr const char* logFormatHex<unsigned long>()
+{
+    return "%lx";
+}
+template <>
+constexpr const char* logFormatHex<unsigned long long>()
+{
+    return "%llx";
+}
+template <>
+constexpr const char* logFormatHex<float>()
+{
+    return "%a";
+}
+template <>
+constexpr const char* logFormatHex<double>()
+{
+    return "%la";
+}
+template <>
+constexpr const char* logFormatHex<long double>()
+{
+    return "%La";
+}
+
+template <typename T>
+constexpr const char* logFormatOct()
+{
+    static_assert(always_false_v<T>, "This type is not supported for octal output!");
+    return nullptr;
+}
+template <>
+constexpr const char* logFormatOct<unsigned char>()
+{
+    return "%hho";
+}
+template <>
+constexpr const char* logFormatOct<unsigned short>()
+{
+    return "%ho";
+}
+template <>
+constexpr const char* logFormatOct<unsigned int>()
+{
+    return "%o";
+}
+template <>
+constexpr const char* logFormatOct<unsigned long>()
+{
+    return "%lo";
+}
+template <>
+constexpr const char* logFormatOct<unsigned long long>()
+{
+    return "%llo";
+}
+} // namespace internal
+
 } // namespace pbb
 } // namespace iox
 

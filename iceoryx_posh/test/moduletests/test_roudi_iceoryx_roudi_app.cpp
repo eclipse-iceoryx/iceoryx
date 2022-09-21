@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/testing/logger.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
@@ -33,34 +34,6 @@ using namespace ::testing;
 using iox::roudi::IceOryxRouDiApp;
 using namespace iox::config;
 using namespace iox;
-
-class OutputBuffer
-{
-  public:
-    OutputBuffer()
-    {
-        m_oldBuffer = std::clog.rdbuf();
-        std::clog.rdbuf(m_capture.rdbuf());
-    }
-    ~OutputBuffer()
-    {
-        std::clog.rdbuf(m_oldBuffer);
-    }
-
-    std::string str()
-    {
-        return m_capture.str();
-    }
-
-    void clear()
-    {
-        m_capture.str(std::string());
-    }
-
-  private:
-    std::stringstream m_capture;
-    std::streambuf* m_oldBuffer{nullptr};
-};
 
 class IceoryxRoudiApp_Child : public IceOryxRouDiApp
 {
@@ -102,18 +75,12 @@ class IceoryxRoudiApp_test : public Test
   public:
     CmdLineParserConfigFileOption cmdLineParser;
 
-    void SetUp() override
-    {
-        outBuffer.clear();
-    }
-
     void TearDown() override
     {
         // Reset optind to be able to parse again
         optind = 0;
     };
 
-    OutputBuffer outBuffer;
     const std::regex colorCode{"\\x1B\\[([0-9]*;?)*m"};
 };
 
@@ -237,8 +204,6 @@ TEST_F(IceoryxRoudiApp_test, ConstructorCalledWithArgVersionSetRunVariableToFals
     EXPECT_FALSE(roudi.getVariableRun());
 }
 
-// @todo iox-#1345 re-enable in follow-up PR
-#if 0
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0a193ef0-b6c5-4e5b-998d-7f86102814e0");
@@ -246,7 +211,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
-    const std::string expected = "A RouDiConfig without segments was specified! Please provide a valid config!";
+    const std::string expectedOutput = "A RouDiConfig without segments was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
 
@@ -256,10 +221,14 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
 
-    std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
-
     EXPECT_FALSE(roudi.getVariableRun());
-    EXPECT_NE(output.find(expected), std::string::npos);
+
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    {
+        auto logMessages = iox::testing::Logger::getLogMessages();
+        ASSERT_THAT(logMessages.size(), Eq(1U));
+        EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+    }
 }
 
 TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPoolSetRunVariableToFalse)
@@ -269,7 +238,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     args[0] = &appName[0];
-    const std::string expected =
+    const std::string expectedOutput =
         "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
 
     auto cmdLineArgs = cmdLineParser.parse(NUMBER_OF_ARGS, args);
@@ -285,10 +254,13 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
 
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), roudiConfig);
 
-    std::string output = std::regex_replace(outBuffer.str(), colorCode, std::string(""));
-
     EXPECT_FALSE(roudi.getVariableRun());
-    EXPECT_NE(output.find(expected), std::string::npos);
+
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    {
+        auto logMessages = iox::testing::Logger::getLogMessages();
+        ASSERT_THAT(logMessages.size(), Eq(1U));
+        EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+    }
 }
-#endif
 } // namespace

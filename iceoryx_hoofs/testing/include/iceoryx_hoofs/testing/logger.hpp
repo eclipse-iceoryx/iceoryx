@@ -33,15 +33,22 @@ class Logger : public platform::TestingLoggerBase
     using Base = platform::TestingLoggerBase;
 
   public:
-    static void init();
+    static void init() noexcept;
 
-    void clearLogBuffer();
+    void clearLogBuffer() noexcept;
 
-    void printLogBuffer();
+    void printLogBuffer() noexcept;
 
-    static uint64_t getNumberOfLogMessages();
+    static uint64_t getNumberOfLogMessages() noexcept;
 
-    static std::vector<std::string> getLogMessages();
+    static std::vector<std::string> getLogMessages() noexcept;
+
+    /// @brief Checks if the the LogLevel is above the minimal supported LogLevel compiled into the binary
+    /// @note This can be used in tests which check for a specific log output
+    static inline constexpr bool doesLoggerSupportLogLevel(const log::LogLevel logLevel) noexcept
+    {
+        return platform::MINIMAL_LOG_LEVEL >= logLevel;
+    }
 
   private:
     Logger() noexcept = default;

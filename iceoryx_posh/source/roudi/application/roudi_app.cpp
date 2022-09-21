@@ -57,7 +57,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     // be silent if not running
     if (m_run)
     {
-        iox::log::Logger::get().setLogLevel(m_logLevel);
+        iox::log::Logger::setLogLevel(m_logLevel);
 
         LogVerbose() << "Command line parameters are:\n" << cmdLineArgs;
     }

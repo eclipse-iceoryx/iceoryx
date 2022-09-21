@@ -37,34 +37,57 @@ inline void ConsoleLogger::unused(T&&) const noexcept
 {
 }
 
-template <typename T>
-inline void ConsoleLogger::logArithmetik(const T value, const char* format) noexcept
+template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int>>
+inline void ConsoleLogger::logDec(const T value) noexcept
 {
-    auto retVal =
-        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        snprintf(&m_buffer[m_bufferWriteIndex], NULL_TERMINATED_BUFFER_SIZE - m_bufferWriteIndex, format, value);
+    logArithmetic(value, LOG_FORMAT_DEC<T>);
+}
+
+template <typename T,
+          typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
+                                        || std::is_floating_point<T>::value,
+                                    int>>
+inline void ConsoleLogger::logHex(const T value) noexcept
+{
+    logArithmetic(value, LOG_FORMAT_HEX<T>);
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>>
+inline void ConsoleLogger::logOct(const T value) noexcept
+{
+    logArithmetic(value, LOG_FORMAT_OCT<T>);
+}
+
+template <typename T>
+inline void ConsoleLogger::logArithmetic(const T value, const char* format) noexcept
+{
+    auto& data = getThreadLocalData();
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
+                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
+                           format,
+                           value);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
         /// conversion specifier; nevertheless, we might want to call the error handler after the error handler
         /// refactoring was merged
+        return;
+    }
+
+    auto stringSizeToLog = static_cast<uint32_t>(retVal);
+    auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
+    if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
+    {
+        data.bufferWriteIndex = bufferWriteIndexNext;
     }
     else
     {
-        auto stringSizeToLog = static_cast<uint32_t>(retVal);
-        auto bufferWriteIndexNext = m_bufferWriteIndex + stringSizeToLog;
-        if (bufferWriteIndexNext <= BUFFER_SIZE)
-        {
-            m_bufferWriteIndex = bufferWriteIndexNext;
-        }
-        else
-        {
-            /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
-            /// that the log buffer will be truncated;
-            /// it is intended to flush the buffer and create a new log message later on
-            m_bufferWriteIndex = BUFFER_SIZE;
-        }
+        /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
+        /// that the log buffer will be truncated;
+        /// it is intended to flush the buffer and create a new log message later on
+        data.bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;
     }
 }
 
