@@ -53,7 +53,7 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     template <typename... Targs>
     bool push(Targs&&... args) noexcept;
 
-    /// @brief calls the destructor of all contained elements in reverse creation order
+    /// @brief calls the destructor of all contained elements in reverse creation order and empties the stack
     void clear() noexcept;
 
     /// @brief returns the stack size
@@ -66,7 +66,10 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     T& getUnchecked(const uint64_t index) noexcept;
     const T& getUnchecked(const uint64_t index) const noexcept;
 
-    void clearUntil(const uint64_t index) noexcept;
+    void clearFrom(const uint64_t index) noexcept;
+
+    stack& copy(const stack& rhs) noexcept;
+    stack& move(stack&& rhs) noexcept;
 
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
     // the stack class

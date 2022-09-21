@@ -262,7 +262,7 @@ TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)
     EXPECT_THAT(testStack.size(), Eq(0));
 }
 
-TEST_F(stack_test, CopyConstructorWithFullVectorWorks)
+TEST_F(stack_test, CopyConstructorWithFullStackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f5ff8a1c-8bd4-40a9-9b10-7e90f232d78a");
     pushElements(STACK_SIZE);

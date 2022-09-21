@@ -22,13 +22,66 @@ namespace iox
 {
 namespace cxx
 {
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
+{
+    uint64_t i{0};
+    const uint64_t rhsSize{rhs.size()};
+    const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
+    // copy assignment
+    for (; i < minSize; i++)
+    {
+        getUnchecked(i) = rhs.getUnchecked(i);
+    }
+    // copy c'tor
+    for (; i < rhsSize; i++)
+    {
+        // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
+        new (&m_data[i]) T(rhs.getUnchecked(i));
+    }
+    // delete remaining elements
+    clearFrom(i);
+
+    m_size = rhsSize;
+
+    return *this;
+}
+
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>& stack<T, Capacity>::move(stack&& rhs) noexcept
+{
+    uint64_t i{0};
+    const uint64_t rhsSize{rhs.size()};
+    const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
+    // move assignment
+    for (; i < minSize; i++)
+    {
+        getUnchecked(i) = std::move(rhs.getUnchecked(i));
+    }
+    // move c'tor
+    for (; i < rhsSize; i++)
+    {
+        // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
+        new (&m_data[i]) T(std::move(rhs.getUnchecked(i)));
+    }
+    // delete remaining elements
+    clearFrom(i);
+
+    m_size = rhsSize;
+    rhs.clear();
+
+    return *this;
+}
+
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
 // element is pushed
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(const stack& rhs) noexcept
 {
-    *this = rhs;
+    copy(rhs);
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
@@ -37,64 +90,29 @@ inline stack<T, Capacity>::stack(const stack& rhs) noexcept
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack(stack&& rhs) noexcept
 {
-    *this = std::move(rhs);
+    move(std::move(rhs));
 }
 
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexcept
 {
-    if (this != &rhs)
+    if (this == &rhs)
     {
-        uint64_t i{0};
-        const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
-
-        // copy assignment
-        for (; i < minSize; i++)
-        {
-            getUnchecked(i) = rhs.getUnchecked(i);
-        }
-        // copy c'tor
-        for (; i < rhsSize; i++)
-        {
-            // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
-            new (&m_data[i]) T(rhs.getUnchecked(i));
-        }
-        // delete remaining elements
-        clearUntil(i);
-
-        m_size = rhsSize;
+        return *this;
     }
-    return *this;
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) copy() returns *this
+    return copy(rhs);
 }
 
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
 {
-    if (this != &rhs)
+    if (this == &rhs)
     {
-        uint64_t i{0};
-        const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
-
-        // move assignment
-        for (; i < minSize; i++)
-        {
-            getUnchecked(i) = std::move(rhs.getUnchecked(i));
-        }
-        // move c'tor
-        for (; i < rhsSize; i++)
-        {
-            // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
-            new (&m_data[i]) T(std::move(rhs.getUnchecked(i)));
-        }
-        // delete remaining elements
-        clearUntil(i);
-
-        m_size = rhsSize;
-        rhs.clear();
+        return *this;
     }
-    return *this;
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) copy() returns *this
+    return move(std::move(rhs));
 }
 
 template <typename T, uint64_t Capacity>
@@ -150,11 +168,11 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
 template <typename T, uint64_t Capacity>
 inline void stack<T, Capacity>::clear() noexcept
 {
-    clearUntil(0);
+    clearFrom(0);
 }
 
 template <typename T, uint64_t Capacity>
-inline void stack<T, Capacity>::clearUntil(const uint64_t index) noexcept
+inline void stack<T, Capacity>::clearFrom(const uint64_t index) noexcept
 {
     while (m_size > index)
     {
