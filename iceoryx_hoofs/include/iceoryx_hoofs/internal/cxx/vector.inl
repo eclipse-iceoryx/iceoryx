@@ -373,7 +373,7 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
 }
 
 template <typename T, uint64_t Capacity>
-T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
+inline T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -381,7 +381,7 @@ T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
+inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by template parameter
     // NOLINTJUSTIFICATION User accessible method at() performs bounds check
@@ -390,7 +390,7 @@ const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
+inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
 {
     while (m_size > startPosition)
     {
