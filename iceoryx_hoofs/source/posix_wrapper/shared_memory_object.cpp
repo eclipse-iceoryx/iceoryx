@@ -18,7 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -54,19 +54,19 @@ static void memsetSigbusHandler(int) noexcept
     _exit(EXIT_FAILURE);
 }
 
+// NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
+// results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
     auto printErrorDetails = [this] {
         LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
                    << ", sizeInBytes = " << m_memorySizeInBytes << ", access mode = " << asStringLiteral(m_accessMode)
-                   << ", open mode = " << asStringLiteral(m_openMode)
-                   << ", baseAddressHint = "
-                   // NOLINTJUSTIFICATION baseAddressHint printed on failure to make debugging easier as uint64 hex
-                   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                   << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
-                                           : log::HexFormat(static_cast<uint64_t>(0U)))
+                   << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
+                   << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
+                                           : iox::log::hex(static_cast<uint64_t>(0U)))
                    << ((m_baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
+                   << ", permissions = " << iox::log::hex(static_cast<mode_t>(m_permissions)) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()

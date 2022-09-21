@@ -58,13 +58,8 @@ iox_add_library(
         source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/log/hoofs_logging.cpp
-        source/log/logcommon.cpp
-        source/log/logger.cpp
-        source/log/logging_internal.cpp
-        source/log/logging.cpp
-        source/log/logmanager.cpp
-        source/log/logstream.cpp
+        source/log/platform_building_blocks/console_logger.cpp
+        source/log/platform_building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp

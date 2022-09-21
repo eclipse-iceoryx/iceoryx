@@ -15,6 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+// @todo iox-#1345 re-enable in follow-up PR
+#if 0
+
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
@@ -217,3 +220,5 @@ TEST_P(IoxLoggerLogLevel_test, LogLevel)
     }
 }
 } // namespace
+
+#endif

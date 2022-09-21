@@ -29,22 +29,21 @@ void ErrorHandler::defaultHandler(const uint32_t, const char* errorName, const E
 
 void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorName) noexcept
 {
-    static auto& logger = createLogger("", "", log::LogManager::GetLogManager().DefaultLogLevel());
     constexpr const char ERROR_TEXT[] = "ICEORYX error! ";
 
     switch (level)
     {
     case ErrorLevel::FATAL:
-        logger.LogError() << ERROR_TEXT << errorName;
+        LogError() << ERROR_TEXT << errorName;
         assert(false);
         std::terminate();
         break;
     case ErrorLevel::SEVERE:
-        logger.LogWarn() << ERROR_TEXT << errorName;
+        LogWarn() << ERROR_TEXT << errorName;
         assert(false);
         break;
     case ErrorLevel::MODERATE:
-        logger.LogWarn() << ERROR_TEXT << errorName;
+        LogWarn() << ERROR_TEXT << errorName;
         break;
     }
 }

@@ -95,7 +95,6 @@ iox_add_library(
     PRIVATE_LIBS            ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE_LIBS_LINUX      rt
     FILES
-        source/log/posh_logging.cpp
         source/capro/capro_message.cpp
         source/capro/service_description.cpp
         source/error_handling/error_handling.cpp
@@ -245,7 +244,6 @@ if(TOML_CONFIG)
                             ${CMAKE_BINARY_DIR}/dependencies/install/include
         INSTALL_INTERFACE   include/${PREFIX}
         FILES
-            source/log/posh_config_logging.cpp
             source/gateway/gateway_config.cpp
             source/gateway/toml_gateway_config_parser.cpp
             source/roudi/roudi_config_toml_file_provider.cpp

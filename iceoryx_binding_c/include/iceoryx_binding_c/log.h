@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 enum iox_LogLevel
 {
     Iceoryx_LogLevel_Off = 0,
-    Iceoryx_LogLevel_Verbose,
+    Iceoryx_LogLevel_Trace,
     Iceoryx_LogLevel_Debug,
     Iceoryx_LogLevel_Info,
     Iceoryx_LogLevel_Warn,

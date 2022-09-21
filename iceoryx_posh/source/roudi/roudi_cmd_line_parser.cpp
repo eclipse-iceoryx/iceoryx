@@ -1,4 +1,5 @@
-// Copyright (c) 2020 by Robert Bosch GmbH, Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "iceoryx_platform/getopt.hpp"
@@ -58,7 +59,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "                                  on: enables monitoring for all processes" << std::endl;
             std::cout << "                                  off: disables monitoring for all processes" << std::endl;
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
-            std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, verbose}"
+            std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, trace}"
                       << std::endl;
             std::cout << "-x, --compatibility               Set compatibility check level between runtime and RouDi."
                       << std::endl;
@@ -115,37 +116,37 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kOff;
+                m_logLevel = iox::log::LogLevel::OFF;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kFatal;
+                m_logLevel = iox::log::LogLevel::FATAL;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kError;
+                m_logLevel = iox::log::LogLevel::ERROR;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kWarn;
+                m_logLevel = iox::log::LogLevel::WARN;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kInfo;
+                m_logLevel = iox::log::LogLevel::INFO;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kDebug;
+                m_logLevel = iox::log::LogLevel::DEBUG;
             }
-            else if (strcmp(optarg, "verbose") == 0)
+            else if (strcmp(optarg, "trace") == 0)
             {
-                m_logLevel = iox::log::LogLevel::kVerbose;
+                m_logLevel = iox::log::LogLevel::TRACE;
             }
             else
             {
                 m_run = false;
                 LogError() << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
-                              "'verbose'!";
+                              "'trace'!";
             }
             break;
         }

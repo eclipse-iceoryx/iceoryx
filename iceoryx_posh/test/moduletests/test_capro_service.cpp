@@ -429,6 +429,8 @@ TEST_F(ServiceDescription_test, LessThanOperatorReturnsFalseIfEventStringOfFirst
     EXPECT_FALSE(serviceDescription1 < serviceDescription2);
 }
 
+// @todo iox-#1345 re-enable in follow-up PR
+#if 0
 TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42bc3f21-d9f4-4cc3-a37e-6508e1f981c1");
@@ -448,6 +450,7 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
 }
+#endif
 
 /// END SERVICEDESCRIPTION TESTS
 

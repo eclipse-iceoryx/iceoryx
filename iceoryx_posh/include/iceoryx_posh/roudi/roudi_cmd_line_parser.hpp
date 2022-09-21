@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/log/logcommon.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
@@ -64,7 +64,7 @@ class CmdLineParser
 
   protected:
     bool m_run{true};
-    iox::log::LogLevel m_logLevel{iox::log::LogLevel::kWarn};
+    iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::OFF};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     cxx::optional<uint16_t> m_uniqueRouDiId;

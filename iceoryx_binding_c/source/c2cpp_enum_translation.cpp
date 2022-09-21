@@ -57,7 +57,7 @@ iox::popo::SubscriberEvent subscriberEvent(const iox_SubscriberEvent value) noex
         return iox::popo::SubscriberEvent::DATA_RECEIVED;
     }
 
-    iox::LogFatal() << "invalid iox_SubscriberEvent value";
+    LogFatal() << "invalid iox_SubscriberEvent value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_EVENT_VALUE);
     return iox::popo::SubscriberEvent::DATA_RECEIVED;
 }
@@ -70,7 +70,7 @@ iox::popo::SubscriberState subscriberState(const iox_SubscriberState value) noex
         return iox::popo::SubscriberState::HAS_DATA;
     }
 
-    iox::LogFatal() << "invalid iox_SubscriberState value";
+    LogFatal() << "invalid iox_SubscriberState value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SUBSCRIBER_STATE_VALUE);
     return iox::popo::SubscriberState::HAS_DATA;
 }
@@ -83,7 +83,7 @@ iox::popo::ClientEvent clientEvent(const iox_ClientEvent value) noexcept
         return iox::popo::ClientEvent::RESPONSE_RECEIVED;
     }
 
-    iox::LogFatal() << "invalid iox_ClientEvent value";
+    LogFatal() << "invalid iox_ClientEvent value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_EVENT_VALUE);
     return iox::popo::ClientEvent::RESPONSE_RECEIVED;
 }
@@ -96,7 +96,7 @@ iox::popo::ClientState clientState(const iox_ClientState value) noexcept
         return iox::popo::ClientState::HAS_RESPONSE;
     }
 
-    iox::LogFatal() << "invalid iox_ClientState value";
+    LogFatal() << "invalid iox_ClientState value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_CLIENT_STATE_VALUE);
     return iox::popo::ClientState::HAS_RESPONSE;
 }
@@ -109,7 +109,7 @@ iox::popo::ServerEvent serverEvent(const iox_ServerEvent value) noexcept
         return iox::popo::ServerEvent::REQUEST_RECEIVED;
     }
 
-    iox::LogFatal() << "invalid iox_ServerEvent value";
+    LogFatal() << "invalid iox_ServerEvent value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_EVENT_VALUE);
     return iox::popo::ServerEvent::REQUEST_RECEIVED;
 }
@@ -122,7 +122,7 @@ iox::popo::ServerState serverState(const iox_ServerState value) noexcept
         return iox::popo::ServerState::HAS_REQUEST;
     }
 
-    iox::LogFatal() << "invalid iox_ServerState value";
+    LogFatal() << "invalid iox_ServerState value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVER_STATE_VALUE);
     return iox::popo::ServerState::HAS_REQUEST;
 }
@@ -135,7 +135,7 @@ iox::runtime::ServiceDiscoveryEvent serviceDiscoveryEvent(const iox_ServiceDisco
         return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
     }
 
-    iox::LogFatal() << "invalid iox_ServiceDiscoveryEvent value";
+    LogFatal() << "invalid iox_ServiceDiscoveryEvent value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_SERVICE_DISCOVERY_EVENT_VALUE);
     return iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED;
 }
@@ -150,7 +150,7 @@ iox::popo::MessagingPattern messagingPattern(const iox_MessagingPattern value) n
         return iox::popo::MessagingPattern::REQ_RES;
     }
 
-    iox::LogFatal() << "invalid iox_MessagingPattern value";
+    LogFatal() << "invalid iox_MessagingPattern value";
     errorHandler(iox::CBindingError::BINDING_C__C2CPP_ENUM_TRANSLATION_INVALID_MESSAGING_PATTERN_VALUE);
     return iox::popo::MessagingPattern::PUB_SUB;
 }

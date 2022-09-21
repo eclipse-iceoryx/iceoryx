@@ -21,7 +21,6 @@
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_hoofs/log/logmanager.hpp"
 
 #include <iostream>
 
