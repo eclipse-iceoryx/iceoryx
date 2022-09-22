@@ -75,14 +75,7 @@ class TestBaseServer : public Base
 
 using BaseServerTypes = Types<BaseServerWithMocks, UntypedServerWithMocks, TypedServerWithMocks>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes, );
 
 template <typename SutType>
 class BaseServer_test : public Test

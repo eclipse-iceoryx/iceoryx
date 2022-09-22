@@ -75,14 +75,7 @@ class TestBaseClient : public Base
 
 using BaseClientTypes = Types<BaseClientWithMocks, UntypedClientWithMocks, TypedClientWithMocks>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(BaseClient_test, BaseClientTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(BaseClient_test, BaseClientTypes, );
 
 template <typename SutType>
 class BaseClient_test : public Test

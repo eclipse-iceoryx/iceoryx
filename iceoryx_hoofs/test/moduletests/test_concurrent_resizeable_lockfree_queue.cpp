@@ -71,16 +71,7 @@ using IntQueue = iox::concurrent::ResizeableLockFreeQueue<uint64_t, Capacity>;
 
 typedef ::testing::Types<IntegerQueue<1>, IntegerQueue<11>, IntQueue<10>> TestQueues;
 
-
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(ResizeableLockFreeQueueTest, TestQueues);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
-
+TYPED_TEST_SUITE(ResizeableLockFreeQueueTest, TestQueues, );
 
 TEST(ResizeableLockFreeQueueTest, maxCapacityIsConsistent)
 {

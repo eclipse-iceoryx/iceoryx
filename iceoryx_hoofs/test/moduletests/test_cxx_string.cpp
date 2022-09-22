@@ -34,14 +34,7 @@ class stringTyped_test : public Test
 
 using Implementations = Types<string<1>, string<15>, string<100>, string<1000>>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(stringTyped_test, Implementations);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(stringTyped_test, Implementations, );
 
 TEST(string_test, CapacityReturnsSpecifiedCapacity)
 {

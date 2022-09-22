@@ -364,14 +364,7 @@ using LargeQueue = TestQueue<1000000>;
 typedef ::testing::Types<SingleElementQueue, SmallQueue, MediumQueue, LargeQueue> TestQueues;
 // typedef ::testing::Types<MediumQueue> TestQueues;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(LockFreeQueueStressTest, TestQueues, );
 
 ///@brief Tests concurrent operation of one producer and one consumer
 /// The producer pushes a fixed number of data elements which the consumer pops and checks.

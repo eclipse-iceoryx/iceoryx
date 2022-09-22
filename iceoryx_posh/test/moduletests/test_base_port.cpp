@@ -53,14 +53,7 @@ std::vector<UniquePortId> uniquePortIds;
 using PortDataTypes =
     Types<BasePortData, PublisherPortData, SubscriberPortData, ClientPortData, ServerPortData, InterfacePortData>;
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
-TYPED_TEST_SUITE(BasePort_test, PortDataTypes);
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
+TYPED_TEST_SUITE(BasePort_test, PortDataTypes, );
 
 // port data factories
 
