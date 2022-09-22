@@ -84,6 +84,7 @@
 - Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
+- `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 
 **Workflow:**
 
@@ -400,3 +401,33 @@
     // after
     #include "iceoryx_platform/some_header.hpp"
     ```
+
+22. `cxx::unique_ptr` is no longer nullable.
+
+    ```cxx
+    // before
+    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
+    cxx::unique_ptr<int> emptyPtr(nullptr, someDeleter);
+
+    if (myPtr) { // required since the object could always be null
+        std::cout << *myPtr << std::endl;
+    }
+
+    myPtr.reset(ptrToOtherInt);
+    myPtr.release();
+
+
+    // after
+    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
+    cxx::optional<cxx::unique_ptr<int>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
+
+    // no more null check required since it is no longer nullable
+    std::cout << *myPtr << std::endl;
+
+    myPtr.reset(ptrToOtherInt);
+    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
+    ```
+
+    Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
+    will warn the user with a used after move warning when one accesses a moved object. Accessing
+    a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.

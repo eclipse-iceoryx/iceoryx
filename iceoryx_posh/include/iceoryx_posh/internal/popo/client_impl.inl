@@ -46,7 +46,7 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-    auto request = cxx::unique_ptr<Req>(reinterpret_cast<Req*>(payload), [this](auto* payload) {
+    auto request = cxx::unique_ptr<Req>(static_cast<Req*>(payload), [this](auto* payload) {
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
