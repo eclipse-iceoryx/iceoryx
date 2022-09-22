@@ -22,6 +22,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <cstdio>
 #include <mutex>
 
 namespace iox
