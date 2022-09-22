@@ -515,4 +515,4 @@
 
     Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
     will warn the user with a used after move warning when one accesses a moved object. Accessing
-    a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
+    a moved `function` is well defined and behaves like dereferencing a `nullptr`.
