@@ -19,6 +19,9 @@
 
 #include <pthread.h>
 
+#define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
+#define PTHREAD_MUTEX_FAST_NP PTHREAD_MUTEX_NORMAL
+
 using iox_pthread_t = pthread_t;
 using iox_pthread_attr_t = pthread_attr_t;
 

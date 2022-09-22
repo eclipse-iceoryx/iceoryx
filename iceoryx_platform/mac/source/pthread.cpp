@@ -70,3 +70,8 @@ iox_pthread_t iox_pthread_self()
 {
     return pthread_self();
 }
+
+int pthread_mutexattr_setrobust(pthread_mutexattr_t*, int)
+{
+    return 0;
+}

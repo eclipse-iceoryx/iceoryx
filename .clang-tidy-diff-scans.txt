@@ -15,7 +15,7 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/concurrent/*
 ./iceoryx_hoofs/source/concurrent/*
 ./iceoryx_hoofs/test/moduletests/test_concurrent_*
-./iceoryx_hoofs/test/stresstests/test_stress_sofi.cpp
+./iceoryx_hoofs/test/stresstests/sofi/test_stress_sofi.cpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*

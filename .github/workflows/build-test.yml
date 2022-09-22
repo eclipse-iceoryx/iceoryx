@@ -11,6 +11,8 @@ on:
 
 jobs:
   pre-flight-check:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
@@ -20,6 +22,8 @@ jobs:
       - run: ./tools/ci/cmake-linter.sh
 
   build-test-ubuntu:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
@@ -35,7 +39,7 @@ jobs:
 
   # uses macos to run freebsd in a virtualbox
   build-test-unix-with-freebsd:
-    # prevent stuck jobs consuming macos runners for 6 hours
+    # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
     runs-on: macos-12
@@ -53,6 +57,8 @@ jobs:
          ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: windows-2019
     needs: pre-flight-check
     steps:
@@ -61,6 +67,8 @@ jobs:
         shell: powershell
 
   run-integration-test:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
@@ -72,6 +80,8 @@ jobs:
       - run: ./tools/ci/run-integration-test.sh
 
   build-test-ubuntu-with-sanitizers-gcc-latest:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
@@ -83,6 +93,8 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh gcc
 
   build-test-ubuntu-with-sanitizers-clang-latest:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
@@ -94,9 +106,9 @@ jobs:
         run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang
 
   build-test-macos-with-sanitizers:
-    runs-on: macos-latest
-    # prevent stuck jobs consuming macos runners for 6 hours
+    # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
+    runs-on: macos-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
@@ -104,6 +116,8 @@ jobs:
 
   # gcc 5.4 is compiler used in QNX 7.0
   build-test-ubuntu-with-gcc54:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-18.04
     needs: pre-flight-check
     steps:
@@ -112,6 +126,8 @@ jobs:
 
   # Bazel sanity check
   build-test-ubuntu-bazel:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
@@ -119,6 +135,8 @@ jobs:
       - run: ./tools/ci/build-test-ubuntu-bazel.sh
 
   coverage-and-docs:
+    # prevent stuck jobs consuming runners for 6 hours
+    timeout-minutes: 60
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:

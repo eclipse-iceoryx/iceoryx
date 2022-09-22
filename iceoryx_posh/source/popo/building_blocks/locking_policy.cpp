@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2022 by Apex.AI. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,12 @@ void ThreadSafePolicy::unlock() const noexcept
 
 bool ThreadSafePolicy::tryLock() const noexcept
 {
-    return m_mutex.try_lock();
+    auto tryLockResult = m_mutex.try_lock();
+    if (tryLockResult.has_error())
+    {
+        errorHandler(PoshError::POPO__CHUNK_TRY_LOCK_ERROR, ErrorLevel::FATAL);
+    }
+    return *tryLockResult == posix::MutexTryLock::LOCK_SUCCEEDED;
 }
 
 void SingleThreadedPolicy::lock() const noexcept
