@@ -89,6 +89,7 @@
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `cxx::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
+- `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 
 **Workflow:**
 
@@ -492,3 +493,26 @@
     // after
     bool success = myCxxVector.erase(myCxxVector.begin());
     ```
+
+25. `cxx::function` is no longer nullable.
+
+    ```cxx
+    // before
+    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    cxx::function<void()> emptyFunction;
+
+    if (helloFunc) { // required since the object could always be null
+        helloFunc();
+    }
+
+    // after
+    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    cxx::optional<cxx::function<void()>> emptyPtr(cxx::nullopt); // if function shall be nullable use cxx::optional
+
+    // no more null check required since it is no longer nullable
+    helloFunc();
+    ```
+
+    Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
+    will warn the user with a used after move warning when one accesses a moved object. Accessing
+    a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
