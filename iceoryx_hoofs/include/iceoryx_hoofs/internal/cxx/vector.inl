@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -103,10 +103,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         }
 
         // delete remaining elements
-        for (; i < size(); ++i)
-        {
-            at(i).~T();
-        }
+        clearFrom(i);
 
         m_size = rhs.m_size;
     }
@@ -132,10 +129,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         }
 
         // delete remaining elements
-        for (; i < size(); ++i)
-        {
-            at(i).~T();
-        }
+        clearFrom(i);
 
         m_size = rhs.m_size;
         rhs.clear();
@@ -164,9 +158,7 @@ inline uint64_t vector<T, Capacity>::capacity() const noexcept
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clear() noexcept
 {
-    while (pop_back())
-    {
-    }
+    clearFrom(0);
 }
 
 template <typename T, uint64_t Capacity>
@@ -239,10 +231,7 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
 
     if (count < m_size)
     {
-        while (count != m_size)
-        {
-            pop_back();
-        }
+        clearFrom(count);
     }
     else if (count > m_size)
     {
@@ -370,12 +359,13 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
         }
         at(n).~T();
         m_size--;
+        return &at_unchecked(index);
     }
     return nullptr;
 }
 
 template <typename T, uint64_t Capacity>
-T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
+inline T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
@@ -383,12 +373,21 @@ T& vector<T, Capacity>::at_unchecked(const uint64_t index) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
+inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by template parameter
     // NOLINTJUSTIFICATION User accessible method at() performs bounds check
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
     return reinterpret_cast<const T*>(m_data)[index];
+}
+
+template <typename T, uint64_t Capacity>
+inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
+{
+    while (m_size > startPosition)
+    {
+        at_unchecked(--m_size).~T();
+    }
 }
 
 } // namespace cxx
