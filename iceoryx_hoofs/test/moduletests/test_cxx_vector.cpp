@@ -930,12 +930,12 @@ TEST_F(vector_test, EraseReturnsCorrectIteratorWhenElementIsValid)
     iter = sut.erase(sut.end() - 1);
     ASSERT_THAT(sut.size(), Eq(2));
     ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.end() - 1));
+    EXPECT_THAT(iter, Eq(sut.end()));
 
     iter = sut.erase(sut.begin() + 1);
     ASSERT_THAT(sut.size(), Eq(1));
     ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.begin()));
+    EXPECT_THAT(iter, Eq(sut.end()));
 
     iter = sut.erase(sut.begin());
     ASSERT_THAT(sut.size(), Eq(0));
