@@ -236,7 +236,7 @@ inline typename RelativePointer<T>::ptr_t RelativePointer<T>::computeRawPtr() co
     return getPtr(segment_id_t{m_id}, m_offset);
 }
 
-static inline PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept
+inline PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept
 {
     static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t> repository;
     return repository;

@@ -57,7 +57,7 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                         const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     auto* ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, segmentManagerAddressOffset);
-    auto* segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
+    auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
     for (const auto& segment : segmentMapping)

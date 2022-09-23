@@ -218,7 +218,7 @@ using UntypedRelativePointer = RelativePointer<void>;
 
 /// @brief returns the pointer repository storing untyped pointers
 /// @return the static pointer repository
-static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
+PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
 
 
 } // namespace rp
