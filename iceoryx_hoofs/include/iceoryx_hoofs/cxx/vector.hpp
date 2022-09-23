@@ -211,8 +211,8 @@ class vector
     ///         the middle of the vector every element is moved one place to the
     ///         left to ensure that the elements are stored contiguously
     /// @param[in] position at which the element shall be removed
-    /// @return iterator following the removed element if begin() <= position < end(), otherwise nullptr
-    iterator erase(iterator position) noexcept;
+    /// @return true if the element was removed, i.e. begin() <= position < end(), otherwise false
+    bool erase(iterator position) noexcept;
 
   private:
     T& at_unchecked(const uint64_t index) noexcept;

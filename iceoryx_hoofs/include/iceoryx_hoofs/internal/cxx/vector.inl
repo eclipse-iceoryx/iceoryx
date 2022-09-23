@@ -347,7 +347,7 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
 }
 
 template <typename T, uint64_t Capacity>
-inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterator position) noexcept
+inline bool vector<T, Capacity>::erase(iterator position) noexcept
 {
     if (begin() <= position && position < end())
     {
@@ -359,9 +359,9 @@ inline typename vector<T, Capacity>::iterator vector<T, Capacity>::erase(iterato
         }
         at(n).~T();
         m_size--;
-        return &at_unchecked(index);
+        return true;
     }
-    return nullptr;
+    return false;
 }
 
 template <typename T, uint64_t Capacity>
