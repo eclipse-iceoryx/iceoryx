@@ -87,6 +87,7 @@
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+- Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 
 **Workflow:**
 
@@ -460,4 +461,14 @@
         .mutexType(iox::posix::MutexType::RECURSIVE)
         .create(myMutex);
     myMutex->lock();
+    ```
+
+24. Change return type of `cxx::vector::erase` from iterator to bool
+
+    ```cpp
+    // before
+    auto* iter = myCxxVector.erase(myCxxVector.begin());
+
+    // after
+    bool success = myCxxVector.erase(myCxxVector.begin());
     ```

@@ -912,6 +912,8 @@ TEST_F(vector_test, EraseFailsWhenElementIsInvalid)
     ::testing::Test::RecordProperty("TEST_ID", "ff7c1c4a-4ef5-4905-a107-6f1d27462d47");
     auto* i = sut.begin() + 5U;
     EXPECT_FALSE(sut.erase(i));
+    EXPECT_FALSE(sut.erase(sut.end()));
+    EXPECT_FALSE(sut.erase(sut.begin() - 1));
 }
 
 TEST_F(vector_test, ErasingElementDecreasesSize)
