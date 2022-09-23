@@ -39,7 +39,7 @@ inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
     {
         destroy();
         m_ptr = rhs.m_ptr;
-        m_deleter = rhs.m_deleter;
+        m_deleter = std::move(rhs.m_deleter);
         rhs.m_ptr = nullptr;
     }
     return *this;
