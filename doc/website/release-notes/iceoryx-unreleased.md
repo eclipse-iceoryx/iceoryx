@@ -383,7 +383,7 @@
 
     ```cpp
     // before
-    uint64_t id = RelativePointer::register(myPtr, 42);
+    uint64_t id = RelativePointer::register(startAddress, numBytes);
 
     if(id == INVALID_ID)
     {
@@ -391,7 +391,7 @@
     }
 
     // after
-    auto maybeId = RelativePointer::register(myPtr, 42);
+    auto maybeId = RelativePointer::register(startAddress, numBytes);
 
     if(!id.has_value())
     {

@@ -72,7 +72,7 @@ inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr
             {
                 m_maxRegistered = id;
             }
-            return cxx::make_optional<id_t>(id);
+            return id;
         }
     }
 
@@ -132,9 +132,9 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
             return id;
         }
     }
-    /// @note implicitly interpret the pointer as a regular pointer if not found
-    /// by setting id to RAW_POINTER_BEHAVIOUR
-    return RAW_POINTER_BEHAVIOUR;
+    /// @note treat the pointer as a regular pointer if not found
+    /// by setting id to RAW_POINTER_BEHAVIOUR_ID
+    return RAW_POINTER_BEHAVIOUR_ID;
 }
 
 } // namespace rp

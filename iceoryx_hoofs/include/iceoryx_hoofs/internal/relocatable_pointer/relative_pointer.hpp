@@ -65,12 +65,11 @@ class RelativePointer : public BaseRelativePointer
     typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept;
 
     /// @brief read-only access to the underlying object. If the RelativePointer does not point to anything the
-    /// application might terminate.
+    /// application terminates.
     /// @return a pointer to the underlying object
     T* operator->() const noexcept;
 
-    /// @brief access the underlying object. If the RelativePointer does not point to anything the
-    /// application might terminate.
+    /// @brief access the underlying object.
     /// @return a pointer to the underlying object
     T* get() const noexcept;
 

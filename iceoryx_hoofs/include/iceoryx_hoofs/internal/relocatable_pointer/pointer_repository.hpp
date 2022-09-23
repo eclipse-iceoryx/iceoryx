@@ -56,7 +56,7 @@ class PointerRepository
     /// @note 0 is a special purpose id and reserved
     /// id 0 is reserved to interpret the offset just as a raw pointer,
     /// i.e. its corresponding base ptr is 0
-    static constexpr id_t RAW_POINTER_BEHAVIOUR{0};
+    static constexpr id_t RAW_POINTER_BEHAVIOUR_ID{0};
 
     /// @brief default constructor
     PointerRepository() noexcept;
@@ -68,7 +68,7 @@ class PointerRepository
     PointerRepository& operator=(PointerRepository&&) = delete;
 
     /// @brief registers the start pointer of the segment in another application with a specific id
-    /// @param[in] id identifies the segment which the pointer should be added to
+    /// @param[in] id identifies the segment that the pointer should be added to
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
     /// @return true if the registration was successful, otherwise false
@@ -77,7 +77,7 @@ class PointerRepository
     /// @brief registers the start pointer of a segment with a specific size
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
-    /// @return the segment id wrapped in an cxx::optional to which the pointer was added, cxx::nullopt if pointer was
+    /// @return the segment id to which the pointer was added wrapped in an cxx::optional, cxx::nullopt if pointer was
     /// not added
     cxx::optional<id_t> registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
