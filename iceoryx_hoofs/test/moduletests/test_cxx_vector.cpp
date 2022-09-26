@@ -907,40 +907,13 @@ TEST_F(vector_test, IterateUsingConstSquareBracket)
     }
 }
 
-TEST_F(vector_test, EraseReturnsNullWhenElementIsInvalid)
+TEST_F(vector_test, EraseFailsWhenElementIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ff7c1c4a-4ef5-4905-a107-6f1d27462d47");
     auto* i = sut.begin() + 5U;
-    EXPECT_THAT(sut.erase(i), Eq(nullptr));
-}
-
-TEST_F(vector_test, EraseReturnsCorrectIteratorWhenElementIsValid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "4ebc10a8-8cb3-4151-aa70-824d4c0b5597");
-    sut.emplace_back(1U);
-    sut.emplace_back(2U);
-    sut.emplace_back(3U);
-    sut.emplace_back(4U);
-
-    auto* iter = sut.erase(sut.begin());
-    ASSERT_THAT(sut.size(), Eq(3));
-    ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.begin()));
-
-    iter = sut.erase(sut.end() - 1);
-    ASSERT_THAT(sut.size(), Eq(2));
-    ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.end()));
-
-    iter = sut.erase(sut.begin() + 1);
-    ASSERT_THAT(sut.size(), Eq(1));
-    ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.end()));
-
-    iter = sut.erase(sut.begin());
-    ASSERT_THAT(sut.size(), Eq(0));
-    ASSERT_NE(iter, nullptr);
-    EXPECT_THAT(iter, Eq(sut.end()));
+    EXPECT_FALSE(sut.erase(i));
+    EXPECT_FALSE(sut.erase(sut.end()));
+    EXPECT_FALSE(sut.erase(sut.begin() - 1));
 }
 
 TEST_F(vector_test, ErasingElementDecreasesSize)
@@ -949,8 +922,8 @@ TEST_F(vector_test, ErasingElementDecreasesSize)
     sut.emplace_back(3U);
     sut.emplace_back(4U);
     sut.emplace_back(5U);
-    sut.erase(sut.begin() + 2U);
-    sut.erase(sut.begin());
+    EXPECT_TRUE(sut.erase(sut.begin() + 2U));
+    EXPECT_TRUE(sut.erase(sut.begin()));
     EXPECT_THAT(sut.size(), Eq(1U));
 }
 
@@ -962,7 +935,7 @@ TEST_F(vector_test, EraseOfLastElementCallsDTorOnly)
     sut1.emplace_back(8U);
     sut1.emplace_back(9U);
 
-    sut1.erase(sut1.begin() + 2U);
+    EXPECT_TRUE(sut1.erase(sut1.begin() + 2U));
 
     EXPECT_THAT(dTor, Eq(1U));
     EXPECT_THAT(classValue, Eq(9U));
@@ -978,7 +951,7 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
     sut1.emplace_back(10U);
     sut1.emplace_back(11U);
 
-    sut1.erase(sut1.begin() + 2U);
+    EXPECT_TRUE(sut1.erase(sut1.begin() + 2U));
 
     EXPECT_THAT(dTor, Eq(1U));
     EXPECT_THAT(moveAssignment, Eq(2U));
@@ -994,7 +967,7 @@ TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
     sut1.emplace_back(10U);
     sut1.emplace_back(11U);
 
-    sut1.erase(sut1.begin());
+    EXPECT_TRUE(sut1.erase(sut1.begin()));
 
     EXPECT_THAT(dTor, Eq(1U));
     EXPECT_THAT(moveAssignment, Eq(4U));
@@ -1008,7 +981,7 @@ TEST_F(vector_test, EraseMiddleElementDataCorrectAfterwards)
     sut.emplace_back(98U);
     sut.emplace_back(99U);
 
-    sut.erase(sut.begin() + 1U);
+    EXPECT_TRUE(sut.erase(sut.begin() + 1U));
 
     for (uint64_t k = 0U; k < sut.size(); ++k)
     {
@@ -1024,7 +997,7 @@ TEST_F(vector_test, EraseFrontElementDataCorrectAfterwards)
     sut.emplace_back(598U);
     sut.emplace_back(599U);
 
-    sut.erase(sut.begin());
+    EXPECT_TRUE(sut.erase(sut.begin()));
 
     for (uint64_t k = 0U; k < sut.size(); ++k)
     {
@@ -1042,7 +1015,7 @@ TEST_F(vector_test, EraseLastElementDataCorrectAfterwards)
     sut.emplace_back(7601U);
     sut.emplace_back(76101U);
 
-    sut.erase(sut.begin() + 5U);
+    EXPECT_TRUE(sut.erase(sut.begin() + 5U));
 
     for (uint64_t k = 0U; k < sut.size(); ++k)
     {
@@ -1058,7 +1031,7 @@ TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
         sut.emplace_back(i * 123U);
     }
 
-    sut.erase(sut.begin() + sut.size() - 1U);
+    EXPECT_TRUE(sut.erase(sut.begin() + sut.size() - 1U));
 
     for (uint64_t k = 0; k < sut.size(); ++k)
     {
