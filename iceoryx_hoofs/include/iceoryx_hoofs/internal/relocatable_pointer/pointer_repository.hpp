@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 
 #include <cassert>
-#include <iostream>
 #include <limits>
 
 namespace iox
@@ -72,7 +71,7 @@ class PointerRepository
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
     /// @return true if the registration was successful, otherwise false
-    bool registerPtrWithId(id_t id, ptr_t ptr, uint64_t size) noexcept;
+    bool registerPtrWithId(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 
     /// @brief registers the start pointer of a segment with a specific size
     /// @param[in] ptr is the start pointer of the segment
