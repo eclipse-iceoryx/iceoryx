@@ -37,9 +37,9 @@ inline GatewayGeneric<channel_t, gateway_t>::~GatewayGeneric() noexcept
 template <typename channel_t, typename gateway_t>
 inline void GatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
 {
+    m_isRunning.store(true, std::memory_order_relaxed);
     m_discoveryThread = std::thread([this] { this->discoveryLoop(); });
     m_forwardingThread = std::thread([this] { this->forwardingLoop(); });
-    m_isRunning.store(true, std::memory_order_relaxed);
 }
 
 template <typename channel_t, typename gateway_t>
