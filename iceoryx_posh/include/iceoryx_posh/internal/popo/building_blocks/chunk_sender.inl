@@ -128,6 +128,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             auto chunkSize = lastChunkChunkHeader->chunkSize();
             lastChunkChunkHeader->~ChunkHeader();
             new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
+            lastChunkChunkHeader->setOriginId(originId);
             return cxx::success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
         }
         else
