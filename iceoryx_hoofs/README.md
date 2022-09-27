@@ -22,7 +22,7 @@ and we do not use dynamic memory. In these cases we adjusted the API to our use 
 Most of the headers are providing some example code on how the
 class should be used.
 
-### Memory & lifetime management
+### Memory & lifetime management (memory)
 
 | class                              | internal | description                                                                                                                                                                                                              |
 |:----------------------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -36,7 +36,7 @@ class should be used.
 |`shared_memory_object/MemoryMap`    | i        | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.                                                                                                                                           |
 |`shared_memory_object/SharedMemory` | i        | Abstraction of shared memory, see [ManPage shm_overview](https://www.man7.org/linux/man-pages/man7/shm_overview.7.html) and helper class for the `SharedMemoryObject`.                                                   |
 
-### Containers
+### Containers (containers)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -44,7 +44,7 @@ class should be used.
 |`list`                 |          | Heap and exception free, relocatable implementation of `std::list`                                                                                                                                                                    |
 |`stack`                |          | Stack implementation with simple push/pop interface.                                                                                                                                                                                  |
 
-### Common vocabulary types
+### Common vocabulary types (vocabulary)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -53,7 +53,7 @@ class should be used.
 |`expected`             |          | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
 |`NewType<T, Policies>` |          | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype).                                                                                                                                                 |
 
-### Filesystem & OS
+### Filesystem & OS (filesystem)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -65,16 +65,15 @@ class should be used.
 |`posixCall`            |          | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call.                                      |
 |`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                     |
 
-### Functional
+### Functional (functional)
 
 | class                 | internal | description                                                                                                                                                                                                                            |
 |:---------------------:|:--------:|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`storable_function`    | i        | A `std::function` alternative with configurable backend for memory storage.                                                                                                                                                            |
 |`function`             |          | A stack-based `std::function` replacement based on `storable_function`                                                                                                                                                                 |
 |`function_ref`         |          | C++11 implementation of the next-gen C++ feature `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
-|`functional_interface` |          | Constructs to easily add functional interfaces like `and_then` to object container.                                                                                                                                                    |
 
-### Utility
+### Utility (utility)
 
 | class                 | internal | description                                                                                                                                                                                                                                |
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -83,27 +82,28 @@ class should be used.
 |`convert`              |          | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
 |`serialization`        |          | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format).                                                            |
 
-### Strings
+### Strings (strings)
 
 | class                 | internal | description                                                                                                                                                                                                                                |
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`string`               |          | Heap and exception free implementation of `std::string`. Attention, since the string is stack based, std::string or char array which are assigned to this string will be truncated and zero-terminated if they exceed the string capacity. |
 
-### Types
+### Metaprogramming (meta)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`type_traits`          |          | Extended support for evaluating types on compile-time.                                                                                                                                                                                |
 |`types`                |          | Declares essential building block types like `byte_t`.                                                                                                                                                                                |
 |`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                            |
+|`functional_interface` |          | Constructs to easily add functional interfaces like `and_then` to object container.                                                                                                                                                   |
 
-### Algorithms
+### Algorithms (algorithm)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
 
-### Queues & communication
+### Queues & communication (queues)
 
 | class                    | internal | description                                                                                                                                                                                                                        |
 |:------------------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -126,7 +126,7 @@ class should be used.
 |`SoFi`                    | Yes                   | Yes         | Yes       | 1:1                              | Yes              | Trivially Copyable    | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) |
 |`ResizeableLockFreeQueue` | Yes                   | Yes         | Yes       | n:m                              | Yes              | Copyable or Movable   | Resizeable variant of the `LockfreeQueue`                                                                               |
 
-### Threads & sychronisation
+### Threads & sychronisation (sync)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -137,13 +137,13 @@ class should be used.
 |`NamedSemaphore`       |          | Named semaphore interface, see [ManPage sem_overview](https://man7.org/linux/man-pages/man7/sem_overview.7.html)                                                                                                                            |
 |`thread`               |          | Heap-less replacement for `std::thread`.                                                                                                                                                                                              |
 
-### Generalized design patterns
+### Generalized design patterns (design)
 
 | class               | internal | description                                                         |
 |:-------------------:|:--------:|:--------------------------------------------------------------------|
 |`Builder`            |          | Macro which generates a setter method useful for a builder pattern. |
 
-### Error handling & logging
+### Error handling & logging (error)
 
 The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](../doc/design/error-handling.md)
 For information about how to use the logger API see [error-handling.md](../doc/design/error-handling.md).
@@ -155,7 +155,7 @@ For information about how to use the logger API see [error-handling.md](../doc/d
 |`logger`                 |          |                                                                                                                         |
 |`requires`               |          | Base for `Expects`/`Ensures` from the C++ Core Guideline                                                                |
 
-### Time
+### Time (time)
 
 Never use physical properties like speed or time directly as integer or float in your code.
 Otherwise you encounter problems like this function `void setTimeout(int timeout)`. What is the unit of the argument, seconds? minutes? If you use `Duration` you see it directly in the code.

@@ -47,7 +47,7 @@ package iceoryx_hoofs  {
       component Functional <<module>>
       component Utility <<module>>
       component Strings <<module>>
-      component Types <<module>>
+      component Metaprogramming <<module>>
       component Algorithms <<module>>
       component "Generalized design patterns" <<module>>
       component "Error handling & logging" <<module>>
