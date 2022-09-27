@@ -31,12 +31,17 @@ using pbb::logLevelFromEnvOr;
 using Logger = pbb::Logger<pbb::ConsoleLogger>;
 using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
 
-/// @todo iox-#1345 make this a compile time option since if will reduce performance but some logger might want
-/// to do the filtering by themselves
+/// @todo iox-#1345 make this a option a cmake argument and use via a compile define
+/// @brief If set to true, the IOX_LOG macro will ignore the the configured log level and forward all messages to the
+/// logger. This is useful in cases the default ConsoleLogger is replaced by a custom logger which does the filtering by
+/// itself
+/// @note This has an performance impact if set to true since the lazy evaluation of the logged data will be jimmied.
 static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
 
-/// @todo iox-#1345 compile time option for minimal compiled log level, i.e. all lower log level should be
-/// optimized out; this is different than IGNORE_ACTIVE_LOG_LEVEL since the active log level could still be set to off
+/// @todo iox-#1345 make this a option a cmake argument and use via a compile define
+/// @brief The minimal log level which will be compiled into the application. All log levels below this will be
+/// optimized out at compile time
+/// @note This is different than IGNORE_ACTIVE_LOG_LEVEL since the active log level could still be set to off at runtime
 static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
 
 } // namespace platform

@@ -22,17 +22,23 @@
 
 #include <atomic>
 #include <cstdint>
+#include <cstdio>
 #include <mutex>
 
 namespace iox
 {
 namespace pbb
 {
+/// @brief A minimal logger implementation which outputs the log messages to the console
 class ConsoleLogger
 {
   public:
+    /// @brief Obtain the current log level
+    /// @return the current log level
     static LogLevel getLogLevel() noexcept;
 
+    /// @brief Sets a new log level
+    /// @param[in] logLevel to be used after the call
     static void setLogLevel(const LogLevel logLevel) noexcept;
 
     virtual ~ConsoleLogger() = default;

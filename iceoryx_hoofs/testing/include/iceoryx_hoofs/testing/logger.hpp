@@ -28,22 +28,68 @@ namespace iox
 {
 namespace testing
 {
+/// @brief This logger is used for tests. It caches all the log messages and prints them to the console when a test
+/// fails. For debug purposes this behaviour can be overwritten with the `IOX_TESTING_ALLOW_LOG` environment variable,
+/// e.g. `IOX_TESTING_ALLOW_LOG=ON ./hoofs_moduletests --gtest_filter=SharedMemoryObject_Test\*`. Furthermore, it can
+/// also be used to check for the occurrence on specific log messages, e.g. when a function is expected to log an error.
+/// @code
+/// callToFunctionWhichLogsAnError();
+/// if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+/// {
+///     auto logMessages = iox::testing::Logger::getLogMessages();
+///     ASSERT_THAT(logMessages.size(), Eq(1U));
+///     EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+/// }
+/// @endcode
 class Logger : public platform::TestingLoggerBase
 {
     using Base = platform::TestingLoggerBase;
 
   public:
+    ~Logger() override = default;
+
+    Logger(const Logger&) = delete;
+    Logger(Logger&&) = delete;
+
+    Logger& operator=(const Logger&) = delete;
+    Logger& operator=(Logger&&) = delete;
+
+    /// @brief Initialized the logger. This should be called in the main function of the test binary
+    /// @code
+    /// #include "iceoryx_hoofs/testing/logger.hpp"
+    ///
+    /// #include "test.hpp"
+    ///
+    /// int main(int argc, char* argv[])
+    /// {
+    ///     ::testing::InitGoogleTest(&argc, argv);
+    ///
+    ///     iox::testing::Logger::init();
+    ///
+    ///     return RUN_ALL_TESTS();
+    /// }
+    /// @endcode
     static void init() noexcept;
 
+    /// @brief Removes all log messages from the internal cache. This is automatically done at the start of each test.
     void clearLogBuffer() noexcept;
 
+    /// @brief Prints all log messages from the internal cache. This is automatically done at the end of a failed test.
     void printLogBuffer() noexcept;
 
+    /// @brief Number of caches log messages
+    /// @return the number of the log messages from the internal cache
+    /// @note This can be used in tests which check for a specific log output
     static uint64_t getNumberOfLogMessages() noexcept;
 
+    /// @brief Access to the cached log messages
+    /// @return a vector of strings with all caches log messages
+    /// @note This can be used in tests which check for a specific log output
     static std::vector<std::string> getLogMessages() noexcept;
 
     /// @brief Checks if the the LogLevel is above the minimal supported LogLevel compiled into the binary
+    /// @param[in] logLevel is the log level to check if it is supported
+    /// @return true if the log level support is compiled into the binary, false otherwise
     /// @note This can be used in tests which check for a specific log output
     static inline constexpr bool doesLoggerSupportLogLevel(const log::LogLevel logLevel) noexcept
     {
@@ -52,12 +98,6 @@ class Logger : public platform::TestingLoggerBase
 
   private:
     Logger() noexcept = default;
-
-    Logger(const Logger&) = delete;
-    Logger(Logger&&) = delete;
-
-    Logger& operator=(const Logger&) = delete;
-    Logger& operator=(Logger&&) = delete;
 
     void flush() noexcept override;
 
@@ -70,6 +110,8 @@ class Logger : public platform::TestingLoggerBase
     concurrent::smart_lock<LoggerData> m_loggerData;
 };
 
+/// @brief This class hooks into gTest to automatically clear the log messages on the start of a test an print the
+/// cached log messages from failed tests
 class LogPrinter : public ::testing::EmptyTestEventListener
 {
     void OnTestStart(const ::testing::TestInfo&) override;

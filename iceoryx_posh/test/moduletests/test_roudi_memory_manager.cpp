@@ -151,8 +151,8 @@ TEST_F(RouDiMemoryManager_Test, OperatorTest)
     for (uint16_t i = 0; i < nbTestCase; i++)
     {
         IOX_LOGSTREAM_MOCK(loggerMock) << m_testCombinationRoudiMemoryManagerError[i];
-        ASSERT_THAT(loggerMock.m_logs.size(), Eq(i + 1U));
-        EXPECT_THAT(loggerMock.m_logs[i].message, Eq(m_testResultOperatorMethod[i]));
+        ASSERT_THAT(loggerMock.logs.size(), Eq(i + 1U));
+        EXPECT_THAT(loggerMock.logs[i].message, Eq(m_testResultOperatorMethod[i]));
     }
 }
 

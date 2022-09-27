@@ -36,17 +36,21 @@ enum class LogLevel : uint8_t
 };
 
 /// @brief converts LogLevel into a string literal
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the LogLevel value
 constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal color code
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the corresponding color code
 constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept;
 
 /// @brief converts LogLevel into a string literal display text
+/// @param[in] value the LogLevel to convert
 /// @return string literal of the display text
 constexpr const char* logLevelDisplayText(const LogLevel value) noexcept;
 
+/// @brief Provides access to the log buffer if direct access is required
 struct LogBuffer
 {
     const char* buffer{nullptr};
@@ -65,12 +69,15 @@ template <typename T>
 constexpr const char* logFormatOct();
 } // namespace internal
 
+/// @brief printf-like format string for decimal formatting of numbers
 template <typename T>
 static constexpr const char* LOG_FORMAT_DEC = internal::logFormatDec<T>();
 
+/// @brief printf-like format string for hexadecimal formatting of numbers
 template <typename T>
 static constexpr const char* LOG_FORMAT_HEX = internal::logFormatHex<T>();
 
+/// @brief printf-like format string for octal formatting of numbers
 template <typename T>
 static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 

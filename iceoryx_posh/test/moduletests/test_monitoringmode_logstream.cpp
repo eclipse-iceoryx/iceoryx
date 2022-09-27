@@ -29,7 +29,7 @@ class MonitoringModeLogStreamTest : public Test
   public:
     void TearDown()
     {
-        m_loggerMock.m_logs.clear();
+        m_loggerMock.logs.clear();
     }
 
     iox::testing::Logger_Mock m_loggerMock;
@@ -44,8 +44,8 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOffLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("MonitoringMode::OFF"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("MonitoringMode::OFF"));
 }
 
 TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
@@ -57,8 +57,8 @@ TEST_F(MonitoringModeLogStreamTest, MonitoringModeOnLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("MonitoringMode::ON"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("MonitoringMode::ON"));
 }
 
 } // namespace
