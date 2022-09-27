@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_versions.hpp"
 
 #include "iceoryx_platform/getopt.hpp"

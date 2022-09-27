@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_APP_HPP
 #define IOX_POSH_ROUDI_ROUDI_APP_HPP
 
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 

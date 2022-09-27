@@ -17,9 +17,9 @@
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 
 namespace iox

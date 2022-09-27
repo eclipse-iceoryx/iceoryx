@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
@@ -37,7 +37,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
         static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
         if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
         {
-            LogVerbose() << ": Result of conversion would overflow, clamping to max value!";
+            IOX_LOG(TRACE) << ": Result of conversion would overflow, clamping to max value!";
             return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
         }
 
@@ -62,7 +62,7 @@ struct timespec Duration::timespec(const TimeSpecReference& reference) const noe
     static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
     if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
-        LogVerbose() << ": Result of conversion would overflow, clamping to max value!";
+        IOX_LOG(TRACE) << ": Result of conversion would overflow, clamping to max value!";
         return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
     }
 

@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -64,9 +64,10 @@ cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal 
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
     if (posixCall(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
     {
-        LogError() << "This should never happen! Unable to create an empty sigaction set while registering a signal "
-                      "handler for the signal ["
-                   << static_cast<int>(signal) << "]. No signal handler will be registered!";
+        IOX_LOG(ERROR)
+            << "This should never happen! Unable to create an empty sigaction set while registering a signal "
+               "handler for the signal ["
+            << static_cast<int>(signal) << "]. No signal handler will be registered!";
         return cxx::error<SignalGuardError>(SignalGuardError::INVALID_SIGNAL_ENUM_VALUE);
     }
 
@@ -85,8 +86,9 @@ cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal 
             .evaluate()
             .has_error())
     {
-        LogError() << "This should never happen! An error occurred while registering a signal handler for the signal ["
-                   << static_cast<int>(signal) << "]. ";
+        IOX_LOG(ERROR)
+            << "This should never happen! An error occurred while registering a signal handler for the signal ["
+            << static_cast<int>(signal) << "]. ";
         return cxx::error<SignalGuardError>(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);
     }
 

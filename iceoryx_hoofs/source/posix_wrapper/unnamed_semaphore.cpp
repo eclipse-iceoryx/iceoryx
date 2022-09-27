@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <climits>
@@ -29,8 +29,8 @@ UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSe
 {
     if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
-        LogError() << "The unnamed semaphore initial value of " << m_initialValue
-                   << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
+        IOX_LOG(ERROR) << "The unnamed semaphore initial value of " << m_initialValue
+                       << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
         return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
@@ -50,13 +50,13 @@ UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSe
         switch (result.get_error().errnum)
         {
         case EINVAL:
-            LogError() << "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX;
+            IOX_LOG(ERROR) << "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX;
             break;
         case ENOSYS:
-            LogError() << "The system does not support process-shared semaphores";
+            IOX_LOG(ERROR) << "The system does not support process-shared semaphores";
             break;
         default:
-            LogError() << "This should never happen. An unknown error occurred.";
+            IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
             break;
         }
     }
@@ -74,10 +74,10 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
             switch (result.get_error().errnum)
             {
             case EINVAL:
-                LogError() << "The semaphore handle was no longer valid. This can indicate a corrupted system.";
+                IOX_LOG(ERROR) << "The semaphore handle was no longer valid. This can indicate a corrupted system.";
                 break;
             default:
-                LogError() << "This should never happen. An unknown error occurred.";
+                IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
                 break;
             }
         }

@@ -20,8 +20,8 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 

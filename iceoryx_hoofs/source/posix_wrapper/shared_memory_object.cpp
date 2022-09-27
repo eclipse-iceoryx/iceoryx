@@ -60,13 +60,14 @@ static void memsetSigbusHandler(int) noexcept
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
     auto printErrorDetails = [this] {
-        LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
-                   << ", sizeInBytes = " << m_memorySizeInBytes << ", access mode = " << asStringLiteral(m_accessMode)
-                   << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
-                   << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
-                                           : iox::log::hex(static_cast<uint64_t>(0U)))
-                   << ((m_baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
+        IOX_LOG(ERROR) << "Unable to create a shared memory object with the following properties [ name = " << m_name
+                       << ", sizeInBytes = " << m_memorySizeInBytes
+                       << ", access mode = " << asStringLiteral(m_accessMode)
+                       << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
+                       << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
+                                               : iox::log::hex(static_cast<uint64_t>(0U)))
+                       << ((m_baseAddressHint) ? "" : " (no hint set)")
+                       << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()
@@ -80,7 +81,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
     if (!sharedMemory)
     {
         printErrorDetails();
-        LogError() << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
         return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
@@ -96,7 +97,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
     if (!memoryMap)
     {
         printErrorDetails();
-        LogError() << "Failed to map created shared memory into process!";
+        IOX_LOG(ERROR) << "Failed to map created shared memory into process!";
         return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
@@ -104,7 +105,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
     if (sharedMemory->hasOwnership())
     {
-        LogDebug() << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]";
+        IOX_LOG(DEBUG) << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name
+                       << "]";
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -114,7 +116,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
             if (memsetSigbusGuard.has_error())
             {
                 printErrorDetails();
-                LogError() << "Failed to temporarily override SIGBUS to safely zero the shared memory";
+                IOX_LOG(ERROR) << "Failed to temporarily override SIGBUS to safely zero the shared memory";
                 return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
@@ -137,8 +139,8 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        LogDebug() << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
-                   << "]";
+        IOX_LOG(DEBUG) << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
+                       << "]";
     }
 
     return cxx::success<SharedMemoryObject>(

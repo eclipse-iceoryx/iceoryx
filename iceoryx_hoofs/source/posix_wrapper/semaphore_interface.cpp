@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
@@ -33,16 +33,16 @@ cxx::error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
     switch (errnum)
     {
     case EINVAL:
-        LogError() << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
+        IOX_LOG(ERROR) << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
         return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
     case EOVERFLOW:
-        LogError() << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
+        IOX_LOG(ERROR) << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
         return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     case EINTR:
-        LogError() << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
+        IOX_LOG(ERROR) << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
         return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
     default:
-        LogError() << "This should never happen. An unknown error occurred.";
+        IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
         break;
     }
     return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
