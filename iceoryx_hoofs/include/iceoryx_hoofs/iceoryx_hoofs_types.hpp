@@ -24,6 +24,11 @@
 
 namespace iox
 {
+namespace cxx
+{
+using byte_t = uint8_t;
+}
+
 namespace log
 {
 enum class LogLevel : uint8_t
