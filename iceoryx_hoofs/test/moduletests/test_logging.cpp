@@ -25,24 +25,8 @@ namespace
 {
 using namespace ::testing;
 
-class LoggingLogLevelThreshold_test : public TestWithParam<iox::log::LogLevel>
+void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
 {
-};
-
-INSTANTIATE_TEST_SUITE_P(AllLogLevel,
-                         LoggingLogLevelThreshold_test,
-                         Values(iox::log::LogLevel::OFF,
-                                iox::log::LogLevel::FATAL,
-                                iox::log::LogLevel::ERROR,
-                                iox::log::LogLevel::WARN,
-                                iox::log::LogLevel::INFO,
-                                iox::log::LogLevel::DEBUG,
-                                iox::log::LogLevel::TRACE));
-
-TEST_P(LoggingLogLevelThreshold_test, LogLevel)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "829a6634-43be-4fa4-94bf-18d53ce816a9");
-    const auto loggerLogLevel = GetParam();
     iox::log::Logger::setLogLevel(loggerLogLevel);
 
     struct LogLevel
@@ -84,6 +68,23 @@ TEST_P(LoggingLogLevelThreshold_test, LogLevel)
         {
             ASSERT_THAT(iox::testing::Logger::getNumberOfLogMessages(), Eq(0U));
         }
+    }
+}
+
+TEST(LoggingLogLevelThreshold_test, LogLevel)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "829a6634-43be-4fa4-94bf-18d53ce816a9");
+    for (const auto loggerLogLevel : {iox::log::LogLevel::OFF,
+                                      iox::log::LogLevel::FATAL,
+                                      iox::log::LogLevel::ERROR,
+                                      iox::log::LogLevel::WARN,
+                                      iox::log::LogLevel::INFO,
+                                      iox::log::LogLevel::DEBUG,
+                                      iox::log::LogLevel::TRACE})
+    {
+        SCOPED_TRACE(std::string("Logger LogLevel: ") + iox::log::asStringLiteral(loggerLogLevel));
+
+        testLogLevelThreshold(loggerLogLevel);
     }
 }
 
