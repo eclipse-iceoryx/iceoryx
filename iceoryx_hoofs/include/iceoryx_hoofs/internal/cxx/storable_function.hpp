@@ -34,18 +34,14 @@ using signature = ReturnType(Args...);
 template <uint64_t Capacity, typename T>
 class storable_function;
 
-/// @brief A storable alternative of std::function which uses memory defined by a StorageType.
-///        This can be dynamic storage, static storage or anything else adhering to the allocation interface (cf.
-///        static_storage).
+/// @brief A storable alternative of std::function which is fixed size.
 
 /// @note This is not achievable with std::function and a custom allocator, as then the memory will still not
 ///       be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation
 ///       is required.
 ///       Furthermore the allocator support of std::function in the STL is deprecated.
 
-/// @tparam StorageType The type of internal storage to store the actual data.
-///                     Needs to provide allocate and deallocate functions.
-///                     See static_storage.hpp for a static memory version.
+/// @tparam Capacity    The maximum capacity of the storable function
 /// @tparam ReturnType  The return type of the stored callable.
 /// @tparam Args        The arguments of the stored callable.
 template <uint64_t Capacity, typename ReturnType, typename... Args>
@@ -56,10 +52,6 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
-    ///
-    /// @note  Will not compile for StorageType = static_storage if the functor cannot be stored.
-    ///        For other StorageTypes it will terminate at runtime if the functor cannot be stored
-    ///        (and this cannot be detected at compile-time).
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
@@ -126,7 +118,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     void swap(storable_function& f) noexcept;
 
     /// @brief size in bytes required to store a CallableType in a storable_function
-    /// @return number of bytes StorageType must be able to allocate to store CallableType
+    /// @return number of bytes
     /// @note this is not smallest possible due to alignment, it may work with a smaller size but
     ///       is not guaranteed (but it is guaranteed to work with the number of bytes returned)
     template <typename CallableType>
@@ -135,7 +127,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     /// @brief checks whether CallableType is storable
     /// @return true if CallableType can be stored, false if it is not guaranteed that it can be stored
     /// @note it might be storable for some alignments of CallableType even if it returns false,
-    ///       in this case it is advised to increase the size of storage via the StorageType
+    ///       in this case it is advised to increase the Capacity.
     template <typename CallableType>
     static constexpr bool is_storable() noexcept;
 
