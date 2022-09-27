@@ -73,6 +73,6 @@ static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 } // namespace pbb
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log/platform_building_blocks/logformat.inl"
+#include "iceoryx_hoofs/internal/log/building_blocks/logformat.inl"
 
 #endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGFORMAT_HPP

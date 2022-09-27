@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
 #define IOX_HOOFS_PLATFORM_LOG_LOGGER_HPP
 
-#include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
-#include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
+#include "iceoryx_hoofs/log/building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log/building_blocks/logger.hpp"
 
 namespace iox
 {
