@@ -110,7 +110,7 @@ class PointerRepository
     iox::cxx::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};
 
-    bool addPointerIfIndexIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
+    bool addPointerIfIdIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };
 } // namespace memory
 } // namespace iox

@@ -39,7 +39,7 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(const id
     {
         return false;
     }
-    return addPointerIfIndexIsFree(id, ptr, size);
+    return addPointerIfIdIsFree(id, ptr, size);
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
@@ -48,7 +48,7 @@ inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr
 {
     for (id_t id = 1U; id <= MAX_ID; ++id)
     {
-        if (addPointerIfIndexIsFree(id, ptr, size))
+        if (addPointerIfIdIsFree(id, ptr, size))
         {
             return id;
         }
@@ -115,7 +115,7 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
     return RAW_POINTER_BEHAVIOUR_ID;
 }
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIndexIsFree(const id_t id,
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIdIsFree(const id_t id,
                                                                               const ptr_t ptr,
                                                                               const uint64_t size) noexcept
 {
