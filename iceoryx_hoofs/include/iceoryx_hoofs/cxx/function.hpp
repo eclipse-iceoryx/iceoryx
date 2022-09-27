@@ -46,7 +46,7 @@ constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
 ///
 
 template <typename Signature, uint64_t Capacity = DEFAULT_FUNCTION_CAPACITY>
-using function = storable_function<static_storage<Capacity>, Signature>;
+using function = storable_function<Capacity, Signature>;
 
 
 } // namespace cxx

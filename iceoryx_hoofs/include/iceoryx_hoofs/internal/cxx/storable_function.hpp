@@ -31,7 +31,7 @@ namespace cxx
 template <typename ReturnType, typename... Args>
 using signature = ReturnType(Args...);
 
-template <typename StorageType, typename T>
+template <uint64_t Capacity, typename T>
 class storable_function;
 
 /// @brief A storable alternative of std::function which uses memory defined by a StorageType.
@@ -48,10 +48,11 @@ class storable_function;
 ///                     See static_storage.hpp for a static memory version.
 /// @tparam ReturnType  The return type of the stored callable.
 /// @tparam Args        The arguments of the stored callable.
-template <typename StorageType, typename ReturnType, typename... Args>
-class storable_function<StorageType, signature<ReturnType, Args...>>
+template <uint64_t Capacity, typename ReturnType, typename... Args>
+class storable_function<Capacity, signature<ReturnType, Args...>>
 {
   public:
+    using StorageType = static_storage<Capacity>;
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
@@ -165,9 +166,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     };
 
   private:
-    operations m_operations;   // operations depending on type-erased callable (copy, move, destroy)
-    StorageType m_storage;     // storage for the callable
-    void* m_callable{nullptr}; // pointer to stored type-erased callable
+    operations m_operations; // operations depending on type-erased callable (copy, move, destroy)
+
+    StorageType m_storage;                              // storage for the callable
+    void* m_callable{nullptr};                          // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
 
@@ -205,8 +207,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 /// @brief swap two storable functions
 /// @param f the first function to swap with g
 /// @param g the second function to swap with f
-template <typename S, typename T>
-static void swap(storable_function<S, T>& f, storable_function<S, T>& g) noexcept;
+template <uint64_t Capacity, typename T>
+void swap(storable_function<Capacity, T>& f, storable_function<Capacity, T>& g) noexcept;
 
 } // namespace cxx
 } // namespace iox
