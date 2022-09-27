@@ -38,6 +38,9 @@ if(BUILD_TEST)
 
 
     set(EXTRA_CMAKE_ARGS)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-copy")
+    endif()
     if(DEFINED CMAKE_CXX_FLAGS)
         list(APPEND EXTRA_CMAKE_ARGS -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS})
     endif()
@@ -75,17 +78,6 @@ if(BUILD_TEST)
     endif()
 
     file(MAKE_DIRECTORY ${BUILD_DIR})
-
-    if(NOT WIN32)
-        execute_process(
-            COMMAND git apply -p1 --ignore-space-change --whitespace=nowarn
-            INPUT_FILE "${CMAKE_CURRENT_LIST_DIR}/0001-remove-werror-from-build-flags.patch"
-            WORKING_DIRECTORY "${SOURCE_DIR}"
-            RESULT_VARIABLE result)
-        if(result)
-            message(WARNING "CMake step [patch] for googletest failed: ${result}! Build of gtest might fail")
-        endif()
-    endif()
 
     execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" ${GTEST_BUILD_ARGS} "${SOURCE_DIR}"
         RESULT_VARIABLE result
