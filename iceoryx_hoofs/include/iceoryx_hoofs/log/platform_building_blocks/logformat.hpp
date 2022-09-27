@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
-#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
+#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGFORMAT_HPP
+#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGFORMAT_HPP
 
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
@@ -73,6 +73,6 @@ static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 } // namespace pbb
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log/platform_building_blocks/logcommon.inl"
+#include "iceoryx_hoofs/internal/log/platform_building_blocks/logformat.inl"
 
-#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
+#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGFORMAT_HPP

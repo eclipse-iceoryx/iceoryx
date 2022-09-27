@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
 #define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
 
-#include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -34,6 +34,9 @@ class LogStream;
 
 namespace pbb
 {
+/// @todo remove
+using log::LogLevel;
+
 /// @todo iox-#1345 move this to e.g. helplets once we are able to depend on on it
 /// @brief Compares C-style strings with a char array, i.g. string literal for equality
 /// @tparam[in] N size of the char array

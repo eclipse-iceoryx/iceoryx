@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
-#include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <cstdio>
 #include <cstdlib>
