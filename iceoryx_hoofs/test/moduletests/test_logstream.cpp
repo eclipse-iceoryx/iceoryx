@@ -53,7 +53,8 @@ TEST_F(IoxLogStream_test, CTorDelegatesParameterToLogger)
     constexpr const char* EXPECTED_FUNCTION{"void all_glory_to_the_hypnotoad()"};
     constexpr int EXPECTED_LINE{42};
     constexpr auto EXPECTED_LOG_LEVEL{iox::log::LogLevel::WARN};
-    iox::log::LogStream(loggerMock, EXPECTED_FILE, EXPECTED_LINE, EXPECTED_FUNCTION, EXPECTED_LOG_LEVEL) << "";
+    iox::log::LogStream(loggerMock, EXPECTED_FILE, EXPECTED_LINE, EXPECTED_FUNCTION, EXPECTED_LOG_LEVEL)
+        << [&](iox::log::LogStream& stream) -> iox::log::LogStream& { return stream; };
 
     ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.logs.back().file, StrEq(EXPECTED_FILE));

@@ -36,6 +36,9 @@ class ConsoleLogger
   public:
     /// @brief Obtain the current log level
     /// @return the current log level
+    /// @note In case this class is used as template for a custom logger implementation keep in mind that this method
+    /// must not have any side effects
+    /// @todo iox-#1345 update the design document with the requirement that this method must not have side effects
     static LogLevel getLogLevel() noexcept;
 
     /// @brief Sets a new log level
@@ -119,7 +122,7 @@ class ConsoleLogger
   private:
     // NOLINTJUSTIFICATION needed for the functionality and a private member of the class
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-    static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
+    static std::atomic<LogLevel> s_activeLogLevel; // initialized in corresponding cpp file
 };
 
 } // namespace log

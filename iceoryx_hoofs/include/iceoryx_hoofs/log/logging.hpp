@@ -25,37 +25,42 @@ namespace log
 namespace internal
 {
 /// @brief Convenience function for the IOX_LOG_INTERNAL macro
-inline bool isLogLevelActive(LogLevel logLevel)
+inline bool isLogLevelActive(LogLevel logLevel) noexcept
 {
-    return (logLevel) <= MINIMAL_LOG_LEVEL && (IGNORE_ACTIVE_LOG_LEVEL || (logLevel) <= log::Logger::getLogLevel());
+    // AXIVION Next Construct FaultDetection-DeadBranches this is a configurable compile time option to be able to
+    // optimize the logger call away during compilation and intended
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2 see justification for FaultDetection-DeadBranches
+    // AXIVION Next Construct AutosarC++19_03-M0.1.9 see justification for FaultDetection-DeadBranches
+    // AXIVION Next Construct AutosarC++19_03-M5.14.1 getLogLevel is a static method without side effects
+    return ((logLevel) <= MINIMAL_LOG_LEVEL) && (IGNORE_ACTIVE_LOG_LEVEL || ((logLevel) <= log::Logger::getLogLevel()));
 }
 
+} // namespace internal
+} // namespace log
+} // namespace iox
+
 /// @brief Only for internal usage
-// NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
+// AXIVION Next Construct AutosarC++19_03-A16.0.1 cannot be realized with templates or constexpr functions due to the
+// intended lazy evaluation technique with the if statement
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
     /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1345 temporary workaround */                        \
     iox::log::LogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level)).self()
-
-} // namespace internal
 
 /// @brief Macro for logging
 /// @param[in] level is the log level to be used for the log message
 /// @code
 ///     IOX_LOG(INFO) << "Hello World";
 /// @endcode
-// NOLINTJUSTIFICATION __PRETTY_FUNCTION__ would work better in lambdas but especially with templates the resulting
-// string is too large; we also get the file name and the line of the invocation which should be sufficient for
-// debugging
-// NOLINTBEGIN(bugprone-lambda-function-name)
-// NOLINTJUSTIFICATION needed for source code location, safely wrapped in macro
-// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay,-warnings-as-errors)
-#define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
+// AXIVION Next Construct AutosarC++19_03-A16.0.1 needed for source code location, safely wrapped in macro
+// AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead to compile time
+// failures in this case// NOLINTJUSTIFICATION __PRETTY_FUNCTION__ would work better in lambdas but especially with
+// templates the resulting string is too large; we also get the file name and the line of the invocation which should be
+// sufficient for debugging NOLINTBEGIN(bugprone-lambda-function-name)
+#define IOX_LOG(level)                                                                                                 \
+    IOX_LOG_INTERNAL(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level)
 // NOLINTEND(bugprone-lambda-function-name)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
-
-} // namespace log
-} // namespace iox
 
 #endif // IOX_HOOFS_LOG_LOGGING_HPP
