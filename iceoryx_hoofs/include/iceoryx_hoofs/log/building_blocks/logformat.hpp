@@ -24,11 +24,8 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
-/// @todo remove
-using log::LogLevel;
-
 /// @brief converts LogLevel into a string literal color code
 /// @param[in] value the LogLevel to convert
 /// @return string literal of the corresponding color code
@@ -70,7 +67,7 @@ static constexpr const char* LOG_FORMAT_HEX = internal::logFormatHex<T>();
 template <typename T>
 static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/log/building_blocks/logformat.inl"

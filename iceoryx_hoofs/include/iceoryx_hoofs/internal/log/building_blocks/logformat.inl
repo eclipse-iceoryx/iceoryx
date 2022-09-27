@@ -26,7 +26,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {
@@ -231,7 +231,7 @@ constexpr const char* logFormatOct<unsigned long long>()
 }
 } // namespace internal
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
 #endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGFORMAT_INL

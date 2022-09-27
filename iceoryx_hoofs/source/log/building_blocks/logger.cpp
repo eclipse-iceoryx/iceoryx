@@ -24,7 +24,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
 {
@@ -74,5 +74,5 @@ LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept
     return specifiedLogLevel;
 }
 
-} // namespace pbb
+} // namespace log
 } // namespace iox

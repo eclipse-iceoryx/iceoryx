@@ -30,12 +30,6 @@ namespace iox
 namespace log
 {
 class LogStream;
-} // namespace log
-
-namespace pbb
-{
-/// @todo remove
-using log::LogLevel;
 
 /// @todo iox-#1345 move this to e.g. helplets once we are able to depend on on it
 /// @brief Compares C-style strings with a char array, i.g. string literal for equality
@@ -56,6 +50,8 @@ bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 /// the function should only be used in the startup phase of the application and only in the main thread.
 LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept;
 
+namespace internal
+{
 /// @brief This class acts as common interface for the Logger. It provides the common functionality and inherits from
 /// the BaseLogger which is provided as template parameter. Please have a look at the design document for more details.
 /// @tparam[in] BaseLogger is the actual implementation
@@ -104,7 +100,8 @@ class Logger : public BaseLogger
     std::atomic<bool> m_isFinalized{false};
 };
 
-} // namespace pbb
+} // namespace internal
+} // namespace log
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/log/building_blocks/logger.inl"

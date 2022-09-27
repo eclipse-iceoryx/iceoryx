@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 template <uint32_t N>
 // NOLINTJUSTIFICATION see at declaration in header
@@ -91,7 +91,7 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
     }
 }
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
 #endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_CONSOLE_LOGGER_INL

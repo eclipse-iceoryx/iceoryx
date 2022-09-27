@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 // NOLINTJUSTIFICATION see at declaration in header
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
@@ -222,5 +222,5 @@ void ConsoleLogger::initLogger(const LogLevel) noexcept
 {
     // nothing to do in the base implementation
 }
-} // namespace pbb
+} // namespace log
 } // namespace iox

@@ -28,7 +28,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 /// @brief A minimal logger implementation which outputs the log messages to the console
 class ConsoleLogger
@@ -122,7 +122,7 @@ class ConsoleLogger
     static std::atomic<LogLevel> m_activeLogLevel; // initialized in corresponding cpp file
 };
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/log/building_blocks/console_logger.inl"
