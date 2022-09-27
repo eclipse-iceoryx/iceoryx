@@ -708,4 +708,33 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
 }
 
+TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSample)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "decbfcdd-778f-4e18-b6a8-395d400fdd80");
+
+    auto publisher = createPublisher<int>();
+    this->InterOpWait();
+    auto subscriber = createSubscriber<int>();
+    this->InterOpWait();
+
+    const auto uid = publisher->getUid();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        ASSERT_FALSE(publisher->loan()
+                         .and_then([&](auto& sample) {
+                             *sample = i;
+                             sample.publish();
+                         })
+                         .has_error());
+
+        EXPECT_FALSE(subscriber->take()
+                         .and_then([&](auto& sample) {
+                             EXPECT_THAT(*sample, Eq(i));
+                             EXPECT_THAT(sample.getChunkHeader()->originId(), Eq(uid));
+                         })
+                         .has_error());
+    }
+}
+
 } // namespace

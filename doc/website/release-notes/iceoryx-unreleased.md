@@ -52,6 +52,7 @@
 - locking_policy.cpp calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
 - Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
+- `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
 
 **Refactoring:**
 
