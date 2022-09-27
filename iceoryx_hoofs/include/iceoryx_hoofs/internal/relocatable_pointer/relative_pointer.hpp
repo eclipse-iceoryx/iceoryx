@@ -90,22 +90,9 @@ class RelativePointer
     /// @param[in] ptr The pointer whose pointee shall be the same for this
     explicit RelativePointer(const ptr_t ptr) noexcept;
 
-    /// @brief Copy constructor
-    /// @param[in] other Is the copy origin
     RelativePointer(const RelativePointer& other) noexcept = default;
-
-    /// @brief Move constructor
-    /// @param[in] other Is the move origin
     RelativePointer(RelativePointer&& other) noexcept;
-
-    /// @brief Copy assignment
-    /// @param[in] other Is the copy origin
-    /// @return A reference to self
     RelativePointer& operator=(const RelativePointer& other) noexcept;
-
-    /// @brief Move assignment
-    /// @param[in] other Is the move origin
-    /// @return A reference to self
     RelativePointer& operator=(RelativePointer&& other) noexcept;
 
     /// @brief Assigns the RelativePointer to point to the same pointee as ptr
@@ -142,8 +129,8 @@ class RelativePointer
     /// @return True if the pointees are not equal, otherwise false
     bool operator!=(T* const ptr) const noexcept;
 
-    /// @brief returns the id which identifies the segment
-    /// @return the id which identifies the segment
+    /// @brief Returns the id which identifies the segment
+    /// @return The id which identifies the segment
     segment_id_underlying_t getId() const noexcept;
 
     /// @brief Returns the offset
@@ -154,7 +141,7 @@ class RelativePointer
     /// @return The registered base pointer of the RelativePointer object
     ptr_t getBasePtr() const noexcept;
 
-    /// @brief Tries to registers a memory segment at ptr with size of a new id
+    /// @brief Tries to registers a memory segment at ptr with size to a new id
     /// @param[in] ptr Starting address of the segment to be registered
     /// @param[in] size Is the size of the segment, defaults to size 0 if argument is not provided
     /// @return segment_id to which the pointer was registered, wrapped in an cxx::optional
@@ -177,7 +164,7 @@ class RelativePointer
     /// @return The pointer registered at the given id, nullptr if none was registered
     static ptr_t getBasePtr(const segment_id_t id) noexcept;
 
-    /// @brief unregisters all ptr id pairs (leads to initial state)
+    /// @brief Unregisters all ptr id pairs leading to initial state. This affects all pointer both typed and untyped.
     static void unregisterAll() noexcept;
 
     /// @brief Get the offset from id and ptr
