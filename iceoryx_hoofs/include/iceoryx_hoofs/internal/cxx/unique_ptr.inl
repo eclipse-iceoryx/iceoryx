@@ -27,7 +27,7 @@ namespace cxx
 template <typename T>
 inline unique_ptr<T>::unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept
     : m_ptr(object)
-    , m_deleter(std::move(deleter))
+    , m_deleter(deleter)
 {
     Ensures(object != nullptr);
 }
@@ -47,8 +47,10 @@ inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
 
 template <typename T>
 inline unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
+    : m_ptr{rhs.m_ptr}
+    , m_deleter{std::move(rhs.m_deleter)}
 {
-    *this = std::move(rhs);
+    rhs.m_ptr = nullptr;
 }
 
 template <typename T>
@@ -105,7 +107,7 @@ inline void unique_ptr<T>::reset(T* const ptr) noexcept
 template <typename T>
 inline void unique_ptr<T>::destroy() noexcept
 {
-    if (m_ptr && m_deleter)
+    if (m_ptr)
     {
         m_deleter(m_ptr);
     }

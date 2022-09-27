@@ -31,36 +31,27 @@ namespace cxx
 template <typename ReturnType, typename... Args>
 using signature = ReturnType(Args...);
 
-template <typename StorageType, typename T>
+template <uint64_t Capacity, typename T>
 class storable_function;
 
-/// @brief A storable alternative of std::function which uses memory defined by a StorageType.
-///        This can be dynamic storage, static storage or anything else adhering to the allocation interface (cf.
-///        static_storage).
+/// @brief A storable alternative of std::function which is fixed size.
 
 /// @note This is not achievable with std::function and a custom allocator, as then the memory will still not
 ///       be part of the object and copying (and moving may cause subtle issues). Hence a complete implementation
 ///       is required.
 ///       Furthermore the allocator support of std::function in the STL is deprecated.
 
-/// @tparam StorageType The type of internal storage to store the actual data.
-///                     Needs to provide allocate and deallocate functions.
-///                     See static_storage.hpp for a static memory version.
+/// @tparam Capacity    The maximum capacity of the storable function
 /// @tparam ReturnType  The return type of the stored callable.
 /// @tparam Args        The arguments of the stored callable.
-template <typename StorageType, typename ReturnType, typename... Args>
-class storable_function<StorageType, signature<ReturnType, Args...>>
+template <uint64_t Capacity, typename ReturnType, typename... Args>
+class storable_function<Capacity, signature<ReturnType, Args...>>
 {
   public:
+    using StorageType = static_storage<Capacity>;
     using signature_t = signature<ReturnType, Args...>;
 
-    storable_function() noexcept = default;
-
     /// @brief construct from functor (including lambdas)
-    ///
-    /// @note  Will not compile for StorageType = static_storage if the functor cannot be stored.
-    ///        For other StorageTypes it will terminate at runtime if the functor cannot be stored
-    ///        (and this cannot be detected at compile-time).
     template <typename Functor,
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
@@ -120,19 +111,14 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     ///          Not specifying move or using a default implementation is fine.
     ///          This is also the case for std::function (for the gcc implementation at least).
     ///
-    ReturnType operator()(Args... args) const;
-
-
-    /// @brief indicates whether a function is currently stored
-    /// @return true if a function is stored, false otherwise
-    explicit operator bool() const noexcept;
+    ReturnType operator()(Args... args) const noexcept;
 
     /// @brief swap this with another storable function
     /// @param f the function to swap this with
     void swap(storable_function& f) noexcept;
 
     /// @brief size in bytes required to store a CallableType in a storable_function
-    /// @return number of bytes StorageType must be able to allocate to store CallableType
+    /// @return number of bytes
     /// @note this is not smallest possible due to alignment, it may work with a smaller size but
     ///       is not guaranteed (but it is guaranteed to work with the number of bytes returned)
     template <typename CallableType>
@@ -141,7 +127,7 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     /// @brief checks whether CallableType is storable
     /// @return true if CallableType can be stored, false if it is not guaranteed that it can be stored
     /// @note it might be storable for some alignments of CallableType even if it returns false,
-    ///       in this case it is advised to increase the size of storage via the StorageType
+    ///       in this case it is advised to increase the Capacity.
     template <typename CallableType>
     static constexpr bool is_storable() noexcept;
 
@@ -172,9 +158,10 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
     };
 
   private:
-    operations m_operations;   // operations depending on type-erased callable (copy, move, destroy)
-    StorageType m_storage;     // storage for the callable
-    void* m_callable{nullptr}; // pointer to stored type-erased callable
+    operations m_operations; // operations depending on type-erased callable (copy, move, destroy)
+
+    StorageType m_storage;                              // storage for the callable
+    void* m_callable{nullptr};                          // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
 
@@ -188,8 +175,6 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
     void storeFunctor(const Functor& functor) noexcept;
-
-    bool empty() const noexcept;
 
     // we need these templates to preserve the actual CallableType for the underlying call
     template <typename CallableType>
@@ -214,8 +199,8 @@ class storable_function<StorageType, signature<ReturnType, Args...>>
 /// @brief swap two storable functions
 /// @param f the first function to swap with g
 /// @param g the second function to swap with f
-template <typename S, typename T>
-static void swap(storable_function<S, T>& f, storable_function<S, T>& g) noexcept;
+template <uint64_t Capacity, typename T>
+void swap(storable_function<Capacity, T>& f, storable_function<Capacity, T>& g) noexcept;
 
 } // namespace cxx
 } // namespace iox

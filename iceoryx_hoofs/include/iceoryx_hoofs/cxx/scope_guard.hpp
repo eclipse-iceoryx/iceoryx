@@ -73,7 +73,7 @@ class ScopeGuardWithVariableCapacity final
     void destroy() noexcept;
 
   private:
-    function<void(), CleanupCapacity> m_cleanupFunction;
+    cxx::optional<function<void(), CleanupCapacity>> m_cleanupFunction;
 };
 
 // This alias can be removed with C++17 and class template argument deduction

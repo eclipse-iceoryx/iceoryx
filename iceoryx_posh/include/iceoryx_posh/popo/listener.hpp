@@ -44,7 +44,7 @@ class Event_t
 
     bool isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept;
     bool reset() noexcept;
-    bool init(const uint64_t eventId,
+    void init(const uint64_t eventId,
               void* const origin,
               void* const userType,
               const uint64_t eventType,
@@ -67,7 +67,7 @@ class Event_t
     void* m_userType = nullptr;
 
     uint64_t m_eventId = INVALID_ID;
-    cxx::function<void(uint64_t)> m_invalidationCallback;
+    cxx::function<void(uint64_t)> m_invalidationCallback = [](auto) {};
 };
 } // namespace internal
 
@@ -76,7 +76,6 @@ enum class ListenerError
     LISTENER_FULL,
     EVENT_ALREADY_ATTACHED,
     EMPTY_EVENT_CALLBACK,
-    EMPTY_INVALIDATION_CALLBACK
 };
 
 /// @brief The Listener is a class which reacts to registered events by

@@ -123,8 +123,6 @@ iox_ListenerResult listenerResult(const iox::popo::ListenerError value) noexcept
         return ListenerResult_LISTENER_FULL;
     case ListenerError::EMPTY_EVENT_CALLBACK:
         return ListenerResult_EMPTY_EVENT_CALLBACK;
-    case ListenerError::EMPTY_INVALIDATION_CALLBACK:
-        return ListenerResult_EMPTY_INVALIDATION_CALLBACK;
     }
     return ListenerResult_UNDEFINED_ERROR;
 }

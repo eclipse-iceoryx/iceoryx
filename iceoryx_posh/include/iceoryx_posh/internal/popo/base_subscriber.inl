@@ -142,9 +142,9 @@ BaseSubscriber<port_t>::getCallbackForIsStateConditionSatisfied(const Subscriber
     switch (subscriberState)
     {
     case SubscriberState::HAS_DATA:
-        return {*this, &SelfType::hasData};
+        return WaitSetIsConditionSatisfiedCallback(cxx::in_place, *this, &SelfType::hasData);
     }
-    return {};
+    return cxx::nullopt;
 }
 
 template <typename port_t>

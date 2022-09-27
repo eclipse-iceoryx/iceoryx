@@ -190,70 +190,6 @@ TEST_F(Trigger_test, TriggerWithNullptrOriginIsValid)
     EXPECT_TRUE(static_cast<bool>(sut));
 }
 
-TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "33a753fe-2f45-48ed-8350-1fe7163105df");
-    constexpr uint64_t eventId = 0U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t type = 0U;
-    constexpr uint64_t typeHash = 0U;
-
-    bool hasTerminated = false;
-    iox::PoshError error = iox::PoshError::NO_ERROR;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
-            hasTerminated = true;
-            error = e;
-        });
-
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                cxx::function<bool()>(),
-                {m_triggerClass, &TriggerClass::resetCall},
-                eventId,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
-
-    EXPECT_TRUE(hasTerminated);
-    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK));
-    EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(static_cast<bool>(sut));
-}
-
-TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c9990f56-711f-4fbd-a0cc-42ecd26152d4");
-    constexpr uint64_t eventId = 0U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t type = 0U;
-    constexpr uint64_t typeHash = 0U;
-
-    bool hasTerminated = false;
-    iox::PoshError error = iox::PoshError::NO_ERROR;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
-            hasTerminated = true;
-            error = e;
-        });
-
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::function<void(uint64_t)>(),
-                eventId,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
-
-    ASSERT_TRUE(hasTerminated);
-    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
-    EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(static_cast<bool>(sut));
-}
-
 TEST_F(Trigger_test, ResetInvalidatesTrigger)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3d8c297c-04d1-4ce1-b51e-684666470bc5");
@@ -306,15 +242,16 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError, const iox::ErrorLevel) {});
 
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::function<void(uint64_t)>(),
-                eventId,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
+    Trigger sut(
+        StateBasedTrigger,
+        &m_triggerClass,
+        {m_triggerClass, &TriggerClass::hasTriggered},
+        [](auto) {},
+        eventId,
+        createNotificationCallback(TriggerClass::callback),
+        uniqueTriggerId,
+        type,
+        typeHash);
 
     sut.reset();
 
@@ -534,37 +471,6 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOr
     TriggerClass anotherTriggerClass;
 
     EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIsInvalid)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f57c80dc-13d9-49c6-9fca-1f7b51b836b9");
-    constexpr uint64_t eventId = 0U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t originType = 0U;
-    constexpr uint64_t originTypeHash = 0U;
-
-    bool hasTerminated = false;
-    iox::PoshError error = iox::PoshError::NO_ERROR;
-    auto errorHandlerGuard =
-        iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto e, const iox::ErrorLevel) {
-            hasTerminated = true;
-            error = e;
-        });
-
-    Trigger sut(EventBasedTrigger,
-                &m_triggerClass,
-                cxx::function<void(uint64_t)>(),
-                eventId,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                originType,
-                originTypeHash);
-
-    ASSERT_TRUE(hasTerminated);
-    EXPECT_THAT(error, Eq(iox::PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK));
-    EXPECT_FALSE(sut.isValid());
-    EXPECT_FALSE(static_cast<bool>(sut));
 }
 
 TEST_F(Trigger_test, EventBasedMovedConstructedWithValidTriggerWorks)

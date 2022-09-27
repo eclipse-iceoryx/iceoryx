@@ -97,7 +97,7 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 namespace popo
 {
-using WaitSetIsConditionSatisfiedCallback = cxx::function<bool()>;
+using WaitSetIsConditionSatisfiedCallback = cxx::optional<cxx::function<bool()>>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 

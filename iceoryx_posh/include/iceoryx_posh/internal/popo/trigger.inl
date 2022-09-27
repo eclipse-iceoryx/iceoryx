@@ -43,11 +43,6 @@ inline Trigger::Trigger(T* const notificationOrigin,
     , m_originTriggerType(originTriggerType)
     , m_originTriggerTypeHash(originTriggerTypeHash)
 {
-    if (!resetCallback)
-    {
-        errorHandler(PoshError::POPO__TRIGGER_INVALID_RESET_CALLBACK, ErrorLevel::FATAL);
-        invalidate();
-    }
 }
 
 template <typename T, typename ContextDataType>
@@ -70,11 +65,6 @@ inline Trigger::Trigger(StateBasedTrigger_t,
               stateType,
               stateTypeHash)
 {
-    if (!hasTriggeredCallback)
-    {
-        errorHandler(PoshError::POPO__TRIGGER_INVALID_HAS_TRIGGERED_CALLBACK, ErrorLevel::FATAL);
-        invalidate();
-    }
 }
 
 template <typename T, typename ContextDataType>
@@ -86,15 +76,16 @@ inline Trigger::Trigger(EventBasedTrigger_t,
                         const uint64_t uniqueId,
                         const uint64_t notificationType,
                         const uint64_t notificationTypeHash) noexcept
-    : Trigger(notificationOrigin,
-              cxx::function<bool()>(),
-              resetCallback,
-              notificationId,
-              callback,
-              uniqueId,
-              TriggerType::EVENT_BASED,
-              notificationType,
-              notificationTypeHash)
+    : Trigger(
+        notificationOrigin,
+        []() { return false; },
+        resetCallback,
+        notificationId,
+        callback,
+        uniqueId,
+        TriggerType::EVENT_BASED,
+        notificationType,
+        notificationTypeHash)
 {
 }
 } // namespace popo

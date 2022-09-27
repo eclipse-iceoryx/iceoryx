@@ -385,7 +385,7 @@ To register the callback we call
 <!--[geoffrey][iceoryx_examples/icediscovery/include/discovery_monitor.hpp][registerCallback]-->
 ```cpp
 template <typename Callback>
-bool Discovery::registerCallback(const Callback& callback)
+void Discovery::registerCallback(const Callback& callback)
 ```
 
 which attaches the callback to the listener.
@@ -408,7 +408,7 @@ Since the listener can only call static or free functions, we use an additional 
 void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 {
     // discarded discovery argument is required by the listener
-    self->m_callback(*self);
+    (*self->m_callback)(*self);
 }
 ```
 
@@ -430,7 +430,7 @@ void Discovery::deregisterCallback()
     {
         m_listener.detachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
     }
-    m_callback = nullptr;
+    m_callback.reset();
 }
 ```
 
