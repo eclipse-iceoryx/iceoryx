@@ -116,8 +116,8 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
 }
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIdIsFree(const id_t id,
-                                                                              const ptr_t ptr,
-                                                                              const uint64_t size) noexcept
+                                                                           const ptr_t ptr,
+                                                                           const uint64_t size) noexcept
 {
     if (m_info[id].basePtr == nullptr)
     {

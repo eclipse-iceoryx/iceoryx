@@ -40,8 +40,10 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-            auto registeredSuccessfully = memory::UntypedRelativePointer::registerPtrWithId(
-                memory::segment_id_t{segmentId}, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+            auto registeredSuccessfully =
+                memory::UntypedRelativePointer::registerPtrWithId(memory::segment_id_t{segmentId},
+                                                                  sharedMemoryObject.getBaseAddress(),
+                                                                  sharedMemoryObject.getSizeInBytes());
 
             if (!registeredSuccessfully)
             {
@@ -59,8 +61,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .or_else([](auto&) { errorHandler(PoshError::POSH__SHM_APP_MAPP_ERR); });
 }
 
-void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
-                                        const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
+void SharedMemoryUser::openDataSegments(
+    const uint64_t segmentId, const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     auto* ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, segmentManagerAddressOffset);
     auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
@@ -84,8 +86,8 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
 
                 auto registeredSuccessfully =
                     memory::UntypedRelativePointer::registerPtrWithId(memory::segment_id_t{segment.m_segmentId},
-                                                                  sharedMemoryObject.getBaseAddress(),
-                                                                  sharedMemoryObject.getSizeInBytes());
+                                                                      sharedMemoryObject.getBaseAddress(),
+                                                                      sharedMemoryObject.getSizeInBytes());
 
                 if (!registeredSuccessfully)
                 {

@@ -372,7 +372,8 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
         .and_then([&](auto& process) {
             m_portManager.acquireNodeData(runtimeName, nodeName)
                 .and_then([&](auto nodeData) {
-                    auto offset = memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, nodeData);
+                    auto offset =
+                        memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, nodeData);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
@@ -424,8 +425,8 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
             if (!maybeSubscriber.has_error())
             {
                 // send SubscriberPort to app as a serialized relative pointer
-                auto offset =
-                    memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, maybeSubscriber.value());
+                auto offset = memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId},
+                                                                        maybeSubscriber.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
@@ -477,8 +478,8 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             if (!maybePublisher.has_error())
             {
                 // send PublisherPort to app as a serialized relative pointer
-                auto offset =
-                    memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, maybePublisher.value());
+                auto offset = memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId},
+                                                                        maybePublisher.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
@@ -636,7 +637,8 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
         .and_then([&](auto& process) { // Try to create a condition variable
             m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
-                    auto offset = memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, condVar);
+                    auto offset =
+                        memory::UntypedRelativePointer::getOffset(memory::segment_id_t{m_mgmtSegmentId}, condVar);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
