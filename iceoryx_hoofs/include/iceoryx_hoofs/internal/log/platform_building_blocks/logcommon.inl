@@ -28,29 +28,6 @@ namespace iox
 {
 namespace pbb
 {
-inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
-{
-    switch (value)
-    {
-    case LogLevel::OFF:
-        return "LogLevel::OFF";
-    case LogLevel::FATAL:
-        return "LogLevel::FATAL";
-    case LogLevel::ERROR:
-        return "LogLevel::ERROR";
-    case LogLevel::WARN:
-        return "LogLevel::WARN";
-    case LogLevel::INFO:
-        return "LogLevel::INFO";
-    case LogLevel::DEBUG:
-        return "LogLevel::DEBUG";
-    case LogLevel::TRACE:
-        return "LogLevel::TRACE";
-    }
-
-    return "[Undefined LogLevel]";
-}
-
 inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {
     switch (value)

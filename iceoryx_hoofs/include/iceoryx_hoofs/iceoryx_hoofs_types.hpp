@@ -14,21 +14,37 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_LOGGER_HPP
-#define IOX_HOOFS_LOG_LOGGER_HPP
+#ifndef IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
+#define IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
 
-#include "iceoryx_hoofs/log/platform/logger.hpp"
+/// @note since this file will be included by many other files, it should not include other header except
+/// iceoryx_platform or STL header
+
+#include <cstdint>
 
 namespace iox
 {
 namespace log
 {
-using LogLevel = platform::LogLevel;
-using platform::logLevelFromEnvOr;
+enum class LogLevel : uint8_t
+{
+    OFF = 0,
+    FATAL,
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
+    TRACE
+};
 
-using Logger = platform::Logger;
+/// @brief converts LogLevel into a string literal
+/// @param[in] value the LogLevel to convert
+/// @return string literal of the LogLevel value
+constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_LOGGER_HPP
+#include "iceoryx_hoofs/internal/iceoryx_hoofs_types.inl"
+
+#endif // IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP

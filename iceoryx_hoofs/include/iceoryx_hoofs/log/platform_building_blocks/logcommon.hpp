@@ -18,27 +18,16 @@
 #ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
 #define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
 
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+
 #include <cstdint>
 
 namespace iox
 {
 namespace pbb
 {
-enum class LogLevel : uint8_t
-{
-    OFF = 0,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE
-};
-
-/// @brief converts LogLevel into a string literal
-/// @param[in] value the LogLevel to convert
-/// @return string literal of the LogLevel value
-constexpr const char* asStringLiteral(const LogLevel value) noexcept;
+/// @todo remove
+using log::LogLevel;
 
 /// @brief converts LogLevel into a string literal color code
 /// @param[in] value the LogLevel to convert

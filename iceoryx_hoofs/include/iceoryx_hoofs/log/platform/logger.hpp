@@ -25,7 +25,6 @@ namespace iox
 namespace platform
 {
 using LogLevel = pbb::LogLevel;
-using pbb::asStringLiteral;
 using pbb::logLevelFromEnvOr;
 
 using Logger = pbb::Logger<pbb::ConsoleLogger>;
