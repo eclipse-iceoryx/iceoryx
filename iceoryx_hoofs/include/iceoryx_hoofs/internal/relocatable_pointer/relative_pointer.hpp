@@ -28,7 +28,7 @@ namespace iox
 {
 namespace rp
 {
-/// @brief typed version so we can use operator->
+/// @brief Typed version so we can use operator->
 template <typename T>
 class RelativePointer : public BaseRelativePointer
 {
@@ -36,54 +36,55 @@ class RelativePointer : public BaseRelativePointer
     using const_ptr_t = const T*;
     using ptr_t = T*;
 
-    /// @brief default constructs a RelativePointer as a logical nullptr
+    /// @brief Default constructs a RelativePointer as a logical nullptr
     RelativePointer() noexcept = default;
 
-    /// @brief constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
-    /// @param[in] ptr the pointer whose pointee shall be the same for this
-    /// @param[in] id is the unique id of the segment
+    /// @brief Constructs a RelativePointer pointing to the same pointee as ptr in a segment identified by id
+    /// @param[in] ptr The pointer whose pointee shall be the same for this
+    /// @param[in] id Is the unique id of the segment
     RelativePointer(ptr_t ptr, id_t id) noexcept;
 
-    /// @brief constructs a RelativePointer from a given offset and segment id
-    /// @param[in] offset is the offset
-    /// @param[in] id is the unique id of the segment
+    /// @brief Constructs a RelativePointer from a given offset and segment id
+    /// @param[in] offset Is the offset
+    /// @param[in] id Is the unique id of the segment
     RelativePointer(offset_t offset, id_t id) noexcept;
 
-    /// @brief constructs a RelativePointer pointing to the same pointee as ptr
+    /// @brief Constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     explicit RelativePointer(ptr_t ptr) noexcept;
 
-    /// @brief assigns the RelativePointer to point to the same pointee as ptr
-    /// @param[in] ptr the pointer whose pointee shall be the same for this
-    /// @return reference to self
+    /// @brief Assigns the RelativePointer to point to the same pointee as ptr
+    /// @param[in] ptr The pointer whose pointee shall be the same for this
+    /// @return Reference to self
     RelativePointer& operator=(ptr_t ptr) noexcept;
 
-    /// @brief dereferencing operator which returns a reference to the underlying object
+    /// @brief Dereferencing operator which returns a reference to the underlying object
     /// @tparam U a template parameter to enable the dereferencing operator only for non-void T
-    /// @return a reference to the underlying object
+    /// @return A reference to the underlying object
     template <typename U = T>
     typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept;
 
-    /// @brief read-only access to the underlying object
-    /// @return a pointer to the underlying object
+    /// @brief Access to the underlying object. If the RelativePointer does not point to anything the
+    /// application terminates.
+    /// @return A pointer to the underlying object
     T* operator->() const noexcept;
 
-    /// @brief access the underlying object
-    /// @return a pointer to the underlying object
+    /// @brief Access the underlying object.
+    /// @return A pointer to the underlying object
     T* get() const noexcept;
 
-    /// @brief converts the RelativePointer to bool
-    /// @return bool which contains true if the RelativePointer contains a pointer
+    /// @brief Converts the RelativePointer to bool
+    /// @return Bool which contains true if the RelativePointer contains a pointer
     explicit operator bool() const noexcept;
 
-    /// @brief checks if this and ptr point to the same pointee
-    /// @param[in] ptr is the pointer whose pointee is compared with this' pointee
-    /// @return true if the pointees are equal, otherwise false
+    /// @brief Checks if this and ptr point to the same pointee
+    /// @param[in] ptr Is the pointer whose pointee is compared with this' pointee
+    /// @return True if the pointees are equal, otherwise false
     bool operator==(T* const ptr) const noexcept;
 
-    /// @brief checks if this and ptr point not to the same pointee
-    /// @param[in] ptr is the pointer whose pointee is compared with this' pointee
-    /// @return true if the pointees are not equal, otherwise false
+    /// @brief Checks if this and ptr point not to the same pointee
+    /// @param[in] ptr Is the pointer whose pointee is compared with this' pointee
+    /// @return True if the pointees are not equal, otherwise false
     bool operator!=(T* const ptr) const noexcept;
 };
 

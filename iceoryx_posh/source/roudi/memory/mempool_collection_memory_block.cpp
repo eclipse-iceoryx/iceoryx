@@ -20,7 +20,6 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 
 namespace iox

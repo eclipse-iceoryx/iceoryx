@@ -124,7 +124,7 @@ class BaseRelativePointer
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return id it was registered to
-    static id_underlying_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static cxx::optional<id_underlying_t> registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id is the id of the segment
@@ -162,11 +162,6 @@ class BaseRelativePointer
     /// @param[in] ptr the pointer whose corresponding id is searched for
     /// @return id the pointer was registered to
     static id_underlying_t searchId(ptr_t ptr) noexcept;
-
-    /// @brief checks if given id is valid
-    /// @param[in] id is the id to be checked
-    /// @return true if the given id is valid, otherwise false
-    static bool isValid(id_t id) noexcept;
 
     /// @brief returns the pointer repository
     /// @return the pointer repository

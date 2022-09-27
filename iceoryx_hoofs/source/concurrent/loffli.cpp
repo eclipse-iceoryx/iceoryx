@@ -55,7 +55,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
     do
     {
         // we are empty if next points to an element with index of Size
-        if (oldHead.indexToNextFreeIndex >= m_size)
+        if (oldHead.indexToNextFreeIndex >= m_size || !m_nextFreeIndex)
         {
             return false;
         }
@@ -91,7 +91,7 @@ bool LoFFLi::push(const Index_t index) noexcept
     /// we want to avoid double free's therefore we check if the index was acquired
     /// in pop and the push argument "index" is valid
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) index is limited by capacity
-    if (index >= m_size || m_nextFreeIndex.get()[index] != m_invalidIndex)
+    if (index >= m_size || !m_nextFreeIndex || m_nextFreeIndex.get()[index] != m_invalidIndex)
     {
         return false;
     }

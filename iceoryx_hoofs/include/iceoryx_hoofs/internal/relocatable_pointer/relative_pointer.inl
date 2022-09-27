@@ -61,15 +61,15 @@ inline typename std::enable_if<!std::is_void<U>::value, const U&>::type Relative
 template <typename T>
 inline T* RelativePointer<T>::operator->() const noexcept
 {
-    return get();
+    auto* ptr = get();
+    cxx::Ensures(ptr != nullptr);
+    return ptr;
 }
 
 template <typename T>
 inline T* RelativePointer<T>::get() const noexcept
 {
-    auto ptr = static_cast<T*>(computeRawPtr());
-    cxx::Ensures(ptr != nullptr);
-    return ptr;
+    return static_cast<T*>(computeRawPtr());
 }
 
 template <typename T>

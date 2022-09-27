@@ -16,12 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-
-#include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_posh/roudi/memory/memory_block.hpp"
-
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 /// @todo this should probably be moved to iceoryx_hoofs/allocator/bump_allocator.hpp
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
@@ -63,7 +62,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     uint64_t totalSize = 0u;
     uint64_t maxAlignment = 1;
-    for (auto memoryBlock : m_memoryBlocks)
+    for (auto* memoryBlock : m_memoryBlocks)
     {
         auto alignment = memoryBlock->alignment();
         if (alignment > maxAlignment)
@@ -86,14 +85,20 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
+    auto maybeSegmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
+
+    if (!maybeSegmentId.has_value())
+    {
+        errorHandler(PoshError::MEMORY_PROVIDER__INSUFFICIENT_SEGMENT_IDS);
+    }
+    m_segmentId = maybeSegmentId.value();
 
     LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
                << m_segmentId;
 
     iox::posix::Allocator allocator(m_memory, m_size);
 
-    for (auto memoryBlock : m_memoryBlocks)
+    for (auto* memoryBlock : m_memoryBlocks)
     {
         memoryBlock->m_memory = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
     }

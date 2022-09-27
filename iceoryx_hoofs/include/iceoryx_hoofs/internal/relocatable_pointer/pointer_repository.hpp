@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP
 #define IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP
 
+#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include <iostream>
 
 #include <cassert>
 #include <limits>
@@ -45,9 +45,6 @@ class PointerRepository
         ptr_t endPtr{nullptr};
     };
 
-    /// @note 0 is a special purpose id and reserved
-    /// id 0 is reserved to interpret the offset just as a raw pointer,
-    /// i.e. its corresponding base ptr is 0
     static constexpr id_t MIN_ID{1U};
     static constexpr id_t MAX_ID{CAPACITY - 1U};
 
@@ -55,23 +52,33 @@ class PointerRepository
     static_assert(CAPACITY >= 2, "CAPACITY must be at least 2!");
 
   public:
-    static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
+    /// @note 0 is a special purpose id and reserved
+    /// id 0 is reserved to interpret the offset just as a raw pointer,
+    /// i.e. its corresponding base ptr is 0
+    static constexpr id_t RAW_POINTER_BEHAVIOUR_ID{0};
 
     /// @brief default constructor
     PointerRepository() noexcept;
+    ~PointerRepository() noexcept = default;
+
+    PointerRepository(const PointerRepository&) = delete;
+    PointerRepository(PointerRepository&&) = delete;
+    PointerRepository& operator=(const PointerRepository&) = delete;
+    PointerRepository& operator=(PointerRepository&&) = delete;
 
     /// @brief registers the start pointer of the segment in another application with a specific id
-    /// @param[in] id identifies the segment
+    /// @param[in] id identifies the segment that the pointer should be added to
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
     /// @return true if the registration was successful, otherwise false
-    bool registerPtr(id_t id, ptr_t ptr, uint64_t size) noexcept;
+    bool registerPtrWithId(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 
     /// @brief registers the start pointer of a segment with a specific size
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
-    /// @return the id that identifies the segment
-    id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    /// @return the segment id to which the pointer was added wrapped in an cxx::optional, cxx::nullopt if pointer was
+    /// not added
+    cxx::optional<id_t> registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief unregisters the id
     /// @param[in] id is the id to be unregistered
@@ -92,14 +99,6 @@ class PointerRepository
     /// @param[in] ptr is the pointer whose corresponding id is searched for
     /// @return the id the pointer was registered to
     id_t searchId(ptr_t ptr) const noexcept;
-
-    /// @brief checks if given id is valid
-    /// @param[in] id is the id to be checked
-    /// @return true if id is valid, otherwise false
-    bool isValid(id_t id) const noexcept;
-
-    /// @brief prints the ids and their associated base pointers
-    void print() const noexcept;
 
   private:
     /// @todo: if required protect vector against concurrent modification

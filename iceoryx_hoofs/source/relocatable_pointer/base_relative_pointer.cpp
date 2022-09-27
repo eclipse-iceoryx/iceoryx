@@ -101,7 +101,8 @@ BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr() const noexcept
     return getBasePtr(id_t{m_id});
 }
 
-BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_t ptr, uint64_t size) noexcept
+cxx::optional<BaseRelativePointer::id_underlying_t> BaseRelativePointer::registerPtr(const ptr_t ptr,
+                                                                                     uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }
@@ -110,7 +111,7 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
 {
-    return getRepository().registerPtr(static_cast<id_underlying_t>(id), ptr, size);
+    return getRepository().registerPtrWithId(static_cast<id_underlying_t>(id), ptr, size);
 }
 
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
@@ -167,13 +168,6 @@ BaseRelativePointer::id_underlying_t BaseRelativePointer::searchId(ptr_t ptr) no
         return NULL_POINTER_ID;
     }
     return getRepository().searchId(ptr);
-}
-
-// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
-// NOLINTNEXTLINE(performance-unnecessary-value-param)
-bool BaseRelativePointer::isValid(id_t id) noexcept
-{
-    return getRepository().isValid(static_cast<id_underlying_t>(id));
 }
 
 PointerRepository<BaseRelativePointer::id_underlying_t, BaseRelativePointer::ptr_t>&

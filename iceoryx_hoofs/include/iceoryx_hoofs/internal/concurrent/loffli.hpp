@@ -75,7 +75,7 @@ class LoFFLi
 
   public:
     LoFFLi() noexcept = default;
-    /// @todo: why init not in ctor
+    /// @todo move 'init()' to the ctor, remove !m_nextfreeIndex checks
 
     /// Initializes the lock-free free-list
     /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()

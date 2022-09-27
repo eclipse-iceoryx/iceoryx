@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,9 @@ inline PointerRepository<id_t, ptr_t, CAPACITY>::PointerRepository() noexcept
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t ptr, uint64_t size) noexcept
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(const id_t id,
+                                                                        const ptr_t ptr,
+                                                                        const uint64_t size) noexcept
 {
     if (id > MAX_ID)
     {
@@ -55,7 +57,8 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(id_t id, ptr_t
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr, uint64_t size) noexcept
+inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
+                                                                                 uint64_t size) noexcept
 {
     for (id_t id = 1U; id <= MAX_ID; ++id)
     {
@@ -75,7 +78,7 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t pt
         }
     }
 
-    return id_t{INVALID_ID};
+    return cxx::nullopt;
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
@@ -131,31 +134,9 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
             return id;
         }
     }
-    /// @note implicitly interpret the pointer as a regular pointer if not found
-    /// by setting id to 0
-    /// rationale: test cases work without registered shared memory and require
-    /// this at the moment to avoid fundamental changes
-    return 0U;
-    // return INVALID_ID;
-}
-
-template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::isValid(id_t id) const noexcept
-{
-    return id != INVALID_ID;
-}
-
-template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline void PointerRepository<id_t, ptr_t, CAPACITY>::print() const noexcept
-{
-    for (id_t id = 0U; id < m_info.size(); ++id)
-    {
-        auto ptr = m_info[id].basePtr;
-        if (ptr != nullptr)
-        {
-            std::cout << id << " ---> " << ptr << std::endl;
-        }
-    }
+    /// @note treat the pointer as a regular pointer if not found
+    /// by setting id to RAW_POINTER_BEHAVIOUR_ID
+    return RAW_POINTER_BEHAVIOUR_ID;
 }
 
 } // namespace rp
