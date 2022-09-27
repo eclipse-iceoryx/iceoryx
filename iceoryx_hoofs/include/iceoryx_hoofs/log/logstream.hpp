@@ -36,7 +36,7 @@ class LogHex
   public:
     friend class LogStream;
 
-    template <typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+    template <typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_pointer<T>::value>>
     explicit constexpr LogHex(const T value) noexcept;
 
   private:
@@ -55,7 +55,7 @@ constexpr LogHex<T> hex(const T value) noexcept;
 /// @param[in] ptr is the pointer to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Line AutosarC++19_03-M17.0.3 the function is in the iox::log namespace which prevents easy misuse
-LogHex<uint64_t> hex(const void* const ptr) noexcept;
+LogHex<const void* const> hex(const void* const ptr) noexcept;
 
 /// @brief Helper struct to log in octal format
 template <typename T>
@@ -172,6 +172,11 @@ class LogStream
     template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
 
+    /// @brief Logging support for pointer in hexadecimal format
+    /// @param[in] val is the pointer to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const LogHex<const void* const> val) noexcept;
+
     /// @brief Logging support for integral numbers in octal format
     /// @tparam[in] T is the integral data type of the value to log
     /// @param[in] val is the number to log
@@ -193,7 +198,7 @@ class LogStream
     /// @endcode
     template <typename Callable,
               typename = std::enable_if_t<cxx::is_invocable_r<LogStream&, Callable, LogStream&>::value>>
-    LogStream& operator<<(const Callable&& c) noexcept;
+    LogStream& operator<<(const Callable& c) noexcept;
 
     /// @brief Logging support for LogLevel
     /// @param[in] value is the LogLevel to log

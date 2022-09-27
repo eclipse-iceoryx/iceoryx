@@ -60,13 +60,23 @@ static void memsetSigbusHandler(int) noexcept
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
     auto printErrorDetails = [this] {
+        auto logBaseAddressHint = [this](log::LogStream& stream) noexcept -> log::LogStream& {
+            if (this->m_baseAddressHint)
+            {
+                stream << iox::log::hex(this->m_baseAddressHint.value());
+            }
+            else
+            {
+                stream << " (no hint set)";
+            }
+            return stream;
+        };
+
         IOX_LOG(ERROR) << "Unable to create a shared memory object with the following properties [ name = " << m_name
                        << ", sizeInBytes = " << m_memorySizeInBytes
                        << ", access mode = " << asStringLiteral(m_accessMode)
-                       << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
-                       << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
-                                               : iox::log::hex(static_cast<uint64_t>(0U)))
-                       << ((m_baseAddressHint) ? "" : " (no hint set)")
+                       << ", open mode = " << asStringLiteral(m_openMode)
+                       << ", baseAddressHint = " << logBaseAddressHint
                        << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
     };
 

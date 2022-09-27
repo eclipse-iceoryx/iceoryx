@@ -45,7 +45,7 @@ inline void ConsoleLogger::logDec(const T value) noexcept
 
 template <typename T,
           typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
-                                        || std::is_floating_point<T>::value,
+                                        || std::is_floating_point<T>::value || std::is_pointer<T>::value,
                                     int>>
 inline void ConsoleLogger::logHex(const T value) noexcept
 {

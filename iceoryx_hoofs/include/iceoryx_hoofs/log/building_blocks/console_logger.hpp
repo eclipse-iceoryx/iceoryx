@@ -76,7 +76,7 @@ class ConsoleLogger
 
     template <typename T,
               typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
-                                            || std::is_floating_point<T>::value,
+                                            || std::is_floating_point<T>::value || std::is_pointer<T>::value,
                                         int> = 0>
     void logHex(const T val) noexcept;
 

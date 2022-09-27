@@ -197,6 +197,11 @@ constexpr const char* logFormatHex<long double>()
 {
     return "%La";
 }
+template <>
+constexpr const char* logFormatHex<const void*>()
+{
+    return "%p";
+}
 
 template <typename T>
 constexpr const char* logFormatOct()

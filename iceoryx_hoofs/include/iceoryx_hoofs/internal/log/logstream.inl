@@ -43,11 +43,9 @@ inline constexpr LogHex<T> hex(const T value) noexcept
 }
 
 // AXIVION Next Line AutosarC++19_03-M17.0.3 see corresponding header
-inline LogHex<uint64_t> hex(const void* const ptr) noexcept
+inline LogHex<const void* const> hex(const void* const ptr) noexcept
 {
-    /// @todo iox-#1345 don't cast but print a pointer with the '%p' format specifier instead
-    // to JUSTIFICATION needed to print the pointer NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return LogHex<uint64_t>(reinterpret_cast<uint64_t>(ptr));
+    return LogHex<const void* const>(ptr);
 }
 
 template <typename T>
@@ -165,6 +163,15 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
     return *this;
 }
 
+// AXIVION Next Line AutosarC++19_03-M5.17.1 this is not used as shift operator but as stream operator and does not
+// require to implement '<<='
+inline LogStream& LogStream::operator<<(const LogHex<const void* const> val) noexcept
+{
+    m_logger.logHex(val.m_value);
+    m_isFlushed = false;
+    return *this;
+}
+
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
 // AXIVION Next Line AutosarC++19_03-M5.17.1 this is not used as shift operator but as stream operator and does not
 // require to implement '<<='
@@ -179,7 +186,7 @@ inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 template <typename Callable, typename>
 // AXIVION Next Line AutosarC++19_03-M5.17.1 this is not used as shift operator but as stream operator and does not
 // require to implement '<<='
-inline LogStream& LogStream::operator<<(const Callable&& c) noexcept
+inline LogStream& LogStream::operator<<(const Callable& c) noexcept
 {
     return c(*this);
 }
