@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ struct ProtectedConstructor_t
 {
 };
 
-static constexpr ProtectedConstructor_t ProtectedConstructor = ProtectedConstructor_t();
+static constexpr ProtectedConstructor_t ProtectedConstructor{ProtectedConstructor_t()};
 
 template <typename T>
 inline typename T::value_type newTypeAccessor(const T& b) noexcept
