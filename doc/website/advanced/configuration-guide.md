@@ -1,15 +1,17 @@
 # Configuration guide
 
-## CMake switches for configuring iceoryx_posh build
+## CMake switches for configuring iceoryx_hoofs and iceoryx_posh build
 
-There are several configuration options set by default when iceoryx_posh is build.
-These options adjust the global maximum amount of resources like Publisher and
+There are several configuration options set by default when iceoryx_hoofs
+and iceoryx_posh are build. These options adjust the minimal log level compiled
+into the binary and the global maximum amount of resources like Publisher and
 Subscriber Ports which can have a huge impact on the memory footprint of iceoryx
 since they define the size of the management structures
 in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
 
  |  switch  |  description |
  |:---------|:-------------|
+ | `IOX_MIN_LOG_LEVEL` | Minimal log level which will be compiled into the binary. Lower log levels will be optimized away during compilation |
  | `IOX_MAX_PUBLISHERS` | Maximum number of publishers in one iceoryx system |
  | `IOX_MAX_SUBSCRIBERS_PER_PUBLISHER` | Maximum number of connections one publisher port can handle |
  | `IOX_MAX_PUBLISHER_HISTORY` | Maximum size of a publishers history |
@@ -18,11 +20,12 @@ in the shared memory segment called `iceoryx_mgmt` when RouDi is started.
  | `IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY` | Maximum number of chunks a subscriber can take in parallel|
  | `IOX_MAX_INTERFACE_NUMBER` | Maximum number of interface ports which are used by gateways |
 
-Have a look at [IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
+Have a look at [IceoryxHoofsDeployment.cmake](../../../iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake) and
+[IceoryxPoshDeployment.cmake](../../../iceoryx_posh/cmake/IceoryxPoshDeployment.cmake) for the default values of the constants.
 
 !!! hint
     With the default values set, the size of `iceoryx_mgmt` is ~64.5 MByte. You
-    can reduce the size by decreasing the values from the table via the CMake 
+    can reduce the size by decreasing the values from the table via the CMake
     options. The current values are printed in the CMake stage when building iceoryx.
 
 Example:
@@ -48,7 +51,7 @@ for communication.
     user-payload alignment larger than 8 is used, the available size for the
     user-payload will be smaller than the configured chunk-payload since some
     space is needed for the other functionality.
-    Please have a look at the 
+    Please have a look at the
     [chunk_header.md](../../design/chunk_header.md)
     design document for a formula how to determine the necessary chunk-payload
     size with user-header and extended user-payload alignment.
@@ -167,7 +170,7 @@ size = 1024
 count = 100
 ```
 
-When no configuration file is specified a hard-coded version similar to the 
+When no configuration file is specified a hard-coded version similar to the
 [default config](../../../iceoryx_posh/etc/iceoryx/roudi_config_example.toml)
 will be used.
 
@@ -181,5 +184,5 @@ it as constructor argument to the RouDi instance.
 In the cmake file entry of the custom RouDi executable you need to ensure that it
 is **not** linking against `iceoryx_posh_config` to ensure using the static configuration.
 
-An example of a static config can be found 
+An example of a static config can be found
 [here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).
