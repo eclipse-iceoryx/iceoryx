@@ -24,10 +24,11 @@ namespace cxx
 namespace newtype
 {
 template <typename>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct CopyConstructable
 {
@@ -36,10 +37,11 @@ struct CopyConstructable
 };
 
 template <typename>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct MoveConstructable
 {
@@ -48,10 +50,11 @@ struct MoveConstructable
 };
 
 template <typename>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ConstructByValueCopy
 {
@@ -60,10 +63,11 @@ struct ConstructByValueCopy
 };
 
 template <typename>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct DefaultConstructable
 {
