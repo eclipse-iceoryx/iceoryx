@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 template <typename T>
 inline relocatable_ptr<T>::relocatable_ptr(T* ptr) noexcept
@@ -161,7 +161,7 @@ inline bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& 
     return !operator==(lhs, rhs);
 }
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #endif // IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_INL

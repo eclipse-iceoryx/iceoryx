@@ -25,7 +25,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::rp;
+using namespace iox::memory;
 
 constexpr uint64_t SHARED_MEMORY_SIZE = 4096UL * 32UL;
 constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;
@@ -78,11 +78,11 @@ TYPED_TEST(RelativePointer_test, ConstrTests)
     ::testing::Test::RecordProperty("TEST_ID", "cae7b4d4-86eb-42f6-b938-90a76f01bea5");
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
-    EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(iox::rp::segment_id_t{1U},
+    EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(iox::memory::segment_id_t{1U},
                                                             reinterpret_cast<TypeParam*>(this->memoryPartition[0]),
                                                             SHARED_MEMORY_SIZE),
               true);
-    EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(iox::rp::segment_id_t{2U},
+    EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(iox::memory::segment_id_t{2U},
                                                             reinterpret_cast<TypeParam*>(this->memoryPartition[1]),
                                                             SHARED_MEMORY_SIZE),
               true);
@@ -190,10 +190,10 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorTests)
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
     EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(
-                  iox::rp::segment_id_t{1U}, reinterpret_cast<TypeParam*>(ptr0), SHARED_MEMORY_SIZE),
+                  iox::memory::segment_id_t{1U}, reinterpret_cast<TypeParam*>(ptr0), SHARED_MEMORY_SIZE),
               true);
     EXPECT_EQ(RelativePointer<TypeParam>::registerPtrWithId(
-                  iox::rp::segment_id_t{2U}, reinterpret_cast<TypeParam*>(ptr1), SHARED_MEMORY_SIZE),
+                  iox::memory::segment_id_t{2U}, reinterpret_cast<TypeParam*>(ptr1), SHARED_MEMORY_SIZE),
               true);
     // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
 
@@ -289,8 +289,8 @@ TYPED_TEST(RelativePointer_test, IdAndOffsetAreTranslatedToRawPointerCorrectly)
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     EXPECT_EQ(rp1.getOffset(), reinterpret_cast<std::ptrdiff_t>(typedPtr));
@@ -300,7 +300,7 @@ TYPED_TEST(RelativePointer_test, IdAndOffsetAreTranslatedToRawPointerCorrectly)
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
     auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::segment_id_t{1U});
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::memory::segment_id_t{1U});
     EXPECT_EQ(rp2.getOffset(), offset);
     EXPECT_EQ(rp2.getId(), 1U);
     EXPECT_EQ(rp2.get(), addressAtOffset);
@@ -313,16 +313,16 @@ TYPED_TEST(RelativePointer_test, GetOffsetReturnsCorrectOffset)
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
-    EXPECT_EQ(UntypedRelativePointer::getOffset(iox::rp::segment_id_t{1U}, typedPtr), 0U);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
+    EXPECT_EQ(UntypedRelativePointer::getOffset(iox::memory::segment_id_t{1U}, typedPtr), 0U);
 
     int offset = SHARED_MEMORY_SIZE / 2U;
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
     auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::segment_id_t{1U});
-    EXPECT_EQ(UntypedRelativePointer::getOffset(iox::rp::segment_id_t{1U}, addressAtOffset), offset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::memory::segment_id_t{1U});
+    EXPECT_EQ(UntypedRelativePointer::getOffset(iox::memory::segment_id_t{1U}, addressAtOffset), offset);
 }
 
 TYPED_TEST(RelativePointer_test, GetPtrReturnsAddressWithCorrectOffset)
@@ -331,16 +331,16 @@ TYPED_TEST(RelativePointer_test, GetPtrReturnsAddressWithCorrectOffset)
     auto* ptr = this->partitionPtr(0U);
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
-    EXPECT_EQ(UntypedRelativePointer::getPtr(iox::rp::segment_id_t{1U}, 0), typedPtr);
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
+    EXPECT_EQ(UntypedRelativePointer::getPtr(iox::memory::segment_id_t{1U}, 0), typedPtr);
 
     uint64_t offset = SHARED_MEMORY_SIZE / 2U;
     // NOLINTJUSTIFICATION Pointer arithmetic needed for tests
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-type-reinterpret-cast)
     auto* addressAtOffset = reinterpret_cast<TypeParam*>(ptr + offset);
-    RelativePointer<TypeParam> rp2(addressAtOffset, iox::rp::segment_id_t{1});
-    EXPECT_EQ(UntypedRelativePointer::getPtr(iox::rp::segment_id_t{1U}, offset), addressAtOffset);
+    RelativePointer<TypeParam> rp2(addressAtOffset, iox::memory::segment_id_t{1});
+    EXPECT_EQ(UntypedRelativePointer::getPtr(iox::memory::segment_id_t{1U}, offset), addressAtOffset);
 }
 
 TYPED_TEST(RelativePointer_test, RegisteringAndUnregisteringRelativePointerWorks)
@@ -349,12 +349,12 @@ TYPED_TEST(RelativePointer_test, RegisteringAndUnregisteringRelativePointerWorks
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
 
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), false);
-    EXPECT_EQ(rp1.unregisterPtr(iox::rp::segment_id_t{1U}), true);
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), false);
+    EXPECT_EQ(rp1.unregisterPtr(iox::memory::segment_id_t{1U}), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
 }
 
 
@@ -365,11 +365,11 @@ TYPED_TEST(RelativePointer_test, UnRegisteringOneRelativePointerWorks)
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(ptr));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
 
-    rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr);
-    EXPECT_EQ(rp1.unregisterPtr(iox::rp::segment_id_t{1U}), true);
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr), true);
+    rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr);
+    EXPECT_EQ(rp1.unregisterPtr(iox::memory::segment_id_t{1U}), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr), true);
 }
 
 TYPED_TEST(RelativePointer_test, UnregisteringAllRelativePointerWorks)
@@ -380,14 +380,14 @@ TYPED_TEST(RelativePointer_test, UnregisteringAllRelativePointerWorks)
     auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
     auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr0, iox::rp::segment_id_t{1U});
-    RelativePointer<TypeParam> rp2(typedPtr1, iox::rp::segment_id_t{9999U});
+    RelativePointer<TypeParam> rp1(typedPtr0, iox::memory::segment_id_t{1U});
+    RelativePointer<TypeParam> rp2(typedPtr1, iox::memory::segment_id_t{9999U});
 
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtrWithId(iox::rp::segment_id_t{9999U}, typedPtr1), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtrWithId(iox::memory::segment_id_t{9999U}, typedPtr1), true);
     UntypedRelativePointer::unregisterAll();
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtrWithId(iox::rp::segment_id_t{9999U}, typedPtr1), true);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtrWithId(iox::memory::segment_id_t{9999U}, typedPtr1), true);
 }
 
 TYPED_TEST(RelativePointer_test, RegisterPtrWithIdFailsWhenTooLarge)
@@ -397,11 +397,11 @@ TYPED_TEST(RelativePointer_test, RegisterPtrWithIdFailsWhenTooLarge)
     auto* typedPtr0 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
     auto* typedPtr1 = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(1U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr0, iox::rp::segment_id_t{1U});
-    RelativePointer<TypeParam> rp2(typedPtr1, iox::rp::segment_id_t{10000U});
+    RelativePointer<TypeParam> rp1(typedPtr0, iox::memory::segment_id_t{1U});
+    RelativePointer<TypeParam> rp2(typedPtr1, iox::memory::segment_id_t{10000U});
 
-    EXPECT_EQ(rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr0), true);
-    EXPECT_EQ(rp2.registerPtrWithId(iox::rp::segment_id_t{10000U}, typedPtr1), false);
+    EXPECT_EQ(rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr0), true);
+    EXPECT_EQ(rp2.registerPtrWithId(iox::memory::segment_id_t{10000U}, typedPtr1), false);
 }
 
 TYPED_TEST(RelativePointer_test, BasePointerIsSameAfterRegistering)
@@ -410,10 +410,10 @@ TYPED_TEST(RelativePointer_test, BasePointerIsSameAfterRegistering)
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
-    EXPECT_EQ(rp1.getBasePtr(iox::rp::segment_id_t{1U}), nullptr);
-    rp1.registerPtrWithId(iox::rp::segment_id_t{1U}, typedPtr);
-    EXPECT_EQ(typedPtr, rp1.getBasePtr(iox::rp::segment_id_t{1U}));
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
+    EXPECT_EQ(rp1.getBasePtr(iox::memory::segment_id_t{1U}), nullptr);
+    rp1.registerPtrWithId(iox::memory::segment_id_t{1U}, typedPtr);
+    EXPECT_EQ(typedPtr, rp1.getBasePtr(iox::memory::segment_id_t{1U}));
 }
 
 TYPED_TEST(RelativePointer_test, AssignmentOperatorResultsInSameBasePointerIdAndOffset)
@@ -422,7 +422,7 @@ TYPED_TEST(RelativePointer_test, AssignmentOperatorResultsInSameBasePointerIdAnd
     // No pointer arithmetic involved hence reinterpret_cast can be avoided
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
     // NOLINTJUSTIFICATION Copy needed for tests
     // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     RelativePointer<TypeParam> rp2 = rp1;
@@ -439,7 +439,7 @@ TYPED_TEST(RelativePointer_test, DereferencingOperatorResultsInSameValue)
     auto* typedPtr = static_cast<TypeParam*>(static_cast<void*>(this->partitionPtr(0U)));
 
     *typedPtr = static_cast<TypeParam>(88);
-    RelativePointer<TypeParam> rp1(typedPtr, iox::rp::segment_id_t{1U});
+    RelativePointer<TypeParam> rp1(typedPtr, iox::memory::segment_id_t{1U});
 
     EXPECT_EQ(*rp1, *typedPtr);
     *typedPtr = static_cast<TypeParam>(99);
@@ -484,13 +484,13 @@ TYPED_TEST(RelativePointer_test, MemoryRemappingWorks)
     EXPECT_EQ(*adr1, 12);
     EXPECT_EQ(*adr2, 21);
 
-    EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::rp::segment_id_t{1U}, base1), true);
-    EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::rp::segment_id_t{2U}, base2), true);
+    EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::memory::segment_id_t{1U}, base1), true);
+    EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::memory::segment_id_t{2U}, base2), true);
 
     {
         // the relative pointers point to base 1 and base 2l
-        RelativePointer<uint8_t> rp1(base1, iox::rp::segment_id_t{1U});
-        RelativePointer<uint8_t> rp2(base2, iox::rp::segment_id_t{2U});
+        RelativePointer<uint8_t> rp1(base1, iox::memory::segment_id_t{1U});
+        RelativePointer<uint8_t> rp2(base2, iox::memory::segment_id_t{2U});
 
         EXPECT_EQ(rp1.getId(), 1U);
         EXPECT_EQ(rp2.getId(), 2U);
@@ -504,8 +504,8 @@ TYPED_TEST(RelativePointer_test, MemoryRemappingWorks)
 
     {
         // now test with a type that is larger than 1 byte
-        RelativePointer<int> rp1(adr1, iox::rp::segment_id_t{1U});
-        RelativePointer<int> rp2(adr2, iox::rp::segment_id_t{2U});
+        RelativePointer<int> rp1(adr1, iox::memory::segment_id_t{1U});
+        RelativePointer<int> rp2(adr2, iox::memory::segment_id_t{2U});
 
         EXPECT_EQ(rp1.getId(), 1U);
         EXPECT_EQ(rp2.getId(), 2U);
@@ -519,11 +519,11 @@ TYPED_TEST(RelativePointer_test, MemoryRemappingWorks)
         EXPECT_EQ(*rp2, 21);
 
         // simulate a remapping, index 1 now refers to base 2 and vice versa ...
-        EXPECT_EQ(UntypedRelativePointer::unregisterPtr(iox::rp::segment_id_t{1U}), true);
-        EXPECT_EQ(UntypedRelativePointer::unregisterPtr(iox::rp::segment_id_t{2U}), true);
+        EXPECT_EQ(UntypedRelativePointer::unregisterPtr(iox::memory::segment_id_t{1U}), true);
+        EXPECT_EQ(UntypedRelativePointer::unregisterPtr(iox::memory::segment_id_t{2U}), true);
 
-        EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::rp::segment_id_t{1}, base2), true);
-        EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::rp::segment_id_t{2}, base1), true);
+        EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::memory::segment_id_t{1}, base2), true);
+        EXPECT_EQ(UntypedRelativePointer::registerPtrWithId(iox::memory::segment_id_t{2}, base1), true);
 
         // which, despite the relative pointer objects not having changed themselves,
         // leads to them referencing the respective other value now (compared to *** above)

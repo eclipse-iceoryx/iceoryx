@@ -85,7 +85,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    auto maybeSegmentId = rp::UntypedRelativePointer::registerPtr(m_memory, m_size);
+    auto maybeSegmentId = memory::UntypedRelativePointer::registerPtr(m_memory, m_size);
 
     if (!maybeSegmentId.has_value())
     {
@@ -122,7 +122,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        rp::UntypedRelativePointer::unregisterPtr(rp::segment_id_t{m_segmentId});
+        memory::UntypedRelativePointer::unregisterPtr(memory::segment_id_t{m_segmentId});
         m_memory = nullptr;
         m_size = 0U;
     }

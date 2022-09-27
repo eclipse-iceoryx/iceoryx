@@ -22,7 +22,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::rp;
+using namespace iox::memory;
 
 TEST(RelativePointerData_test, DefaultConstructedResultsInNullptrIdAndOffset)
 {

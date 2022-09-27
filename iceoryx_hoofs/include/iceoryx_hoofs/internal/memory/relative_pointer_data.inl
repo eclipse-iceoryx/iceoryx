@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 // AXIVION Next Construct AutosarC++19_03-A12.1.2 : NSDMI with null value is more explicit
 constexpr RelativePointerData::RelativePointerData(identifier_t id, offset_t offset) noexcept
@@ -32,7 +32,7 @@ constexpr RelativePointerData::RelativePointerData(identifier_t id, offset_t off
         m_idAndOffset = LOGICAL_NULLPTR;
     }
 }
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL

@@ -60,7 +60,7 @@ class ShmSafeUnmanagedChunk
     bool isNotLogicalNullptrAndHasNoOtherOwners() const noexcept;
 
   private:
-    rp::RelativePointerData m_chunkManagement;
+    memory::RelativePointerData m_chunkManagement;
 };
 
 } // namespace mepoo

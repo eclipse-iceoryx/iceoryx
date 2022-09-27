@@ -39,11 +39,11 @@ class SharedMemoryUser
     /// address space
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
-                     const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                     const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     void openDataSegments(const uint64_t segmentId,
-                          const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                          const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

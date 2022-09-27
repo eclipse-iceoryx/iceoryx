@@ -76,8 +76,8 @@ Memory chunks are returned to the pool once all attached consumers indicate they
 
 As already discussed, shared memory segments may be mapped to different memory areas in the virtual address space of a
 process.
-To deal with this, iceoryx utilizes specialized pointer types: the `iox::rp::RelativePointer` and
-the `iox::rp::relocatable_ptr`.
+To deal with this, iceoryx utilizes specialized pointer types: the `iox::memory::RelativePointer` and
+the `iox::memory::relocatable_ptr`.
 
 Using these types, the difference in memory mapping is not a factor when it comes to locating a memory chunk.
 

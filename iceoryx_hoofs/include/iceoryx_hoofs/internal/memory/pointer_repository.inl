@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline PointerRepository<id_t, ptr_t, CAPACITY>::PointerRepository() noexcept
@@ -136,7 +136,7 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIndexIsFree(co
     return false;
 }
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL

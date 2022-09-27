@@ -27,7 +27,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 struct segment_id_t : public cxx::NewType<uint64_t,
                                           cxx::newtype::DefaultConstructable,
@@ -208,7 +208,7 @@ using UntypedRelativePointer = RelativePointer<void>;
 PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
 
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/memory/relative_pointer.inl"

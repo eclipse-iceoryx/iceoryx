@@ -164,11 +164,11 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_PUBLISHER_ACK)
 
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return cxx::success<PublisherPortUserType::MemberType_t*>(
                 reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
@@ -272,11 +272,11 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SUBSCRIBER_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return cxx::success<SubscriberPortUserType::MemberType_t*>(
                 reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
@@ -374,11 +374,11 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CLIENT_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return cxx::success<popo::ClientPortUser::MemberType_t*>(
                 reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
@@ -476,11 +476,11 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_SERVER_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return cxx::success<popo::ServerPortUser::MemberType_t*>(
                 reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
@@ -521,11 +521,11 @@ popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::In
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_INTERFACE_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return reinterpret_cast<popo::InterfacePortData*>(ptr);
         }
     }
@@ -555,11 +555,11 @@ NodeData* PoshRuntimeImpl::createNode(const NodeProperty& nodeProperty) noexcept
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_NODE_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return reinterpret_cast<NodeData*>(ptr);
         }
     }
@@ -584,11 +584,11 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
 
         if (stringToIpcMessageType(IpcMessage.c_str()) == IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
         {
-            rp::segment_id_underlying_t segmentId{0U};
+            memory::segment_id_underlying_t segmentId{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), segmentId);
-            rp::UntypedRelativePointer::offset_t offset{0U};
+            memory::UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
-            auto ptr = rp::UntypedRelativePointer::getPtr(rp::segment_id_t{segmentId}, offset);
+            auto ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, offset);
             return cxx::success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }

@@ -26,7 +26,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
 
@@ -112,7 +112,7 @@ class PointerRepository
 
     bool addPointerIfIndexIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/memory/pointer_repository.inl"
