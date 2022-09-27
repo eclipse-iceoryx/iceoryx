@@ -26,7 +26,7 @@ namespace cxx
 {
 namespace internal
 {
-/// @NOLINTJUSTIFICATION todo #1196 will be obsolote with new error handler
+/// @NOLINTJUSTIFICATION todo #1196 will be obsolete with new error handler
 /// @NOLINTNEXTLINE(readability-function-size)
 void Require(
     const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
@@ -35,6 +35,23 @@ void Require(
     {
         std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
                   << ")" << std::endl;
+        errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
+    }
+}
+
+/// @NOLINTJUSTIFICATION todo #1196 will be obsolete with new error handler
+/// @NOLINTNEXTLINE(readability-function-size)
+void Require(const bool condition,
+             const char* file,
+             const int line,
+             const char* function,
+             const char* conditionString,
+             const char* msgString) noexcept
+{
+    if (!condition)
+    {
+        std::cerr << "Condition: " << conditionString << " in " << function << " is violated: " << msgString << ". ("
+                  << file << ":" << line << ")" << std::endl;
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }

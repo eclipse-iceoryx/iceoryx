@@ -27,6 +27,13 @@ namespace internal
 {
 void Require(
     const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept;
+
+void Require(const bool condition,
+             const char* file,
+             const int line,
+             const char* function,
+             const char* conditionString,
+             const char* msgString) noexcept;
 } // namespace internal
 
 // implementing C++ Core Guideline, I.6. Prefer Expects
@@ -40,6 +47,15 @@ void Require(
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
 
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
+/// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
+/// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+#define ExpectsWithMsg(condition, msg)                                                                                 \
+    internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
+/// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+/// @NOLINTEND(cppcoreguidelines-macro-usage)
+
 // implementing C++ Core Guideline, I.8. Prefer Ensures
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-ensures
@@ -48,6 +64,15 @@ void Require(
 /// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
 /// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 #define Ensures(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+/// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+/// @NOLINTEND(cppcoreguidelines-macro-usage)
+
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
+/// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
+/// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+#define EnsuresWithMsg(condition, msg)                                                                                 \
+    internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
 
