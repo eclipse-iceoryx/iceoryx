@@ -40,8 +40,14 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-            rp::UntypedRelativePointer::registerPtr(
+            auto registeredSuccessfully = rp::UntypedRelativePointer::registerPtrWithId(
                 rp::segment_id_t{segmentId}, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+
+            if (!registeredSuccessfully)
+            {
+                errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
+            }
+
             LogDebug() << "Application registered management segment "
                        << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                        << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
@@ -76,9 +82,15 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                rp::UntypedRelativePointer::registerPtr(rp::segment_id_t{segment.m_segmentId},
-                                                        sharedMemoryObject.getBaseAddress(),
-                                                        sharedMemoryObject.getSizeInBytes());
+                auto registeredSuccessfully =
+                    rp::UntypedRelativePointer::registerPtrWithId(rp::segment_id_t{segment.m_segmentId},
+                                                                  sharedMemoryObject.getBaseAddress(),
+                                                                  sharedMemoryObject.getSizeInBytes());
+
+                if (!registeredSuccessfully)
+                {
+                    errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
+                }
 
                 LogDebug() << "Application registered payload data segment "
                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "

@@ -87,25 +87,25 @@ class RelativePointer
     RelativePointer(const offset_t offset, const segment_id_t id) noexcept;
 
     /// @brief Constructs a RelativePointer pointing to the same pointee as ptr
-    /// @param[in] ptr the pointer whose pointee shall be the same for this
+    /// @param[in] ptr The pointer whose pointee shall be the same for this
     explicit RelativePointer(const ptr_t ptr) noexcept;
 
-    /// @brief copy constructor
-    /// @param[in] other is the copy origin
+    /// @brief Copy constructor
+    /// @param[in] other Is the copy origin
     RelativePointer(const RelativePointer& other) noexcept = default;
 
-    /// @brief move constructor
-    /// @param[in] other is the move origin
+    /// @brief Move constructor
+    /// @param[in] other Is the move origin
     RelativePointer(RelativePointer&& other) noexcept;
 
-    /// @brief copy assignment
-    /// @param[in] other is the copy origin
-    /// @return a reference to self
+    /// @brief Copy assignment
+    /// @param[in] other Is the copy origin
+    /// @return A reference to self
     RelativePointer& operator=(const RelativePointer& other) noexcept;
 
-    /// @brief move assignment
-    /// @param[in] other is the move origin
-    /// @return a reference to self
+    /// @brief Move assignment
+    /// @param[in] other Is the move origin
+    /// @return A reference to self
     RelativePointer& operator=(RelativePointer&& other) noexcept;
 
     /// @brief Assigns the RelativePointer to point to the same pointee as ptr
@@ -146,64 +146,64 @@ class RelativePointer
     /// @return the id which identifies the segment
     segment_id_underlying_t getId() const noexcept;
 
-    /// @brief returns the offset
-    /// @return the offset
+    /// @brief Returns the offset
+    /// @return The offset of the RelativePointer object
     offset_t getOffset() const noexcept;
 
-    /// @brief get the base pointer associated with this' id
-    /// @return the registered base pointer
+    /// @brief Get the base pointer associated with this' id
+    /// @return The registered base pointer of the RelativePointer object
     ptr_t getBasePtr() const noexcept;
 
-    /// @brief registers a memory segment at ptr with size of a new id
-    /// @param[in] ptr starting address of the segment to be registered
-    /// @param[in] size is the size of the segment
-    /// @return id it was registered to
+    /// @brief Tries to registers a memory segment at ptr with size of a new id
+    /// @param[in] ptr Starting address of the segment to be registered
+    /// @param[in] size Is the size of the segment, defaults to size 0 if argument is not provided
+    /// @return segment_id to which the pointer was registered, wrapped in an cxx::optional
     static cxx::optional<segment_id_underlying_t> registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
-    /// @brief tries to register a memory segment with a given size starting at ptr to a given id
-    /// @param[in] id is the id of the segment
-    /// @param[in] ptr starting address of the segment to be registered
-    /// @param[in] size is the size of the segment
-    /// @return true if successful (id not occupied), false otherwise
-    static bool registerPtr(const segment_id_t id, const ptr_t ptr, const uint64_t size = 0U) noexcept;
+    /// @brief Tries to register a memory segment with a given size starting at ptr to a given id
+    /// @param[in] id Is the id of the segment
+    /// @param[in] ptr Starting address of the segment to be registered
+    /// @param[in] size Is the size of the segment
+    /// @return True if successful (id not occupied), false otherwise
+    static bool registerPtrWithId(const segment_id_t id, const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
-    /// @brief unregisters ptr with given id
-    /// @param[in] id is the id of the segment
-    /// @return true if successful (ptr was registered with this id before), false otherwise
+    /// @brief Unregisters ptr with given id
+    /// @param[in] id Is the id of the segment
+    /// @return True if successful (ptr was registered with this id before), false otherwise
     static bool unregisterPtr(const segment_id_t id) noexcept;
 
-    /// @brief get the base ptr associated with the given id
-    /// @param[in] id is the id of the segment
-    /// @return ptr registered at the given id, nullptr if none was registered
+    /// @brief Get the base ptr associated with the given id
+    /// @param[in] id Is the id of the segment
+    /// @return The pointer registered at the given id, nullptr if none was registered
     static ptr_t getBasePtr(const segment_id_t id) noexcept;
 
     /// @brief unregisters all ptr id pairs (leads to initial state)
     static void unregisterAll() noexcept;
 
-    /// @brief get the offset from id and ptr
-    /// @param[in] id is the id of the segment and is used to get the base pointer
-    /// @param[in] ptr is the pointer whose offset should be calculated
-    /// @return offset
+    /// @brief Get the offset from id and ptr
+    /// @param[in] id Is the id of the segment and is used to get the base pointer
+    /// @param[in] ptr Is the pointer whose offset should be calculated
+    /// @return The offset of the passed pointer
     static offset_t getOffset(const segment_id_t id, const_ptr_t ptr) noexcept;
 
-    /// @brief get the pointer from id and offset ("inverse" to getOffset)
-    /// @param[in] id is the id of the segment and is used to get the base pointer
-    /// @param[in] offset is the offset for which the pointer should be calculated
-    /// @return the pointer from id and offset
+    /// @brief Get the pointer from id and offset ("inverse" to getOffset)
+    /// @param[in] id Is the id of the segment and is used to get the base pointer
+    /// @param[in] offset Is the offset for which the pointer should be calculated
+    /// @return The pointer from id and offset
     static ptr_t getPtr(const segment_id_t id, const offset_t offset) noexcept;
 
-    /// @brief get the id for a given ptr
-    /// @param[in] ptr the pointer whose corresponding id is searched for
-    /// @return id the pointer was registered to
+    /// @brief Get the id for a given ptr
+    /// @param[in] ptr The pointer whose corresponding id is searched for
+    /// @return segment_id to which the pointer was registered to
     static segment_id_underlying_t searchId(ptr_t ptr) noexcept;
 
-    /// @brief get the offset from the start address of the segment and ptr
-    /// @param[in] ptr is the pointer whose offset should be calculated
-    /// @return offset
+    /// @brief Get the offset from the start address of the segment and ptr
+    /// @param[in] ptr Is the pointer whose offset should be calculated
+    /// @return The offset of the passed pointer
     offset_t computeOffset(ptr_t ptr) const noexcept;
 
-    /// @brief get the pointer from stored id and offset
-    /// @return the pointer for stored id and offset
+    /// @brief Get the pointer from stored id and offset
+    /// @return The pointer for stored id and offset
     ptr_t computeRawPtr() const noexcept;
 
     static constexpr segment_id_underlying_t NULL_POINTER_ID{std::numeric_limits<segment_id_underlying_t>::max()};
