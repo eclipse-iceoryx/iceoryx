@@ -28,6 +28,7 @@
 #ifndef IOX_HOOFS_LOG_LOGGER_HPP
 #define IOX_HOOFS_LOG_LOGGER_HPP
 
+#include "iceoryx_hoofs/iceoryx_hoofs_deployment.hpp"
 #include "iceoryx_hoofs/log/building_blocks/console_logger.hpp"
 #include "iceoryx_hoofs/log/building_blocks/logger.hpp"
 
@@ -45,11 +46,10 @@ using TestingLoggerBase = internal::Logger<ConsoleLogger>;
 /// @note This has an performance impact if set to true since the lazy evaluation of the logged data will be jimmied.
 static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
 
-/// @todo iox-#1345 make this a option a cmake argument and use via a compile define
 /// @brief The minimal log level which will be compiled into the application. All log levels below this will be
 /// optimized out at compile time
 /// @note This is different than IGNORE_ACTIVE_LOG_LEVEL since the active log level could still be set to off at runtime
-static constexpr LogLevel MINIMAL_LOG_LEVEL{LogLevel::TRACE};
+static constexpr LogLevel MINIMAL_LOG_LEVEL{build::IOX_MINIMAL_LOG_LEVEL};
 
 } // namespace log
 } // namespace iox

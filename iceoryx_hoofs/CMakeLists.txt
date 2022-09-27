@@ -26,6 +26,8 @@ find_package(iceoryx_platform REQUIRED)
 include(IceoryxPackageHelper)
 include(IceoryxPlatformSettings)
 
+include(cmake/IceoryxHoofsDeployment.cmake)
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
@@ -46,6 +48,7 @@ iox_add_library(
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+                                ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES
         source/concurrent/loffli.cpp
@@ -79,6 +82,15 @@ iox_add_library(
         source/posix_wrapper/unix_domain_socket.cpp
         source/relocatable_pointer/relative_pointer_data.cpp
         source/units/duration.cpp
+)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_hoofs/iceoryx_hoofs_deployment.hpp" @ONLY)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/${PROJECT_NAME}/iceoryx_hoofs_deployment.hpp
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
 )
 
 #
