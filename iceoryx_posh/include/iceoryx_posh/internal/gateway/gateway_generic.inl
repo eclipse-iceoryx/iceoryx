@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +38,7 @@ inline GatewayGeneric<channel_t, gateway_t>::~GatewayGeneric() noexcept
 template <typename channel_t, typename gateway_t>
 inline void GatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
 {
-    m_isRunning.store(true, std::memory_order_relaxed);
+    m_isRunning.store(true);
     m_discoveryThread = std::thread([this] { this->discoveryLoop(); });
     m_forwardingThread = std::thread([this] { this->forwardingLoop(); });
 }
@@ -45,11 +46,13 @@ inline void GatewayGeneric<channel_t, gateway_t>::runMultithreaded() noexcept
 template <typename channel_t, typename gateway_t>
 inline void GatewayGeneric<channel_t, gateway_t>::shutdown() noexcept
 {
-    if (m_isRunning.load(std::memory_order_relaxed))
+    m_isRunning.store(false);
+    if (m_discoveryThread.joinable())
     {
-        m_isRunning.store(false, std::memory_order_relaxed);
-
         m_discoveryThread.join();
+    }
+    if (m_forwardingThread.joinable())
+    {
         m_forwardingThread.join();
     }
 }
