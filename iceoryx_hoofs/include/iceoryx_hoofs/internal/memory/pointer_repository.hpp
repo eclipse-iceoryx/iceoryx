@@ -115,6 +115,6 @@ class PointerRepository
 } // namespace rp
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.inl"
+#include "iceoryx_hoofs/internal/memory/pointer_repository.inl"
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP

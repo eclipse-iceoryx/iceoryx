@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
 #define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_INL
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer_data.hpp"
 
 namespace iox
 {

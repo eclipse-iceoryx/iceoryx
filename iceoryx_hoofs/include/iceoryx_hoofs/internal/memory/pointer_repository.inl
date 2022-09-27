@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
 #define IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.hpp"
+#include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
 
 namespace iox
 {

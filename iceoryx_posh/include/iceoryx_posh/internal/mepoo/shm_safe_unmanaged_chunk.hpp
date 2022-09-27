@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_MEPOO_SHM_SAFE_UNMANAGED_CHUNK_HPP
 #define IOX_POSH_MEPOO_SHM_SAFE_UNMANAGED_CHUNK_HPP
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer_data.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 
 namespace iox

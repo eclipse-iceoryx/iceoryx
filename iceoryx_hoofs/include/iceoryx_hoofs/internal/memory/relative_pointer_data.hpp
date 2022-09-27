@@ -82,6 +82,6 @@ class RelativePointerData
 } // namespace rp
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.inl"
+#include "iceoryx_hoofs/internal/memory/relative_pointer_data.inl"
 
 #endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_HPP

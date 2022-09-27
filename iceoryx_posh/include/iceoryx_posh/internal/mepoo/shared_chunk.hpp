@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_MEPOO_SHARED_CHUNK_HPP
 #define IOX_POSH_MEPOO_SHARED_CHUNK_HPP
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
