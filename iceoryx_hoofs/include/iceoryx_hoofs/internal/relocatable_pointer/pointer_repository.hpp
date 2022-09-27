@@ -78,7 +78,7 @@ class PointerRepository
     /// @param[in] size is the size of the segment
     /// @return the segment id to which the pointer was added wrapped in an cxx::optional, cxx::nullopt if pointer was
     /// not added
-    cxx::optional<id_t> registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    cxx::optional<id_t> registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
     /// @brief unregisters the id
     /// @param[in] id is the id to be unregistered
@@ -109,6 +109,8 @@ class PointerRepository
 
     iox::cxx::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};
+
+    bool addPointerIfIndexIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };
 } // namespace rp
 } // namespace iox

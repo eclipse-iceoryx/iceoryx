@@ -39,41 +39,17 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(const id
     {
         return false;
     }
-    if (m_info[id].basePtr == nullptr)
-    {
-        m_info[id].basePtr = ptr;
-        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back to
-        // the original type
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
-
-        if (id > m_maxRegistered)
-        {
-            m_maxRegistered = id;
-        }
-        return true;
-    }
-    return false;
+    return addPointerIfIndexIsFree(id, ptr, size);
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
-                                                                                 uint64_t size) noexcept
+                                                                                 const uint64_t size) noexcept
 {
     for (id_t id = 1U; id <= MAX_ID; ++id)
     {
-        if (m_info[id].basePtr == nullptr)
+        if (addPointerIfIndexIsFree(id, ptr, size))
         {
-            m_info[id].basePtr = ptr;
-            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back
-            // to the original type
-            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
-
-            if (id > m_maxRegistered)
-            {
-                m_maxRegistered = id;
-            }
             return id;
         }
     }
@@ -137,6 +113,27 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
     /// @note treat the pointer as a regular pointer if not found
     /// by setting id to RAW_POINTER_BEHAVIOUR_ID
     return RAW_POINTER_BEHAVIOUR_ID;
+}
+template <typename id_t, typename ptr_t, uint64_t CAPACITY>
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIndexIsFree(const id_t id,
+                                                                              const ptr_t ptr,
+                                                                              const uint64_t size) noexcept
+{
+    if (m_info[id].basePtr == nullptr)
+    {
+        m_info[id].basePtr = ptr;
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Cast is needed for pointer arithmetic and casted back
+        // to the original type
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+        m_info[id].endPtr = reinterpret_cast<ptr_t>(reinterpret_cast<uintptr_t>(ptr) + size - 1U);
+
+        if (id > m_maxRegistered)
+        {
+            m_maxRegistered = id;
+        }
+        return true;
+    }
+    return false;
 }
 
 } // namespace rp
