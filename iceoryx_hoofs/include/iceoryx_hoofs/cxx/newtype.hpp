@@ -80,8 +80,20 @@ class NewType : public Policies<NewType<T, Policies...>>...
     /// @NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
-    /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
-    /// in `Foo` and `Bar` being the same type, this enforces the creation of the
+    /// @brief copy constructor
+    NewType(const NewType& rhs) noexcept;
+
+    /// @brief move constructor
+    NewType(NewType&& rhs) noexcept;
+
+    /// @brief copy assignment
+    NewType& operator=(const NewType& rhs) noexcept;
+
+    /// @brief move assignment
+    NewType& operator=(NewType&& rhs) noexcept;
+
+    /// @note Since 'using Foo = NewType<int>' and 'using Bar = NewType<int>' result
+    /// in 'Foo' and 'Bar' being the same type, this enforces the creation of the
     /// new type by inheritance
     ~NewType() = default;
 
@@ -96,18 +108,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
 
     /// @brief construct with value copy
     explicit NewType(const T& rhs) noexcept;
-
-    /// @brief copy constructor
-    NewType(const NewType& rhs) noexcept;
-
-    /// @brief move constructor
-    NewType(NewType&& rhs) noexcept;
-
-    /// @brief copy assignment
-    NewType& operator=(const NewType& rhs) noexcept;
-
-    /// @brief move assignment
-    NewType& operator=(NewType&& rhs) noexcept;
 
     /// @brief copy by value assignment
     NewType& operator=(const T& rhs) noexcept;
