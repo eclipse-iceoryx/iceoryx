@@ -53,6 +53,7 @@
 - Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
+- Avoid move and assignment of `cxx::unique_ptr` with different `DeleterTypes`s [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
 
 **Refactoring:**
 
@@ -452,7 +453,7 @@
     #include "iceoryx_platform/some_header.hpp"
     ```
 
-22. `cxx::unique_ptr` is no longer nullable.
+22. `cxx::unique_ptr` is no longer nullable and needs `DeleterType` as 2nd template parameter
 
     ```cxx
     // before
@@ -468,21 +469,21 @@
 
 
     // after
-    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
-    cxx::optional<cxx::unique_ptr<int>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
+    cxx::unique_ptr<int, SomeDeleterType> myPtr(ptrToInt, someDeleter);
+    cxx::optional<cxx::unique_ptr<int, SomeDeleterType>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
 
     // no more null check required since it is no longer nullable
     std::cout << *myPtr << std::endl;
 
     myPtr.reset(ptrToOtherInt);
-    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
+    cxx::unique_ptr<int, SomeDeleterType>::release(std::move(myPtr)); // release consumes myPtr
     ```
 
     Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
 
-23. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+24. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
     construction
 
     ```cpp
@@ -499,7 +500,7 @@
     myMutex->lock();
     ```
 
-24. Change return type of `cxx::vector::erase` from iterator to bool
+25. Change return type of `cxx::vector::erase` from iterator to bool
 
     ```cpp
     // before
@@ -509,7 +510,7 @@
     bool success = myCxxVector.erase(myCxxVector.begin());
     ```
 
-25. `cxx::function` is no longer nullable.
+26. `cxx::function` is no longer nullable.
 
     ```cxx
     // before
