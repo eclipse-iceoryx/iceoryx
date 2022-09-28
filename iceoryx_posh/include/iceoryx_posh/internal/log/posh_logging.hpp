@@ -20,4 +20,12 @@
 
 #include "iceoryx_hoofs/log/logging.hpp"
 
+#define LogFatal() IOX_LOG(FATAL)
+#define LogError() IOX_LOG(ERROR)
+#define LogWarn() IOX_LOG(WARN)
+#define LogInfo() IOX_LOG(INFO)
+#define LogDebug() IOX_LOG(DEBUG)
+#define LogTrace() IOX_LOG(TRACE)
+#define LogVerbose() IOX_LOG(TRACE)
+
 #endif // IOX_POSH_LOG_POSH_LOGGING_HPP

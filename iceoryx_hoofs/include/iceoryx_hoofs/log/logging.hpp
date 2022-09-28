@@ -54,14 +54,6 @@ inline bool isLogLevelActive(LogLevel logLevel)
 #define IOX_LOG(level) IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level)
 // NOLINTEND(bugprone-lambda-function-name)
 
-/// @todo iox-#1345 for transition only; remove this macros
-#define LogFatal() IOX_LOG(FATAL)
-#define LogError() IOX_LOG(ERROR)
-#define LogWarn() IOX_LOG(WARN)
-#define LogInfo() IOX_LOG(INFO)
-#define LogDebug() IOX_LOG(DEBUG)
-#define LogTrace() IOX_LOG(TRACE)
-#define LogVerbose() IOX_LOG(TRACE)
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 } // namespace log

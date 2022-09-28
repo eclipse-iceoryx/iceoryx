@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
