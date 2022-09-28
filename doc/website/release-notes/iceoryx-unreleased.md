@@ -53,6 +53,7 @@
 - Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
+- Removed `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
 
 **Refactoring:**
 
@@ -453,7 +454,7 @@
     #include "iceoryx_platform/some_header.hpp"
     ```
 
-24. `cxx::unique_ptr` is no longer nullable.
+24. `cxx::unique_ptr` is no longer nullable and does not have a `reset` method anymore
 
     ```cpp
     // before
@@ -475,7 +476,7 @@
     // no more null check required since it is no longer nullable
     std::cout << *myPtr << std::endl;
 
-    myPtr.reset(ptrToOtherInt);
+    myPtr = std::move(uniquePtrToAnotherInt); // deleter(myPtr) is called before move
     cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
     ```
 
@@ -510,7 +511,7 @@
     bool success = myCxxVector.erase(myCxxVector.begin());
     ```
 
-25. `cxx::function` is no longer nullable.
+27. `cxx::function` is no longer nullable.
 
     ```cpp
     // before
@@ -533,7 +534,7 @@
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `function` is well defined and behaves like dereferencing a `nullptr`.
 
-26. `LogLevel` enum tags are renamed to better match the log4j log levels
+28. `LogLevel` enum tags are renamed to better match the log4j log levels
 
     | before     | after   |
     |:----------:|:-------:|
@@ -545,12 +546,11 @@
     | `kDebug`   | `DEBUG` |
     | `kVerbose` | `TRACE` |
 
-
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
-27. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
 
-28. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
+30. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
 
     ```cpp
     // before
@@ -568,7 +568,7 @@
     IOX_LOG(INFO) << "Hello World";
     ```
 
-29. Setting the default log level changed
+31. Setting the default log level changed
 
     ```cpp
     // before
@@ -584,7 +584,7 @@
 
     Please look at the logger design document for more details like setting the log level via environment variables.
 
-30. Changing the log level at runtime changed
+32. Changing the log level at runtime changed
 
     ```cpp
     // before
@@ -594,7 +594,7 @@
     iox::log::Logger::setLogLevel(iox::log::LogLevel::DEBUG);
     ```
 
-31. Using the logger in libraries is massively simplified
+33. Using the logger in libraries is massively simplified
 
     ```cpp
     // before
@@ -656,7 +656,7 @@
     }
     ```
 
-32. Free function logger calls changed
+34. Free function logger calls changed
 
     | before         | after            |
     |:--------------:|:----------------:|
@@ -667,7 +667,7 @@
     | `LogDebug()`   | `IOX_LOG(DEBUG)` |
     | `LogVerbose()` | `IOX_LOG(TRACE)` |
 
-33. Logger formatting changed
+35. Logger formatting changed
 
     ```cpp
     // before
@@ -680,7 +680,7 @@
     IOX_LOG(INFO) << iox::log::oct(42);
     ```
 
-34. Creating an instance of `LogStream` does not work anymore
+36. Creating an instance of `LogStream` does not work anymore
 
     ```cpp
     // before
@@ -705,7 +705,7 @@
     };
     ```
 
-35. Testing of `LogStream::operator<<` overload for custom types changed
+37. Testing of `LogStream::operator<<` overload for custom types changed
 
     ```cpp
     // before
@@ -723,7 +723,7 @@
     EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_STRING));
     ```
 
-36. Suppressing the logger output in tests
+38. Suppressing the logger output in tests
 
     ```cpp
     // before
@@ -752,7 +752,7 @@
     the `IOX_TESTING_ALLOW_LOG` environment variable can be used,
     e.g. `IOX_TESTING_ALLOW_LOG=ON ./unittests --gtest_filter=MyTest\*`. This might be helpful to debug tests.
 
-37. Checking the log message of test objects in unit tests
+39. Checking the log message of test objects in unit tests
 
     ```cpp
     // before
