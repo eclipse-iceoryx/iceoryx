@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_HPP
-#define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_HPP
+#ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_DATA_HPP
+#define IOX_HOOFS_MEMORY_RELATIVE_POINTER_DATA_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 
@@ -84,4 +84,4 @@ class RelativePointerData
 
 #include "iceoryx_hoofs/internal/memory/relative_pointer_data.inl"
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_DATA_HPP
+#endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_DATA_HPP

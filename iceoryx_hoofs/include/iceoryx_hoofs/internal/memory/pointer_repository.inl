@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
-#define IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
+#ifndef IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL
+#define IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL
 
 #include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
 
@@ -139,4 +139,4 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIdIsFree(const
 } // namespace memory
 } // namespace iox
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
+#endif // IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL
