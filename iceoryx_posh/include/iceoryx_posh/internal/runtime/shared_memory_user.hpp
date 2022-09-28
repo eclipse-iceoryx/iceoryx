@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 
@@ -39,11 +39,11 @@ class SharedMemoryUser
     /// address space
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
-                     const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                     const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     void openDataSegments(const uint64_t segmentId,
-                          const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                          const rp::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     cxx::optional<posix::SharedMemoryObject> m_shmObject;

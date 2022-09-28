@@ -225,7 +225,7 @@ class ProcessManager : public ProcessManagerInterface
     PortManager& m_portManager;
     mepoo::SegmentManager<>* m_segmentManager{nullptr};
     mepoo::MemoryManager* m_introspectionMemoryManager{nullptr};
-    rp::BaseRelativePointer::id_underlying_t m_mgmtSegmentId{rp::BaseRelativePointer::NULL_POINTER_ID};
+    rp::segment_id_underlying_t m_mgmtSegmentId{rp::UntypedRelativePointer::NULL_POINTER_ID};
     ProcessList_t m_processList;
     ProcessIntrospectionType* m_processIntrospection{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;

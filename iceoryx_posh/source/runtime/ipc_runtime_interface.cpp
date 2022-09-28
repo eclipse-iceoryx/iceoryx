@@ -150,7 +150,7 @@ bool IpcRuntimeInterface::sendKeepalive() noexcept
                : true;
 }
 
-rp::BaseRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
+rp::UntypedRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
     cxx::Ensures(m_segmentManagerAddressOffset.has_value()
                  && "No segment manager available! Should have been fetched in the c'tor");
@@ -234,7 +234,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
 
                 // read out the shared memory base address and save it
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
-                rp::BaseRelativePointer::offset_t offset{0U};
+                rp::UntypedRelativePointer::offset_t offset{0U};
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), offset);
                 m_segmentManagerAddressOffset.emplace(offset);
 

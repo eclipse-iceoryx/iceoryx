@@ -129,7 +129,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate() noexcept;
 
-    cxx::ScopeGuard m_unregisterRelativePtr{[] { rp::BaseRelativePointer::unregisterAll(); }};
+    cxx::ScopeGuard m_unregisterRelativePtr{[] { rp::UntypedRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;

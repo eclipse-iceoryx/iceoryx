@@ -77,7 +77,6 @@ iox_add_library(
         source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
-        source/relocatable_pointer/base_relative_pointer.cpp
         source/relocatable_pointer/relative_pointer_data.cpp
         source/units/duration.cpp
 )

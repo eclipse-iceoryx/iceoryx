@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
@@ -54,7 +53,7 @@ class SegmentManager_test : public Test
     }
     void TearDown() override
     {
-        iox::rp::BaseRelativePointer::unregisterAll();
+        iox::rp::UntypedRelativePointer::unregisterAll();
     }
 
     MePooConfig getMempoolConfig()
