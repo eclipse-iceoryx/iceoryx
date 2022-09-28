@@ -43,17 +43,15 @@ package iceoryx_hoofs  {
       component "Memory & lifetime management" <<module>>
       component Containers <<module>>
       component "Common vocabulary types" <<module>>
-      component "Filesystem & OS" <<module>>
+      component Filesystem <<module>>
       component Functional <<module>>
       component Utility <<module>>
-      component Strings <<module>>
       component Metaprogramming <<module>>
-      component Algorithms <<module>>
-      component "Generalized design patterns" <<module>>
-      component "Error handling & logging" <<module>>
-      component Time <<module>>
       component "Queues & communication" <<module>>
       component "Threads & sychronisation" <<module>>
+      component "Generalized design patterns & abstractions" <<module>>
+      component "Error handling & logging" <<module>>
+      component Time <<module>>
    }
 }
 
