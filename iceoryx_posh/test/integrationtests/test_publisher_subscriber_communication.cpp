@@ -1,4 +1,5 @@
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -706,6 +707,35 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_THAT(sample.has_error(), Eq(false));
     EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
+}
+
+TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSample)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "decbfcdd-778f-4e18-b6a8-395d400fdd80");
+
+    auto publisher = createPublisher<int>();
+    this->InterOpWait();
+    auto subscriber = createSubscriber<int>();
+    this->InterOpWait();
+
+    const auto uid = publisher->getUid();
+
+    for (int i = 0; i < 10; ++i)
+    {
+        ASSERT_FALSE(publisher->loan()
+                         .and_then([&](auto& sample) {
+                             *sample = i;
+                             sample.publish();
+                         })
+                         .has_error());
+
+        EXPECT_FALSE(subscriber->take()
+                         .and_then([&](auto& sample) {
+                             EXPECT_THAT(*sample, Eq(i));
+                             EXPECT_THAT(sample.getChunkHeader()->originId(), Eq(uid));
+                         })
+                         .has_error());
+    }
 }
 
 } // namespace
