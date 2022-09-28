@@ -28,10 +28,7 @@ namespace cxx
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
 ///
-/// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr
-/// instances with different deleters to be stored in the same containers.
-///
-template <typename T>
+template <typename T, typename D>
 class unique_ptr
 {
   public:
@@ -44,7 +41,7 @@ class unique_ptr
     /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T* const object, const function<D>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -107,7 +104,7 @@ class unique_ptr
 
   private:
     T* m_ptr = nullptr;
-    function<void(T* const)> m_deleter;
+    function<D> m_deleter;
 };
 
 /// @brief comparision for two distinct unique_ptr types
@@ -116,8 +113,8 @@ class unique_ptr
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are equal, otherwise false
-template <typename T, typename U>
-bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
+template <typename T, typename U, typename D>
+bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept;
 
 /// @brief inequality check for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
@@ -125,8 +122,8 @@ bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are not equal, otherwise false
-template <typename T, typename U>
-bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
+template <typename T, typename U, typename D>
+bool operator!=(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox

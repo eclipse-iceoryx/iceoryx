@@ -28,7 +28,7 @@ namespace internal
 {
 template <typename TransmissionInterface, typename T, typename H>
 inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData(
-    cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept
+    cxx::unique_ptr<T, void(T*)>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept
     : smartChunkUniquePtr(std::move(smartChunkUniquePtr))
     , producerRef(producer)
 {
@@ -36,7 +36,7 @@ inline SmartChunkPrivateData<TransmissionInterface, T, H>::SmartChunkPrivateData
 
 template <typename TransmissionInterface, typename T, typename H>
 inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPrivateData(
-    cxx::unique_ptr<const T>&& smartChunkUniquePtr) noexcept
+    cxx::unique_ptr<const T, void(const T*)>&& smartChunkUniquePtr) noexcept
     : smartChunkUniquePtr(std::move(smartChunkUniquePtr))
 {
 }
@@ -44,15 +44,17 @@ inline SmartChunkPrivateData<TransmissionInterface, const T, H>::SmartChunkPriva
 
 template <typename TransmissionInterface, typename T, typename H>
 template <typename S, typename>
-inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr,
-                                                           TransmissionInterface& producer) noexcept
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(
+    cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T>)>&& smartChunkUniquePtr,
+    TransmissionInterface& producer) noexcept
     : m_members({std::move(smartChunkUniquePtr), producer})
 {
 }
 
 template <typename TransmissionInterface, typename T, typename H>
 template <typename S, typename>
-inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr) noexcept
+inline SmartChunk<TransmissionInterface, T, H>::SmartChunk(
+    cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T>)>&& smartChunkUniquePtr) noexcept
     : m_members(std::move(smartChunkUniquePtr))
 {
 }
@@ -129,7 +131,8 @@ inline const R& SmartChunk<TransmissionInterface, T, H>::getUserHeader() const n
 template <typename TransmissionInterface, typename T, typename H>
 inline T* SmartChunk<TransmissionInterface, T, H>::release() noexcept
 {
-    auto ptr = cxx::unique_ptr<T>::release(std::move(*m_members.smartChunkUniquePtr));
+    auto ptr = cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T>)>::release(
+        std::move(*m_members.smartChunkUniquePtr));
     m_members.smartChunkUniquePtr.reset();
     return ptr;
 }

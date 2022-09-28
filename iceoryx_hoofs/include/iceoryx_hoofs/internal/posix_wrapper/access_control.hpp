@@ -112,7 +112,7 @@ class AccessController
     bool writePermissionsToFile(const int32_t fileDescriptor) const noexcept;
 
   private:
-    using smartAclPointer_t = cxx::unique_ptr<std::remove_pointer<acl_t>::type>;
+    using smartAclPointer_t = cxx::unique_ptr<std::remove_pointer<acl_t>::type, void(acl_t)>;
 
     struct PermissionEntry
     {

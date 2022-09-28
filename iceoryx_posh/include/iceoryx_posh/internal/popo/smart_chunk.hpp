@@ -33,7 +33,7 @@ namespace internal
 template <typename TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData
 {
-    SmartChunkPrivateData(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept;
+    SmartChunkPrivateData(cxx::unique_ptr<T, void(T*)>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept;
 
     SmartChunkPrivateData(SmartChunkPrivateData&& rhs) noexcept = default;
     SmartChunkPrivateData& operator=(SmartChunkPrivateData&& rhs) noexcept = default;
@@ -42,7 +42,7 @@ struct SmartChunkPrivateData
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::optional<cxx::unique_ptr<T>> smartChunkUniquePtr;
+    cxx::optional<cxx::unique_ptr<T, void(T*)>> smartChunkUniquePtr;
     std::reference_wrapper<TransmissionInterface> producerRef;
 };
 
@@ -50,7 +50,7 @@ struct SmartChunkPrivateData
 template <typename TransmissionInterface, typename T, typename H>
 struct SmartChunkPrivateData<TransmissionInterface, const T, H>
 {
-    explicit SmartChunkPrivateData(cxx::unique_ptr<const T>&& smartChunkUniquePtr) noexcept;
+    explicit SmartChunkPrivateData(cxx::unique_ptr<const T, void(const T*)>&& smartChunkUniquePtr) noexcept;
 
     SmartChunkPrivateData(SmartChunkPrivateData&& rhs) noexcept = default;
     SmartChunkPrivateData& operator=(SmartChunkPrivateData&& rhs) noexcept = default;
@@ -59,7 +59,7 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::optional<cxx::unique_ptr<const T>> smartChunkUniquePtr;
+    cxx::optional<cxx::unique_ptr<const T, void(const T*)>> smartChunkUniquePtr;
 };
 } // namespace internal
 
@@ -90,16 +90,19 @@ class SmartChunk
   public:
     /// @brief Constructor for a SmartChunk used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T)>`
+    /// with to the data of the encapsulated type T
     /// @param producer is a reference to the producer to be able to use producer specific methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
-    SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr, TransmissionInterface& producer) noexcept;
+    SmartChunk(cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T>)>&& smartChunkUniquePtr,
+               TransmissionInterface& producer) noexcept;
 
     /// @brief Constructor for a SmartChunk used by the Consumer
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T)>`
+    /// with to the data of the encapsulated type T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
-    explicit SmartChunk(cxx::unique_ptr<T>&& smartChunkUniquePtr) noexcept;
+    explicit SmartChunk(cxx::unique_ptr<T, void(cxx::add_const_conditionally_t<T*, T>)>&& smartChunkUniquePtr) noexcept;
 
     ~SmartChunk() noexcept = default;
 

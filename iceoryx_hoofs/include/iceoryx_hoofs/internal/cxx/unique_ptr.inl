@@ -24,16 +24,16 @@ namespace iox
 {
 namespace cxx
 {
-template <typename T>
-inline unique_ptr<T>::unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept
+template <typename T, typename D>
+inline unique_ptr<T, D>::unique_ptr(T* const object, const function<D>& deleter) noexcept
     : m_ptr(object)
     , m_deleter(deleter)
 {
     Ensures(object != nullptr);
 }
 
-template <typename T>
-inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
+template <typename T, typename D>
+inline unique_ptr<T, D>& unique_ptr<T, D>::operator=(unique_ptr&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -45,67 +45,67 @@ inline unique_ptr<T>& unique_ptr<T>::operator=(unique_ptr&& rhs) noexcept
     return *this;
 }
 
-template <typename T>
-inline unique_ptr<T>::unique_ptr(unique_ptr&& rhs) noexcept
+template <typename T, typename D>
+inline unique_ptr<T, D>::unique_ptr(unique_ptr&& rhs) noexcept
     : m_ptr{rhs.m_ptr}
     , m_deleter{std::move(rhs.m_deleter)}
 {
     rhs.m_ptr = nullptr;
 }
 
-template <typename T>
-inline unique_ptr<T>::~unique_ptr() noexcept
+template <typename T, typename D>
+inline unique_ptr<T, D>::~unique_ptr() noexcept
 {
     destroy();
 }
 
-template <typename T>
-inline T* unique_ptr<T>::operator->() noexcept
+template <typename T, typename D>
+inline T* unique_ptr<T, D>::operator->() noexcept
 {
     cxx::Expects(m_ptr != nullptr);
     return get();
 }
 
-template <typename T>
-inline const T* unique_ptr<T>::operator->() const noexcept
+template <typename T, typename D>
+inline const T* unique_ptr<T, D>::operator->() const noexcept
 {
     // Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<unique_ptr<T>*>(this)->operator->();
+    return const_cast<unique_ptr<T, D>*>(this)->operator->();
 }
 
-template <typename T>
-inline T* unique_ptr<T>::get() noexcept
+template <typename T, typename D>
+inline T* unique_ptr<T, D>::get() noexcept
 {
     return m_ptr;
 }
 
-template <typename T>
-inline const T* unique_ptr<T>::get() const noexcept
+template <typename T, typename D>
+inline const T* unique_ptr<T, D>::get() const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<unique_ptr<T>*>(this)->get();
+    return const_cast<unique_ptr<T, D>*>(this)->get();
 }
 
-template <typename T>
-inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
+template <typename T, typename D>
+inline T* unique_ptr<T, D>::release(unique_ptr&& ptrToBeReleased) noexcept
 {
     auto ptr = ptrToBeReleased.m_ptr;
     ptrToBeReleased.m_ptr = nullptr;
     return ptr;
 }
 
-template <typename T>
-inline void unique_ptr<T>::reset(T* const ptr) noexcept
+template <typename T, typename D>
+inline void unique_ptr<T, D>::reset(T* const ptr) noexcept
 {
     Ensures(ptr != nullptr);
     destroy();
     m_ptr = ptr;
 }
 
-template <typename T>
-inline void unique_ptr<T>::destroy() noexcept
+template <typename T, typename D>
+inline void unique_ptr<T, D>::destroy() noexcept
 {
     if (m_ptr)
     {
@@ -114,21 +114,21 @@ inline void unique_ptr<T>::destroy() noexcept
     m_ptr = nullptr;
 }
 
-template <typename T>
-inline void unique_ptr<T>::swap(unique_ptr<T>& other) noexcept
+template <typename T, typename D>
+inline void unique_ptr<T, D>::swap(unique_ptr<T, D>& other) noexcept
 {
     std::swap(m_ptr, other.m_ptr);
     std::swap(m_deleter, other.m_deleter);
 }
 
-template <typename T, typename U>
-inline bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept
+template <typename T, typename U, typename D>
+inline bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept
 {
     return lhs.get() == rhs.get();
 }
 
-template <typename T, typename U>
-inline bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept
+template <typename T, typename U, typename D>
+inline bool operator!=(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
