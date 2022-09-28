@@ -17,7 +17,7 @@
 message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_hoofs configuration: >>>>>>>>>>>>>")
 
 if(NOT IOX_MINIMAL_LOG_LEVEL)
-    set(IOX_MINIMAL_LOG_LEVEL "FATAL")
+    set(IOX_MINIMAL_LOG_LEVEL "TRACE")
 endif()
 message(STATUS "[i] IOX_MINIMAL_LOG_LEVEL: " ${IOX_MINIMAL_LOG_LEVEL})
 
