@@ -31,6 +31,7 @@ using byte_t = uint8_t;
 
 namespace log
 {
+/// @brief This enum defines the log levels used for logging.
 enum class LogLevel : uint8_t
 {
     OFF = 0,

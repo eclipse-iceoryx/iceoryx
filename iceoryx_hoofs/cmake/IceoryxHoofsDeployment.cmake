@@ -1,5 +1,4 @@
-# Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +14,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_posh configuration: >>>>>>>>>>>>>")
+message(STATUS "[i] <<<<<<<<<<<<< Start iceoryx_hoofs configuration: >>>>>>>>>>>>>")
 
 if(NOT IOX_MINIMAL_LOG_LEVEL)
     set(IOX_MINIMAL_LOG_LEVEL "FATAL")
 endif()
 message(STATUS "[i] IOX_MINIMAL_LOG_LEVEL: " ${IOX_MINIMAL_LOG_LEVEL})
 
-message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
+message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_hoofs configuration: >>>>>>>>>>>>>>")
