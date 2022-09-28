@@ -62,8 +62,11 @@ inline RelativePointer<T>& RelativePointer<T>::operator=(const RelativePointer& 
 
 template <typename T>
 RelativePointer<T>::RelativePointer(RelativePointer&& other) noexcept
+    : m_id(std::move(other.m_id))
+    , m_offset(std::move(other.m_offset))
 {
-    *this = std::move(other);
+    other.m_id = NULL_POINTER_ID;
+    other.m_offset = NULL_POINTER_OFFSET;
 }
 
 template <typename T>
