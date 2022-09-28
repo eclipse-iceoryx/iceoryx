@@ -27,7 +27,8 @@ namespace cxx
 {
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
-///
+/// @tparam[in] T Type to which the unique_ptr is pointing to
+/// @tparam[in] D Type of the callable provided as deleter
 template <typename T, typename D>
 class unique_ptr
 {
@@ -110,6 +111,7 @@ class unique_ptr
 /// @brief comparision for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
 /// @tparam U underlying type of rhs
+/// @tparam D type of callable stored as deleter in lhs and rhs
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are equal, otherwise false
@@ -119,6 +121,7 @@ bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexce
 /// @brief inequality check for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
 /// @tparam U underlying type of rhs
+/// @tparam D type of callable stored as deleter in lhs and rhs
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are not equal, otherwise false
