@@ -27,15 +27,35 @@ namespace cxx
 {
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
+/// @tparam[in] T Type to which the unique_ptr is pointing to
 ///
 /// Also unlike the STL implementation, the deleters are not encoded in the unique_ptr type, allowing unique_ptr
 /// instances with different deleters to be stored in the same containers.
 ///
+/// @code
+///     #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+///
+///     {
+///       cxx::unique_ptr<MyClass> myPtr(ptrToInt, [&](MyClass* const ptr) {
+///         customAllocator.delete(ptr);
+///       });
+///
+///       // Data can be accessed through unique_ptr
+///       std::cout << myPtr->myClassMember << std::endl;
+///
+///       // Resetting the unique_ptr, can be performed by calling the move assignment operator
+///       myPtr = std::move(uniquePtrToAnotherInt);
+///
+///     } // deleter is called, when going out of scope
+///
+/// @endcode
 template <typename T>
 class unique_ptr
 {
   public:
     unique_ptr() = delete;
+
+    using DeleterType = void(cxx::add_const_conditionally_t<T* const, T>);
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.
@@ -44,7 +64,7 @@ class unique_ptr
     /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const object, const function<void(T*)>& deleter) noexcept;
+    unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -90,13 +110,6 @@ class unique_ptr
     static T* release(unique_ptr&& ptrToBeReleased) noexcept;
 
     ///
-    /// @brief reset Reset the unique pointer to take ownership of the given pointer.
-    /// @details Any previously owned objects will be deleted.
-    /// @param ptr Pointer to object to take ownership on. It is forbidden to provide the value nullptr!
-    ///
-    void reset(T* const ptr) noexcept;
-
-    ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
     /// @param other The unique_ptr with which to swap owned objects.
     ///
@@ -107,7 +120,7 @@ class unique_ptr
 
   private:
     T* m_ptr = nullptr;
-    function<void(T* const)> m_deleter;
+    function<DeleterType> m_deleter;
 };
 
 /// @brief comparision for two distinct unique_ptr types

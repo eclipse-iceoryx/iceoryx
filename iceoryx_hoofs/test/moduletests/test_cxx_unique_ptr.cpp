@@ -50,11 +50,10 @@ class UniquePtrTest : public Test
     Position object;
     Position anotherObject;
 
-    iox::cxx::function<void(Position* const)> deleter = [this](Position* const) { m_deleterCalled = true; };
+    using DeleterType = void(Position* const);
 
-    iox::cxx::function<void(Position* const)> anotherDeleter = [this](Position* const) {
-        m_anotherDeleterCalled = true;
-    };
+    iox::cxx::function<DeleterType> deleter = [this](Position* const) { m_deleterCalled = true; };
+    iox::cxx::function<DeleterType> anotherDeleter = [this](Position* const) { m_anotherDeleterCalled = true; };
 };
 
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)
@@ -161,27 +160,10 @@ TEST_F(UniquePtrTest, ReleaseAnObjectResultsInDeleterNotBeingCalled)
     ::testing::Test::RecordProperty("TEST_ID", "8a1413a5-15cd-42ff-a05e-9dff158aa047");
     auto sut = iox::cxx::unique_ptr<Position>(&object, deleter);
 
-    EXPECT_EQ(iox::cxx::unique_ptr<Position>::release(std::move(sut)), &object);
+    auto* ptr = iox::cxx::unique_ptr<Position>::release(std::move(sut));
+
+    EXPECT_EQ(ptr, &object);
     EXPECT_FALSE(m_deleterCalled);
-}
-
-TEST_F(UniquePtrTest, ResetToAnExistingObjectPtrResultsInDeleterCalledTwice)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e5da7713-e71d-49b2-8bf6-d6108aab6366");
-    {
-        auto sut = iox::cxx::unique_ptr<Position>(&object, deleter);
-
-        sut.reset(&anotherObject);
-
-        // deleter called first time then SUT is resetted
-        EXPECT_TRUE(m_deleterCalled);
-        EXPECT_EQ(sut.get(), &anotherObject);
-
-        // reset deleter as it's called again when SUT goes out of scope
-        m_deleterCalled = false;
-    }
-    // deleter called second time when SUT is going of scope
-    EXPECT_TRUE(m_deleterCalled);
 }
 
 TEST_F(UniquePtrTest, SwapTwoValidUniquePtrsWithDifferentDeletersSucceeds)
