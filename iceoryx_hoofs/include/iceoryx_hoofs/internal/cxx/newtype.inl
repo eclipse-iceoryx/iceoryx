@@ -24,8 +24,8 @@ namespace iox
 namespace cxx
 {
 template <typename T, template <typename> class... Policies>
-/// AXIVION Next Line AutosarC++19_03-A12.6.1 : m_value is initialized by the default constructor of T; the code will
-/// not compile, if the default constructor of T does not exist or the DefaultConstructable policy is not added
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : m_value is initialized by the default constructor of T; the code
+// will not compile, if the default constructor of T does not exist or the DefaultConstructable policy is not added
 inline NewType<T, Policies...>::NewType() noexcept
 {
     static_assert(algorithm::doesContainType<newtype::DefaultConstructable<T>, Policies<T>...>(),
@@ -33,8 +33,8 @@ inline NewType<T, Policies...>::NewType() noexcept
 }
 
 template <typename T, template <typename> class... Policies>
-/// AXIVION Next Line AutosarC++19_03-A12.1.5 : delegating wanted only to "ProtectedConstructByValueCopy" constructor of
-/// T
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : delegating wanted only to "ProtectedConstructByValueCopy"
+// constructor of T
 inline NewType<T, Policies...>::NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept
     : m_value(rhs)
 {
