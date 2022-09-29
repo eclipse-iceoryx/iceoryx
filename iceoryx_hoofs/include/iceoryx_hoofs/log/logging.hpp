@@ -34,8 +34,8 @@ inline bool isLogLevelActive(LogLevel logLevel)
 // NOLINTJUSTIFICATION cannot be realized with templates or constexpr functions due to the the source location intrinsic
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    if (iox::log::internal::isLogLevelActive(level))                                                                   \
-    iox::log::LogStream(file, line, function, level).self()
+    /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1345 temporary workaround */                        \
+    iox::log::LogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level)).self()
 
 } // namespace internal
 

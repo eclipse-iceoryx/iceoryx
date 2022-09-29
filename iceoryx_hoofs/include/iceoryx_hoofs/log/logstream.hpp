@@ -107,6 +107,9 @@ class LogStream
     /// @param[in] logLevel is the log level for the log message
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
+    /// @todo iox-#1345 temporary workaround
+    LogStream(const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept;
+
     virtual ~LogStream() noexcept;
 
     LogStream(const LogStream&) = delete;
@@ -194,6 +197,9 @@ class LogStream
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
     Logger& m_logger;
     bool m_isFlushed{false};
+
+    /// @todo iox-#1345 temporary workaround
+    bool m_doFlush{true};
 };
 
 } // namespace log
