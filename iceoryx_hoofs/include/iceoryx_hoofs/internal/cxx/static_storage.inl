@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,12 +26,12 @@ namespace cxx
 template <uint64_t Capacity, uint64_t Align>
 constexpr uint64_t static_storage<Capacity, Align>::align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept
 {
-    auto r = align % requiredAlign;
+    const auto r = align % requiredAlign;
 
     // If r != 0 we are not aligned with requiredAlign and need to add r to an align
     // aligned address to be aligned with requiredAlign.
     // In the worst case r is requiredAlign - 1
-    return r != 0 ? requiredAlign - r : 0;
+    return (r != 0) ? (requiredAlign - r) : 0;
 }
 
 template <uint64_t Capacity, uint64_t Align>
@@ -54,6 +54,8 @@ template <typename T>
 constexpr T* static_storage<Capacity, Align>::allocate() noexcept
 {
     static_assert(is_allocatable<T>(), "type does not fit into static storage");
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional,
+    // it is correctly aligned and points to sufficient memory for a T by design
     return static_cast<T*>(allocate(alignof(T), sizeof(T)));
 }
 
@@ -65,7 +67,7 @@ constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, 
         return nullptr; // cannot allocate, already in use
     }
 
-    size_t space = Capacity;
+    size_t space{Capacity};
     m_ptr = m_bytes;
     if (std::align(align, size, m_ptr, space) != nullptr)
     {
