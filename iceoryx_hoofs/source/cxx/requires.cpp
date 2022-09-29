@@ -26,7 +26,7 @@ namespace cxx
 {
 namespace internal
 {
-/// @NOLINTJUSTIFICATION todo iox-#1032 will be obsolete with new error handler
+/// @NOLINTJUSTIFICATION @todo iox-#1032 will be obsolete with new error handler
 /// @NOLINTNEXTLINE(readability-function-size)
 void Require(
     const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
