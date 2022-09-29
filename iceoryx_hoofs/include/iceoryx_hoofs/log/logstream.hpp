@@ -116,7 +116,17 @@ class LogStream
     // platform agnostic way
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
-    /// @todo iox-#1345 temporary workaround
+    /// @brief Constructor for a LogStream object with the logger from iox::log::Logger::get
+    /// @note This is not intended for public use! Use the 'IOX_LOG' macro instead
+    /// @param[in] file the file of the log message. Please use the '__FILE__' compiler intrinsic
+    /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
+    /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
+    /// @param[in] logLevel is the log level for the log message
+    /// @todo iox-#1345 temporary workaround due to lazy evaluation issues with Axivion; should be removed when the
+    /// lazy evaluation can be implemented in an way Axivion does not complain
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept;
 
     virtual ~LogStream() noexcept;
@@ -213,7 +223,7 @@ class LogStream
     Logger& m_logger;
     bool m_isFlushed{false};
 
-    /// @todo iox-#1345 temporary workaround
+    /// @todo iox-#1345 workaround due to deactivation of lazy evaluation
     bool m_doFlush{true};
 };
 

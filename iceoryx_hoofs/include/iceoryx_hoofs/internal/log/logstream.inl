@@ -78,6 +78,7 @@ inline LogStream::LogStream(const char* file, const int line, const char* functi
 {
 }
 
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 inline LogStream::LogStream(
     const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept
     : m_logger(Logger::get())
