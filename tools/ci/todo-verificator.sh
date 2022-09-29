@@ -22,7 +22,7 @@ declare -a FAILED_ISSUE_CACHE
 
 cd $ICEORYX_ROOT
 
-FILES_WITH_TODOS=$(grep -i -RIne "todo" | grep -v doc/ | grep -v .git/ | grep -v build/ | grep -v .sh)
+FILES_WITH_TODOS=$(grep -i -RIne "todo" | grep -v doc/ | grep -v .git/ | grep -v build/ | grep -v .sh | grep -v .yml)
 
 is_issue_in_verified_cache() {
     IS_IN_VERIFIED_CACHE=0
@@ -102,16 +102,25 @@ do
 
     if [[ $IS_COMPLIANT -eq 0 ]]
     then
-        echo "$SOURCE ::: False todo syntax! It must follow \"@todo iox-#?\" where ? marks a valid issue number."
+        echo
+        echo "[ FAILED  ]  $SOURCE ::: False todo syntax! It must follow \"@todo iox-#?\" where ? marks a valid issue number."
         echo "  $LINE"
         echo
+    elif [[ $HAS_VALID_ISSUE_NUMBER -eq 0 ]]
+    then
+        echo "[ FAILED  ]  $SOURCE ::: Todo points to non-existing github issue."
+        echo "  $LINE"
+        echo
+    else
+        echo "[ SUCCESS ]  $SOURCE"
     fi
 
-    if [[ $HAS_VALID_ISSUE_NUMBER -eq 0 ]]
-    then
-        echo "$SOURCE ::: Todo points to non-existing github issue."
-        echo "  $LINE"
-        echo
-    fi
 done
 IFS=$OLDIFS
+
+if [[ $VERIFICATION_SUCCESS -eq 0 ]]
+then
+    exit -1
+fi
+
+exit 0
