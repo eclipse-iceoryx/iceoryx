@@ -47,14 +47,14 @@ class LogHex
 /// @tparam[in] T the arithmetic data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
-// AXIVION Next Line AutosarC++19_03-M17.0.3 the function is in the iox::log namespace which prevents easy misuse
 constexpr LogHex<T> hex(const T value) noexcept;
 
 /// @brief Log a pointer in hexadecimal format
 /// @param[in] ptr is the pointer to be logged
 /// @return a helper struct which will be used by the LogStream
-// AXIVION Next Line AutosarC++19_03-M17.0.3 the function is in the iox::log namespace which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 LogHex<const void* const> hex(const void* const ptr) noexcept;
 
 /// @brief Helper struct to log in octal format
@@ -75,8 +75,8 @@ class LogOct
 /// @tparam[in] T the arithmetic data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
-// AXIVION Next Line AutosarC++19_03-M17.0.3 the function is in the iox::log namespace which prevents easy misuse
 inline constexpr LogOct<T> oct(const T value) noexcept;
 
 /// @todo iox-#1345 implement LogBin and LogRawBuffer
@@ -100,7 +100,7 @@ class LogStream
     /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
     /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
     /// @param[in] logLevel is the log level for the log message
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 file, line and function are used in conjunction with '__FILE__',
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
     // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
     // platform agnostic way
     LogStream(Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
@@ -111,7 +111,7 @@ class LogStream
     /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
     /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
     /// @param[in] logLevel is the log level for the log message
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 file, line and function are used in conjunction with '__FILE__',
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
     // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
     // platform agnostic way
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
@@ -136,7 +136,7 @@ class LogStream
     /// @brief Logging support for C-style strings
     /// @param[in] cstr is the C-style string to log
     /// @return a reference to the LogStream instance
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 logging support for C-style strings
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Logging support for C-style strings
     LogStream& operator<<(const char* cstr) noexcept;
 
     /// @brief Logging support for std::string
