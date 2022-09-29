@@ -58,6 +58,9 @@ class ConsoleLogger
 
     virtual void initLogger(const LogLevel) noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
     virtual void
     createLogMessageHeader(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
@@ -67,35 +70,39 @@ class ConsoleLogger
 
     void assumeFlushed() noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but a low-level C-style string
     void logString(const char* message) noexcept;
 
     void logBool(const bool value) noexcept;
 
-    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int> = 0>
-    void logDec(const T val) noexcept;
+    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool> = 0>
+    void logDec(const T value) noexcept;
 
     template <typename T,
               typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
                                             || std::is_floating_point<T>::value || std::is_pointer<T>::value,
-                                        int> = 0>
-    void logHex(const T val) noexcept;
+                                        bool> = 0>
+    void logHex(const T value) noexcept;
 
-    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int> = 0>
-    void logOct(const T val) noexcept;
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool> = 0>
+    void logOct(const T value) noexcept;
 
   private:
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-style array is used to acquire size of the array safely. Safe
+    // access is guaranteed since the char array is not accessed but only the size is obtained
     template <uint32_t N>
-    // NOLINTJUSTIFICATION safe access is guaranteed since the char array is not accessed but only the size is obtained
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    inline static constexpr uint32_t bufferSize(const char (&)[N]) noexcept;
+    static constexpr uint32_t bufferSize(const char (&)[N]) noexcept;
 
     template <typename T>
-    inline void unused(T&&) const noexcept;
+    static constexpr void unused(T&&) noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but format string literal
     template <typename T>
-    inline void logArithmetic(const T value, const char* format) noexcept;
+    static void logArithmetic(const T value, const char* format) noexcept;
 
-    struct ThreadLocalData
+    struct ThreadLocalData final
     {
         ThreadLocalData() noexcept = default;
         ~ThreadLocalData() = default;
@@ -110,14 +117,16 @@ class ConsoleLogger
         static constexpr uint32_t BUFFER_SIZE{1024};
         static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
 
-        // NOLINTJUSTIFICATION safe access is guaranteed since the char array is wrapped inside the class
+        // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : This is a low-level component with minimal dependencies.
+        // Safe access is guaranteed since the char array is wrapped inside the class
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
         char buffer[NULL_TERMINATED_BUFFER_SIZE];
         uint32_t bufferWriteIndex; // initialized in corresponding cpp file
         /// @todo iox-#1345 add thread local storage with thread id and print it in the log messages
     };
 
-    static ThreadLocalData& getThreadLocalData();
+    static ThreadLocalData& getThreadLocalData() noexcept;
 
   private:
     // NOLINTJUSTIFICATION needed for the functionality and a private member of the class

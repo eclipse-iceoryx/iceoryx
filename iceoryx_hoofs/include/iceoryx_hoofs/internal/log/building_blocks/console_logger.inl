@@ -24,8 +24,9 @@ namespace iox
 {
 namespace log
 {
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : See at declaration in header
 template <uint32_t N>
-// NOLINTJUSTIFICATION see at declaration in header
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 inline constexpr uint32_t ConsoleLogger::bufferSize(const char (&)[N]) noexcept
 {
@@ -33,11 +34,11 @@ inline constexpr uint32_t ConsoleLogger::bufferSize(const char (&)[N]) noexcept
 }
 
 template <typename T>
-inline void ConsoleLogger::unused(T&&) const noexcept
+inline constexpr void ConsoleLogger::unused(T&&) noexcept
 {
 }
 
-template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int>>
+template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool>>
 inline void ConsoleLogger::logDec(const T value) noexcept
 {
     logArithmetic(value, LOG_FORMAT_DEC<T>);
@@ -46,28 +47,29 @@ inline void ConsoleLogger::logDec(const T value) noexcept
 template <typename T,
           typename std::enable_if_t<(std::is_integral<T>::value && std::is_unsigned<T>::value)
                                         || std::is_floating_point<T>::value || std::is_pointer<T>::value,
-                                    int>>
+                                    bool>>
 inline void ConsoleLogger::logHex(const T value) noexcept
 {
     logArithmetic(value, LOG_FORMAT_HEX<T>);
 }
 
-template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, int>>
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool>>
 inline void ConsoleLogger::logOct(const T value) noexcept
 {
     logArithmetic(value, LOG_FORMAT_OCT<T>);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 template <typename T>
 inline void ConsoleLogger::logArithmetic(const T value, const char* format) noexcept
 {
     auto& data = getThreadLocalData();
     // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
-                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
-                           format,
-                           value);
+    const auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
+                                 ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
+                                 format,
+                                 value);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
@@ -76,8 +78,8 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
         return;
     }
 
-    auto stringSizeToLog = static_cast<uint32_t>(retVal);
-    auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
+    const auto stringSizeToLog = static_cast<uint32_t>(retVal);
+    const auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
     if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
     {
         data.bufferWriteIndex = bufferWriteIndexNext;
