@@ -29,8 +29,8 @@ namespace iox
 namespace testing
 {
 /// @brief This logger is used for tests. It caches all the log messages and prints them to the console when a test
-/// fails. For debug purposes this behaviour can be overwritten with the `IOX_TESTING_ALLOW_LOG` environment variable,
-/// e.g. `IOX_TESTING_ALLOW_LOG=ON ./hoofs_moduletests --gtest_filter=SharedMemoryObject_Test\*`. Furthermore, it can
+/// fails. For debug purposes this behaviour can be overwritten with the 'IOX_TESTING_ALLOW_LOG' environment variable,
+/// e.g. 'IOX_TESTING_ALLOW_LOG=ON ./hoofs_moduletests --gtest_filter=SharedMemoryObject_Test\*'. Furthermore, it can
 /// also be used to check for the occurrence on specific log messages, e.g. when a function is expected to log an error.
 /// @code
 /// callToFunctionWhichLogsAnError();
