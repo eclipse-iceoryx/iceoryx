@@ -73,6 +73,14 @@ inline LogStream::LogStream(const char* file, const int line, const char* functi
 {
 }
 
+inline LogStream::LogStream(
+    const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept
+    : m_logger(Logger::get())
+    , m_doFlush(doFlush)
+{
+    m_logger.createLogMessageHeader(file, line, function, logLevel);
+}
+
 inline LogStream::~LogStream() noexcept
 {
     flush();
@@ -80,7 +88,7 @@ inline LogStream::~LogStream() noexcept
 
 inline void LogStream::flush() noexcept
 {
-    if (!m_isFlushed)
+    if (!m_isFlushed && m_doFlush)
     {
         m_logger.flush();
         m_isFlushed = true;
