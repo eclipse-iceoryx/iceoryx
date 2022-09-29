@@ -43,9 +43,9 @@ namespace testing
 /// ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
 /// EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_STRING_REPRESENTATION);
 /// @endcode
-class Logger_Mock : public platform::TestingLoggerBase
+class Logger_Mock : public log::TestingLoggerBase
 {
-    using Base = platform::TestingLoggerBase;
+    using Base = log::TestingLoggerBase;
 
   public:
     Logger_Mock() noexcept = default;

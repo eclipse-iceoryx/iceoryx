@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_INL
-#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_INL
+#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_INL
+#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_INL
 
-#include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
+#include "iceoryx_hoofs/log/building_blocks/logformat.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -26,31 +26,8 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
-inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
-{
-    switch (value)
-    {
-    case LogLevel::OFF:
-        return "LogLevel::OFF";
-    case LogLevel::FATAL:
-        return "LogLevel::FATAL";
-    case LogLevel::ERROR:
-        return "LogLevel::ERROR";
-    case LogLevel::WARN:
-        return "LogLevel::WARN";
-    case LogLevel::INFO:
-        return "LogLevel::INFO";
-    case LogLevel::DEBUG:
-        return "LogLevel::DEBUG";
-    case LogLevel::TRACE:
-        return "LogLevel::TRACE";
-    }
-
-    return "[Undefined LogLevel]";
-}
-
 inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {
     switch (value)
@@ -254,7 +231,7 @@ constexpr const char* logFormatOct<unsigned long long>()
 }
 } // namespace internal
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_INL
+#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_INL

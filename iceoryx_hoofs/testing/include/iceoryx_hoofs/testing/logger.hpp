@@ -41,9 +41,9 @@ namespace testing
 ///     EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
 /// }
 /// @endcode
-class Logger : public platform::TestingLoggerBase
+class Logger : public log::TestingLoggerBase
 {
-    using Base = platform::TestingLoggerBase;
+    using Base = log::TestingLoggerBase;
 
   public:
     ~Logger() override = default;
@@ -93,7 +93,7 @@ class Logger : public platform::TestingLoggerBase
     /// @note This can be used in tests which check for a specific log output
     static inline constexpr bool doesLoggerSupportLogLevel(const log::LogLevel logLevel) noexcept
     {
-        return platform::MINIMAL_LOG_LEVEL >= logLevel;
+        return log::MINIMAL_LOG_LEVEL >= logLevel;
     }
 
   private:

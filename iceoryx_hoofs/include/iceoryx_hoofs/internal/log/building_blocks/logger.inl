@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_INL
-#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_INL
+#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL
+#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL
 
-#include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
+#include "iceoryx_hoofs/log/building_blocks/logger.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -27,7 +27,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 template <uint32_t N>
 // NOLINTJUSTIFICATION see at declaration in header
@@ -37,6 +37,8 @@ inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
     return strncmp(lhs, rhs, N) == 0;
 }
 
+namespace internal
+{
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {
@@ -120,7 +122,8 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
     }
 }
 
-} // namespace pbb
+} // namespace internal
+} // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_INL
+#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL

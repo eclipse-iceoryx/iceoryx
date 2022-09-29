@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/logger.hpp"
+#include "iceoryx_hoofs/log/logger.hpp"
 
 #include <iostream>
 
@@ -32,7 +33,7 @@ void Logger::init() noexcept
     // NOLINTNEXTLINE(concurrency-mt-unsafe)
     if (const auto* allowLogString = std::getenv("IOX_TESTING_ALLOW_LOG"))
     {
-        if (pbb::equalStrings(allowLogString, "on") || pbb::equalStrings(allowLogString, "ON"))
+        if (log::equalStrings(allowLogString, "on") || log::equalStrings(allowLogString, "ON"))
         {
             logger.m_loggerData->allowLog = true;
         }

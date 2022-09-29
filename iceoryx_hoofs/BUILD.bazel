@@ -15,6 +15,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//bazel:configure_file.bzl", "configure_file")
+
+configure_file(
+    name = "iceoryx_hoofs_deployment_hpp",
+    src = "cmake/iceoryx_hoofs_deployment.hpp.in",
+    out = "include/iceoryx_hoofs/iceoryx_hoofs_deployment.hpp",
+    config = {
+        # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
+        "IOX_MINIMAL_LOG_LEVEL": "TRACE",
+    },
+)
 
 cc_library(
     name = "iceoryx_hoofs",
@@ -22,7 +33,9 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]),
+    hdrs = glob(["include/**"]) + [
+        ":iceoryx_hoofs_deployment_hpp",
+    ],
     linkopts = select({
         "//iceoryx_platform:linux-clang": [
             "-latomic",

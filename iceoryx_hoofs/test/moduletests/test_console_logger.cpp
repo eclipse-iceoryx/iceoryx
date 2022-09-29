@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log/building_blocks/console_logger.hpp"
 
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -28,11 +28,11 @@ namespace
 {
 using namespace ::testing;
 
-class LoggerSUT : public iox::pbb::ConsoleLogger
+class LoggerSUT : public iox::log::ConsoleLogger
 {
   public:
-    using iox::pbb::ConsoleLogger::flush;
-    using iox::pbb::ConsoleLogger::logString;
+    using iox::log::ConsoleLogger::flush;
+    using iox::log::ConsoleLogger::logString;
 };
 
 /// @todo todo iox-#1345 this test will be done via the integration tests with launch testing once "RouDi is ready for

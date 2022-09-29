@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
+#include "iceoryx_hoofs/log/building_blocks/console_logger.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_platform/time.hpp"
 
@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
 // NOLINTJUSTIFICATION see at declaration in header
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
@@ -222,5 +222,5 @@ void ConsoleLogger::initLogger(const LogLevel) noexcept
 {
     // nothing to do in the base implementation
 }
-} // namespace pbb
+} // namespace log
 } // namespace iox

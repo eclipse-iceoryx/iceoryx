@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
-#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
+#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP
+#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP
 
-#include "iceoryx_hoofs/log/platform_building_blocks/logcommon.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -30,10 +30,7 @@ namespace iox
 namespace log
 {
 class LogStream;
-} // namespace log
 
-namespace pbb
-{
 /// @todo iox-#1345 move this to e.g. helplets once we are able to depend on on it
 /// @brief Compares C-style strings with a char array, i.g. string literal for equality
 /// @tparam[in] N size of the char array
@@ -53,6 +50,8 @@ bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept;
 /// the function should only be used in the startup phase of the application and only in the main thread.
 LogLevel logLevelFromEnvOr(const LogLevel logLevel) noexcept;
 
+namespace internal
+{
 /// @brief This class acts as common interface for the Logger. It provides the common functionality and inherits from
 /// the BaseLogger which is provided as template parameter. Please have a look at the design document for more details.
 /// @tparam[in] BaseLogger is the actual implementation
@@ -101,9 +100,10 @@ class Logger : public BaseLogger
     std::atomic<bool> m_isFinalized{false};
 };
 
-} // namespace pbb
+} // namespace internal
+} // namespace log
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log/platform_building_blocks/logger.inl"
+#include "iceoryx_hoofs/internal/log/building_blocks/logger.inl"
 
-#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGGER_HPP
+#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP

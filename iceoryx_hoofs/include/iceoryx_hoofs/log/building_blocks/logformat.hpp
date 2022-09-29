@@ -15,31 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
-#define IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_LOGCOMMON_HPP
+#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
+#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
+
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
-namespace pbb
+namespace log
 {
-enum class LogLevel : uint8_t
-{
-    OFF = 0,
-    FATAL,
-    ERROR,
-    WARN,
-    INFO,
-    DEBUG,
-    TRACE
-};
-
-/// @brief converts LogLevel into a string literal
-/// @param[in] value the LogLevel to convert
-/// @return string literal of the LogLevel value
-constexpr const char* asStringLiteral(const LogLevel value) noexcept;
-
 /// @brief converts LogLevel into a string literal color code
 /// @param[in] value the LogLevel to convert
 /// @return string literal of the corresponding color code
@@ -81,9 +67,9 @@ static constexpr const char* LOG_FORMAT_HEX = internal::logFormatHex<T>();
 template <typename T>
 static constexpr const char* LOG_FORMAT_OCT = internal::logFormatOct<T>();
 
-} // namespace pbb
+} // namespace log
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log/platform_building_blocks/logcommon.inl"
+#include "iceoryx_hoofs/internal/log/building_blocks/logformat.inl"
 
-#endif // IOX_HOOFS_PLATFORM_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
+#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
