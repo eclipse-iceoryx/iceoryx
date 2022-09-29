@@ -121,14 +121,14 @@ inline void unique_ptr<T, D>::swap(unique_ptr<T, D>& other) noexcept
     std::swap(m_deleter, other.m_deleter);
 }
 
-template <typename T, typename U, typename D>
-inline bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept
+template <typename T1, typename T2, typename D1, typename D2>
+inline bool operator==(const unique_ptr<T1, D1>& lhs, const unique_ptr<T2, D2>& rhs) noexcept
 {
     return lhs.get() == rhs.get();
 }
 
-template <typename T, typename U, typename D>
-inline bool operator!=(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept
+template <typename T1, typename T2, typename D1, typename D2>
+inline bool operator!=(const unique_ptr<T1, D1>& lhs, const unique_ptr<T2, D2>& rhs) noexcept
 {
     return !(lhs == rhs);
 }

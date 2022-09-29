@@ -115,8 +115,8 @@ class unique_ptr
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are equal, otherwise false
-template <typename T, typename U, typename D>
-bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept;
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator==(const unique_ptr<T1, D1>& lhs, const unique_ptr<T2, D2>& rhs) noexcept;
 
 /// @brief inequality check for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
@@ -125,8 +125,8 @@ bool operator==(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexce
 /// @param[in] lhs left side of the comparision
 /// @param[in] rhs right side of the comparision
 /// @return true if the pointers are not equal, otherwise false
-template <typename T, typename U, typename D>
-bool operator!=(const unique_ptr<T, D>& lhs, const unique_ptr<U, D>& rhs) noexcept;
+template <typename T1, typename T2, typename D1, typename D2>
+bool operator!=(const unique_ptr<T1, D1>& lhs, const unique_ptr<T2, D2>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox
