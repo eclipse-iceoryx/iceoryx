@@ -78,7 +78,8 @@ is_todo_compliant() {
         return
     fi
 
-    if wget --spider https://github.com/eclipse-iceoryx/iceoryx/issues/$ISSUE_NUMBER 2>/dev/null
+    sleep 1 # sleep to not overload the CI
+    if wget --retry-connrefused --waitretry=2 --read-timeout=20 --timeout=15 -t 0 --spider https://github.com/eclipse-iceoryx/iceoryx/issues/$ISSUE_NUMBER 2>/dev/null
     then
         VERIFIED_ISSUE_CACHE+=($ISSUE_NUMBER)
     else
