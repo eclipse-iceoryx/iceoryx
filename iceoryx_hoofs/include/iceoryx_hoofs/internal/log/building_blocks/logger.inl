@@ -30,7 +30,7 @@ namespace iox
 namespace log
 {
 template <uint32_t N>
-// NOLINTJUSTIFICATION see at declaration in header
+// NOLINTJUSTIFICATION See at declaration in header
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 inline bool equalStrings(const char* lhs, const char (&rhs)[N]) noexcept
 {

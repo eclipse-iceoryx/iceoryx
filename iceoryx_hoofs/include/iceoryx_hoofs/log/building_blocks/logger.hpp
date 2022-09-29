@@ -77,8 +77,8 @@ class Logger : public BaseLogger
 
     /// @brief Initializes the logger
     /// @param[in] logLevel the log level which will be used to determine which messages will be logged. By default it
-    /// is everything with a log level higher than specified by the `IOX_LOG_LEVEL` environment variable or equal to
-    /// `INFO` if the environment variable is not set.
+    /// is everything with a log level higher than specified by the 'IOX_LOG_LEVEL' environment variable or equal to
+    /// 'INFO' if the environment variable is not set.
     /// @note The function uses 'getenv' which is not thread safe and can result in undefined behavior when it is called
     /// from multiple threads or the env variable is changed while the function holds a pointer to the data. For this
     /// reason the function should only be used in the startup phase of the application and only in the main thread.
@@ -86,7 +86,7 @@ class Logger : public BaseLogger
 
     /// @brief Replaces the default logger with the specified one
     /// @param[in] newLogger is the logger which shall be used after the call
-    /// @note this must be called before `init`. If this is called after `init` or called multiple times, the current
+    /// @note this must be called before 'init'. If this is called after 'init' or called multiple times, the current
     /// logger will not be replaced and an error message will be logged in the current and the provided new logger.
     static void setActiveLogger(Logger& newLogger) noexcept;
 
