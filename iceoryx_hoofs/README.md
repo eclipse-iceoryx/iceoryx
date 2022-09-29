@@ -22,6 +22,8 @@ and we do not use dynamic memory. In these cases we adjusted the API to our use 
 Most of the headers are providing some example code on how the
 class should be used.
 
+The module structure is a logical grouping. It is replicated for `concurrent` and `posix` implementations.
+
 ### Memory & lifetime management (memory)
 
 | class                              | internal | description                                                                                                                                                                                                              |
@@ -31,10 +33,7 @@ class should be used.
 |`ScopeGuard`                        |          | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `ScopeGuard` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`scoped_static`                     |          | Helper function to limit lifetime of static or global variables to a scope                                                                                                                                               |
 |`static_storage`                    | i        | Untyped aligned static storage.                                                                                                                                                                                          |
-|`SharedMemoryObject`                | i        | Creates and maps existing shared memory into the application.                                                                                                                                                            |
 |`shared_memory_object/Allocator`    | i        | Helper class for the `SharedMemoryObject`.                                                                                                                                                                               |
-|`shared_memory_object/MemoryMap`    | i        | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.                                                                                                                                           |
-|`shared_memory_object/SharedMemory` | i        | Abstraction of shared memory, see [ManPage shm_overview](https://www.man7.org/linux/man-pages/man7/shm_overview.7.html) and helper class for the `SharedMemoryObject`.                                                   |
 
 ### Containers (containers)
 
@@ -75,11 +74,11 @@ class should be used.
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
 |`convert`              |          | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
-|`serialization`        |          | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format).                                                            |
+|`serialization`        |          | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format).                                                       |
 |`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                     |
 |`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                            |
 
-### Metaprogramming (meta?)
+### Primitives (primitives)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -88,18 +87,17 @@ class should be used.
 |`attributes`           |          | C++17 and C++20 attributes are sometimes available through compiler extensions. The attribute macros defined in here (like `IOX_FALLTHROUGH`, `IOX_MAYBE_UNUSED` ... ) make sure that we are able to use them if the compiler supports it. |
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
 
-### Queues & communication (queues, communication)
+### Queues (queues)
 
-| class                    | internal | description                                                                                                                                                                                                                        |
-|:------------------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`FiFo`                    | i        | Single producer, single consumer lock-free FiFo                                                                                                                                                                                    |
-|`LockfreeQueue`           |          | Multi producer, multi consumer lock-free FiFo with ringbuffer like overflow handling                                                                                                                                               |
-|`LoFFLi`                  | i        | Lock-free LIFO based index manager (lock-free free list). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release.                                        |
-|`SoFi`                    | i        | Single producer, single consumer lock-free safely overflowing FiFo (SoFi).                                                                                                                                                         |
-|`ResizeableLockFreeQueue` |          | Resizeable variant of the `LockfreeQueue`                                                                                                                                                                                          |
-|`stack`                   |          | Stack implementation with simple push/pop interface.                                                                                                                                                                                  |
-|`VariantQueue`            |          | A queue which wraps multiple variants of Queues (FiFo, SoFi, ResizeableLockFreeQueue)                                                                                                                                              |
-|`UnixDomainSocket`        | i        | Interface for unix domain sockets.                                                                                                                                                                                                 |
+| class                              | internal | description                                                                                                                                                                                                                        |
+|:----------------------------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`FiFo`                              | i        | Single producer, single consumer lock-free FiFo                                                                                                                                                                                    |
+|`LockfreeQueue`                     |          | Multi producer, multi consumer lock-free FiFo with ringbuffer like overflow handling                                                                                                                                               |
+|`LoFFLi`                            | i        | Lock-free LIFO based index manager (lock-free free list). One building block of our memory manager. After construction it contains the indices {0 ... n} which you can acquire and release.                                        |
+|`SoFi`                              | i        | Single producer, single consumer lock-free safely overflowing FiFo (SoFi).                                                                                                                                                         |
+|`ResizeableLockFreeQueue`           |          | Resizeable variant of the `LockfreeQueue`                                                                                                                                                                                          |
+|`stack`                             |          | Stack implementation with simple push/pop interface.                                                                                                                                                                               |
+|`VariantQueue`                      |          | A queue which wraps multiple variants of Queues (FiFo, SoFi, ResizeableLockFreeQueue)                                                                                                                                              |
 
 #### Attribute overview of the available queues
 
@@ -110,6 +108,15 @@ class should be used.
 |`LoFFLi`                  | Yes                   | Yes         | Yes       | n:m                              | Yes              | int32                 | manage memory access, LIFO order                                                                                        |
 |`SoFi`                    | Yes                   | Yes         | Yes       | 1:1                              | Yes              | Trivially Copyable    | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) |
 |`ResizeableLockFreeQueue` | Yes                   | Yes         | Yes       | n:m                              | Yes              | Copyable or Movable   | Resizeable variant of the `LockfreeQueue`                                                                               |
+
+### Inter-process communication (ipc)
+
+| class                              | internal | description                                                                                                                                                                                                              |
+|:----------------------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`UnixDomainSocket`                  | i        | Interface for unix domain sockets.                                                                                                                                                                                       |
+|`SharedMemoryObject`                | i        | Creates and maps existing shared memory into the application.                                                                                                                                                            |
+|`shared_memory_object/MemoryMap`    | i        | Abstraction of `mmap`, `munmap` and helper class for the `SharedMemoryObject`.                                                                                                                                           |
+|`shared_memory_object/SharedMemory` | i        | Abstraction of shared memory, see [ManPage shm_overview](https://www.man7.org/linux/man-pages/man7/shm_overview.7.html) and helper class for the `SharedMemoryObject`.                                                   |
 
 ### Threads & sychronisation (sync)
 
@@ -132,7 +139,7 @@ class should be used.
 |`functional_interface` |          | Constructs to easily add functional interfaces like `and_then` to object container.                                                                                                                                                   |
 |`NewType<T, Policies>` |          | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype).                                                                                                                                                 |
 
-### Error handling & logging (error)
+### Reporting (reporting)
 
 The error handler is a central instance for collecting all errors and react to them. The `error-handling.hpp` contains a list of all error enum values. The error handler has different error levels, for more information see [error-handling.md](../doc/design/error-handling.md)
 For information about how to use the logger API see [error-handling.md](../doc/design/error-handling.md).

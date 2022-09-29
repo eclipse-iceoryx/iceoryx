@@ -46,11 +46,12 @@ package iceoryx_hoofs  {
       component Filesystem <<module>>
       component Functional <<module>>
       component Utility <<module>>
-      component Metaprogramming <<module>>
-      component "Queues & communication" <<module>>
+      component Primitives <<module>>
+      component Queues <<module>>
+      component "Inter-process communication" <<module>>
       component "Threads & sychronisation" <<module>>
       component "Generalized design patterns & abstractions" <<module>>
-      component "Error handling & logging" <<module>>
+      component Reporting <<module>>
       component Time <<module>>
    }
 }
@@ -60,8 +61,9 @@ package iceoryx_hoofs  {
 package iceoryx_dust  {
    frame "dust library" {
       component "Containers" <<module>> as additional_containers
-      component "Filesystem & OS" <<module>> as additional_filesystem
-      component "Queues & communication" <<module>> as additional_queues
+      component "Filesystem" <<module>> as additional_filesystem
+      component "Queues" <<module>> as additional_queues
+      component "Inter-process communication" <<module>> as additional_ipc
    }
 }
 
@@ -107,7 +109,7 @@ package iceoryx_dds  {
 package automotive_soa  {
 }
 
-' iceoryx-rs: Rust wrapper for iceoryx
+' iceoryx-rs: Rust binding for iceoryx
 '
 package iceoryx_rs  {
 }
