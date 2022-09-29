@@ -403,12 +403,12 @@
     }
     ```
 
-21. Renamed `BaseRelativePointer` to `UntypedRelativePointer`
+21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and moved it from namespace `rp::` to `memory::`
 
     ```cpp
     // before
-    #include "iceoryx_hoofs/internal/memory/base_relative_pointer.hpp"
-    iox::memory::BaseRelativePointer myUntypedRelativePointer;
+    #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+    iox::rp::BaseRelativePointer myUntypedRelativePointer;
 
     // after
     #include "iceoryx_hoofs/memory/relative_pointer.hpp"
