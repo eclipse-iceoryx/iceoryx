@@ -148,7 +148,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
 
-    /// NOLINTJUSTIFICATION todo iox-#1196: use upcoming cxx::array
+    /// NOLINTJUSTIFICATION @todo iox-#1614 use upcoming cxx::array
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     gid_t groups[MaxNumberOfGroups];
     int32_t numGroups = MaxNumberOfGroups;
@@ -171,7 +171,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     groupVector_t vec;
     for (int32_t i = 0; i < numGroups; ++i)
     {
-        /// NOLINTJUSTIFICATION todo iox-#1196: will be fixed when upcoming cxx::array is used
+        /// NOLINTJUSTIFICATION @todo iox-#1614 will be fixed when upcoming cxx::array is used
         /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         vec.emplace_back(PosixGroup(groups[i]));
     }

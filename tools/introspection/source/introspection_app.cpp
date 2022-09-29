@@ -226,7 +226,7 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    /// @todo Wrap kernel calls with posixCall
+    /// @todo iox-#1692 Wrap kernel calls with posixCall
     int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
 
     // Event detected

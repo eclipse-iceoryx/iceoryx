@@ -62,7 +62,7 @@ static const std::map<PrettyOptions, uint32_t> prettyMap = {
 
 
 /// @brief base class for introspection
-/// @todo Wrap all C calls with posixCall
+/// @todo iox-#1692 Wrap all C calls with posixCall
 class IntrospectionApp
 {
   public:

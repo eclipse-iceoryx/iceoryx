@@ -277,7 +277,7 @@ TEST_F(list_test, FullWhenFilledWithMoreThanCapacityElements)
     }
 
     EXPECT_THAT(sut.full(), Eq(true));
-    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.emplace_front(), "");
 }
@@ -726,7 +726,7 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
         }
         else
         {
-            /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+            /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
             /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
             EXPECT_DEATH(sut1.emplace_back(cnt), "");
         }
@@ -762,7 +762,7 @@ TEST_F(list_test, EmplaceWithWrongListIterator)
         ++cnt;
     }
 
-    /// @NOLINTJUSTIFICATION todo #1196 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut11.emplace(iterOfSut2, cnt), "");
 }

@@ -93,7 +93,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
     cxx::function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
-        /// NOLINTJUSTIFICATION todo: iox-#1032 will be replaced with refactored error handling
+        /// NOLINTJUSTIFICATION @todo iox-#1032 will be replaced with refactored error handling
         /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };

@@ -67,8 +67,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
 
     /// comes from outside, is not shared and therefore no synchronization is needed
     index = oldHead.indexToNextFreeIndex;
-    /// @todo what if interrupted here an another thread guesses the index and
-    ///         calls push
+    /// What if interrupted here an another thread guesses the index and calls push?
     /// @brief murphy case: m_nextFreeIndex does not require any synchronization since it
     ///         either is used by the same thread in push or it is given to another
     ///         thread which performs the cleanup and during this process a synchronization

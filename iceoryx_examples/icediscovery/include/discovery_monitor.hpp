@@ -41,7 +41,7 @@ class Discovery
     /// @brief register a callback to be executed on any service discovery change
     /// @param callback callback with signature void(ServiceDiscovery& discovery)
     /// @note callback is executed in a background thread
-    /// @todo signature of callback is due to the listener signature requirement
+    /// @note signature of callback is due to the listener signature requirement
     ///       but we could hide this from the user (by e.g. accessing ServiceRegistry via singleton
     ///       and passing it)
     template <typename Callback>

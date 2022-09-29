@@ -17,7 +17,7 @@
 #
 ########## set hoofs internal target, needed by tests in components ##########
 #
-# TODO: we need something like internal public for internal build dependencies
+# @todo iox-#1690 we need something like internal public for internal build dependencies
 # instead of making the whole source folder public for internal dependency resolution
 
 iox_add_library(

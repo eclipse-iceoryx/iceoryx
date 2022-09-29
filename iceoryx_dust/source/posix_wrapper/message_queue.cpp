@@ -35,10 +35,10 @@ MessageQueue::MessageQueue() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
+// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
 MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const IpcChannelSide channelSide,
-                           /// NOLINTJUSTIFICATION todo(iox-#832) should be solved when the arguments are put in a
+                           /// NOLINTJUSTIFICATION @todo iox-#832 should be solved when the arguments are put in a
                            ///                      struct
                            /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
                            const size_t maxMsgSize,
@@ -395,7 +395,7 @@ cxx::error<IpcChannelError> MessageQueue::createErrorFromErrnum(const IpcChannel
 cxx::expected<IpcChannelName_t, IpcChannelError>
 MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
 {
-    /// @todo the check for the longest valid queue name is missing
+    /// @todo iox-#832 the check for the longest valid queue name is missing
     /// the name for the mqeue is limited by MAX_PATH
     /// The mq_open call is wrapped by posixCall to throw then an ENAMETOOLONG error
     /// See: https://pubs.opengroup.org/onlinepubs/9699919799/functions/mq_open.html

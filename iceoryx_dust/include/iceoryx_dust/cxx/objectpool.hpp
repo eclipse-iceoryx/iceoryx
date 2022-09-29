@@ -25,17 +25,17 @@ namespace iox
 {
 namespace cxx
 {
-// TODO: finalize API and add doxygen comments
+// @todo iox-#66 finalize API and add doxygen comments
 // the API will be safer and more concise
 // furthermore the free position computation will be improved to gain performance
 
 // note: as in e.g. std::vector, no index bounds checking for efficiency (using illegal indices leads to undefined
 // behaviour)
-template <typename T, int CAPACITY = 1> // TODO: use sensible and compatible type for this and NO_INDEX
+template <typename T, int CAPACITY = 1> // @todo iox-#66 use sensible and compatible type for this and NO_INDEX
 class ObjectPool
 {
   public:
-    using Index_t = int; // TODO: choose Index_t types correctly wrt. size, conversion compatibility
+    using Index_t = int; // @todo iox-#66 choose Index_t types correctly wrt. size, conversion compatibility
     static constexpr int NO_INDEX = -1;
 
   private:
@@ -49,11 +49,11 @@ class ObjectPool
     Index_t m_freeIndex{0};
     size_t m_size{0u};
 
-    // todo: maybe this metainformation can be combined, e.g. the data pointer == nullptr to indicate that
+    // @todo iox-#66 maybe this metainformation can be combined, e.g. the data pointer == nullptr to indicate that
     // the data is invalid
     struct CellInfo
     {
-        bool isValid{false};        // todo: rename into isUsed?
+        bool isValid{false};        // @todo iox-#66 rename into isUsed?
         bool wasConstructed{false}; // we want to use this to determine whether T destruction should occur in destructor
         T* data{nullptr};
     };
@@ -388,7 +388,7 @@ class ObjectPool
 
     Index_t pointerToIndex(T* ptr)
     {
-        /// todo: not critical, but refactor for pointer arithmetic later
+        /// @todo iox-#66 not critical, but refactor for pointer arithmetic later
         char* p = reinterpret_cast<char*>(ptr);
         if (p < m_first || p > m_last)
         {
@@ -425,7 +425,7 @@ class ObjectPool
 
   protected:
     // protected for unit tests
-    // TODO: use fifo/index set for efficient search of free elements
+    // @todo iox-#66 use fifo/index set for efficient search of free elements
     Index_t nextFree()
     {
         if (m_size >= CAPACITY)

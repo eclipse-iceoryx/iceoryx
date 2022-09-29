@@ -38,7 +38,7 @@ NamedPipe::NamedPipe() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
+// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
 NamedPipe::NamedPipe(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize,

@@ -32,7 +32,7 @@ using ::testing::_;
 TEST(SanityCheck, CheckStorageSizeAndAlingment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "879abe49-6cfb-43f8-a9a1-b6c20b99293f");
-    GTEST_SKIP() << "todo iox-#308 enable this check once the stack is used to store the objects";
+    GTEST_SKIP() << "@todo iox-#308 enable this check once the stack is used to store the objects";
     checkIceoryxBindingCStorageSizes();
 }
 

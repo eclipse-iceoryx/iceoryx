@@ -24,8 +24,8 @@ namespace
 {
 using namespace ::testing;
 
-/// @todo create a typed test with to check if our optional has the same behaviour as the std::optional
-/// @todo create a parameterized test with an additional non-POD class
+/// @todo iox-#1696 create a typed test with to check if our optional has the same behaviour as the std::optional
+/// @todo iox-#1696 create a parameterized test with an additional non-POD class
 
 class Optional_test : public Test
 {

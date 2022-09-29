@@ -33,7 +33,7 @@ constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
 using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
 
-/// @todo remove free functions
+/// @todo iox-#1365 remove free functions
 void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept;
 ThreadName_t getThreadName(iox_pthread_t thread) noexcept;
 

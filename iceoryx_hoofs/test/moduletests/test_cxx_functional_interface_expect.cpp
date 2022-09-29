@@ -85,7 +85,7 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
     {
         auto handle =
             iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>([&](auto, auto) { std::terminate(); });
-        // todo #1196 remove EXPECT_DEATH
+        // @todo iox-#1613 remove EXPECT_DEATH
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
         EXPECT_DEATH(callExpect(sut), ".*");
     }
