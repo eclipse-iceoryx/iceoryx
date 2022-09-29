@@ -26,6 +26,18 @@ jobs:
             ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt ${diff_file}
           done
 
+  check-for-todo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: check for todos which are not linked to issues or violating the format @todo iox-#?
+        run: ./tools/ci/todo-verificator.sh
+
   verify-links-in-markdown-documentation:
     runs-on: ubuntu-latest
     steps:
