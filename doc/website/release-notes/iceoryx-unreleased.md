@@ -550,7 +550,7 @@
 
 27. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
 
-28. Using multiple logger instance and logging directly via a logger instance in not supported anymore out of the box
+28. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
 
     ```cpp
     // before
@@ -569,6 +569,7 @@
     ```
 
 29. Setting the default log level changed
+
     ```cpp
     // before
     #include "iceoryx_hoofs/log/logmanager.hpp"
@@ -584,6 +585,7 @@
     Please look at the logger design document for more details like setting the log level via environment variables.
 
 30. Changing the log level at runtime changed
+
     ```cpp
     // before
     logger.SetLogLevel(); // directly on the instance
@@ -666,6 +668,7 @@
     | `LogVerbose()` | `IOX_LOG(TRACE)` |
 
 33. Logger formatting changed
+
     ```cpp
     // before
     LogInfo() << iox::log::HexFormat(42);
@@ -678,6 +681,7 @@
     ```
 
 34. Creating an instance of `LogStream` does not work anymore
+
     ```cpp
     // before
     auto stream = LogInfo();
@@ -702,6 +706,7 @@
     ```
 
 35. Testing of `LogStream::operator<<` overload for custom types changed
+
     ```cpp
     // before
     Logger_Mock loggerMock;
@@ -719,6 +724,7 @@
     ```
 
 36. Suppressing the logger output in tests
+
     ```cpp
     // before
     // using gTest ::testing::internal::CaptureStdout() or ::testing::internal::CaptureStderr()
@@ -747,6 +753,7 @@
     e.g. `IOX_TESTING_ALLOW_LOG=ON ./unittests --gtest_filter=MyTest\*`. This might be helpful to debug tests.
 
 37. Checking the log message of test objects in unit tests
+
     ```cpp
     // before
     // some wild stuff with std::clog redirecting or ::testing::internal::CaptureStdout()
