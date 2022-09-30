@@ -53,10 +53,11 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 ///     IOX_LOG(INFO) << "Hello World";
 /// @endcode
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 needed for source code location, safely wrapped in macro
-// AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead to compile time
-// failures in this case// NOLINTJUSTIFICATION __PRETTY_FUNCTION__ would work better in lambdas but especially with
+// AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead to compile time failures in this case
+// NOLINTJUSTIFICATION __PRETTY_FUNCTION__ would work better in lambdas but especially with
 // templates the resulting string is too large; we also get the file name and the line of the invocation which should be
-// sufficient for debugging NOLINTBEGIN(bugprone-lambda-function-name)
+// sufficient for debugging
+// NOLINTBEGIN(bugprone-lambda-function-name)
 #define IOX_LOG(level)                                                                                                 \
     IOX_LOG_INTERNAL(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level)
 // NOLINTEND(bugprone-lambda-function-name)
