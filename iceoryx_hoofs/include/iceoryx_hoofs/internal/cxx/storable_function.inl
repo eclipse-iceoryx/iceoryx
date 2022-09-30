@@ -35,15 +35,15 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 
 // AXIVION Next Construct AutosarC++19_03-A12.1.5: constructor delegation is not feasible here due
 // to lack of sufficient common initialization
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
+// AXIVION Next Construct AutosarC++19_03-M5.2.6: the converted pointer is only used
+// as its original function pointer type after reconversion (type erasure)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     ReturnType (*function)(Args...)) noexcept
-    : // AXIVION Next Construct AutosarC++19_03-M5.2.6: the converted pointer is only used
-      // as its original function pointer type after reconversion (type erasure)
-      // AXIVION Next Construct AutosarC++19_03-A5.2.4: reinterpret_cast is required for type erasure
-      /// @NOLINTJUSTIFICATION we use type erasure in combination with compile time template arguments to restore
-      ///                      the correct type whenever the callable is used
+    : // AXIVION Next Construct AutosarC++19_03-A5.2.4: reinterpret_cast is required for type erasure,
+      // we use type erasure in combination with compile time template arguments to restore
+      // the correct type whenever the callable is used
       /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_callable(reinterpret_cast<void*>(function))
     , m_invoker(invokeFreeFunction)
@@ -55,7 +55,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     // destroy is not needed for free functions
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
@@ -68,7 +68,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     storeFunctor(functor);
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const T& object,
@@ -92,6 +92,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     m_operations.copy(other, *this);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
 // AXIVION Next Construct AutosarC++19_03-A12.8.4: we copy only the operation pointer table
 // (required) and will perform a move with its type erased move function
 template <uint64_t Capacity, typename ReturnType, typename... Args>
@@ -265,7 +266,6 @@ inline void
 storable_function<Capacity, signature<ReturnType, Args...>>::moveFreeFunction(storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A18.9.2: false positive, only a pointer is copied
     dest.m_invoker = src.m_invoker;
     dest.m_callable = src.m_callable;
     src.m_invoker = nullptr;
@@ -279,7 +279,7 @@ template <typename CallableType>
 inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::invoke(void* callable,
                                                                                       Args&&... args) noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A18.9.2: false positive, perfect forwarding
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
     // AXIVION Next Construct AutosarC++19_03-A5.3.2: callable is guaranteed not to be nullptr
     // when invoke is called (it is private and only used for type erasure)
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
@@ -291,15 +291,16 @@ inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::i
 // m_invoker is initialized with this function and has to work with functors as well
 // (functors may change due to invocation)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
-inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable,
-                                                                                                  Args&&... args)
+inline ReturnType
+storable_function<Capacity, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable, Args&&... args) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
     // AXIVION Next Construct AutosarC++19_03-A5.3.2: callable is guaranteed not to be nullptr
     // when invokeFreeFunction is called (it is private and only used for type erasure)
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     // AXIVION Next Construct AutosarC++19_03-A5.2.4: reinterpret_cast is required for type erasure
-    /// @NOLINTJUSTIFICATION we use type erasure in combination with compile time template arguments to restore
-    ///                      the correct type whenever the callable is used
+    // type erasure in combination with compile time template arguments to restore the correct type
+    // when the callable is called
     /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return (reinterpret_cast<ReturnType (*)(Args...)>(callable))(std::forward<Args>(args)...);
 }

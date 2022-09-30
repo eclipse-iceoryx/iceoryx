@@ -56,10 +56,10 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
-    // AXIVION Next Construct AutosarC++19_03-A12.1.4: implicit conversion of functors is intentional
-    /// @NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
-    ///                      explicit would require a static_cast. Furthermore, the storable_functor stores a copy
-    ///                      which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: implicit conversion of functors is intentional,
+    // the storable function should implicitly behave like any generic constructor, adding
+    // explicit would require a static_cast. Furthermore, the storable_functor stores a copy
+    // which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
     /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(const Functor& functor) noexcept;
 
@@ -191,7 +191,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     // AXIVION Next Construct AutosarC++19_03-M7.1.2: callable cannot be const void* since
     // m_invoker is initialized with this function and has to work with functors as well
     // (functors may change due to invocation)
-    static ReturnType invokeFreeFunction(void* callable, Args&&... args);
+    static ReturnType invokeFreeFunction(void* callable, Args&&... args) noexcept;
 };
 
 /// @brief swap two storable functions
