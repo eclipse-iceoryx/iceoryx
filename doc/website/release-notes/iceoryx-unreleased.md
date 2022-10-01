@@ -382,6 +382,7 @@
     #include "iceoryx_hoofs/cxx/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
+    ```
 
 20. `ReleativePointer::registerPtr` returns `cxx::optional`
 
@@ -418,7 +419,7 @@
 20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
 
     ```cmake
-    // before
+    # before
     cmake_minimum_required(VERSION 3.16)
     project(example)
     find_package(iceoryx_posh CONFIG REQUIRED)
@@ -429,22 +430,22 @@
     include(IceoryxPackageHelper)
     include(IceoryxPlatform)
 
-    // after
+    # after
     cmake_minimum_required(VERSION 3.16)
     project(example)
-    find_package(iceoryx_platform REQUIRED)         // new
+    find_package(iceoryx_platform REQUIRED)         # new
     find_package(iceoryx_posh CONFIG REQUIRED)
     find_package(iceoryx_hoofs CONFIG REQUIRED)
 
     include(IceoryxPackageHelper)
     include(IceoryxPlatform)
-    include(IceoryxPlatformSettings)                // new
+    include(IceoryxPlatformSettings)                # new
     ```
 
 21. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
     be adjusted.
 
-    ```cxx
+    ```cpp
     // before
     #include "iceoryx_hoofs/platform/some_header.hpp"
 
@@ -454,7 +455,7 @@
 
 22. `cxx::unique_ptr` is no longer nullable.
 
-    ```cxx
+    ```cpp
     // before
     cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
     cxx::unique_ptr<int> emptyPtr(nullptr, someDeleter);
@@ -511,7 +512,7 @@
 
 25. `cxx::function` is no longer nullable.
 
-    ```cxx
+    ```cpp
     // before
     cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
     cxx::function<void()> emptyFunction;
@@ -531,3 +532,244 @@
     Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `function` is well defined and behaves like dereferencing a `nullptr`.
+
+26. `LogLevel` enum tags are renamed to better match the log4j log levels
+
+    | before     | after   |
+    |:----------:|:-------:|
+    | `kOff`     | `OFF`   |
+    | `kFatal`   | `FATAL` |
+    | `kError`   | `ERROR` |
+    | `kWarn`    | `WARN`  |
+    | `kInfo`    | `INFO`  |
+    | `kDebug`   | `DEBUG` |
+    | `kVerbose` | `TRACE` |
+
+
+    In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
+
+27. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+
+28. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/log/logmanager.hpp"
+
+    auto& logger = iox::log::createLogger("MyComponent", "MyContext", iox::log::LogLevel::kInfo);
+
+    logger.LogInfo() << "Hello World";
+
+    // after
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    iox::log::Logger::init(iox::log::LogLevel::INFO);
+
+    IOX_LOG(INFO) << "Hello World";
+    ```
+
+29. Setting the default log level changed
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/log/logmanager.hpp"
+
+    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+
+    // after
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    iox::log::Logger::init(iox::log::LogLevel::ERROR);
+    ```
+
+    Please look at the logger design document for more details like setting the log level via environment variables.
+
+30. Changing the log level at runtime changed
+
+    ```cpp
+    // before
+    logger.SetLogLevel(); // directly on the instance
+
+    // after
+    iox::log::Logger::setLogLevel(iox::log::LogLevel::DEBUG);
+    ```
+
+31. Using the logger in libraries is massively simplified
+
+    ```cpp
+    // before
+    // ==== file foo_logging.hpp ====
+    #ifndef FOO_LOGGING_HPP_INCLUDED
+    #define FOO_LOGGING_HPP_INCLUDED
+
+    #include "iceoryx_hoofs/log/logging_free_function_building_block.hpp"
+
+    namespace foo
+    {
+        struct LoggingComponent
+        {
+            static constexpr char Ctx[] = "FOO";
+            static constexpr char Description[] = "Log context of the FOO component!";
+        };
+
+        static constexpr auto LogFatal = iox::log::ffbb::LogFatal<LoggingComponent>;
+        static constexpr auto LogError = iox::log::ffbb::LogError<LoggingComponent>;
+        static constexpr auto LogWarn = iox::log::ffbb::LogWarn<LoggingComponent>;
+        static constexpr auto LogInfo = iox::log::ffbb::LogInfo<LoggingComponent>;
+        static constexpr auto LogDebug = iox::log::ffbb::LogDebug<LoggingComponent>;
+        static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
+    } // namespace foo
+    #endif // FOO_LOGGING_HPP_INCLUDED
+
+    // ==== file foo_logging.cpp ====
+    #include "foo_logging.hpp"
+
+    namespace foo
+    {
+        constexpr char ComponentPosh::Ctx[];
+        constexpr char ComponentPosh::Description[];
+
+    } // namespace foo
+
+    // ==== file bar.cpp ====
+    #include "foo_logging.hpp"
+
+    namespace foo
+    {
+        void myFunc()
+        {
+            LogInfo() << "Hello World";
+        }
+    }
+
+
+    // after
+    // ==== file bar.cpp ====
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    namespace foo
+    {
+        void myFunc()
+        {
+            IOX_LOG(INFO) << "Hello World";
+        }
+    }
+    ```
+
+32. Free function logger calls changed
+
+    | before         | after            |
+    |:--------------:|:----------------:|
+    | `LogFatal()`   | `IOX_LOG(FATAL)` |
+    | `LogError()`   | `IOX_LOG(ERROR)` |
+    | `LogWarn()`    | `IOX_LOG(WARN)`  |
+    | `LogInfo()`    | `IOX_LOG(INFO)`  |
+    | `LogDebug()`   | `IOX_LOG(DEBUG)` |
+    | `LogVerbose()` | `IOX_LOG(TRACE)` |
+
+33. Logger formatting changed
+
+    ```cpp
+    // before
+    LogInfo() << iox::log::HexFormat(42);
+    LogInfo() << iox::log::BinFormat(73); // currently not supported
+    LogInfo() << iox::log::RawBuffer(buf); // currently not supported
+
+    // after
+    IOX_LOG(INFO) << iox::log::hex(42);
+    IOX_LOG(INFO) << iox::log::oct(42);
+    ```
+
+34. Creating an instance of `LogStream` does not work anymore
+
+    ```cpp
+    // before
+    auto stream = LogInfo();
+    stream << "fibonacci: "
+    for(auto fib : {1, 1, 2, 3, 5, 8})
+    {
+        stream << fib << ", ";
+    }
+    stream << "...";
+    stream.Flush();
+
+    // after
+    IOX_LOG(INFO) << [] (auto& stream) -> auto& {
+        stream << "fibonacci: "
+        for(auto fib : {1, 1, 2, 3, 5, 8})
+        {
+            stream << fib << ", ";
+        }
+        stream << "...";
+        return stream;
+    };
+    ```
+
+35. Testing of `LogStream::operator<<` overload for custom types changed
+
+    ```cpp
+    // before
+    Logger_Mock loggerMock;
+    iox::log::LogStream(loggerMock) << myType;
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(EXPECTED_STRING));
+
+    // after
+    iox::testing::Logger_Mock loggerMock;
+    IOX_LOGSTREAM_MOCK(loggerMock) << myType;
+
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_STRING));
+    ```
+
+36. Suppressing the logger output in tests
+
+    ```cpp
+    // before
+    // using gTest ::testing::internal::CaptureStdout() or ::testing::internal::CaptureStderr()
+    // in every test fixture setup method. This also suppresses the output of the sanitizer
+    // and makes debugging of CI failures unnecessary hard. In addition, it might crash the unittest
+    // when `EXPECT_DEATH` is used
+
+    // after
+    // ==== unittests.cpp ====
+    #include "iceoryx_hoofs/testing/logger.hpp"
+
+    #include <gtest/gtest.h>
+
+    int main(int argc, char* argv[])
+    {
+        ::testing::InitGoogleTest(&argc, argv);
+
+        iox::testing::Logger::init();
+
+        return RUN_ALL_TESTS();
+    }
+    ```
+
+    The log messages are cached and printed when a test fails. To print log messages also for passed tests,
+    the `IOX_TESTING_ALLOW_LOG` environment variable can be used,
+    e.g. `IOX_TESTING_ALLOW_LOG=ON ./unittests --gtest_filter=MyTest\*`. This might be helpful to debug tests.
+
+37. Checking the log message of test objects in unit tests
+
+    ```cpp
+    // before
+    // some wild stuff with std::clog redirecting or ::testing::internal::CaptureStdout()
+    sut.methodCallWithLogOutput();
+    // some wild stuff getting the output from the redirected clog or ::testing::internal::internal::GetCapturedStdout()
+
+    // after
+    #include "iceoryx_hoofs/testing/logger.hpp"
+
+    sut.methodCallWithLogOutput();
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    {
+        auto logMessages = iox::testing::Logger::getLogMessages();
+        ASSERT_THAT(logMessages.size(), Eq(1U));
+        EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+    }
+    ```
+
+    Have a look at the logger design document for more details on how to setup the testing logger.
