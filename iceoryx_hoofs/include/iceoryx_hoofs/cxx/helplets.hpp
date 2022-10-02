@@ -351,9 +351,33 @@ constexpr T from(const F value) noexcept;
 /// @param[in] value of type F to convert to T
 /// @return converted value of F to corresponding value of T
 template <typename T, typename F>
-constexpr T into(const F value) noexcept;
-} // namespace cxx
-} // namespace iox
+constexpr T into(const F value) noexcept {
+Into<F, T>::into(value); // just forwarding to the struct
+}
+
+template<uint64_t N>
+struct Into<cxx::string<N>, std::string> {
+static into(const cxx::string<N> & value) {//structure into template for arbitrary types
+    auto arbitraryType = value;
+    string newString = to_string(arbitraryType);
+
+}
+
+string intToStdString(int source){//converting integer to string
+    string newString;
+    newString = to_string(source);
+    return newString;
+}
+string floatToStdString(float source){//converting float to string
+    string newString;
+    newString = to_string(source);
+    return newString;
+}
+string charToStdString(char source){//converting char to string
+    string newString;
+    newString = to_string(source);
+    return newString;
+}
 
 #include "iceoryx_hoofs/internal/cxx/helplets.inl"
 
