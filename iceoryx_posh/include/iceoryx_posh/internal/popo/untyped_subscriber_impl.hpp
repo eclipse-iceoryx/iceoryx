@@ -19,7 +19,6 @@
 #define IOX_POSH_POPO_UNTYPED_SUBSCRIBER_IMPL_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"

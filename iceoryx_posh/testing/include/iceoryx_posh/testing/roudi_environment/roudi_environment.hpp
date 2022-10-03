@@ -24,7 +24,6 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
 
-#include <atomic>
 #include <map>
 #include <mutex>
 

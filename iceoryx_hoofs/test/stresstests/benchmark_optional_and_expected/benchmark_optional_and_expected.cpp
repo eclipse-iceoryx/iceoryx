@@ -20,8 +20,6 @@
 
 #include "benchmark.hpp"
 
-#include <limits>
-
 uint64_t globalCounter{0U};
 
 template <uint64_t Size>

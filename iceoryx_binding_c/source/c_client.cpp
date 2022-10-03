@@ -30,8 +30,6 @@ extern "C" {
 #include "iceoryx_binding_c/client.h"
 }
 
-#include <cstring>
-
 constexpr uint64_t CLIENT_OPTIONS_INIT_CHECK_CONSTANT = 47113130815;
 
 void iox_client_options_init(iox_client_options_t* options)

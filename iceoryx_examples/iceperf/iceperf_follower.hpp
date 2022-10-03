@@ -20,7 +20,6 @@
 #include "base.hpp"
 #include "example_common.hpp"
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 
 class IcePerfFollower

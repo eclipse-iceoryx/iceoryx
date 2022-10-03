@@ -17,10 +17,6 @@
 
 #if !defined(__APPLE__)
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_posh/iceoryx_posh_config.hpp"
-#include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 #include "test.hpp"
 
 #include <thread>

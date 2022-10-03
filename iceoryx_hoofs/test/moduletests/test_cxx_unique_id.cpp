@@ -16,12 +16,7 @@
 
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
-
 #include "test.hpp"
-
-#include <algorithm>
-#include <vector>
 
 namespace
 {

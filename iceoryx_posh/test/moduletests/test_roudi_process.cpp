@@ -19,9 +19,6 @@
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/process.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
-#include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "test.hpp"
 
 namespace

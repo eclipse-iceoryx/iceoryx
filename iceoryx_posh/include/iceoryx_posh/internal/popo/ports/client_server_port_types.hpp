@@ -23,8 +23,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 
-#include <cstdint>
-
 namespace iox
 {
 namespace popo

@@ -30,7 +30,6 @@ extern "C" {
 #include "iceoryx_binding_c/server.h"
 }
 
-#include <cstring>
 constexpr uint64_t SERVER_OPTIONS_INIT_CHECK_CONSTANT = 333333331737373;
 
 void iox_server_options_init(iox_server_options_t* const options)

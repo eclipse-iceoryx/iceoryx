@@ -18,7 +18,6 @@
 #include "iceoryx_posh/internal/roudi/process.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 using namespace iox::units::duration_literals;
 namespace iox

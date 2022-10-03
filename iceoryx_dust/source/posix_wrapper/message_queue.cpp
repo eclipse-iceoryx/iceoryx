@@ -20,8 +20,6 @@
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
-#include <chrono>
-#include <cstdlib>
 #include <string>
 
 

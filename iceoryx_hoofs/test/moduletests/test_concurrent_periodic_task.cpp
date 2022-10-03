@@ -21,9 +21,6 @@
 
 #include "test.hpp"
 
-#include <cstdint>
-#include <functional>
-
 namespace
 {
 using namespace ::testing;

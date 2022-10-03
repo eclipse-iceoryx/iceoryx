@@ -13,7 +13,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#include "iceoryx_hoofs/testing/expect_no_death.hpp"
 #include "test_cxx_functional_interface_types.hpp"
 
 namespace

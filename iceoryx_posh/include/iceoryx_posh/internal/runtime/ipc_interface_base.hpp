@@ -19,7 +19,6 @@
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/errno.hpp"

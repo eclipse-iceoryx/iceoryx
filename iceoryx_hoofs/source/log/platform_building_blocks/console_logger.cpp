@@ -16,12 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/log/platform_building_blocks/console_logger.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_platform/time.hpp"
 
 #include <cstdio>
 #include <cstring>
-#include <ctime>
 
 namespace iox
 {

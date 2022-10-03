@@ -19,9 +19,7 @@
 #define IOX_POSH_POPO_BASE_PUBLISHER_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
-#include "iceoryx_posh/popo/sample.hpp"
 
 namespace iox
 {

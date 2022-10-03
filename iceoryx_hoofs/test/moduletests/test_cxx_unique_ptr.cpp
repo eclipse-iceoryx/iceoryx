@@ -19,8 +19,6 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "test.hpp"
 
-#include <iostream>
-
 namespace
 {
 using namespace ::testing;

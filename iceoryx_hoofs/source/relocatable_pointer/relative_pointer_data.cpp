@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp"
-#include <cstdint>
 
 namespace iox
 {

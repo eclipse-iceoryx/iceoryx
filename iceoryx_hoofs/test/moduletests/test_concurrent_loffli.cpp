@@ -18,9 +18,7 @@
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "test.hpp"
 
-#include <algorithm>
 #include <random>
-#include <vector>
 
 namespace
 {

@@ -17,7 +17,6 @@
 #define IOX_POSH_GW_GATEWAY_DISCOVERY_HPP
 
 #include "iceoryx_posh/gateway/gateway_base.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox
 {

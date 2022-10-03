@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test.hpp"
 #include "test_popo_smart_chunk_common.hpp"
 
 namespace

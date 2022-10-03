@@ -19,8 +19,6 @@
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
-#include <cassert>
-
 namespace iox
 {
 namespace concurrent

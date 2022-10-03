@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "test.hpp"

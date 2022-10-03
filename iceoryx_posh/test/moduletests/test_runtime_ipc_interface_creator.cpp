@@ -19,8 +19,6 @@
 
 #include "test.hpp"
 
-#include <chrono>
-
 namespace
 {
 using namespace ::testing;

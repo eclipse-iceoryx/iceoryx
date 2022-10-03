@@ -20,7 +20,6 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
-#include <atomic>
 #include <mutex>
 
 namespace iox

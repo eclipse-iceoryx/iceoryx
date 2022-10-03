@@ -28,7 +28,6 @@
 #include "test.hpp"
 #include "test_posix_semaphore_common.hpp"
 
-#include <atomic>
 #include <chrono>
 #include <thread>
 #include <type_traits>

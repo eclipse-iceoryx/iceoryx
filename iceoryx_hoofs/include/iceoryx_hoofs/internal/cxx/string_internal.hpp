@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 
-#include <cstdint>
 #include <cstring>
 #include <string>
 

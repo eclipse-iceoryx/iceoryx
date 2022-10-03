@@ -21,7 +21,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "topic_data.hpp"
 
-#include <chrono>
 #include <iostream>
 
 std::atomic_bool keepRunning{true};

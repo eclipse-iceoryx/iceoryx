@@ -20,8 +20,6 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
-#include <algorithm>
-
 namespace iox
 {
 namespace posix

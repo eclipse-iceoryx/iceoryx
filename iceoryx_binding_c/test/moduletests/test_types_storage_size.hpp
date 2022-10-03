@@ -32,8 +32,6 @@ extern "C" {
 #include "iceoryx_binding_c/types.h"
 }
 
-#include <iostream>
-
 #define IOX_BINDING_C_CHECK_STORAGE_SIZE_AND_ALIGNMENT(CPP_TYPE, C_STORAGE)                                            \
     EXPECT_THAT(sizeof(C_STORAGE), Eq(sizeof(CPP_TYPE)));                                                              \
     EXPECT_THAT(alignof(C_STORAGE), Eq(alignof(CPP_TYPE)));

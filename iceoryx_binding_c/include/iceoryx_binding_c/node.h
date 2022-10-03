@@ -19,6 +19,7 @@
 #define IOX_BINDING_C_NODE_H
 
 #include "iceoryx_binding_c/internal/c2cpp_binding.h"
+#include "iceoryx_posh/internal/runtime/node_data.hpp"
 
 typedef CLASS NodeData* iox_node_t;
 

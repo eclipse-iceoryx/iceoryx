@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox
 {

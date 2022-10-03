@@ -18,7 +18,6 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"

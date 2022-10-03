@@ -16,15 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include "test.hpp"
 
-#include <chrono>
 #include <random>
-#include <vector>
 
 namespace
 {

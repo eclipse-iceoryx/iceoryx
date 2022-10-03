@@ -20,11 +20,11 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/publisher_interface.hpp"
 #include "iceoryx_posh/internal/popo/rpc_interface.hpp"
-#include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/popo/request.hpp"
 #include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "test.hpp"
 
 namespace test_smart_chunk_common
 {

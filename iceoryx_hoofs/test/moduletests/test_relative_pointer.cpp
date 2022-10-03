@@ -19,9 +19,6 @@
 
 #include "test.hpp"
 
-#include <cstdint>
-#include <cstring>
-
 namespace
 {
 using namespace ::testing;

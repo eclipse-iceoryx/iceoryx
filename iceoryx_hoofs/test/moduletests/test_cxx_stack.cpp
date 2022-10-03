@@ -17,8 +17,6 @@
 #include "iceoryx_hoofs/cxx/stack.hpp"
 #include "test.hpp"
 
-#include <vector>
-
 namespace
 {
 using namespace iox;

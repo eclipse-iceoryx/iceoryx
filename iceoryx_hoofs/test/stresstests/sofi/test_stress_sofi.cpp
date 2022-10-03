@@ -19,8 +19,6 @@
 
 #include "iceoryx_hoofs/testing/test.hpp"
 
-#include <cstdint>
-#include <cstdlib>
 #include <mutex>
 #include <queue>
 #include <thread>

@@ -18,7 +18,6 @@
 #define IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 

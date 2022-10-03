@@ -18,8 +18,6 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "test.hpp"
 
-#include <vector>
-
 namespace
 {
 using namespace ::testing;

@@ -18,7 +18,6 @@
 #define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 
 #include <cassert>
-#include <cstdint>
 #include <type_traits>
 #include <utility>
 

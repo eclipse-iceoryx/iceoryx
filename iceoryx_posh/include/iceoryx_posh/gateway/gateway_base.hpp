@@ -18,7 +18,6 @@
 #define IOX_POSH_GW_GATEWAY_BASE_HPP
 
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 
 #include <memory>

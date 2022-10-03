@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_NODE_HPP
 #define IOX_POSH_RUNTIME_NODE_HPP
 
-#include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox

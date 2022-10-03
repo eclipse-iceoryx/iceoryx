@@ -17,8 +17,6 @@
 #ifndef IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_WAITSET_TOPIC_DATA_HPP
 
-#include <cstdint>
-
 struct CounterTopic
 {
     uint32_t counter;

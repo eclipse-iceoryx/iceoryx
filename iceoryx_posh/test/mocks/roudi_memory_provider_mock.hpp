@@ -19,7 +19,6 @@
 
 #include "test.hpp"
 
-#include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 

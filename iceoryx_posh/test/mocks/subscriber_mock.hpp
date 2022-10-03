@@ -19,14 +19,9 @@
 #define IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
-#include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/popo/sample.hpp"
-#include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 
 #include "test.hpp"
 

@@ -19,8 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 
-#include <cstdint>
-
 namespace iox
 {
 namespace popo

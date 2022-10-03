@@ -19,7 +19,6 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "topic_data.hpp"
 
 #include <chrono>
 #include <iostream>

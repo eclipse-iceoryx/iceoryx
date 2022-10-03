@@ -17,7 +17,6 @@
 #define IOX_BINDING_C_MOCKS_WAITSET_MOCK_HPP
 
 #include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 
 class WaitSetMock : public cpp2c_WaitSet
 {

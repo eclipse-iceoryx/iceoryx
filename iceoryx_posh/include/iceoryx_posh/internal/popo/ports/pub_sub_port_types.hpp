@@ -20,8 +20,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 
-#include <cstdint>
-
 namespace iox
 {
 namespace popo

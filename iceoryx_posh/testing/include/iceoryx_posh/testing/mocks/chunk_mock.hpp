@@ -21,9 +21,6 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
-#include <cstdlib>
-#include <cstring>
-
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <malloc.h>
 #endif

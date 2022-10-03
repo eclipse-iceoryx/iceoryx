@@ -21,7 +21,6 @@
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
-#include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 
 struct cpp2c_Subscriber

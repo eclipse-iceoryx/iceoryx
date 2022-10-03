@@ -16,7 +16,6 @@
 #ifndef IOX_POSH_POPO_PORTS_INTERFACE_PORT_HPP
 #define IOX_POSH_POPO_PORTS_INTERFACE_PORT_HPP
 
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port_data.hpp"
 

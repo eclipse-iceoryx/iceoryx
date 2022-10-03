@@ -17,7 +17,6 @@
 #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 #include "test.hpp"
 
-#include <iostream>
 
 using namespace ::testing;
 using namespace iox::cxx;

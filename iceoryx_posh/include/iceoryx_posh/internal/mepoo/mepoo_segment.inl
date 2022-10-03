@@ -22,7 +22,6 @@
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 namespace iox
 {

@@ -29,7 +29,6 @@
 #include "iceoryx_posh/version/version_info.hpp"
 
 #include <cstdint>
-#include <ctime>
 
 namespace iox
 {

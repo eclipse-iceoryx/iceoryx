@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 
 #include <thread>

@@ -20,8 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/internal/popo/base_publisher.hpp"
-#include "iceoryx_posh/popo/publisher.hpp"
-#include "iceoryx_posh/popo/sample.hpp"
 
 #include "test.hpp"
 

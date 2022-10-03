@@ -27,8 +27,6 @@ using namespace ::testing;
 #include <numeric>
 #include <random>
 #include <thread>
-#include <utility>
-#include <vector>
 
 
 namespace

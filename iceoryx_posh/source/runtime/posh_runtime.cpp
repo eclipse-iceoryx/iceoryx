@@ -17,10 +17,7 @@
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
-
-#include <cstdint>
 
 namespace iox
 {

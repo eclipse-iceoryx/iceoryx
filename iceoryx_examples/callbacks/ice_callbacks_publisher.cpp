@@ -20,7 +20,6 @@
 #include "topic_data.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-callbacks-publisher";

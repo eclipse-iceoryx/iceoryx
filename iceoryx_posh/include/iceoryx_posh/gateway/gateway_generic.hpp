@@ -19,7 +19,6 @@
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
@@ -28,7 +27,6 @@
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
-#include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 #include <atomic>

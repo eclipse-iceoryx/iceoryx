@@ -27,8 +27,6 @@
 #include "iceoryx_platform/unistd.hpp"
 
 #include <bitset>
-#include <cassert>
-#include <limits>
 
 namespace iox
 {

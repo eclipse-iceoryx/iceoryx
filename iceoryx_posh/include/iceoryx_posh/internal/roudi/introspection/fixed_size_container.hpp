@@ -20,7 +20,6 @@
 
 #include <cstdint>
 
-
 namespace iox
 {
 namespace roudi

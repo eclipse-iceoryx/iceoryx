@@ -16,8 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_versions.hpp"
 
 #include "iceoryx_platform/getopt.hpp"
 #include <iostream>

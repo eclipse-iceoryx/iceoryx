@@ -18,7 +18,6 @@
 #include "iceoryx_hoofs/testing/logger.hpp"
 
 #include "iceoryx_platform/resource.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
 using namespace ::testing;

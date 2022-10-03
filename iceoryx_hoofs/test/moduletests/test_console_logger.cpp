@@ -21,9 +21,6 @@
 #include "iceoryx_platform/fcntl.hpp"
 #include "test.hpp"
 
-#include <cstdio>
-#include <iostream>
-
 namespace
 {
 using namespace ::testing;

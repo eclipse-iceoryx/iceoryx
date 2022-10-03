@@ -17,7 +17,6 @@
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
-#include "test.hpp"
 #include "test_popo_smart_chunk_common.hpp"
 
 namespace

@@ -17,8 +17,6 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "test.hpp"
 
-#include <functional>
-#include <iostream>
 
 using namespace ::testing;
 using namespace iox::cxx;

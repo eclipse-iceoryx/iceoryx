@@ -27,7 +27,6 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
-#include <algorithm>
 #include <chrono>
 #include <iostream>
 

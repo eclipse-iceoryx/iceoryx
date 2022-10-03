@@ -21,8 +21,6 @@
 #include "iceoryx_hoofs/log/platform_building_blocks/logger.hpp"
 
 #include <atomic>
-#include <cstdint>
-#include <cstring>
 #include <mutex>
 
 namespace iox

@@ -22,8 +22,6 @@
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
 
-#include <chrono>
-#include <cstdlib>
 #include <string>
 
 

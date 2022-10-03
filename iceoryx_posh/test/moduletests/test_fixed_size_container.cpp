@@ -18,7 +18,6 @@
 #include "iceoryx_posh/internal/roudi/introspection/fixed_size_container.hpp"
 #include "test.hpp"
 
-#include <cstdint>
 
 namespace
 {

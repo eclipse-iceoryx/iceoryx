@@ -17,8 +17,6 @@
 #ifndef IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
 #define IOX_POSH_POPO_PORT_QUEUE_POLICIES_HPP
 
-#include <cstdint>
-
 namespace iox
 {
 namespace popo

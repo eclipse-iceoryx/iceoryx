@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
 
-#include <cstdlib>
 #include <gtest/gtest.h>
 
 namespace
