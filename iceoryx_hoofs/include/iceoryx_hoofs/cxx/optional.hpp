@@ -253,14 +253,14 @@ optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
 
 /// @brief Compare two optionals for equality.
 /// @param[in] lhs cxx::optional
-/// @param[in] rhs value to which this optional should be compared to
+/// @param[in] rhs value to which lhs should be compared to
 /// @return true if the contained values are equal or both have no value, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 
 /// @brief Compare two optionals for inequality.
 /// @param[in] lhs cxx::optional
-/// @param[in] rhs value to which this optional should be compared to
+/// @param[in] rhs value to which lhs should be compared to
 /// @return true if the contained values are not equal, otherwise false
 template <typename T>
 bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
@@ -268,28 +268,28 @@ bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
 /// @param[in] lhs empty optional, cxx::nullopt_t
-/// @param[in] rhs value to which this optional should be compared to
+/// @param[in] rhs value to which lhs should be compared to
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator==(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs value to which this optional should be compared to
-/// @param[in] rhs empty optional, cxx::nullopt_t
+/// @param[in] lhs value to which lhs should be compared to
+/// @param[in] rhs empty optional
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const nullopt_t) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
 /// @param[in] lhs empty optional, cxx::nullopt_t
-/// @param[in] rhs value to which this optional should be compared to
+/// @param[in] rhs value to which lhs should be compared to
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs value to which this optional should be compared to
-/// @param[in] rhs empty optional, cxx::nullopt_t
+/// @param[in] lhs value to which lhs should be compared to
+/// @param[in] rhs empty optional
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator!=(const optional<T>& lhs, const nullopt_t) noexcept;

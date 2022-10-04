@@ -94,7 +94,6 @@ inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
     construct_value(std::forward<Targs>(args)...);
 }
 
-// AXIVION Next Construct AutosarC++19_03-A13.3.1 : It's safe and constrained by SFINAE
 template <typename T>
 inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
 {
@@ -120,7 +119,6 @@ inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-A13.3.1 : It's safe and constrained by SFINAE
 template <typename T>
 inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
 {
