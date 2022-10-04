@@ -7,6 +7,7 @@ skinparam componentStyle uml2
 
 skinparam component {
    backgroundColor<<namespace>> yellow
+   backgroundColor<<module>> Cornsilk
 }
 
 skinparam package {
@@ -27,26 +28,42 @@ skinparam frame {
 
 header Eclipse iceoryx component overview
 
+' Platform Library containing platform abstraction with quality level 1
+package iceoryx_platform  {
+   frame "platform library" {
+      component "Platform abstraction" <<module>>
+   }
+}
+
 ' HOOFS: Helpful Objects Optimised For Safety
-' Library containing modern C++ STL constructs
+' Library containing modern C++ STL constructs with quality level 1+
 package iceoryx_hoofs  {
    frame "hoofs library" {
-      component concurrent <<namespace>>
-      component cxx <<namespace>> {
-         component newtype <<namespace>>
-         component set <<namespace>>
-         component algorithm <<namespace>>
-      }
-      component DesignPattern <<namespace>>
-      component errors <<namespace>>
-      component log <<namespace>> {
-         component ffbb <<namespace>>
-      }
-      component units <<namespace>> {
-         component duration_literals <<namespace>>
 
-      }
-      component posix <<namespace>>
+      component "Memory & lifetime management" <<module>>
+      component Containers <<module>>
+      component "Vocabulary types" <<module>>
+      component Filesystem <<module>>
+      component Functional <<module>>
+      component Utility <<module>>
+      component Primitives <<module>>
+      component Buffers <<module>>
+      component "Inter-process communication" <<module>>
+      component "Threads & sychronisation" <<module>>
+      component "Generalized design patterns & abstractions" <<module>>
+      component Reporting <<module>>
+      component Time <<module>>
+   }
+}
+
+' DUST: Deemed Useful Software Thingies
+' Library containing modern C++ STL constructs with quality level 2
+package iceoryx_dust  {
+   frame "dust library" {
+      component "Containers" <<module>> as additional_containers
+      component "Filesystem" <<module>> as additional_filesystem
+      component "Buffers" <<module>> as additional_buffers
+      component "Inter-process communication" <<module>> as additional_ipc
    }
 }
 
@@ -87,6 +104,16 @@ package iceoryx_dds  {
    component gw <<namespace>> as gateway_dds
 }
 
+' AUTOSAR Adaptive: ara::com
+'
+package automotive_soa  {
+}
+
+' iceoryx-rs: Rust binding for iceoryx
+'
+package iceoryx_rs  {
+}
+
 ' C-Binding
 package iceoryx_binding_c  {
    component cpp2c <<namespace>>
@@ -101,8 +128,14 @@ package iceoryx_introspection  {
    }
 }
 
+iceoryx_hoofs  ..>  iceoryx_platform  : use
+iceoryx_dust  ..>  iceoryx_platform  : use
 iceoryx_posh  ..>  iceoryx_hoofs  : use
+iceoryx_dust  ..>  iceoryx_hoofs : use
+iceoryx_posh  ..>  iceoryx_dust : use
 iceoryx_dds  ..>  iceoryx_posh  : use
+iceoryx_rs  ..>  iceoryx_posh  : use
+automotive_soa  ..>  iceoryx_posh  : use
 iceoryx_binding_c  ..>  iceoryx_posh  : use
 introspection  ..>  iceoryx_posh  : use
 @enduml
