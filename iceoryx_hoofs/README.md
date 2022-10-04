@@ -97,7 +97,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`SoFi`                              | i        | Single producer, single consumer lock-free safely overflowing FiFo (SoFi).                                                                                                                                                         |
 |`ResizeableLockFreeQueue`           |          | Resizeable variant of the `LockfreeQueue`                                                                                                                                                                                          |
 |`stack`                             |          | Stack implementation with simple push/pop interface.                                                                                                                                                                               |
-|`VariantQueue`                      |          | A queue which wraps multiple variants of Queues (FiFo, SoFi, ResizeableLockFreeQueue)                                                                                                                                              |
+|`VariantQueue`                      |          | A queue which wraps multiple variants of Queues (FiFo, SoFi, ResizeableLockFreeQueue) - will be moved to `iceoryx_posh` -                                                                                                           |
 
 #### Attribute overview of the available buffers
 
@@ -108,6 +108,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`LoFFLi`                  | Yes                   | Yes         | Yes       | n:m                              | Yes              | int32                 | manage memory access, LIFO order                                                                                        |
 |`SoFi`                    | Yes                   | Yes         | Yes       | 1:1                              | Yes              | Trivially Copyable    | lock-free transfer of small data (e.g. pointers) between two contexts in FIFO order with overflow handling (ringbuffer) |
 |`ResizeableLockFreeQueue` | Yes                   | Yes         | Yes       | n:m                              | Yes              | Copyable or Movable   | Resizeable variant of the `LockfreeQueue`                                                                               |
+|`stack`                   | Yes                   | No          | -         | -                                | Yes              | None                  | Stack for a single-threaded application                                                                                 |
 
 ### Inter-process communication (ipc)
 
