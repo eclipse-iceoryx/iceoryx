@@ -42,7 +42,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`vector`               |          | Heap and exception free implementation of `std::vector`                                                                                                                                                                               |
 |`list`                 |          | Heap and exception free, relocatable implementation of `std::list`                                                                                                                                                                    |
 
-### Common vocabulary types (vocabulary)
+### Vocabulary types (vocabulary)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -87,7 +87,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`attributes`           |          | C++17 and C++20 attributes are sometimes available through compiler extensions. The attribute macros defined in here (like `IOX_FALLTHROUGH`, `IOX_MAYBE_UNUSED` ... ) make sure that we are able to use them if the compiler supports it. |
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
 
-### Queues (queues)
+### Buffers (buffers)
 
 | class                              | internal | description                                                                                                                                                                                                                        |
 |:----------------------------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -99,7 +99,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`stack`                             |          | Stack implementation with simple push/pop interface.                                                                                                                                                                               |
 |`VariantQueue`                      |          | A queue which wraps multiple variants of Queues (FiFo, SoFi, ResizeableLockFreeQueue)                                                                                                                                              |
 
-#### Attribute overview of the available queues
+#### Attribute overview of the available buffers
 
 | Data Structure           | Shared Memory usable  | Thread-Safe | Lock-Free | Concurrent Producers : Consumers | Bounded Capacity | Data Type Restriction | Use Case                                                                                                                |
 |--------------------------|-----------------------|-------------|-----------|----------------------------------|------------------|-----------------------|-------------------------------------------------------------------------------------------------------------------------|
