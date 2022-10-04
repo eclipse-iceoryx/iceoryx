@@ -104,11 +104,11 @@ class SharedPointer_Test : public Test
 
     void SetUp() override
     {
-        iox::rp::UntypedRelativePointer::registerPtr(memory, 4096);
+        iox::memory::UntypedRelativePointer::registerPtr(memory, 4096);
     }
     void TearDown() override
     {
-        iox::rp::UntypedRelativePointer::unregisterAll();
+        iox::memory::UntypedRelativePointer::unregisterAll();
     }
 
     ChunkManagement* GetChunkManagement(void* memoryChunk)

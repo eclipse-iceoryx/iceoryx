@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer_data.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer_data.hpp"
 #include <cstdint>
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 // This is necessary if an supervising application needs to do a cleanup of resources hold by a crashed application. If
 // the size is larger than 8 bytes on a 64 bit system, torn writes happens and if the application crashes at the wrong
@@ -67,5 +67,5 @@ bool RelativePointerData::isLogicalNullptr() const noexcept
     return m_idAndOffset == LOGICAL_NULLPTR;
 }
 
-} // namespace rp
+} // namespace memory
 } // namespace iox

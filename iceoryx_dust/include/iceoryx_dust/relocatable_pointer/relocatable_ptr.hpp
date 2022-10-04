@@ -22,7 +22,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 /// @brief Smart pointer type that allows objects using it to able to be copied by memcpy
 ///        without invalidating the pointer.
@@ -149,7 +149,7 @@ bool operator==(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) no
 template <typename T>
 bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept;
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
 #include "iceoryx_dust/relocatable_pointer/relocatable_ptr.inl"

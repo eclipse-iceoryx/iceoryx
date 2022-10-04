@@ -53,7 +53,7 @@ class SegmentManager_test : public Test
     }
     void TearDown() override
     {
-        iox::rp::UntypedRelativePointer::unregisterAll();
+        iox::memory::UntypedRelativePointer::unregisterAll();
     }
 
     MePooConfig getMempoolConfig()

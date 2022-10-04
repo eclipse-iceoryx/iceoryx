@@ -15,14 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
-#define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
+#ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
+#define IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
@@ -62,8 +62,11 @@ inline RelativePointer<T>& RelativePointer<T>::operator=(const RelativePointer& 
 
 template <typename T>
 RelativePointer<T>::RelativePointer(RelativePointer&& other) noexcept
+    : m_id(std::move(other.m_id))
+    , m_offset(std::move(other.m_offset))
 {
-    *this = std::move(other);
+    other.m_id = NULL_POINTER_ID;
+    other.m_offset = NULL_POINTER_OFFSET;
 }
 
 template <typename T>
@@ -241,7 +244,7 @@ inline PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>
     static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t> repository;
     return repository;
 }
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_INL
+#endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL

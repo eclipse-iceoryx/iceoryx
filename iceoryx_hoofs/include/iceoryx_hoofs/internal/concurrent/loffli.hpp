@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -71,7 +71,7 @@ class LoFFLi
     uint32_t m_size{0U};
     Index_t m_invalidIndex{0U};
     std::atomic<Node> m_head{{0U, 1U}};
-    iox::rp::RelativePointer<Index_t> m_nextFreeIndex;
+    iox::memory::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
     LoFFLi() noexcept = default;

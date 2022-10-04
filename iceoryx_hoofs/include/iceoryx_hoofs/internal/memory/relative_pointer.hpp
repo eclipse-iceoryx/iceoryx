@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
-#define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
+#ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
+#define IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 
 #include "iceoryx_hoofs/cxx/newtype.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.hpp"
+#include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -27,7 +27,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 struct segment_id_t : public cxx::NewType<uint64_t,
                                           cxx::newtype::DefaultConstructable,
@@ -208,9 +208,9 @@ using UntypedRelativePointer = RelativePointer<void>;
 PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept;
 
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.inl"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.inl"
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
+#endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP

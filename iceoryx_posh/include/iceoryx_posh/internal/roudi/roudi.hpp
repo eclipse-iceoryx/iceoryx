@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/file.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -129,7 +129,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate() noexcept;
 
-    cxx::ScopeGuard m_unregisterRelativePtr{[] { rp::UntypedRelativePointer::unregisterAll(); }};
+    cxx::ScopeGuard m_unregisterRelativePtr{[] { memory::UntypedRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;

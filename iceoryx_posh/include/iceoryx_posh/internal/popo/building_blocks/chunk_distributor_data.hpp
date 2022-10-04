@@ -19,8 +19,8 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -49,7 +49,7 @@ struct ChunkDistributorData : public LockingPolicy
     const uint64_t m_historyCapacity;
 
     using QueueContainer_t =
-        cxx::vector<rp::RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
+        cxx::vector<memory::RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
     /// @todo If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to

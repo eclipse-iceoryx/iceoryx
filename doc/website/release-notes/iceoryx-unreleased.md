@@ -404,7 +404,7 @@
     }
     ```
 
-20. Renamed `BaseRelativePointer` to `UntypedRelativePointer`
+21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and moved it from namespace `rp::` to `memory::`
 
     ```cpp
     // before
@@ -412,11 +412,11 @@
     iox::rp::BaseRelativePointer myUntypedRelativePointer;
 
     // after
-    #include "iceoryx_hoofs/memory/relative_pointer.hpp" /// @todo #605 adapt namespace and directory
+    #include "iceoryx_hoofs/memory/relative_pointer.hpp"
     iox::memory::UntypedRelativePointer myUntypedRelativePointer;
     ```
 
-20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
+22. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
 
     ```cmake
     # before
@@ -442,7 +442,7 @@
     include(IceoryxPlatformSettings)                # new
     ```
 
-21. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
+23. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
     be adjusted.
 
     ```cpp
@@ -453,7 +453,7 @@
     #include "iceoryx_platform/some_header.hpp"
     ```
 
-22. `cxx::unique_ptr` is no longer nullable.
+24. `cxx::unique_ptr` is no longer nullable.
 
     ```cpp
     // before
@@ -483,7 +483,7 @@
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
 
-23. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+25. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
     construction
 
     ```cpp
@@ -500,7 +500,7 @@
     myMutex->lock();
     ```
 
-24. Change return type of `cxx::vector::erase` from iterator to bool
+26. Change return type of `cxx::vector::erase` from iterator to bool
 
     ```cpp
     // before

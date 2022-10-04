@@ -15,14 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
-#define IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
+#ifndef IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL
+#define IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.hpp"
+#include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
 inline PointerRepository<id_t, ptr_t, CAPACITY>::PointerRepository() noexcept
@@ -39,7 +39,7 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(const id
     {
         return false;
     }
-    return addPointerIfIndexIsFree(id, ptr, size);
+    return addPointerIfIdIsFree(id, ptr, size);
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
@@ -48,7 +48,7 @@ inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr
 {
     for (id_t id = 1U; id <= MAX_ID; ++id)
     {
-        if (addPointerIfIndexIsFree(id, ptr, size))
+        if (addPointerIfIdIsFree(id, ptr, size))
         {
             return id;
         }
@@ -115,9 +115,9 @@ inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const 
     return RAW_POINTER_BEHAVIOUR_ID;
 }
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIndexIsFree(const id_t id,
-                                                                              const ptr_t ptr,
-                                                                              const uint64_t size) noexcept
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIdIsFree(const id_t id,
+                                                                           const ptr_t ptr,
+                                                                           const uint64_t size) noexcept
 {
     if (m_info[id].basePtr == nullptr)
     {
@@ -136,7 +136,7 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::addPointerIfIndexIsFree(co
     return false;
 }
 
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_INL
+#endif // IOX_HOOFS_MEMORY_POINTER_REPOSITORY_INL

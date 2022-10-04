@@ -18,7 +18,7 @@
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -41,11 +41,11 @@ struct ChunkManagement
                     const cxx::not_null<MemPool*> mempool,
                     const cxx::not_null<MemPool*> chunkManagementPool) noexcept;
 
-    iox::rp::RelativePointer<base_t> m_chunkHeader;
+    iox::memory::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};
     /// @todo optimization: check if this can be replaced by an offset relative to the this pointer
-    iox::rp::RelativePointer<MemPool> m_mempool;
-    iox::rp::RelativePointer<MemPool> m_chunkManagementPool;
+    iox::memory::RelativePointer<MemPool> m_mempool;
+    iox::memory::RelativePointer<MemPool> m_chunkManagementPool;
 };
 } // namespace mepoo
 } // namespace iox

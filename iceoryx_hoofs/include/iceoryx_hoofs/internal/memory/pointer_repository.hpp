@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP
-#define IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP
+#ifndef IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
+#define IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
@@ -26,7 +26,7 @@
 
 namespace iox
 {
-namespace rp
+namespace memory
 {
 constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
 
@@ -110,11 +110,11 @@ class PointerRepository
     iox::cxx::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};
 
-    bool addPointerIfIndexIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
+    bool addPointerIfIdIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };
-} // namespace rp
+} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.inl"
+#include "iceoryx_hoofs/internal/memory/pointer_repository.inl"
 
-#endif // IOX_HOOFS_RELOCATABLE_POINTER_POINTER_REPOSITORY_HPP
+#endif // IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
