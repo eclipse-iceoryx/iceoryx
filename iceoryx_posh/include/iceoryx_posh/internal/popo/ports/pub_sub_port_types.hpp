@@ -26,7 +26,7 @@ namespace iox
 {
 namespace popo
 {
-/// @todo iox#1051 move definitions for publish subscribe communication here
+/// @todo iox-#1051 move definitions for publish subscribe communication here
 
 using SubscriberChunkQueueData_t = ChunkQueueData<DefaultChunkQueueConfig, ThreadSafePolicy>;
 

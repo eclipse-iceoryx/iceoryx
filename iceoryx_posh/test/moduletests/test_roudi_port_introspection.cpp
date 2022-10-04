@@ -452,7 +452,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
 TEST_F(PortIntrospection_test, Thread)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ae5b252d-0060-4bb7-a193-0c2ae0ebbb7a");
-    GTEST_SKIP() << "todo iox-#518 This test is disabled until further refactoring";
+    GTEST_SKIP() << "@todo iox-#518 This test is disabled until further refactoring";
     using PortData = iox::roudi::PortIntrospectionFieldTopic;
     auto chunkPortData = std::unique_ptr<ChunkMock<PortData>>(new ChunkMock<PortData>);
 

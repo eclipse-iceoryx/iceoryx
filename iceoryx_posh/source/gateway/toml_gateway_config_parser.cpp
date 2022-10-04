@@ -36,7 +36,6 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         return iox::cxx::success<GatewayConfig>(config);
     }
 
-    /// @todo Replace with C++17 std::filesystem::exists()
     iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {

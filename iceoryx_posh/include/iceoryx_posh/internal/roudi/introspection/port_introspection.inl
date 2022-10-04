@@ -582,7 +582,7 @@ template <typename PublisherPort, typename SubscriberPort>
 inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(
     PortThroughputIntrospectionTopic& topic IOX_MAYBE_UNUSED) noexcept
 {
-    /// @todo #402 re-add port throughput
+    /// @todo iox-#402 re-add port throughput
 }
 
 template <typename PublisherPort, typename SubscriberPort>

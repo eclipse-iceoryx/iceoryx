@@ -22,7 +22,7 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-/// @todo #415 replace the service registry include with the new discovery API header
+/// @todo iox-#415 replace the service registry include with the new discovery API header
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include <cstdint>

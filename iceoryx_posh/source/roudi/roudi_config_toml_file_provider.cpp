@@ -39,9 +39,7 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     {
         if (cmdLineArgs.configFilePath.empty())
         {
-            /// @todo Replace with C++17 std::filesystem::exists()
             cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
-
             if (configFile.isOpen())
             {
                 LogInfo() << "No config file provided. Using '" << defaultConfigFilePath << "'";

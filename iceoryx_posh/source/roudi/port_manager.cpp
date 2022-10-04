@@ -445,7 +445,7 @@ void PortManager::handleInterfaces() noexcept
 
 void PortManager::handleNodes() noexcept
 {
-    /// @todo we have to update the introspection but node information is in process introspection which is not
+    /// @todo iox-#518 we have to update the introspection but node information is in process introspection which is not
     // accessible here. So currently nodes will be removed not before a process is removed
     // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
     // NodeName_t(node.c_str()));
@@ -473,7 +473,6 @@ void PortManager::handleConditionVariables() noexcept
     }
 }
 
-/// @todo consider making the matching function available in some interface
 bool PortManager::isCompatiblePubSub(const PublisherPortRouDiType& publisher,
                                      const SubscriberPortType& subscriber) const noexcept
 {
@@ -616,7 +615,7 @@ void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& messag
                 // we only expect reaction on CONNECT
                 cxx::Expects(capro::CaproMessageType::CONNECT == clientResponse.value().m_type);
 
-                /// @todo inform port introspection about client
+                /// @todo iox-#518 inform port introspection about client
 
                 // send CONNECT to server
                 auto serverResponse = serverSource.dispatchCaProMessageAndGetPossibleResponse(clientResponse.value());
@@ -1019,7 +1018,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
         });
 }
 
-/// @todo return a cxx::expected
+/// @todo iox-#518 return a cxx::expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
                                                                const RuntimeName_t& runtimeName,
                                                                const NodeName_t& /*node*/) noexcept

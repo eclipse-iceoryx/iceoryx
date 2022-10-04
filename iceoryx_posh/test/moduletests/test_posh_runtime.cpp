@@ -906,7 +906,7 @@ TEST_F(PoshRuntime_test, CreateNodeReturnValue)
     EXPECT_EQ(m_runtimeName, nodeData->m_runtimeName);
     EXPECT_EQ(m_nodeName, nodeData->m_nodeName);
 
-    /// @todo I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
+    /// @todo iox-#1716 I am passing nodeDeviceIdentifier as 1, but it returns 0, is this expected?
     // EXPECT_EQ(nodeDeviceIdentifier, nodeData->m_nodeDeviceIdentifier);
 }
 

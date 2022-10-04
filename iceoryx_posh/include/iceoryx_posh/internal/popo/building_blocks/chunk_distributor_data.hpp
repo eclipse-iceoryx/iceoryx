@@ -52,7 +52,7 @@ struct ChunkDistributorData : public LockingPolicy
         cxx::vector<memory::RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
-    /// @todo If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
+    /// @todo iox-#1710 If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to
     /// be like a ring buffer and use this for the history? This would be needed to be able to safely cleanup.
     /// Using ShmSafeUnmanagedChunk since RouDi must access this list to cleanup the chunks in case of an application
     /// crash.

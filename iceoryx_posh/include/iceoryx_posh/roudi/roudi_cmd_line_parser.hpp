@@ -32,7 +32,7 @@ namespace config
 enum class CmdLineParserResult
 {
     UNKNOWN_OPTION_USED,
-    INFO_OUTPUT_ONLY /// @todo use this instead of CmdLineArgs_t.run after modularisation of RouDi
+    INFO_OUTPUT_ONLY
 };
 
 class CmdLineParser

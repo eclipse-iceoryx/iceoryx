@@ -50,7 +50,7 @@ class SharedChunk
     ChunkManagement* release() noexcept;
 
     bool operator==(const SharedChunk& rhs) const noexcept;
-    /// @todo use the newtype pattern to avoid the void pointer
+    /// @todo iox-#1617 use the newtype pattern to avoid the void pointer
     bool operator==(const void* const rhs) const noexcept;
 
     bool operator!=(const SharedChunk& rhs) const noexcept;

@@ -211,8 +211,6 @@ void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp) noexcept
 {
     // wait for the register ack from the RouDi daemon. If we receive another response we do a retry
-    // @todo if the IPC channels are properly setup and cleaned up, always the expected REG_ACK should be received here,
-    // so if not this issue should be passed to the error handling later
     constexpr size_t MAX_RETRY_COUNT = 3;
     size_t retryCounter = 0;
     while (retryCounter++ < MAX_RETRY_COUNT)

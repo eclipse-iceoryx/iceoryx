@@ -216,7 +216,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfi
 TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithoutParameterTakeDefaultPathReturnNoError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f18a7245-c4d5-4ad2-a74e-a622103f45f3");
-    GTEST_SKIP() << "todo iox-#908 Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is "
+    GTEST_SKIP() << "@todo iox-#908 Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is "
                     "used, this "
                     "test would fail on every machine that uses this configuration";
     auto result = TomlGatewayConfigParser::parse();
