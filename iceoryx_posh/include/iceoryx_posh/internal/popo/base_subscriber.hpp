@@ -67,7 +67,7 @@ class BaseSubscriber
     /// @brief getServiceDescription Get the service description of the subscriber.
     /// @return The service description.
     ///
-    const capro::ServiceDescription& getServiceDescription() const noexcept;
+    capro::ServiceDescription getServiceDescription() const noexcept;
 
     ///
     /// @brief subscribe Initiate subscription.
