@@ -22,7 +22,7 @@ declare -a FAILED_ISSUE_CACHE
 
 cd $ICEORYX_ROOT
 
-FILES_WITH_TODOS=$(grep -i -RIne "todo" | grep -v doc/ | grep -v .git/ | grep -v build/ | grep -v .sh | grep -v .yml)
+FILES_WITH_TODOS=$(grep -i -RIne "todo" | grep -v "doc/" | grep -v "\.git/" | grep -v "build/" | grep -v "\.sh" | grep -v "\.yml")
 
 is_issue_in_verified_cache() {
     IS_IN_VERIFIED_CACHE=0
