@@ -188,7 +188,7 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
 {
-    if ((m_size >= Capacity) || (position >= Capacity) || (position > m_size))
+    if ((m_size >= Capacity) || ((position >= Capacity) || (position > m_size)))
     {
         return false;
     }
@@ -369,9 +369,10 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
     {
         uint64_t index{static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity)};
         size_t n{index};
-        for (; (n + 1U) < size(); ++n)
+        while ((n + 1U) < size())
         {
             at(n) = std::move(at(n + 1U));
+            ++n;
         }
         at(n).~T();
         m_size--;
@@ -392,9 +393,8 @@ template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by template parameter
-    // NOLINTJUSTIFICATION User accessible method at() performs bounds check
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    return reinterpret_cast<const T*>(m_data)[index];
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return *reinterpret_cast<const T*>(&m_data[index]);
 }
 
 template <typename T, uint64_t Capacity>
@@ -406,6 +406,8 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
     }
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
 inline bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
@@ -425,6 +427,8 @@ inline bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, Capac
     return true;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
 inline bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
