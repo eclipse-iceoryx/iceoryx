@@ -390,12 +390,8 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
     }
 }
 
-} // namespace cxx
-} // namespace iox
-
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs,
-                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
     uint64_t vectorSize = lhs.size();
     if (vectorSize != rhs.size())
@@ -414,11 +410,10 @@ inline bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs,
 }
 
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs,
-                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
-
-
+} // namespace cxx
+} // namespace iox
 #endif // IOX_HOOFS_CXX_VECTOR_INL
