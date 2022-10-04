@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_CXX_VECTOR_HPP
 #define IOX_HOOFS_CXX_VECTOR_HPP
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 
@@ -152,7 +153,7 @@ class vector final
 
     /// @brief returns the capacity of the vector which was given via the template
     ///         argument
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
@@ -218,13 +219,13 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
-    // the vector class
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
+    // inside the vector class
     /// @todo #1196 Replace with UninitializedArray
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
-    // the vector class
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
+    // inside the vector class
     alignas(T) element_t m_data[Capacity];
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     uint64_t m_size{0U};
