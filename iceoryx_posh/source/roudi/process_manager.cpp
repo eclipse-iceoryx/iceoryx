@@ -19,7 +19,7 @@
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/types.hpp"

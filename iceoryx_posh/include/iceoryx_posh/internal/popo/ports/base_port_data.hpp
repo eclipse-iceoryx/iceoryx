@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
 #define IOX_POSH_POPO_PORTS_BASE_PORT_DATA_HPP
 
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"

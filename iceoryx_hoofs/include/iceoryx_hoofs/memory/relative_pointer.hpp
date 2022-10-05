@@ -211,6 +211,6 @@ PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRe
 } // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/memory/relative_pointer.inl"
+#include "iceoryx_hoofs/memory/relative_pointer.inl"
 
 #endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP

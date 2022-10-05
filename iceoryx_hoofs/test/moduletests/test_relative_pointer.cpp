@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 
 #include "test.hpp"
 

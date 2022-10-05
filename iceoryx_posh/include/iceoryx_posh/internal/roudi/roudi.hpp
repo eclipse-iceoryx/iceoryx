@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/file.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"

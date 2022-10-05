@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
