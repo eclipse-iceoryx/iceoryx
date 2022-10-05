@@ -62,6 +62,7 @@ class PortManager
 
     virtual ~PortManager() noexcept = default;
 
+    /// @todo iox-#518 Remove this later
     void stopPortIntrospection() noexcept;
 
     void doDiscovery() noexcept;
