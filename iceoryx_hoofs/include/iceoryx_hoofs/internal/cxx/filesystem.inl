@@ -22,43 +22,55 @@ namespace iox
 {
 namespace cxx
 {
-constexpr perms operator|(const perms& lhs, const perms& rhs) noexcept
+constexpr perms operator|(const perms lhs, const perms rhs) noexcept
 {
     using T = std::underlying_type<perms>::type;
+    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
+    // which also can be used like a bitset like the corresponding C defines.
+    // Diverting from this behavior would be unexpected for users and may introduce bugs.
     return static_cast<perms>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
 
-constexpr perms operator&(const perms& lhs, const perms& rhs) noexcept
+constexpr perms operator&(const perms lhs, const perms rhs) noexcept
 {
     using T = std::underlying_type<perms>::type;
+    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
+    // which also can be used like a bitset like the corresponding C defines.
+    // Diverting from this behavior would be unexpected for users and may introduce bugs.
     return static_cast<perms>(static_cast<T>(lhs) & static_cast<T>(rhs));
 }
 
-constexpr perms operator^(const perms& lhs, const perms& rhs) noexcept
+constexpr perms operator^(const perms lhs, const perms rhs) noexcept
 {
     using T = std::underlying_type<perms>::type;
+    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
+    // which also can be used like a bitset like the corresponding C defines.
+    // Diverting from this behavior would be unexpected for users and may introduce bugs.
     return static_cast<perms>(static_cast<T>(lhs) ^ static_cast<T>(rhs));
 }
 
-constexpr perms operator~(const perms& value) noexcept
+constexpr perms operator~(const perms value) noexcept
 {
     using T = std::underlying_type<perms>::type;
+    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
+    // which also can be used like a bitset like the corresponding C defines.
+    // Diverting from this behavior would be unexpected for users and may introduce bugs.
     return static_cast<perms>(~static_cast<T>(value));
 }
 
-constexpr perms operator|=(perms& lhs, const perms& rhs) noexcept
+constexpr perms operator|=(const perms lhs, const perms rhs) noexcept
 {
-    return lhs = lhs | rhs;
+    return operator|(lhs, rhs);
 }
 
-constexpr perms operator&=(perms& lhs, const perms& rhs) noexcept
+constexpr perms operator&=(const perms lhs, const perms rhs) noexcept
 {
-    return lhs = lhs & rhs;
+    return operator&(lhs, rhs);
 }
 
-constexpr perms operator^=(perms& lhs, const perms& rhs) noexcept
+constexpr perms operator^=(const perms lhs, const perms rhs) noexcept
 {
-    return lhs = lhs ^ rhs;
+    return operator^(lhs, rhs);
 }
 } // namespace cxx
 } // namespace iox

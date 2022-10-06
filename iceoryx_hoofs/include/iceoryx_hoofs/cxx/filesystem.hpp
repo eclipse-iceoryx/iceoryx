@@ -27,7 +27,7 @@ namespace cxx
 ///        API is identical to the C++17 one so that the class can be removed
 ///        as soon as iceoryx switches to C++17.
 ///        The enum satisfies also all requirements of the BitmaskType, this means
-///        the operators `|`, `&`, `^`, `~`, `|=`, `&=` and `^=` are implemented as
+///        the operators '|', '&', '^', '~', '|=', '&=' and '^=' are implemented as
 ///        free functions as C++17 requires it.
 enum class perms : uint32_t
 {
@@ -85,42 +85,42 @@ enum class perms : uint32_t
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs | rhs
-constexpr perms operator|(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator|(const perms lhs, const perms rhs) noexcept;
 
 /// @brief Implements the binary and operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs & rhs
-constexpr perms operator&(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator&(const perms lhs, const perms rhs) noexcept;
 
 /// @brief Implements the binary exclusive or operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs ^ rhs
-constexpr perms operator^(const perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator^(const perms lhs, const perms rhs) noexcept;
 
 /// @brief Implements the binary complement operation
 /// @param[in] value the value used for the operation
 /// @return ~value
-constexpr perms operator~(const perms& value) noexcept;
+constexpr perms operator~(const perms value) noexcept;
 
 /// @brief Implements the binary or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs | rhs
-constexpr perms operator|=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator|=(const perms lhs, const perms rhs) noexcept;
 
 /// @brief Implements the binary and assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs & rhs
-constexpr perms operator&=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator&=(const perms lhs, const perms rhs) noexcept;
 
 /// @brief Implements the binary exclusive or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs ^ rhs
-constexpr perms operator^=(perms& lhs, const perms& rhs) noexcept;
+constexpr perms operator^=(const perms lhs, const perms rhs) noexcept;
 
 /// @brief The streaming operator for the perms enum. It handles the enum as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
@@ -128,7 +128,7 @@ constexpr perms operator^=(perms& lhs, const perms& rhs) noexcept;
 /// @param[in] value the file permission
 /// @return the reference to the stream
 template <typename StreamType>
-StreamType& operator<<(StreamType& stream, perms value) noexcept;
+StreamType& operator<<(StreamType& stream, const perms value) noexcept;
 } // namespace cxx
 } // namespace iox
 
