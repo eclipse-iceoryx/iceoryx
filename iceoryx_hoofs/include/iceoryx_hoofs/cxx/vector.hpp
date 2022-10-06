@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include <algorithm>
 #include <cstdint>

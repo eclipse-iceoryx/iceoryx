@@ -33,9 +33,8 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
 {
     if (count > Capacity)
     {
-        std::cerr << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
-                  << std::endl;
+        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
+                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
     }
 
     for (uint64_t i{0U}; (i < count) && (i < Capacity); ++i)
@@ -45,16 +44,14 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via placement new in for loop
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
     if (count > Capacity)
     {
-        std::cerr << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
-                  << std::endl;
+        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
+                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
     }
 
     m_size = std::min(count, Capacity);
@@ -66,7 +63,6 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const vector& rhs) noexcept
@@ -75,7 +71,6 @@ inline vector<T, Capacity>::vector(const vector& rhs) noexcept
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(vector&& rhs) noexcept
@@ -136,7 +131,7 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         // move using move ctor
         for (; i < rhsSize; ++i)
         {
-            emplace_back(std::move(rhs.at(i)));
+            IOX_DISCARD_RESULT(emplace_back(std::move(rhs.at(i))));
         }
 
         // delete remaining elements
@@ -197,7 +192,7 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     {
         return emplace_back(std::forward<Targs>(args)...);
     }
-    emplace_back(std::move(at_unchecked(m_size - 1U)));
+    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(m_size - 1U))));
     for (uint64_t i{m_size - 1U}; i > position; --i)
     {
         at_unchecked(i) = std::move(at_unchecked(i - 1U));
