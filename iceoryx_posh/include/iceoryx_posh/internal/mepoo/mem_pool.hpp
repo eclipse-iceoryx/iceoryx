@@ -19,8 +19,8 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
-#include "iceoryx_hoofs/internal/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <atomic>
