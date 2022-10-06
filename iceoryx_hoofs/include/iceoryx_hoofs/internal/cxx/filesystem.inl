@@ -63,12 +63,12 @@ constexpr perms operator|=(const perms lhs, const perms rhs) noexcept
     return operator|(lhs, rhs);
 }
 
-constexpr perms operator&=(perms lhs, const perms rhs) noexcept
+constexpr perms operator&=(const perms lhs, const perms rhs) noexcept
 {
     return operator&(lhs, rhs);
 }
 
-constexpr perms operator^=(perms lhs, const perms rhs) noexcept
+constexpr perms operator^=(const perms lhs, const perms rhs) noexcept
 {
     return operator^(lhs, rhs);
 }

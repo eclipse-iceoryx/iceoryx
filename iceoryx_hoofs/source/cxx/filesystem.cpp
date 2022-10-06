@@ -149,7 +149,7 @@ static void printSpecialBits(StreamType& stream, const perms value)
 }
 
 template <typename StreamType>
-StreamType& operator<<(StreamType& stream, perms value) noexcept
+StreamType& operator<<(StreamType& stream, const perms value) noexcept
 {
     if (value == perms::unknown)
     {
@@ -165,7 +165,7 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
     return stream;
 }
 
-template std::ostream& operator<<(std::ostream&, perms) noexcept;
-template log::LogStream& operator<<(log::LogStream&, perms) noexcept;
+template std::ostream& operator<<(std::ostream&, const perms) noexcept;
+template log::LogStream& operator<<(log::LogStream&, const perms) noexcept;
 } // namespace cxx
 } // namespace iox

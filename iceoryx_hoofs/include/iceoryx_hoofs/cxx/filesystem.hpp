@@ -128,7 +128,7 @@ constexpr perms operator^=(const perms lhs, const perms rhs) noexcept;
 /// @param[in] value the file permission
 /// @return the reference to the stream
 template <typename StreamType>
-StreamType& operator<<(StreamType& stream, perms value) noexcept;
+StreamType& operator<<(StreamType& stream, const perms value) noexcept;
 } // namespace cxx
 } // namespace iox
 
