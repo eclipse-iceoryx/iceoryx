@@ -80,12 +80,11 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     ///         terminates.
     optional() noexcept;
 
-    // AXIVION Next Construct AutosarC++19_03-A8.4.7 : reference parameter is efficient and idiomatic for copy ctors
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the application
     ///         terminates.
     // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
-    optional(const nullopt_t&) noexcept;
+    optional(const nullopt_t) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
     ///         T. This optional has a value.
@@ -170,7 +169,8 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
 
     /// @brief Will return true if the optional contains a value, otherwise false.
     /// @return true if optional contains a value, otherwise false
-    // AXIVION Next Construct AutosarC++19_03-A13.5.3: requires a user-defined conversion
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3: designed implementation shall be as close
+    // as std::optional and it requires operator bool
     constexpr explicit operator bool() const noexcept;
 
     /// @brief Will return true if the optional contains a value, otherwise false.
@@ -253,14 +253,14 @@ optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
 
 /// @brief Compare two optionals for equality.
 /// @param[in] lhs cxx::optional
-/// @param[in] rhs value to which lhs should be compared to
+/// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the contained values are equal or both have no value, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 
 /// @brief Compare two optionals for inequality.
 /// @param[in] lhs cxx::optional
-/// @param[in] rhs value to which lhs should be compared to
+/// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the contained values are not equal, otherwise false
 template <typename T>
 bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
@@ -268,27 +268,27 @@ bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
 /// @param[in] lhs empty optional, cxx::nullopt_t
-/// @param[in] rhs value to which lhs should be compared to
-/// @return true if the optional is set, otherwise false
+/// @param[in] rhs optional to which lhs should be compared to
+/// @return true if the rhs is not set, otherwise false
 template <typename T>
 bool operator==(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs value to which lhs should be compared to
+/// @param[in] lhs optional which should be compared to cxx::nullopt_t
 /// @param[in] rhs empty optional
-/// @return true if the optional is set, otherwise false
+/// @return true if the lhs is not set, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const nullopt_t) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
 /// @param[in] lhs empty optional, cxx::nullopt_t
-/// @param[in] rhs value to which lhs should be compared to
+/// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs value to which lhs should be compared to
+/// @param[in] lhs optional which should be compared to cxx::nullopt_t
 /// @param[in] rhs empty optional
 /// @return true if the optional is set, otherwise false
 template <typename T>

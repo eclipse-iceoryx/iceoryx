@@ -27,10 +27,9 @@ namespace cxx
 // AXIVION DISABLE STYLE AutosarC++19_03-A12.6.1 : m_data is not initialized here, since this is a
 // constructor for an optional with no value; an access of the value would lead to the
 // application's termination
-// AXIVION Next Construct AutosarC++19_03-A8.4.7 : reference type input parameter is fine here
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
-inline optional<T>::optional(const nullopt_t&) noexcept
+inline optional<T>::optional(const nullopt_t) noexcept
 {
 }
 
@@ -93,7 +92,10 @@ inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
 {
     construct_value(std::forward<Targs>(args)...);
 }
+// AXIVION ENABLE STYLE AutosarC++19_03-A12.6.1
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
+// typename std::enable_if<!std::is_same<U, optional&>::value, optional>::type& operator=(U&& value) noexcept.
 template <typename T>
 inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
 {
@@ -113,12 +115,14 @@ inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
         }
         else
         {
-            // do nothing
+            // do nothing since this and rhs contain no values
         }
     }
     return *this;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in typename
+// std::enable_if<!std::is_same<U, optional&>::value, optional>::type& operator=(U&& value) noexcept.
 template <typename T>
 inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
 {
@@ -138,7 +142,7 @@ inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
         }
         else
         {
-            // do nothing
+            // do nothing since this and rhs contain no values
         }
         if (rhs.m_hasValue)
         {
@@ -266,7 +270,7 @@ template <typename T>
 inline const T&& optional<T>::value() const&& noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return std::move(*const_cast<optional<T>*>(this)->value());
 }
 

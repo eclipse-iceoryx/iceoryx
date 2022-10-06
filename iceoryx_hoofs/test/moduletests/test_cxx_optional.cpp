@@ -217,6 +217,7 @@ TEST_F(Optional_test, NotCompareWithNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0668eb1b-bc73-4549-9829-ece80f3700cd");
     EXPECT_THAT(m_sutWithValue != iox::cxx::nullopt_t(), Eq(true));
+    EXPECT_THAT(m_sutNoValue != iox::cxx::nullopt_t(), Eq(false));
     EXPECT_THAT(iox::cxx::nullopt_t() != m_sutWithValue, Eq(true));
     EXPECT_THAT(iox::cxx::nullopt_t() != m_sutNoValue, Eq(false));
 }
