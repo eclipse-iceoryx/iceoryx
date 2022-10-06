@@ -29,13 +29,6 @@ namespace iox
 {
 namespace cxx
 {
-namespace internal
-{
-/// @brief Type trait which verifies whether the passed type T is of type cxx::optional
-template <typename...>
-struct IsOptional;
-} // namespace internal
-
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code
@@ -143,7 +136,7 @@ class IOX_NO_DISCARD expected;
 ///     allHailHypnotoad->push_back(7);
 /// @endcode
 template <typename ErrorType>
-class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<ErrorType>, void, ErrorType>
+class IOX_NO_DISCARD expected<ErrorType> final : public FunctionalInterface<expected<ErrorType>, void, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -160,6 +153,7 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     /// ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
 
+    // AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: Required for Windows due to MSVC deficiencies
 #if defined(_WIN32)
     /// @brief copy conversion constructor to convert an expected which contains value and
     ///        error type to an expected which contains only an error
@@ -184,7 +178,6 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     /// @note The move assignment operator does not explicitly invalidate the moved-from object but relies on the move
     /// assignment operator of ErrorType to correctly invalidate the stored object
     expected& operator=(expected&& rhs) noexcept;
-
 #if defined(_WIN32)
     /// @brief  calls the copy assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
@@ -196,20 +189,20 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     template <typename ValueType>
     expected& operator=(expected<ValueType, ErrorType>&& rhs) noexcept;
 #endif
-
+    // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
     /// @brief  constructs an expected which is signaling success
     /// @param[in] successValue value which will be stored in the expected
     //
-    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // we would like to use 'return success<MyType>(myValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    expected(const success<void>& successValue) noexcept;
+    expected(const success<void>) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be stored in the expected
     ///
-    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // we would like to use 'return error<MyErrorType>(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const error<ErrorType>& errorValue) noexcept;
@@ -218,7 +211,7 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     ///         error value provided by value
     /// @param[in] errorValue error value which will be moved into the expected
     //
-    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // we would like to use 'return error<MyErrorType>(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(error<ErrorType>&& errorValue) noexcept;
@@ -234,7 +227,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
 
-    /// @brief  returns true if the expected contains an error otherwise false
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implementation is inspired from std::expected
+    /// @brief  returns true if the expected does not contain an error otherwise false
     /// @return bool which contains true if the expected contains an error
     explicit operator bool() const noexcept;
 
@@ -260,15 +254,15 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
   private:
     const ErrorType& get_error_unchecked() const noexcept;
     explicit expected(variant<ErrorType>&& store) noexcept;
-    variant<ErrorType> m_store;
-    static constexpr uint64_t ERROR_INDEX = 0U;
+    variant<ErrorType> m_store{};
+    static constexpr uint64_t ERROR_INDEX{0U};
 };
 
 /// @brief specialization of the expected class which can contain an error as well as a success value
 /// @param ValueType type of the value which can be stored in the expected
 /// @param ErrorType type of the error which can be stored in the expected
 template <typename ValueType, typename ErrorType>
-class IOX_NO_DISCARD expected<ValueType, ErrorType>
+class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     : public FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
 {
   public:
@@ -304,7 +298,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         provided by successValue to copy construct its success value
     /// @param[in] successValue value which will be stored in the expected
     //
-    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // we would like to use 'return success<MyType>(myValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const success<ValueType>& successValue) noexcept;
@@ -313,7 +307,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         provided by successValue to move construct its success value
     /// @param[in] successValue value which will be moved into the expected
     //
-    // we would like to use `return success<MyType>(myValue)` with an implicit
+    // we would like to use 'return success<MyType>(myValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(success<ValueType>&& successValue) noexcept;
@@ -322,7 +316,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be stored in the expected
     ///
-    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // we would like to use 'return error<MyErrorType>(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const error<ErrorType>& errorValue) noexcept;
@@ -331,7 +325,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be moved into the expected
     ///
-    // we would like to use `return error<MyErrorType>(myErrorValue)` with an implicit
+    // we would like to use 'return error<MyErrorType>(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(error<ErrorType>&& errorValue) noexcept;
@@ -349,8 +343,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     /// @return expected signalling error
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
-
-    /// @brief  returns true if the expected contains an error otherwise false
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implementation is inspired from std::expected
+    /// @brief  returns true if the expected does not contain an error otherwise false
     /// @return bool which contains true if the expected contains an error
     explicit operator bool() const noexcept;
 
@@ -362,6 +356,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///         does not contain an error the error handler is called
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
+
 
     /// @brief  returns a const reference to the contained error value, if the expected
     ///         does not contain an error the error handler is called
@@ -438,8 +433,9 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ///     }
     /// @endcode
     //
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2 , AutosarC++19_03-A13.5.3: see doxygen brief section
     template <typename T>
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) see doxygen brief section
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator expected<T>() const noexcept;
 
     /// @brief conversion operator to an optional.
@@ -451,8 +447,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     const ErrorType& get_error_unchecked() const noexcept;
     const ValueType& value_unchecked() const noexcept;
     variant<ValueType, ErrorType> m_store;
-    static constexpr uint64_t VALUE_INDEX = 0U;
-    static constexpr uint64_t ERROR_INDEX = 1U;
+    static constexpr uint64_t VALUE_INDEX{0U};
+    static constexpr uint64_t ERROR_INDEX{1U};
 };
 
 template <typename ErrorType>
@@ -468,7 +464,7 @@ class IOX_NO_DISCARD expected<void, ErrorType> : public expected<ErrorType>
 /// @param[in] rhs right side of the comparison
 /// @return true if the expecteds are equal, otherwise false
 template <typename ErrorType>
-constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs);
+constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs) noexcept;
 
 /// @brief inequality check for two distinct expected types
 /// @tparam ErrorType type of the error stored in the expected
@@ -476,7 +472,7 @@ constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorTy
 /// @param[in] rhs right side of the comparison
 /// @return true if the expecteds are not equal, otherwise false
 template <typename ErrorType>
-constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs);
+constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs) noexcept;
 
 /// @brief equality check for two distinct expected types
 /// @tparam ValueType type of the value stored in the expected
@@ -485,7 +481,8 @@ constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorTy
 /// @param[in] rhs right side of the comparison
 /// @return true if the expecteds are equal, otherwise false
 template <typename ValueType, typename ErrorType>
-constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs);
+constexpr bool operator==(const expected<ValueType, ErrorType>& lhs,
+                          const expected<ValueType, ErrorType>& rhs) noexcept;
 
 /// @brief inequality check for two distinct expected types
 /// @tparam ValueType type of the value stored in the expected
@@ -494,7 +491,8 @@ constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, const expec
 /// @param[in] rhs right side of the comparison
 /// @return true if the expecteds are not equal, otherwise false
 template <typename ValueType, typename ErrorType>
-constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs);
+constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs,
+                          const expected<ValueType, ErrorType>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox

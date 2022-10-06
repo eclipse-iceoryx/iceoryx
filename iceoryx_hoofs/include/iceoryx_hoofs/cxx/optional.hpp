@@ -296,6 +296,16 @@ bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept;
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator!=(const optional<T>& lhs, const nullopt_t) noexcept;
+
+template <typename... T>
+struct is_optional : std::false_type
+{
+};
+
+template <typename T>
+struct is_optional<optional<T>> : std::true_type
+{
+};
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
 } // namespace cxx
 } // namespace iox

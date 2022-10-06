@@ -23,24 +23,15 @@ namespace iox
 {
 namespace cxx
 {
-namespace internal
-{
-template <typename... T>
-struct IsOptional : std::false_type
-{
-};
-template <typename T>
-struct IsOptional<iox::cxx::optional<T>> : std::true_type
-{
-};
-} // namespace internal
-
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
+// available for delegation
 template <typename T>
 inline success<T>::success(const T& t) noexcept
     : value(t)
 {
 }
 
+// AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
 template <typename T>
 inline success<T>::success(T&& t) noexcept
     : value(std::forward<T>(t))
@@ -53,13 +44,14 @@ inline success<T>::success(Targs&&... args) noexcept
     : value(std::forward<Targs>(args)...)
 {
 }
-
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
+// available for delegation
 template <typename T>
 inline error<T>::error(const T& t) noexcept
     : value(t)
 {
 }
-
+// AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
 template <typename T>
 inline error<T>::error(T&& t) noexcept
     : value(std::forward<T>(t))
@@ -72,8 +64,8 @@ inline error<T>::error(Targs&&... args) noexcept
     : value(std::forward<Targs>(args)...)
 {
 }
-
-
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : This ctor uses a rvalue reference of the underlying type which
+// makes it similar to the move ctor and therefore a delegating ctor cannot be used
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& store) noexcept
     : m_store(std::move(store))
@@ -210,7 +202,8 @@ inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexcept
 {
-    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the
+    // constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const ValueType*>(const_cast<expected*>(this)->operator->());
 }
@@ -224,7 +217,8 @@ inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexcept
 {
-    // const_cast avoids code duplication, is safe since the constness of the return value is restored
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication and is safe here, since the
+    // constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const ValueType&>(const_cast<expected*>(this)->operator*());
 }
@@ -256,7 +250,8 @@ inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const n
     }
     return returnValue;
 }
-
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : This ctor uses a rvalue reference of the underlying type which
+// makes it similar to the move ctor and therefore a delegating ctor cannot be used
 template <typename ErrorType>
 inline expected<ErrorType>::expected(variant<ErrorType>&& store) noexcept
     : m_store(std::move(store))
@@ -264,7 +259,7 @@ inline expected<ErrorType>::expected(variant<ErrorType>&& store) noexcept
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(const success<void>& successValue IOX_MAYBE_UNUSED) noexcept
+inline expected<ErrorType>::expected(const success<void>) noexcept
 {
 }
 
@@ -295,7 +290,7 @@ inline expected<ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), std::move(errorValue.value))
 {
 }
-
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: Required for Windows due to MSVC deficiencies
 #if defined(_WIN32)
 template <typename ErrorType>
 template <typename ValueType>
@@ -345,6 +340,7 @@ inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ValueType, E
     }
 }
 #endif
+// AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
 
 template <typename ErrorType>
 inline expected<ErrorType> expected<ErrorType>::create_value() noexcept
@@ -402,7 +398,7 @@ inline const ErrorType& expected<ErrorType>::get_error_unchecked() const noexcep
 }
 
 template <typename ErrorType>
-inline constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs)
+inline constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs) noexcept
 {
     if (lhs.has_error() != rhs.has_error())
     {
@@ -416,13 +412,14 @@ inline constexpr bool operator==(const expected<ErrorType>& lhs, const expected<
 }
 
 template <typename ErrorType>
-inline constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs)
+inline constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
 template <typename ValueType, typename ErrorType>
-inline constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs)
+inline constexpr bool operator==(const expected<ValueType, ErrorType>& lhs,
+                                 const expected<ValueType, ErrorType>& rhs) noexcept
 {
     if (lhs.has_error() != rhs.has_error())
     {
@@ -436,7 +433,8 @@ inline constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, cons
 }
 
 template <typename ValueType, typename ErrorType>
-inline constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs)
+inline constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs,
+                                 const expected<ValueType, ErrorType>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
