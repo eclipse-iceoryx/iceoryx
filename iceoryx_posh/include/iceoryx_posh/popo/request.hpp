@@ -46,7 +46,7 @@ class Request
 
   public:
     /// @brief Constructor for a Request used by the server/client
-    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// @param smartChunkUniquePtr is a 'rvalue' to a 'iox::unique_ptr<T>' with to the data of the encapsulated type
     /// T
     /// @param producer (for client only) is a reference to the client to be able to use client specific methods
     using BaseType::BaseType;

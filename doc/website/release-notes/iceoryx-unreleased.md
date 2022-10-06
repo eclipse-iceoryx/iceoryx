@@ -775,3 +775,8 @@
     ```
 
     Have a look at the logger design document for more details on how to setup the testing logger.
+
+40. Changed the include path and namespace of several classes in `iceoryx_hoofs`:
+
+    * `iox::bar::foo` to `iox::foo`
+        * `iceoryx_hoofs/bar/foo.hpp` to `iox/foo.hpp`
