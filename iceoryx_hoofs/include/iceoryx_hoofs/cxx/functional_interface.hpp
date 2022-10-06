@@ -67,6 +67,7 @@ struct Expect
     template <typename StringType>
     void expect(const StringType& msg) const noexcept;
 
+    Expect() noexcept = default;
     Expect(const Expect&) noexcept = default;
     Expect(Expect&&) noexcept = default;
     Expect& operator=(const Expect&) noexcept = default;
@@ -111,6 +112,7 @@ struct ExpectWithValue
     template <typename StringType>
     const ValueType&& expect(const StringType& msg) const&& noexcept;
 
+    ExpectWithValue() noexcept = default;
     ExpectWithValue(const ExpectWithValue&) noexcept = default;
     ExpectWithValue(ExpectWithValue&&) noexcept = default;
     ExpectWithValue& operator=(const ExpectWithValue&) noexcept = default;
@@ -141,6 +143,7 @@ struct ValueOr
     template <typename U>
     ValueType value_or(U&& alternative) && noexcept;
 
+    ValueOr() noexcept = default;
     ValueOr(const ValueOr&) noexcept = default;
     ValueOr(ValueOr&&) noexcept = default;
     ValueOr& operator=(const ValueOr&) noexcept = default;
@@ -193,6 +196,7 @@ struct AndThenWithValue
     template <typename Functor>
     const Derived&& and_then(const Functor& callable) const&& noexcept;
 
+    AndThenWithValue() noexcept = default;
     AndThenWithValue(const AndThenWithValue&) noexcept = default;
     AndThenWithValue(AndThenWithValue&&) noexcept = default;
     AndThenWithValue& operator=(const AndThenWithValue&) noexcept = default;
@@ -231,6 +235,7 @@ struct AndThen
     /// @return const rvalue reference to *this
     const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
 
+    AndThen() noexcept = default;
     AndThen(const AndThen&) noexcept = default;
     AndThen(AndThen&&) noexcept = default;
     AndThen& operator=(const AndThen&) noexcept = default;
@@ -283,6 +288,7 @@ struct OrElseWithValue
     template <typename Functor>
     const Derived&& or_else(const Functor& callable) const&& noexcept;
 
+    OrElseWithValue() noexcept = default;
     OrElseWithValue(const OrElseWithValue&) noexcept = default;
     OrElseWithValue(OrElseWithValue&&) noexcept = default;
     OrElseWithValue& operator=(const OrElseWithValue&) noexcept = default;
@@ -321,6 +327,7 @@ struct OrElse
     /// @return const rvalue reference to *this
     const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
 
+    OrElse() noexcept = default;
     OrElse(const OrElse&) noexcept = default;
     OrElse(OrElse&&) noexcept = default;
     OrElse& operator=(const OrElse&) noexcept = default;
@@ -343,6 +350,7 @@ struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
                                  public AndThenWithValue<Derived, ValueType>,
                                  public OrElseWithValue<Derived, ErrorType>
 {
+    FunctionalInterfaceImpl() noexcept = default;
     FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
     FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
     FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
@@ -363,6 +371,7 @@ template <typename Derived>
 struct FunctionalInterfaceImpl<Derived, void, void>
     : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
+    FunctionalInterfaceImpl() noexcept = default;
     FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
     FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
     FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
@@ -385,6 +394,7 @@ struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValu
                                                            public AndThenWithValue<Derived, ValueType>,
                                                            public OrElse<Derived>
 {
+    FunctionalInterfaceImpl() noexcept = default;
     FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
     FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
     FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
@@ -405,6 +415,7 @@ template <typename Derived, typename ErrorType>
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
     : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {
+    FunctionalInterfaceImpl() noexcept = default;
     FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
     FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
     FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;

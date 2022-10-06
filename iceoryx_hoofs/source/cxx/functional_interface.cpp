@@ -23,6 +23,7 @@ namespace cxx
 {
 namespace internal
 {
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See rational in header
 void print_expect_message(const char* message) noexcept
 {
     // print_expect_message is only called from expect. expect allows only
