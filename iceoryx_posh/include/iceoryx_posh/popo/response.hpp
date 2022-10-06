@@ -18,12 +18,12 @@
 #define IOX_POSH_POPO_RESPONSE_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/ports/server_port_user.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iox/unique_ptr.hpp"
 
 
 namespace iox
@@ -48,7 +48,8 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
 
   public:
     /// @brief Constructor for a Response used by the server/client
-    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// T
     /// @param producer (for server only) is a reference to the server to be able to use server specific methods
     using BaseType::BaseType;
 

@@ -64,13 +64,12 @@ endMacro()
 
 Macro(setup_install_directories_and_export_package)
     set(options)
-    set(oneValueArgs INCLUDE_DIRECTORY )
-    set(multiValueArgs TARGETS)
+    set(multiValueArgs TARGETS INCLUDE_DIRECTORIES)
     cmake_parse_arguments(INSTALL "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
     install_target_directories_and_header(
     TARGETS ${INSTALL_TARGETS}
-    INCLUDE_DIRECTORY ${INSTALL_INCLUDE_DIRECTORY}
+    INCLUDE_DIRECTORIES ${INSTALL_INCLUDE_DIRECTORIES}
     )
     install_package_files_and_export()
 endMacro()
@@ -80,8 +79,7 @@ endMacro()
 
 Macro(install_target_directories_and_header)
     set(options)
-    set(oneValueArgs INCLUDE_DIRECTORY )
-    set(multiValueArgs TARGETS)
+    set(multiValueArgs TARGETS INCLUDE_DIRECTORIES)
     cmake_parse_arguments(INSTALL "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN})
     # target directories
@@ -95,7 +93,7 @@ Macro(install_target_directories_and_header)
 
     # header
     install(
-    DIRECTORY ${INSTALL_INCLUDE_DIRECTORY}
+    DIRECTORY ${INSTALL_INCLUDE_DIRECTORIES}
     DESTINATION ${DESTINATION_INCLUDEDIR}
     COMPONENT dev
     )
@@ -272,13 +270,13 @@ endMacro()
 
 Macro(iox_add_library)
     set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT STATIC)
-    set(arguments TARGET NAMESPACE PROJECT_PREFIX EXPORT_INCLUDE_DIR)
+    set(arguments TARGET NAMESPACE PROJECT_PREFIX)
     set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
         PUBLIC_INCLUDES PRIVATE_INCLUDES
         PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
         PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
-        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE)
+        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE EXPORT_INCLUDE_DIRS)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     if ( NOT IOX_NO_PACKAGE_SETUP )
@@ -383,7 +381,7 @@ Macro(iox_add_library)
     if ( NOT IOX_NO_EXPORT )
         setup_install_directories_and_export_package(
             TARGETS ${IOX_TARGET} ${IOX_ADDITIONAL_EXPORT_TARGETS}
-            INCLUDE_DIRECTORY ${IOX_EXPORT_INCLUDE_DIR}include/
+            INCLUDE_DIRECTORIES ${IOX_EXPORT_INCLUDE_DIRS}
         )
     endif()
 

@@ -7,9 +7,11 @@
 ./iceoryx_hoofs/test/moduletests/test_unit*
 ./iceoryx_hoofs/source/units/*
 
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/relocatable_pointer/*
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/memory/*
+./iceoryx_hoofs/include/iceoryx_hoofs/memory/*
 ./iceoryx_hoofs/test/moduletests/test_relative_pointer*
-./iceoryx_hoofs/source/relocatable_pointer/*
+./iceoryx_hoofs/source/memory/*
+./iceoryx_hoofs/memory/*
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/concurrent/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/concurrent/*

@@ -48,8 +48,13 @@ iox_add_library(
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+                                ${PROJECT_SOURCE_DIR}/legacy/include
+                                ${PROJECT_SOURCE_DIR}/memory/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
+    EXPORT_INCLUDE_DIRS         include/
+                                legacy/include/
+                                memory/include/
     FILES
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp
@@ -80,7 +85,7 @@ iox_add_library(
         source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
-        source/relocatable_pointer/relative_pointer_data.cpp
+        source/memory/relative_pointer_data.cpp
         source/units/duration.cpp
 )
 

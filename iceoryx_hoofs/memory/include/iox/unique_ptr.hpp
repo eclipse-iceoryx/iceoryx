@@ -15,15 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_UNIQUE_PTR_HPP
-#define IOX_HOOFS_CXX_UNIQUE_PTR_HPP
+#ifndef IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
+#define IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include <memory>
 
 namespace iox
-{
-namespace cxx
 {
 ///
 /// @brief The unique_ptr class is a heap-less unique ptr implementation, unlike the STL.
@@ -33,10 +32,10 @@ namespace cxx
 /// instances with different deleters to be stored in the same containers.
 ///
 /// @code
-///     #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+///     #include "iox/unique_ptr.hpp"
 ///
 ///     {
-///       cxx::unique_ptr<MyClass> myPtr(ptrToInt, [&](MyClass* const ptr) {
+///       iox::unique_ptr<MyClass> myPtr(ptrToInt, [&](MyClass* const ptr) {
 ///         customAllocator.delete(ptr);
 ///       });
 ///
@@ -64,7 +63,7 @@ class unique_ptr final
     /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept;
+    unique_ptr(T* const object, const cxx::function<DeleterType>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -120,7 +119,7 @@ class unique_ptr final
 
   private:
     T* m_ptr{nullptr};
-    function<DeleterType> m_deleter;
+    cxx::function<DeleterType> m_deleter;
 };
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Parameters are explicitly not identical to compare two unique_ptr's
@@ -145,9 +144,8 @@ template <typename T, typename U>
 bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5: See above
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/unique_ptr.inl"
+#include "iox/detail/unique_ptr.inl"
 
-#endif // IOX_HOOFS_CXX_UNIQUE_PTR_HPP
+#endif // IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP

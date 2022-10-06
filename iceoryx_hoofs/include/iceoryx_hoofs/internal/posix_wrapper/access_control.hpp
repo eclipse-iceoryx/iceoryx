@@ -19,10 +19,10 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/acl.hpp"
+#include "iox/unique_ptr.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -112,7 +112,7 @@ class AccessController
     bool writePermissionsToFile(const int32_t fileDescriptor) const noexcept;
 
   private:
-    using smartAclPointer_t = cxx::unique_ptr<std::remove_pointer<acl_t>::type>;
+    using smartAclPointer_t = iox::unique_ptr<std::remove_pointer<acl_t>::type>;
 
     struct PermissionEntry
     {

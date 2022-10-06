@@ -65,7 +65,7 @@ iox_add_library(
     TARGET                      iceoryx_platform
     NAMESPACE                   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
-    EXPORT_INCLUDE_DIR          ${ICEORYX_PLATFORM}/
+    EXPORT_INCLUDE_DIRS         ${ICEORYX_PLATFORM}/include/
     PUBLIC_LIBS_LINUX           rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket

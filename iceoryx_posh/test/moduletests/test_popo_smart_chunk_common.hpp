@@ -17,7 +17,6 @@
 #ifndef IOX_TEST_POPO_SMART_CHUNK_COMMON_HPP
 #define IOX_TEST_POPO_SMART_CHUNK_COMMON_HPP
 
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
 #include "iceoryx_posh/internal/popo/publisher_interface.hpp"
 #include "iceoryx_posh/internal/popo/rpc_interface.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/popo/response.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace test_smart_chunk_common
 {
@@ -79,12 +79,12 @@ struct SampleTestCase
     MockPublisherInterface mockInterface;
     ChunkMock<DummyData, DummyHeader> chunkMock;
     ChunkMock<DummyData, DummyHeader> chunkMockForMove;
-    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
-    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
+    ProducerType sutProducer{iox::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
                                     mockInterface};
-    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumer{iox::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
     ConsumerType sutConsumerForMove{
-        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
+        iox::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 using RequestProducerType = Request<DummyData>;
@@ -124,12 +124,12 @@ class RequestTestCase
     MockRequestInterface mockInterface;
     ChunkMock<DummyData, RequestHeader> chunkMock;
     ChunkMock<DummyData, RequestHeader> chunkMockForMove;
-    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
-    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
+    ProducerType sutProducer{iox::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
                                     mockInterface};
-    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumer{iox::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
     ConsumerType sutConsumerForMove{
-        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
+        iox::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 using ResponseProducerType = Response<DummyData>;
@@ -169,12 +169,12 @@ class ResponseTestCase
     MockResponseInterface mockInterface;
     ChunkMock<DummyData, ResponseHeader> chunkMock;
     ChunkMock<DummyData, ResponseHeader> chunkMockForMove;
-    ProducerType sutProducer{iox::cxx::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
-    ProducerType sutProducerForMove{iox::cxx::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
+    ProducerType sutProducer{iox::unique_ptr<DummyData>(chunkMock.sample(), [](DummyData*) {}), mockInterface};
+    ProducerType sutProducerForMove{iox::unique_ptr<DummyData>(chunkMockForMove.sample(), [](DummyData*) {}),
                                     mockInterface};
-    ConsumerType sutConsumer{iox::cxx::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
+    ConsumerType sutConsumer{iox::unique_ptr<const DummyData>(chunkMock.sample(), [](const DummyData*) {})};
     ConsumerType sutConsumerForMove{
-        iox::cxx::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
+        iox::unique_ptr<const DummyData>(chunkMockForMove.sample(), [](const DummyData*) {})};
 };
 
 } // namespace test_smart_chunk_common

@@ -33,8 +33,13 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
+    ],
+    includes = [
+        "include/",
+        "legacy/include/",
+        "memory/include/",
     ],
     linkopts = select({
         "//iceoryx_platform:linux-clang": [
@@ -48,7 +53,6 @@ cc_library(
         "//iceoryx_platform:win": [],
         "//conditions:default": ["-lacl"],
     }),
-    strip_include_prefix = "include",
     visibility = ["//visibility:public"],
     deps = ["//iceoryx_platform"],
 )

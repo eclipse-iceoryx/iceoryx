@@ -50,6 +50,7 @@ iox_add_library(
     PUBLIC_LIBS_LINUX           tinfo
     BUILD_INTERFACE             ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE           include/${PREFIX}
+    EXPORT_INCLUDE_DIRS         include/
     PRIVATE_INCLUDES            ${CURSES_INCLUDE_DIR}
     FILES
         source/iceoryx_introspection_app.cpp
