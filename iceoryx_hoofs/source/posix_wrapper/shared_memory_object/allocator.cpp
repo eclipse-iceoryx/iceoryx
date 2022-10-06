@@ -30,7 +30,6 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
     : m_startAddress(static_cast<byte_t*>(startAddress))
     , m_length(length)
 {
-    /// @todo memset to set memory and to avoid the usage of unavailable memory
 }
 
 // NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types

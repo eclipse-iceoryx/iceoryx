@@ -74,7 +74,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
 
     if (fatalError)
     {
-        /// @todo #539 Use separate error enums once RouDi is more modular
+        /// @todo iox-#539 Use separate error enums once RouDi is more modular
         errorHandler(PoshError::ROUDI__PRECONDITIONS_FOR_PROCESS_MANAGER_NOT_FULFILLED, ErrorLevel::FATAL);
     }
 }
@@ -720,7 +720,7 @@ void ProcessManager::monitorProcesses() noexcept
 
                 // delete all associated subscriber and publisher ports in shared
                 // memory and the associated RouDi discovery ports
-                // @todo Check if ShmManager and Process Manager end up in unintended condition
+                // @todo iox-#539 Check if ShmManager and Process Manager end up in unintended condition
                 m_portManager.deletePortsOfProcess(processIterator->getName());
 
                 m_processIntrospection->removeProcess(static_cast<int32_t>(processIterator->getPid()));

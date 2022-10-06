@@ -101,7 +101,7 @@ class PointerRepository
     id_t searchId(ptr_t ptr) const noexcept;
 
   private:
-    /// @todo: if required protect vector against concurrent modification
+    /// @todo iox-#1701 if required protect vector against concurrent modification
     /// whether this is required depends on the use case, we currently do not need it
     /// we control the ids, so if they are consecutive we only need a vector/array to get the address
     /// this variable exists once per application using relative pointers,

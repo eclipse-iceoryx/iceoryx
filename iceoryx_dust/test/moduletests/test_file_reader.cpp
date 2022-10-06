@@ -159,7 +159,7 @@ TEST_F(FileReader_test, errorTerminateMode)
     ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(
         {

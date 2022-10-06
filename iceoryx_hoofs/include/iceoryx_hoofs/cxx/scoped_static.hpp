@@ -23,7 +23,6 @@ namespace iox
 {
 namespace cxx
 {
-/// @todo better name
 /// create a ScopeGuard object to cleanup a static optional object at the end of the scope
 /// @tparam [in] T memory container which has emplace(...) and reset
 /// @tparam [in] CTorArgs ctor types for the object to construct

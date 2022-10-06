@@ -35,7 +35,7 @@ class LoggerSUT : public iox::log::ConsoleLogger
     using iox::log::ConsoleLogger::logString;
 };
 
-/// @todo todo iox-#1345 this test will be done via the integration tests with launch testing once "RouDi is ready for
+/// @todo iox-#1345 this test will be done via the integration tests with launch testing once "RouDi is ready for
 /// clients" will be printed via the logger
 #if 0
 TEST(ConsoleLogger_test, TestOutput)

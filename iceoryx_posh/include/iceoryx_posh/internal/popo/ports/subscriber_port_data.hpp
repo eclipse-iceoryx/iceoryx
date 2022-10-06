@@ -40,7 +40,7 @@ struct SubscriberPortData : public BasePortData
                        const SubscriberOptions& subscriberOptions,
                        const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    /// @todo iox#1051 remove these aliases here and only depend on pub_sub_port_types.hpp
+    /// @todo iox-#1051 remove these aliases here and only depend on pub_sub_port_types.hpp
     ///       (move relevant types and constants there)
     using ChunkQueueData_t = iox::popo::SubscriberChunkQueueData_t;
     using ChunkReceiverData_t = iox::popo::SubscriberChunkReceiverData_t;

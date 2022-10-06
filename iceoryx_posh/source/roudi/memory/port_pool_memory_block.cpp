@@ -47,8 +47,6 @@ void PortPoolMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcep
 
 void PortPoolMemoryBlock::destroy() noexcept
 {
-    /// @todo this is common for most MemoryBlocks, therefore something like a SmartPlacementNewPointer which takes care
-    /// of this should be implemented
     if (m_portPoolData)
     {
         m_portPoolData->~PortPoolData();

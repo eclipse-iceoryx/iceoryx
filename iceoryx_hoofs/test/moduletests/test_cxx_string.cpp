@@ -3309,7 +3309,7 @@ TEST(String100, FindLastOfForNotIncludedSTDStringFails)
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ this->testSubject.at(0U); }, "Out of bounds access!");
 }
@@ -3319,7 +3319,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
     ::testing::Test::RecordProperty("TEST_ID", "68035709-5f8d-4bcb-80ce-ad5619aba84a");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, "Out of bounds access!");
 }
@@ -3354,7 +3354,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ sut.at(0U); }, "Out of bounds access!");
 }
@@ -3365,7 +3365,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ sut.at(STRINGCAP); }, "Out of bounds access");
 }
@@ -3395,7 +3395,7 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstAtSucceeds
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ this->testSubject[0U]; }, "Out of bounds access!");
 }
@@ -3405,7 +3405,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
     ::testing::Test::RecordProperty("TEST_ID", "ab52924e-1d6a-41e1-a8a9-8cfd9ab2120d");
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, "Out of bounds access!");
 }
@@ -3440,7 +3440,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperato
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ sut[0U]; }, "Out of bounds access!");
 }
@@ -3451,7 +3451,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorF
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // todo #1196 remove EXPECT_DEATH
+    // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH({ sut[STRINGCAP]; }, "Out of bounds access!");
 }

@@ -86,7 +86,7 @@ inline bool convert::fromString<char>(const char* v, char& dest) noexcept
     return true;
 }
 
-/// @NOLINTJUSTIFICATION iox-#1196 todo convert must be refactored
+/// @NOLINTJUSTIFICATION @todo iox-#260 convert must be refactored
 /// @NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 template <>
 inline bool convert::fromString<string<100>>(const char* v, string<100>& dest) noexcept

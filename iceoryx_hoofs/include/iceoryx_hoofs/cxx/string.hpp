@@ -444,7 +444,7 @@ class string
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) todo #1196 remove this conversion and implement toStdString method
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) @todo iox-#260 remove this conversion and implement toStdString method
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'

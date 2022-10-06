@@ -23,7 +23,7 @@ namespace iox
 {
 namespace units
 {
-// NOLINTJUSTIFICATION todo iox-#1196 Seconds_t and Nanoseconds_t should use Newtype pattern to solve this issue
+// NOLINTJUSTIFICATION @todo iox-#1617 Seconds_t and Nanoseconds_t should use Newtype pattern to solve this issue
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 inline constexpr Duration::Duration(const Seconds_t seconds, const Nanoseconds_t nanoseconds) noexcept
     : m_seconds(seconds)

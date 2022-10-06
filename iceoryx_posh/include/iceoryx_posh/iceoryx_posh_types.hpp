@@ -84,12 +84,12 @@ constexpr uint32_t MAX_INTERFACE_CAPRO_FIFO_SIZE = MAX_PUBLISHERS;
 constexpr uint32_t MAX_CHANNEL_NUMBER = MAX_PUBLISHERS + MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_GATEWAY_SERVICES = 2 * MAX_CHANNEL_NUMBER;
 // Client
-constexpr uint32_t MAX_CLIENTS = build::IOX_MAX_SUBSCRIBERS; /// @todo
+constexpr uint32_t MAX_CLIENTS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY = 16U;
 constexpr uint32_t MAX_RESPONSE_QUEUE_CAPACITY = 16U;
 // Server
-constexpr uint32_t MAX_SERVERS = build::IOX_MAX_PUBLISHERS; /// @todo
+constexpr uint32_t MAX_SERVERS = build::IOX_MAX_PUBLISHERS;
 constexpr uint32_t MAX_CLIENTS_PER_SERVER = 256U;
 constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
@@ -207,7 +207,8 @@ namespace capro
 using IdString_t = cxx::string<100>;
 } // namespace capro
 
-/// @todo Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake target
+/// @todo iox-#539 Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake
+/// target
 namespace roudi
 {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)

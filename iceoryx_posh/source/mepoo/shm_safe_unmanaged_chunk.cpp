@@ -47,7 +47,7 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
         cxx::Ensures(id <= memory::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
         cxx::Ensures(offset <= memory::RelativePointerData::OFFSET_RANGE
                      && "RelativePointer offset must fit into offset type!");
-        /// @todo #1196 Unify types to uint64_t
+        /// @todo iox-#1196 Unify types to uint64_t
         m_chunkManagement =
             memory::RelativePointerData(static_cast<memory::RelativePointerData::identifier_t>(id), offset);
     }

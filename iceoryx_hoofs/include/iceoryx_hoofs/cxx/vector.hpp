@@ -36,7 +36,7 @@ namespace cxx
 /// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
 ///
 template <typename T, uint64_t Capacity>
-// NOLINTJUSTIFICATION todo iox-#1196 will be solved with upcoming uninitialized array
+// NOLINTJUSTIFICATION @todo iox-#1614 will be solved with upcoming uninitialized array
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class vector
 {
@@ -220,7 +220,7 @@ class vector
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    /// @todo #1196 Replace with UninitializedArray
+    /// @todo iox-#1614 Replace with UninitializedArray
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];

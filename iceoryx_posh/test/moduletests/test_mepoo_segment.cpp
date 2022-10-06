@@ -160,7 +160,7 @@ MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedM
 TEST_F(MePooSegment_test, SharedMemoryFileHandleRightsAfterConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4719f767-3413-46cd-8d1e-92a3ca92760e");
-    GTEST_SKIP() << "todo iox-#611 Test needs to be written";
+    GTEST_SKIP() << "@todo iox-#611 Test needs to be written";
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationParameter))

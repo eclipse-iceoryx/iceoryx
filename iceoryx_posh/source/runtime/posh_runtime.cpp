@@ -74,8 +74,6 @@ PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept
     {
         LogWarn() << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
     }
-
-    /// @todo here we could get the LogLevel and LogMode and set it on the LogManager
 }
 
 const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept

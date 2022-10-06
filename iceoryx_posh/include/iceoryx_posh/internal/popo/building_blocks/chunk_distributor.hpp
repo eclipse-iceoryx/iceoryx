@@ -48,7 +48,7 @@ enum class ChunkDistributorError
 /// This ChunkDistributor can be used with different LockingPolicies for different scenarios
 /// When different threads operate on it (e.g. application sends chunks and RouDi adds and removes queues),
 /// a locking policy must be used that ensures consistent data in the ChunkDistributorData.
-/// @todo There are currently some challenge:
+/// @todo iox-#1713 There are currently some challenges:
 /// For the stored queues and the history, containers are used which are not thread safe. Therefore we use an
 /// inter-process mutex. But this can lead to deadlocks if a user process gets terminated while one of its
 /// threads is in the ChunkDistributor and holds a lock. An easier setup would be if changing the queues

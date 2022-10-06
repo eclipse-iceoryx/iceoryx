@@ -72,7 +72,7 @@ typedef testing::Types<uint8_t, int8_t, double> Types;
 
 TYPED_TEST_SUITE(RelativePointer_test, Types, );
 
-/// @todo #605 the tests should be reworked in a refactoring of relative pointers
+/// @todo iox-#605 the tests should be reworked in a refactoring of relative pointers
 TYPED_TEST(RelativePointer_test, ConstrTests)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cae7b4d4-86eb-42f6-b938-90a76f01bea5");

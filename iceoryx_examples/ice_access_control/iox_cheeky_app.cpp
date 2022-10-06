@@ -30,7 +30,7 @@ int main()
     // When starting this app with the user 'notallowed'
 
     // 1) Subscribers can be created without any readable shared memory segment
-    /// @todo currently segfaults, in this case no data should ever arrive
+    /// @todo iox-#722 currently segfaults, in this case no data should ever arrive
     //! [subscriber]
     iox::popo::Subscriber<RadarObject> subscriber({"Radar", "FrontLeft", "Object"});
     //! [subscriber]

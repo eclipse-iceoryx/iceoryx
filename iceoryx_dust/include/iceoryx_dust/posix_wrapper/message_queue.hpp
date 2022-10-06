@@ -73,7 +73,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     /// @return true if sent without errors, false otherwise
     cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
 
-    /// @todo zero copy receive with receive(cxx::string&); cxx::string would be the buffer for mq_receive
+    /// @todo iox-#1693 zero copy receive with receive(cxx::string&); cxx::string would be the buffer for mq_receive
 
     /// @brief receive message from queue using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.

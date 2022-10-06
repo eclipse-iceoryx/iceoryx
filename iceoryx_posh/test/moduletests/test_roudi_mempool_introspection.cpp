@@ -222,7 +222,7 @@ TEST_F(MemPoolIntrospection_test, Send_withSubscribers)
 {
     ::testing::Test::RecordProperty("TEST_ID", "52c48ddb-e7b6-450d-b262-1e24401ac878");
     GTEST_SKIP()
-        << "todo iox-#518 This test is not very useful as it is highly implementation-dependent and fails if the "
+        << "@todo iox-#518 This test is not very useful as it is highly implementation-dependent and fails if the "
            "implementation changes. Should be realized as an integration test with a roudi environment and less "
            "mocking classes instead.";
     EXPECT_CALL(callChecker(), offer()).Times(1);

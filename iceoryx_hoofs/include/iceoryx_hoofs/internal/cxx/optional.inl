@@ -153,7 +153,7 @@ optional<T>::operator=(U&& newValue) noexcept
 {
     if (m_hasValue)
     {
-/// @todo broken msvc compiler, see:
+/// @todo iox-#1694 broken msvc compiler, see:
 ///  https://developercommunity.visualstudio.com/content/problem/858688/stdforward-none-of-these-2-overloads-could-convert.html
 /// remove this as soon as it is fixed;
 #ifdef _WIN32
@@ -164,7 +164,7 @@ optional<T>::operator=(U&& newValue) noexcept
     }
     else
     {
-/// @todo again broken msvc compiler
+/// @todo iox-#1694 again broken msvc compiler
 #ifdef _WIN32
         construct_value(newValue);
 #else

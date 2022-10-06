@@ -10,7 +10,7 @@ behavior and structure is quite similar to the [icediscovery C++ example](../ice
 <!--
 ## Expected Output
 
-/// @todo #1295 re-record asciicast
+/// @todo iox-#1295 re-record asciicast
 
 [![asciicast](https://asciinema.org/a/476732.svg)](https://asciinema.org/a/476732)
 -->

@@ -45,7 +45,7 @@ class LoFFLi
     static_assert(sizeof(Node) <= NODE_SIZE,
                   "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
 
-    /// @todo introduce typesafe indices with the properties listed below
+    /// @todo iox-#680 introduce typesafe indices with the properties listed below
     ///       id is required that not two loefflis with the same properties
     ///       mix up the id
     ///       value = index
@@ -75,7 +75,7 @@ class LoFFLi
 
   public:
     LoFFLi() noexcept = default;
-    /// @todo move 'init()' to the ctor, remove !m_nextfreeIndex checks
+    /// @todo iox-#680 move 'init()' to the ctor, remove !m_nextfreeIndex checks
 
     /// Initializes the lock-free free-list
     /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()

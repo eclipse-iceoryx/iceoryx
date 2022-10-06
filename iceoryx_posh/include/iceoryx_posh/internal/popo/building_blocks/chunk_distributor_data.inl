@@ -21,7 +21,7 @@ namespace iox
 {
 namespace popo
 {
-/// @todo Add min() without reference to iox::algorithm?! C++11 needs a declaration for constexpr!
+/// @todo iox-#1712 Add minVal() without reference to iox::algorithm?! C++11 needs a declaration for constexpr!
 ///       Ex.: constexpr uint32_t DefaultChunkDistributorConfig::MAX_HISTORY_CAPACITY;
 ///       This wouldn't be an issue in C++17.
 template <typename T>

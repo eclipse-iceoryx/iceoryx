@@ -156,7 +156,7 @@ other::--
 The cheeky app is started with the user _notallowed_. This user is not in any group that allow either read
 or write access to any of the shared memory segments. Hence, RouDi will print a warning in this case.
 
-Despite having no read access, subscribers can still be created. <!-- @todo In this case no data will ever arrive.-->
+Despite having no read access, subscribers can still be created. <!-- In this case no data will ever arrive.-->
 
 <!--[geoffrey][iceoryx_examples/ice_access_control/iox_cheeky_app.cpp][subscriber]-->
 ```cpp

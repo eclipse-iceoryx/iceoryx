@@ -355,7 +355,7 @@ class forward_list
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
-    // todo #1196 will be replaced by uninitialized array
+    // @todo iox-#1614 will be replaced by uninitialized array
     // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];

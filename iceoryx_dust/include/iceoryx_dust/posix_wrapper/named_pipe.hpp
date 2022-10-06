@@ -150,7 +150,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        /// NOLINTJUSTIFICATION todo iox-#1196 replace with cxx::array implementation
+        /// NOLINTJUSTIFICATION @todo iox-#1614 replace with cxx::array implementation
         /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
         cxx::optional<UnnamedSemaphore> semaphores[2U];
     };

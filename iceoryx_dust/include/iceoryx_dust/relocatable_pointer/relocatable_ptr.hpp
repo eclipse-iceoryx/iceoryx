@@ -47,7 +47,6 @@ namespace memory
 ///       copyable in the C++ sense. However, if the pointees of a host object containing the
 ///       relocatable ptr are all located inside the object and the obect is otherwise trivially
 ///       copyable it can be safely copied by memcpy.
-/// @todo specialize for another pointer class for this use case once it is fully defined/understood
 template <typename T>
 class relocatable_ptr
 {

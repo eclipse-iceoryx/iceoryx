@@ -15,7 +15,7 @@ the availability of services respectively.
 <!--
 ## Expected Output
 
-/// @todo #1295 re-record asciicast
+/// @todo iox-#1295 re-record asciicast
 
 [![asciicast](https://asciinema.org/a/476673.svg)](https://asciinema.org/a/476673)
 -->

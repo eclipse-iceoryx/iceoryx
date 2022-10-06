@@ -70,7 +70,7 @@ bool MemPool::isMultipleOfAlignment(const uint32_t value) const noexcept
 
 void MemPool::adjustMinFree() noexcept
 {
-    // @todo rethink the concurrent change that can happen. do we need a CAS loop?
+    // @todo iox-#1714 rethink the concurrent change that can happen. do we need a CAS loop?
     m_minFree.store(std::min(m_numberOfChunks - m_usedChunks.load(std::memory_order_relaxed),
                              m_minFree.load(std::memory_order_relaxed)));
 }
@@ -85,7 +85,7 @@ void* MemPool::getChunk() noexcept
         return nullptr;
     }
 
-    /// @todo: verify that m_usedChunk is not changed during adjustMInFree
+    /// @todo iox-#1714 verify that m_usedChunk is not changed during adjustMInFree
     ///         without changing m_minFree
     m_usedChunks.fetch_add(1U, std::memory_order_relaxed);
     adjustMinFree();

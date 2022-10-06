@@ -43,7 +43,7 @@ struct ChunkManagement
 
     iox::memory::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};
-    /// @todo optimization: check if this can be replaced by an offset relative to the this pointer
+
     iox::memory::RelativePointer<MemPool> m_mempool;
     iox::memory::RelativePointer<MemPool> m_chunkManagementPool;
 };

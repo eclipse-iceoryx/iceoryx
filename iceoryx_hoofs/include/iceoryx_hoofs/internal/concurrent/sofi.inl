@@ -69,8 +69,8 @@ bool SoFi<ValueType, CapacityValue>::empty() const noexcept
 
     do
     {
-        /// @todo read before write since the writer increments the aba counter!!!
-        /// @todo write doc with example!!!
+        /// @todo iox-#1695 read before write since the writer increments the aba counter!!!
+        /// @todo iox-#1695 write doc with example!!!
         currentReadPosition = m_readPosition.load(std::memory_order_acquire);
         uint64_t currentWritePosition = m_writePosition.load(std::memory_order_acquire);
 
