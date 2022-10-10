@@ -26,7 +26,7 @@ namespace iox
 namespace cxx
 {
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTJUSTIFICATION See header and todo, using UninitializedArray will solve the issue
+// NOLINTJUSTIFICATION @todo iox-#1614 using UninitializedArray will solve the issue
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept

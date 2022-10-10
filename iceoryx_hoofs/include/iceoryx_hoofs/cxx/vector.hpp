@@ -222,7 +222,7 @@ class vector final
 
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
     // inside the vector class
-    /// @todo #1196 Replace with UninitializedArray
+    /// @todo iox-#1614 Replace with UninitializedArray
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
