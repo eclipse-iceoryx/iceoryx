@@ -52,31 +52,31 @@ namespace internal
 template <typename T>
 constexpr const char* logFormatDec() noexcept;
 template <>
-inline constexpr const char* logFormatDec<signed char>() noexcept;
+constexpr const char* logFormatDec<signed char>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<unsigned char>() noexcept;
+constexpr const char* logFormatDec<unsigned char>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<short>() noexcept;
+constexpr const char* logFormatDec<short>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<unsigned short>() noexcept;
+constexpr const char* logFormatDec<unsigned short>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<int>() noexcept;
+constexpr const char* logFormatDec<int>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<unsigned int>() noexcept;
+constexpr const char* logFormatDec<unsigned int>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<long>() noexcept;
+constexpr const char* logFormatDec<long>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<unsigned long>() noexcept;
+constexpr const char* logFormatDec<unsigned long>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<long long>() noexcept;
+constexpr const char* logFormatDec<long long>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<unsigned long long>() noexcept;
+constexpr const char* logFormatDec<unsigned long long>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<float>() noexcept;
+constexpr const char* logFormatDec<float>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<double>() noexcept;
+constexpr const char* logFormatDec<double>() noexcept;
 template <>
-inline constexpr const char* logFormatDec<long double>() noexcept;
+constexpr const char* logFormatDec<long double>() noexcept;
 
 template <typename T>
 constexpr const char* logFormatHex() noexcept;

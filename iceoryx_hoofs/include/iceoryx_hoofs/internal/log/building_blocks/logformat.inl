@@ -81,7 +81,7 @@ template <typename>
 constexpr bool always_false_v{false};
 
 template <typename T>
-constexpr const char* logFormatDec() noexcept
+inline constexpr const char* logFormatDec() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for decimal output!");
     return nullptr;
@@ -153,85 +153,85 @@ inline constexpr const char* logFormatDec<long double>() noexcept
 }
 
 template <typename T>
-constexpr const char* logFormatHex() noexcept
+inline constexpr const char* logFormatHex() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for hexadecimal output!");
     return nullptr;
 }
 template <>
-constexpr const char* logFormatHex<unsigned char>() noexcept
+inline constexpr const char* logFormatHex<unsigned char>() noexcept
 {
     return "%hhx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned short>() noexcept
+inline constexpr const char* logFormatHex<unsigned short>() noexcept
 {
     return "%hx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned int>() noexcept
+inline constexpr const char* logFormatHex<unsigned int>() noexcept
 {
     return "%x";
 }
 template <>
-constexpr const char* logFormatHex<unsigned long>() noexcept
+inline constexpr const char* logFormatHex<unsigned long>() noexcept
 {
     return "%lx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned long long>() noexcept
+inline constexpr const char* logFormatHex<unsigned long long>() noexcept
 {
     return "%llx";
 }
 template <>
-constexpr const char* logFormatHex<float>() noexcept
+inline constexpr const char* logFormatHex<float>() noexcept
 {
     return "%a";
 }
 template <>
-constexpr const char* logFormatHex<double>() noexcept
+inline constexpr const char* logFormatHex<double>() noexcept
 {
     return "%la";
 }
 template <>
-constexpr const char* logFormatHex<long double>() noexcept
+inline constexpr const char* logFormatHex<long double>() noexcept
 {
     return "%La";
 }
 template <>
-constexpr const char* logFormatHex<const void*>() noexcept
+inline constexpr const char* logFormatHex<const void*>() noexcept
 {
     return "%p";
 }
 
 template <typename T>
-constexpr const char* logFormatOct() noexcept
+inline constexpr const char* logFormatOct() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for octal output!");
     return nullptr;
 }
 template <>
-constexpr const char* logFormatOct<unsigned char>() noexcept
+inline constexpr const char* logFormatOct<unsigned char>() noexcept
 {
     return "%hho";
 }
 template <>
-constexpr const char* logFormatOct<unsigned short>() noexcept
+inline constexpr const char* logFormatOct<unsigned short>() noexcept
 {
     return "%ho";
 }
 template <>
-constexpr const char* logFormatOct<unsigned int>() noexcept
+inline constexpr const char* logFormatOct<unsigned int>() noexcept
 {
     return "%o";
 }
 template <>
-constexpr const char* logFormatOct<unsigned long>() noexcept
+inline constexpr const char* logFormatOct<unsigned long>() noexcept
 {
     return "%lo";
 }
 template <>
-constexpr const char* logFormatOct<unsigned long long>() noexcept
+inline constexpr const char* logFormatOct<unsigned long long>() noexcept
 {
     return "%llo";
 }
