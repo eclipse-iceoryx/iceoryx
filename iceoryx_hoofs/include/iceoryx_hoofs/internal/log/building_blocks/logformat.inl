@@ -25,7 +25,7 @@ namespace log
 {
 // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : See at declaration in header
 // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Octal numbers are required for the terminal color codes and it is
-// checked that only valid digis are used
+// checked that only valid digits are used
 
 inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {

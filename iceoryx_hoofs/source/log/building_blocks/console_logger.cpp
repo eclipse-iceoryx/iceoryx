@@ -119,10 +119,10 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     unused(function);
 
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
-    // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
+    // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
     constexpr const char* COLOR_GRAY{"\033[0;90m"};
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
-    // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
+    // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
     constexpr const char* COLOR_RESET{"\033[m"};
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
