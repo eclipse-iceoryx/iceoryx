@@ -92,8 +92,7 @@ inline const T* unique_ptr<T>::get() const noexcept
 template <typename T>
 inline T* unique_ptr<T>::release(unique_ptr&& ptrToBeReleased) noexcept
 {
-    // AXIVION Next Line AutosarC++19_03-A7.1.1 : Pointer is explicitly not const to adhere to return type
-    auto* ptr = ptrToBeReleased.m_ptr;
+    auto* const ptr = ptrToBeReleased.m_ptr;
     ptrToBeReleased.m_ptr = nullptr;
     return ptr;
 }
