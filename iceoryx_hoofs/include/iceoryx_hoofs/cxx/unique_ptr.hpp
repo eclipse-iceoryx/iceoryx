@@ -50,7 +50,7 @@ namespace cxx
 ///
 /// @endcode
 template <typename T>
-class unique_ptr
+class unique_ptr final
 {
   public:
     unique_ptr() = delete;
@@ -119,9 +119,12 @@ class unique_ptr
     void destroy() noexcept;
 
   private:
-    T* m_ptr = nullptr;
+    T* m_ptr{nullptr};
     function<DeleterType> m_deleter;
 };
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Parameters are explicitly not identical to compare two unique_ptr's
+// using different types. STL definies them similarly.
 
 /// @brief comparision for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
@@ -141,6 +144,7 @@ bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 template <typename T, typename U>
 bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 
+// AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5: See above
 } // namespace cxx
 } // namespace iox
 
