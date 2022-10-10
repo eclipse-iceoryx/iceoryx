@@ -67,7 +67,7 @@ struct is_invocable
     // This variant is chosen when Callable(ArgTypes) successfully resolves to a valid type, i.e. is invocable.
     /// @note result_of is deprecated, switch to invoke_result in C++17
     template <typename C, typename... As>
-    static constexpr std::true_type test(typename platform::invoke_result<C, As...>::type* f IOX_MAYBE_UNUSED) noexcept
+    static constexpr std::true_type test(typename platform::invoke_result<C, As...>::type*) noexcept
     {
         return {};
     }
@@ -97,8 +97,8 @@ struct is_invocable_r
 {
     template <typename C, typename... As>
     static constexpr std::true_type
-    test(std::enable_if_t<std::is_convertible<typename platform::invoke_result<C, As...>::type, ReturnType>::value>* f
-             IOX_MAYBE_UNUSED) noexcept
+    test(std::enable_if_t<
+         std::is_convertible<typename platform::invoke_result<C, As...>::type, ReturnType>::value>*) noexcept
     {
         return {};
     }
@@ -137,7 +137,8 @@ struct is_char_array : std::false_type
 };
 
 template <uint64_t N>
-/// @NOLINTJUSTIFICATION struct used to deduce char array types, it does not use them
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : struct used to deduce char array types, it
+// does not use them
 /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 struct is_char_array<char[N]> : std::true_type
 {
@@ -157,6 +158,7 @@ struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;
+
 } // namespace cxx
 } // namespace iox
 
