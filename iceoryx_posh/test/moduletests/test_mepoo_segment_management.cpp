@@ -98,39 +98,49 @@ class SegmentManager_test : public Test
     SegmentManager<> sut{segmentConfig, &allocator};
 };
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForReadUser))
+TEST_F(SegmentManager_test, getSegmentMappingsForReadUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3af818a-c119-4182-948a-1e709c29d97f");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     auto mapping = sut.getSegmentMappings(PosixUser{"iox_roudi_test1"});
     ASSERT_THAT(mapping.size(), Eq(1u));
     EXPECT_THAT(mapping[0].m_isWritable, Eq(false));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsForWriteUser))
+TEST_F(SegmentManager_test, getSegmentMappingsForWriteUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5e5d3128-5e4b-41e9-b541-ba9dc0bd57e3");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     auto mapping = sut.getSegmentMappings(PosixUser{"iox_roudi_test2"});
     ASSERT_THAT(mapping.size(), Eq(2u));
     EXPECT_THAT(mapping[0].m_isWritable == mapping[1].m_isWritable, Eq(false));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonRegisteredUser))
+TEST_F(SegmentManager_test, getSegmentMappingsEmptyForNonRegisteredUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7cf9a658-bb2d-444f-af67-0355e8f45ea2");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     auto mapping = sut.getSegmentMappings(PosixUser{"roudi_test4"});
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getSegmentMappingsEmptyForNonExistingUser))
+TEST_F(SegmentManager_test, getSegmentMappingsEmptyForNonExistingUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ca869fa8-49cd-43bc-8d72-4024b45f1f5f");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     auto mapping = sut.getSegmentMappings(PosixUser{"no_user"});
     ASSERT_THAT(mapping.size(), Eq(0u));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserWithWriteUser))
+TEST_F(SegmentManager_test, getMemoryManagerForUserWithWriteUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2fd4262a-20d2-4631-9b63-610944f28120");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     auto memoryManager = sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test2"}).m_memoryManager;
     ASSERT_TRUE(memoryManager.has_value());
     ASSERT_THAT(memoryManager.value().get().getNumberOfMemPools(), Eq(2u));
@@ -141,22 +151,28 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUse
     EXPECT_THAT(poolInfo2.m_numChunks, Eq(7u));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithReadOnlyUser))
+TEST_F(SegmentManager_test, getMemoryManagerForUserFailWithReadOnlyUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9d7c18fd-b8db-425a-830d-22c781091244");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     EXPECT_FALSE(
         sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"iox_roudi_test1"}).m_memoryManager.has_value());
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(getMemoryManagerForUserFailWithNonExistingUser))
+TEST_F(SegmentManager_test, getMemoryManagerForUserFailWithNonExistingUser)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bff18ab5-89ff-45e0-97ea-5409169ddf9a");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     EXPECT_FALSE(sut.getSegmentInformationWithWriteAccessForUser(PosixUser{"no_user"}).m_memoryManager.has_value());
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWriterGroupFails))
+TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3fa29560-7341-43bf-a22e-2d3550b49e4e");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SegmentManager<> sut{segmentConfig, &allocator};
 
@@ -173,9 +189,11 @@ TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMoreThanOneWrite
     EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::MEPOO__USER_WITH_MORE_THAN_ONE_WRITE_SEGMENT));
 }
 
-TEST_F(SegmentManager_test, ADD_TEST_WITH_ADDITIONAL_USER(addingMaximumNumberOfSegmentsWorks))
+TEST_F(SegmentManager_test, addingMaximumNumberOfSegmentsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "79db009a-da1a-4140-b375-f174af615d54");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     SegmentConfig segmentConfig = getSegmentConfigWithMaximumNumberOfSegements();
     SegmentManager<MePooSegmentMock> sut{segmentConfig, &allocator};
 }
