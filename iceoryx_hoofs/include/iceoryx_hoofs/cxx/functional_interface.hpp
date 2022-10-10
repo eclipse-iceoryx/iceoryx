@@ -52,6 +52,7 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 {
 };
 
+// @todo iox-#1723 use string_view as argument
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Requires char base type to print strings originating
 // from string literals, cxx::string::c_str(), std::string::c_str() or other sources. Only with char we
 // can achieve the task.
