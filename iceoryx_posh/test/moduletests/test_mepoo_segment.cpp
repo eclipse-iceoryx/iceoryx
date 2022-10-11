@@ -136,10 +136,6 @@ class MePooSegment_test : public Test
         }
     };
 
-
-    void SetUp(){};
-    void TearDown(){};
-
     MePooConfig setupMepooConfig()
     {
         MePooConfig config;
@@ -152,8 +148,13 @@ class MePooSegment_test : public Test
     iox::posix::Allocator m_managementAllocator{iox::posix::Allocator(m_rawMemory, RawMemorySize)};
 
     MePooConfig mepooConfig = setupMepooConfig();
-    MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut{
-        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
+
+    using SUT = MePooSegment<SharedMemoryObject_MOCK, MemoryManager>;
+    std::unique_ptr<SUT> createSut()
+    {
+        return std::make_unique<SUT>(
+            mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"});
+    }
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
@@ -163,9 +164,11 @@ TEST_F(MePooSegment_test, SharedMemoryFileHandleRightsAfterConstructor)
     GTEST_SKIP() << "@todo iox-#611 Test needs to be written";
 }
 
-TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationParameter))
+TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0fcfefd4-3a84-43a5-9805-057a60239184");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
                                                                        const iox::posix::AccessMode f_accessMode,
@@ -176,15 +179,16 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationPara
         EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
     };
-    MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
+    SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 }
 
-TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
+TEST_F(MePooSegment_test, GetSharedMemoryObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e1c12dd0-fd7d-4be3-918b-08d16a68c8e0");
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
     uint64_t memorySizeInBytes{0};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
@@ -194,31 +198,39 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetSharedMemoryObject))
                                                                         const iox::cxx::perms) {
         memorySizeInBytes = f_memorySizeInBytes;
     };
-    MePooSegment<SharedMemoryObject_MOCK, MemoryManager> sut2{
-        mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
+    SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 
-    EXPECT_THAT(sut2.getSharedMemoryObject().getSizeInBytes(), Eq(memorySizeInBytes));
+    EXPECT_THAT(sut.getSharedMemoryObject().getSizeInBytes(), Eq(memorySizeInBytes));
 }
 
-TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetReaderGroup))
+TEST_F(MePooSegment_test, GetReaderGroup)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ad3fd360-3765-45ae-8285-fe4ae60c91ae");
-    EXPECT_THAT(sut.getReaderGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test1")));
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
+    auto sut = createSut();
+    EXPECT_THAT(sut->getReaderGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test1")));
 }
 
-TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetWriterGroup))
+TEST_F(MePooSegment_test, GetWriterGroup)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3aa34489-bd46-4e77-89d6-20e82211e1a4");
-    EXPECT_THAT(sut.getWriterGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test2")));
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
+    auto sut = createSut();
+    EXPECT_THAT(sut->getWriterGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test2")));
 }
 
-TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
+TEST_F(MePooSegment_test, GetMemoryManager)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4bc4af78-4beb-42eb-aee4-0f7cffb66411");
-    ASSERT_THAT(sut.getMemoryManager().getNumberOfMemPools(), Eq(1U));
-    auto config = sut.getMemoryManager().getMemPoolInfo(0);
+    GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
+
+    auto sut = createSut();
+    ASSERT_THAT(sut->getMemoryManager().getNumberOfMemPools(), Eq(1U));
+    auto config = sut->getMemoryManager().getMemPoolInfo(0);
     ASSERT_THAT(config.m_numChunks, Eq(100U));
 
     constexpr uint32_t USER_PAYLOAD_SIZE{128U};
@@ -226,7 +238,7 @@ TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(GetMemoryManager))
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    sut.getMemoryManager()
+    sut->getMemoryManager()
         .getChunk(chunkSettings)
         .and_then([&](auto& chunk) { EXPECT_THAT(chunk.getChunkHeader()->userPayloadSize(), Eq(USER_PAYLOAD_SIZE)); })
         .or_else([](auto& error) { GTEST_FAIL() << "getChunk failed with: " << error; });
