@@ -27,11 +27,11 @@ namespace iox
 {
 namespace log
 {
-// NOLINTJUSTIFICATION see at declaration in header
+// NOLINTJUSTIFICATION See at declaration in header
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::atomic<LogLevel> ConsoleLogger::m_activeLogLevel{LogLevel::INFO};
+std::atomic<LogLevel> ConsoleLogger::s_activeLogLevel{LogLevel::INFO};
 
-ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData()
+ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData() noexcept
 {
     thread_local static ThreadLocalData data;
     return data;
@@ -39,14 +39,17 @@ ConsoleLogger::ThreadLocalData& ConsoleLogger::getThreadLocalData()
 
 LogLevel ConsoleLogger::getLogLevel() noexcept
 {
-    return m_activeLogLevel.load(std::memory_order_relaxed);
+    return s_activeLogLevel.load(std::memory_order_relaxed);
 }
 
 void ConsoleLogger::setLogLevel(const LogLevel logLevel) noexcept
 {
-    m_activeLogLevel.store(logLevel, std::memory_order_relaxed);
+    s_activeLogLevel.store(logLevel, std::memory_order_relaxed);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-static to not restrict custom implementations
 void ConsoleLogger::createLogMessageHeader(const char* file,
                                            const int line,
                                            const char* function,
@@ -59,21 +62,23 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
         // intentionally do nothing since a timestamp from 01.01.1970 already indicates  an issue with the clock
     }
 
-    time_t time = timestamp.tv_sec;
+    const time_t time{timestamp.tv_sec};
 
 /// @todo iox-#1345 since this will be part of the platform at one point, we might not be able to handle this via the
 /// platform abstraction; re-evaluate this when the move to the platform happens
 #if defined(_WIN32)
     // seems to be thread-safe on Windows
-    auto* timeInfo = localtime(&time);
+    const auto* timeInfo = localtime(&time);
 #else
     // NOLINTJUSTIFICATION will be initialized with the call to localtime_r in the statement after the declaration
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
     struct tm calendarData;
-    auto* timeInfo = localtime_r(&time, &calendarData);
+    const auto* timeInfo = localtime_r(&time, &calendarData);
 #endif
 
-    // NOLINTJUSTIFICATION this is used to get the size for the buffer where strftime writes the local time
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : This is used to get the size for the buffer where strftime
+    // writes the local time
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     constexpr const char TIME_FORMAT[]{"0000-00-00 00:00:00"};
     constexpr uint32_t NULL_TERMINATION{1};
@@ -81,16 +86,18 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     constexpr auto NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE{ConsoleLogger::bufferSize(TIME_FORMAT) + YEAR_1M_PROBLEM
                                                          + NULL_TERMINATION};
 
-    // NOLINTJUSTIFICATION required for strftime and safe since array bounds are taken into account
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : Required for strftime and safe since array bounds are taken into
+    // account
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char timestampString[NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE]{0};
 
     bool timeStampConversionSuccessful{false};
     if (timeInfo != nullptr)
     {
-        auto strftimeRetVal =
+        const auto strftimeRetVal =
             strftime(&timestampString[0], NULL_TERMINATED_TIMESTAMP_BUFFER_SIZE, "%Y-%m-%d %H:%M:%S", timeInfo);
-        timeStampConversionSuccessful = (strftimeRetVal != 0);
+        timeStampConversionSuccessful = strftimeRetVal != 0;
     }
 
     if (!timeStampConversionSuccessful)
@@ -100,30 +107,34 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
         strncpy(&timestampString[0], &TIME_FORMAT[0], ConsoleLogger::bufferSize(TIME_FORMAT));
     }
 
-    constexpr auto MILLISECS_PER_SECOND{1000};
-    auto milliseconds = static_cast<int32_t>(timestamp.tv_nsec % MILLISECS_PER_SECOND);
+    constexpr uint32_t MILLISECS_PER_SECOND{1000};
+    const auto milliseconds = static_cast<int32_t>(timestamp.tv_nsec % MILLISECS_PER_SECOND);
 
     /// @todo iox-#1345 do we also want to always log the iceoryx version and commit sha? Maybe do that only in
-    /// `initLogger` with LogDebug
+    /// 'initLogger' with LogDebug
 
     /// @todo iox-#1345 add an option to also print file, line and function
     unused(file);
     unused(line);
     unused(function);
 
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
+    // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
     constexpr const char* COLOR_GRAY{"\033[0;90m"};
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as string literal
+    // AXIVION Next Construct AutosarC++19_03-M2.13.2 : Required for the color codes; only valid octal digits are used
     constexpr const char* COLOR_RESET{"\033[m"};
     // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be flushed in one piece
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
-    auto retVal = snprintf(&getThreadLocalData().buffer[0],
-                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE,
-                           "%s%s.%03d %s%s%s: ",
-                           COLOR_GRAY,
-                           &timestampString[0],
-                           milliseconds,
-                           logLevelDisplayColor(logLevel),
-                           logLevelDisplayText(logLevel),
-                           COLOR_RESET);
+    const auto retVal = snprintf(&getThreadLocalData().buffer[0],
+                                 ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE,
+                                 "%s%s.%03d %s%s%s: ",
+                                 COLOR_GRAY,
+                                 &timestampString[0],
+                                 milliseconds,
+                                 logLevelDisplayColor(logLevel),
+                                 logLevelDisplayText(logLevel),
+                                 COLOR_RESET);
     if (retVal < 0)
     {
         /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
@@ -132,7 +143,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     }
     else
     {
-        auto stringSizeToLog = static_cast<uint32_t>(retVal);
+        const auto stringSizeToLog = static_cast<uint32_t>(retVal);
         if (stringSizeToLog <= ThreadLocalData::BUFFER_SIZE)
         {
             getThreadLocalData().bufferWriteIndex = stringSizeToLog;
@@ -157,7 +168,8 @@ void ConsoleLogger::flush() noexcept
     assumeFlushed();
 }
 
-// NOLINTJUSTIFICATION member access is required
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-static to not restrict custom implementations
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 LogBuffer ConsoleLogger::getLogBuffer() const noexcept
 {
@@ -165,7 +177,8 @@ LogBuffer ConsoleLogger::getLogBuffer() const noexcept
     return LogBuffer{&data.buffer[0], data.bufferWriteIndex};
 }
 
-// NOLINTJUSTIFICATION member access is required
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-static to not restrict custom implementations
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::assumeFlushed() noexcept
 {
@@ -174,7 +187,8 @@ void ConsoleLogger::assumeFlushed() noexcept
     data.bufferWriteIndex = 0;
 }
 
-// NOLINTJUSTIFICATION member access is required
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-static to not restrict custom implementations
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ConsoleLogger::logString(const char* message) noexcept
 {
@@ -183,10 +197,10 @@ void ConsoleLogger::logString(const char* message) noexcept
     // NOLINTBEGIN(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
     // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-    auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
-                           ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
-                           "%s",
-                           message);
+    const auto retVal = snprintf(&data.buffer[data.bufferWriteIndex],
+                                 ThreadLocalData::NULL_TERMINATED_BUFFER_SIZE - data.bufferWriteIndex,
+                                 "%s",
+                                 message);
     // NOLINTEND(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
 
     if (retVal < 0)
@@ -197,8 +211,8 @@ void ConsoleLogger::logString(const char* message) noexcept
     }
     else
     {
-        auto stringSizeToLog = static_cast<uint32_t>(retVal);
-        auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
+        const auto stringSizeToLog = static_cast<uint32_t>(retVal);
+        const auto bufferWriteIndexNext = data.bufferWriteIndex + stringSizeToLog;
         if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
         {
             data.bufferWriteIndex = bufferWriteIndexNext;
@@ -218,6 +232,8 @@ void ConsoleLogger::logBool(const bool value) noexcept
     logString(value ? "true" : "false");
 }
 
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-const to enable custom initialization
 void ConsoleLogger::initLogger(const LogLevel) noexcept
 {
     // nothing to do in the base implementation

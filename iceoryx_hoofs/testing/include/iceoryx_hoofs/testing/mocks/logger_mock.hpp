@@ -33,7 +33,7 @@ namespace testing
     iox::log::LogStream((logger), "file", 42, "function", iox::log::LogLevel::TRACE).self()
 
 /// @brief This mock can be used to test implementations of LogStream::operator<< for custom types. It should be used
-/// with the `IOX_LOGSTREAM_MOCK` macro
+/// with the 'IOX_LOGSTREAM_MOCK' macro
 /// @code
 /// iox::testing::Logger_Mock loggerMock;
 ///

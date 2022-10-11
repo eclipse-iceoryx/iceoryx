@@ -19,15 +19,14 @@
 
 #include "iceoryx_hoofs/log/building_blocks/logformat.hpp"
 
-#include <atomic>
-#include <cstdint>
-#include <cstring>
-#include <mutex>
-
 namespace iox
 {
 namespace log
 {
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : See at declaration in header
+// AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Octal numbers are required for the terminal color codes and it is
+// checked that only valid digits are used
+
 inline constexpr const char* logLevelDisplayColor(const LogLevel value) noexcept
 {
     switch (value)
@@ -74,162 +73,171 @@ inline constexpr const char* logLevelDisplayText(const LogLevel value) noexcept
     return "[UNDEF]";
 }
 
+// AXIVION ENABLE STYLE AutosarC++19_03-M2.13.2
+
 namespace internal
 {
 template <typename>
 constexpr bool always_false_v{false};
 
 template <typename T>
-constexpr const char* logFormatDec()
+inline constexpr const char* logFormatDec() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for decimal output!");
     return nullptr;
 }
 template <>
-inline constexpr const char* logFormatDec<signed char>()
+inline constexpr const char* logFormatDec<signed char>() noexcept
 {
     return "%hhi";
 }
 template <>
-inline constexpr const char* logFormatDec<unsigned char>()
+inline constexpr const char* logFormatDec<unsigned char>() noexcept
 {
     return "%hhu";
 }
 template <>
-inline constexpr const char* logFormatDec<short>()
+inline constexpr const char* logFormatDec<short>() noexcept
 {
     return "%hi";
 }
 template <>
-inline constexpr const char* logFormatDec<unsigned short>()
+inline constexpr const char* logFormatDec<unsigned short>() noexcept
 {
     return "%hu";
 }
 template <>
-inline constexpr const char* logFormatDec<int>()
+inline constexpr const char* logFormatDec<int>() noexcept
 {
     return "%i";
 }
 template <>
-inline constexpr const char* logFormatDec<unsigned int>()
+inline constexpr const char* logFormatDec<unsigned int>() noexcept
 {
     return "%u";
 }
 template <>
-inline constexpr const char* logFormatDec<long>()
+inline constexpr const char* logFormatDec<long>() noexcept
 {
     return "%li";
 }
 template <>
-inline constexpr const char* logFormatDec<unsigned long>()
+inline constexpr const char* logFormatDec<unsigned long>() noexcept
 {
     return "%lu";
 }
 template <>
-inline constexpr const char* logFormatDec<long long>()
+inline constexpr const char* logFormatDec<long long>() noexcept
 {
     return "%lli";
 }
 template <>
-inline constexpr const char* logFormatDec<unsigned long long>()
+inline constexpr const char* logFormatDec<unsigned long long>() noexcept
 {
     return "%llu";
 }
 template <>
-inline constexpr const char* logFormatDec<float>()
+inline constexpr const char* logFormatDec<float>() noexcept
 {
     return "%.5e";
 }
 template <>
-inline constexpr const char* logFormatDec<double>()
+inline constexpr const char* logFormatDec<double>() noexcept
 {
     return "%.5le";
 }
 template <>
-inline constexpr const char* logFormatDec<long double>()
+inline constexpr const char* logFormatDec<long double>() noexcept
 {
     return "%.5Le";
 }
 
 template <typename T>
-constexpr const char* logFormatHex()
+inline constexpr const char* logFormatHex() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for hexadecimal output!");
     return nullptr;
 }
 template <>
-constexpr const char* logFormatHex<unsigned char>()
+inline constexpr const char* logFormatHex<unsigned char>() noexcept
 {
     return "%hhx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned short>()
+inline constexpr const char* logFormatHex<unsigned short>() noexcept
 {
     return "%hx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned int>()
+inline constexpr const char* logFormatHex<unsigned int>() noexcept
 {
     return "%x";
 }
 template <>
-constexpr const char* logFormatHex<unsigned long>()
+inline constexpr const char* logFormatHex<unsigned long>() noexcept
 {
     return "%lx";
 }
 template <>
-constexpr const char* logFormatHex<unsigned long long>()
+inline constexpr const char* logFormatHex<unsigned long long>() noexcept
 {
     return "%llx";
 }
 template <>
-constexpr const char* logFormatHex<float>()
+inline constexpr const char* logFormatHex<float>() noexcept
 {
     return "%a";
 }
 template <>
-constexpr const char* logFormatHex<double>()
+inline constexpr const char* logFormatHex<double>() noexcept
 {
     return "%la";
 }
 template <>
-constexpr const char* logFormatHex<long double>()
+inline constexpr const char* logFormatHex<long double>() noexcept
 {
     return "%La";
 }
+template <>
+inline constexpr const char* logFormatHex<const void*>() noexcept
+{
+    return "%p";
+}
 
 template <typename T>
-constexpr const char* logFormatOct()
+inline constexpr const char* logFormatOct() noexcept
 {
     static_assert(always_false_v<T>, "This type is not supported for octal output!");
     return nullptr;
 }
 template <>
-constexpr const char* logFormatOct<unsigned char>()
+inline constexpr const char* logFormatOct<unsigned char>() noexcept
 {
     return "%hho";
 }
 template <>
-constexpr const char* logFormatOct<unsigned short>()
+inline constexpr const char* logFormatOct<unsigned short>() noexcept
 {
     return "%ho";
 }
 template <>
-constexpr const char* logFormatOct<unsigned int>()
+inline constexpr const char* logFormatOct<unsigned int>() noexcept
 {
     return "%o";
 }
 template <>
-constexpr const char* logFormatOct<unsigned long>()
+inline constexpr const char* logFormatOct<unsigned long>() noexcept
 {
     return "%lo";
 }
 template <>
-constexpr const char* logFormatOct<unsigned long long>()
+inline constexpr const char* logFormatOct<unsigned long long>() noexcept
 {
     return "%llo";
 }
 } // namespace internal
+
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
 } // namespace log
 } // namespace iox

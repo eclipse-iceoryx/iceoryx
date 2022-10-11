@@ -36,7 +36,7 @@ class LogHex
   public:
     friend class LogStream;
 
-    template <typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+    template <typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_pointer<T>::value>>
     explicit constexpr LogHex(const T value) noexcept;
 
   private:
@@ -47,13 +47,15 @@ class LogHex
 /// @tparam[in] T the arithmetic data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
 constexpr LogHex<T> hex(const T value) noexcept;
 
 /// @brief Log a pointer in hexadecimal format
 /// @param[in] ptr is the pointer to be logged
 /// @return a helper struct which will be used by the LogStream
-LogHex<uint64_t> hex(const void* const ptr) noexcept;
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
+LogHex<const void* const> hex(const void* const ptr) noexcept;
 
 /// @brief Helper struct to log in octal format
 template <typename T>
@@ -73,13 +75,14 @@ class LogOct
 /// @tparam[in] T the arithmetic data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
 inline constexpr LogOct<T> oct(const T value) noexcept;
 
 /// @todo iox-#1345 implement LogBin and LogRawBuffer
 
-/// @brief This class provides the public interface to the logger and is used with the `IOX_LOG` macro. In order to add
-/// support for custom data types `operator<<` needs to be implement for the custom type.
+/// @brief This class provides the public interface to the logger and is used with the 'IOX_LOG' macro. In order to add
+/// support for custom data types 'operator<<' needs to be implement for the custom type.
 /// @code
 /// iox::log::LogStream& operator<<(iox::log::LogStream& stream, const MyType& myType) noexcept
 /// {
@@ -91,23 +94,39 @@ class LogStream
 {
   public:
     /// @brief Constructor for a LogStream object with an externally provided logger
-    /// @note This is not intended for public use! Use the `IOX_LOG` macro instead
+    /// @note This is not intended for public use! Use the 'IOX_LOG' macro instead
     /// @param[in] logger to be used by the LogStream instance
-    /// @param[in] file the file of the log message. Please use the `__FILE__` compiler intrinsic
-    /// @param[in] line the line of the log message. Please use the `__LINE__` compiler intrinsic
-    /// @param[in] function the function of the log message. Please use the `__FUNCTION__` compiler intrinsic
+    /// @param[in] file the file of the log message. Please use the '__FILE__' compiler intrinsic
+    /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
+    /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
     /// @param[in] logLevel is the log level for the log message
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
     LogStream(Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
     /// @brief Constructor for a LogStream object with the logger from iox::log::Logger::get
-    /// @note This is not intended for public use! Use the `IOX_LOG` macro instead
-    /// @param[in] file the file of the log message. Please use the `__FILE__` compiler intrinsic
-    /// @param[in] line the line of the log message. Please use the `__LINE__` compiler intrinsic
-    /// @param[in] function the function of the log message. Please use the `__FUNCTION__` compiler intrinsic
+    /// @note This is not intended for public use! Use the 'IOX_LOG' macro instead
+    /// @param[in] file the file of the log message. Please use the '__FILE__' compiler intrinsic
+    /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
+    /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
     /// @param[in] logLevel is the log level for the log message
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel) noexcept;
 
-    /// @todo iox-#1345 temporary workaround
+    /// @brief Constructor for a LogStream object with the logger from iox::log::Logger::get
+    /// @note This is not intended for public use! Use the 'IOX_LOG' macro instead
+    /// @param[in] file the file of the log message. Please use the '__FILE__' compiler intrinsic
+    /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
+    /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
+    /// @param[in] logLevel is the log level for the log message
+    /// @todo iox-#1345 temporary workaround due to lazy evaluation issues with Axivion; should be removed when the
+    /// lazy evaluation can be implemented in an way Axivion does not complain
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
     LogStream(const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept;
 
     virtual ~LogStream() noexcept;
@@ -127,6 +146,7 @@ class LogStream
     /// @brief Logging support for C-style strings
     /// @param[in] cstr is the C-style string to log
     /// @return a reference to the LogStream instance
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Logging support for C-style strings
     LogStream& operator<<(const char* cstr) noexcept;
 
     /// @brief Logging support for std::string
@@ -145,33 +165,38 @@ class LogStream
     /// @tparam[in] T is the arithmetic data type of the value to log
     /// @param[in] val is the number to log
     /// @return a reference to the LogStream instance
-    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, int> = 0>
+    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool> = 0>
     LogStream& operator<<(const T val) noexcept;
 
     /// @brief Logging support for integral numbers in hexadecimal format
     /// @tparam[in] T is the integral data type of the value to log
     /// @param[in] val is the number to log
     /// @return a reference to the LogStream instance
-    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
 
     /// @brief Logging support for floating point numbers in hexadecimal format
     /// @tparam[in] T is the floating point data type of the value to log
     /// @param[in] val is the number to log
     /// @return a reference to the LogStream instance
-    template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, int> = 0>
+    template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
+
+    /// @brief Logging support for pointer in hexadecimal format
+    /// @param[in] val is the pointer to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const LogHex<const void* const> val) noexcept;
 
     /// @brief Logging support for integral numbers in octal format
     /// @tparam[in] T is the integral data type of the value to log
     /// @param[in] val is the number to log
     /// @return a reference to the LogStream instance
-    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, int> = 0>
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogOct<T> val) noexcept;
 
     /// @brief Logging support for callable. This gives access to the LogStream instance which e.g. can be used in a
     /// loop
-    /// @tparam[in] Callable with a signature `iox::log::LogStream&(iox::log::LogStream&)`
+    /// @tparam[in] Callable with a signature 'iox::log::LogStream&(iox::log::LogStream&)'
     /// @param[in] c is the callable which receives a LogStream object for the actual logging
     /// @code
     /// IOX_LOG(INFO) << [] (auto& stream) -> auto& {
@@ -183,7 +208,7 @@ class LogStream
     /// @endcode
     template <typename Callable,
               typename = std::enable_if_t<cxx::is_invocable_r<LogStream&, Callable, LogStream&>::value>>
-    LogStream& operator<<(const Callable&& c);
+    LogStream& operator<<(const Callable& c) noexcept;
 
     /// @brief Logging support for LogLevel
     /// @param[in] value is the LogLevel to log
@@ -198,7 +223,7 @@ class LogStream
     Logger& m_logger;
     bool m_isFlushed{false};
 
-    /// @todo iox-#1345 temporary workaround
+    /// @todo iox-#1345 workaround due to deactivation of lazy evaluation
     bool m_doFlush{true};
 };
 
