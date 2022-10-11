@@ -343,7 +343,7 @@ template <typename Derived, typename ValueType, typename ErrorType>
 // from interface classes is allowed. C++ interface classes can also provide default implementation but
 // have the downside to still enforce a user-side forward implementation. This implies a lot of
 // code duplication and more test overhead.
-// All classes which are inherited from in FunctionalInterfaceImpl are also stateless interface classes
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
 // with a default implementation. But they dont come with the downside of an explicit user-side
 // forward implementation.
 struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
@@ -366,7 +366,7 @@ template <typename Derived>
 // from interface classes is allowed. C++ interface classes can also provide default implementation but
 // have the downside to still enforce a user-side forward implementation. This implies a lot of
 // code duplication and more test overhead.
-// All classes which are inherited from in FunctionalInterfaceImpl are also stateless interface classes
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
 // with a default implementation. But they dont come with the downside of an explicit user-side
 // forward implementation.
 struct FunctionalInterfaceImpl<Derived, void, void>
@@ -387,7 +387,7 @@ template <typename Derived, typename ValueType>
 // from interface classes is allowed. C++ interface classes can also provide default implementation but
 // have the downside to still enforce a user-side forward implementation. This implies a lot of
 // code duplication and more test overhead.
-// All classes which are inherited from in FunctionalInterfaceImpl are also stateless interface classes
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
 // with a default implementation. But they dont come with the downside of an explicit user-side
 // forward implementation.
 struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValue<Derived, ValueType>,
@@ -410,7 +410,7 @@ template <typename Derived, typename ErrorType>
 // from interface classes is allowed. C++ interface classes can also provide default implementation but
 // have the downside to still enforce a user-side forward implementation. This implies a lot of
 // code duplication and more test overhead.
-// All classes which are inherited from in FunctionalInterfaceImpl are also stateless interface classes
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
 // with a default implementation. But they dont come with the downside of an explicit user-side
 // forward implementation.
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
