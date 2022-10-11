@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_STATIC_STORAGE_INL
-#define IOX_HOOFS_CXX_STATIC_STORAGE_INL
+#ifndef IOX_HOOFS_MEMORY_STATIC_STORAGE_INL
+#define IOX_HOOFS_MEMORY_STATIC_STORAGE_INL
 
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/memory/static_storage.hpp"
 
 namespace iox
 {
-namespace cxx
+namespace memory
 {
 template <uint64_t Capacity, uint64_t Align>
 constexpr uint64_t static_storage<Capacity, Align>::align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept
@@ -107,8 +107,8 @@ constexpr uint64_t static_storage<Capacity, Align>::allocation_size() noexcept
     return sizeof(T) + align_mismatch(Align, alignof(T));
 }
 
-} // namespace cxx
+} // namespace memory
 } // namespace iox
 
 
-#endif // IOX_HOOFS_STATIC_STORAGE_INL
+#endif // IOX_HOOFS_MEMORY_STATIC_STORAGE_INL

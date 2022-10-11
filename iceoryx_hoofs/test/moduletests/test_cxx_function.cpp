@@ -255,7 +255,7 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8302046f-cd6a-4527-aca6-3e6408f87a6b");
     constexpr uint32_t INITIAL_STATE = 73U;
-    static_storage<1024U> storage;
+    iox::memory::static_storage<1024U> storage;
     auto* p = storage.allocate<Functor>();
     p = new (p) Functor(INITIAL_STATE);
 

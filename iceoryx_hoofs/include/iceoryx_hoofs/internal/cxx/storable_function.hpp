@@ -18,7 +18,7 @@
 #define IOX_HOOFS_STORABLE_FUNCTION_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/memory/static_storage.hpp"
 
 #include <iostream>
 #include <utility>
@@ -48,7 +48,7 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 class storable_function<Capacity, signature<ReturnType, Args...>>
 {
   public:
-    using StorageType = static_storage<Capacity>;
+    using StorageType = memory::static_storage<Capacity>;
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
