@@ -21,11 +21,20 @@
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 #include <cstdint>
+#include <new>
+#include <type_traits>
 
 namespace iox
 {
 namespace runtime
 {
+
+// A refcount for use in getLifetimeParticipant().
+static int refcount;
+// Track whether the refcount lifetime mechanism is used by this particular
+// implementation of the abstract PoshRuntime class.
+static bool manual_lifetime_management = false;
+
 PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
 {
     static factory_t runtimeFactory = PoshRuntimeImpl::defaultRuntimeFactory;
@@ -47,8 +56,13 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept
 {
-    static PoshRuntimeImpl instance(name);
-    return instance;
+    static typename std::aligned_storage<sizeof(PoshRuntimeImpl), alignof(PoshRuntimeImpl)>::type buf;
+    static cxx::ScopeGuard ltp = [](auto name){
+        new(&buf) PoshRuntimeImpl(name);
+        manual_lifetime_management = true;
+        return getLifetimeParticipant();
+    }(name);
+    return reinterpret_cast<PoshRuntimeImpl&>(buf);
 }
 
 // singleton access
@@ -65,6 +79,20 @@ PoshRuntime& PoshRuntime::initRuntime(const RuntimeName_t& name) noexcept
 PoshRuntime& PoshRuntime::getInstance(cxx::optional<const RuntimeName_t*> name) noexcept
 {
     return getRuntimeFactory()(name);
+}
+
+cxx::ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
+{
+    return cxx::ScopeGuard(
+        [](){
+            ++refcount;
+        },
+        [](){
+            if (0 == --refcount && manual_lifetime_management) {
+                getInstance().~PoshRuntime();
+            }
+        }
+    );
 }
 
 PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept
