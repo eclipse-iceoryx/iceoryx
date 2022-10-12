@@ -98,6 +98,7 @@ inline string<Capacity>& string<Capacity>::operator=(string<N>&& rhs) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>::string(const char (&other)[N]) noexcept
 {
@@ -106,7 +107,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 
 template <uint64_t Capacity>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
-inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept(false)
+inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
     : string(TruncateToCapacity, other, [&other]() -> uint64_t {
         return (other != nullptr) ? strnlen(other, Capacity) : 0U;
     }())
@@ -124,7 +125,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const std::string& other) 
 template <uint64_t Capacity>
 // TruncateToCapacity_t is a compile time variable to distinguish between constructors
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept(false)
+inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept
 {
     if (other == nullptr)
     {
@@ -132,7 +133,8 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics, since
+// gcc 8 incorrectly warns here about out of bounds array access
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ == 3)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -158,6 +160,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
@@ -195,6 +198,7 @@ inline string<Capacity>& string<Capacity>::assign(const string<N>& str) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 {
@@ -333,10 +337,11 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     rhs.clear();
     return *this;
 }
-// AXIVION DISABLE Style AutosarC++19_03-M5.17.1: Only need to support streaming output
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
 template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept(false)
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
 {
     stream << str.c_str();
     return stream;
@@ -375,9 +380,9 @@ concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
     return concatenate(concatenate(str1, str2), targs...);
 }
 
+template <typename T1, typename T2>
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox::cxx namespace which prevents easy
 // misuse
-template <typename T1, typename T2>
 inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& str1, const T2& str2) noexcept
 {
@@ -578,7 +583,6 @@ inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 template <uint64_t Capacity>
 inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-M5.3.1 : operand of logical operator is non-bool, enhances readability
     ExpectsWithMsg((pos < size()), "Out of bounds access!");
     return m_rawstring[pos];
 }
@@ -668,7 +672,7 @@ inline IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs
 {
     return (lhs.compare(rhs) >= 0);
 }
-// AXIVION ENABLE Style AutosarC++19_03-M5.17.1
+// AXIVION ENABLE Style AutosarC++19_03-A13.5.5
 } // namespace cxx
 } // namespace iox
 

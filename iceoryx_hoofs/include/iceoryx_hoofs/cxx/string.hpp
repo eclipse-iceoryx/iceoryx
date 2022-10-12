@@ -231,7 +231,7 @@ class string final
     /// @endcode
     // TruncateToCapacity_t is a compile time variable to distinguish between constructors
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    string(TruncateToCapacity_t, const char* const other) noexcept(false);
+    string(TruncateToCapacity_t, const char* const other) noexcept;
 
     /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
     /// greater than the string capacity
@@ -275,7 +275,7 @@ class string final
     /// @endcode
     // TruncateToCapacity_t is a compile time variable to distinguish between constructors
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept(false);
+    string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept;
 
     /// @brief assigns a char array to string with compile time check if the array size is less than or equal
     /// to the string capacity
@@ -402,7 +402,9 @@ class string final
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) todo #1196 remove this conversion and implement toStdString method
+
+    // @todo iox-#260 remove this conversion and implement toStdString method
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
@@ -570,6 +572,15 @@ class string final
     uint64_t m_rawstringSize{0U};
 };
 
+/// @brief outputs the fixed string on stream
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+///
+/// @return the stream output of the fixed string
+template <uint64_t Capacity>
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with std::string, char array or
 // char is also intended
 /// @brief checks if a lhs std::string, char array or char is equal to a rhs iox::cxx::string
@@ -625,65 +636,57 @@ IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capac
 template <typename T, uint64_t Capacity>
 IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief outputs the fixed string on stream
+/// @brief checks if lhs is equal to rhs
 ///
-/// @param [in] stream is the output stream
-/// @param [in] str is the fixed string
-///
-/// @return the stream output of the fixed string
-template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept(false);
-
-/// @brief checks if self is equal to rhs
-///
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
 /// @return true if both strings are equal, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator==(const string<Capacity>& lhs, const T& rhs) noexcept;
 
-/// @brief checks if self is not equal to rhs
+/// @brief checks if lhs is not equal to rhs
 ///
 /// @param [in] lhs is the iox::cxx::string
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
 /// @return true if both strings are not equal, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator!=(const string<Capacity>& lhs, const T& rhs) noexcept;
 
-/// @brief checks if self is less than rhs, in lexicographical order
+/// @brief checks if lhs is less than rhs, in lexicographical order
 ///
 /// @param [in] lhs is the iox::cxx::string
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
-/// @return true if self is less than rhs, otherwise false
+/// @return true if lhs is less than rhs, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator<(const string<Capacity>& lhs, const T& rhs) noexcept;
 
-/// @brief checks if self is less than or equal to rhs, in lexicographical order
+/// @brief checks if lhs is less than or equal to rhs, in lexicographical order
 ///
 /// @param [in] lhs is the iox::cxx::string
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
-/// @return true if self is less than or equal to rhs, otherwise false
+/// @return true if lhs is less than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator<=(const string<Capacity>& lhs, const T& rhs) noexcept;
 
-/// @brief checks if self is greater than rhs, in lexicographical order
+/// @brief checks if lhs is greater than rhs, in lexicographical order
 ///
 /// @param [in] lhs is the iox::cxx::string
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
-/// @return true if self is greater than rhs, otherwise false
+/// @return true if lhs is greater than rhs, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator>(const string<Capacity>& lhs, const T& rhs) noexcept;
 
-/// @brief checks if self is greater than or equal to rhs, in lexicographical order
+/// @brief checks if lhs is greater than or equal to rhs, in lexicographical order
 ///
 /// @param [in] lhs is the iox::cxx::string
-/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
-/// @return true if self is greater than or equal to rhs, otherwise false
+/// @return true if lhs is greater than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
 IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs, const T& rhs) noexcept;
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
