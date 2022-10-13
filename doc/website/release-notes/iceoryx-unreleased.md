@@ -54,6 +54,7 @@
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
 - Removed `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
+- CI uses outdated clang-format [\#1736](https://github.com/eclipse-iceoryx/iceoryx/issues/1736)
 
 **Refactoring:**
 

@@ -13,6 +13,8 @@ runs:
         sudo rm /usr/bin/clang
         sudo rm /usr/bin/clang++
         sudo rm /usr/bin/clang-tidy
+        sudo rm /usr/bin/clang-format
         sudo ln -s /usr/bin/clang-15 /usr/bin/clang
         sudo ln -s /usr/bin/clang++-15 /usr/bin/clang++
         sudo ln -s /usr/bin/clang-tidy-15 /usr/bin/clang-tidy
+        sudo ln -s /usr/bin/clang-format-15 /usr/bin/clang-format

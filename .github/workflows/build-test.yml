@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
       - run: ./tools/scripts/check_test_ids.sh

@@ -31,11 +31,11 @@ using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBE
 
 // Statics
 template <typename IceoryxTerminal, typename ExternalTerminal>
-IceoryxTerminalPool<IceoryxTerminal>
-    Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals = IceoryxTerminalPool();
+IceoryxTerminalPool<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals =
+    IceoryxTerminalPool();
 template <typename IceoryxTerminal, typename ExternalTerminal>
-ExternalTerminalPool<ExternalTerminal>
-    Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals = ExternalTerminalPool();
+ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals =
+    ExternalTerminalPool();
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
 inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(
