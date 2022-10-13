@@ -29,13 +29,31 @@ namespace iox
 {
 namespace runtime
 {
+namespace
+{
 
-// A refcount for use in getLifetimeParticipant().
-static std::atomic<uint64_t> s_refcount{0U};
-// Track whether the refcount lifetime mechanism is used by this particular
-// implementation of the abstract PoshRuntime class.
-// This is necessary to avoid calling the destructor twice when
-static std::atomic<bool> s_manualLifetimeManagement{false};
+// A refcount for use in getLifetimeParticipant(). The refcount being > 0 does not
+// necessarily mean that the runtime is initialized yet, it only controls the point
+// at which the runtime is destroyed.
+std::atomic<uint64_t>& poshRuntimeStaticRefCount()
+{
+    static std::atomic<uint64_t> s_refcount{0U};
+    return s_refcount;
+}
+// Tracks whether the refcount lifetime mechanism is used by the factory function.
+// Only the PoshRuntimeImpl factory uses this mechanism, other factories use
+// regular static variables.
+// Tracking this is necessary to avoid calling the destructor twice for the other
+// classes that are not PoshRuntimeImpl, and also guards against the destructor
+// being called on a non-existent object in the case where a lifetime participant
+// goes out of scope before the PoshRuntimeImpl instance was constructed.
+std::atomic<bool>& poshRuntimeNeedsManualDestruction()
+{
+    static std::atomic<bool> s_needsManualDestruction{false};
+    return s_needsManualDestruction;
+}
+
+} // anonymous namespace
 
 PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
 {
@@ -58,10 +76,12 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
 
 PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept
 {
+    // Manual construction and destruction of the PoshRuntimeImpl, inspired by
+    // the nifty counter idiom.
     static typename std::aligned_storage<sizeof(PoshRuntimeImpl), alignof(PoshRuntimeImpl)>::type buf;
-    static cxx::ScopeGuard ltp = [&buf](auto name) {
+    static cxx::ScopeGuard ltp = [](auto name) {
         new (&buf) PoshRuntimeImpl(name);
-        s_manualLifetimeManagement = true;
+        poshRuntimeNeedsManualDestruction() = true;
         return getLifetimeParticipant();
     }(name);
     return reinterpret_cast<PoshRuntimeImpl&>(buf);
@@ -85,9 +105,9 @@ PoshRuntime& PoshRuntime::getInstance(cxx::optional<const RuntimeName_t*> name) 
 
 cxx::ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
 {
-    return cxx::ScopeGuard([]() { ++s_refcount; },
+    return cxx::ScopeGuard([]() { ++poshRuntimeStaticRefCount(); },
                            []() {
-                               if (0 == --s_refcount && s_manualLifetimeManagement)
+                               if (0 == --poshRuntimeStaticRefCount() && poshRuntimeNeedsManualDestruction())
                                {
                                    getInstance().~PoshRuntime();
                                }
