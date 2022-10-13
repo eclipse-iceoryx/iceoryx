@@ -18,7 +18,6 @@
 #define IOX_HOOFS_CXX_EXPECTED_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
