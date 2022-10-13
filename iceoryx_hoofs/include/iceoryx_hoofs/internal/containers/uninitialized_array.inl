@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.hpp"
+#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 
 namespace iox
 {

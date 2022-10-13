@@ -61,6 +61,6 @@ class Buffer
 } // namespace concurrent
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.inl"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.inl"
 
 #endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP

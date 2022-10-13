@@ -17,7 +17,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.hpp"
+#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 
 namespace
 {
