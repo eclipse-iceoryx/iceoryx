@@ -52,14 +52,13 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 {
 };
 
+// @todo iox-#1723 use string_view as argument
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Requires char base type to print strings originating
+// from string literals, cxx::string::c_str(), std::string::c_str() or other sources. Only with char we
+// can achieve the task.
 void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
@@ -69,16 +68,17 @@ struct Expect
     template <typename StringType>
     void expect(const StringType& msg) const noexcept;
 
+    Expect() noexcept = default;
+    Expect(const Expect&) noexcept = default;
+    Expect(Expect&&) noexcept = default;
+    Expect& operator=(const Expect&) noexcept = default;
+    Expect& operator=(Expect&&) noexcept = default;
+
   protected:
     ~Expect() = default;
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
@@ -113,16 +113,17 @@ struct ExpectWithValue
     template <typename StringType>
     const ValueType&& expect(const StringType& msg) const&& noexcept;
 
+    ExpectWithValue() noexcept = default;
+    ExpectWithValue(const ExpectWithValue&) noexcept = default;
+    ExpectWithValue(ExpectWithValue&&) noexcept = default;
+    ExpectWithValue& operator=(const ExpectWithValue&) noexcept = default;
+    ExpectWithValue& operator=(ExpectWithValue&&) noexcept = default;
+
   protected:
     ~ExpectWithValue() = default;
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ValueOr
 {
     /// @brief When the object contains a value a copy will be returned otherwise
@@ -143,16 +144,17 @@ struct ValueOr
     template <typename U>
     ValueType value_or(U&& alternative) && noexcept;
 
+    ValueOr() noexcept = default;
+    ValueOr(const ValueOr&) noexcept = default;
+    ValueOr(ValueOr&&) noexcept = default;
+    ValueOr& operator=(const ValueOr&) noexcept = default;
+    ValueOr& operator=(ValueOr&&) noexcept = default;
+
   protected:
     ~ValueOr() = default;
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThenWithValue
 {
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
@@ -195,16 +197,17 @@ struct AndThenWithValue
     template <typename Functor>
     const Derived&& and_then(const Functor& callable) const&& noexcept;
 
+    AndThenWithValue() noexcept = default;
+    AndThenWithValue(const AndThenWithValue&) noexcept = default;
+    AndThenWithValue(AndThenWithValue&&) noexcept = default;
+    AndThenWithValue& operator=(const AndThenWithValue&) noexcept = default;
+    AndThenWithValue& operator=(AndThenWithValue&&) noexcept = default;
+
   protected:
     ~AndThenWithValue() = default;
 };
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThen
 {
     using and_then_callback_t = cxx::function_ref<void()>;
@@ -233,16 +236,17 @@ struct AndThen
     /// @return const rvalue reference to *this
     const Derived&& and_then(const and_then_callback_t& callable) const&& noexcept;
 
+    AndThen() noexcept = default;
+    AndThen(const AndThen&) noexcept = default;
+    AndThen(AndThen&&) noexcept = default;
+    AndThen& operator=(const AndThen&) noexcept = default;
+    AndThen& operator=(AndThen&&) noexcept = default;
+
   protected:
     ~AndThen() = default;
 };
 
 template <typename Derived, typename ErrorType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElseWithValue
 {
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
@@ -285,16 +289,17 @@ struct OrElseWithValue
     template <typename Functor>
     const Derived&& or_else(const Functor& callable) const&& noexcept;
 
+    OrElseWithValue() noexcept = default;
+    OrElseWithValue(const OrElseWithValue&) noexcept = default;
+    OrElseWithValue(OrElseWithValue&&) noexcept = default;
+    OrElseWithValue& operator=(const OrElseWithValue&) noexcept = default;
+    OrElseWithValue& operator=(OrElseWithValue&&) noexcept = default;
+
   protected:
     ~OrElseWithValue() = default;
 };
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElse
 {
     using or_else_callback_t = cxx::function_ref<void()>;
@@ -323,62 +328,100 @@ struct OrElse
     /// @return const rvalue reference to *this
     const Derived&& or_else(const or_else_callback_t& callable) const&& noexcept;
 
+    OrElse() noexcept = default;
+    OrElse(const OrElse&) noexcept = default;
+    OrElse(OrElse&&) noexcept = default;
+    OrElse& operator=(const OrElse&) noexcept = default;
+    OrElse& operator=(OrElse&&) noexcept = default;
+
   protected:
     ~OrElse() = default;
 };
 
 template <typename Derived, typename ValueType, typename ErrorType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
 struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
                                  public ValueOr<Derived, ValueType>,
                                  public AndThenWithValue<Derived, ValueType>,
                                  public OrElseWithValue<Derived, ErrorType>
 {
+    FunctionalInterfaceImpl() noexcept = default;
+    FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(FunctionalInterfaceImpl&&) noexcept = default;
+
   protected:
     ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
 struct FunctionalInterfaceImpl<Derived, void, void>
     : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
+    FunctionalInterfaceImpl() noexcept = default;
+    FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(FunctionalInterfaceImpl&&) noexcept = default;
+
   protected:
     ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
 struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValue<Derived, ValueType>,
                                                            public ValueOr<Derived, ValueType>,
                                                            public AndThenWithValue<Derived, ValueType>,
                                                            public OrElse<Derived>
 {
+    FunctionalInterfaceImpl() noexcept = default;
+    FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(FunctionalInterfaceImpl&&) noexcept = default;
+
   protected:
     ~FunctionalInterfaceImpl() = default;
 };
 
 template <typename Derived, typename ErrorType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
-// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
     : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {
+    FunctionalInterfaceImpl() noexcept = default;
+    FunctionalInterfaceImpl(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl(FunctionalInterfaceImpl&&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(const FunctionalInterfaceImpl&) noexcept = default;
+    FunctionalInterfaceImpl& operator=(FunctionalInterfaceImpl&&) noexcept = default;
+
   protected:
     ~FunctionalInterfaceImpl() = default;
 };
@@ -396,7 +439,7 @@ struct FunctionalInterfaceImpl<Derived, void, ErrorType>
 ///        a reference to the underlying error.
 ///
 /// @note When inheriting from this type one does not have to write additional unit tests.
-///       Instead add a factory for your class to `test_cxx_functional_interface_types.hpp`,
+///       Instead add a factory for your class to "test_cxx_functional_interface_types.hpp",
 ///       add the type to the FunctionalInterfaceImplementations and all typed tests will be
 ///       generated.
 template <typename Derived, typename ValueType, typename ErrorType>
