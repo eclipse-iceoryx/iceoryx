@@ -34,7 +34,6 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
     // AXIVION Next Construct AutosarC++19_03-M5.14.1 getLogLevel is a static method without side effects
     return ((logLevel) <= MINIMAL_LOG_LEVEL) && (IGNORE_ACTIVE_LOG_LEVEL || ((logLevel) <= log::Logger::getLogLevel()));
 }
-
 } // namespace internal
 } // namespace log
 } // namespace iox
@@ -45,7 +44,8 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
     /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1345 lazy evaluation causes issues with Axivion */  \
-    iox::log::LogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level)).self()
+    iox::log::internal::SelectedLogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level))    \
+        .self()
 
 /// @brief Macro for logging
 /// @param[in] level is the log level to be used for the log message

@@ -200,6 +200,27 @@ inline LogStream& LogStream::operator<<(const LogLevel value) noexcept
     return *this;
 }
 
+namespace internal
+{
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
+inline LogStreamOff::LogStreamOff(const char*, const int, const char*, LogLevel, bool) noexcept
+{
+}
+
+inline LogStreamOff& LogStreamOff::self() noexcept
+{
+    return *this;
+}
+
+// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
+template <typename T>
+inline LogStreamOff& LogStreamOff::operator<<(T&&) noexcept
+{
+    return *this;
+}
+} // namespace internal
+
 } // namespace log
 } // namespace iox
 
