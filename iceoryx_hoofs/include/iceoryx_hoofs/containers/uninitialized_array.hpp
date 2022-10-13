@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,28 +15,28 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
-#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
+#ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
+#define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
 
 #include <cstdint>
 
 namespace iox
 {
-namespace concurrent
+namespace containers
 {
 // remark: we can add more functionality (policies for cache line size, redzoning)
 
 template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
-class Buffer
+class UnitializedArray
 {
   public:
-    Buffer() noexcept = default;
-    ~Buffer() noexcept = default;
+    UnitializedArray() noexcept = default;
+    ~UnitializedArray() noexcept = default;
 
-    Buffer(const Buffer&) = delete;
-    Buffer(Buffer&&) = delete;
-    Buffer& operator=(const Buffer&) = delete;
-    Buffer& operator=(Buffer&&) = delete;
+    UnitializedArray(const UnitializedArray&) = delete;
+    UnitializedArray(UnitializedArray&&) = delete;
+    UnitializedArray& operator=(const UnitializedArray&) = delete;
+    UnitializedArray& operator=(UnitializedArray&&) = delete;
 
     ElementType& operator[](const index_t index) noexcept;
 
@@ -51,16 +51,16 @@ class Buffer
   private:
     using byte_t = uint8_t;
 
-    // NOLINTJUSTIFICATION required by low level buffer building block and encapsulated in abstraction
+    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     alignas(ElementType) byte_t m_buffer[Capacity * sizeof(ElementType)];
 
     ElementType* toPtr(index_t index) const noexcept;
 };
 
-} // namespace concurrent
+} // namespace containers
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/containers/uninitialized_array.inl"
 
-#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP
+#endif // IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP

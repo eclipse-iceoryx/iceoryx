@@ -18,7 +18,6 @@
 #ifndef IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 #define IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
 

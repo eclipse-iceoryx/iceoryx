@@ -111,7 +111,7 @@ class LockFreeQueue
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
     Queue m_usedIndices;
 
-    Buffer<ElementType, Capacity, BufferIndex> m_buffer;
+    containers::UnitializedArray<ElementType, Capacity, BufferIndex> m_buffer;
 
     std::atomic<uint64_t> m_size{0U};
 

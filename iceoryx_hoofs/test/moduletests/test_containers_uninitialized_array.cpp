@@ -23,10 +23,10 @@ namespace
 {
 using namespace ::testing;
 
-using iox::concurrent::Buffer;
+using iox::containers::UnitializedArray;
 
 template <typename T>
-class LockFreeQueueBufferTest : public ::testing::Test
+class UninitializedArrayTest : public ::testing::Test
 {
   public:
     using Buffer = T;
@@ -62,20 +62,20 @@ struct Integer
     }
 };
 
-TEST(LockFreeQueueBufferTest, capacityIsCorrect)
+TEST(UninitializedArrayTest, capacityIsCorrect)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ac31a08-77b2-4fd2-a214-81298cada00c");
     constexpr uint64_t capacity = 7;
     // NOLINTNEXTLINE(hicpp-member-init, cppcoreguidelines-pro-type-member-init) false positive
-    Buffer<int, capacity> sut;
+    UnitializedArray<int, capacity> sut;
     EXPECT_EQ(sut.capacity(), capacity);
 }
 
-typedef ::testing::Types<Buffer<int, 10>, Buffer<Integer, 10>> TestBuffers;
+typedef ::testing::Types<UnitializedArray<int, 10>, UnitializedArray<Integer, 10>> TestArrays;
 
-TYPED_TEST_SUITE(LockFreeQueueBufferTest, TestBuffers, );
+TYPED_TEST_SUITE(UninitializedArrayTest, TestArrays, );
 
-TYPED_TEST(LockFreeQueueBufferTest, accessElements)
+TYPED_TEST(UninitializedArrayTest, accessElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f8621711-9c4c-45b5-979d-404357b664a4");
     auto& buffer = this->buffer;
@@ -91,7 +91,7 @@ TYPED_TEST(LockFreeQueueBufferTest, accessElements)
     }
 }
 
-TYPED_TEST(LockFreeQueueBufferTest, accessElementsOfConstBuffer)
+TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUinitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "50575bac-cff9-4896-89da-b03753370b18");
     auto& buffer = this->buffer;
@@ -108,7 +108,7 @@ TYPED_TEST(LockFreeQueueBufferTest, accessElementsOfConstBuffer)
     }
 }
 
-TYPED_TEST(LockFreeQueueBufferTest, accessElementsViaPtr)
+TYPED_TEST(UninitializedArrayTest, accessElementsViaPtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2c28ae80-be4e-46d4-b2bb-e475e1b1df69");
     auto& buffer = this->buffer;
@@ -125,7 +125,7 @@ TYPED_TEST(LockFreeQueueBufferTest, accessElementsViaPtr)
     }
 }
 
-TYPED_TEST(LockFreeQueueBufferTest, accessElementsOfConstBufferViaPtr)
+TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUninitializedArrayViaPtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3efd2143-0798-457d-84f3-d8aa85d44665");
     auto& buffer = this->buffer;
