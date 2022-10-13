@@ -21,6 +21,8 @@ namespace iox
 {
 namespace popo
 {
+namespace internal
+{
 /// @todo iox-#1712 Add minVal() without reference to iox::algorithm?! C++11 needs a declaration for constexpr!
 ///       Ex.: constexpr uint32_t DefaultChunkDistributorConfig::MAX_HISTORY_CAPACITY;
 ///       This wouldn't be an issue in C++17.
@@ -29,18 +31,18 @@ constexpr T min(const T left, const T right) noexcept
 {
     return (left < right) ? left : right;
 }
+} // namespace internal
 
 template <typename ChunkDistributorDataProperties, typename LockingPolicy, typename ChunkQueuePusherType>
 inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, ChunkQueuePusherType>::ChunkDistributorData(
     const ConsumerTooSlowPolicy policy, const uint64_t historyCapacity) noexcept
     : LockingPolicy()
-    , m_historyCapacity(min(historyCapacity, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY))
+    , m_historyCapacity(internal::min(historyCapacity, ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY))
     , m_consumerTooSlowPolicy(policy)
 {
     if (m_historyCapacity != historyCapacity)
     {
-        LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to "
-                  << ChunkDistributorDataProperties_t::MAX_HISTORY_CAPACITY;
+        LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to " << m_historyCapacity;
     }
 }
 
