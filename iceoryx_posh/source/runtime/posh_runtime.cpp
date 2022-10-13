@@ -34,7 +34,8 @@ namespace runtime
 static std::atomic<uint64_t> s_refcount{0U};
 // Track whether the refcount lifetime mechanism is used by this particular
 // implementation of the abstract PoshRuntime class.
-static std::atomic<bool> manual_lifetime_management{false};
+// This is necessary to avoid calling the destructor twice when
+static std::atomic<bool> s_manualLifetimeManagement{false};
 
 PoshRuntime::factory_t& PoshRuntime::getRuntimeFactory() noexcept
 {
@@ -60,7 +61,7 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_
     static typename std::aligned_storage<sizeof(PoshRuntimeImpl), alignof(PoshRuntimeImpl)>::type buf;
     static cxx::ScopeGuard ltp = [&buf](auto name) {
         new (&buf) PoshRuntimeImpl(name);
-        manual_lifetime_management = true;
+        s_manualLifetimeManagement = true;
         return getLifetimeParticipant();
     }(name);
     return reinterpret_cast<PoshRuntimeImpl&>(buf);
@@ -86,7 +87,7 @@ cxx::ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
 {
     return cxx::ScopeGuard([]() { ++s_refcount; },
                            []() {
-                               if (0 == --s_refcount && manual_lifetime_management)
+                               if (0 == --s_refcount && s_manualLifetimeManagement)
                                {
                                    getInstance().~PoshRuntime();
                                }
