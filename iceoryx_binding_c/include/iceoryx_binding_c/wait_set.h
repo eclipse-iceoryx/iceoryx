@@ -27,6 +27,8 @@
 #include "iceoryx_binding_c/types.h"
 #include "iceoryx_binding_c/user_trigger.h"
 
+#include <time.h>
+
 /// @brief wait set handle
 typedef CLASS cpp2c_WaitSet* iox_ws_t;
 
