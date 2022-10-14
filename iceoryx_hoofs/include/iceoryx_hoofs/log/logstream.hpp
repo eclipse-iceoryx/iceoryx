@@ -227,6 +227,37 @@ class LogStream
     bool m_doFlush{true};
 };
 
+namespace internal
+{
+/// @brief This is an internal helper struct to fully remove the logger from the compiled binary
+/// when 'IOX_MINIMAL_LOG_LEVEL == OFF'. It is not intended for direct usage.
+struct LogStreamOff
+{
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
+    // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
+    // platform agnostic way
+    inline LogStreamOff(const char*, const int, const char*, LogLevel, bool) noexcept;
+    inline LogStreamOff& self() noexcept;
+
+    template <typename T>
+    inline LogStreamOff& operator<<(T&&) noexcept;
+};
+
+template <LogLevel level>
+struct LogStreamTypeSelector
+{
+    using type = iox::log::LogStream;
+};
+
+template <>
+struct LogStreamTypeSelector<iox::log::LogLevel::OFF>
+{
+    using type = iox::log::internal::LogStreamOff;
+};
+
+using SelectedLogStream = typename LogStreamTypeSelector<MINIMAL_LOG_LEVEL>::type;
+} // namespace internal
+
 } // namespace log
 } // namespace iox
 
