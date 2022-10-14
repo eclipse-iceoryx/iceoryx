@@ -265,7 +265,7 @@ class variant
     constexpr uint64_t index() const noexcept;
 
   private:
-    /// @todo iox-#1614 Replace with UninitializedArray
+    // NOLINTJUSTIFICATION safe access is guaranteed since the c-array is wrapped inside the variant class
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     alignas(algorithm::maxVal(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0U};
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)

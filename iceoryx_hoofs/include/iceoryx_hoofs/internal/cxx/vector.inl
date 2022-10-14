@@ -358,7 +358,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
 {
     if ((begin() <= position) && (position < end()))
     {
-        uint64_t index{static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity)};
+        uint64_t index{static_cast<uint64_t>(position - begin()) % sizeof(decltype(m_data))};
         size_t n{index};
         while ((n + 1U) < size())
         {

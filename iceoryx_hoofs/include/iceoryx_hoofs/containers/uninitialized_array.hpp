@@ -18,44 +18,36 @@
 #ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
 #define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
 
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+
 #include <cstdint>
 
 namespace iox
 {
 namespace containers
 {
-// remark: we can add more functionality (policies for cache line size, redzoning)
-
 template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
 class UnitializedArray
 {
   public:
-    UnitializedArray() noexcept = default;
-    ~UnitializedArray() noexcept = default;
+    constexpr UnitializedArray() noexcept;
 
-    UnitializedArray(const UnitializedArray&) = delete;
-    UnitializedArray(UnitializedArray&&) = delete;
-    UnitializedArray& operator=(const UnitializedArray&) = delete;
-    UnitializedArray& operator=(UnitializedArray&&) = delete;
+    constexpr ElementType& operator[](const index_t index) noexcept;
 
-    ElementType& operator[](const index_t index) noexcept;
+    constexpr const ElementType& operator[](const index_t index) const noexcept;
 
-    const ElementType& operator[](const index_t index) const noexcept;
+    constexpr ElementType* ptr(const index_t index) noexcept;
 
-    ElementType* ptr(const index_t index) noexcept;
+    constexpr const ElementType* ptr(const index_t index) const noexcept;
 
-    const ElementType* ptr(const index_t index) const noexcept;
-
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
   private:
-    using byte_t = uint8_t;
-
     // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    alignas(ElementType) byte_t m_buffer[Capacity * sizeof(ElementType)];
+    alignas(ElementType) cxx::byte_t m_buffer[Capacity * sizeof(ElementType)];
 
-    ElementType* toPtr(index_t index) const noexcept;
+    constexpr ElementType* toPtr(index_t index) const noexcept;
 };
 
 } // namespace containers

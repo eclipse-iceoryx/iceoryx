@@ -24,42 +24,52 @@ namespace iox
 {
 namespace containers
 {
+// UninitializedArray shall behave like a c-array; we explicitly do not want to initialize m_buffer. The constexpr
+// default c'tor is needed to enable constexpr c'tors in classes that have an UnitializedArray member.
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename ElementType, uint64_t Capacity, typename index_t>
-ElementType& UnitializedArray<ElementType, Capacity, index_t>::operator[](const index_t index) noexcept
+inline constexpr UnitializedArray<ElementType, Capacity, index_t>::UnitializedArray() noexcept
+{
+}
+
+template <typename ElementType, uint64_t Capacity, typename index_t>
+inline constexpr ElementType& UnitializedArray<ElementType, Capacity, index_t>::operator[](const index_t index) noexcept
 {
     return *toPtr(index);
 }
 
 template <typename ElementType, uint64_t Capacity, typename index_t>
-const ElementType& UnitializedArray<ElementType, Capacity, index_t>::operator[](const index_t index) const noexcept
+inline constexpr const ElementType&
+UnitializedArray<ElementType, Capacity, index_t>::operator[](const index_t index) const noexcept
 {
     return *toPtr(index);
 }
 
 template <typename ElementType, uint64_t Capacity, typename index_t>
-ElementType* UnitializedArray<ElementType, Capacity, index_t>::ptr(const index_t index) noexcept
+inline constexpr ElementType* UnitializedArray<ElementType, Capacity, index_t>::ptr(const index_t index) noexcept
 {
     return toPtr(index);
 }
 
 template <typename ElementType, uint64_t Capacity, typename index_t>
-const ElementType* UnitializedArray<ElementType, Capacity, index_t>::ptr(const index_t index) const noexcept
+inline constexpr const ElementType*
+UnitializedArray<ElementType, Capacity, index_t>::ptr(const index_t index) const noexcept
 {
     return toPtr(index);
 }
 
 template <typename ElementType, uint64_t Capacity, typename index_t>
-uint64_t UnitializedArray<ElementType, Capacity, index_t>::capacity() const noexcept
+inline constexpr uint64_t UnitializedArray<ElementType, Capacity, index_t>::capacity() noexcept
 {
     return Capacity;
 }
 
 template <typename ElementType, uint64_t Capacity, typename index_t>
-ElementType* UnitializedArray<ElementType, Capacity, index_t>::toPtr(index_t index) const noexcept
+inline constexpr ElementType* UnitializedArray<ElementType, Capacity, index_t>::toPtr(index_t index) const noexcept
 {
     auto ptr = &(m_buffer[index * sizeof(ElementType)]);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast) type erasure
-    return reinterpret_cast<ElementType*>(const_cast<byte_t*>(ptr));
+    return reinterpret_cast<ElementType*>(const_cast<cxx::byte_t*>(ptr));
 }
 
 } // namespace containers
