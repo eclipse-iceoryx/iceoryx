@@ -20,7 +20,6 @@
 #include "c2cpp_binding.h"
 #include "iceoryx_binding_c/enums.h"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
-#include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
 namespace c2cpp

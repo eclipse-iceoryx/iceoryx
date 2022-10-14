@@ -21,7 +21,6 @@
 #include "iceoryx_platform/platform_correction.hpp"
 
 #include <chrono>
-#include <cstdlib>
 #include <string>
 
 

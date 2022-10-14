@@ -21,8 +21,6 @@
 // NOLINTBEGIN
 #include "iceoryx_hoofs/cxx/expected.hpp"
 
-#include <utility>
-
 namespace DesignPattern
 {
 /// @brief This pattern can be used if you write an abstraction where you have

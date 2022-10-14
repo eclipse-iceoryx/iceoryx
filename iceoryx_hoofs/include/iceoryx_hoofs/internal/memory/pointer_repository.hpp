@@ -21,9 +21,6 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 
-#include <cassert>
-#include <limits>
-
 namespace iox
 {
 namespace memory

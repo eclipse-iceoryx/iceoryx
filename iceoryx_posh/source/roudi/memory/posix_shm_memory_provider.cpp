@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/unistd.hpp"
 

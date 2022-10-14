@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/user_trigger.hpp"
-#include "iceoryx_posh/popo/wait_set.hpp"
 
 namespace iox
 {

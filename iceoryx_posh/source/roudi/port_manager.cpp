@@ -22,7 +22,6 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_posh/runtime/node.hpp"
 
 #include <cstdint>
 

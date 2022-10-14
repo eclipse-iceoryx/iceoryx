@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/cxx/unique_ptr.hpp"
-#include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 namespace iox
