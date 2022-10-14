@@ -79,7 +79,9 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_
     // Manual construction and destruction of the PoshRuntimeImpl, inspired by
     // the nifty counter idiom.
     static typename std::aligned_storage<sizeof(PoshRuntimeImpl), alignof(PoshRuntimeImpl)>::type buf;
-    static cxx::ScopeGuard ltp = [](auto name) {
+    // This is the primary lifetime participant. It ensures that, even if getLifetimeParticipant()
+    // is never called, the runtime has the same lifetime as a regular static variable.
+    static cxx::ScopeGuard staticLifetimeParticipant = [](auto name) {
         new (&buf) PoshRuntimeImpl(name);
         poshRuntimeNeedsManualDestruction() = true;
         return getLifetimeParticipant();
