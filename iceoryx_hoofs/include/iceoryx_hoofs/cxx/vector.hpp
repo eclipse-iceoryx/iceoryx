@@ -37,8 +37,6 @@ namespace cxx
 /// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
 ///
 template <typename T, uint64_t Capacity>
-// NOLINTJUSTIFICATION @todo iox-#1614 will be solved with upcoming uninitialized array
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class vector final
 {
   public:

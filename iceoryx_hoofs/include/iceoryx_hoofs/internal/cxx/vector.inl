@@ -25,9 +25,6 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTJUSTIFICATION @todo iox-#1614 using UninitializedArray will solve the issue
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept
 {
@@ -43,8 +40,6 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
     }
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via placement new in for loop
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
@@ -62,16 +57,12 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     }
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const vector& rhs) noexcept
 {
     *this = rhs;
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(vector&& rhs) noexcept
 {
