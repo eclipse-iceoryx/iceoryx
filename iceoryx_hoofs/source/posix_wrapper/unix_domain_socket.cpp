@@ -278,9 +278,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
     }
-    // NOLINTJUSTIFICATION needed for recvfrom
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char message[MAX_MESSAGE_SIZE + 1];
+    containers::UnitializedArray<char, MAX_MESSAGE_SIZE + 1> message;
 
     auto recvCall = posixCall(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                         .failureReturnValue(ERROR_CODE)
@@ -292,7 +290,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
     }
-    return cxx::success<std::string>(message);
+    return cxx::success<std::string>(&message[0]);
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept

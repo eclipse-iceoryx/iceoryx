@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,9 +73,8 @@ inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char
 template <typename T>
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    /// NOLINTJUSTIFICATION @todo iox-#1614 replace with upcoming uninitialized array
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    char buffer[POSIX_CALL_ERROR_STRING_SIZE];
+    containers::UnitializedArray<char, POSIX_CALL_ERROR_STRING_SIZE> buffer;
+    buffer[0] = '\0';
     return internal::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
 }
 

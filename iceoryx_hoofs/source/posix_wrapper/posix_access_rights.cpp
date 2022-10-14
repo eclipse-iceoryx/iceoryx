@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-
+#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
@@ -147,10 +147,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     }
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-
-    /// NOLINTJUSTIFICATION @todo iox-#1614 use upcoming cxx::array
-    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    gid_t groups[MaxNumberOfGroups];
+    containers::UnitializedArray<gid_t, MaxNumberOfGroups> groups;
     int32_t numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
@@ -171,9 +168,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     groupVector_t vec;
     for (int32_t i = 0; i < numGroups; ++i)
     {
-        /// NOLINTJUSTIFICATION @todo iox-#1614 will be fixed when upcoming cxx::array is used
-        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        vec.emplace_back(PosixGroup(groups[i]));
+        vec.emplace_back(PosixGroup(groups[static_cast<uint64_t>(i)]));
     }
 
     return vec;
