@@ -35,7 +35,7 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 
 ThreadName_t getThreadName(iox_pthread_t thread) noexcept
 {
-    containers::UnitializedArray<char, MAX_THREAD_NAME_LENGTH + 1> tempName;
+    containers::UnitializedArray<char, MAX_THREAD_NAME_LENGTH + 1, uint64_t, containers::FirstElementZeroed> tempName;
 
     posixCall(iox_pthread_getname_np)(thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)

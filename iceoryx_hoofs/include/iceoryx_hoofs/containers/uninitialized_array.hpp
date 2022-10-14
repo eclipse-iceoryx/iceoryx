@@ -26,11 +26,30 @@ namespace iox
 {
 namespace containers
 {
-template <typename ElementType, uint64_t Capacity, typename index_t = uint64_t>
+template <typename ElementType, uint64_t Capacity>
+struct FirstElementZeroed
+{
+    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    alignas(ElementType) cxx::byte_t value[Capacity * sizeof(ElementType)]{0};
+};
+
+template <typename ElementType, uint64_t Capacity>
+struct UninitializedBuffer
+{
+    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    alignas(ElementType) cxx::byte_t value[Capacity * sizeof(ElementType)];
+};
+
+template <typename ElementType,
+          uint64_t Capacity,
+          typename index_t = uint64_t,
+          template <typename, uint64_t> class Buffer = UninitializedBuffer>
 class UnitializedArray
 {
   public:
-    constexpr UnitializedArray() noexcept;
+    constexpr UnitializedArray() noexcept = default;
 
     constexpr ElementType& operator[](const index_t index) noexcept;
 
@@ -43,11 +62,9 @@ class UnitializedArray
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    alignas(ElementType) cxx::byte_t m_buffer[Capacity * sizeof(ElementType)];
-
     constexpr ElementType* toPtr(index_t index) const noexcept;
+
+    Buffer<ElementType, Capacity> m_buffer;
 };
 
 } // namespace containers
