@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_CXX_OPTIONAL_HPP
 #define IOX_HOOFS_CXX_OPTIONAL_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
