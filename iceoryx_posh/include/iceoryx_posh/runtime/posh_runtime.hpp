@@ -18,6 +18,7 @@
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -70,6 +71,17 @@ class PoshRuntime
     ///
     /// @return active runtime
     static PoshRuntime& initRuntime(const RuntimeName_t& name) noexcept;
+
+    /// @brief provides an object to extend the lifetime of the runtime
+    /// @details While the PoshRuntime has static lifetime, it may not live long enough
+    ///          when other static variables depend, possibly indirectly, on the PoshRuntime.
+    ///          This is why its lifetime can be extended with this refcounting mechanism.
+    ///          Those other static variables should store a lifetime participant object as a
+    ///          static variable in the same translation unit before itself, to ensure that the
+    ///          lifetime participant and thus the PoshRuntime lives long enough.
+    ///
+    /// @return an opaque RAII object
+    static cxx::ScopeGuard getLifetimeParticipant() noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the registered application
