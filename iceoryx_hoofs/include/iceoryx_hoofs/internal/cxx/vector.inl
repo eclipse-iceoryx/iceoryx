@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -150,7 +151,7 @@ inline uint64_t vector<T, Capacity>::size() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t vector<T, Capacity>::capacity() const noexcept
+inline constexpr uint64_t vector<T, Capacity>::capacity() noexcept
 {
     return Capacity;
 }

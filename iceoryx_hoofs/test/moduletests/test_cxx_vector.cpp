@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,6 +145,7 @@ TEST_F(vector_test, NewlyCreatedVectorHasSizeZero)
 TEST_F(vector_test, Capacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e0a244d5-6e01-4cbb-9f9a-ac07cad81a5c");
+    static_assert(decltype(sut)::capacity() == 10U, "Vector capacity has to match!");
     EXPECT_THAT(sut.capacity(), Eq(10U));
 }
 

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -154,7 +155,7 @@ class vector
 
     /// @brief returns the capacity of the vector which was given via the template
     ///         argument
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
