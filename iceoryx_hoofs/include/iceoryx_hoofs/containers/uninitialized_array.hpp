@@ -30,9 +30,10 @@ namespace containers
 template <typename ElementType, uint64_t Capacity>
 struct FirstElementZeroed
 {
-    // NOLINTJUSTIFICATION required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     using element_t = cxx::byte_t[sizeof(ElementType)];
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     alignas(ElementType) element_t value[Capacity]{{0}};
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
@@ -41,9 +42,10 @@ struct FirstElementZeroed
 template <typename ElementType, uint64_t Capacity>
 struct UninitializedBuffer
 {
-    // NOLINTJUSTIFICATION required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     using element_t = cxx::byte_t[sizeof(ElementType)];
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     alignas(ElementType) element_t value[Capacity];
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };

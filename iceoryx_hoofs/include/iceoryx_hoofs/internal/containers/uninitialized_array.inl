@@ -28,7 +28,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline constexpr ElementType&
 UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return *reinterpret_cast<ElementType*>(&m_buffer.value[index]);
 }
 
@@ -36,7 +37,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline constexpr const ElementType&
 UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) const noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return *reinterpret_cast<const ElementType*>(&m_buffer.value[index]);
 }
 
@@ -50,7 +52,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
 UninitializedArray<ElementType, Capacity, Buffer>::begin() noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<iterator>(&m_buffer.value[0]);
 }
 
@@ -58,7 +61,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
 UninitializedArray<ElementType, Capacity, Buffer>::begin() const noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<const_iterator>(&m_buffer.value[0]);
 }
 
@@ -66,7 +70,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
 UninitializedArray<ElementType, Capacity, Buffer>::end() noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<iterator>(&m_buffer.value[Capacity]);
 }
 
@@ -74,7 +79,8 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
 UninitializedArray<ElementType, Capacity, Buffer>::end() const noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<const_iterator>(&m_buffer.value[Capacity]);
 }
 } // namespace containers
