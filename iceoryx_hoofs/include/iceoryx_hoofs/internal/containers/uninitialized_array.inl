@@ -46,6 +46,37 @@ inline constexpr uint64_t UninitializedArray<ElementType, Capacity, Buffer>::cap
     return Capacity;
 }
 
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
+UninitializedArray<ElementType, Capacity, Buffer>::begin() noexcept
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return reinterpret_cast<iterator>(&m_buffer.value[0]);
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
+UninitializedArray<ElementType, Capacity, Buffer>::begin() const noexcept
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return reinterpret_cast<const_iterator>(&m_buffer.value[0]);
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
+UninitializedArray<ElementType, Capacity, Buffer>::end() noexcept
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return reinterpret_cast<iterator>(&m_buffer.value[Capacity]);
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
+UninitializedArray<ElementType, Capacity, Buffer>::end() const noexcept
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return reinterpret_cast<const_iterator>(&m_buffer.value[Capacity]);
+}
 } // namespace containers
 } // namespace iox
 

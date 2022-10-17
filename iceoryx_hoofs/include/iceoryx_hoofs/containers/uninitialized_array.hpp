@@ -55,6 +55,9 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 class UninitializedArray
 {
   public:
+    using iterator = ElementType*;
+    using const_iterator = const ElementType*;
+
     constexpr UninitializedArray() noexcept = default;
 
     /// @brief returns a reference to the element stored at index
@@ -68,6 +71,18 @@ class UninitializedArray
     /// @return const reference to the element
     /// @note out of bounds access leads to undefined behavior
     constexpr const ElementType& operator[](const uint64_t index) const noexcept;
+
+    /// @brief returns an iterator to the beginning of the UninitializedArray
+    iterator begin() noexcept;
+
+    /// @brief returns a const iterator to the beginning of the UninitializedArray
+    const_iterator begin() const noexcept;
+
+    /// @brief returns an iterator to the end of the UninitializedArray
+    iterator end() noexcept;
+
+    /// @brief returns a const iterator to the end of the UninitializedArray
+    const_iterator end() const noexcept;
 
     /// @brief returns the array capacity
     static constexpr uint64_t capacity() noexcept;
