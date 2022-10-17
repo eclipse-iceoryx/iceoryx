@@ -235,12 +235,12 @@ class vector final
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
 // comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
+constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
 
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
 // comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
+constexpr bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
 } // namespace cxx
 } // namespace iox
 

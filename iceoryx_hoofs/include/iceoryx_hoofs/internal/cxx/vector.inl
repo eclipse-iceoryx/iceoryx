@@ -240,16 +240,12 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
     {
         clearFrom(count);
     }
-    else if (count > m_size)
+    else
     {
         while (count != m_size)
         {
             IOX_DISCARD_RESULT(emplace_back(args...));
         }
-    }
-    else
-    {
-        // count == m_size : no resize necessary
     }
     return true;
 }
@@ -404,7 +400,7 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
 // comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
+inline constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
     uint64_t vectorSize{lhs.size()};
     if (vectorSize != rhs.size())
@@ -425,7 +421,7 @@ inline bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, Capac
 // AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
 // comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
+inline bool constexpr operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
