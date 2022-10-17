@@ -30,26 +30,30 @@ template <typename ElementType, uint64_t Capacity>
 struct FirstElementZeroed
 {
     // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    alignas(ElementType) cxx::byte_t value[Capacity * sizeof(ElementType)]{0};
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    using element_t = cxx::byte_t[sizeof(ElementType)];
+    alignas(ElementType) element_t value[Capacity]{{0}};
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
 
 template <typename ElementType, uint64_t Capacity>
 struct UninitializedBuffer
 {
     // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
-    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    alignas(ElementType) cxx::byte_t value[Capacity * sizeof(ElementType)];
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    using element_t = cxx::byte_t[sizeof(ElementType)];
+    alignas(ElementType) element_t value[Capacity];
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
 
 template <typename ElementType,
           uint64_t Capacity,
           typename index_t = uint64_t,
           template <typename, uint64_t> class Buffer = UninitializedBuffer>
-class UnitializedArray
+class UninitializedArray
 {
   public:
-    constexpr UnitializedArray() noexcept = default;
+    constexpr UninitializedArray() noexcept = default;
 
     constexpr ElementType& operator[](const index_t index) noexcept;
 

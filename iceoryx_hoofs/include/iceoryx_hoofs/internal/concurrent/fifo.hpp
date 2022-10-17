@@ -54,7 +54,7 @@ class FiFo
     bool is_full() const noexcept;
 
   private:
-    containers::UnitializedArray<ValueType, Capacity> m_data;
+    containers::UninitializedArray<ValueType, Capacity> m_data;
     std::atomic<uint64_t> m_write_pos{0};
     std::atomic<uint64_t> m_read_pos{0};
 };

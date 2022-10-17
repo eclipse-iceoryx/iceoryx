@@ -230,7 +230,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     //     initHandle(&handle);
     //   }
     bool m_hasValue{false};
-    containers::UnitializedArray<T, 1> m_data;
+    containers::UninitializedArray<T, 1> m_data;
 
   private:
     template <typename... Targs>

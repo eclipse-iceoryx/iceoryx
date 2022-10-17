@@ -383,8 +383,8 @@ class list
     // to the beginning and end of the list. This additional element (index position 'capacity' aka
     // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
     // first used list element (begin())
-    containers::UnitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
-    containers::UnitializedArray<T, Capacity> m_data;
+    containers::UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
+    containers::UninitializedArray<T, Capacity> m_data;
     size_type m_size{0U};
 }; // list
 

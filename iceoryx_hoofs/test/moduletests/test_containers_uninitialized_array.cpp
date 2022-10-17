@@ -23,7 +23,7 @@ namespace
 {
 using namespace ::testing;
 
-using iox::containers::UnitializedArray;
+using iox::containers::UninitializedArray;
 
 template <typename T>
 class UninitializedArrayTest : public ::testing::Test
@@ -67,11 +67,11 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
     ::testing::Test::RecordProperty("TEST_ID", "0ac31a08-77b2-4fd2-a214-81298cada00c");
     constexpr uint64_t capacity = 7;
     // NOLINTNEXTLINE(hicpp-member-init, cppcoreguidelines-pro-type-member-init) false positive
-    UnitializedArray<int, capacity> sut;
+    UninitializedArray<int, capacity> sut;
     EXPECT_EQ(sut.capacity(), capacity);
 }
 
-typedef ::testing::Types<UnitializedArray<int, 10>, UnitializedArray<Integer, 10>> TestArrays;
+typedef ::testing::Types<UninitializedArray<int, 10>, UninitializedArray<Integer, 10>> TestArrays;
 
 TYPED_TEST_SUITE(UninitializedArrayTest, TestArrays, );
 

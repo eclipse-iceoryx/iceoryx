@@ -609,7 +609,7 @@ class string
 
     // safe access is guaranteed since the char array is wrapped inside the string class
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    containers::UnitializedArray<char, Capacity + 1U, uint64_t, containers::FirstElementZeroed> m_rawstring;
+    containers::UninitializedArray<char, Capacity + 1U, uint64_t, containers::FirstElementZeroed> m_rawstring;
     uint64_t m_rawstringSize{0U};
 };
 
