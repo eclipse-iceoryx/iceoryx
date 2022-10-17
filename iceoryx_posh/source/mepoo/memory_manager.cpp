@@ -16,16 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
-#include <algorithm>
 #include <cstdint>
 
 namespace iox

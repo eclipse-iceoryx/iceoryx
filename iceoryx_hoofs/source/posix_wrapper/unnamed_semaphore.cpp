@@ -18,8 +18,6 @@
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
-#include <climits>
-
 namespace iox
 {
 namespace posix

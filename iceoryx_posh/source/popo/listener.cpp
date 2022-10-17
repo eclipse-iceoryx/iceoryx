@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {

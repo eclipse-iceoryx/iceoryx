@@ -22,8 +22,6 @@
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_binding_c/internal/cpp2c_waitset.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"

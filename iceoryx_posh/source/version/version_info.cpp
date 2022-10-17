@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/version/version_info.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
 
 #include <algorithm>
 

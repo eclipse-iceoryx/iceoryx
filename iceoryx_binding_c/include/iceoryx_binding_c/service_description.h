@@ -19,8 +19,6 @@
 
 #include "iceoryx_binding_c/config.h"
 
-#include <stdint.h>
-
 typedef struct
 {
     char serviceString[IOX_CONFIG_SERVICE_STRING_SIZE];

@@ -16,8 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 
 using namespace iox::popo;

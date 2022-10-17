@@ -29,8 +29,6 @@ extern "C" {
 #include "iceoryx_binding_c/notification_info.h"
 }
 
-#include <type_traits>
-
 uint64_t iox_notification_info_get_notification_id(iox_notification_info_t const self)
 {
     return self->getNotificationId();

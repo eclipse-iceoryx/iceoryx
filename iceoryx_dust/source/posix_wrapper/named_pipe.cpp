@@ -17,7 +17,6 @@
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <thread>
 

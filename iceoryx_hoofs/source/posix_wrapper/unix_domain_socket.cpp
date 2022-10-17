@@ -23,7 +23,6 @@
 #include "iceoryx_platform/unistd.hpp"
 
 #include <chrono>
-#include <cstdlib>
 #include <string>
 
 

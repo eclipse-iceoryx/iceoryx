@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
@@ -26,8 +25,6 @@
 #include "iceoryx_platform/wait.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 #include <chrono>
 #include <csignal>

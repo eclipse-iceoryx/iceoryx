@@ -40,8 +40,6 @@
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_posh/mepoo/memory_info.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"

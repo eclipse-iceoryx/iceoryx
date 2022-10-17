@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/convert.hpp"
 
-#include <cstdlib>
 #include <iostream>
 #include <sstream>
 

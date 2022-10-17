@@ -20,7 +20,6 @@
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
 namespace iox
 {

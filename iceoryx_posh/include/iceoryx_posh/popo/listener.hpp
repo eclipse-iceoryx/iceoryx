@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
