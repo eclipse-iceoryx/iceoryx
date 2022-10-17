@@ -24,47 +24,26 @@ namespace iox
 {
 namespace containers
 {
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline constexpr ElementType&
-UninitializedArray<ElementType, Capacity, index_t, Buffer>::operator[](const index_t index) noexcept
+UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) noexcept
 {
-    return *toPtr(index);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return *reinterpret_cast<ElementType*>(&m_buffer.value[index]);
 }
 
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline constexpr const ElementType&
-UninitializedArray<ElementType, Capacity, index_t, Buffer>::operator[](const index_t index) const noexcept
+UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) const noexcept
 {
-    return *toPtr(index);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) type erasure
+    return *reinterpret_cast<const ElementType*>(&m_buffer.value[index]);
 }
 
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
-inline constexpr ElementType*
-UninitializedArray<ElementType, Capacity, index_t, Buffer>::ptr(const index_t index) noexcept
-{
-    return toPtr(index);
-}
-
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
-inline constexpr const ElementType*
-UninitializedArray<ElementType, Capacity, index_t, Buffer>::ptr(const index_t index) const noexcept
-{
-    return toPtr(index);
-}
-
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
-inline constexpr uint64_t UninitializedArray<ElementType, Capacity, index_t, Buffer>::capacity() noexcept
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline constexpr uint64_t UninitializedArray<ElementType, Capacity, Buffer>::capacity() noexcept
 {
     return Capacity;
-}
-
-template <typename ElementType, uint64_t Capacity, typename index_t, template <typename, uint64_t> class Buffer>
-inline constexpr ElementType*
-UninitializedArray<ElementType, Capacity, index_t, Buffer>::toPtr(index_t index) const noexcept
-{
-    auto ptr = &(m_buffer.value[index]);
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast) type erasure
-    return const_cast<ElementType*>(reinterpret_cast<const ElementType*>(ptr));
 }
 
 } // namespace containers

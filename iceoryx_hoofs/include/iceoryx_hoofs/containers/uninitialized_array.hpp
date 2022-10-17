@@ -26,48 +26,53 @@ namespace iox
 {
 namespace containers
 {
+/// @brief struct used as policy parameter in UninitializedArray to wrap an array with its first element zeroed
 template <typename ElementType, uint64_t Capacity>
 struct FirstElementZeroed
 {
-    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
+    // NOLINTJUSTIFICATION required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     using element_t = cxx::byte_t[sizeof(ElementType)];
     alignas(ElementType) element_t value[Capacity]{{0}};
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
 
+/// @brief struct used as policy parameter in UninitializedArray to wrap an uninitialized array
 template <typename ElementType, uint64_t Capacity>
 struct UninitializedBuffer
 {
-    // NOLINTJUSTIFICATION required by low level UnitializedArray building block and encapsulated in abstraction
+    // NOLINTJUSTIFICATION required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     using element_t = cxx::byte_t[sizeof(ElementType)];
     alignas(ElementType) element_t value[Capacity];
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
 
-template <typename ElementType,
-          uint64_t Capacity,
-          typename index_t = uint64_t,
-          template <typename, uint64_t> class Buffer = UninitializedBuffer>
+/// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
+/// the first element can be zeroed via template parameter FirstElementZeroed.
+/// @note Out of bounds access leads to undefined behavior
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = UninitializedBuffer>
 class UninitializedArray
 {
   public:
     constexpr UninitializedArray() noexcept = default;
 
-    constexpr ElementType& operator[](const index_t index) noexcept;
+    /// @brief returns a reference to the element stored at index
+    /// @param[in] index position of the element to return
+    /// @return reference to the element
+    /// @note out of bounds access leads to undefined behavior
+    constexpr ElementType& operator[](const uint64_t index) noexcept;
 
-    constexpr const ElementType& operator[](const index_t index) const noexcept;
+    /// @brief returns a const reference to the element stored at index
+    /// @param[in] index position of the element to return
+    /// @return const reference to the element
+    /// @note out of bounds access leads to undefined behavior
+    constexpr const ElementType& operator[](const uint64_t index) const noexcept;
 
-    constexpr ElementType* ptr(const index_t index) noexcept;
-
-    constexpr const ElementType* ptr(const index_t index) const noexcept;
-
+    /// @brief returns the array capacity
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    constexpr ElementType* toPtr(index_t index) const noexcept;
-
     Buffer<ElementType, Capacity> m_buffer;
 };
 

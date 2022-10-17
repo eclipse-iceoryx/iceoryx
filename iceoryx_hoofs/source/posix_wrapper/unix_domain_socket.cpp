@@ -278,7 +278,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
     }
-    containers::UninitializedArray<char, MAX_MESSAGE_SIZE + 1, uint64_t, containers::FirstElementZeroed> message;
+    containers::UninitializedArray<char, MAX_MESSAGE_SIZE + 1, containers::FirstElementZeroed> message;
 
     auto recvCall = posixCall(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                         .failureReturnValue(ERROR_CODE)

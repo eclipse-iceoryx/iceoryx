@@ -108,39 +108,4 @@ TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUinitializedArray)
     }
 }
 
-TYPED_TEST(UninitializedArrayTest, accessElementsViaPtr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2c28ae80-be4e-46d4-b2bb-e475e1b1df69");
-    auto& buffer = this->buffer;
-    auto capacity = buffer.capacity();
-
-    int startValue = 21;
-    this->fillBuffer(startValue);
-
-    int expected = startValue;
-    for (uint64_t i = 0; i < capacity; ++i)
-    {
-        auto ptr = buffer.ptr(i);
-        EXPECT_EQ(*ptr, expected++);
-    }
-}
-
-TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUninitializedArrayViaPtr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3efd2143-0798-457d-84f3-d8aa85d44665");
-    auto& buffer = this->buffer;
-    auto capacity = buffer.capacity();
-
-    int startValue = 12;
-    this->fillBuffer(startValue);
-
-    const auto& constBuffer = this->buffer;
-    int expected = startValue;
-    for (uint64_t i = 0; i < capacity; ++i)
-    {
-        auto ptr = constBuffer.ptr(i);
-        EXPECT_EQ(*ptr, expected++);
-    }
-}
-
 } // namespace
