@@ -17,6 +17,7 @@
 #define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
+#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
@@ -150,9 +151,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        /// NOLINTJUSTIFICATION @todo iox-#1614 replace with cxx::array implementation
-        /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-        cxx::optional<UnnamedSemaphore> semaphores[2U];
+        containers::UninitializedArray<cxx::optional<UnnamedSemaphore>, 2> semaphores;
     };
 
 
