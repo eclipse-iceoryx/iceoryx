@@ -45,7 +45,7 @@ class storable_function;
 /// @tparam ReturnType  The return type of the stored callable.
 /// @tparam Args        The arguments of the stored callable.
 template <uint64_t Capacity, typename ReturnType, typename... Args>
-class storable_function<Capacity, signature<ReturnType, Args...>>
+class storable_function<Capacity, signature<ReturnType, Args...>> final
 {
   public:
     using StorageType = static_storage<Capacity>;
@@ -56,9 +56,10 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
               typename = typename std::enable_if<std::is_class<Functor>::value
                                                      && is_invocable_r<ReturnType, Functor, Args...>::value,
                                                  void>::type>
-    /// @NOLINTJUSTIFICATION the storable function should implicitly behave like any generic constructor, adding
-    ///                      explicit would require a static_cast. Furthermore, the storable_functor stores a copy
-    ///                      which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: implicit conversion of functors is intentional,
+    // the storable function should implicitly behave like any generic constructor, adding
+    // explicit would require a static_cast. Furthermore, the storable_functor stores a copy
+    // which avoids implicit misbehaviors or ownership problems caused by implicit conversion.
     /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
     storable_function(const Functor& functor) noexcept;
 
@@ -93,19 +94,13 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     /// @param args arguments to invoke the stored function with
     /// @return return value of the stored function
     ///
-    /// @note 1) Invoking the function if there is no stored function (i.e. operator bool returns false)
-    ///          leads to terminate being called.
-    ///
-    ///       2) Deliberately not noexcept but can only throw if the stored callable can throw an exception (hence
-    ///          will never throw if we use only our own noexcept functions).
-    ///
-    ///       3) If arguments are passed by value, the copy constructor may be invoked twice:
+    /// @note 1) If arguments are passed by value, the copy constructor may be invoked twice:
     ///          once when passing the arguments to operator() and once when they are passed to the stored callable
     ///          itself. This appears to be unavoidable and also happens in std::function.
     ///          The user can always provide a wrapped callable which takes a reference,
     ///          which is generally preferable for large objects anyway.
     ///
-    ///       4) Arguments of class type cannot have the move constructor explicitly deleted since the arguments
+    ///       2) Arguments of class type cannot have the move constructor explicitly deleted since the arguments
     ///          must be forwarded internally which is done by move or, if no move is specified, by copy.
     ///          If the move operation is explicitly deleted the compiler will not fall back to copy but emit an error.
     ///          Not specifying move or using a default implementation is fine.
@@ -136,7 +131,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     // This means storable_function cannot be used where pointers become invalid, e.g. across process boundaries
     // Therefore we cannot store a storable_function in shared memory (the same holds for std::function).
     // This is inherent to the type erasure technique we (have to) use.
-    struct operations
+    struct operations final
     {
         // function pointers defining copy, move and destroy semantics
         void (*copyFunction)(const storable_function& src, storable_function& dest){nullptr};
@@ -150,11 +145,11 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
         operations& operator=(operations&& other) noexcept = default;
         ~operations() = default;
 
-        void copy(const storable_function& src, storable_function& dest) noexcept;
+        void copy(const storable_function& src, storable_function& dest) const noexcept;
 
-        void move(storable_function& src, storable_function& dest) noexcept;
+        void move(storable_function& src, storable_function& dest) const noexcept;
 
-        void destroy(storable_function& f) noexcept;
+        void destroy(storable_function& f) const noexcept;
     };
 
   private:
@@ -187,13 +182,16 @@ class storable_function<Capacity, signature<ReturnType, Args...>>
     static void destroy(storable_function& f) noexcept;
 
     template <typename CallableType>
-    static ReturnType invoke(void* callable, Args&&... args);
+    static ReturnType invoke(void* callable, Args&&... args) noexcept;
 
     static void copyFreeFunction(const storable_function& src, storable_function& dest) noexcept;
 
     static void moveFreeFunction(storable_function& src, storable_function& dest) noexcept;
 
-    static ReturnType invokeFreeFunction(void* callable, Args&&... args);
+    // AXIVION Next Construct AutosarC++19_03-M7.1.2: callable cannot be const void* since
+    // m_invoker is initialized with this function and has to work with functors as well
+    // (functors may change due to invocation)
+    static ReturnType invokeFreeFunction(void* callable, Args&&... args) noexcept;
 };
 
 /// @brief swap two storable functions
