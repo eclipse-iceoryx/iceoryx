@@ -116,7 +116,8 @@ class vector_test : public Test
         dtorOrder.clear();
     }
 
-    vector<uint64_t, 10U> sut;
+    static constexpr uint64_t VECTOR_CAPACITY{10};
+    vector<uint64_t, VECTOR_CAPACITY> sut;
 };
 
 uint64_t vector_test::cTor;
@@ -441,15 +442,16 @@ TEST_F(vector_test, DestructorSomeElements)
 TEST_F(vector_test, DestructorWithFullVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c439128d-de50-4af0-bb56-b219d0326afd");
+    constexpr uint64_t CAPACITY{10};
     {
-        vector<CTorTest, 10U> sut1;
-        for (uint64_t i = 0U; i < sut1.capacity(); ++i)
+        vector<CTorTest, CAPACITY> sut1;
+        for (uint64_t i = 0U; i < CAPACITY; ++i)
         {
             sut1.emplace_back(1231U);
         }
     }
 
-    EXPECT_THAT(dTor, Eq(10U));
+    EXPECT_THAT(dTor, Eq(CAPACITY));
 }
 
 TEST_F(vector_test, EmplacingElementInTheMiddleCallsDTor)
@@ -460,7 +462,7 @@ TEST_F(vector_test, EmplacingElementInTheMiddleCallsDTor)
     constexpr uint64_t EMPLACE_POSITION{5U};
     {
         vector<CTorTest, CAPACITY_OF_VECTOR> sut;
-        for (uint64_t i = 0U; i < sut.capacity() - 1U; ++i)
+        for (uint64_t i = 0U; i < CAPACITY_OF_VECTOR - 1U; ++i)
         {
             sut.emplace_back(1234U);
         }
@@ -727,7 +729,7 @@ TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenNotEmpty)
 TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f20cda46-0941-440e-87cb-a0a111719182");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         sut.emplace_back(i);
     }
@@ -737,7 +739,7 @@ TEST_F(vector_test, BeginIteratorComesBeforeEndIteratorWhenFull)
 TEST_F(vector_test, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9912c12f-25a4-47f3-a3a6-714c543dd882");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         sut.emplace_back(i);
     }
@@ -788,7 +790,7 @@ TEST_F(vector_test, ConstIteratorIteratesThroughNonEmptyVector)
 TEST_F(vector_test, IteratorIteratesThroughFullVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "147f78a9-0e60-43aa-ac72-c7a012904f5b");
-    for (uint64_t k = 0U; k < sut.capacity(); ++k)
+    for (uint64_t k = 0U; k < VECTOR_CAPACITY; ++k)
     {
         sut.emplace_back(42U * k);
     }
@@ -805,7 +807,7 @@ TEST_F(vector_test, IteratorIteratesThroughFullVector)
 TEST_F(vector_test, ConstIteratorIteratesThroughFullVector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d8063b0-1a38-4130-a6cb-3e2a7f3c4304");
-    for (uint64_t k = 0U; k < sut.capacity(); ++k)
+    for (uint64_t k = 0U; k < VECTOR_CAPACITY; ++k)
     {
         sut.emplace_back(142U * k);
     }
@@ -1026,7 +1028,7 @@ TEST_F(vector_test, EraseLastElementDataCorrectAfterwards)
 TEST_F(vector_test, EraseLastElementOfFullVectorDataCorrectAfterwards)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa4041c7-0fe4-43a9-8722-b1c6077b69d7");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         sut.emplace_back(i * 123U);
     }
@@ -1373,8 +1375,9 @@ TEST_F(vector_test, SizeIncreaseWithResizeAndTemplateValueWorks)
 TEST_F(vector_test, SizeDecreaseWithResizeAndDefaultCTorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfd86fcc-c828-4b1b-ab9a-cff7e0f22164");
-    iox::cxx::vector<CTorTest, 10U> sut;
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    constexpr uint64_t CAPACITY{10};
+    iox::cxx::vector<CTorTest, CAPACITY> sut;
+    for (uint64_t i = 0U; i < CAPACITY; ++i)
     {
         sut.emplace_back(i);
     }
@@ -1390,8 +1393,9 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndDefaultCTorWorks)
 TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b2d81ce-1d46-47a6-bbb2-16f1c0ce46f3");
-    iox::cxx::vector<CTorTest, 10U> sut;
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    constexpr uint64_t CAPACITY{10};
+    iox::cxx::vector<CTorTest, CAPACITY> sut;
+    for (uint64_t i = 0U; i < CAPACITY; ++i)
     {
         sut.emplace_back(i + 10U);
     }
@@ -1439,7 +1443,7 @@ TEST_F(vector_test, EmplaceInEmptyVectorWorks)
 TEST_F(vector_test, EmplaceAtFrontTillFullWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c7074b38-8493-4b53-acc2-9a20d0f735ce");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         EXPECT_TRUE(sut.emplace(0U, i));
         ASSERT_THAT(sut.size(), Eq(i + 1U));
@@ -1471,12 +1475,12 @@ TEST_F(vector_test, EmplaceInTheMiddleMovesElementsToTheRight)
 TEST_F(vector_test, EmplaceWhenFullReturnsFalse)
 {
     ::testing::Test::RecordProperty("TEST_ID", "93e5d45c-9450-4ceb-8d1c-78aae413eca8");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
     {
         sut.emplace_back(i);
     }
 
-    auto index = sut.capacity() / 2;
+    auto index = VECTOR_CAPACITY / 2;
     EXPECT_FALSE(sut.emplace(index, 5U));
     EXPECT_THAT(sut.size(), Eq(sut.capacity()));
 }

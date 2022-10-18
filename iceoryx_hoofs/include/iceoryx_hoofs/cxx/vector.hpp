@@ -17,8 +17,10 @@
 #ifndef IOX_HOOFS_CXX_VECTOR_HPP
 #define IOX_HOOFS_CXX_VECTOR_HPP
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -36,7 +38,7 @@ namespace cxx
 template <typename T, uint64_t Capacity>
 // NOLINTJUSTIFICATION @todo iox-#1614 will be solved with upcoming uninitialized array
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-class vector
+class vector final
 {
   public:
     using iterator = T*;
@@ -152,7 +154,7 @@ class vector
 
     /// @brief returns the capacity of the vector which was given via the template
     ///         argument
-    uint64_t capacity() const noexcept;
+    static constexpr uint64_t capacity() noexcept;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
@@ -218,21 +220,29 @@ class vector
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
+    // inside the vector class
     /// @todo iox-#1614 Replace with UninitializedArray
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
+    // inside the vector class
     alignas(T) element_t m_data[Capacity];
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     uint64_t m_size{0U};
 };
+
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
+
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
+template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
+constexpr bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
 } // namespace cxx
 } // namespace iox
-
-template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
-
-template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs, const iox::cxx::vector<T, CapacityRight>& rhs) noexcept;
 
 #include "iceoryx_hoofs/internal/cxx/vector.inl"
 

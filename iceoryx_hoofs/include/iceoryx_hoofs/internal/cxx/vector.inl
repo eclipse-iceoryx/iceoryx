@@ -25,6 +25,7 @@ namespace iox
 {
 namespace cxx
 {
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
 // NOLINTJUSTIFICATION @todo iox-#1614 using UninitializedArray will solve the issue
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
@@ -32,37 +33,36 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
 {
     if (count > Capacity)
     {
-        std::cerr << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
-                  << std::endl;
+        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
+                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
     }
 
-    for (uint64_t i = 0U; i < count && i < Capacity; ++i)
+    for (uint64_t i{0U}; (i < count) && (i < Capacity); ++i)
     {
-        emplace_back(value);
+        IOX_DISCARD_RESULT(emplace_back(value));
     }
 }
 
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via placement new in for loop
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
     if (count > Capacity)
     {
-        std::cerr << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                  << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!"
-                  << std::endl;
+        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
+                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
     }
 
     m_size = std::min(count, Capacity);
-    for (uint64_t i = 0U; i < m_size; ++i)
+    for (uint64_t i{0U}; i < m_size; ++i)
     {
+        // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
         new (&at(i)) T();
     }
 }
 
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const vector& rhs) noexcept
@@ -70,7 +70,7 @@ inline vector<T, Capacity>::vector(const vector& rhs) noexcept
     *this = rhs;
 }
 
-// NOLINTJUSTIFICATION Not all elements in the array shall be initialized
+// AXIVION Next Construct AutosarC++19_03-A12.6.1 : false positive, m_data is initialized via emplace_back method
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(vector&& rhs) noexcept
@@ -89,23 +89,26 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
 {
     if (this != &rhs)
     {
-        uint64_t i = 0U;
+        uint64_t i{0U};
+        const uint64_t rhsSize{rhs.size()};
+        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
         // copy using copy assignment
-        for (; i < std::min(rhs.size(), size()); ++i)
+        for (; i < minSize; ++i)
         {
             at(i) = rhs.at(i);
         }
 
         // copy using copy ctor
-        for (; i < rhs.size(); ++i)
+        for (; i < rhsSize; ++i)
         {
-            emplace_back(rhs.at(i));
+            IOX_DISCARD_RESULT(emplace_back(rhs.at(i)));
         }
 
         // delete remaining elements
         clearFrom(i);
 
-        m_size = rhs.m_size;
+        m_size = rhsSize;
     }
     return *this;
 }
@@ -115,23 +118,26 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
 {
     if (this != &rhs)
     {
-        uint64_t i = 0U;
+        uint64_t i{0U};
+        const uint64_t rhsSize{rhs.size()};
+        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
         // move using move assignment
-        for (; i < std::min(rhs.size(), size()); ++i)
+        for (; i < minSize; ++i)
         {
             at(i) = std::move(rhs.at(i));
         }
 
         // move using move ctor
-        for (; i < rhs.size(); ++i)
+        for (; i < rhsSize; ++i)
         {
-            emplace_back(std::move(rhs.at(i)));
+            IOX_DISCARD_RESULT(emplace_back(std::move(rhs.at(i))));
         }
 
         // delete remaining elements
         clearFrom(i);
 
-        m_size = rhs.m_size;
+        m_size = rhsSize;
         rhs.clear();
     }
     return *this;
@@ -150,7 +156,7 @@ inline uint64_t vector<T, Capacity>::size() const noexcept
 }
 
 template <typename T, uint64_t Capacity>
-inline uint64_t vector<T, Capacity>::capacity() const noexcept
+inline constexpr uint64_t vector<T, Capacity>::capacity() noexcept
 {
     return Capacity;
 }
@@ -177,7 +183,7 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
 {
-    if (m_size >= Capacity || position >= Capacity || position > m_size)
+    if ((m_size >= Capacity) || ((position >= Capacity) || (position > m_size)))
     {
         return false;
     }
@@ -186,8 +192,8 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     {
         return emplace_back(std::forward<Targs>(args)...);
     }
-    emplace_back(std::move(at_unchecked(m_size - 1U)));
-    for (uint64_t i = m_size - 1U; i > position; --i)
+    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(m_size - 1U))));
+    for (uint64_t i{m_size - 1U}; i > position; --i)
     {
         at_unchecked(i) = std::move(at_unchecked(i - 1U));
     }
@@ -206,6 +212,7 @@ inline bool vector<T, Capacity>::push_back(const T& value) noexcept
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::push_back(T&& value) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
     return emplace_back(std::forward<T>(value));
 }
 
@@ -233,11 +240,11 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
     {
         clearFrom(count);
     }
-    else if (count > m_size)
+    else
     {
         while (count != m_size)
         {
-            emplace_back(args...);
+            IOX_DISCARD_RESULT(emplace_back(args...));
         }
     }
     return true;
@@ -246,7 +253,7 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
 template <typename T, uint64_t Capacity>
 inline T* vector<T, Capacity>::data() noexcept
 {
-    // AXIVION Next Line AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const vector<T, Capacity>*>(this)->data());
 }
@@ -349,13 +356,14 @@ inline typename vector<T, Capacity>::const_iterator vector<T, Capacity>::end() c
 template <typename T, uint64_t Capacity>
 inline bool vector<T, Capacity>::erase(iterator position) noexcept
 {
-    if (begin() <= position && position < end())
+    if ((begin() <= position) && (position < end()))
     {
-        uint64_t index = static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity);
-        size_t n = index;
-        for (; n + 1U < size(); ++n)
+        uint64_t index{static_cast<uint64_t>(position - begin()) % (sizeof(element_t) * Capacity)};
+        size_t n{index};
+        while ((n + 1U) < size())
         {
             at(n) = std::move(at(n + 1U));
+            ++n;
         }
         at(n).~T();
         m_size--;
@@ -376,9 +384,8 @@ template <typename T, uint64_t Capacity>
 inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type-safety ensured by template parameter
-    // NOLINTJUSTIFICATION User accessible method at() performs bounds check
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-pro-bounds-pointer-arithmetic)
-    return reinterpret_cast<const T*>(m_data)[index];
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    return *reinterpret_cast<const T*>(&m_data[index]);
 }
 
 template <typename T, uint64_t Capacity>
@@ -390,20 +397,18 @@ inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcep
     }
 }
 
-} // namespace cxx
-} // namespace iox
-
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs,
-                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
-    uint64_t vectorSize = lhs.size();
+    uint64_t vectorSize{lhs.size()};
     if (vectorSize != rhs.size())
     {
         return false;
     }
 
-    for (uint64_t i = 0U; i < vectorSize; ++i)
+    for (uint64_t i{0U}; i < vectorSize; ++i)
     {
         if (lhs[i] != rhs[i])
         {
@@ -413,12 +418,13 @@ inline bool operator==(const iox::cxx::vector<T, CapacityLeft>& lhs,
     return true;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.5 : intentional implementation with different parameters to enable
+// comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
-inline bool operator!=(const iox::cxx::vector<T, CapacityLeft>& lhs,
-                       const iox::cxx::vector<T, CapacityRight>& rhs) noexcept
+inline bool constexpr operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept
 {
     return !(lhs == rhs);
 }
-
-
+} // namespace cxx
+} // namespace iox
 #endif // IOX_HOOFS_CXX_VECTOR_INL

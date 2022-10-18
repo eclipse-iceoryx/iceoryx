@@ -6,7 +6,6 @@
 1. [ ] Branch follows the naming format (`iox-123-this-is-a-branch`)
 1. [ ] Commits messages are according to this [guideline][commit-guidelines]
     - [ ] Commit messages have the issue ID (`iox-#123 commit text`)
-    - [ ] Commit messages are signed (`git commit -s`)
     - [ ] Commit author matches [Eclipse Contributor Agreement][eca] (and ECA is signed)
 1. [ ] Update the PR title
    - Follow the same conventions as for commit messages
