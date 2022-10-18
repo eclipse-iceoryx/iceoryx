@@ -156,6 +156,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
+    /// ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
 
 #if defined(_WIN32)
@@ -179,6 +181,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move assign operator does not explicitly invalidate the moved-from object but relies on the move
+    /// assign operator of ErrorType to correctly invalidate the stored object
     expected& operator=(expected&& rhs) noexcept;
 
 #if defined(_WIN32)
@@ -277,6 +281,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
+    /// ValueType or ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
 
     /// @brief calls the destructor of the success value or error value - depending on what
@@ -289,6 +295,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move assign operator does not explicitly invalidate the moved-from object but relies on the move
+    /// assign operator of ValueType or ErrorType to correctly invalidate the stored object
     expected& operator=(expected&& rhs) noexcept;
 
     /// @brief  constructs an expected which is signaling success and uses the value
