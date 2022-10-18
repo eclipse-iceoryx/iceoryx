@@ -440,7 +440,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     optional<ValueType> to_optional() const noexcept;
 
   private:
-    explicit expected(variant<ValueType, ErrorType>&& f_store) noexcept;
+    explicit expected(variant<ValueType, ErrorType>&& store) noexcept;
     variant<ValueType, ErrorType> m_store;
     static constexpr uint64_t VALUE_INDEX = 0U;
     static constexpr uint64_t ERROR_INDEX = 1U;

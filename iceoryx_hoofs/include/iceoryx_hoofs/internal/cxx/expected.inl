@@ -75,8 +75,8 @@ inline error<T>::error(Targs&&... args) noexcept
 
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& f_store) noexcept
-    : m_store(std::move(f_store))
+inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& store) noexcept
+    : m_store(std::move(store))
 {
 }
 
@@ -240,8 +240,8 @@ inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const n
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
-    : m_store(std::move(f_store))
+inline expected<ErrorType>::expected(variant<ErrorType>&& store) noexcept
+    : m_store(std::move(store))
 {
 }
 
