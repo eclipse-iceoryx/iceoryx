@@ -77,8 +77,8 @@ class function_ref<ReturnType(ArgTypes...)> final
     /// @brief Creates a function_ref with a callable whose lifetime has to be longer than function_ref
     /// @param[in] callable that is not a function_ref
     template <typename CallableType,
-              typename = std::enable_if_t<(!is_function_pointer<CallableType>::value)
-                                          && (!has_same_decayed_type<CallableType, function_ref>::value)
+              typename = std::enable_if_t<((!is_function_pointer<CallableType>::value)
+                                           && (!has_same_decayed_type<CallableType, function_ref>::value))
                                           && (is_invocable<CallableType, ArgTypes...>::value)>>
     // AXIVION Next Line AutosarC++19_03-A12.1.4 : Implicit conversion is needed for lambdas
     function_ref(CallableType&& callable) noexcept; // NOLINT(hicpp-explicit-conversions)
