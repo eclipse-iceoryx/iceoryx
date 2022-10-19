@@ -22,6 +22,8 @@
 #include <mutex>
 #include <type_traits>
 
+#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+
 namespace iox
 {
 /// @todo: change namespace name for consistency?
@@ -108,6 +110,11 @@ class PolymorphicHandler
     /// @brief finalizes the instance, afterwards Hooks::onSetAfterFinalize
     ///        will be called during the remaining program lifetime
     static void finalize() noexcept;
+
+    static auto guard()
+    {
+        return StaticLifetimeGuard<Default>();
+    }
 
   private:
     std::atomic_bool m_isFinal{false};

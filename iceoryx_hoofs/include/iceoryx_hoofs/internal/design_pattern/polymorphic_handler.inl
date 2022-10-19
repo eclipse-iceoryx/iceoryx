@@ -18,6 +18,8 @@
 #define IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_INL
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
+#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include <type_traits>
 
 namespace iox
 {
@@ -145,8 +147,7 @@ PolymorphicHandler<Interface, Default, Hooks>& PolymorphicHandler<Interface, Def
 template <typename Interface, typename Default, typename Hooks>
 Default& PolymorphicHandler<Interface, Default, Hooks>::getDefault() noexcept
 {
-    static Default defaultHandler;
-    return defaultHandler;
+    return StaticLifetimeGuard<Default>::instance();
 }
 
 template <typename Interface, typename Default, typename Hooks>
