@@ -27,6 +27,8 @@ namespace iox
 namespace containers
 {
 /// @brief struct used as policy parameter in UninitializedArray to wrap an array with its first element zeroed
+/// @tparam ElementType is the array type
+/// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
 struct FirstElementZeroed
 {
@@ -39,6 +41,8 @@ struct FirstElementZeroed
 };
 
 /// @brief struct used as policy parameter in UninitializedArray to wrap an uninitialized array
+/// @tparam ElementType is the array type
+/// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
 struct UninitializedBuffer
 {
@@ -52,15 +56,25 @@ struct UninitializedBuffer
 
 /// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
 /// the first element can be zeroed via template parameter FirstElementZeroed.
+/// @tparam ElementType is the array type
+/// @tparam Capacity is the array size
+/// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=UninitializedBuffer,
+/// default) and an uninitialized array with its first element zeroed (=FirstElementZeroed)
 /// @note Out of bounds access leads to undefined behavior
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = UninitializedBuffer>
 class UninitializedArray
 {
   public:
+    using value_type = ElementType;
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
     constexpr UninitializedArray() noexcept = default;
+    UninitializedArray(const UninitializedArray&) = delete;
+    UninitializedArray(UninitializedArray&&) = delete;
+    UninitializedArray& operator=(const UninitializedArray&) = delete;
+    UninitializedArray& operator=(UninitializedArray&&) = delete;
+    ~UninitializedArray() = default;
 
     /// @brief returns a reference to the element stored at index
     /// @param[in] index position of the element to return

@@ -30,6 +30,7 @@ class UninitializedArrayTest : public ::testing::Test
 {
   public:
     using Buffer = T;
+    using Type = typename Buffer::value_type;
     Buffer buffer{};
 
     void fillBuffer(int startValue)
@@ -39,7 +40,7 @@ class UninitializedArrayTest : public ::testing::Test
         int value = startValue;
         for (uint64_t i = 0; i < capacity; ++i)
         {
-            buffer[i] = value++;
+            new (&buffer[i]) Type(value++);
         }
     }
 };
@@ -112,18 +113,29 @@ TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUinitializedArray)
     }
 }
 
-TEST(UninitializedArray, FirstElementIsInitializedWithZeroWhenBufferSetToFirstElementZeroed)
+TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToFirstElementZeroed)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb213516-ab37-43e3-b2ec-098c98d777d1");
-    UninitializedArray<uint32_t, 2, iox::containers::FirstElementZeroed> buffer;
-    EXPECT_THAT(buffer[0], Eq(0));
+    constexpr uint64_t CAPACITY{32};
+    UninitializedArray<uint32_t, CAPACITY, iox::containers::FirstElementZeroed> buffer;
+    for (auto& e : buffer)
+    {
+        new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
+    }
+
+    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::containers::FirstElementZeroed>();
+
+    for (auto& e : buffer)
+    {
+        EXPECT_EQ(e, 0);
+    }
 }
 
 TYPED_TEST(UninitializedArrayTest, BeginReturnsIteratorToBeginningOfUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6434e308-e24f-41e1-a1e1-949da01b2cbb");
     auto& buffer = this->buffer;
-    EXPECT_THAT(buffer.begin(), Eq(&buffer[0]));
+    EXPECT_EQ(buffer.begin(), &buffer[0]);
 }
 
 TYPED_TEST(UninitializedArrayTest, ConstBeginReturnsIteratorToBeginningOfUninitializedArray)
@@ -131,14 +143,14 @@ TYPED_TEST(UninitializedArrayTest, ConstBeginReturnsIteratorToBeginningOfUniniti
     ::testing::Test::RecordProperty("TEST_ID", "7387b043-db44-47ac-a2da-c40040bb9baa");
     auto& buffer = this->buffer;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const method
-    EXPECT_THAT(const_cast<const decltype(buffer)>(buffer).begin(), Eq(&buffer[0]));
+    EXPECT_EQ(const_cast<const decltype(buffer)>(buffer).begin(), &buffer[0]);
 }
 
 TYPED_TEST(UninitializedArrayTest, EndReturnsIteratorToEndOfUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "52447fba-0c7f-40df-8b7f-64d8b3ffcc49");
     auto& buffer = this->buffer;
-    EXPECT_THAT(buffer.end(), Eq(&buffer[buffer.capacity()]));
+    EXPECT_EQ(buffer.end(), &buffer[0] + buffer.capacity());
 }
 
 TYPED_TEST(UninitializedArrayTest, ConstEndReturnsIteratorToEndOfUninitializedArray)
@@ -146,83 +158,95 @@ TYPED_TEST(UninitializedArrayTest, ConstEndReturnsIteratorToEndOfUninitializedAr
     ::testing::Test::RecordProperty("TEST_ID", "2946ad83-b782-4c54-966b-c94b482335cc");
     auto& buffer = this->buffer;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const method
-    EXPECT_THAT(const_cast<const decltype(buffer)>(buffer).end(), Eq(&buffer[buffer.capacity()]));
+    EXPECT_EQ(const_cast<const decltype(buffer)>(buffer).end(), &buffer[0] + buffer.capacity());
 }
 
-TYPED_TEST(UninitializedArrayTest, BeginIteratorComesBeforeEndIteratorWhenNotEmpty)
+TEST(UninitializedArrayTest, BeginAndEndIteratorNotEqualInNonEmptyUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a180d15-7e77-4234-ad88-04673cbf9fc9");
-    auto& buffer = this->buffer;
-    buffer[0] = 1;
-    EXPECT_THAT(buffer.begin(), Lt(buffer.end()));
+    constexpr uint64_t CAPACITY = 3;
+    using Buffer = UninitializedArray<uint32_t, CAPACITY>;
+    Buffer buffer;
+
+    new (&buffer[0]) Buffer::value_type(1);
+
+    EXPECT_NE(buffer.begin(), buffer.end());
 }
 
-TYPED_TEST(UninitializedArrayTest, BeginConstIteratorComesBeforeEndConstIteratorWhenNotEmpty)
+TEST(UninitializedArrayTest, BeginAndEndConstIteratorNotEqualInNonEmptyUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "33e3d5b4-4762-421a-829f-455fe44b8e3b");
-    auto& buffer = this->buffer;
-    buffer[0] = 2;
+    constexpr uint64_t CAPACITY = 3;
+    using Buffer = UninitializedArray<int32_t, CAPACITY>;
+    Buffer buffer;
+
+    new (&buffer[0]) Buffer::value_type(2);
+
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const methods
-    EXPECT_THAT(const_cast<const decltype(buffer)>(buffer).begin(),
-                Lt(const_cast<const decltype(buffer)>(buffer).end()));
+    EXPECT_NE(const_cast<Buffer&>(buffer).begin(), const_cast<Buffer&>(buffer).end());
 }
 
-TYPED_TEST(UninitializedArrayTest, BeginIteratorComesBeforeEndIteratorWhenFull)
+TYPED_TEST(UninitializedArrayTest, BeginAndEndIteratorNotEqualInFullUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2ac41459-1055-47c0-8dc1-ea43c50827bf");
     auto& buffer = this->buffer;
     this->fillBuffer(0);
-    EXPECT_THAT(buffer.begin(), Lt(buffer.end()));
+    EXPECT_NE(buffer.begin(), buffer.end());
 }
 
-TYPED_TEST(UninitializedArrayTest, BeginConstIteratorComesBeforeEndConstIteratorWhenFull)
+TYPED_TEST(UninitializedArrayTest, BeginAndEndConstIteratorNotEqualInFullUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "01a5d1cd-ba6d-422e-a807-1ffe5787f4af");
     auto& buffer = this->buffer;
     this->fillBuffer(2);
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const methods
-    EXPECT_THAT(const_cast<const decltype(buffer)>(buffer).begin(),
-                Lt(const_cast<const decltype(buffer)>(buffer).end()));
+    EXPECT_NE(const_cast<const decltype(buffer)>(buffer).begin(), const_cast<const decltype(buffer)>(buffer).end());
 }
 
 TEST(UninitializedArrayTest, IteratorIteratesThroughNonEmptyUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b42d93c9-cbe8-481f-8a0b-5b3fb8e9020c");
     constexpr uint64_t CAPACITY = 3;
-    // NOLINTNEXTLINE(hicpp-member-init, cppcoreguidelines-pro-type-member-init) false positive
-    UninitializedArray<uint32_t, CAPACITY> buffer;
-    constexpr uint64_t INITIAL_VALUE = 42U;
-    buffer[0] = INITIAL_VALUE;
-    buffer[1] = INITIAL_VALUE + 1;
-    buffer[2] = INITIAL_VALUE + 2;
+    constexpr uint32_t INITIAL_VALUE = 42U;
 
-    uint64_t count{0};
+    using Buffer = UninitializedArray<uint32_t, CAPACITY>;
+    using Type = Buffer::value_type;
+    Buffer buffer;
+
+    new (&buffer[0]) Type(INITIAL_VALUE);
+    new (&buffer[1]) Type(INITIAL_VALUE + 1);
+    new (&buffer[2]) Type(INITIAL_VALUE + 2);
+
+    uint32_t count{0};
     for (auto& e : buffer)
     {
-        EXPECT_THAT(e, Eq(INITIAL_VALUE + count));
+        EXPECT_EQ(e, INITIAL_VALUE + count);
         ++count;
     }
-    EXPECT_THAT(count, Eq(CAPACITY));
+    EXPECT_EQ(count, CAPACITY);
 }
 
 TEST(UninitializedArrayTest, ConstIteratorIteratesThroughNonEmptyUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8d7ac7f-9ec7-4264-8b27-d0469b167375");
     constexpr uint64_t CAPACITY = 3;
-    // NOLINTNEXTLINE(hicpp-member-init, cppcoreguidelines-pro-type-member-init) false positive
-    UninitializedArray<uint32_t, CAPACITY> buffer;
-    constexpr uint64_t INITIAL_VALUE = 13U;
-    buffer[0] = INITIAL_VALUE;
-    buffer[1] = INITIAL_VALUE + 1;
-    buffer[2] = INITIAL_VALUE + 2;
+    constexpr uint32_t INITIAL_VALUE = 13;
 
-    uint64_t count{0};
+    using Buffer = UninitializedArray<uint32_t, CAPACITY>;
+    using Type = Buffer::value_type;
+    Buffer buffer;
+
+    new (&buffer[0]) Type(INITIAL_VALUE);
+    new (&buffer[1]) Type(INITIAL_VALUE + 1);
+    new (&buffer[2]) Type(INITIAL_VALUE + 2);
+
+    uint32_t count{0};
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const methods
     for (const auto& e : *const_cast<const decltype(buffer)*>(&buffer))
     {
-        EXPECT_THAT(e, Eq(INITIAL_VALUE + count));
+        EXPECT_EQ(e, INITIAL_VALUE + count);
         ++count;
     }
-    EXPECT_THAT(count, Eq(CAPACITY));
+    EXPECT_EQ(count, CAPACITY);
 }
 } // namespace

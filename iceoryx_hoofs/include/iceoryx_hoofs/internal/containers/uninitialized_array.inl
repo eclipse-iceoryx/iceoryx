@@ -28,9 +28,9 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline constexpr ElementType&
 UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return *reinterpret_cast<ElementType*>(&m_buffer.value[index]);
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<ElementType&>(const_cast<const UninitializedArray*>(this)->operator[](index));
 }
 
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
@@ -52,36 +52,32 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
 UninitializedArray<ElementType, Capacity, Buffer>::begin() noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<iterator>(&m_buffer.value[0]);
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<iterator>(const_cast<const UninitializedArray*>(this)->begin());
 }
 
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
 UninitializedArray<ElementType, Capacity, Buffer>::begin() const noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<const_iterator>(&m_buffer.value[0]);
+    return &operator[](0);
 }
 
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::iterator
 UninitializedArray<ElementType, Capacity, Buffer>::end() noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<iterator>(&m_buffer.value[Capacity]);
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<iterator>(const_cast<const UninitializedArray*>(this)->end());
 }
 
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline typename UninitializedArray<ElementType, Capacity, Buffer>::const_iterator
 UninitializedArray<ElementType, Capacity, Buffer>::end() const noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : type safety ensured by template parameter
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return reinterpret_cast<const_iterator>(&m_buffer.value[Capacity]);
+    return &operator[](0) + Capacity;
 }
 } // namespace containers
 } // namespace iox
