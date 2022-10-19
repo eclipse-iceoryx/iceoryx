@@ -73,7 +73,7 @@ inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char
 template <typename T>
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
-    containers::UninitializedArray<char, POSIX_CALL_ERROR_STRING_SIZE, containers::FirstElementZeroed> buffer;
+    containers::UninitializedArray<char, POSIX_CALL_ERROR_STRING_SIZE, containers::ZeroedBuffer> buffer;
     return internal::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
 }
 

@@ -147,7 +147,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     }
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-    containers::UninitializedArray<gid_t, MaxNumberOfGroups, containers::FirstElementZeroed> groups;
+    containers::UninitializedArray<gid_t, MaxNumberOfGroups, containers::ZeroedBuffer> groups;
     int32_t numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)

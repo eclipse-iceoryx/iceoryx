@@ -797,7 +797,7 @@
     // after
     #include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 
-    containers::UninitializedArray<char, Capacity, containers::FirstElementZeroed> myCharArray;
+    containers::UninitializedArray<char, Capacity, containers::ZeroedBuffer> myCharArray;
 
     containers::UninitializedArray<T, Capacity> myAlignedArray;
 

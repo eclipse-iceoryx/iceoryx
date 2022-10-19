@@ -74,8 +74,8 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
 
 typedef ::testing::Types<UninitializedArray<int, 10>,
                          UninitializedArray<Integer, 10>,
-                         UninitializedArray<int, 10, iox::containers::FirstElementZeroed>,
-                         UninitializedArray<Integer, 10, iox::containers::FirstElementZeroed>>
+                         UninitializedArray<int, 10, iox::containers::ZeroedBuffer>,
+                         UninitializedArray<Integer, 10, iox::containers::ZeroedBuffer>>
     TestArrays;
 
 TYPED_TEST_SUITE(UninitializedArrayTest, TestArrays, );
@@ -113,17 +113,17 @@ TYPED_TEST(UninitializedArrayTest, accessElementsOfConstUinitializedArray)
     }
 }
 
-TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToFirstElementZeroed)
+TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroedBuffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb213516-ab37-43e3-b2ec-098c98d777d1");
     constexpr uint64_t CAPACITY{32};
-    UninitializedArray<uint32_t, CAPACITY, iox::containers::FirstElementZeroed> buffer;
+    UninitializedArray<uint32_t, CAPACITY, iox::containers::ZeroedBuffer> buffer;
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
     }
 
-    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::containers::FirstElementZeroed>();
+    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::containers::ZeroedBuffer>();
 
     for (auto& e : buffer)
     {

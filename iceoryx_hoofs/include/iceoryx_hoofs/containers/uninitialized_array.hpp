@@ -26,11 +26,11 @@ namespace iox
 {
 namespace containers
 {
-/// @brief struct used as policy parameter in UninitializedArray to wrap an array with its first element zeroed
+/// @brief struct used as policy parameter in UninitializedArray to wrap an array with all elements zeroed
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
-struct FirstElementZeroed
+struct ZeroedBuffer
 {
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
@@ -44,7 +44,7 @@ struct FirstElementZeroed
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
-struct UninitializedBuffer
+struct NotZeroedBuffer
 {
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
@@ -55,13 +55,13 @@ struct UninitializedBuffer
 };
 
 /// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
-/// the first element can be zeroed via template parameter FirstElementZeroed.
+/// all elements can be zeroed via template parameter ZeroedBuffer.
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
-/// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=UninitializedBuffer,
-/// default) and an uninitialized array with its first element zeroed (=FirstElementZeroed)
+/// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=NotZeroedBuffer,
+/// default) and an uninitialized array with all elements zeroed (=ZeroedBuffer)
 /// @note Out of bounds access leads to undefined behavior
-template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = UninitializedBuffer>
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NotZeroedBuffer>
 class UninitializedArray
 {
   public:
