@@ -699,4 +699,99 @@ TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErr
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
     EXPECT_DEATH({ std::move(sut).get_error(); }, "Trying to access an error but a value is stored");
 }
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithEqualErrorAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "471b406d-8dd3-4b82-9d46-00c21d257461");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_error(TestError::ERROR1);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithUnequalErrorAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bcc2f9f1-72a1-41ed-ac8a-2f48cdcfbc56");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_error(TestError::ERROR2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithValuesAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "75b25c16-fb79-4589-ab0f-bc73bb9fc2bb");
+    auto sut1 = expected<TestError>::create_value();
+    auto sut2 = expected<TestError>::create_value();
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithErrorAndValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2108715f-e71c-4778-bb64-553996e860b4");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_value();
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithEqualErrorAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1a3b106-06f2-4667-ac25-7a9d9689c219");
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedsWithUnequalErrorAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "25250c6b-aa8f-40ad-ace9-2c55ce8eeaa2");
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_error(TestError::ERROR2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithEqualValueAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "278c2fd5-2b48-49d1-a8a4-8ca52b99de41");
+    constexpr int VAL_1{42};
+    constexpr int VAL_2{73};
+    auto sut1 = expected<TestClass, TestError>::create_value(VAL_1, VAL_2);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL_1, VAL_2);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithUnequalValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5f6a8760-6fdf-4ab8-a7d5-d751390aa672");
+    constexpr int VAL_1{42};
+    constexpr int VAL_2{73};
+    auto sut1 = expected<TestClass, TestError>::create_value(VAL_1, VAL_1);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL_2, VAL_2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithErrorAndValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "aa912753-09af-46d5-92d5-52cad69795ad");
+    constexpr int VAL{42};
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL, VAL);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
 } // namespace

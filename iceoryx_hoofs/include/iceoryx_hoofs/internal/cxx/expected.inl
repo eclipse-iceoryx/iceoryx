@@ -400,6 +400,47 @@ inline const ErrorType& expected<ErrorType>::get_error_unchecked() const noexcep
 {
     return *m_store.template get_at_index<ERROR_INDEX>();
 }
+
+template <typename ErrorType>
+inline constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs)
+{
+    if (lhs.has_error() != rhs.has_error())
+    {
+        return false;
+    }
+    if (lhs.has_error() && rhs.has_error())
+    {
+        return lhs.get_error() == rhs.get_error();
+    }
+    return true;
+}
+
+template <typename ErrorType>
+inline constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs)
+{
+    return !(lhs == rhs);
+}
+
+template <typename ValueType, typename ErrorType>
+inline constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs)
+{
+    if (lhs.has_error() != rhs.has_error())
+    {
+        return false;
+    }
+    if (lhs.has_error() && rhs.has_error())
+    {
+        return lhs.get_error() == rhs.get_error();
+    }
+    return lhs.value() == rhs.value();
+}
+
+template <typename ValueType, typename ErrorType>
+inline constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs)
+{
+    return !(lhs == rhs);
+}
+
 } // namespace cxx
 } // namespace iox
 

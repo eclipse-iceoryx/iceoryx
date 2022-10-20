@@ -462,6 +462,40 @@ class IOX_NO_DISCARD expected<void, ErrorType> : public expected<ErrorType>
     using expected<ErrorType>::expected;
 };
 
+/// @brief equality check for two distinct expected types
+/// @tparam ErrorType type of the error stored in the expected
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the expecteds are equal, otherwise false
+template <typename ErrorType>
+constexpr bool operator==(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs);
+
+/// @brief inequality check for two distinct expected types
+/// @tparam ErrorType type of the error stored in the expected
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the expecteds are not equal, otherwise false
+template <typename ErrorType>
+constexpr bool operator!=(const expected<ErrorType>& lhs, const expected<ErrorType>& rhs);
+
+/// @brief equality check for two distinct expected types
+/// @tparam ValueType type of the value stored in the expected
+/// @tparam ErrorType type of the error stored in the expected
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the expecteds are equal, otherwise false
+template <typename ValueType, typename ErrorType>
+constexpr bool operator==(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs);
+
+/// @brief inequality check for two distinct expected types
+/// @tparam ValueType type of the value stored in the expected
+/// @tparam ErrorType type of the error stored in the expected
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the expecteds are not equal, otherwise false
+template <typename ValueType, typename ErrorType>
+constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs, const expected<ValueType, ErrorType>& rhs);
+
 } // namespace cxx
 } // namespace iox
 
