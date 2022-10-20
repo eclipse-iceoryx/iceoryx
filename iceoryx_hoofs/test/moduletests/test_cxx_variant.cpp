@@ -703,4 +703,45 @@ TEST_F(variant_Test, CopyVariantIntoVariantOfDifferentType)
 
     EXPECT_THAT(DoubleDelete::dtorCalls, Eq(1));
 }
+
+TEST_F(variant_Test, TwoInvalidVariantsAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b2b7516-48ef-4aa6-a0c5-43a204e1e348");
+    iox::cxx::variant<std::string, float> sut1;
+    iox::cxx::variant<std::string, float> sut2;
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(variant_Test, InvalidAndValidVariantAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0c77c24f-059b-4298-b4a2-0a7d8eb70364");
+    std::string string{"Foo"};
+    iox::cxx::variant<std::string, float> sut1{string};
+    iox::cxx::variant<std::string, float> sut2;
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(variant_Test, TwoVariantsWithEqualValuesAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6496566e-647d-426b-b369-7ec27c6ee673");
+    std::string string{"Foo"};
+    iox::cxx::variant<std::string, float> sut1{string};
+    iox::cxx::variant<std::string, float> sut2{string};
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(variant_Test, TwoVariantsWithUnequalValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b37c2f64-6ba6-42c8-9b6d-73bb344b8c8e");
+    std::string string{"Foo"};
+    float floatNum{42.42F};
+    iox::cxx::variant<std::string, float> sut1{string};
+    iox::cxx::variant<std::string, float> sut2{floatNum};
+    EXPECT_TRUE(sut1 != sut2);
+    EXPECT_FALSE(sut1 == sut2);
+}
+
 } // namespace
