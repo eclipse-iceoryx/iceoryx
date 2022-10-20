@@ -142,16 +142,14 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         MessageQueue_t messages;
 
       private:
-        static constexpr uint64_t SEND_SEMAPHORE = 0U;
-        static constexpr uint64_t RECEIVE_SEMAPHORE = 1U;
-
         static constexpr uint64_t INVALID_DATA = 0xBAADF00DAFFEDEAD;
         static constexpr uint64_t VALID_DATA = 0xBAD0FF1CEBEEFBEE;
         static constexpr units::Duration WAIT_FOR_INIT_TIMEOUT = units::Duration::fromSeconds(1);
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        containers::UninitializedArray<cxx::optional<UnnamedSemaphore>, 2> semaphores;
+        cxx::optional<UnnamedSemaphore> m_sendSemaphore;
+        cxx::optional<UnnamedSemaphore> m_receiveSemaphore;
     };
 
 
