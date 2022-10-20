@@ -18,9 +18,9 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <atomic>
 

@@ -64,6 +64,8 @@ struct NotZeroedBuffer
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NotZeroedBuffer>
 class UninitializedArray
 {
+    static_assert(Capacity > 0U, "The size of the UninitializedArray must be greater than 0!");
+
   public:
     using value_type = ElementType;
     using iterator = ElementType*;

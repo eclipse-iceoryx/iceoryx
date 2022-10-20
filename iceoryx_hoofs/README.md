@@ -41,7 +41,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`vector`               |          | Heap and exception free implementation of `std::vector`                                                                                                                                                                               |
 |`list`                 |          | Heap and exception free, relocatable implementation of `std::list`                                                                                                                                                                    |
-|`UninitializedArray`   |          | Wrapper class for an uninitialized C-style array which can be zeroed via a template parameter                                                                                                                                         |
+|`UninitializedArray`   | i        | Wrapper class for an uninitialized C-style array which can be zeroed via a template parameter                                                                                                                                         |
 
 ### Vocabulary types (vocabulary)
 

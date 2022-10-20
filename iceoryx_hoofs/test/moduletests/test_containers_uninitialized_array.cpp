@@ -17,7 +17,7 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 namespace
 {
@@ -150,7 +150,7 @@ TYPED_TEST(UninitializedArrayTest, EndReturnsIteratorToEndOfUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "52447fba-0c7f-40df-8b7f-64d8b3ffcc49");
     auto& buffer = this->buffer;
-    EXPECT_EQ(buffer.end(), &buffer[0] + buffer.capacity());
+    EXPECT_EQ(buffer.end(), &buffer[buffer.capacity()]);
 }
 
 TYPED_TEST(UninitializedArrayTest, ConstEndReturnsIteratorToEndOfUninitializedArray)
@@ -158,7 +158,7 @@ TYPED_TEST(UninitializedArrayTest, ConstEndReturnsIteratorToEndOfUninitializedAr
     ::testing::Test::RecordProperty("TEST_ID", "2946ad83-b782-4c54-966b-c94b482335cc");
     auto& buffer = this->buffer;
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const method
-    EXPECT_EQ(const_cast<const decltype(buffer)>(buffer).end(), &buffer[0] + buffer.capacity());
+    EXPECT_EQ(const_cast<const decltype(buffer)>(buffer).end(), &buffer[buffer.capacity()]);
 }
 
 TEST(UninitializedArrayTest, BeginAndEndIteratorNotEqualInNonEmptyUninitializedArray)
@@ -183,7 +183,7 @@ TEST(UninitializedArrayTest, BeginAndEndConstIteratorNotEqualInNonEmptyUninitial
     new (&buffer[0]) Buffer::value_type(2);
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) reuse of buffer to test const methods
-    EXPECT_NE(const_cast<Buffer&>(buffer).begin(), const_cast<Buffer&>(buffer).end());
+    EXPECT_NE(const_cast<const Buffer&>(buffer).begin(), const_cast<const Buffer&>(buffer).end());
 }
 
 TYPED_TEST(UninitializedArrayTest, BeginAndEndIteratorNotEqualInFullUninitializedArray)

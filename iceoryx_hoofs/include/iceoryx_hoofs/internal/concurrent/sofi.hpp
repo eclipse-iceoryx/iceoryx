@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_SOFI_HPP
 #define IOX_HOOFS_CONCURRENT_SOFI_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
 #include <atomic>

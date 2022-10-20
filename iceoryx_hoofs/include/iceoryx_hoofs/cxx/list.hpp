@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_CXX_LIST_HPP
 #define IOX_HOOFS_CXX_LIST_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>

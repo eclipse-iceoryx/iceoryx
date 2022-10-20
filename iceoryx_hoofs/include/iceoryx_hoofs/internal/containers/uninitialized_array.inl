@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_INL
 #define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_INL
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 namespace iox
 {

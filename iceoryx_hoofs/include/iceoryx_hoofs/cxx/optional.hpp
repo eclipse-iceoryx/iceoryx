@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_CXX_OPTIONAL_HPP
 #define IOX_HOOFS_CXX_OPTIONAL_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>

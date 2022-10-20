@@ -16,11 +16,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <cstring>

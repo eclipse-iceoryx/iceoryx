@@ -18,8 +18,8 @@
 #ifndef IOX_DUST_CXX_FORWARD_LIST_HPP
 #define IOX_DUST_CXX_FORWARD_LIST_HPP
 
-#include "iceoryx_hoofs/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>
