@@ -19,7 +19,6 @@
 
 #include <atomic>
 #include <iostream>
-#include <mutex>
 #include <type_traits>
 
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
@@ -93,6 +92,9 @@ class PolymorphicHandler
     // but they need to behave correctly and inheritance enforces this
     static_assert(std::is_base_of<Activatable, Interface>::value, "Interface must inherit from Activatable");
 
+    using Self = PolymorphicHandler<Interface, Default, Hooks>;
+    friend class StaticLifetimeGuard<Self>;
+
   public:
     /// @brief get the current singleton instance
     /// @return the current instance
@@ -109,16 +111,20 @@ class PolymorphicHandler
 
     /// @brief finalizes the instance, afterwards Hooks::onSetAfterFinalize
     ///        will be called during the remaining program lifetime
+    ///        when attempting to set or reset the handler
     static void finalize() noexcept;
 
-    static auto guard()
-    {
-        return StaticLifetimeGuard<Default>();
-    }
+    /// @brief returns a lifetime guard whose existence guarantees
+    /// the created PolymorphicHandler singleton instance will exist at least as long as the guard.
+    /// @return opaque lifetime guard object for the (implicit) PolymorphicHandler instance
+    /// @note the PolymorphicHandler will exist once any of the static methods (get, set etc.)
+    ///  are called
+    static auto guard() noexcept;
 
   private:
+    // should a defaultHandler be created, this delays its destruction
+    StaticLifetimeGuard<Default> m_defaultGuard;
     std::atomic_bool m_isFinal{false};
-    std::mutex m_mutex;
     std::atomic<Interface*> m_current;
 
     PolymorphicHandler() noexcept;

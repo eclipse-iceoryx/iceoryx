@@ -130,7 +130,7 @@ TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
     {
         EXPECT_EQ(Guard::count(), 2);
         // NOLINTJUSTIFICATION ctor and dtor side effects are tested
-        // NOLINTNEXTLINE (performance-unnecessary-copy-initialization)
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         Guard copy(guard);
         EXPECT_EQ(Guard::count(), 3);
     }
@@ -164,6 +164,8 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
     EXPECT_EQ(Foo::dtorCalled, 1);
 }
 
+// TODO: this may not be completely thread-safe in general
+// and is not really required anyway
 TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0077e73d-ddf5-47e7-a7c6-93819f376175");

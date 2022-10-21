@@ -17,6 +17,7 @@
 #pragma once
 
 #include <atomic>
+#include <iostream>
 #include <type_traits>
 
 namespace iox
@@ -34,9 +35,7 @@ namespace design_pattern
 /// of the instance at least until G is destroyed
 /// @tparam T the type of the instance to be guarded
 ///
-/// @note dtor, ctor and copy ctor are thread-safe but instance()
-/// intentionally is not as it is supposed to be called in
-/// the static initialization phase or in a thread-safe context (e.g. with a mutex).
+/// @note dtor, ctor and copy ctor and instance are thread-safe
 ///
 /// @code
 /// // instance will be destroyed after guard
@@ -51,6 +50,7 @@ class StaticLifetimeGuard
   public:
     StaticLifetimeGuard() noexcept
     {
+        std::cerr << "GUARD " << typeid(T).hash_code() << std::endl;
         ++s_count;
     }
 
@@ -59,17 +59,17 @@ class StaticLifetimeGuard
         ++s_count;
     }
 
-    // move and assignment have no purpose as the objects themselves
-    // have no state and no side effects are required
-    // (copy exists to support passing/returning a value object)
+    // move and assignment have no purpose,
+    // copy exists to support passing/returning a value object
     StaticLifetimeGuard(StaticLifetimeGuard&&) = delete;
     StaticLifetimeGuard& operator=(const StaticLifetimeGuard&) = delete;
     StaticLifetimeGuard& operator=(StaticLifetimeGuard&&) = delete;
 
     ~StaticLifetimeGuard() noexcept
     {
-        if (--s_count == 0)
+        if (s_count.fetch_sub(1) == 1)
         {
+            std::cerr << "UNGUARD " << typeid(T).hash_code() << std::endl;
             destroy();
         }
     }
@@ -80,23 +80,39 @@ class StaticLifetimeGuard
     /// if it already exists
     /// @note creates an implicit static StaticLifetimeGuard to ensure
     /// the instance is destroyed in the static destruction phase
-    /// @note NOT thread-safe on its own on purpose as the first call should be used
-    /// for a static or in a context that handles thread-safety on its own
     template <typename... Args>
     static T& instance(Args&&... args) noexcept
     {
         static StaticLifetimeGuard guard;
-        if (s_count == 1)
+
+        // we determine wether this call has to initialize the instance
+        // via CAS (without mutex!)
+        // NB: this shows how CAS acts as consensus primitive
+        // will only be initialized once
+        uint32_t exp{UNINITIALIZED};
+        if (s_instanceState.compare_exchange_strong(
+                exp, INITALIZING, std::memory_order_acq_rel, std::memory_order_acquire))
         {
+            std::cerr << "CREATE INSTANCE " << typeid(T).hash_code() << std::endl;
             // NOLINTJUSTIFICATION s_instance is managed by reference counting
-            // NOLINTNEXTLINE (cppcoreguidelines-owning-memory)
+            // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
             s_instance = new (&s_storage) T(std::forward<Args>(args)...);
 
             // synchronize s_instance
-            // (store only is bad as concurrent construction of guards is allowed)
-            ++s_count;
-            --s_count;
+            s_instanceState.store(INITALIZED, std::memory_order_release);
+            return *s_instance;
         }
+        // design constraint: no mutex - makes it more intricate
+        // (otherwise we could simply use double checked locking)
+
+        // either this call initialized the instance and we already returned
+        // or a concurrent call is doing so and we have to wait until it completes ...
+
+        while (s_instanceState.load(std::memory_order_acquire) != INITALIZED)
+        {
+            // wait
+        }
+        // guaranteed to be non-null after initialization
         return *s_instance;
     }
 
@@ -121,14 +137,18 @@ class StaticLifetimeGuard
   private:
     using storage_t = typename std::aligned_storage_t<sizeof(T), alignof(T)>;
 
+    static constexpr uint32_t UNINITIALIZED{0};
+    static constexpr uint32_t INITALIZING{1};
+    static constexpr uint32_t INITALIZED{2};
+
     // NOLINTJUSTIFICATION static variables are private and mutability is required
     // NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
-
     static storage_t s_storage;
     static std::atomic<uint64_t> s_count;
-    // actually the pointer would not be needed (we can use the counter as indicator),
-    // but simpler and more clear this way
+    static std::atomic<uint32_t> s_instanceState;
     static T* s_instance;
+
+    std::atomic<uint64_t> m_value{1};
 
     static void destroy()
     {
@@ -136,6 +156,7 @@ class StaticLifetimeGuard
         {
             s_instance->~T();
             s_instance = nullptr;
+            s_instanceState = 0;
         }
     }
 };
@@ -144,6 +165,8 @@ template <typename T>
 typename StaticLifetimeGuard<T>::storage_t StaticLifetimeGuard<T>::s_storage;
 template <typename T>
 std::atomic<uint64_t> StaticLifetimeGuard<T>::s_count{0};
+template <typename T>
+std::atomic<uint32_t> StaticLifetimeGuard<T>::s_instanceState{UNINITIALIZED};
 template <typename T>
 T* StaticLifetimeGuard<T>::s_instance{nullptr};
 

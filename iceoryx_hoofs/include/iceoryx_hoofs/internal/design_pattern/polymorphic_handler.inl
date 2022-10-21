@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include <atomic>
 #include <type_traits>
 
 namespace iox
@@ -86,30 +87,29 @@ Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 
     if (!localHandler->isActive())
     {
-        std::lock_guard<std::mutex> lock(instance().m_mutex);
         localHandler = getCurrent();
     }
     return *localHandler;
 }
 
-// can throw
 template <typename Interface, typename Default, typename Hooks>
 Interface* PolymorphicHandler<Interface, Default, Hooks>::set(Interface& handler) noexcept
 {
     auto& ins = instance();
+    // m_current is now guaranteed to be set
 
-    // setting is rare and we lock to synchronize and update the active flags properly
-    std::lock_guard<std::mutex> lock(ins.m_mutex);
-    if (ins.m_isFinal)
+    if (ins.m_isFinal.load())
     {
+        // it must be ensured that the handlers still exist and are thread-safe,
+        // this is ensured for the default handler
         Hooks::onSetAfterFinalize(*getCurrent(), handler);
         return nullptr;
     }
 
     handler.activate(); // it may have been deactivated before, so always reactivate it
-    auto prev = ins.m_current.exchange(&handler, std::memory_order_relaxed);
+    auto prev = ins.m_current.exchange(&handler, std::memory_order_acq_rel);
 
-    // anyone still using it will eventually see that it is inactive
+    // anyone still using the old handler will eventually see that it is inactive
     // and switch to the new handler
     prev->deactivate();
     return prev;
@@ -125,23 +125,19 @@ template <typename Interface, typename Default, typename Hooks>
 void PolymorphicHandler<Interface, Default, Hooks>::finalize() noexcept
 {
     auto& ins = instance();
-    std::lock_guard<std::mutex> lock(ins.m_mutex);
     ins.m_isFinal.store(true);
 }
 
 template <typename Interface, typename Default, typename Hooks>
 PolymorphicHandler<Interface, Default, Hooks>::PolymorphicHandler() noexcept
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    //  this is set the first time we call instance()
     m_current.store(&getDefault(), std::memory_order_release);
 }
 
 template <typename Interface, typename Default, typename Hooks>
 PolymorphicHandler<Interface, Default, Hooks>& PolymorphicHandler<Interface, Default, Hooks>::instance() noexcept
 {
-    static PolymorphicHandler handler;
-    return handler;
+    return StaticLifetimeGuard<Self>::instance();
 }
 
 template <typename Interface, typename Default, typename Hooks>
@@ -156,6 +152,12 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrent() noexcept
     auto& ins = instance();
     return ins.m_current.load(
         std::memory_order_acquire); // must be strong enough to sync memory of the object pointed to
+}
+
+template <typename Interface, typename Default, typename Hooks>
+auto PolymorphicHandler<Interface, Default, Hooks>::guard() noexcept
+{
+    return StaticLifetimeGuard<Self>();
 }
 
 } // namespace design_pattern
