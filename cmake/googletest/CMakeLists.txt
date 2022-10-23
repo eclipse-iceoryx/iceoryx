@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(googletest-build CXX)
 
-if(BUILD_TEST)
+if(BUILD_TEST AND NOT GTest_DIR)
 
     # set download config, source and build paths
     set(DOWNLOAD_CONFIG_DIR ${CMAKE_BINARY_DIR}/dependencies/googletest/download)
