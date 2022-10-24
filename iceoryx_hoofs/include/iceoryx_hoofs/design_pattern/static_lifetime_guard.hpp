@@ -24,9 +24,6 @@ namespace iox
 {
 namespace design_pattern
 {
-
-/// @todo move to inl if we want to keep the construction
-
 /// @brief Manages a static instance of type T in a way so that each
 /// existing StaticLifetimeGuard prevents the destruction of
 /// the instance.

@@ -93,7 +93,17 @@ Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 }
 
 template <typename Interface, typename Default, typename Hooks>
-Interface* PolymorphicHandler<Interface, Default, Hooks>::set(Interface& handler) noexcept
+template <typename Handler>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::set(StaticLifetimeGuard<Handler> handlerGuard) noexcept
+{
+    static_assert(std::is_base_of<Interface, Handler>::value, "Handler must inherit from Interface");
+    static StaticLifetimeGuard<Handler> guard(handlerGuard);
+    // we now have protected the handler instance and it will exist long enough
+    return setHandler(StaticLifetimeGuard<Handler>::instance());
+}
+
+template <typename Interface, typename Default, typename Hooks>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& handler) noexcept
 {
     auto& ins = instance();
     // m_current is now guaranteed to be set
@@ -118,7 +128,7 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::set(Interface& handler
 template <typename Interface, typename Default, typename Hooks>
 Interface* PolymorphicHandler<Interface, Default, Hooks>::reset() noexcept
 {
-    return set(getDefault());
+    return setHandler(getDefault());
 }
 
 template <typename Interface, typename Default, typename Hooks>

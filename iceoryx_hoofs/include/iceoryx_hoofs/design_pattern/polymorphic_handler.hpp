@@ -25,10 +25,8 @@
 
 namespace iox
 {
-/// @todo: change namespace name for consistency?
 namespace design_pattern
 {
-
 /// @brief Implements the Activatable concept to be used in the PolymorphicHandler
 /// The concept implements a binary switch. By default is switched on (active).
 /// Anyone defining another custom handler interface is supposed to derive from Activatable.
@@ -101,9 +99,12 @@ class PolymorphicHandler
     static Interface& get() noexcept;
 
     /// @brief set the current singleton instance
-    /// @param handler the handler instance to be set
+    /// @param handlerGuard a guard to the handler instance to be set
     /// @return pointer to the previous instance
-    static Interface* set(Interface& handler) noexcept;
+    /// @note using a guard in the interface prevents the handler to be destroyed while it is used,
+    ///       passing the guard by value is necessary (it has no state anyway)
+    template <typename Handler>
+    static Interface* set(StaticLifetimeGuard<Handler> handlerGuard) noexcept;
 
     /// @brief reset the current singleton instance to the default instance
     /// @return pointer to the previous instance
@@ -134,6 +135,8 @@ class PolymorphicHandler
     static Default& getDefault() noexcept;
 
     static Interface* getCurrent() noexcept;
+
+    static Interface* setHandler(Interface& handler) noexcept;
 };
 
 } // namespace design_pattern
