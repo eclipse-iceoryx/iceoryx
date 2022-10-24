@@ -49,13 +49,14 @@ class StaticLifetimeGuard
 
     StaticLifetimeGuard(const StaticLifetimeGuard&) noexcept;
 
+    StaticLifetimeGuard(StaticLifetimeGuard&&) noexcept;
+
     ~StaticLifetimeGuard() noexcept;
 
-    // move and assignment have no purpose since the objects have no state,
-    // copy exists to support passing/returning a value object
-    StaticLifetimeGuard(StaticLifetimeGuard&&) = delete;
-    StaticLifetimeGuard& operator=(const StaticLifetimeGuard&) = delete;
-    StaticLifetimeGuard& operator=(StaticLifetimeGuard&&) = delete;
+    // assignment has no real purpose since the objects have no state,
+    // copy and move exist to support passing/returning a value object
+    StaticLifetimeGuard& operator=(const StaticLifetimeGuard&) noexcept = default;
+    StaticLifetimeGuard& operator=(StaticLifetimeGuard&&) noexcept = default;
 
     /// @brief Construct the instance to be guarded with constructor arguments.
     /// @param args constructor arguments
@@ -92,8 +93,6 @@ class StaticLifetimeGuard
     static std::atomic<uint32_t> s_instanceState;
     static T* s_instance;
     // NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
-
-    std::atomic<uint64_t> m_value{1};
 
     static void destroy();
 };

@@ -165,7 +165,8 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrent() noexcept
 }
 
 template <typename Interface, typename Default, typename Hooks>
-auto PolymorphicHandler<Interface, Default, Hooks>::guard() noexcept
+StaticLifetimeGuard<typename PolymorphicHandler<Interface, Default, Hooks>::Self>
+PolymorphicHandler<Interface, Default, Hooks>::guard() noexcept
 {
     return StaticLifetimeGuard<Self>();
 }

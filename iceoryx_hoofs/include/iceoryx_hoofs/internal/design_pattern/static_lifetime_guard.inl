@@ -37,6 +37,14 @@ StaticLifetimeGuard<T>::StaticLifetimeGuard(const StaticLifetimeGuard&) noexcept
 }
 
 template <typename T>
+StaticLifetimeGuard<T>::StaticLifetimeGuard(StaticLifetimeGuard&&) noexcept
+{
+    // we have to increment the counter here as well as it is only
+    // decremented in the dtor (which was not yet called for the moved object)
+    ++s_count;
+}
+
+template <typename T>
 StaticLifetimeGuard<T>::~StaticLifetimeGuard() noexcept
 {
     if (s_count.fetch_sub(1) == 1)

@@ -120,7 +120,7 @@ class PolymorphicHandler
     /// @return opaque lifetime guard object for the (implicit) PolymorphicHandler instance
     /// @note the PolymorphicHandler will exist once any of the static methods (get, set etc.)
     ///  are called
-    static auto guard() noexcept;
+    static StaticLifetimeGuard<Self> guard() noexcept;
 
   private:
     // should a defaultHandler be created, this delays its destruction

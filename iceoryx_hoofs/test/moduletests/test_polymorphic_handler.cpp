@@ -60,7 +60,6 @@ struct Alternate : public Interface
 
 template <typename T>
 using Guard = iox::design_pattern::StaticLifetimeGuard<T>;
-using AlternateHandler = iox::design_pattern::StaticLifetimeGuard<Alternate>;
 
 // should the handler instances be accessed, they will live at least as
 // long as the guard objects
@@ -177,6 +176,14 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
 
     EXPECT_EQ(handler.value, DEFAULT_ID);
     EXPECT_EQ(alternateHandler.value, 0);
+}
+
+TEST_F(PolymorphicHandler_test, obtainingGuardWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "694f7399-598a-4918-b1e8-4b8546484245");
+    EXPECT_EQ(Guard<Handler>::count(), 1);
+    Guard<Handler> guard(Handler::guard());
+    EXPECT_EQ(Guard<Handler>::count(), 2);
 }
 
 class Activatable_test : public Test

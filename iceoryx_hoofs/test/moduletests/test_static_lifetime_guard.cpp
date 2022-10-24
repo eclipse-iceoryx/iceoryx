@@ -140,6 +140,41 @@ TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
     EXPECT_EQ(Foo::dtorCalled, 0);
 }
 
+TEST_F(StaticLifetimeGuard_test, moveIncreasesLifetimeCount)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "32a2fdbf-cb02-408c-99a3-373aa66b2764");
+    Foo::reset();
+    Guard guard;
+    {
+        EXPECT_EQ(Guard::count(), 2);
+        // NOLINTJUSTIFICATION ctor and dtor side effects are tested
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
+        Guard movedGuard(std::move(guard));
+        EXPECT_EQ(Guard::count(), 3);
+    }
+    EXPECT_EQ(Guard::count(), 2);
+
+    EXPECT_EQ(Foo::ctorCalled, 0);
+    EXPECT_EQ(Foo::dtorCalled, 0);
+}
+
+TEST_F(StaticLifetimeGuard_test, assignmentDoesNotChangeLifetimeCount)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1c04ac75-d47a-44da-b8dc-6f567a53d3fc");
+    Foo::reset();
+    Guard guard1;
+    Guard guard2;
+
+    EXPECT_EQ(Guard::count(), 3);
+    guard1 = guard2;
+    EXPECT_EQ(Guard::count(), 3);
+    guard1 = std::move(guard2);
+    EXPECT_EQ(Guard::count(), 3);
+
+    EXPECT_EQ(Foo::ctorCalled, 0);
+    EXPECT_EQ(Foo::dtorCalled, 0);
+}
+
 TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b5a22a9-87bc-434b-9d07-9f3c20a6944e");
