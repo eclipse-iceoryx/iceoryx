@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox
 {
@@ -43,7 +44,8 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
 
     /// @brief Constructor for a Sample used by the publisher/subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `cxx::unique_ptr<T>` with to the data of the encapsulated type T
+    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// T
     /// @param producer (for publisher only) is a reference to the publisher to be able to use publisher specific
     /// methods
     using BaseType::BaseType;

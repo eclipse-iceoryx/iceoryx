@@ -15,22 +15,20 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_UNIQUE_PTR_INL
-#define IOX_HOOFS_CXX_UNIQUE_PTR_INL
+#ifndef IOX_HOOFS_MEMORY_UNIQUE_PTR_INL
+#define IOX_HOOFS_MEMORY_UNIQUE_PTR_INL
 
-#include "iceoryx_hoofs/cxx/unique_ptr.hpp"
+#include "iox/unique_ptr.hpp"
 
 namespace iox
 {
-namespace cxx
-{
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : False positive, the class doesn't require a delegating ctor
 template <typename T>
-inline unique_ptr<T>::unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept
+inline unique_ptr<T>::unique_ptr(T* const object, const cxx::function<DeleterType>& deleter) noexcept
     : m_ptr(object)
     , m_deleter(deleter)
 {
-    Ensures(object != nullptr);
+    cxx::Ensures(object != nullptr);
 }
 
 template <typename T>
@@ -129,7 +127,6 @@ inline bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexc
 }
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5 : See header
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_UNIQUE_PTR_INL
+#endif // IOX_HOOFS_MEMORY_UNIQUE_PTR_INL

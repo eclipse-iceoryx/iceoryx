@@ -45,6 +45,7 @@ iox_add_library(
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
                         ${CMAKE_BINARY_DIR}/generated/iceoryx/include
     INSTALL_INTERFACE   include/${PREFIX}
+    EXPORT_INCLUDE_DIRS include/
     PUBLIC_LIBS_LINUX   stdc++ pthread
     PUBLIC_LIBS_UNIX    stdc++ pthread
     PUBLIC_LIBS_APPLE   stdc++ pthread

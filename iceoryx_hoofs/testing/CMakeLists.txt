@@ -29,6 +29,7 @@ iox_add_library(
     PRIVATE_LIBS_LINUX      rt
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
+    EXPORT_INCLUDE_DIRS     include/
     FILES
         compile_test.cpp
         logger.cpp
