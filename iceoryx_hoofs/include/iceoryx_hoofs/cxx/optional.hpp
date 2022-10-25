@@ -144,7 +144,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @return true if the contained values are not equal, otherwise false
     constexpr bool operator!=(const optional<T>& rhs) const noexcept;
 
-    /// @brief Comparision with nullopt_t for easier unset optional comparison
+    /// @brief comparison with nullopt_t for easier unset optional comparison
     /// @return true if the optional is set, otherwise false
     constexpr bool operator!=(const nullopt_t& rhs) const noexcept;
 
