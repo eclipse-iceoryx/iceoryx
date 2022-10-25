@@ -52,6 +52,7 @@ jobs:
       uses: vmactions/freebsd-vm@v0
       with:
         usesh: true
+        copyback: false
         mem: 4096
         prepare: pkg install -y cmake git ncurses bash wget
         run: |
