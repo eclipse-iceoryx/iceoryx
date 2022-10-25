@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 #define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 
-#include <cassert>
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
 #include <cstdint>
 #include <type_traits>
 #include <utility>
@@ -191,7 +192,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call destructor for variant element");
+            ExpectsWithMsg(false, "Could not call destructor for variant element");
         }
     }
 
@@ -207,7 +208,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call move assignment for variant element");
+            ExpectsWithMsg(false, "Could not call move assignment for variant element");
         }
     }
 
@@ -223,7 +224,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call move constructor for variant element");
+            ExpectsWithMsg(false, "Could not call move constructor for variant element");
         }
     }
 
@@ -237,7 +238,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call copy assignment for variant element");
+            ExpectsWithMsg(false, "Could not call copy assignment for variant element");
         }
     }
 
@@ -253,7 +254,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call copy constructor for variant element");
+            ExpectsWithMsg(false, "Could not call copy constructor for variant element");
         }
     }
 
@@ -265,7 +266,7 @@ struct call_at_index<N, T>
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
             return *reinterpret_cast<const T*>(lhs) == *reinterpret_cast<const T*>(rhs);
         }
-        assert(false && "Could not call equality operator for variant element");
+        ExpectsWithMsg(false, "Could not call equality operator for variant element");
         return false;
     }
 };
