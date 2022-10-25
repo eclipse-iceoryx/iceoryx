@@ -58,7 +58,7 @@ inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline bool PointerRepository<id_t, ptr_t, CAPACITY>::unregisterPtr(id_t id) noexcept
+inline bool PointerRepository<id_t, ptr_t, CAPACITY>::unregisterPtr(const id_t id) noexcept
 {
     if (id <= MAX_ID && id >= MIN_ID)
     {
@@ -85,7 +85,7 @@ inline void PointerRepository<id_t, ptr_t, CAPACITY>::unregisterAll() noexcept
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(id_t id) const noexcept
+inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(const id_t id) const noexcept
 {
     if (id <= MAX_ID && id >= MIN_ID)
     {
@@ -100,7 +100,7 @@ inline ptr_t PointerRepository<id_t, ptr_t, CAPACITY>::getBasePtr(id_t id) const
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(ptr_t ptr) const noexcept
+inline id_t PointerRepository<id_t, ptr_t, CAPACITY>::searchId(const ptr_t ptr) const noexcept
 {
     for (id_t id = 1U; id <= m_maxRegistered; ++id)
     {

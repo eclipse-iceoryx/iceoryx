@@ -103,7 +103,9 @@ inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDat
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    const auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
+    const auto iter = std::find(getMembers()->m_queues.begin(),
+                                getMembers()->m_queues.end(),
+                                static_cast<ChunkQueueData_t* const>(queueToRemove));
     if (iter != getMembers()->m_queues.end())
     {
         // AXIVION Next Construct AutosarC++19_03-A0.1.2 : we don't use iter any longer so return value can be ignored

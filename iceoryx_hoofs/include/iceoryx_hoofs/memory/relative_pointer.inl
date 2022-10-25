@@ -27,25 +27,28 @@ namespace memory
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline RelativePointer<T>::RelativePointer(ptr_t ptr, segment_id_t id) noexcept
-    : m_id(id)
-    , m_offset(computeOffset(ptr))
+inline RelativePointer<T>::RelativePointer(ptr_t const ptr, const segment_id_t id) noexcept
+    : RelativePointer(getOffset(id, ptr), id)
 {
 }
 
 template <typename T>
+// AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is the main c'tor which the other c'tors use
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline RelativePointer<T>::RelativePointer(offset_t offset, segment_id_t id) noexcept
+inline RelativePointer<T>::RelativePointer(const offset_t offset, const segment_id_t id) noexcept
     : m_id(id)
     , m_offset(offset)
 {
 }
 
 template <typename T>
-inline RelativePointer<T>::RelativePointer(ptr_t ptr) noexcept
-    : m_id(searchId(ptr))
-    , m_offset(computeOffset(ptr))
+inline RelativePointer<T>::RelativePointer(ptr_t const ptr) noexcept
+    : RelativePointer([ptr]() -> RelativePointer {
+        segment_id_t id{searchId(ptr)};
+        offset_t offset{getOffset(id, ptr)};
+        return RelativePointer{offset, id};
+    }())
 {
 }
 
@@ -83,7 +86,7 @@ RelativePointer<T>& RelativePointer<T>::operator=(RelativePointer&& other) noexc
 }
 
 template <typename T>
-inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t ptr) noexcept
+inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t const ptr) noexcept
 {
     m_id = searchId(ptr);
     m_offset = computeOffset(ptr);
@@ -101,7 +104,7 @@ inline typename std::enable_if<!std::is_void<U>::value, const U&>::type Relative
 template <typename T>
 inline T* RelativePointer<T>::operator->() const noexcept
 {
-    auto* ptr = get();
+    auto* const ptr{get()};
     cxx::Ensures(ptr != nullptr);
     return ptr;
 }
@@ -109,25 +112,13 @@ inline T* RelativePointer<T>::operator->() const noexcept
 template <typename T>
 inline T* RelativePointer<T>::get() const noexcept
 {
-    return static_cast<T*>(computeRawPtr());
+    return static_cast<ptr_t>(computeRawPtr());
 }
 
 template <typename T>
 inline RelativePointer<T>::operator bool() const noexcept
 {
     return computeRawPtr() != nullptr;
-}
-
-template <typename T>
-inline bool RelativePointer<T>::operator==(T* const ptr) const noexcept
-{
-    return ptr == get();
-}
-
-template <typename T>
-inline bool RelativePointer<T>::operator!=(T* const ptr) const noexcept
-{
-    return ptr != get();
 }
 
 template <typename T>
@@ -143,13 +134,13 @@ inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset() con
 }
 
 template <typename T>
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr() const noexcept
+inline T* RelativePointer<T>::getBasePtr() const noexcept
 {
     return getBasePtr(segment_id_t{m_id});
 }
 
 template <typename T>
-inline cxx::optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(const ptr_t ptr,
+inline cxx::optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(ptr_t const ptr,
                                                                               const uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
@@ -158,7 +149,7 @@ inline cxx::optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(co
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline bool RelativePointer<T>::registerPtrWithId(const segment_id_t id, const ptr_t ptr, const uint64_t size) noexcept
+inline bool RelativePointer<T>::registerPtrWithId(const segment_id_t id, ptr_t const ptr, const uint64_t size) noexcept
 {
     return getRepository().registerPtrWithId(static_cast<segment_id_underlying_t>(id), ptr, size);
 }
@@ -174,9 +165,11 @@ inline bool RelativePointer<T>::unregisterPtr(const segment_id_t id) noexcept
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getBasePtr(const segment_id_t id) noexcept
+inline T* RelativePointer<T>::getBasePtr(const segment_id_t id) noexcept
 {
-    return static_cast<RelativePointer<T>::ptr_t>(getRepository().getBasePtr(static_cast<segment_id_underlying_t>(id)));
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8 : Cast to the underyling pointer type is safe as this is
+    // encapsulated in the RelativePointer class and type safety is ensured by using templates
+    return static_cast<ptr_t>(getRepository().getBasePtr(static_cast<segment_id_underlying_t>(id)));
 }
 
 template <typename T>
@@ -189,14 +182,14 @@ template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
 inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const segment_id_t id,
-                                                                           const_ptr_t ptr) noexcept
+                                                                           ptr_t const ptr) noexcept
 {
     if (static_cast<segment_id_underlying_t>(id) == NULL_POINTER_ID)
     {
         return NULL_POINTER_OFFSET;
     }
-    auto* basePtr = getBasePtr(id);
-    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    const auto* const basePtr = getBasePtr(id);
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
@@ -204,21 +197,21 @@ inline typename RelativePointer<T>::offset_t RelativePointer<T>::getOffset(const
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
 // NOLINTNEXTLINE(performance-unnecessary-value-param)
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::getPtr(const segment_id_t id,
-                                                                     const offset_t offset) noexcept
+inline T* RelativePointer<T>::getPtr(const segment_id_t id, const offset_t offset) noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
     {
         return nullptr;
     }
-    auto* basePtr = getBasePtr(id);
-    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    const auto* const basePtr = getBasePtr(id);
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.8, AutosarC++19_03-M5.2.6, AutosarC++19_03-M5.2.9 : Cast
+    // needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
 }
 
 template <typename T>
-inline segment_id_underlying_t RelativePointer<T>::searchId(ptr_t ptr) noexcept
+inline segment_id_underlying_t RelativePointer<T>::searchId(ptr_t const ptr) noexcept
 {
     if (ptr == nullptr)
     {
@@ -228,21 +221,81 @@ inline segment_id_underlying_t RelativePointer<T>::searchId(ptr_t ptr) noexcept
 }
 
 template <typename T>
-inline typename RelativePointer<T>::offset_t RelativePointer<T>::computeOffset(ptr_t ptr) const noexcept
+inline typename RelativePointer<T>::offset_t RelativePointer<T>::computeOffset(ptr_t const ptr) const noexcept
 {
     return getOffset(segment_id_t{m_id}, ptr);
 }
 
 template <typename T>
-inline typename RelativePointer<T>::ptr_t RelativePointer<T>::computeRawPtr() const noexcept
+inline T* RelativePointer<T>::computeRawPtr() const noexcept
 {
     return getPtr(segment_id_t{m_id}, m_offset);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A15.5.3, AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : False
+// positive, std::terminate is not called in the c'tor of PointerRepository and noexcept-specification is not violated
 inline PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t>& getRepository() noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A3.3.2 : PointerRepository can't be constexpr, usage of the static
+    // object is encapsulated in the RelativePointer class
     static PointerRepository<segment_id_underlying_t, UntypedRelativePointer::ptr_t> repository;
     return repository;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to raw pointers
+inline bool operator==(const RelativePointer<T> lhs, const T* const rhs) noexcept
+{
+    return lhs.get() == rhs;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to raw pointers
+inline bool operator==(const T* const lhs, const RelativePointer<T> rhs) noexcept
+{
+    return rhs == lhs;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to nullptrs
+inline bool operator==(std::nullptr_t, const RelativePointer<T> rhs) noexcept
+{
+    return rhs.get() == nullptr;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to nullptrs
+inline bool operator==(const RelativePointer<T> lhs, std::nullptr_t) noexcept
+{
+    return lhs.get() == nullptr;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to raw pointers
+inline bool operator!=(const RelativePointer<T> lhs, const T* const rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to raw pointers
+inline bool operator!=(const T* const lhs, const RelativePointer<T> rhs) noexcept
+{
+    return rhs != lhs;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to nullptrs
+inline bool operator!=(std::nullptr_t, const RelativePointer<T> rhs) noexcept
+{
+    return rhs.get() != nullptr;
+}
+
+template <typename T>
+// AXIVION Next Line AutosarC++19_03-A13.5.5 : The RelativePointer shall explicitly be comparable to nullptrs
+inline bool operator!=(const RelativePointer<T> lhs, std::nullptr_t) noexcept
+{
+    return lhs.get() != nullptr;
 }
 } // namespace memory
 } // namespace iox
