@@ -25,6 +25,46 @@ using namespace ::testing;
 
 using iox::containers::UninitializedArray;
 
+struct Integer
+{
+    static uint32_t ctor;
+    static uint32_t dtor;
+
+    Integer()
+        : Integer(0)
+    {
+    }
+
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
+    Integer(int value)
+        : value(value)
+    {
+        ctor++;
+    }
+
+    ~Integer()
+    {
+        dtor++;
+    }
+
+    Integer(const Integer&) = delete;
+    Integer(Integer&&) = delete;
+    Integer& operator=(const Integer&) = delete;
+    Integer& operator=(Integer&&) = delete;
+
+    int value{0};
+
+    // so that it behaves like an int for comparison purposes
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
+    operator int() const
+    {
+        return value;
+    }
+};
+
+uint32_t Integer::ctor;
+uint32_t Integer::dtor;
+
 template <typename T>
 class UninitializedArrayTest : public ::testing::Test
 {
@@ -43,23 +83,11 @@ class UninitializedArrayTest : public ::testing::Test
             new (&buffer[i]) Type(value++);
         }
     }
-};
 
-struct Integer
-{
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
-    Integer(int value = 0)
-        : value(value)
+    void SetUp() override
     {
-    }
-
-    int value{0};
-
-    // so that it behaves like an int for comparison purposes
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
-    operator int() const
-    {
-        return value;
+        Integer::ctor = 0;
+        Integer::dtor = 0;
     }
 };
 
@@ -203,7 +231,7 @@ TYPED_TEST(UninitializedArrayTest, BeginAndEndConstIteratorNotEqualInFullUniniti
     EXPECT_NE(const_cast<const decltype(buffer)>(buffer).begin(), const_cast<const decltype(buffer)>(buffer).end());
 }
 
-TEST(UninitializedArrayTest, IteratorIteratesThroughNonEmptyUninitializedArray)
+TEST(UninitializedArrayTest, IteratorIteratesThroughUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b42d93c9-cbe8-481f-8a0b-5b3fb8e9020c");
     constexpr uint64_t CAPACITY = 3;
@@ -226,7 +254,7 @@ TEST(UninitializedArrayTest, IteratorIteratesThroughNonEmptyUninitializedArray)
     EXPECT_EQ(count, CAPACITY);
 }
 
-TEST(UninitializedArrayTest, ConstIteratorIteratesThroughNonEmptyUninitializedArray)
+TEST(UninitializedArrayTest, ConstIteratorIteratesThroughUninitializedArray)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e8d7ac7f-9ec7-4264-8b27-d0469b167375");
     constexpr uint64_t CAPACITY = 3;
@@ -248,5 +276,45 @@ TEST(UninitializedArrayTest, ConstIteratorIteratesThroughNonEmptyUninitializedAr
         ++count;
     }
     EXPECT_EQ(count, CAPACITY);
+}
+
+TEST(UninitializedArrayTest, UninitializedArrayDoesNotInitializeOrDestroyElements)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "60334385-60e8-49bc-b297-61f5a5a3b175");
+    constexpr uint64_t CAPACITY{15};
+    Integer::ctor = 0;
+    Integer::dtor = 0;
+
+    {
+        UninitializedArray<Integer, CAPACITY> buffer{};
+        EXPECT_EQ(Integer::ctor, 0);
+
+        for (uint64_t i{0}; i < CAPACITY; ++i)
+        {
+            new (&buffer[i]) Integer(51);
+        }
+        EXPECT_EQ(Integer::ctor, CAPACITY);
+        EXPECT_EQ(Integer::dtor, 0);
+    }
+    EXPECT_EQ(Integer::dtor, 0);
+}
+
+TYPED_TEST(UninitializedArrayTest, SizeOfUninitializedArrayEqualsCStyleArray)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1c7ddec-b883-4eee-a4a4-a8dfbcaaec6d");
+    using Buffer = typename TestFixture::Buffer;
+    if (std::is_same<Buffer, UninitializedArray<Integer, 10>>::value
+        || std::is_same<Buffer, UninitializedArray<Integer, 10, iox::containers::ZeroedBuffer>>::value)
+    {
+        // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) : needed for test purpose
+        Integer testArray[10];
+        EXPECT_EQ(sizeof(this->buffer), sizeof(testArray));
+    }
+    else
+    {
+        // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) : needed for test purpose
+        int testArray[10];
+        EXPECT_EQ(sizeof(this->buffer), sizeof(testArray));
+    }
 }
 } // namespace

@@ -36,7 +36,7 @@ struct ZeroedBuffer
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     using element_t = cxx::byte_t[sizeof(ElementType)];
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    alignas(ElementType) element_t value[Capacity]{{0}};
+    alignas(ElementType) element_t value[Capacity]{};
     // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 };
 
@@ -44,7 +44,7 @@ struct ZeroedBuffer
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
-struct NotZeroedBuffer
+struct NonZeroedBuffer
 {
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
     // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
@@ -58,10 +58,10 @@ struct NotZeroedBuffer
 /// all elements can be zeroed via template parameter ZeroedBuffer.
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
-/// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=NotZeroedBuffer,
+/// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=NonZeroedBuffer,
 /// default) and an uninitialized array with all elements zeroed (=ZeroedBuffer)
 /// @note Out of bounds access leads to undefined behavior
-template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NotZeroedBuffer>
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NonZeroedBuffer>
 class UninitializedArray
 {
     static_assert(Capacity > 0U, "The size of the UninitializedArray must be greater than 0!");
