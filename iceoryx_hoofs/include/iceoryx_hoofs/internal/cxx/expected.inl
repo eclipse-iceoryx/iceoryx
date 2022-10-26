@@ -75,8 +75,8 @@ inline error<T>::error(Targs&&... args) noexcept
 
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& f_store) noexcept
-    : m_store(std::move(f_store))
+inline expected<ValueType, ErrorType>::expected(variant<ValueType, ErrorType>&& store) noexcept
+    : m_store(std::move(store))
 {
 }
 
@@ -156,11 +156,26 @@ inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 template <typename ValueType, typename ErrorType>
 inline ErrorType&& expected<ValueType, ErrorType>::get_error() && noexcept
 {
-    return std::move(*m_store.template get_at_index<ERROR_INDEX>());
+    return std::move(get_error());
 }
 
 template <typename ValueType, typename ErrorType>
 inline ErrorType& expected<ValueType, ErrorType>::get_error() & noexcept
+{
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<ErrorType&>(const_cast<const expected<ValueType, ErrorType>*>(this)->get_error());
+}
+
+template <typename ValueType, typename ErrorType>
+inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
+{
+    ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
+    return get_error_unchecked();
+}
+
+template <typename ValueType, typename ErrorType>
+inline const ErrorType& expected<ValueType, ErrorType>::get_error_unchecked() const noexcept
 {
     return *m_store.template get_at_index<ERROR_INDEX>();
 }
@@ -168,31 +183,28 @@ inline ErrorType& expected<ValueType, ErrorType>::get_error() & noexcept
 template <typename ValueType, typename ErrorType>
 inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
 {
-    return std::move(*m_store.template get_at_index<VALUE_INDEX>());
+    return std::move(value());
 }
 
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
 {
-    return *m_store.template get_at_index<VALUE_INDEX>();
+    ExpectsWithMsg(!has_error(), "Trying to access a value but an error is stored!");
+    return value_unchecked();
 }
 
 template <typename ValueType, typename ErrorType>
 inline ValueType& expected<ValueType, ErrorType>::value() & noexcept
 {
-    return *m_store.template get_at_index<VALUE_INDEX>();
-}
-
-template <typename ErrorType>
-inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
-{
-    return *m_store.template get_at_index<ERROR_INDEX>();
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<ValueType&>(const_cast<const expected<ValueType, ErrorType>*>(this)->value());
 }
 
 template <typename ValueType, typename ErrorType>
 inline ValueType* expected<ValueType, ErrorType>::operator->() noexcept
 {
-    return m_store.template get_at_index<VALUE_INDEX>();
+    return &value();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -206,7 +218,7 @@ inline const ValueType* expected<ValueType, ErrorType>::operator->() const noexc
 template <typename ValueType, typename ErrorType>
 inline ValueType& expected<ValueType, ErrorType>::operator*() noexcept
 {
-    return *m_store.template get_at_index<VALUE_INDEX>();
+    return value();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -215,6 +227,12 @@ inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexce
     // const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const ValueType&>(const_cast<expected*>(this)->operator*());
+}
+
+template <typename ValueType, typename ErrorType>
+const ValueType& expected<ValueType, ErrorType>::value_unchecked() const noexcept
+{
+    return *m_store.template get_at_index<VALUE_INDEX>();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -240,8 +258,8 @@ inline optional<ValueType> expected<ValueType, ErrorType>::to_optional() const n
 }
 
 template <typename ErrorType>
-inline expected<ErrorType>::expected(variant<ErrorType>&& f_store) noexcept
-    : m_store(std::move(f_store))
+inline expected<ErrorType>::expected(variant<ErrorType>&& store) noexcept
+    : m_store(std::move(store))
 {
 }
 
@@ -359,17 +377,26 @@ inline bool expected<ErrorType>::has_error() const noexcept
 template <typename ErrorType>
 inline ErrorType&& expected<ErrorType>::get_error() && noexcept
 {
-    return std::move(*m_store.template get_at_index<ERROR_INDEX>());
-}
-
-template <typename ValueType, typename ErrorType>
-inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
-{
-    return *m_store.template get_at_index<ERROR_INDEX>();
+    return std::move(get_error());
 }
 
 template <typename ErrorType>
 inline ErrorType& expected<ErrorType>::get_error() & noexcept
+{
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<ErrorType&>(const_cast<const expected<ErrorType>*>(this)->get_error());
+}
+
+template <typename ErrorType>
+inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
+{
+    ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
+    return get_error_unchecked();
+}
+
+template <typename ErrorType>
+inline const ErrorType& expected<ErrorType>::get_error_unchecked() const noexcept
 {
     return *m_store.template get_at_index<ERROR_INDEX>();
 }

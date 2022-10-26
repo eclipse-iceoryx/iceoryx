@@ -156,6 +156,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
+    /// ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
 
 #if defined(_WIN32)
@@ -179,6 +181,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move assignment operator does not explicitly invalidate the moved-from object but relies on the move
+    /// assignment operator of ErrorType to correctly invalidate the stored object
     expected& operator=(expected&& rhs) noexcept;
 
 #if defined(_WIN32)
@@ -239,21 +243,22 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     bool has_error() const noexcept;
 
     /// @brief  returns a reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
 
     /// @brief  returns a const reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return const reference to the internally contained error
     const ErrorType& get_error() const& noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return rvalue reference to the internally contained error
     ErrorType&& get_error() && noexcept;
 
   private:
+    const ErrorType& get_error_unchecked() const noexcept;
     explicit expected(variant<ErrorType>&& store) noexcept;
     variant<ErrorType> m_store;
     static constexpr uint64_t ERROR_INDEX = 0U;
@@ -277,6 +282,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
 
     /// @brief the move constructor calls the move constructor of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
+    /// ValueType or ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
 
     /// @brief calls the destructor of the success value or error value - depending on what
@@ -289,6 +296,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
 
     /// @brief  calls the move assignment operator of the contained success value
     ///         or the error value - depending on what is stored in the expected
+    /// @note The move assignment operator does not explicitly invalidate the moved-from object but relies on the move
+    /// assignment operator of ValueType or ErrorType to correctly invalidate the stored object
     expected& operator=(expected&& rhs) noexcept;
 
     /// @brief  constructs an expected which is signaling success and uses the value
@@ -350,38 +359,37 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     bool has_error() const noexcept;
 
     /// @brief  returns a reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return reference to the internally contained error
     ErrorType& get_error() & noexcept;
 
     /// @brief  returns a const reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return const reference to the internally contained error
     const ErrorType& get_error() const& noexcept;
 
     /// @brief  returns a rvalue reference to the contained error value, if the expected
-    ///         does not contain an error this is undefined behavior
+    ///         does not contain an error the error handler is called
     /// @return rvalue reference to the internally contained error
     ErrorType&& get_error() && noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
-    ///         does not contain a success value this is undefined behavior
+    ///         does not contain a success value the error handler is called
     /// @return reference to the internally contained value
     ValueType& value() & noexcept;
 
     /// @brief  returns a const reference to the contained success value, if the expected
-    ///         does not contain a success value this is undefined behavior
+    ///         does not contain a success value the error handler is called
     /// @return const reference to the internally contained value
     const ValueType& value() const& noexcept;
 
     /// @brief  returns a reference to the contained success value, if the expected
-    ///         does not contain a success value this is undefined behavior
+    ///         does not contain a success value the error handler is called
     /// @return rvalue reference to the internally contained value
     ValueType&& value() && noexcept;
 
     /// @brief dereferencing operator which returns a reference to the contained
-    ///         success value. if the expected contains an error the behavior is
-    ///         undefined.
+    ///         success value. if the expected contains an error the error handler is called
     /// @return reference to the contained value
     /// @code
     ///     cxx::expected<int, float> frodo(success<int>(45));
@@ -391,8 +399,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     ValueType& operator*() noexcept;
 
     /// @brief dereferencing operator which returns a reference to the contained
-    ///         success value. if the expected contains an error the behavior is
-    ///         undefined.
+    ///         success value. if the expected contains an error the error handler is called
     /// @return const reference to the contained value
     /// @code
     ///     cxx::expected<int, float> frodo(success<int>(45));
@@ -401,8 +408,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     /// @endcode
     const ValueType& operator*() const noexcept;
 
-    /// @brief arrow operator which returns the pointer to the contained success value.
-    ///         if the expected contains an error the behavior is undefined.
+    /// @brief arrow operator which returns the pointer to the contained success value
+    ///         if the expected contains an error the error handler is called
     /// @return pointer of type ValueType to the contained value
     /// @code
     ///     cxx::expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
@@ -410,8 +417,8 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     /// @endcode
     ValueType* operator->() noexcept;
 
-    /// @brief arrow operator which returns the pointer to the contained success value.
-    ///         if the expected contains an error the behavior is undefined.
+    /// @brief arrow operator which returns the pointer to the contained success value
+    ///         if the expected contains an error the the error handler is called
     /// @return pointer of type const ValueType to the contained value
     /// @code
     ///     cxx::expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
@@ -440,7 +447,9 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType>
     optional<ValueType> to_optional() const noexcept;
 
   private:
-    explicit expected(variant<ValueType, ErrorType>&& f_store) noexcept;
+    explicit expected(variant<ValueType, ErrorType>&& store) noexcept;
+    const ErrorType& get_error_unchecked() const noexcept;
+    const ValueType& value_unchecked() const noexcept;
     variant<ValueType, ErrorType> m_store;
     static constexpr uint64_t VALUE_INDEX = 0U;
     static constexpr uint64_t ERROR_INDEX = 1U;
@@ -452,7 +461,6 @@ class IOX_NO_DISCARD expected<void, ErrorType> : public expected<ErrorType>
   public:
     using expected<ErrorType>::expected;
 };
-
 
 } // namespace cxx
 } // namespace iox
