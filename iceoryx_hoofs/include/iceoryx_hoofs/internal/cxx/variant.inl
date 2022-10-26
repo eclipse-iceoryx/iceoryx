@@ -26,6 +26,7 @@ namespace iox
 namespace cxx
 {
 template <typename... Types>
+// AXIVION Next Construct AutosarC++19_03-A12.1.5: constructor delegation is not feasible here due to lack of sufficient common initialization
 inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
     : m_type_index(rhs.m_type_index)
 {
@@ -63,6 +64,12 @@ inline constexpr variant<Types...>::variant(T&& arg) noexcept
 {
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
+// template <typename T,
+// typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
+// typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
+// typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
+// constexpr explicit variant(T&& arg) noexcept;
 template <typename... Types>
 inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& rhs) noexcept
 {
@@ -99,9 +106,16 @@ inline constexpr variant<Types...>::variant(variant&& rhs) noexcept
     }
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
+// template <typename T,
+// typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
+// typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
+// typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
+// constexpr explicit variant(T&& arg) noexcept;
 template <typename... Types>
 inline constexpr variant<Types...>& variant<Types...>::operator=(variant&& rhs) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive. Check needed to avoid self assignment.
     if (this != &rhs)
     {
         if (m_type_index != rhs.m_type_index)
@@ -153,8 +167,9 @@ variant<Types...>::operator=(T&& rhs) noexcept
 
     if (!has_bad_variant_element_access<T>())
     {
+        // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
         auto storage = static_cast<T*>(static_cast<void*>(&m_storage));
-        *storage = (std::forward<T>(rhs));
+        *storage = std::forward<T>(rhs);
     }
     else
     {
@@ -175,6 +190,7 @@ inline bool variant<Types...>::emplace_at_index(CTorArguments&&... args) noexcep
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
     call_element_destructor();
+    // AXIVION Next Construct AutosarC++19_03-A18.5.10, FaultDetection-IndirectAssignmentOverflow : m_storage is aligned to the maximum alignment of Types
     new (&m_storage) T(std::forward<CTorArguments>(args)...);
     m_type_index = TypeIndex;
 
@@ -215,6 +231,7 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
     return static_cast<T*>(static_cast<void*>(&m_storage));
 }
 
@@ -237,6 +254,7 @@ inline const T* variant<Types...>::get() const noexcept
     {
         return nullptr;
     }
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8: conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return static_cast<const T*>(static_cast<const void*>(&m_storage));

@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CXX_VARIANT_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/internal/cxx/variant_internal.hpp"
 
 #include <cstdint>
@@ -40,7 +41,7 @@ namespace cxx
 template <uint64_t N>
 struct in_place_index
 {
-    static constexpr uint64_t value = N;
+    static constexpr uint64_t value{N};
 };
 
 /// @brief helper struct to perform an emplacement of a predefined type in
@@ -67,7 +68,7 @@ struct in_place_type
 ///     // variant with setted value therefore the index is not invalid
 ///     if ( someVariant.index() != INVALID_VARIANT_INDEX ) ...
 /// @endcode
-static constexpr uint64_t INVALID_VARIANT_INDEX = std::numeric_limits<uint64_t>::max();
+static constexpr uint64_t INVALID_VARIANT_INDEX{std::numeric_limits<uint64_t>::max()};
 
 /// @brief Variant implementation from the C++17 standard with C++11. The
 ///         interface is inspired by the C++17 standard but it has changes in
@@ -103,11 +104,11 @@ static constexpr uint64_t INVALID_VARIANT_INDEX = std::numeric_limits<uint64_t>:
 ///
 /// @endcode
 template <typename... Types>
-class variant
+class variant final
 {
   private:
     /// @brief contains the size of the largest element
-    static constexpr uint64_t TYPE_SIZE = algorithm::maxVal(sizeof(Types)...);
+    static constexpr uint64_t TYPE_SIZE{algorithm::maxVal(sizeof(Types)...)};
 
   public:
     /// @brief the default constructor constructs a variant which does not contain
@@ -265,9 +266,10 @@ class variant
     constexpr uint64_t index() const noexcept;
 
   private:
+    // AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive. internal::byte_t is a type alias for uint8_t
     struct alignas(Types...) storage_t
     {
-        // NOLINTJUSTIFICATION safe access is guaranteed since the c-array is wrapped inside the variant class
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the variant class
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
         internal::byte_t data[TYPE_SIZE];
     };
