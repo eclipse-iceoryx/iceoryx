@@ -57,7 +57,6 @@ struct Alternate : public Interface
     }
 };
 
-
 template <typename T>
 using Guard = iox::design_pattern::StaticLifetimeGuard<T>;
 
