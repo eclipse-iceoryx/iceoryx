@@ -26,7 +26,7 @@ namespace iox
 namespace cxx
 {
 /// @deprecated
-using memory::unique_ptr;
+using iox::unique_ptr;
 } // namespace cxx
 } // namespace iox
 
