@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 #define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 
-#include <cassert>
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
 #include <cstdint>
 #include <type_traits>
 #include <utility>
@@ -163,6 +164,17 @@ struct call_at_index
             call_at_index<N + 1, Targs...>::copyConstructor(index, source, destination);
         }
     }
+
+    static bool equality(const uint64_t index, const byte_t* lhs, const byte_t* rhs)
+    {
+        if (N == index)
+        {
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter and encapsulated in this class
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            return *reinterpret_cast<const T*>(lhs) == *reinterpret_cast<const T*>(rhs);
+        }
+        return call_at_index<N + 1, Targs...>::equality(index, lhs, rhs);
+    }
 };
 
 template <uint64_t N, typename T>
@@ -180,7 +192,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call destructor for variant element");
+            ExpectsWithMsg(false, "Could not call destructor for variant element");
         }
     }
 
@@ -196,7 +208,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call move assignment for variant element");
+            ExpectsWithMsg(false, "Could not call move assignment for variant element");
         }
     }
 
@@ -212,7 +224,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call move constructor for variant element");
+            ExpectsWithMsg(false, "Could not call move constructor for variant element");
         }
     }
 
@@ -226,7 +238,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call copy assignment for variant element");
+            ExpectsWithMsg(false, "Could not call copy assignment for variant element");
         }
     }
 
@@ -242,8 +254,20 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call copy constructor for variant element");
+            ExpectsWithMsg(false, "Could not call copy constructor for variant element");
         }
+    }
+
+    static bool equality(const uint64_t index, const byte_t* lhs, const byte_t* rhs) noexcept
+    {
+        if (N == index)
+        {
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter and encapsulated in this class
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            return *reinterpret_cast<const T*>(lhs) == *reinterpret_cast<const T*>(rhs);
+        }
+        ExpectsWithMsg(false, "Could not call equality operator for variant element");
+        return false;
     }
 };
 

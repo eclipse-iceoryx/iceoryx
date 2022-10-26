@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2021 by Perforce All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CXX_VARIANT_INL
 
 #include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {
@@ -288,13 +289,33 @@ inline bool variant<Types...>::has_bad_variant_element_access() const noexcept
 template <typename... Types>
 inline void variant<Types...>::error_message(const char* source, const char* msg) noexcept
 {
-    std::cerr << source << " ::: " << msg << std::endl;
+    IOX_LOG(ERROR) << source << " ::: " << msg;
 }
 
 template <typename T, typename... Types>
 inline constexpr bool holds_alternative(const variant<Types...>& variant) noexcept
 {
     return variant.template get<T>() != nullptr;
+}
+
+template <typename... Types>
+inline constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>& rhs)
+{
+    if ((lhs.index() == INVALID_VARIANT_INDEX) && (rhs.index() == INVALID_VARIANT_INDEX))
+    {
+        return true;
+    }
+    if (lhs.index() != rhs.index())
+    {
+        return false;
+    }
+    return internal::call_at_index<0, Types...>::equality(lhs.index(), lhs.m_storage, rhs.m_storage);
+}
+
+template <typename... Types>
+inline constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs)
+{
+    return !(lhs == rhs);
 }
 } // namespace cxx
 } // namespace iox

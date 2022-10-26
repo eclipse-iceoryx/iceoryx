@@ -125,11 +125,11 @@ class unique_ptr final
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Parameters are explicitly not identical to compare two unique_ptr's
 // using different types. STL definies them similarly.
 
-/// @brief comparision for two distinct unique_ptr types
+/// @brief comparison for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
 /// @tparam U underlying type of rhs
-/// @param[in] lhs left side of the comparision
-/// @param[in] rhs right side of the comparision
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
 /// @return true if the pointers are equal, otherwise false
 template <typename T, typename U>
 bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
@@ -137,8 +137,8 @@ bool operator==(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;
 /// @brief inequality check for two distinct unique_ptr types
 /// @tparam T underlying type of lhs
 /// @tparam U underlying type of rhs
-/// @param[in] lhs left side of the comparision
-/// @param[in] rhs right side of the comparision
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
 /// @return true if the pointers are not equal, otherwise false
 template <typename T, typename U>
 bool operator!=(const unique_ptr<T>& lhs, const unique_ptr<U>& rhs) noexcept;

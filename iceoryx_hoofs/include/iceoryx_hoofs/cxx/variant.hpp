@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -158,12 +158,16 @@ class variant
     /// @brief if the variant contains an element the elements move constructor is called
     ///     otherwise an empty variant is moved
     /// @param[in] rhs source of the move
+    /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
+    /// Types to correctly invalidate the stored object
     constexpr variant(variant&& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements move assignment operator is called
     ///     otherwise an empty variant is moved
     /// @param[in] rhs source of the move assignment
     /// @return reference to the variant itself
+    /// @note The move assignment operator does not explicitly invalidate the moved-from object but relies on the move
+    /// assignment operator of Types to correctly invalidate the stored object
     constexpr variant& operator=(variant&& rhs) noexcept;
 
     /// @brief if the variant contains an element the elements destructor is called otherwise
@@ -273,11 +277,32 @@ class variant
     static void error_message(const char* source, const char* msg) noexcept;
 
     void call_element_destructor() noexcept;
+
+    template <typename... Ts>
+    friend constexpr bool operator==(const variant<Ts...>& lhs, const variant<Ts...>& rhs);
+    template <typename... Ts>
+    friend constexpr bool operator!=(const variant<Ts...>& lhs, const variant<Ts...>& rhs);
 };
 
 /// @brief returns true if the variant holds a given type T, otherwise false
 template <typename T, typename... Types>
 constexpr bool holds_alternative(const variant<Types...>& variant) noexcept;
+
+/// @brief equality check for two distinct variant types
+/// @tparam Types variadic number of types which can be stored in the variant
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the variants are equal, otherwise false
+template <typename... Types>
+constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>& rhs);
+
+/// @brief inequality check for two distinct variant types
+/// @tparam Types variadic number of types which can be stored in the variant
+/// @param[in] lhs left side of the comparison
+/// @param[in] rhs right side of the comparison
+/// @return true if the variants are not equal, otherwise false
+template <typename... Types>
+constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs);
 
 } // namespace cxx
 } // namespace iox
