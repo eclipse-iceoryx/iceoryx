@@ -22,6 +22,7 @@ cc_binary(
         "benchmark_optional_and_expected/benchmark.hpp",
         "benchmark_optional_and_expected/benchmark_optional_and_expected.cpp",
     ],
+    linkopts = ["-ldl"],
     deps = [
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
     ],
