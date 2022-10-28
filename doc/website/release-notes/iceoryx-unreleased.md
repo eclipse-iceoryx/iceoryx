@@ -58,6 +58,7 @@
 - Removed `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
 - CI uses outdated clang-format [\#1736](https://github.com/eclipse-iceoryx/iceoryx/issues/1736)
 - Avoid UB when accessing `iox::expected` [\#1750](https://github.com/eclipse-iceoryx/iceoryx/issues/1750)
+- Prevent potential out-of-bounds access in `ìox::string` [\#1766](https://github.com/eclipse-iceoryx/iceoryx/issues/1766)
 
 **Refactoring:**
 
@@ -801,4 +802,15 @@
 
     containers::UninitializedArray<T, Capacity> myAlignedArray;
 
+42. Removed `char*`-only methods from `iox::string`
+
+    ```cpp
+    // before
+    char fooStr[] = "foo";
+    iox::cxx::string<100> myString(TruncateToCapacity, fooStr);
+    myString.unsafe_assign(fooStr);
+
+    // after
+    char fooStr[] = "foo";
+    iox::cxx::string<100> myString(TruncateToCapacity, fooStr, 3);
     ```
