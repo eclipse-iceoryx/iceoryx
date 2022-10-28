@@ -105,14 +105,6 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 }
 
 template <uint64_t Capacity>
-// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
-inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(
-        TruncateToCapacity, other, [&]() -> uint64_t { return (other != nullptr) ? strnlen(other, Capacity) : 0U; }())
-{
-}
-
-template <uint64_t Capacity>
 // TruncateToCapacity_t is a compile time variable to distinguish between constructors
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 inline string<Capacity>::string(TruncateToCapacity_t, const std::string& other) noexcept
@@ -196,26 +188,6 @@ inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 {
     *this = str;
     return *this;
-}
-
-template <uint64_t Capacity>
-inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
-{
-    if ((c_str() == str) || (str == nullptr))
-    {
-        return false;
-    }
-    const uint64_t strSize = strnlen(str, Capacity + 1U);
-    if (Capacity < strSize)
-    {
-        std::cerr << "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity ("
-                  << Capacity << ") of the fixed string." << std::endl;
-        return false;
-    }
-    std::memcpy(&(m_rawstring[0]), str, strSize);
-    m_rawstring[strSize] = '\0';
-    m_rawstringSize = strSize;
-    return true;
 }
 
 template <uint64_t Capacity>
@@ -376,7 +348,7 @@ inline constexpr void string<Capacity>::clear() noexcept
 }
 
 template <uint64_t Capacity>
-inline string<Capacity>::operator std::string() const noexcept
+inline string<Capacity>::operator std::string() const
 {
     return std::string(c_str());
 }

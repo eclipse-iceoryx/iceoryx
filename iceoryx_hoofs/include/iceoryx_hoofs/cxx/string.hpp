@@ -209,27 +209,6 @@ class string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
     string(const char (&other)[N]) noexcept;
 
-    /// @brief conversion constructor for cstring to string which truncates characters if the size is greater than
-    /// the string capacity
-    ///
-    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
-    /// constructors with certain behavior
-    /// @param [in] other is the cstring to convert
-    /// @attention truncates characters if the size is greater than the string capacity
-    ///
-    /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
-    ///     using namespace iox::cxx;
-    ///
-    ///     int main()
-    ///     {
-    ///         string<4> fuu(TruncateToCapacity, "abcd");
-    ///     }
-    /// @endcode
-    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
-    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    string(TruncateToCapacity_t, const char* const other) noexcept;
-
     /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
     /// greater than the string capacity
     ///
@@ -250,6 +229,7 @@ class string
     /// @endcode
     // TruncateToCapacity_t is a compile time variable to distinguish between constructors
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    /// @todo Make this c'tor explicit to avoid implicit conversion from 'nullptr'
     string(TruncateToCapacity_t, const std::string& other) noexcept;
 
     /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
@@ -333,14 +313,6 @@ class string
     // We want to assign string literals to the cxx::string, like myString.assign("abc");
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& assign(const char (&str)[N]) noexcept;
-
-    /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
-    /// capacity.
-    ///
-    /// @param [in] str is the cstring to assign
-    ///
-    /// @return true if the assignment succeeds, otherwise false
-    bool unsafe_assign(const char* const str) noexcept;
 
     /// @brief assigns a std::string to string. The assignment fails if the std::string size is greater than the string
     /// capacity.
@@ -446,7 +418,7 @@ class string
     ///
     /// @return a std::string with data equivalent to those stored in the string
     // NOLINTNEXTLINE(hicpp-explicit-conversions) @todo iox-#260 remove this conversion and implement toStdString method
-    operator std::string() const noexcept;
+    operator std::string() const;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
     /// capacity (failing or truncating), the fixed string does not support operator+=; use append for truncating or

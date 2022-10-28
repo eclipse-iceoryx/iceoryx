@@ -319,16 +319,16 @@ TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeGreaterCapaResu
     EXPECT_THAT(testSubject.size(), Eq(STRINGCAP));
 }
 
-TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithNullPtrResultsEmptyString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c6bbcbc6-e049-4c2c-bf84-8d89dcf42ce8");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu(TruncateToCapacity, nullptr);
-    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(fuu.size(), Eq(0U));
-    EXPECT_THAT(fuu.c_str(), StrEq(""));
-}
+// TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithNullPtrResultsEmptyString)
+// {
+//     ::testing::Test::RecordProperty("TEST_ID", "c6bbcbc6-e049-4c2c-bf84-8d89dcf42ce8");
+//     using MyString = typename TestFixture::stringType;
+//     constexpr auto STRINGCAP = MyString::capacity();
+//     string<STRINGCAP> fuu(TruncateToCapacity, nullptr);
+//     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+//     EXPECT_THAT(fuu.size(), Eq(0U));
+//     EXPECT_THAT(fuu.c_str(), StrEq(""));
+// }
 
 /// @note string(TruncateToCapacity_t, const std::string& other) noexcept
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSize0ResultsInSize0)
@@ -665,20 +665,6 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfInvalidCStringFails)
     EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(false));
     EXPECT_THAT(this->testSubject.size(), Eq(1U));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("L"));
-}
-
-TYPED_TEST(stringTyped_test, UnsafeAssignOfCharPointerPointingToSameAddress)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "a129add2-4d8e-4953-ba28-b78ece5a2f02");
-    this->testSubject = "M";
-    const char* fuu = this->testSubject.c_str();
-    EXPECT_THAT(this->testSubject.unsafe_assign(fuu), Eq(false));
-}
-
-TYPED_TEST(stringTyped_test, UnsafeAssignOfNullptrFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "140e5402-c6b5-4a07-a0f7-2a10f6d307fb");
-    EXPECT_THAT(this->testSubject.unsafe_assign(nullptr), Eq(false));
 }
 
 /// @note bool unsafe_assign(const std::string& str) noexcept
