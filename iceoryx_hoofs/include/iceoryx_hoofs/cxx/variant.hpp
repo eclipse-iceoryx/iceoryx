@@ -192,19 +192,17 @@ class variant final
     /// @tparam TypeIndex index of the type which will be created
     /// @tparam CTorArguments variadic types of the c'tor arguments
     /// @param[in] args arguments which will be forwarded to the constructor to the type at TypeIndex
-    /// @return if the variant already contains a different type it returns false, if the construction
-    ///         was successful it returns true
+    /// @note terminates if the given TypeIndex is out of bounds
     template <uint64_t TypeIndex, typename... CTorArguments>
-    bool emplace_at_index(CTorArguments&&... args) noexcept;
+    void emplace_at_index(CTorArguments&&... args) noexcept;
 
     /// @brief calls the constructor of the type T and perfectly forwards the arguments
     ///         to the constructor of T.
     /// @tparam[in] T type which is created inside the variant
     /// @tparam[in] CTorArguments variadic types of the c'tor arguments
-    /// @return if the variant already contains a different type it returns false, if the construction
-    ///         was successful it returns true
+    /// @note terminates if the variant does not contain the given type
     template <typename T, typename... CTorArguments>
-    bool emplace(CTorArguments&&... args) noexcept;
+    void emplace(CTorArguments&&... args) noexcept;
 
     /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
     /// @tparam[in] TypeIndex index of the stored type

@@ -183,7 +183,7 @@ variant<Types...>::operator=(T&& rhs) noexcept
 
 template <typename... Types>
 template <uint64_t TypeIndex, typename... CTorArguments>
-inline bool variant<Types...>::emplace_at_index(CTorArguments&&... args) noexcept
+inline void variant<Types...>::emplace_at_index(CTorArguments&&... args) noexcept
 {
     static_assert(TypeIndex <= sizeof...(Types), "TypeIndex is out of bounds");
 
@@ -193,21 +193,13 @@ inline bool variant<Types...>::emplace_at_index(CTorArguments&&... args) noexcep
     // AXIVION Next Construct AutosarC++19_03-A18.5.10, FaultDetection-IndirectAssignmentOverflow : m_storage is aligned to the maximum alignment of Types
     new (&m_storage) T(std::forward<CTorArguments>(args)...);
     m_type_index = TypeIndex;
-
-    return true;
 }
 
 template <typename... Types>
 template <typename T, typename... CTorArguments>
-inline bool variant<Types...>::emplace(CTorArguments&&... args) noexcept
+inline void variant<Types...>::emplace(CTorArguments&&... args) noexcept
 {
-    if (m_type_index != INVALID_VARIANT_INDEX && has_bad_variant_element_access<T>())
-    {
-        error_message(__PRETTY_FUNCTION__,
-                      "wrong variant type emplacement, another type is already "
-                      "set in variant");
-        return false;
-    }
+    static_assert(internal::does_contain_type<T, Types...>::value, "variant does not contain given type");
 
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
@@ -216,8 +208,6 @@ inline bool variant<Types...>::emplace(CTorArguments&&... args) noexcept
 
     new (&m_storage) T(std::forward<CTorArguments>(args)...);
     m_type_index = internal::get_index_of_type<0, T, Types...>::index;
-
-    return true;
 }
 
 template <typename... Types>
