@@ -167,10 +167,11 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     /// @return reference of type T to the underlying type
     T& operator*() noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implemented to be as close to the STL interface as possible.
+    // In combination with the keyword explicit accidental casts can be excluded and the usage is well known in the
+    // C++ community.
     /// @brief Will return true if the optional contains a value, otherwise false.
     /// @return true if optional contains a value, otherwise false
-    // AXIVION Next Construct AutosarC++19_03-A13.5.3: designed implementation shall be as close
-    // as std::optional and it requires operator bool
     constexpr explicit operator bool() const noexcept;
 
     /// @brief Will return true if the optional contains a value, otherwise false.
