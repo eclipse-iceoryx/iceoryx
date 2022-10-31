@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
@@ -147,7 +146,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     }
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-    containers::UninitializedArray<gid_t, MaxNumberOfGroups, containers::ZeroedBuffer> groups;
+    containers::UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
     int32_t numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
