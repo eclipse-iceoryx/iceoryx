@@ -24,8 +24,6 @@
 
 namespace iox
 {
-namespace containers
-{
 /// @brief struct used as policy parameter in UninitializedArray to wrap an array with all elements zeroed
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
@@ -109,9 +107,8 @@ class UninitializedArray
     Buffer<ElementType, Capacity> m_buffer;
 };
 
-} // namespace containers
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.inl"
+#include "iox/detail/uninitialized_array.inl"
 
 #endif // IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP

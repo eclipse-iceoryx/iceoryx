@@ -18,11 +18,9 @@
 #ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_INL
 #define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_INL
 
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
+#include "iox/detail/uninitialized_array.hpp"
 
 namespace iox
-{
-namespace containers
 {
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline constexpr ElementType&
@@ -79,7 +77,6 @@ UninitializedArray<ElementType, Capacity, Buffer>::end() const noexcept
 {
     return &operator[](0) + Capacity;
 }
-} // namespace containers
 } // namespace iox
 
 #endif // IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_INL
