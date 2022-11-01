@@ -13,7 +13,7 @@ note over loggerInstance
   the default logger
   is configured via
   the alias in
-  platform_settings.hpp
+  log/logger.hpp
 end note
 return
 return

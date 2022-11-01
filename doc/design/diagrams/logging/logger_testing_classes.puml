@@ -1,13 +1,10 @@
 @startuml
 
-package "platform and platform_building_blocks" {
-class Logger {
-}
-class TestingLoggerBase {
-}
-}
+class TestingLoggerBase
+note bottom: type alias to 'Logger<BaseLogger>' with
+  specific 'BaseLogger' implementation
 
-package iceoryx_hoofs_testing {
+package testing <<Frame>> {
 class TestingLogger {
 }
 class LogPrinter {
@@ -16,14 +13,13 @@ class LogPrinter {
 }
 }
 
-package gTest {
+package gTest <<Frame>> {
 class ::testing::EmptyTestEventListener {
 }
 class ::testing::UnitTest {
 }
 }
 
-TestingLoggerBase --|> Logger
 TestingLogger --|> TestingLoggerBase
 LogPrinter .> TestingLogger : <<uses>>
 LogPrinter --|> ::testing::EmptyTestEventListener
