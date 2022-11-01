@@ -250,8 +250,8 @@ TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
 
     cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
     EXPECT_THAT(TestClass::copyCTor, Eq(1));
-    EXPECT_THAT(testStack.size(), Eq(1));
-    EXPECT_THAT(testStack.pop(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
+    ASSERT_THAT(testStack.size(), Eq(1));
+    EXPECT_THAT(testStack.pop().value(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
 }
 
 TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)
@@ -327,8 +327,8 @@ TEST_F(stack_test, CopyAssignmentWithLargerDestinationWorks)
     EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE - srcSize));
     EXPECT_THAT(TestClass::copyAssignment, Eq(srcSize));
     EXPECT_THAT(TestClass::copyCTor, Eq(0));
-    EXPECT_THAT(m_sut.size(), Eq(srcSize));
-    EXPECT_THAT(m_sut.pop(), Eq(TestClass(9U, 11U, 13U)));
+    ASSERT_THAT(m_sut.size(), Eq(srcSize));
+    EXPECT_THAT(m_sut.pop().value(), Eq(TestClass(9U, 11U, 13U)));
 }
 
 TEST_F(stack_test, CopyAssignmentWithLargerSourceWorks)
@@ -361,8 +361,8 @@ TEST_F(stack_test, MoveConstructorWorksAndCallsTestClassMoveConstructor)
     cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
 
     EXPECT_THAT(TestClass::moveCTor, Eq(1));
-    EXPECT_THAT(testStack.size(), Eq(1));
-    EXPECT_THAT(testStack.pop(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
+    ASSERT_THAT(testStack.size(), Eq(1));
+    EXPECT_THAT(testStack.pop().value(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
     EXPECT_THAT(m_sut.size(), Eq(0));
 }
 
@@ -445,8 +445,8 @@ TEST_F(stack_test, MoveAssignmentWithLargerDestinationWorks)
     EXPECT_THAT(TestClass::dTor, Eq(STACK_SIZE));
     EXPECT_THAT(TestClass::moveAssignment, Eq(srcSize));
     EXPECT_THAT(TestClass::moveCTor, Eq(0));
-    EXPECT_THAT(m_sut.size(), Eq(srcSize));
-    EXPECT_THAT(m_sut.pop(), Eq(TestClass(9U, 11U, 13U)));
+    ASSERT_THAT(m_sut.size(), Eq(srcSize));
+    EXPECT_THAT(m_sut.pop().value(), Eq(TestClass(9U, 11U, 13U)));
     // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
     // NOLINTNEXTLINE(bugprone-use-after-move, hicpp-invalid-access-moved, clang-analyzer-cplusplus.Move)
     EXPECT_THAT(testStack.size(), Eq(0));

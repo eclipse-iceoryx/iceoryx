@@ -24,11 +24,12 @@ namespace iox
 {
 namespace cxx
 {
-// m_data is not initialized since this is a constructor for an optional with no value; an access of the value would
-// lead to the application's termination
+// AXIVION DISABLE STYLE AutosarC++19_03-A12.6.1 : m_data is not initialized here, since this is a
+// constructor for an optional with no value; an access of the value would lead to the
+// application's termination
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
-inline optional<T>::optional(const nullopt_t& noVal IOX_MAYBE_UNUSED) noexcept
+inline optional<T>::optional(const nullopt_t) noexcept
 {
 }
 
@@ -46,6 +47,8 @@ inline optional<T>::optional() noexcept
 template <typename T>
 inline optional<T>::optional(T&& value) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2 : Perfect forwarding is intended here and
+    // std::forward is the idiomatic way for this
     construct_value(std::forward<T>(value));
 }
 
@@ -89,7 +92,10 @@ inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
 {
     construct_value(std::forward<Targs>(args)...);
 }
+// AXIVION ENABLE STYLE AutosarC++19_03-A12.6.1
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
+// typename std::enable_if<!std::is_same<U, optional&>::value, optional>::type& operator=(U&& value) noexcept.
 template <typename T>
 inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
 {
@@ -107,10 +113,16 @@ inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
         {
             construct_value(rhs.value());
         }
+        else
+        {
+            // do nothing since this and rhs contain no values
+        }
     }
     return *this;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in typename
+// std::enable_if<!std::is_same<U, optional&>::value, optional>::type& operator=(U&& value) noexcept.
 template <typename T>
 inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
 {
@@ -127,6 +139,10 @@ inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
         else if (rhs.m_hasValue && !m_hasValue)
         {
             construct_value(std::move(rhs.value()));
+        }
+        else
+        {
+            // do nothing since this and rhs contain no values
         }
         if (rhs.m_hasValue)
         {
@@ -153,49 +169,13 @@ optional<T>::operator=(U&& newValue) noexcept
 {
     if (m_hasValue)
     {
-/// @todo iox-#1694 broken msvc compiler, see:
-///  https://developercommunity.visualstudio.com/content/problem/858688/stdforward-none-of-these-2-overloads-could-convert.html
-/// remove this as soon as it is fixed;
-#ifdef _WIN32
-        value() = newValue;
-#else
         value() = std::forward<T>(newValue);
-#endif
     }
     else
     {
-/// @todo iox-#1694 again broken msvc compiler
-#ifdef _WIN32
-        construct_value(newValue);
-#else
         construct_value(std::forward<T>(newValue));
-#endif
     }
     return *this;
-}
-
-template <typename T>
-constexpr inline bool optional<T>::operator==(const optional<T>& rhs) const noexcept
-{
-    return (!m_hasValue && !rhs.m_hasValue) || ((m_hasValue && rhs.m_hasValue) && (value() == rhs.value()));
-}
-
-template <typename T>
-constexpr inline bool optional<T>::operator==(const nullopt_t& rhs IOX_MAYBE_UNUSED) const noexcept
-{
-    return !m_hasValue;
-}
-
-template <typename T>
-constexpr inline bool optional<T>::operator!=(const optional<T>& rhs) const noexcept
-{
-    return !(*this == rhs);
-}
-
-template <typename T>
-constexpr inline bool optional<T>::operator!=(const nullopt_t& rhs) const noexcept
-{
-    return !(*this == rhs);
 }
 
 template <typename T>
@@ -260,13 +240,18 @@ template <typename T>
 inline T& optional<T>::value() & noexcept
 {
     Expects(has_value());
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
+    // during compile time and the type is unchangeable during the lifetime of the object.
+    // All accesses to the underlying data is done via the same static type and therefore the
+    // casts are always valid
     return *static_cast<T*>(static_cast<void*>(&m_data));
 }
 
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<optional<T>*>(this)->value();
 }
 
@@ -274,13 +259,18 @@ template <typename T>
 inline T&& optional<T>::value() && noexcept
 {
     Expects(has_value());
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
+    // during compile time and the type is unchangeable during the lifetime of the object.
+    // All accesses to the underlying data is done via the same static type and therefore the
+    // casts are always valid
     return std::move(*static_cast<T*>(static_cast<void*>(&m_data)));
 }
 
 template <typename T>
 inline const T&& optional<T>::value() const&& noexcept
 {
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : Avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return std::move(*const_cast<optional<T>*>(this)->value());
 }
 
@@ -288,7 +278,7 @@ template <typename T>
 template <typename... Targs>
 inline void optional<T>::construct_value(Targs&&... args) noexcept
 {
-    new (static_cast<T*>(static_cast<void*>(&m_data))) T(std::forward<Targs>(args)...);
+    new (&m_data) T(std::forward<Targs>(args)...);
     m_hasValue = true;
 }
 
@@ -298,14 +288,54 @@ inline void optional<T>::destruct_value() noexcept
     value().~T();
     m_hasValue = false;
 }
-
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox::cxx which prevents easy misuse
 template <typename OptionalBaseType, typename... Targs>
 inline optional<OptionalBaseType> make_optional(Targs&&... args) noexcept
 {
-    optional<OptionalBaseType> returnValue = nullopt_t();
+    optional<OptionalBaseType> returnValue{nullopt_t()};
     returnValue.emplace(std::forward<Targs>(args)...);
     return returnValue;
 }
+
+template <typename T>
+bool operator==(const optional<T>& lhs, const optional<T>& rhs) noexcept
+{
+    const auto bothNull = !lhs.has_value() && !rhs.has_value();
+    const auto bothValuesEqual = (lhs.has_value() && rhs.has_value()) && (*lhs == *rhs);
+    return bothNull || bothValuesEqual;
+}
+
+template <typename T>
+bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
+template <typename T>
+bool operator==(const optional<T>& lhs, const nullopt_t) noexcept
+{
+    return !lhs.has_value();
+}
+
+template <typename T>
+bool operator==(const nullopt_t, const optional<T>& rhs) noexcept
+{
+    return !rhs.has_value();
+}
+
+template <typename T>
+bool operator!=(const optional<T>& lhs, const nullopt_t) noexcept
+{
+    return lhs.has_value();
+}
+
+template <typename T>
+bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept
+{
+    return rhs.has_value();
+}
+// AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
 } // namespace cxx
 } // namespace iox
 

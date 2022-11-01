@@ -194,12 +194,14 @@ TEST_F(Optional_test, CompareWithNoValueWithNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f1eb75d-9fca-43fd-93e6-3fd448c3583b");
     EXPECT_THAT(m_sutNoValue == iox::cxx::nullopt_t(), Eq(true));
+    EXPECT_THAT(iox::cxx::nullopt_t() == m_sutNoValue, Eq(true));
 }
 
 TEST_F(Optional_test, CompareWithValueWithNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3dc645c7-7baf-4367-ae59-e18799bb910e");
     EXPECT_THAT(m_sutWithValue == iox::cxx::nullopt_t(), Eq(false));
+    EXPECT_THAT(iox::cxx::nullopt_t() == m_sutWithValue, Eq(false));
 }
 
 TEST_F(Optional_test, NotCompareWithEqualValue)
@@ -215,6 +217,9 @@ TEST_F(Optional_test, NotCompareWithNullopt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0668eb1b-bc73-4549-9829-ece80f3700cd");
     EXPECT_THAT(m_sutWithValue != iox::cxx::nullopt_t(), Eq(true));
+    EXPECT_THAT(m_sutNoValue != iox::cxx::nullopt_t(), Eq(false));
+    EXPECT_THAT(iox::cxx::nullopt_t() != m_sutWithValue, Eq(true));
+    EXPECT_THAT(iox::cxx::nullopt_t() != m_sutNoValue, Eq(false));
 }
 
 TEST_F(Optional_test, CopyCTorWithValue)

@@ -33,12 +33,17 @@ namespace cxx
 struct nullopt_t
 {
 };
-constexpr nullopt_t nullopt = nullopt_t();
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox::cxx namespace which prevents easy
+// misuse
+constexpr nullopt_t nullopt{nullopt_t()};
 
 /// @brief helper struct which is used to call the in-place-construction constructor
 struct in_place_t
 {
 };
+
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : in_place is defined within iox::cxx namespace which prevents easy
+// misuse
 constexpr in_place_t in_place{};
 
 /// @brief Optional implementation from the C++17 standard with C++11. The
@@ -65,7 +70,7 @@ constexpr in_place_t in_place{};
 ///     }
 /// @endcode
 template <typename T>
-class optional : public FunctionalInterface<optional<T>, T, void>
+class optional final : public FunctionalInterface<optional<T>, T, void>
 {
   public:
     using type = T;
@@ -79,7 +84,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     ///         optional via .value() or the arrow operator the application
     ///         terminates.
     // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
-    optional(const nullopt_t& noValue) noexcept;
+    optional(const nullopt_t) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
     ///         T. This optional has a value.
@@ -128,26 +133,6 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @return reference to the current optional
     optional& operator=(optional&& rhs) noexcept;
 
-    /// @brief If the optionals have values it compares these values by using
-    ///         their comparison operator.
-    /// @param[in] rhs value to which this optional should be compared to
-    /// @return true if the contained values are equal, otherwise false
-    constexpr bool operator==(const optional<T>& rhs) const noexcept;
-
-    /// @brief Comparison with nullopt_t for easier unset optional comparison
-    /// @return true if the optional is unset, otherwise false
-    constexpr bool operator==(const nullopt_t& rhs) const noexcept;
-
-    /// @brief If the optionals have values it compares these values by using
-    ///         their comparison operator.
-    /// @param[in] rhs value to which this optional should be compared to
-    /// @return true if the contained values are not equal, otherwise false
-    constexpr bool operator!=(const optional<T>& rhs) const noexcept;
-
-    /// @brief comparison with nullopt_t for easier unset optional comparison
-    /// @return true if the optional is set, otherwise false
-    constexpr bool operator!=(const nullopt_t& rhs) const noexcept;
-
     /// @brief Direct assignment of the underlying value. If the optional has no
     ///         value then a new T is constructed by forwarding the assignment to
     ///         T's constructor.
@@ -156,7 +141,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @return reference to the current optional
     template <typename U = T>
     // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) return type is optional&
-    typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& value) noexcept;
+    typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& newValue) noexcept;
 
     /// @brief Returns a pointer to the underlying value. If the optional has no
     ///         value the application terminates. You need to verify that the
@@ -182,6 +167,9 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @return reference of type T to the underlying type
     T& operator*() noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implemented to be as close to the STL interface as possible.
+    // In combination with the keyword explicit accidental casts can be excluded and the usage is well known in the
+    // C++ community.
     /// @brief Will return true if the optional contains a value, otherwise false.
     /// @return true if optional contains a value, otherwise false
     constexpr explicit operator bool() const noexcept;
@@ -242,7 +230,10 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     //     initHandle(&handle);
     //   }
     bool m_hasValue{false};
-    // safe access is guaranteed since the array is wrapped inside the optional
+
+  private:
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
+    // is wrapped inside the optional
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(T) byte_t m_data[sizeof(T)];
 
@@ -252,6 +243,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     void destruct_value() noexcept;
 };
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox::cxx which prevents easy misuse
 /// @brief Creates an optional which contains a value by forwarding the arguments
 ///         to the constructor of T.
 /// @param[in] args arguments which will be perfectly forwarded to the constructor
@@ -259,6 +251,50 @@ class optional : public FunctionalInterface<optional<T>, T, void>
 /// @return optional which contains T constructed with args
 template <typename OptionalBaseType, typename... Targs>
 optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
+
+/// @brief Compare two optionals for equality.
+/// @param[in] lhs cxx::optional
+/// @param[in] rhs optional to which lhs should be compared to
+/// @return true if the contained values are equal or both have no value, otherwise false
+template <typename T>
+bool operator==(const optional<T>& lhs, const optional<T>& rhs) noexcept;
+
+/// @brief Compare two optionals for inequality.
+/// @param[in] lhs cxx::optional
+/// @param[in] rhs optional to which lhs should be compared to
+/// @return true if the contained values are not equal, otherwise false
+template <typename T>
+bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
+/// @brief Comparison for equality with nullopt_t for easier unset optional comparison
+/// @param[in] lhs empty optional, cxx::nullopt_t
+/// @param[in] rhs optional to which lhs should be compared to
+/// @return true if the rhs is not set, otherwise false
+template <typename T>
+bool operator==(const nullopt_t, const optional<T>& rhs) noexcept;
+
+/// @brief Comparison for equality with nullopt_t for easier unset optional comparison
+/// @param[in] lhs optional which should be compared to cxx::nullopt_t
+/// @param[in] rhs empty optional
+/// @return true if the lhs is not set, otherwise false
+template <typename T>
+bool operator==(const optional<T>& lhs, const nullopt_t) noexcept;
+
+/// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
+/// @param[in] lhs empty optional, cxx::nullopt_t
+/// @param[in] rhs optional to which lhs should be compared to
+/// @return true if the optional is set, otherwise false
+template <typename T>
+bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept;
+
+/// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
+/// @param[in] lhs optional which should be compared to cxx::nullopt_t
+/// @param[in] rhs empty optional
+/// @return true if the optional is set, otherwise false
+template <typename T>
+bool operator!=(const optional<T>& lhs, const nullopt_t) noexcept;
+// AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
 } // namespace cxx
 } // namespace iox
 
