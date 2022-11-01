@@ -26,6 +26,7 @@ hicpp-*,
 -readability-identifier-length,
 -readability-redundant-access-specifiers,
 -readability-redundant-declaration,
+-readability-static-accessed-through-instance,
 
 -readability-identifier-naming,
 -readability-use-anyofallof,
