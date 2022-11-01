@@ -37,6 +37,9 @@
 ./iceoryx_hoofs/test/moduletests/test_posix*
 ./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
 
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/containers/*
+./iceoryx_hoofs/test/moduletests/test_containers_*
+
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
 #    directories only at the top of this file

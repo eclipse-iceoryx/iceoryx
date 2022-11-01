@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_SOFI_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
 #include <atomic>
@@ -151,10 +152,7 @@ class SoFi
     uint64_t size() const noexcept;
 
   private:
-    // @todo iox-#1196 Replace with UninitializedArray
-    // safe access is guaranteed since the array is wrapped inside the SoFi
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    ValueType m_data[INTERNAL_SOFI_SIZE];
+    containers::UninitializedArray<ValueType, INTERNAL_SOFI_SIZE> m_data;
     uint64_t m_size = INTERNAL_SOFI_SIZE;
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not

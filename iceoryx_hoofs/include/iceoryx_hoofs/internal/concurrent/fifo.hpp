@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_FIFO_HPP
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <atomic>
 
@@ -53,9 +54,7 @@ class FiFo
     bool is_full() const noexcept;
 
   private:
-    // safe access is guaranteed since the char array is wrapped inside the FiFo class
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    ValueType m_data[Capacity];
+    containers::UninitializedArray<ValueType, Capacity> m_data;
     std::atomic<uint64_t> m_write_pos{0};
     std::atomic<uint64_t> m_read_pos{0};
 };

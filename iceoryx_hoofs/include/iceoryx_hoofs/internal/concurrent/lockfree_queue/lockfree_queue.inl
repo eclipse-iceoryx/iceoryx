@@ -43,7 +43,7 @@ constexpr uint64_t LockFreeQueue<ElementType, Capacity>::capacity() const noexce
 template <typename ElementType, uint64_t Capacity>
 bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noexcept
 {
-    BufferIndex index;
+    uint64_t index{0};
 
     if (!m_freeIndices.pop(index))
     {
@@ -60,7 +60,7 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(const ElementType& value) noe
 template <typename ElementType, uint64_t Capacity>
 bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 {
-    BufferIndex index;
+    uint64_t index{0};
 
     if (!m_freeIndices.pop(index))
     {
@@ -80,7 +80,7 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T
 {
     cxx::optional<ElementType> evictedValue;
 
-    BufferIndex index;
+    uint64_t index{0};
 
     while (!m_freeIndices.pop(index))
     {
@@ -127,7 +127,7 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(Eleme
 template <typename ElementType, uint64_t Capacity>
 iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
-    BufferIndex index;
+    uint64_t index{0};
 
     if (!m_usedIndices.pop(index))
     {
@@ -154,7 +154,7 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const BufferIndex& index) noexcept
+cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1U, std::memory_order_acquire);
@@ -167,9 +167,9 @@ cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(co
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const BufferIndex& index, T&& value) noexcept
+void LockFreeQueue<ElementType, Capacity>::writeBufferAt(const uint64_t& index, T&& value) noexcept
 {
-    auto elementPtr = m_buffer.ptr(index);
+    auto elementPtr = &m_buffer[index];
     new (elementPtr) ElementType(std::forward<T>(value)); // move ctor invoked when available, copy ctor otherwise
 
     // also used for buffer synchronization

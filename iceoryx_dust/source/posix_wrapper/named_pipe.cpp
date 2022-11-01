@@ -341,7 +341,7 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
     UnnamedSemaphoreBuilder()
         .initialValue(maxMsgNumber)
         .isInterProcessCapable(true)
-        .create(semaphores[SEND_SEMAPHORE])
+        .create(m_sendSemaphore)
         .or_else([&](auto) { signalError("send"); });
 
     if (!isInitialized)
@@ -352,7 +352,7 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
     UnnamedSemaphoreBuilder()
         .initialValue(0U)
         .isInterProcessCapable(true)
-        .create(semaphores[RECEIVE_SEMAPHORE])
+        .create(m_receiveSemaphore)
         .or_else([&](auto) { signalError("receive"); });
 
     if (!isInitialized)
@@ -365,12 +365,12 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
 
 UnnamedSemaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
 {
-    return *semaphores[SEND_SEMAPHORE];
+    return *m_sendSemaphore;
 }
 
 UnnamedSemaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
 {
-    return *semaphores[RECEIVE_SEMAPHORE];
+    return *m_receiveSemaphore;
 }
 
 bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept

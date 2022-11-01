@@ -29,6 +29,7 @@
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
 - Added equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
+- Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 
 **Bugfixes:**
 
@@ -783,3 +784,21 @@
 
     * `iox::bar::foo` to `iox::foo`
         * `iceoryx_hoofs/bar/foo.hpp` to `iox/foo.hpp`
+
+41. Use proper aligned `containers::UninitializedArray` instead of C-style array
+
+    ```cpp
+    // before
+    char myCharArray[Capacity];
+
+    using element_t = uint8_t[sizeof(T)];
+    alignas(T) element_t myAlignedArray[Capacity];
+
+    // after
+    #include "iceoryx_hoofs/containers/uninitialized_array.hpp"
+
+    containers::UninitializedArray<char, Capacity, containers::ZeroedBuffer> myCharArray;
+
+    containers::UninitializedArray<T, Capacity> myAlignedArray;
+
+    ```

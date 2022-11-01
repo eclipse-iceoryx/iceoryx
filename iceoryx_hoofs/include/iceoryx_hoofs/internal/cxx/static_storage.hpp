@@ -98,7 +98,7 @@ class static_storage final
     static constexpr uint64_t allocation_size() noexcept;
 
   private:
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 will be replaced by uninitialized array
+    /// @NOLINTJUSTIFICATION @todo iox-#1732 will be refactored with BumpAllocator
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};

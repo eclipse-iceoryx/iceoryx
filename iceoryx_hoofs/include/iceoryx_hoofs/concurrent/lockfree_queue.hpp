@@ -19,8 +19,8 @@
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <atomic>
 
@@ -102,7 +102,6 @@ class LockFreeQueue
 
   protected:
     using Queue = IndexQueue<Capacity>;
-    using BufferIndex = typename Queue::value_t;
 
     // remark: actually m_freeIndices do not have to be in a queue, it could be another
     // multi-push multi-pop capable lockfree container (e.g. a stack or a list)
@@ -111,20 +110,20 @@ class LockFreeQueue
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
     Queue m_usedIndices;
 
-    Buffer<ElementType, Capacity, BufferIndex> m_buffer;
+    containers::UninitializedArray<ElementType, Capacity> m_buffer;
 
     std::atomic<uint64_t> m_size{0U};
 
     // template is needed to distinguish between lvalue and rvalue T references
     // (universal reference type deduction)
     template <typename T>
-    void writeBufferAt(const BufferIndex& index, T&& value) noexcept;
+    void writeBufferAt(const uint64_t& index, T&& value) noexcept;
 
     // needed to avoid code duplication (via universal reference type deduction)
     template <typename T>
     iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
 
-    cxx::optional<ElementType> readBufferAt(const BufferIndex& index) noexcept;
+    cxx::optional<ElementType> readBufferAt(const uint64_t& index) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 #define IOX_DUST_CXX_FORWARD_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -355,12 +356,8 @@ class forward_list
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
-    // @todo iox-#1614 will be replaced by uninitialized array
-    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    NodeLink m_links[NODE_LINK_COUNT];
-    using element_t = uint8_t[sizeof(T)];
-    alignas(T) element_t m_data[Capacity];
-    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    containers::UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
+    containers::UninitializedArray<T, Capacity> m_data;
 
     size_type m_size{0U};
 }; // forward_list

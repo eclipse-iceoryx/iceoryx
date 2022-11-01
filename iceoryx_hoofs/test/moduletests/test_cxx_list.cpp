@@ -1498,37 +1498,37 @@ TEST_F(list_test, IteratorComparisonOfDifferentLists)
 
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
 }
@@ -2312,7 +2312,7 @@ TEST_F(list_test, invalidIteratorErase)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(sut.erase(iter), "");
 }
@@ -2330,7 +2330,7 @@ TEST_F(list_test, invalidIteratorIncrement)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(++iter, "");
 }
@@ -2348,7 +2348,7 @@ TEST_F(list_test, invalidIteratorDecrement)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(--iter, "");
 }
@@ -2366,7 +2366,7 @@ TEST_F(list_test, invalidIteratorComparison)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
 }
@@ -2384,7 +2384,7 @@ TEST_F(list_test, invalidIteratorComparisonUnequal)
     ++iter;
     auto iter2 = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter2 != iter), "");
 }
@@ -2402,7 +2402,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc((*iter).m_value), "");
 }
@@ -2420,7 +2420,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1614 remove EXPECT_DEATH
+    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
     /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
 }

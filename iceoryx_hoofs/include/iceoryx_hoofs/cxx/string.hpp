@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/internal/cxx/string_internal.hpp"
 
 #include <algorithm>
@@ -608,7 +609,7 @@ class string
 
     // safe access is guaranteed since the char array is wrapped inside the string class
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char m_rawstring[Capacity + 1U]{'\0'};
+    containers::UninitializedArray<char, Capacity + 1U, containers::ZeroedBuffer> m_rawstring;
     uint64_t m_rawstringSize{0U};
 };
 

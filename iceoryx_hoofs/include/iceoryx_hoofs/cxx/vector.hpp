@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 
 #include <algorithm>
@@ -36,8 +37,6 @@ namespace cxx
 /// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
 ///
 template <typename T, uint64_t Capacity>
-// NOLINTJUSTIFICATION @todo iox-#1614 will be solved with upcoming uninitialized array
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class vector final
 {
   public:
@@ -220,15 +219,7 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
-    // inside the vector class
-    /// @todo iox-#1614 Replace with UninitializedArray
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-    using element_t = uint8_t[sizeof(T)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the C-style array is wrapped
-    // inside the vector class
-    alignas(T) element_t m_data[Capacity];
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+    containers::UninitializedArray<T, Capacity> m_data;
     uint64_t m_size{0U};
 };
 
