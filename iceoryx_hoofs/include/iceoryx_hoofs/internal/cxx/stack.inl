@@ -23,7 +23,22 @@ namespace iox
 namespace cxx
 {
 template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
+inline stack<T, Capacity>::stack() noexcept
+    : details::stack_implementation<T>(&m_data[0], Capacity)
+{
+}
+
+namespace details
+{
+template <typename T>
+inline stack_implementation<T>::stack_implementation(T* const data, const uint64_t capacity) noexcept
+    : m_data{data}
+    , m_capacity{capacity}
+{
+}
+
+template <typename T>
+inline stack_implementation<T>& stack_implementation<T>::copy(const stack_implementation& rhs) noexcept
 {
     uint64_t i{0};
     const uint64_t rhsSize{rhs.size()};
@@ -48,8 +63,8 @@ inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
     return *this;
 }
 
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>& stack<T, Capacity>::move(stack&& rhs) noexcept
+template <typename T>
+inline stack_implementation<T>& stack_implementation<T>::move(stack_implementation&& rhs) noexcept
 {
     uint64_t i{0};
     const uint64_t rhsSize{rhs.size()};
@@ -78,8 +93,8 @@ inline stack<T, Capacity>& stack<T, Capacity>::move(stack&& rhs) noexcept
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
 // element is pushed
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>::stack(const stack& rhs) noexcept
+template <typename T>
+inline stack_implementation<T>::stack_implementation(const stack_implementation& rhs) noexcept
 {
     copy(rhs);
 }
@@ -87,14 +102,14 @@ inline stack<T, Capacity>::stack(const stack& rhs) noexcept
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : the remaining m_data fields are explicitly initialized when a new
 // element is pushed
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>::stack(stack&& rhs) noexcept
+template <typename T>
+inline stack_implementation<T>::stack_implementation(stack_implementation&& rhs) noexcept
 {
     move(std::move(rhs));
 }
 
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexcept
+template <typename T>
+inline stack_implementation<T>& stack_implementation<T>::operator=(const stack_implementation& rhs) noexcept
 {
     if (this == &rhs)
     {
@@ -104,8 +119,8 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(const stack& rhs) noexc
     return copy(rhs);
 }
 
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
+template <typename T>
+inline stack_implementation<T>& stack_implementation<T>::operator=(stack_implementation&& rhs) noexcept
 {
     if (this == &rhs)
     {
@@ -115,22 +130,22 @@ inline stack<T, Capacity>& stack<T, Capacity>::operator=(stack&& rhs) noexcept
     return move(std::move(rhs));
 }
 
-template <typename T, uint64_t Capacity>
-inline stack<T, Capacity>::~stack() noexcept
+template <typename T>
+inline stack_implementation<T>::~stack_implementation() noexcept
 {
     clear();
 }
 
-template <typename T, uint64_t Capacity>
-inline T& stack<T, Capacity>::getUnchecked(const uint64_t index) noexcept
+template <typename T>
+inline T& stack_implementation<T>::getUnchecked(const uint64_t index) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<T&>(const_cast<const stack<T, Capacity>*>(this)->getUnchecked(index));
+    return const_cast<T&>(const_cast<const stack_implementation<T>*>(this)->getUnchecked(index));
 }
 
-template <typename T, uint64_t Capacity>
-inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noexcept
+template <typename T>
+inline const T& stack_implementation<T>::getUnchecked(const uint64_t index) const noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : reinterpret_cast is safe since the size and the alignment of each
     // array element is guaranteed
@@ -138,8 +153,8 @@ inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noe
     return *reinterpret_cast<const T*>(&m_data[index]);
 }
 
-template <typename T, uint64_t Capacity>
-inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
+template <typename T>
+inline cxx::optional<T> stack_implementation<T>::pop() noexcept
 {
     if (m_size == 0U)
     {
@@ -152,11 +167,11 @@ inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
     return *reinterpret_cast<T*>(&m_data[--m_size]);
 }
 
-template <typename T, uint64_t Capacity>
+template <typename T>
 template <typename... Targs>
-inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
+inline bool stack_implementation<T>::push(Targs&&... args) noexcept
 {
-    if (m_size >= Capacity)
+    if (m_size >= m_capacity)
     {
         return false;
     }
@@ -166,14 +181,14 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
     return true;
 }
 
-template <typename T, uint64_t Capacity>
-inline void stack<T, Capacity>::clear() noexcept
+template <typename T>
+inline void stack_implementation<T>::clear() noexcept
 {
     clearFrom(0);
 }
 
-template <typename T, uint64_t Capacity>
-inline void stack<T, Capacity>::clearFrom(const uint64_t index) noexcept
+template <typename T>
+inline void stack_implementation<T>::clearFrom(const uint64_t index) noexcept
 {
     while (m_size > index)
     {
@@ -181,19 +196,12 @@ inline void stack<T, Capacity>::clearFrom(const uint64_t index) noexcept
     }
 }
 
-template <typename T, uint64_t Capacity>
-inline uint64_t stack<T, Capacity>::size() const noexcept
+template <typename T>
+inline uint64_t stack_implementation<T>::size() const noexcept
 {
     return m_size;
 }
-
-template <typename T, uint64_t Capacity>
-inline constexpr uint64_t stack<T, Capacity>::capacity() noexcept
-{
-    return Capacity;
-}
-
-
+} // namespace details
 } // namespace cxx
 } // namespace iox
 

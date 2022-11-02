@@ -26,22 +26,23 @@ namespace iox
 {
 namespace cxx
 {
-// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
-// access
-// AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
-/// @brief stack implementation with a simple push pop interface
-/// @tparam T type which the stack contains
-/// @tparam Capacity the capacity of the stack
-template <typename T, uint64_t Capacity>
-class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+template <typename, uint64_t>
+class stack;
+
+namespace details
 {
+template <typename T>
+class stack_implementation
+{
+    template <typename, uint64_t>
+    friend class stack;
+
   public:
-    stack() noexcept = default;
-    stack(const stack& rhs) noexcept;
-    stack(stack&& rhs) noexcept;
-    stack& operator=(const stack& rhs) noexcept;
-    stack& operator=(stack&& rhs) noexcept;
-    ~stack() noexcept;
+    stack_implementation(const stack_implementation& rhs) noexcept;
+    stack_implementation(stack_implementation&& rhs) noexcept;
+    stack_implementation& operator=(const stack_implementation& rhs) noexcept;
+    stack_implementation& operator=(stack_implementation&& rhs) noexcept;
+    ~stack_implementation() noexcept;
 
     /// @brief returns the last pushed element when the stack contains elements
     ///         otherwise a cxx::nullopt
@@ -60,21 +61,53 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     /// @brief returns the stack size
     uint64_t size() const noexcept;
 
-    /// @brief returns the stack capacity
-    static constexpr uint64_t capacity() noexcept;
-
   private:
     T& getUnchecked(const uint64_t index) noexcept;
     const T& getUnchecked(const uint64_t index) const noexcept;
 
     void clearFrom(const uint64_t index) noexcept;
 
-    stack& copy(const stack& rhs) noexcept;
-    stack& move(stack&& rhs) noexcept;
+    stack_implementation& copy(const stack_implementation& rhs) noexcept;
+    stack_implementation& move(stack_implementation&& rhs) noexcept;
 
-    containers::UninitializedArray<T, Capacity> m_data;
+  public:
+    stack_implementation(T* const data, const uint64_t capacity) noexcept;
+
+  private:
+    T* m_data{nullptr};
+    uint64_t m_capacity{0U};
     uint64_t m_size{0U};
 };
+} // namespace details
+
+// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
+// access
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
+/// @brief stack implementation with a simple push pop interface
+/// @tparam T type which the stack contains
+/// @tparam Capacity the capacity of the stack
+template <typename T, uint64_t Capacity>
+class stack final
+    : public details::stack_implementation<T> // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+{
+  public:
+    stack() noexcept;
+    stack(const stack&) noexcept = default;
+    stack(stack&&) noexcept = default;
+    stack& operator=(const stack&) noexcept = default;
+    stack& operator=(stack&&) noexcept = default;
+    ~stack() noexcept = default;
+    static constexpr uint64_t capacity = Capacity;
+
+  private:
+    // containers::UninitializedArray<T, Capacity> m_data;
+    T m_data[Capacity];
+    uint64_t m_size{0U};
+};
+
+template <typename T, uint64_t Capacity>
+constexpr uint64_t stack<T, Capacity>::capacity;
+
 } // namespace cxx
 } // namespace iox
 

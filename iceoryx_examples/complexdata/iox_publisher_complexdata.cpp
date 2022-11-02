@@ -66,7 +66,7 @@ int main()
 
                 // stack<float, 5>
                 //! [fill stack]
-                for (uint64_t i = 0U; i < sample->floatStack.capacity(); ++i)
+                for (uint64_t i = 0U; i < sample->floatStack.capacity; ++i)
                 {
                     handleInsertionReturnVal(sample->floatStack.push(static_cast<float>(ct * i)));
                 }

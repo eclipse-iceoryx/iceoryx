@@ -135,7 +135,7 @@ class stack_test : public Test
         {
             ASSERT_TRUE(m_sut.push(i + 1, i + 2, i + 3));
             EXPECT_THAT(m_sut.size(), Eq(static_cast<uint64_t>(i) + 1U));
-            EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
+            EXPECT_THAT(m_sut.capacity, Eq(STACK_SIZE));
         }
     }
 
@@ -154,7 +154,7 @@ TEST_F(stack_test, isEmptyOnCreation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a9ce587-9daf-479d-95da-0df96325023f");
     EXPECT_THAT(m_sut.size(), Eq(0U));
-    EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
+    EXPECT_THAT(m_sut.capacity, Eq(STACK_SIZE));
     EXPECT_THAT(m_sut.pop(), Eq(cxx::nullopt));
 }
 
@@ -163,7 +163,7 @@ TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
     ::testing::Test::RecordProperty("TEST_ID", "f4e91f32-fb20-4502-b0c8-d4b4d4c2bec0");
     ASSERT_TRUE(m_sut.push());
     EXPECT_THAT(m_sut.size(), Eq(1U));
-    EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
+    EXPECT_THAT(m_sut.capacity, Eq(STACK_SIZE));
 
     auto element = m_sut.pop();
     ASSERT_TRUE(element.has_value());
