@@ -24,6 +24,32 @@ namespace iox
 {
 namespace containers
 {
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline constexpr UninitializedArray<ElementType, Capacity, Buffer>::UninitializedArray(
+    const UninitializedArray&) noexcept
+{
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline constexpr UninitializedArray<ElementType, Capacity, Buffer>::UninitializedArray(UninitializedArray&&) noexcept
+{
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline constexpr UninitializedArray<ElementType, Capacity, Buffer>&
+UninitializedArray<ElementType, Capacity, Buffer>::operator=(const UninitializedArray&) noexcept
+{
+    return *this;
+}
+
+template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
+inline constexpr UninitializedArray<ElementType, Capacity, Buffer>&
+UninitializedArray<ElementType, Capacity, Buffer>::operator=(UninitializedArray&&) noexcept
+{
+    return *this;
+}
+
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline constexpr ElementType&
 UninitializedArray<ElementType, Capacity, Buffer>::operator[](const uint64_t index) noexcept

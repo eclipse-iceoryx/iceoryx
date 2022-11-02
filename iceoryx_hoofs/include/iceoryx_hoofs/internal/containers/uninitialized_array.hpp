@@ -72,10 +72,10 @@ class UninitializedArray
     using const_iterator = const ElementType*;
 
     constexpr UninitializedArray() noexcept = default;
-    UninitializedArray(const UninitializedArray&) = delete;
-    UninitializedArray(UninitializedArray&&) = delete;
-    UninitializedArray& operator=(const UninitializedArray&) = delete;
-    UninitializedArray& operator=(UninitializedArray&&) = delete;
+    constexpr UninitializedArray(const UninitializedArray&) noexcept;
+    constexpr UninitializedArray(UninitializedArray&&) noexcept;
+    constexpr UninitializedArray& operator=(const UninitializedArray&) noexcept;
+    constexpr UninitializedArray& operator=(UninitializedArray&&) noexcept;
     ~UninitializedArray() = default;
 
     /// @brief returns a reference to the element stored at index

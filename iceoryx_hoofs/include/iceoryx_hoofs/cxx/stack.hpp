@@ -92,16 +92,10 @@ class stack final
 {
   public:
     stack() noexcept;
-    stack(const stack&) noexcept = default;
-    stack(stack&&) noexcept = default;
-    stack& operator=(const stack&) noexcept = default;
-    stack& operator=(stack&&) noexcept = default;
-    ~stack() noexcept = default;
     static constexpr uint64_t capacity = Capacity;
 
   private:
-    // containers::UninitializedArray<T, Capacity> m_data;
-    T m_data[Capacity];
+    containers::UninitializedArray<T, Capacity> m_data;
     uint64_t m_size{0U};
 };
 
