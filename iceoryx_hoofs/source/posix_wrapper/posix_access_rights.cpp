@@ -81,8 +81,13 @@ cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexce
         std::cerr << "Error: Could not find group with id '" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
-
-    return cxx::make_optional<groupName_t>(groupName_t(iox::cxx::TruncateToCapacity, getgrgidCall->value->gr_name));
+    if (getgrgidCall->value->gr_name == nullptr)
+    {
+        return cxx::nullopt_t();
+    }
+    return cxx::make_optional<groupName_t>(groupName_t(iox::cxx::TruncateToCapacity,
+                                                       getgrgidCall->value->gr_name,
+                                                       strnlen(getgrgidCall->value->gr_name, groupName_t::capacity())));
 }
 
 PosixGroup::groupName_t PosixGroup::getName() const noexcept
@@ -127,7 +132,13 @@ cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
         std::cerr << "Error: Could not find user with id'" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
-    return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
+    if (getpwuidCall->value->pw_name == nullptr)
+    {
+        return cxx::nullopt_t();
+    }
+    return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity,
+                                                     getpwuidCall->value->pw_name,
+                                                     strnlen(getpwuidCall->value->pw_name, userName_t::capacity())));
 }
 
 PosixUser::groupVector_t PosixUser::getGroups() const noexcept

@@ -265,71 +265,6 @@ TYPED_TEST(stringTyped_test, CharToStringConvConstrWithSizeCapaResultsInSizeCapa
     EXPECT_THAT(testSubject.c_str(), StrEq(&testChar[0]));
 }
 
-/// @note string(TruncateToCapacity_t, const char* const other) noexcept
-TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSize0ResultsInSize0)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "3ed6360e-c4a0-474b-8ed7-e6b4e129a6c0");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP> fuu(TruncateToCapacity, "");
-    EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(fuu.size(), Eq(0U));
-    EXPECT_THAT(fuu.c_str(), StrEq(""));
-}
-
-TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeCapaResultsInSizeCapa)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5c417b37-ee9d-42f9-bb25-c59c6929d4ca");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    // increase capacity by one to circumvent gcc -Werror=array-bounds
-    // required to verify string literal functionality of cxx::string
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testChar[STRINGCAP + 1];
-    for (uint64_t i = 0U; i < STRINGCAP - 1U; i++)
-    {
-        // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        testChar[i] = 'M';
-    }
-    testChar[STRINGCAP - 1U] = '\0';
-    string<STRINGCAP> testSubject(TruncateToCapacity, &testChar[0]);
-    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP - 1U));
-    EXPECT_THAT(testSubject.c_str(), StrEq(&testChar[0]));
-}
-
-TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5e0a2023-ea15-43d5-aae8-980a75be6122");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    // required to verify string literal functionality of cxx::string
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testChar[STRINGCAP + 1U];
-    for (uint64_t i = 0U; i < STRINGCAP; i++)
-    {
-        // NOLINTJUSTIFICATION no other way to populate testCharArray
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
-        testChar[i] = 'M';
-    }
-    testChar[STRINGCAP] = '\0';
-    string<STRINGCAP> testSubject(TruncateToCapacity, &testChar[0]);
-    EXPECT_THAT(testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(testSubject.size(), Eq(STRINGCAP));
-}
-
-// TYPED_TEST(stringTyped_test, UnsafeCharToStringConvConstrWithNullPtrResultsEmptyString)
-// {
-//     ::testing::Test::RecordProperty("TEST_ID", "c6bbcbc6-e049-4c2c-bf84-8d89dcf42ce8");
-//     using MyString = typename TestFixture::stringType;
-//     constexpr auto STRINGCAP = MyString::capacity();
-//     string<STRINGCAP> fuu(TruncateToCapacity, nullptr);
-//     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
-//     EXPECT_THAT(fuu.size(), Eq(0U));
-//     EXPECT_THAT(fuu.c_str(), StrEq(""));
-// }
-
 /// @note string(TruncateToCapacity_t, const std::string& other) noexcept
 TYPED_TEST(stringTyped_test, UnsafeSTDStringToStringConvConstrWithSize0ResultsInSize0)
 {
@@ -1853,7 +1788,8 @@ TYPED_TEST(stringTyped_test, StringWithContentIsNotEmtpy)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb7fd1ff-82dc-4ae2-af70-9b080eb2265d");
     using MyString = typename TestFixture::stringType;
-    MyString sut(TruncateToCapacity, "Dr.SchluepferStrikesAgain!");
+    constexpr uint64_t STRING_LENGTH{26};
+    MyString sut(TruncateToCapacity, "Dr.SchluepferStrikesAgain!", STRING_LENGTH);
     EXPECT_THAT(sut.empty(), Eq(false));
 }
 

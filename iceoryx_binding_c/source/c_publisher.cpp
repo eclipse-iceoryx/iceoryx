@@ -86,7 +86,8 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         publisherOptions.historyCapacity = options->historyCapacity;
         if (options->nodeName != nullptr)
         {
-            publisherOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+            publisherOptions.nodeName =
+                NodeName_t(TruncateToCapacity, options->nodeName, strnlen(options->nodeName, NodeName_t::capacity()));
         }
         publisherOptions.offerOnCreate = options->offerOnCreate;
         publisherOptions.subscriberTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->subscriberTooSlowPolicy);
@@ -97,9 +98,9 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 
     me->m_portData = PoshRuntime::getInstance().getMiddlewarePublisher(
         ServiceDescription{
-            IdString_t(TruncateToCapacity, service),
-            IdString_t(TruncateToCapacity, instance),
-            IdString_t(TruncateToCapacity, event),
+            IdString_t(TruncateToCapacity, service, strnlen(service, IdString_t::capacity())),
+            IdString_t(TruncateToCapacity, instance, strnlen(instance, IdString_t::capacity())),
+            IdString_t(TruncateToCapacity, event, strnlen(event, IdString_t::capacity())),
         },
         publisherOptions);
     return me;

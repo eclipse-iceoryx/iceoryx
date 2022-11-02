@@ -59,17 +59,17 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
     cxx::optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(cxx::TruncateToCapacity, service, strnlen(service, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(cxx::TruncateToCapacity, instance, strnlen(instance, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(cxx::TruncateToCapacity, event, strnlen(event, capro::IdString_t::capacity()));
     }
 
     uint64_t currentSize = 0U;
@@ -102,17 +102,17 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
     cxx::optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(cxx::TruncateToCapacity, service, strnlen(service, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(cxx::TruncateToCapacity, instance, strnlen(instance, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(cxx::TruncateToCapacity, event, strnlen(event, capro::IdString_t::capacity()));
     }
 
     auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s)); };
@@ -134,17 +134,17 @@ void iox_service_discovery_find_service_apply_callable_with_context_data(
     cxx::optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(cxx::TruncateToCapacity, service, strnlen(service, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(cxx::TruncateToCapacity, instance, strnlen(instance, capro::IdString_t::capacity()));
     }
     cxx::optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(cxx::TruncateToCapacity, event, strnlen(event, capro::IdString_t::capacity()));
     }
 
     auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s), contextData); };

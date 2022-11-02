@@ -229,8 +229,11 @@ class string
     /// @endcode
     // TruncateToCapacity_t is a compile time variable to distinguish between constructors
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    /// @todo Make this c'tor explicit to avoid implicit conversion from 'nullptr'
     string(TruncateToCapacity_t, const std::string& other) noexcept;
+
+    // Avoid any implicit conversion, as templates are always preferred in overload resolution
+    template <typename T>
+    string(TruncateToCapacity_t, const T other) = delete;
 
     /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
     /// including null characters. If count is greater than the string capacity the remainder of the characters are

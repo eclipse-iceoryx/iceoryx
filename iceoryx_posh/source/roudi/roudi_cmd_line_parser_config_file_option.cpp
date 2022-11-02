@@ -62,7 +62,8 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
         }
         case 'c':
         {
-            m_customConfigFilePath = roudi::ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
+            m_customConfigFilePath = roudi::ConfigFilePathString_t(
+                cxx::TruncateToCapacity, optarg, strnlen(optarg, roudi::ConfigFilePathString_t::capacity()));
             break;
         }
         default:

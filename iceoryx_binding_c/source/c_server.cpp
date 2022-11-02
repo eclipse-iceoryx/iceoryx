@@ -69,16 +69,18 @@ iox_server_t iox_server_init(iox_server_storage_t* self,
     if (options != nullptr)
     {
         serverOptions.requestQueueCapacity = options->requestQueueCapacity;
-        serverOptions.nodeName = iox::NodeName_t(TruncateToCapacity, options->nodeName);
+        serverOptions.nodeName = iox::NodeName_t(
+            TruncateToCapacity, options->nodeName, strnlen(options->nodeName, iox::NodeName_t::capacity()));
         serverOptions.offerOnCreate = options->offerOnCreate;
         serverOptions.requestQueueFullPolicy = c2cpp::queueFullPolicy(options->requestQueueFullPolicy);
         serverOptions.clientTooSlowPolicy = c2cpp::consumerTooSlowPolicy(options->clientTooSlowPolicy);
     }
 
-    auto* me = new UntypedServer(ServiceDescription{IdString_t(TruncateToCapacity, service),
-                                                    IdString_t(TruncateToCapacity, instance),
-                                                    IdString_t(TruncateToCapacity, event)},
-                                 serverOptions);
+    auto* me = new UntypedServer(
+        ServiceDescription{IdString_t(TruncateToCapacity, service, strnlen(service, IdString_t::capacity())),
+                           IdString_t(TruncateToCapacity, instance, strnlen(instance, IdString_t::capacity())),
+                           IdString_t(TruncateToCapacity, event, strnlen(event, IdString_t::capacity()))},
+        serverOptions);
 
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
     return me;

@@ -272,7 +272,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
     // set current timestamp again (already done in Process's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
-    m_processIntrospection->addProcess(static_cast<int>(pid), RuntimeName_t(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(static_cast<int>(pid), name);
 
     LogDebug() << "Registered new application " << name;
     return true;
@@ -377,8 +377,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
                     process->sendViaIpcChannel(sendBuffer);
-                    m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
-                                                    NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+                    m_processIntrospection->addNode(runtimeName, nodeName);
                     LogDebug() << "Created new node " << nodeName << " for process " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {

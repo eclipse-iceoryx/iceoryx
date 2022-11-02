@@ -60,13 +60,13 @@ inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionN
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode IOX_MAYBE_UNUSED,
                                                                       char* const buffer)
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, buffer);
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, buffer, POSIX_CALL_ERROR_STRING_SIZE);
 }
 
 inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg,
                                                                       char* const buffer IOX_MAYBE_UNUSED)
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, msg);
+    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, msg, POSIX_CALL_ERROR_STRING_SIZE);
 }
 } // namespace internal
 

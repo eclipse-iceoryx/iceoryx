@@ -91,7 +91,7 @@ inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 template <>
 inline bool convert::fromString<string<100>>(const char* v, string<100>& dest) noexcept
 {
-    dest = string<100>(TruncateToCapacity, v);
+    dest = string<100>(TruncateToCapacity, v, strnlen(v, string<100>::capacity()));
     return true;
 }
 /// @NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)

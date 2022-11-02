@@ -53,9 +53,9 @@ class iox_client_test : public Test
 
     ClientPortData* createClientPortData(const ClientOptions& options)
     {
-        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                           IdString_t(TruncateToCapacity, EVENT)},
+        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE, SERVICE_STRING_LENGTH),
+                                           IdString_t(TruncateToCapacity, INSTANCE, INSTANCE_STRING_LENGTH),
+                                           IdString_t(TruncateToCapacity, EVENT, EVENT_STRING_LENGTH)},
                         RUNTIME_NAME,
                         options,
                         &memoryManager);
@@ -84,12 +84,13 @@ class iox_client_test : public Test
 
     void prepareClientInit(const ClientOptions& options = ClientOptions())
     {
-        EXPECT_CALL(*runtimeMock,
-                    getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                                           IdString_t(TruncateToCapacity, EVENT)},
-                                        options,
-                                        _))
+        EXPECT_CALL(
+            *runtimeMock,
+            getMiddlewareClient(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE, SERVICE_STRING_LENGTH),
+                                                   IdString_t(TruncateToCapacity, INSTANCE, INSTANCE_STRING_LENGTH),
+                                                   IdString_t(TruncateToCapacity, EVENT, EVENT_STRING_LENGTH)},
+                                options,
+                                _))
             .WillOnce(Return(createClientPortData(options)));
     }
 
@@ -118,8 +119,11 @@ class iox_client_test : public Test
     ChunkQueuePopper<ServerChunkQueueData_t> serverRequestQueue{&serverChunkQueueData};
 
     static constexpr const char SERVICE[] = "allGlory";
+    static constexpr const uint64_t SERVICE_STRING_LENGTH{8};
     static constexpr const char INSTANCE[] = "ToThe";
+    static constexpr const uint64_t INSTANCE_STRING_LENGTH{5};
     static constexpr const char EVENT[] = "HYPNOTOAD";
+    static constexpr const uint64_t EVENT_STRING_LENGTH{9};
 };
 constexpr const char iox_client_test::RUNTIME_NAME[];
 constexpr const char iox_client_test::SERVICE[];

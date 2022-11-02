@@ -78,7 +78,9 @@ class PortUser_IntegrationTest : public Test
             std::stringstream publisherRuntimeName;
             publisherRuntimeName << TEST_PUBLISHER_RUNTIME_NAME << i;
 
-            iox::RuntimeName_t runtimeName(TruncateToCapacity, publisherRuntimeName.str().c_str());
+            iox::RuntimeName_t runtimeName(TruncateToCapacity,
+                                           publisherRuntimeName.str().c_str(),
+                                           strnlen(publisherRuntimeName.str().c_str(), iox::RuntimeName_t::capacity()));
 
             m_publisherPortDataVector.emplace_back(
                 TEST_SERVICE_DESCRIPTION, runtimeName, &m_memoryManager, PublisherOptions());

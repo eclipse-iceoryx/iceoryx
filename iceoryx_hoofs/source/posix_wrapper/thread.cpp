@@ -47,7 +47,7 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
             cxx::Ensures(false && "internal logic error");
         });
 
-    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
+    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0], strnlen(&tempName[0], ThreadName_t::capacity()));
 }
 
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,

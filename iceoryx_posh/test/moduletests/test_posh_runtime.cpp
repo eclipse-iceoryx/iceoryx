@@ -163,7 +163,8 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
                    "",
                    "letsFlyInto "})
     {
-        const iox::RuntimeName_t invalidAppName(iox::cxx::TruncateToCapacity, i);
+        const iox::RuntimeName_t invalidAppName(
+            iox::cxx::TruncateToCapacity, i, strnlen(i, iox::RuntimeName_t::capacity()));
 
         EXPECT_DEATH(PoshRuntime::initRuntime(invalidAppName), ".*");
     }

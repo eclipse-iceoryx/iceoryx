@@ -54,9 +54,9 @@ class iox_server_test : public Test
 
     ServerPortData* createServerPortData(const ServerOptions& options)
     {
-        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                           IdString_t(TruncateToCapacity, EVENT)},
+        sutPort.emplace(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE, SERVICE_STRING_LENGTH),
+                                           IdString_t(TruncateToCapacity, INSTANCE, INSTANCE_STRING_LENGTH),
+                                           IdString_t(TruncateToCapacity, EVENT, EVENT_STRING_LENGTH)},
                         RUNTIME_NAME,
                         options,
                         &memoryManager);
@@ -85,12 +85,13 @@ class iox_server_test : public Test
 
     void prepareServerInit(const ServerOptions& options = ServerOptions())
     {
-        EXPECT_CALL(*runtimeMock,
-                    getMiddlewareServer(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE),
-                                                           IdString_t(TruncateToCapacity, INSTANCE),
-                                                           IdString_t(TruncateToCapacity, EVENT)},
-                                        options,
-                                        _))
+        EXPECT_CALL(
+            *runtimeMock,
+            getMiddlewareServer(ServiceDescription{IdString_t(TruncateToCapacity, SERVICE, SERVICE_STRING_LENGTH),
+                                                   IdString_t(TruncateToCapacity, INSTANCE, INSTANCE_STRING_LENGTH),
+                                                   IdString_t(TruncateToCapacity, EVENT, EVENT_STRING_LENGTH)},
+                                options,
+                                _))
             .WillOnce(Return(createServerPortData(options)));
     }
 
@@ -111,8 +112,11 @@ class iox_server_test : public Test
     ChunkQueuePopper<ClientChunkQueueData_t> clientResponseQueue{&clientResponseQueueData};
 
     static constexpr const char SERVICE[] = "TheHoff";
+    static constexpr const uint64_t SERVICE_STRING_LENGTH{7};
     static constexpr const char INSTANCE[] = "IsAll";
+    static constexpr const uint64_t INSTANCE_STRING_LENGTH{5};
     static constexpr const char EVENT[] = "YouNeed";
+    static constexpr const uint64_t EVENT_STRING_LENGTH{7};
 };
 constexpr const char iox_server_test::RUNTIME_NAME[];
 constexpr const char iox_server_test::SERVICE[];
@@ -180,7 +184,8 @@ TEST_F(iox_server_test, InitializingServerWithCustomOptionsWorks)
 
     ServerOptions cppOptions;
     cppOptions.requestQueueCapacity = options.requestQueueCapacity;
-    cppOptions.nodeName = iox::NodeName_t(TruncateToCapacity, options.nodeName);
+    cppOptions.nodeName =
+        iox::NodeName_t(TruncateToCapacity, options.nodeName, strnlen(options.nodeName, iox::NodeName_t::capacity()));
     cppOptions.offerOnCreate = options.offerOnCreate;
     cppOptions.requestQueueFullPolicy = iox::popo::QueueFullPolicy::BLOCK_PRODUCER;
     cppOptions.clientTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;

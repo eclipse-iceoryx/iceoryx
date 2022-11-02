@@ -99,7 +99,8 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
         subscriberOptions.historyRequest = options->historyRequest;
         if (options->nodeName != nullptr)
         {
-            subscriberOptions.nodeName = NodeName_t(TruncateToCapacity, options->nodeName);
+            subscriberOptions.nodeName =
+                NodeName_t(TruncateToCapacity, options->nodeName, strnlen(options->nodeName, NodeName_t::capacity()));
         }
         subscriberOptions.subscribeOnCreate = options->subscribeOnCreate;
         subscriberOptions.queueFullPolicy = c2cpp::queueFullPolicy(options->queueFullPolicy);
@@ -114,11 +115,11 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
     assert(reinterpret_cast<uint64_t>(me) - reinterpret_cast<uint64_t>(meWithStoragePointer) == sizeof(void*)
            && "Size mismatch for SubscriberWithStoragePointer!");
 
-    me->m_portData =
-        PoshRuntime::getInstance().getMiddlewareSubscriber(ServiceDescription{IdString_t(TruncateToCapacity, service),
-                                                                              IdString_t(TruncateToCapacity, instance),
-                                                                              IdString_t(TruncateToCapacity, event)},
-                                                           subscriberOptions);
+    me->m_portData = PoshRuntime::getInstance().getMiddlewareSubscriber(
+        ServiceDescription{IdString_t(TruncateToCapacity, service, strnlen(service, IdString_t::capacity())),
+                           IdString_t(TruncateToCapacity, instance, strnlen(instance, IdString_t::capacity())),
+                           IdString_t(TruncateToCapacity, event, strnlen(event, IdString_t::capacity()))},
+        subscriberOptions);
 
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
     return me;
