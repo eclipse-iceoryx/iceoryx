@@ -60,16 +60,19 @@ class SemaphoreInterface
     /// @brief Increments the semaphore by one
     /// @return Fails when the value of the semaphore overflows or when the
     ///         semaphore was removed from outside the process
+    /// \deterministic (or maybe \dynamic due to waitqueue)
     cxx::expected<SemaphoreError> post() noexcept;
 
     /// @brief Decrements the semaphore by one. When the semaphore value is zero
     ///        it blocks until the semaphore value is greater zero
     /// @return Fails when semaphore was removed from outside the process
+    /// \blocking (and maybe \dynamic due to waitqueue)
     cxx::expected<SemaphoreError> wait() noexcept;
 
     /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
     ///        it returns false otherwise it returns true and decrement the value by one.
     /// @return Fails when semaphore was removed from outside the process
+    /// \deterministic (or maybe \dynamic due to waitqueue)
     cxx::expected<bool, SemaphoreError> tryWait() noexcept;
 
     /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
@@ -77,6 +80,7 @@ class SemaphoreInterface
     /// @return If during the timeout time the semaphore value increases to non zero
     ///         it returns SemaphoreWaitState::NO_TIMEOUT and decreases the semaphore by one
     ///         otherwise returns SemaphoreWaitState::TIMEOUT
+    /// \deterministic (or maybe \dynamic due to waitqueue)
     cxx::expected<SemaphoreWaitState, SemaphoreError> timedWait(const units::Duration& timeout) noexcept;
 
   protected:

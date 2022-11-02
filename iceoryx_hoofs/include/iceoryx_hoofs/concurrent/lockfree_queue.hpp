@@ -38,8 +38,10 @@ class LockFreeQueue
     using element_t = ElementType;
 
     /// @brief creates and initalizes an empty LockFreeQueue
+    /// \deterministic
     LockFreeQueue() noexcept;
 
+    /// \deterministic
     ~LockFreeQueue() noexcept = default;
 
     // remark: a thread-safe and lockfree implementation of copy seems impossible
@@ -52,18 +54,21 @@ class LockFreeQueue
 
     /// @brief returns the capacity of the queue
     /// @note threadsafe, lockfree
+    /// \deterministic
     constexpr uint64_t capacity() const noexcept;
 
     /// @brief tries to insert value in FIFO order, moves the value internally
     /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// @note threadsafe, lockfree
+    /// \deterministic (if ElementType move is deterministic)
     bool tryPush(ElementType&& value) noexcept;
 
     /// @brief tries to insert value in FIFO order, copies the value internally
     /// @param value to be inserted
     /// @return true if insertion was successful (i.e. queue was not full during push), false otherwise
     /// @note threadsafe, lockfree
+    /// \deterministic (if ElementType copy is deterministic)
     bool tryPush(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
@@ -71,6 +76,10 @@ class LockFreeQueue
     /// @param value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
+    /// \deterministic (if ElementType copy is deterministic)
+    /// theoretically it can starve, hence is \blocking (but not in isolation, as it is lock-free)
+    /// in reality this should not occur (there is a crash related bug though that cannot be easily
+    /// fixed, the classification here refers to a correct version)
     iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
@@ -78,11 +87,13 @@ class LockFreeQueue
     /// @param value to be inserted is moved into the queue if possible
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
+    /// \deterministic (if ElementType move is deterministic)
     iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
 
     /// @brief tries to remove value in FIFO order
     /// @return value if removal was successful, empty optional otherwise
     /// @note threadsafe, lockfree
+    /// \deterministic
     iox::cxx::optional<ElementType> pop() noexcept;
 
     /// @brief check whether the queue is empty
@@ -91,6 +102,7 @@ class LockFreeQueue
     /// not be empty anymore after the call
     ///  (but it was at some point during the call)
     /// @note threadsafe, lockfree
+    /// \deterministic
     bool empty() const noexcept;
 
     /// @brief get the number of stored elements in the queue
@@ -98,6 +110,7 @@ class LockFreeQueue
     /// @note that this will not be perfectly in sync with the actual number of contained elements
     /// during concurrent operation but will always be at most capacity
     /// @note threadsafe, lockfree
+    /// \deterministic
     uint64_t size() const noexcept;
 
   protected:

@@ -126,6 +126,7 @@ class FileLockBuilder
   public:
     /// @brief Creates a file lock
     /// @return a valid file lock or an FileLockError describing the error
+    /// \allocating (?)
     cxx::expected<FileLock, FileLockError> create() noexcept;
 };
 } // namespace posix

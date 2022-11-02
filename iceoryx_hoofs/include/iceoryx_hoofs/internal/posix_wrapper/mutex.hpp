@@ -98,11 +98,14 @@ class mutex
   public:
     /// @attention the construction of the mutex can fail. This can lead to a program termination!
     /// @todo iox-#1036 remove this, introduced to keep current API temporarily
+    /// \dynamic
+    /// \allocating
     explicit mutex(const bool f_isRecursive) noexcept;
 
     /// @brief Destroys the mutex. When the mutex is still locked this will fail and the
     ///        mutex is leaked! If the MutexThreadTerminationBehavior is set to RELEASE_WHEN_LOCKED
     ///        a locked mutex is unlocked and the handle is cleaned up correctly.
+    /// \dynamic
     ~mutex() noexcept;
 
     /// @brief all copy and move assignment methods need to be deleted otherwise
@@ -116,10 +119,14 @@ class mutex
 
     /// @brief Locks the mutex.
     /// @return When it fails it returns an enum describing the error.
+    /// \blocking
+    /// maybe \dynamic
+    /// maybe \allocating
     cxx::expected<MutexLockError> lock() noexcept;
 
     /// @brief  Unlocks the mutex.
     /// @return When it fails it returns an enum describing the error.
+    /// \deterministic (or maybe \dynamic, depends on implementation)
     cxx::expected<MutexUnlockError> unlock() noexcept;
 
     /// @brief Tries to lock the mutex.
@@ -127,6 +134,7 @@ class mutex
     ///         MutexTryLock::FAILED_TO_ACQUIRE_LOCK.
     ///         If the lock is of MutexType::RECURSIVE the lock will also succeed.
     ///         On failure it returns an enum describing the failure.
+    /// \deterministic (or maybe \dynamic, depends on implementation)
     cxx::expected<MutexTryLock, MutexTryLockError> try_lock() noexcept;
 
     /// @brief When a mutex owning thread/process with MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED dies then the
@@ -134,6 +142,7 @@ class mutex
     ///        Mutex{Try}LockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED error. This method puts
     ///        the mutex again into a consistent state. If the mutex is already in a consistent state it will do
     ///        nothing.
+    /// \deterministic (or maybe \dynamic, depends on implementation)
     void make_consistent() noexcept;
 
   private:

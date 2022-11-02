@@ -71,6 +71,7 @@ class Thread
 
     /// @brief Returns the name of the thread
     /// @return An iox::cxx::string containing the name of the thread
+    /// \deterministic
     ThreadName_t getName() const noexcept;
 
     friend class ThreadBuilder;
@@ -99,6 +100,7 @@ class ThreadBuilder
     /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored
     /// @param[in] callable is the callable that is invoked by the thread
     /// @return an error describing the failure or success
+    /// \allocating
     cxx::expected<ThreadError> create(cxx::optional<Thread>& uninitializedThread,
                                       const Thread::callable_t& callable) noexcept;
 };

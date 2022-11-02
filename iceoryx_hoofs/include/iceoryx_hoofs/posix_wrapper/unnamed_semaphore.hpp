@@ -37,6 +37,8 @@ class UnnamedSemaphore final : public internal::SemaphoreInterface<UnnamedSemaph
     UnnamedSemaphore(UnnamedSemaphore&&) noexcept = delete;
     UnnamedSemaphore& operator=(const UnnamedSemaphore&) noexcept = delete;
     UnnamedSemaphore& operator=(UnnamedSemaphore&&) noexcept = delete;
+
+    /// \dynamic
     ~UnnamedSemaphore() noexcept;
 
   private:
@@ -65,6 +67,7 @@ class UnnamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
+    /// \allocating
     cxx::expected<SemaphoreError> create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix

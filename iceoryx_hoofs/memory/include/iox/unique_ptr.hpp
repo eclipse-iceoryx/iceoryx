@@ -63,28 +63,36 @@ class unique_ptr final
     /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
+    /// \deterministic
     unique_ptr(T* const object, const cxx::function<DeleterType>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
+
+    /// \deterministic if deleter is deterministic
     unique_ptr(unique_ptr&& rhs) noexcept;
+
+    /// \deterministic if deleter is deterministic
     unique_ptr& operator=(unique_ptr&& rhs) noexcept;
 
     ///
     /// @brief Automatically deletes the managed object on destruction.
     ///
+    /// \deterministic if deleter is deterministic
     ~unique_ptr() noexcept;
 
     ///
     /// @brief operator -> Transparent access to the managed object.
     /// @return Pointer to the stored object
     ///
+    /// \deterministic
     T* operator->() noexcept;
 
     ///
     /// @brief operator -> Transparent access to the managed object.
     /// @return Const pointer to the stored object
     ///
+    /// \deterministic
     const T* operator->() const noexcept;
 
     ///
@@ -92,6 +100,7 @@ class unique_ptr final
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
     /// @return Pointer to managed object or errorHandler call if none owned.
     ///
+    /// \deterministic
     T* get() noexcept;
 
     ///
@@ -99,6 +108,7 @@ class unique_ptr final
     /// @details The unique_ptr retains ownership, therefore the "borrowed" pointer must not be deleted.
     /// @return Const pointer to managed object or errorHandler call if none owned.
     ///
+    /// \deterministic
     const T* get() const noexcept;
 
     ///
@@ -106,12 +116,14 @@ class unique_ptr final
     /// @param[in] ptrToBeReleased unique_ptr which is destroyed without deleting its underlying data
     /// @return Pointer to the managed object.
     ///
+    /// \deterministic
     static T* release(unique_ptr&& ptrToBeReleased) noexcept;
 
     ///
     /// @brief swap Swaps object ownership with another unique_ptr (incl. deleters)
     /// @param other The unique_ptr with which to swap owned objects.
     ///
+    /// \deterministic
     void swap(unique_ptr& other) noexcept;
 
   private:
