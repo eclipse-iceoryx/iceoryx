@@ -795,9 +795,9 @@
     alignas(T) element_t myAlignedArray[Capacity];
 
     // after
-    #include "iox/detail/uninitialized_array.hpp"
+    #include "iox/uninitialized_array.hpp"
 
-    iox::UninitializedArray<char, Capacity, containers::ZeroedBuffer> myCharArray;
+    iox::UninitializedArray<char, Capacity, iox::ZeroedBuffer> myCharArray;
 
     iox::UninitializedArray<T, Capacity> myAlignedArray;
 

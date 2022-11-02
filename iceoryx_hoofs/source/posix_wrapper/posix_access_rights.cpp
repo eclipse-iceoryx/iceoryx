@@ -22,7 +22,7 @@
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <limits>
 

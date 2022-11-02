@@ -17,7 +17,7 @@
 
 #include "test.hpp"
 
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 namespace
 {

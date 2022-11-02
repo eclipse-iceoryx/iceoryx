@@ -24,7 +24,7 @@
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 

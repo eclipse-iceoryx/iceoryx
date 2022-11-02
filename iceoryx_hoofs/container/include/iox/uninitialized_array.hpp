@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
-#define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
+#ifndef IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
+#define IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
@@ -111,4 +111,4 @@ class UninitializedArray
 
 #include "iox/detail/uninitialized_array.inl"
 
-#endif // IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
+#endif // IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP

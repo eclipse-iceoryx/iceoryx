@@ -20,7 +20,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <atomic>
 

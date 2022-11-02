@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <atomic>
 #include <cstdint>

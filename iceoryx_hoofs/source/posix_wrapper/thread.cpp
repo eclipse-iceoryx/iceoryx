@@ -17,7 +17,7 @@
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 namespace iox
 {

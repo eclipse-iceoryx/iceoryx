@@ -19,7 +19,7 @@
 #define IOX_HOOFS_CXX_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iox/detail/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>
