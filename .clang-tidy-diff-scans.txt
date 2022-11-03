@@ -37,8 +37,7 @@
 ./iceoryx_hoofs/test/moduletests/test_posix*
 ./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
 
-./iceoryx_hoofs/container/include/iox/*
-./iceoryx_hoofs/container/include/iox/detail/*
+./iceoryx_hoofs/container/include/iox/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*
 
 # IMPORTANT:

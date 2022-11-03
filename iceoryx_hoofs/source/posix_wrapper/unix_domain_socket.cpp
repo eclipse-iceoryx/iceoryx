@@ -21,7 +21,6 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
-#include "iox/uninitialized_array.hpp"
 
 #include <chrono>
 #include <string>
@@ -279,7 +278,9 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
     }
-    UninitializedArray<char, MAX_MESSAGE_SIZE + 1, ZeroedBuffer> message;
+    // NOLINTJUSTIFICATION needed for recvfrom
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    char message[MAX_MESSAGE_SIZE + 1];
 
     auto recvCall = posixCall(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                         .failureReturnValue(ERROR_CODE)
