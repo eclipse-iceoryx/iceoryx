@@ -6,8 +6,10 @@ Logging is a crucial part of a framework since it informs the developer and
 user of the framework about anomalies and helps with debugging by providing
 contextual information.
 
-Additionally, when integrated into a separate framework, the log messages should
-be forwarded in order to have a single logging infrastructure.
+### Requirements
+
+When integrated into a separate framework, the log messages should be forwarded
+in order to have a single logging infrastructure.
 
 The logging should also be performant and not allocate memory. Ideally, it should
 be possible to disable it at compile-time and let the compiler optimize it away.
@@ -29,7 +31,7 @@ variables, e.g. the log level.
 | TRACE    | Any comment could be replaced by logging call with log level trace. |
 
 The log levels `FATAL`, `ERROR` and `WARN` should not be used independently but
-in combination with the error handler.
+in combination with the error handler and vice versa.
 
 ## Design
 
@@ -48,7 +50,7 @@ in combination with the error handler.
    apply to other potentially expensive operations like the execution of a
    function call.
 
-4. Additionally, the minimal log level shall be configurable by a compiletime
+4. Additionally, the minimal log level shall be configurable by a compile-time
    switch and everything below this log level should be compiled to no-ops. With
    this, developer can make excessive use of the most verbose log level and
    disable it by default. When debugging, this can be turned on and help to find
