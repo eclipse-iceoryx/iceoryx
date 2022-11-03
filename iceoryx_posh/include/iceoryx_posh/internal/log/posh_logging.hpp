@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_LOG_POSH_LOGGING_HPP
 #define IOX_POSH_LOG_POSH_LOGGING_HPP
 
-// @todo iox-#1345 for transition only; delete this file
+// @todo iox-#1755 for transition only; delete this file
 
 #include "iceoryx_hoofs/log/logging.hpp"
 

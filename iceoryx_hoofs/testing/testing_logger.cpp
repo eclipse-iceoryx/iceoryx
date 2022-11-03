@@ -107,7 +107,7 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
     dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
     TestingLogger::setLogLevel(log::LogLevel::TRACE);
 
-    /// @todo iox-#1345 register signal handler for sigterm to flush to logger;
+    /// @todo iox-#1755 register signal handler for sigterm to flush to logger;
     /// there might be tests to register a handler itself and when this is
     /// done at each start of the test only the tests who use their
     /// own signal handler are affected and don't get an log output on termination
@@ -120,7 +120,7 @@ void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
         dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
     }
 
-    /// @todo iox-#1345 de-register the signal handler from 'OnTestStart'
+    /// @todo iox-#1755 de-register the signal handler from 'OnTestStart'
 }
 
 } // namespace testing

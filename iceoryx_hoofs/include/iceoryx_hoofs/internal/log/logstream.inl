@@ -62,7 +62,7 @@ inline constexpr LogOct<T> oct(const T value) noexcept
     return LogOct<T>(value);
 }
 
-/// @todo iox-#1345 use something like 'source_location'
+/// @todo iox-#1755 use something like 'source_location'
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 // NOLINTNEXTLINE(readability-function-size)
 inline LogStream::LogStream(

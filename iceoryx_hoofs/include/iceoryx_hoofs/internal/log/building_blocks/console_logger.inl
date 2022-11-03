@@ -72,7 +72,7 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
                                  value);
     if (retVal < 0)
     {
-        /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
+        /// @todo iox-#1755 this path should never be reached since we ensured the correct encoding of the character
         /// conversion specifier; nevertheless, we might want to call the error handler after the error handler
         /// refactoring was merged
         return;
@@ -86,7 +86,7 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
     }
     else
     {
-        /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
+        /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
         /// that the log buffer will be truncated;
         /// it is intended to flush the buffer and create a new log message later on
         data.bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;

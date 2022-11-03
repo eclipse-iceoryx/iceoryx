@@ -43,7 +43,7 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 // intended lazy evaluation technique with the if statement
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 #define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1345 lazy evaluation causes issues with Axivion */  \
+    /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1755 lazy evaluation causes issues with Axivion */  \
     iox::log::internal::SelectedLogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level))    \
         .self()
 

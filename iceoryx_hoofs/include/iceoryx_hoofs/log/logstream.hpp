@@ -79,7 +79,7 @@ class LogOct
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
 inline constexpr LogOct<T> oct(const T value) noexcept;
 
-/// @todo iox-#1345 implement LogBin and LogRawBuffer
+/// @todo iox-#1755 implement LogBin and LogRawBuffer
 
 /// @brief This class provides the public interface to the logger and is used with the 'IOX_LOG' macro. In order to add
 /// support for custom data types 'operator<<' needs to be implement for the custom type.
@@ -122,7 +122,7 @@ class LogStream
     /// @param[in] line the line of the log message. Please use the '__LINE__' compiler intrinsic
     /// @param[in] function the function of the log message. Please use the '__FUNCTION__' compiler intrinsic
     /// @param[in] logLevel is the log level for the log message
-    /// @todo iox-#1345 temporary workaround due to lazy evaluation issues with Axivion; should be removed when the
+    /// @todo iox-#1755 temporary workaround due to lazy evaluation issues with Axivion; should be removed when the
     /// lazy evaluation can be implemented in an way Axivion does not complain
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : file, line and function are used in conjunction with '__FILE__',
     // '__LINE__' and '__FUNCTION__'; these are compiler intrinsic and cannot be changed to fixed width types in a
@@ -152,7 +152,7 @@ class LogStream
     /// @brief Logging support for std::string
     /// @param[in] str is the std::string to log
     /// @return a reference to the LogStream instance
-    /// @todo iox-#1345 instead of using std::string we could also accept everything with a c_str() method
+    /// @todo iox-#1755 instead of using std::string we could also accept everything with a c_str() method
     /// and avoid the std::string dependency; alternatively this could be implemented as free function
     LogStream& operator<<(const std::string& str) noexcept;
 
@@ -223,7 +223,7 @@ class LogStream
     Logger& m_logger;
     bool m_isFlushed{false};
 
-    /// @todo iox-#1345 workaround due to deactivation of lazy evaluation
+    /// @todo iox-#1755 workaround due to deactivation of lazy evaluation
     bool m_doFlush{true};
 };
 
