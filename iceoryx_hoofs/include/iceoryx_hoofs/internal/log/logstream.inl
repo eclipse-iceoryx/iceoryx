@@ -18,6 +18,7 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_INL
 #define IOX_HOOFS_LOG_LOGSTREAM_INL
 
+#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 
 #include <string>
@@ -112,6 +113,17 @@ inline LogStream& LogStream::self() noexcept
 inline LogStream& LogStream::operator<<(const char* cstr) noexcept
 {
     m_logger.logString(cstr);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const char cstr) noexcept
+{
+    containers::UninitializedArray<char, 2> nullTerminatedStr;
+    nullTerminatedStr[0] = cstr;
+    nullTerminatedStr[1] = '\0';
+
+    m_logger.logString(nullTerminatedStr.begin());
     m_isFlushed = false;
     return *this;
 }

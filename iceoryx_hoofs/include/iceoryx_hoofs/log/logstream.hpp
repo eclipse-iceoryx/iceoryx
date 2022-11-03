@@ -149,6 +149,12 @@ class LogStream
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Logging support for C-style strings
     LogStream& operator<<(const char* cstr) noexcept;
 
+    /// @brief Logging support for single chars
+    /// @param[in] cstr is the C-style char to log
+    /// @return a reference to the LogStream instance
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Logging support for single chars
+    LogStream& operator<<(const char cstr) noexcept;
+
     /// @brief Logging support for std::string
     /// @param[in] str is the std::string to log
     /// @return a reference to the LogStream instance
