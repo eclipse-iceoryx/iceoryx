@@ -10,7 +10,7 @@ Additionally, when integrated into a separate framework, the log messages should
 be forwarded in order to have a single logging infrastructure.
 
 The logging should also be performant and not allocate memory. Ideally, it should
-be possible to disable it at compile time and let the compiler optimize it away.
+be possible to disable it at compile-time and let the compiler optimize it away.
 
 It should also be possible to alter the behavior of the logging via environment
 variables, e.g. the log level.
@@ -48,7 +48,7 @@ in combination with the error handler.
    apply to other potentially expensive operations like the execution of a
    function call.
 
-4. Additionally, the minimal log level shall be configurable by a compile time
+4. Additionally, the minimal log level shall be configurable by a compiletime
    switch and everything below this log level should be compiled to no-ops. With
    this, developer can make excessive use of the most verbose log level and
    disable it by default. When debugging, this can be turned on and help to find
@@ -69,7 +69,7 @@ in combination with the error handler.
    to use the dedicated logger for log messages which are emitted before it could
    be replaced at runtime, e.g. from global objects before `main`.
 
-8. Additionally, there shall be a compile time option to forward all log messages
+8. Additionally, there shall be a compile-time option to forward all log messages
    independent of the log level threshold for cases where the logger framework
    does the filtering itself.
 
@@ -84,7 +84,7 @@ in combination with the error handler.
 
 ![logging class diagram](../website/images/logging_classes.svg)
 
-The logger can be customized at compile time and at runtime. The former is done
+The logger can be customized at compile-time and at runtime. The former is done
 by the `BaseLogger` template parameter and the latter by deriving from the logger.
 
 #### Logging with LogStream
@@ -143,7 +143,7 @@ See also the code example to [create a custom logger](#creating-a-custom-logger)
 
 ![logger runtime replacement](../website/images/logger_runtime_replacement.svg)
 
-#### Replacing the default logger at compile time
+#### Replacing the default logger at compile-time
 
 This is currently only partly implemented.
 
@@ -204,7 +204,7 @@ Tests should be silent and not flood the console with expected error messages.
 the output for passed tests. This class must also be derived from `Logger` in
 order to replace the logger at runtime.
 
-![logger compile time replacement](../website/images/logger_compile_time_replacement.svg)
+![logger compile-time replacement](../website/images/logger_compile_time_replacement.svg)
 
 #### Dedicated logger for testing
 
