@@ -32,9 +32,9 @@ iox_add_library(
     EXPORT_INCLUDE_DIRS     include/
     FILES
         compile_test.cpp
-        logger.cpp
         mocks/time_mock.cpp
         mocks/error_handler_mock.cpp
+        testing_logger.cpp
         timing_test.cpp
 )
 

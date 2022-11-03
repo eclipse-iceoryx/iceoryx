@@ -28,7 +28,7 @@
 ./iceoryx_hoofs/test/moduletests/test_log*
 ./iceoryx_hoofs/test/moduletests/test_console_logger*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/mocks/logger_mock.hpp
-./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/logger.hpp
+./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/testing_logger.hpp
 ./iceoryx_hoofs/testing/logger.cpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/*

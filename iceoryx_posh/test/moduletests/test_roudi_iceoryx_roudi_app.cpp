@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/logger.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
@@ -223,9 +223,9 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorWithEmptyConfigSetRunVariableToFal
 
     EXPECT_FALSE(roudi.getVariableRun());
 
-    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
-        auto logMessages = iox::testing::Logger::getLogMessages();
+        auto logMessages = iox::testing::TestingLogger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));
         EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
     }
@@ -256,9 +256,9 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
 
     EXPECT_FALSE(roudi.getVariableRun());
 
-    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
-        auto logMessages = iox::testing::Logger::getLogMessages();
+        auto logMessages = iox::testing::TestingLogger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));
         EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
     }

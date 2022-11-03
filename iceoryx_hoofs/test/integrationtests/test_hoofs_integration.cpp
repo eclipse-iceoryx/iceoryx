@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/logger.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 
 #include "test.hpp"
 
@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
 
-    iox::testing::Logger::init();
+    iox::testing::TestingLogger::init();
 
     return RUN_ALL_TESTS();
 }
