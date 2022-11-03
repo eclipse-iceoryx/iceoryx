@@ -128,60 +128,75 @@ can be used to forward the log messages to a logger of another framework.
 
 This is done by deriving from the base `Logger` class and implementing the pure
 virtual `createLogMessageHeader` and `flush` methods. Finally, the derived logger
-must be activated by calling the static `Logger::activeLogger` function and
+must be activated by calling the static `Logger::setActiveLogger` function and
 passing the new logger as argument to the function. The logger must have a static
 lifetime and should therefore be placed in the data segment.
 
-The call to `iox::log::Logger::init` will finalize the option to replace the logger
-at runtime. Further efforts to replace the logger will call the error handler
-with a `MODERATE` error level and a log message to the old and new logger.
+The logger can only be set once and subsequent calls to `Logger::setActiveLogger`
+will not replace the logger anymore and log error messages to the existing logger
+and the desired new logger.
+
+The call to `iox::log::Logger::init` will initialize the logger and needs to be
+done after `Logger::setActiveLogger`.
 
 See also the code example to [create a custom logger](#creating-a-custom-logger).
 
 ![logger runtime replacement](../website/images/logger_runtime_replacement.svg)
 
-#### Replacing the default logger for a platform
+#### Replacing the default logger at compile time
 
-Each platform must specify the following aliases in the `platform_settings.hpp`
-header.
+This is currently only partly implemented.
 
+Customization will be done via the `log/logger.hpp` file. This is currently in
+`iceoryx_hoofs/include/iceoryx_hoofs/log/logger.hpp`. To enable the customization
+it will be moved to `iceoryx_hoofs/customization/log/iceoryx_hoofs/log/logger.hpp`.
+The path to `customization/log` can then be set via cmake argument or toolchain
+file and by default will point the the implementation in `iceoryx_hoofs`.
+This is similar to the `iceoryx_platform` customization.
+
+The `log/logger.hpp` header must specify the `Logger` and `TestingLoggerBase`
+alias as well as defining the `IGNORE_ACTIVE_LOG_LEVEL` and `MINIMAL_LOG_LEVEL`
+constexpr variables.
+
+This is an example file
 ```cpp
-using LogLevel = pbb::LogLevel;
-using pbb::asStringLiteral;
-using pbb::logLevelFromEnvOr;
+namespace iox
+{
+namespace log
+{
+using Logger = internal::Logger<ConsoleLogger>;
+using TestingLoggerBase = internal::Logger<ConsoleLogger>;
 
-using Logger = pbb::Logger<pbb::ConsoleLogger>;
-using TestingLoggerBase = pbb::Logger<pbb::ConsoleLogger>;
+static constexpr bool IGNORE_ACTIVE_LOG_LEVEL{false};
+static constexpr LogLevel MINIMAL_LOG_LEVEL{build::IOX_MINIMAL_LOG_LEVEL};
+}
+}
 ```
 
-With `LogLevel` enum being the log level enum with the values defined in the
-[class diagram](#class-diagram). The `Logger` must be a class specifying the
-interface from the class diagram. It is recommended to provide a custom
-implementation via the template parameter instead of implementing everything
-from scratch. The `pbb::ConsoleLogger` is an example of such an implementation
-and can also be a base for customization.
+While the `Logger` alias could be a fully independent re-implementation of the
+`internal::Logger<T>` interface, it is recommended to only implement the `BaseLogger`
+and pass it as template parameter to `internal::Logger<T>`.
+
+The `pbb::ConsoleLogger` is an example of such an implementation and can also be
+a base for customization.
 
 The `BaseLogger` part of the logger must fulfil the following interface
 
 ```cpp
 public:
   static LogLevel getLogLevel();
-  void setLogLevel(LogLevel logLevel);
+  static void setLogLevel(LogLevel logLevel);
 protected:
   virtual void initLogger(LogLevel logLevel);
   virtual void createLogMessageHeader(const char* file, const int line, const char* function, LogLevel logLevel);
   virtual void flush();
-  std::tuple<const char*, uint64_t> getLogBuffer() const;
+  LogBuffer getLogBuffer() const;
   void assumeFlushed();
   void LogString(const char* message);
-  void logI64Dec(const int64_t value);
-  void logU64Dec(const uint64_t value);
-  void logU64Hex(const uint64_t value);
-  void logU64Oct(const uint64_t value);
   void logBool(const bool value);
-  void logFloat(const float value);
-  void logDouble(const double value);
-  void logLongDouble(const long double value);
+  void logDec(const T value);  // with T being arithmetic types
+  void logHex(const T value);  // with T being unsigned integers, floats or pointer
+  void logOct(const T value);  // with T being unsigned integers
 ```
 
 Tests should be silent and not flood the console with expected error messages.
@@ -297,7 +312,7 @@ class MyLogger : public iox::log::Logger
     static void init()
     {
         static MyLogger myLogger;
-        iox::log::setActiveLogger(&myLogger);
+        iox::log::Logger::setActiveLogger(myLogger);
         iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::INFO));
     }
 
@@ -306,7 +321,7 @@ class MyLogger : public iox::log::Logger
         const char* file IOX_MAYBE_UNUSED,
         const int line IOX_MAYBE_UNUSED,
         const char* function IOX_MAYBE_UNUSED,
-        iox::log::LogLevel logLevel) override
+        iox::log::LogLevel logLevel) noexcept override
     {
         switch(logLevel) {
             case iox::log::LogLevel::FATAL:
@@ -332,9 +347,9 @@ class MyLogger : public iox::log::Logger
         }
     }
 
-    void flush() override {
-        puts(iox::log::Logger::buffer());
-        iox::log::Logger::assumePushed();
+    void flush() noexcept override {
+        puts(iox::log::Logger::getLogBuffer().buffer);
+        iox::log::Logger::assumeFlushed();
     }
 };
 
@@ -373,7 +388,7 @@ might be a variadic macro like `IOX_LOG(INFO, "Hello World");`
 
 - do we need to change the log level after `Logger::init`
 - do we want a `IOX_LOG_IF(cond, level)` macro
-- shall the TestingLogger register signals to catch SIGTERM, etc. and print the
+- shall the `TestingLogger` register signals to catch `SIGTERM`, etc. and print the
   log messages when the signal is raised? It might be necessary to wait for the
   error handling refactoring before this can be done
 - instead of having the `Logger::init()` static function with hidden default
