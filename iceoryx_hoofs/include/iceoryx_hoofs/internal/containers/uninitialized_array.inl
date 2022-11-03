@@ -38,6 +38,9 @@ inline constexpr UninitializedArray<ElementType, Capacity, Buffer>::Uninitialize
 
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer>
 inline constexpr UninitializedArray<ElementType, Capacity, Buffer>&
+// NOLINTJUSTIFICATION the user is explicitly responsible for the move and copy logic therefore we
+//   have an empty copy assignment where a self-assignment check is unnecessary
+// NOLINTNEXTLINE(cert-oop54-cpp)
 UninitializedArray<ElementType, Capacity, Buffer>::operator=(const UninitializedArray&) noexcept
 {
     return *this;
