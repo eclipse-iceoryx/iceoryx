@@ -84,7 +84,7 @@ TYPED_TEST(stringTyped_test, CopyConstructStringOfSizeCapaResultsInSizeCapa)
     string<STRINGCAP> fuu(this->testSubject);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
-    EXPECT_THAT(fuu.c_str(), StrEq(testString));
+    EXPECT_THAT(fuu.c_str(), StrEq(testString.c_str()));
 }
 
 /// @note string(string&& other) noexcept
@@ -1027,7 +1027,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
 }
 
 /// @note int64_t compare(const T& other) const noexcept
-/// with T = {char array, std::string}
+/// with T = {char array}
 TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "13a0f1a3-b006-4686-a5a0-3c6a2c7113e0");
@@ -1047,8 +1047,6 @@ TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
-
-    EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
@@ -1070,9 +1068,6 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Lt(0));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject.compare(testStdString), Lt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
@@ -1094,9 +1089,6 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositive)
@@ -1110,12 +1102,9 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositi
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char testCharArray[STRINGCAP + 1U] = {'\0'};
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
-
-    const std::string testStdString;
-    EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferentCapaResultsInZero)
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0e86a0c-f68d-4d88-8e8b-f65f82a1e7aa");
     using MyString = typename TestFixture::stringType;
@@ -1134,10 +1123,6 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferent
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
-
-    std::string testStdString(STRINGCAP, 'M');
-    testStdString.reserve(STRINGCAP + 13U);
-    EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
@@ -1200,7 +1185,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 /// bool operator!=(const T& rhs) const noexcept
 /// bool operator==(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
-/// with T = {char array, std::string}
+/// with T = {char array}
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38d8e0ca-97c5-4e3f-9cb7-589bb7de3b71");
@@ -1215,12 +1200,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
@@ -1237,12 +1216,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWorks)
@@ -1260,14 +1233,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
 
-    std::string testStdString = "M";
-    testStdString.reserve(STRINGCAP + 5U);
-    EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(false));
-
-    // required to verify string literal functionality of iox::string
+    // required to verify string literal functionality of cxx::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     const char test[] = {'M'};
     EXPECT_THAT(test == this->testSubject, Eq(true));
@@ -1287,12 +1253,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(true));
 }
 
 /// @note bool operator<(const T& rhs) const noexcept
@@ -1313,7 +1273,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char testCharArray[STRINGCAP + 1U] = {'L'};
-    std::string testStdString = &testCharArray[0];
 
     // compare with greater string
     string<STRINGCAP> sutGreater("M");
@@ -1327,15 +1286,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     EXPECT_THAT(testCharArray > sutGreater, Eq(false));
     EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
 
-    EXPECT_THAT(sutGreater < testStdString, Eq(false));
-    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-    EXPECT_THAT(sutGreater > testStdString, Eq(true));
-    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-    EXPECT_THAT(testStdString < sutGreater, Eq(true));
-    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-    EXPECT_THAT(testStdString > sutGreater, Eq(false));
-    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
     // compare with less string
     string<STRINGCAP> sutLess("F");
 
@@ -1347,15 +1297,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     EXPECT_THAT(testCharArray <= sutLess, Eq(false));
     EXPECT_THAT(testCharArray > sutLess, Eq(true));
     EXPECT_THAT(testCharArray >= sutLess, Eq(true));
-
-    EXPECT_THAT(sutLess < testStdString, Eq(true));
-    EXPECT_THAT(sutLess <= testStdString, Eq(true));
-    EXPECT_THAT(sutLess > testStdString, Eq(false));
-    EXPECT_THAT(sutLess >= testStdString, Eq(false));
-    EXPECT_THAT(testStdString < sutLess, Eq(false));
-    EXPECT_THAT(testStdString <= sutLess, Eq(false));
-    EXPECT_THAT(testStdString > sutLess, Eq(true));
-    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
@@ -1377,17 +1318,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
     EXPECT_THAT(testCharArray <= this->testSubject, Eq(true));
     EXPECT_THAT(testCharArray > this->testSubject, Eq(false));
     EXPECT_THAT(testCharArray >= this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-    EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-    EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-    EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSize)
@@ -1423,15 +1353,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     EXPECT_THAT(testCharArray > sutGreater, Eq(false));
     EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
 
-    EXPECT_THAT(sutGreater < testStdString, Eq(false));
-    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-    EXPECT_THAT(sutGreater > testStdString, Eq(true));
-    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-    EXPECT_THAT(testStdString < sutGreater, Eq(true));
-    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-    EXPECT_THAT(testStdString > sutGreater, Eq(false));
-    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
     // compare with less string
     std::string temp2(STRINGCAP + 5U, 'F');
     string<STRINGCAP + 5U> sutLess;
@@ -1445,15 +1366,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     EXPECT_THAT(testCharArray <= sutLess, Eq(false));
     EXPECT_THAT(testCharArray > sutLess, Eq(true));
     EXPECT_THAT(testCharArray >= sutLess, Eq(true));
-
-    EXPECT_THAT(sutLess < testStdString, Eq(true));
-    EXPECT_THAT(sutLess <= testStdString, Eq(true));
-    EXPECT_THAT(sutLess > testStdString, Eq(false));
-    EXPECT_THAT(sutLess >= testStdString, Eq(false));
-    EXPECT_THAT(testStdString < sutLess, Eq(false));
-    EXPECT_THAT(testStdString <= sutLess, Eq(false));
-    EXPECT_THAT(testStdString > sutLess, Eq(true));
-    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
@@ -1482,17 +1394,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     EXPECT_THAT(testCharArray <= this->testSubject, Eq(true));
     EXPECT_THAT(testCharArray > this->testSubject, Eq(false));
     EXPECT_THAT(testCharArray >= this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-    EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-    EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-    EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
 }
 
 /// @note int64_t compare(char other) const noexcept
@@ -1688,30 +1589,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
     EXPECT_THAT(testChar <= sutEqualTestChar, Eq(true));
     EXPECT_THAT(testChar > sutEqualTestChar, Eq(false));
     EXPECT_THAT(testChar >= sutEqualTestChar, Eq(false));
-}
-
-/// @note constexpr int64_t compare(const std::string& other) const noexcept
-TYPED_TEST(stringTyped_test, CompareWithStdStringResultNegativeWithDifferentSize)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "fbfa1376-8474-4cee-8c83-5adb6dc115a8");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString.c_str()), Eq(true));
-    std::string foo(STRINGCAP + 4, 'M');
-    EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithStdStringResultPositiveWithDifferentSize)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "08891d54-3db7-47cd-8e42-9beb7035c044");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP + 6U, 'M');
-    string<STRINGCAP + 6U> sut;
-    ASSERT_THAT(sut.unsafe_assign(testString.c_str()), Eq(true));
-    std::string foo(STRINGCAP, 'M');
-    EXPECT_THAT(sut.compare(foo), Gt(0));
 }
 
 /// @note template <uint64_t Capacity>
@@ -1980,7 +1857,7 @@ TYPED_TEST(stringTyped_test, ConcatenateTwoNotEmptyStringsWorks)
 
     EXPECT_THAT(testString2.capacity(), Eq(2U * STRINGCAP + 3U));
     EXPECT_THAT(testString2.size(), Eq(this->testSubject.size() + testString1.size()));
-    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1));
+    EXPECT_THAT(testString2.c_str(), StrEq((testStdString0 + testStdString1).c_str()));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
@@ -1997,7 +1874,7 @@ TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
                             + std::string(testString1.c_str(), testString1.size());
     EXPECT_THAT(testString3.capacity(), Eq(3U * STRINGCAP + 2U));
     EXPECT_THAT(testString3.size(), Eq(cmpString.size()));
-    EXPECT_THAT(testString3.c_str(), StrEq(cmpString));
+    EXPECT_THAT(testString3.c_str(), StrEq(cmpString.c_str()));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWorks)
@@ -2141,7 +2018,7 @@ TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
     string<6U * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
     EXPECT_THAT(testString2.capacity(), Eq(6U * STRINGCAP));
     EXPECT_THAT(testString2.size(), Eq(2U * this->testSubject.size() + testString1.size()));
-    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
+    EXPECT_THAT(testString2.c_str(), StrEq((testStdString0 + testStdString1 + testStdString0).c_str()));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorPlusWorks)
@@ -2329,12 +2206,12 @@ TYPED_TEST(stringTyped_test, UnsafeAppendWithCharFailsWhenCapacityIsExceeded)
     EXPECT_THAT(this->testSubject.unsafe_append('L'), Eq(false));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.c_str()));
 
     EXPECT_THAT(this->testSubject.unsafe_append('\0'), Eq(false));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.c_str()));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAppendWithCharToEmptyStringWorks)
@@ -2448,57 +2325,6 @@ TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
     EXPECT_THAT(testString.c_str(), StrEq("Live long "));
 }
 
-TYPED_TEST(stringTyped_test, AppendEmptyStdStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6b3fb31a-a92b-4013-ba61-12b4846e8593");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    this->testSubject = "M";
-    std::string testStdString;
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(1U));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
-}
-
-TYPED_TEST(stringTyped_test, AppendStdStringToEmptyStringResultsInConcatenatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2eebdc68-c495-4531-bb66-ee4ede8d86e3");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testStdString = "M";
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(1U));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
-}
-
-TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7159ef46-f441-4cc7-8eff-46b5f3d33597");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> sut = "P";
-    std::string testStdString("icard");
-    sut.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 5U));
-    EXPECT_THAT(sut.size(), Eq(6U));
-    EXPECT_THAT(sut.c_str(), StrEq("Picard"));
-}
-
-TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "76a4752d-282f-47ad-87eb-7c8aab982c0c");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    this->testSubject = "M";
-    std::string testStdString(STRINGCAP + 1U, 'M');
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
-}
-
 TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ed16b243-ddb3-46be-8bd8-2ed93fc7184d");
@@ -2513,13 +2339,6 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
 
     // append iox::string
     sut.append(TruncateToCapacity, testCxxString);
-    EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
-    EXPECT_THAT(sut.size(), Eq(7U));
-    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
-
-    // append std::string
-    sut = "i";
-    sut.append(TruncateToCapacity, testStdString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
     EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
@@ -2573,7 +2392,7 @@ TYPED_TEST(stringTyped_test, AppendCharDoesNotChangeStringWhenCapacityIsExceeded
     this->testSubject.append(TruncateToCapacity, 'L');
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP)));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP).c_str()));
 }
 
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
@@ -2591,10 +2410,10 @@ TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
     std::string testStdSubstring = testStdString.substr();
     EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring.c_str()));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.c_str()));
 }
 
 TEST(String100, SubstrWithDefaultSizeWorks)
@@ -2611,7 +2430,7 @@ TEST(String100, SubstrWithDefaultSizeWorks)
     auto testSubstring = res.value();
     EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring.c_str()));
 }
 
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept
@@ -2628,7 +2447,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring1 = res1.value();
     EXPECT_THAT(testSubstring1.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring1.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring.c_str()));
 
     testStdSubstring = testStdString.substr(20, 5);
     auto res2 = testCxxString.substr(20U, 5U);
@@ -2636,7 +2455,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring2 = res2.value();
     EXPECT_THAT(testSubstring2.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring2.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring.c_str()));
 
     testStdSubstring = testStdString.substr(0, 26);
     auto res3 = testCxxString.substr(0U, 26U);
@@ -2644,7 +2463,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring3 = res3.value();
     EXPECT_THAT(testSubstring3.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring3.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring.c_str()));
 
     testStdSubstring = testStdString.substr(11, 8);
     auto res4 = testCxxString.substr(11U, 8U);
@@ -2652,7 +2471,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring4 = res4.value();
     EXPECT_THAT(testSubstring4.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring4.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring.c_str()));
 
     testStdSubstring = testStdString.substr(13, 98);
     auto res5 = testCxxString.substr(13U, 98U);
@@ -2660,7 +2479,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring5 = res5.value();
     EXPECT_THAT(testSubstring5.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring5.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring));
+    EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring.c_str()));
 }
 
 TYPED_TEST(stringTyped_test, SubstrWithInvalidPosFails)
@@ -2688,7 +2507,7 @@ TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
 
-    std::string testStdString;
+    MyString testStdString;
     res = this->testSubject.find(testStdString);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
@@ -2704,10 +2523,6 @@ TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -2786,7 +2601,7 @@ TEST(String100, FindSTDStringInNotEmptyStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "794f62c2-deca-4511-9529-3353ff9ee552");
     string<100U> testString("R2-D2");
-    std::string testStdString = "2";
+    string<100U> testStdString = "2";
     auto res = testString.find(testStdString);
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(1U));
@@ -2804,7 +2619,7 @@ TEST(String100, FindNotIncludedSTDStringFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b2116c9-5f7d-48b4-8c26-cb3b71cf0ea2");
     string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "abc";
+    string<100U> testStdString = "abc";
     auto res = testString.find(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 
@@ -2828,10 +2643,6 @@ TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
 
     res = this->testSubject.find_first_of("");
     EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString;
-    res = this->testSubject.find_first_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
@@ -2844,10 +2655,6 @@ TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find_first_of("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find_first_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -2939,48 +2746,6 @@ TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1f44acab-aa37-4f45-a782-06ad02bd926b");
-    string<100U> testString("R2-D2");
-    std::string testStdString1 = "2";
-    auto res = testString.find_first_of(testStdString1);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_first_of(testStdString1, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_first_of(testStdString1, 2U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    std::string testStdString2 = "D3R";
-    res = testString.find_first_of(testStdString2);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
-
-    res = testString.find_first_of(testStdString2, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(3U));
-}
-
-TEST(String100, FindFirstOfForNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "700d9fd9-4039-490e-9dd4-3833fb9f5e08");
-    string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "cd";
-    auto res = testString.find_first_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_first_of(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_first_of(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note template <typename T>
 /// iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
@@ -2994,10 +2759,6 @@ TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
 
     res = this->testSubject.find_last_of("");
     EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString;
-    res = this->testSubject.find_last_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
@@ -3010,10 +2771,6 @@ TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find_last_of("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find_last_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -3097,48 +2854,6 @@ TEST(String100, FindLastOfForNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f068fa78-1e97-4148-bbba-da9cc2cf022e");
-    string<100U> testString("R2-D2");
-    std::string testStdString1 = "2";
-    auto res = testString.find_last_of(testStdString1);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    res = testString.find_last_of(testStdString1, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_last_of(testStdString1, 5U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    std::string testStdString2 = "D3R";
-    res = testString.find_last_of(testStdString2);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(3U));
-
-    res = testString.find_last_of(testStdString2, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
-}
-
-TEST(String100, FindLastOfForNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "91df370f-38ee-41e8-8063-5f4c3010374f");
-    string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "cd";
-    auto res = testString.find_last_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_last_of(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_last_of(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note constexpr char& at(const uint64_t pos) noexcept
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
@@ -3179,7 +2894,7 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaAtSu
 
     this->testSubject.at(STRINGCAP - 1) = NEW_CHARACTER;
     testSTDString.at(STRINGCAP - 1) = NEW_CHARACTER;
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString.c_str()));
 }
 
 /// @note constexpr const char& at(const uint64_t pos) const noexcept
@@ -3265,7 +2980,7 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaSubs
 
     this->testSubject[STRINGCAP - 1] = NEW_CHARACTER;
     testSTDString[STRINGCAP - 1] = NEW_CHARACTER;
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString.c_str()));
 }
 
 /// @note constexpr const char& operator[](const uint64_t pos) const noexcept

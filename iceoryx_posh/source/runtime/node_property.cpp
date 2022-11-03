@@ -33,7 +33,7 @@ NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
 {
     if (!serialized.extract(m_name, m_nodeDeviceIdentifier))
     {
-        LogError() << "unable to create NodeProperty from serialized string " << serialized;
+        LogError() << "unable to create NodeProperty from serialized string " << serialized.toString();
     }
 }
 

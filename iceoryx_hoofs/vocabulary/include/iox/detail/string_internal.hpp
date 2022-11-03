@@ -137,15 +137,6 @@ struct GetData<char[N]>
 };
 
 template <>
-struct GetData<std::string>
-{
-    static const char* call(const std::string& data) noexcept
-    {
-        return data.data();
-    }
-};
-
-template <>
 struct GetData<char>
 {
     static const char* call(const char& data) noexcept
