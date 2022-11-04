@@ -1,7 +1,10 @@
 @startuml
 
 class TestingLoggerBase
-note bottom: type alias to 'Logger<BaseLogger>' with \nspecific 'BaseLogger' implementation
+note bottom
+  type alias to 'Logger<BaseLogger>' with
+  specific 'BaseLogger' implementation
+end note
 
 package testing <<Frame>> {
 class TestingLogger {
