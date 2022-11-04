@@ -30,12 +30,15 @@ namespace iox
 template <typename ElementType, uint64_t Capacity>
 struct ZeroedBuffer
 {
+    struct alignas(ElementType) element_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+        cxx::byte_t data[sizeof(ElementType)];
+    };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    using element_t = cxx::byte_t[sizeof(ElementType)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    alignas(ElementType) element_t value[Capacity]{};
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    element_t value[Capacity]{};
 };
 
 /// @brief struct used as policy parameter in UninitializedArray to wrap an uninitialized array
@@ -44,12 +47,15 @@ struct ZeroedBuffer
 template <typename ElementType, uint64_t Capacity>
 struct NonZeroedBuffer
 {
+    struct alignas(ElementType) element_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+        cxx::byte_t data[sizeof(ElementType)];
+    };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    using element_t = cxx::byte_t[sizeof(ElementType)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    alignas(ElementType) element_t value[Capacity];
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    element_t value[Capacity];
 };
 
 /// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
