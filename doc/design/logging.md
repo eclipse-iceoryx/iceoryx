@@ -135,8 +135,8 @@ passing the new logger as argument to the function. The logger must have a stati
 lifetime and should therefore be placed in the data segment.
 
 The logger can only be set once and subsequent calls to `Logger::setActiveLogger`
-will not replace the logger anymore and log error messages to the existing logger
-and the desired new logger.
+will not replace the logger anymore but log error messages to both the existing
+logger and the desired new logger.
 
 The call to `iox::log::Logger::init` will initialize the logger and needs to be
 done after `Logger::setActiveLogger`.
