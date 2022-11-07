@@ -95,7 +95,7 @@ struct get_type_at_index<N, N, T, Targs...>
 template <uint64_t N, typename T, typename... Targs>
 struct call_at_index
 {
-    static void destructor(const uint64_t index, byte_t* ptr) noexcept
+    static void destructor(const uint64_t index, void* ptr) noexcept
     {
         if (N == index)
         {
@@ -109,7 +109,7 @@ struct call_at_index
         }
     }
 
-    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void move(const uint64_t index, void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -123,7 +123,7 @@ struct call_at_index
         }
     }
 
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void moveConstructor(const uint64_t index, void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -137,7 +137,7 @@ struct call_at_index
         }
     }
 
-    static void copy(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copy(const uint64_t index, const void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -151,7 +151,7 @@ struct call_at_index
         }
     }
 
-    static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copyConstructor(const uint64_t index, const void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -165,7 +165,7 @@ struct call_at_index
         }
     }
 
-    static bool equality(const uint64_t index, const byte_t* lhs, const byte_t* rhs)
+    static bool equality(const uint64_t index, const void* lhs, const void* rhs)
     {
         if (N == index)
         {
@@ -182,7 +182,7 @@ struct call_at_index<N, T>
 {
     // NOLINTJUSTIFICATION d'tor changes the data to which source is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void destructor(const uint64_t index, byte_t* ptr) noexcept
+    static void destructor(const uint64_t index, void* ptr) noexcept
     {
         if (N == index)
         {
@@ -198,7 +198,7 @@ struct call_at_index<N, T>
 
     // NOLINTJUSTIFICATION move c'tor changes the data to which source is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void move(const uint64_t index, void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -214,7 +214,7 @@ struct call_at_index<N, T>
 
     // NOLINTJUSTIFICATION Both 'source' and 'destination' will be changed and can't be const
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void moveConstructor(const uint64_t index, void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -228,7 +228,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static void copy(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copy(const uint64_t index, const void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -244,7 +244,7 @@ struct call_at_index<N, T>
 
     // NOLINTJUSTIFICATION 'operator new()' needs non-const 'destination'
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copyConstructor(const uint64_t index, const void* source, void* destination) noexcept
     {
         if (N == index)
         {
@@ -258,7 +258,7 @@ struct call_at_index<N, T>
         }
     }
 
-    static bool equality(const uint64_t index, const byte_t* lhs, const byte_t* rhs) noexcept
+    static bool equality(const uint64_t index, const void* lhs, const void* rhs) noexcept
     {
         if (N == index)
         {

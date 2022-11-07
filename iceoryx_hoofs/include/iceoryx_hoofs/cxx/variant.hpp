@@ -109,8 +109,6 @@ class variant
     /// @brief contains the size of the largest element
     static constexpr uint64_t TYPE_SIZE = algorithm::maxVal(sizeof(Types)...);
 
-    static constexpr uint64_t TYPE_ALIGNMENT = algorithm::maxVal(alignof(Types)...);
-
   public:
     /// @brief the default constructor constructs a variant which does not contain
     ///     an element and returns INVALID_VARIANT_INDEX when .index() is called
@@ -267,7 +265,7 @@ class variant
     constexpr uint64_t index() const noexcept;
 
   private:
-    struct alignas(TYPE_ALIGNMENT) storage_t
+    struct alignas(Types...) storage_t
     {
         // NOLINTJUSTIFICATION safe access is guaranteed since the c-array is wrapped inside the variant class
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
