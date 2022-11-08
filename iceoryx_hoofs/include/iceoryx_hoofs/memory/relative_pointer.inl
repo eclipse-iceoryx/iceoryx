@@ -44,9 +44,9 @@ inline RelativePointer<T>::RelativePointer(const offset_t offset, const segment_
 
 template <typename T>
 inline RelativePointer<T>::RelativePointer(ptr_t const ptr) noexcept
-    : RelativePointer([ptr]() -> RelativePointer {
-        segment_id_t id{searchId(ptr)};
-        offset_t offset{getOffset(id, ptr)};
+    : RelativePointer([this, ptr]() -> RelativePointer {
+        segment_id_t id{this->searchId(ptr)};
+        offset_t offset{this->getOffset(id, ptr)};
         return RelativePointer{offset, id};
     }())
 {
