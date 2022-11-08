@@ -24,7 +24,6 @@
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
-#include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 
 namespace iox
@@ -44,8 +43,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
                portManager,
                roudiStartupParameters.m_compatibilityCheckLevel)
     , m_mempoolIntrospection(
-          *m_roudiMemoryInterface->introspectionMemoryManager()
-               .value(), /// @todo create a RouDiMemoryManagerData struct with all the pointer
+          *m_roudiMemoryInterface->introspectionMemoryManager().value(),
           *m_roudiMemoryInterface->segmentManager().value(),
           PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)

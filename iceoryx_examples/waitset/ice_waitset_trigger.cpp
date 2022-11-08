@@ -218,11 +218,13 @@ class MyTriggerClass
         switch (event)
         {
         case MyTriggerClassStates::HAS_PERFORMED_ACTION:
-            return {*this, &MyTriggerClass::hasPerformedAction};
+            return iox::popo::WaitSetIsConditionSatisfiedCallback(
+                iox::cxx::in_place, *this, &MyTriggerClass::hasPerformedAction);
         case MyTriggerClassStates::IS_ACTIVATED:
-            return {*this, &MyTriggerClass::isActivated};
+            return iox::popo::WaitSetIsConditionSatisfiedCallback(
+                iox::cxx::in_place, *this, &MyTriggerClass::isActivated);
         }
-        return {};
+        return iox::cxx::nullopt;
     }
     //! [condition satisfied]
 

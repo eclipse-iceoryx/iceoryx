@@ -72,6 +72,8 @@ namespace cxx
 ///     if ( a < c ) {}         // allowed since we are Sortable
 ///     a = 567;                // allowed since we are assignable
 /// @endcode
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : Multiple inheritance needed to add several policies to NewType. The
+// Diamond-Problem cannot occur since the policy structs do not inherit.
 template <typename T, template <typename> class... Policies>
 class NewType : public Policies<NewType<T, Policies...>>...
 {
@@ -80,8 +82,20 @@ class NewType : public Policies<NewType<T, Policies...>>...
     /// @NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     NewType(newtype::internal::ProtectedConstructor_t, const T& rhs) noexcept;
 
-    /// @note Since `using Foo = NewType<int>` and `using Bar = NewType<int>` result
-    /// in `Foo` and `Bar` being the same type, this enforces the creation of the
+    /// @brief copy constructor
+    NewType(const NewType& rhs) noexcept;
+
+    /// @brief move constructor
+    NewType(NewType&& rhs) noexcept;
+
+    /// @brief copy assignment
+    NewType& operator=(const NewType& rhs) noexcept;
+
+    /// @brief move assignment
+    NewType& operator=(NewType&& rhs) noexcept;
+
+    /// @note Since 'using Foo = NewType<int>' and 'using Bar = NewType<int>' result
+    /// in 'Foo' and 'Bar' being the same type, this enforces the creation of the
     /// new type by inheritance
     ~NewType() = default;
 
@@ -97,18 +111,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
     /// @brief construct with value copy
     explicit NewType(const T& rhs) noexcept;
 
-    /// @brief copy constructor
-    NewType(const NewType& rhs) noexcept;
-
-    /// @brief move constructor
-    NewType(NewType&& rhs) noexcept;
-
-    /// @brief copy assignment
-    NewType& operator=(const NewType& rhs) noexcept;
-
-    /// @brief move assignment
-    NewType& operator=(NewType&& rhs) noexcept;
-
     /// @brief copy by value assignment
     NewType& operator=(const T& rhs) noexcept;
 
@@ -116,6 +118,8 @@ class NewType : public Policies<NewType<T, Policies...>>...
     NewType& operator=(T&& rhs) noexcept;
 
     /// @brief conversion operator
+    // AXIVION Next Construct AutosarC++19_03-A13.5.3 : needed to provide convertable policy so that the derived type
+    // can be convertable
     explicit operator T() const noexcept;
 
     template <typename Type>
@@ -124,6 +128,9 @@ class NewType : public Policies<NewType<T, Policies...>>...
   private:
     T m_value;
 };
+
+} // namespace cxx
+} // namespace iox
 
 /// @brief This macro helps to create types with the NewType class.
 /// In case the functionality of the underlying type is sufficient and one just
@@ -145,7 +152,9 @@ class NewType : public Policies<NewType<T, Policies...>>...
 ///                  newtype::Sortable,
 ///                  newtype::AssignByValueCopy);
 /// @endcode
-/// @NOLINTJUSTIFICATION macro is used to reduce boilerplate code for 'NewType'
+// AXIVION Next Construct AutosarC++19_03-M16.0.6 : brackets around macro parameter would lead in this case to compile
+// time failures
+// AXIVION Next Construct AutosarC++19_03-A16.0.1 : macro is used to reduce boilerplate code for 'NewType'
 /// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
     struct TypeName : public iox::cxx::NewType<Type, __VA_ARGS__>                                                      \
@@ -159,9 +168,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
         TypeName& operator=(const TypeName&) noexcept = default;                                                       \
         TypeName& operator=(TypeName&&) noexcept = default;                                                            \
     }
-
-} // namespace cxx
-} // namespace iox
 
 #include "iceoryx_hoofs/internal/cxx/newtype.inl"
 

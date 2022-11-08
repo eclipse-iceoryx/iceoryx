@@ -43,6 +43,6 @@
 #undef IGNORE
 #undef OPTIONAL
 
-/// todo iox-#1196 required by posix but defined in libc header string.h
+/// @todo iox-#1616 required by posix but defined in libc header string.h
 ///      move it into the upcoming libc layer in platform
 #define strerror_r(errnum, buf, buflen) strerror_s(buf, buflen, errnum)

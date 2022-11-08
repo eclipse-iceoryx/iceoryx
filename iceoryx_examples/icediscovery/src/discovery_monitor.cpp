@@ -36,7 +36,7 @@ void Discovery::deregisterCallback()
     {
         m_listener.detachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVICE_REGISTRY_CHANGED);
     }
-    m_callback = nullptr;
+    m_callback.reset();
 }
 //! [deregisterCallback]
 
@@ -54,7 +54,7 @@ ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdS
 void Discovery::invokeCallback(ServiceDiscovery*, Discovery* self)
 {
     // discarded discovery argument is required by the listener
-    self->m_callback(*self);
+    (*self->m_callback)(*self);
 }
 //! [invokeCallback]
 

@@ -17,12 +17,12 @@
 set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Windows")
 set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
 
-set_global(VAR ICEORYX_C_WARNINGS           VALUE /W0) # TODO iox-#33 set to /W1
+set_global(VAR ICEORYX_C_WARNINGS           VALUE /W0) # @todo iox-#846 set to /W1
 set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS})
 
 if(BUILD_STRICT)
     set_global(VAR ICEORYX_C_WARNINGS       VALUE /W0)
-    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_C_WARNINGS}) # TODO iox-#33 set to /WX
+    set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_C_WARNINGS}) # @todo iox-#846 set to /WX
 endif()
 
 

@@ -28,7 +28,6 @@
 
 #include <bitset>
 #include <cassert>
-#include <limits>
 
 namespace iox
 {

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2021 by Perforce All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CXX_VARIANT_INL
 
 #include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {
@@ -30,7 +31,7 @@ inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
-        internal::call_at_index<0, Types...>::copyConstructor(m_type_index, rhs.m_storage, m_storage);
+        internal::call_at_index<0, Types...>::copyConstructor(m_type_index, &rhs.m_storage, &m_storage);
     }
 }
 
@@ -74,14 +75,14 @@ inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& 
 
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::copyConstructor(m_type_index, rhs.m_storage, m_storage);
+                internal::call_at_index<0, Types...>::copyConstructor(m_type_index, &rhs.m_storage, &m_storage);
             }
         }
         else
         {
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::copy(m_type_index, rhs.m_storage, m_storage);
+                internal::call_at_index<0, Types...>::copy(m_type_index, &rhs.m_storage, &m_storage);
             }
         }
     }
@@ -94,7 +95,7 @@ inline constexpr variant<Types...>::variant(variant&& rhs) noexcept
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
-        internal::call_at_index<0, Types...>::moveConstructor(m_type_index, rhs.m_storage, m_storage);
+        internal::call_at_index<0, Types...>::moveConstructor(m_type_index, &rhs.m_storage, &m_storage);
     }
 }
 
@@ -109,14 +110,14 @@ inline constexpr variant<Types...>& variant<Types...>::operator=(variant&& rhs) 
             m_type_index = std::move(rhs.m_type_index);
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::moveConstructor(m_type_index, rhs.m_storage, m_storage);
+                internal::call_at_index<0, Types...>::moveConstructor(m_type_index, &rhs.m_storage, &m_storage);
             }
         }
         else
         {
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::move(m_type_index, rhs.m_storage, m_storage);
+                internal::call_at_index<0, Types...>::move(m_type_index, &rhs.m_storage, &m_storage);
             }
         }
     }
@@ -134,7 +135,7 @@ inline void variant<Types...>::call_element_destructor() noexcept
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
-        internal::call_at_index<0, Types...>::destructor(m_type_index, m_storage);
+        internal::call_at_index<0, Types...>::destructor(m_type_index, &m_storage);
     }
 }
 
@@ -152,7 +153,7 @@ variant<Types...>::operator=(T&& rhs) noexcept
 
     if (!has_bad_variant_element_access<T>())
     {
-        auto storage = static_cast<T*>(static_cast<void*>(m_storage));
+        auto storage = static_cast<T*>(static_cast<void*>(&m_storage));
         *storage = (std::forward<T>(rhs));
     }
     else
@@ -174,7 +175,7 @@ inline bool variant<Types...>::emplace_at_index(CTorArguments&&... args) noexcep
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
     call_element_destructor();
-    new (m_storage) T(std::forward<CTorArguments>(args)...);
+    new (&m_storage) T(std::forward<CTorArguments>(args)...);
     m_type_index = TypeIndex;
 
     return true;
@@ -197,7 +198,7 @@ inline bool variant<Types...>::emplace(CTorArguments&&... args) noexcept
         call_element_destructor();
     }
 
-    new (m_storage) T(std::forward<CTorArguments>(args)...);
+    new (&m_storage) T(std::forward<CTorArguments>(args)...);
     m_type_index = internal::get_index_of_type<0, T, Types...>::index;
 
     return true;
@@ -214,7 +215,7 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
 
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
-    return static_cast<T*>(static_cast<void*>(m_storage));
+    return static_cast<T*>(static_cast<void*>(&m_storage));
 }
 
 template <typename... Types>
@@ -238,7 +239,7 @@ inline const T* variant<Types...>::get() const noexcept
     }
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return static_cast<const T*>(static_cast<const void*>(m_storage));
+    return static_cast<const T*>(static_cast<const void*>(&m_storage));
 }
 
 template <typename... Types>
@@ -288,13 +289,33 @@ inline bool variant<Types...>::has_bad_variant_element_access() const noexcept
 template <typename... Types>
 inline void variant<Types...>::error_message(const char* source, const char* msg) noexcept
 {
-    std::cerr << source << " ::: " << msg << std::endl;
+    IOX_LOG(ERROR) << source << " ::: " << msg;
 }
 
 template <typename T, typename... Types>
 inline constexpr bool holds_alternative(const variant<Types...>& variant) noexcept
 {
     return variant.template get<T>() != nullptr;
+}
+
+template <typename... Types>
+inline constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>& rhs)
+{
+    if ((lhs.index() == INVALID_VARIANT_INDEX) && (rhs.index() == INVALID_VARIANT_INDEX))
+    {
+        return true;
+    }
+    if (lhs.index() != rhs.index())
+    {
+        return false;
+    }
+    return internal::call_at_index<0, Types...>::equality(lhs.index(), &lhs.m_storage, &rhs.m_storage);
+}
+
+template <typename... Types>
+inline constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs)
+{
+    return !(lhs == rhs);
 }
 } // namespace cxx
 } // namespace iox

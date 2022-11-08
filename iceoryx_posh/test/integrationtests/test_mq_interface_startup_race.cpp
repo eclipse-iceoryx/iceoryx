@@ -122,7 +122,7 @@ class CMqInterfaceStartupRace_test : public Test
 TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a94080de-e07d-433b-be0d-6ca748006664");
-    GTEST_SKIP() << "todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
+    GTEST_SKIP() << "@todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue
@@ -169,7 +169,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e7594a83-d0d1-49fb-8882-9d4dcc0372ef");
-    GTEST_SKIP() << "todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
+    GTEST_SKIP() << "@todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue, the obsolete mqueue was filled up to the max message size, e.g. by the KEEP_ALIVE messages

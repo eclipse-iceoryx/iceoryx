@@ -18,7 +18,6 @@
 #define IOX_HOOFS_CXX_VARIANT_QUEUE_HPP
 
 #include "iceoryx_hoofs/concurrent/resizeable_lockfree_queue.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/internal/concurrent/fifo.hpp"

@@ -16,7 +16,6 @@
 
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 namespace iox
 {
@@ -48,7 +47,7 @@ void Event_t::executeCallback() noexcept
     m_translationCallback(m_origin, m_userType, m_callback);
 }
 
-bool Event_t::init(const uint64_t eventId,
+void Event_t::init(const uint64_t eventId,
                    void* const origin,
                    void* const userType,
                    const uint64_t eventType,
@@ -57,20 +56,14 @@ bool Event_t::init(const uint64_t eventId,
                    internal::TranslationCallbackRef_t translationCallback,
                    const cxx::function<void(uint64_t)> invalidationCallback) noexcept
 {
-    if (invalidationCallback)
-    {
-        m_eventId = eventId;
-        m_origin = origin;
-        m_userType = userType;
-        m_eventType = eventType;
-        m_eventTypeHash = eventTypeHash;
-        m_callback = &callback;
-        m_translationCallback = &translationCallback;
-        m_invalidationCallback = invalidationCallback;
-        return true;
-    }
-
-    return false;
+    m_eventId = eventId;
+    m_origin = origin;
+    m_userType = userType;
+    m_eventType = eventType;
+    m_eventTypeHash = eventTypeHash;
+    m_callback = &callback;
+    m_translationCallback = &translationCallback;
+    m_invalidationCallback = invalidationCallback;
 }
 
 bool Event_t::isEqualTo(const void* const origin, const uint64_t eventType, const uint64_t eventTypeHash) const noexcept
@@ -90,7 +83,7 @@ bool Event_t::reset() noexcept
         m_eventTypeHash = INVALID_ID;
         m_callback = nullptr;
         m_translationCallback = nullptr;
-        m_invalidationCallback = cxx::function<void(uint64_t)>();
+        m_invalidationCallback = [](auto) {};
 
         return true;
     }
@@ -100,7 +93,7 @@ bool Event_t::reset() noexcept
 bool Event_t::isInitialized() const noexcept
 {
     return m_origin != nullptr && m_eventId != INVALID_ID && m_eventType != INVALID_ID && m_eventTypeHash != INVALID_ID
-           && m_callback != nullptr && m_translationCallback != nullptr && m_invalidationCallback;
+           && m_callback != nullptr && m_translationCallback != nullptr;
 }
 } // namespace internal
 

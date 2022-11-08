@@ -21,12 +21,10 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/interface_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
-#include "iceoryx_posh/internal/popo/ports/server_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_multi_producer.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
@@ -65,9 +63,6 @@ class PortPool
 
     virtual ~PortPool() noexcept = default;
 
-    /// @todo don't create the vector with each call but only when the data really change
-    /// there could be a member "cxx::vector<popo::PublisherPortData* m_publisherPorts;" and publisherPorts() would just
-    /// update this member if the publisher ports actually changed
     cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
     cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
     cxx::vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;

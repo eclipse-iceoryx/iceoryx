@@ -21,7 +21,6 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/trigger.hpp"
 
-#include <limits>
 #include <mutex>
 
 namespace iox
@@ -37,7 +36,7 @@ namespace popo
 class TriggerHandle
 {
   public:
-    /// @note explicitly implemented for MSVC and QNX
+    /// @warning do not use =default here otherwise QNX will fail to compile!
     TriggerHandle() noexcept;
 
     /// @brief Creates a TriggerHandle
@@ -46,7 +45,7 @@ class TriggerHandle
     /// @param[in] uniqueTriggerId the unique trigger id of the Trigger which corresponds to the TriggerHandle. Usually
     /// stored in a Notifyable. It is required for the resetCallback
     TriggerHandle(ConditionVariableData& conditionVariableData,
-                  const cxx::function<void(uint64_t)> resetCallback,
+                  const cxx::function<void(uint64_t)>& resetCallback,
                   const uint64_t uniqueTriggerId) noexcept;
     TriggerHandle(const TriggerHandle&) = delete;
     TriggerHandle& operator=(const TriggerHandle&) = delete;
@@ -86,7 +85,7 @@ class TriggerHandle
 
   private:
     ConditionVariableData* m_conditionVariableDataPtr = nullptr;
-    cxx::function<void(uint64_t)> m_resetCallback;
+    cxx::function<void(uint64_t)> m_resetCallback = [](auto) {};
     uint64_t m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
     mutable std::recursive_mutex m_mutex;
 };

@@ -578,4 +578,220 @@ TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
         ASSERT_THAT(destination.has_error(), Eq(true));
     }
 }
+
+TEST_F(expected_test, AccessingErrorOfLValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "da162edf-06b5-47d2-b35f-361d6004a6c4");
+    auto sut = expected<TestError>::create_value();
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, AccessingErrorOfConstLValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "324cab7d-ba04-4ff0-870f-79af993c272f");
+    const auto sut = expected<TestError>::create_value();
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, AccessingErrorOfRValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0a4309e8-d9f3-41a9-9c4b-bdcfda917277");
+    auto sut = expected<TestError>::create_value();
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ std::move(sut).get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithArrowOpLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1a821c6f-83db-4fe1-8adf-873afa1251a1");
+    auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ IOX_DISCARD_RESULT(sut->m_a); }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithArrowOpLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c4f04d7c-9fa3-48f6-a6fd-b8e4e47b7632");
+    const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ IOX_DISCARD_RESULT(sut->m_a); }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "08ce6a3f-3813-46de-8e1e-3ffe8087521e");
+    auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ *sut; }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "838dd364-f91f-40a7-9720-2b662a045b1e");
+    const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ *sut; }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "92139583-b8d6-4d83-ae7e-f4109b98d214");
+    auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.value(); }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1bcbb835-8b4c-4430-a534-a26573c2380d");
+    const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.value(); }, "Trying to access a value but an error is stored");
+}
+
+
+TEST_F(expected_test, AccessingValueOfRValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "32d59b52-81f5-417a-8670-dfb2c54fedfb");
+    auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ std::move(sut).value(); }, "Trying to access a value but an error is stored");
+}
+
+TEST_F(expected_test, AccessingErrorOfLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "aee85ead-e066-49fd-99fe-6f1a6045756d");
+    constexpr int VALID_VALUE{42};
+    auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, AccessingErrorOfConstLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a49cf02e-b165-4fd6-9c24-65cedc6cddb9");
+    constexpr int VALID_VALUE{42};
+    const auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ sut.get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0ea90b5d-1af6-494a-b35c-da103bed2331");
+    constexpr int VALID_VALUE{42};
+    auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
+    // @todo iox-#1613 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
+    EXPECT_DEATH({ std::move(sut).get_error(); }, "Trying to access an error but a value is stored");
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithEqualErrorAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "471b406d-8dd3-4b82-9d46-00c21d257461");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_error(TestError::ERROR1);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithUnequalErrorAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bcc2f9f1-72a1-41ed-ac8a-2f48cdcfbc56");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_error(TestError::ERROR2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithValuesAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "75b25c16-fb79-4589-ab0f-bc73bb9fc2bb");
+    auto sut1 = expected<TestError>::create_value();
+    auto sut2 = expected<TestError>::create_value();
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoErrorOnlyExpectedWithErrorAndValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2108715f-e71c-4778-bb64-553996e860b4");
+    auto sut1 = expected<TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestError>::create_value();
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithEqualErrorAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1a3b106-06f2-4667-ac25-7a9d9689c219");
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedsWithUnequalErrorAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "25250c6b-aa8f-40ad-ace9-2c55ce8eeaa2");
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_error(TestError::ERROR2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithEqualValueAreEqual)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "278c2fd5-2b48-49d1-a8a4-8ca52b99de41");
+    constexpr int VAL_1{42};
+    constexpr int VAL_2{73};
+    auto sut1 = expected<TestClass, TestError>::create_value(VAL_1, VAL_2);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL_1, VAL_2);
+
+    EXPECT_TRUE(sut1 == sut2);
+    EXPECT_FALSE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithUnequalValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5f6a8760-6fdf-4ab8-a7d5-d751390aa672");
+    constexpr int VAL_1{42};
+    constexpr int VAL_2{73};
+    auto sut1 = expected<TestClass, TestError>::create_value(VAL_1, VAL_1);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL_2, VAL_2);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
+
+TEST_F(expected_test, TwoExpectedWithErrorAndValueAreUnequal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "aa912753-09af-46d5-92d5-52cad69795ad");
+    constexpr int VAL{42};
+    auto sut1 = expected<TestClass, TestError>::create_error(TestError::ERROR1);
+    auto sut2 = expected<TestClass, TestError>::create_value(VAL, VAL);
+
+    EXPECT_FALSE(sut1 == sut2);
+    EXPECT_TRUE(sut1 != sut2);
+}
 } // namespace

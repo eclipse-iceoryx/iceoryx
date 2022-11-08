@@ -19,6 +19,7 @@
 #define IOX_HOOFS_CXX_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -382,14 +383,8 @@ class list
     // to the beginning and end of the list. This additional element (index position 'capacity' aka
     // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
     // first used list element (begin())
-
-    /// @NOLINTJUSTIFICATION todo #1196 will be replaced by uninitialized array
-    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    NodeLink m_links[NODE_LINK_COUNT];
-    using element_t = uint8_t[sizeof(T)];
-    alignas(T) element_t m_data[Capacity];
-    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-
+    UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
+    UninitializedArray<T, Capacity> m_data;
     size_type m_size{0U};
 }; // list
 

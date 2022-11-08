@@ -16,8 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
-#include "iceoryx_binding_c/enums.h"
-#include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 
 using namespace iox::popo;
@@ -82,10 +80,10 @@ cpp2c_Subscriber::getCallbackForIsStateConditionSatisfied(const SubscriberState 
     switch (subscriberState)
     {
     case SubscriberState::HAS_DATA:
-        return {*this, &cpp2c_Subscriber::hasSamples};
+        return iox::popo::WaitSetIsConditionSatisfiedCallback(iox::cxx::in_place, *this, &cpp2c_Subscriber::hasSamples);
     }
 
-    return {};
+    return iox::cxx::nullopt;
 }
 
 void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept

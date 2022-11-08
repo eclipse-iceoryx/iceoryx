@@ -444,7 +444,7 @@ class string
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) todo #1196 remove this conversion and implement toStdString method
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) @todo iox-#260 remove this conversion and implement toStdString method
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
@@ -608,7 +608,7 @@ class string
 
     // safe access is guaranteed since the char array is wrapped inside the string class
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char m_rawstring[Capacity + 1U]{'\0'};
+    char m_rawstring[Capacity + 1]{};
     uint64_t m_rawstringSize{0U};
 };
 

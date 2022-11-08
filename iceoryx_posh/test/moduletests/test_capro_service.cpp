@@ -22,7 +22,7 @@
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
-/// @todo #415 replace the service registry include with the new discovery API header
+/// @todo iox-#415 replace the service registry include with the new discovery API header
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 
 #include <cstdint>
@@ -444,8 +444,8 @@ TEST_F(ServiceDescription_test, LogStreamConvertsServiceDescriptionToString)
         IOX_LOGSTREAM_MOCK(loggerMock) << sut;
     }
 
-    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(SERVICE_DESCRIPTION_AS_STRING));
 }
 
 /// END SERVICEDESCRIPTION TESTS

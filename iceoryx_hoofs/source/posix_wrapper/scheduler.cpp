@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -28,8 +28,9 @@ int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept
     auto result = posixCall(sched_get_priority_min)(static_cast<int>(scheduler)).failureReturnValue(-1).evaluate();
     if (result.has_error())
     {
-        LogError() << "The \"sched_get_priority_min\" should never fail. This can only be caused by an internal logic "
-                      "error or a non posix compliant system.";
+        IOX_LOG(ERROR)
+            << "The \"sched_get_priority_min\" should never fail. This can only be caused by an internal logic "
+               "error or a non posix compliant system.";
 
         // NOLINTJUSTIFICATION Required to provide an error message to the user
         // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
@@ -47,8 +48,9 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
     auto result = posixCall(sched_get_priority_max)(static_cast<int>(scheduler)).failureReturnValue(-1).evaluate();
     if (result.has_error())
     {
-        LogError() << "The \"sched_get_priority_max\" should never fail. This can only be caused by an internal logic "
-                      "error or a non posix compliant system.";
+        IOX_LOG(ERROR)
+            << "The \"sched_get_priority_max\" should never fail. This can only be caused by an internal logic "
+               "error or a non posix compliant system.";
 
         // NOLINTJUSTIFICATION Required to provide an error message to the user
         // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)

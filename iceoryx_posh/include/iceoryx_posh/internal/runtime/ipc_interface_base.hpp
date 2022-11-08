@@ -19,9 +19,8 @@
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -36,7 +35,6 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 
 #include <cstdint>
-#include <cstdio>
 #include <cstdlib>
 #include <string>
 

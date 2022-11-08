@@ -18,12 +18,8 @@
 #define IOX_POSH_POPO_TRIGGER_HPP
 
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
-
-#include <type_traits>
 
 namespace iox
 {

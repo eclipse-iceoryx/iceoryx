@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {
@@ -23,11 +23,12 @@ namespace cxx
 {
 namespace internal
 {
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See rational in header
 void print_expect_message(const char* message) noexcept
 {
     // print_expect_message is only called from expect. expect allows only
     // cxx::string or char arrays which are both correctly null terminated
-    LogFatal() << message;
+    IOX_LOG(FATAL) << message;
 }
 } // namespace internal
 } // namespace cxx

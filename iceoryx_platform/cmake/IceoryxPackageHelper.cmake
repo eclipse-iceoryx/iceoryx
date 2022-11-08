@@ -64,13 +64,12 @@ endMacro()
 
 Macro(setup_install_directories_and_export_package)
     set(options)
-    set(oneValueArgs INCLUDE_DIRECTORY )
-    set(multiValueArgs TARGETS)
+    set(multiValueArgs TARGETS INCLUDE_DIRECTORIES)
     cmake_parse_arguments(INSTALL "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN} )
     install_target_directories_and_header(
     TARGETS ${INSTALL_TARGETS}
-    INCLUDE_DIRECTORY ${INSTALL_INCLUDE_DIRECTORY}
+    INCLUDE_DIRECTORIES ${INSTALL_INCLUDE_DIRECTORIES}
     )
     install_package_files_and_export()
 endMacro()
@@ -80,8 +79,7 @@ endMacro()
 
 Macro(install_target_directories_and_header)
     set(options)
-    set(oneValueArgs INCLUDE_DIRECTORY )
-    set(multiValueArgs TARGETS)
+    set(multiValueArgs TARGETS INCLUDE_DIRECTORIES)
     cmake_parse_arguments(INSTALL "${options}" "${oneValueArgs}"
                           "${multiValueArgs}" ${ARGN})
     # target directories
@@ -95,7 +93,7 @@ Macro(install_target_directories_and_header)
 
     # header
     install(
-    DIRECTORY ${INSTALL_INCLUDE_DIRECTORY}
+    DIRECTORY ${INSTALL_INCLUDE_DIRECTORIES}
     DESTINATION ${DESTINATION_INCLUDEDIR}
     COMPONENT dev
     )
@@ -144,29 +142,29 @@ Macro(iox_set_rpath)
     set_property(
         TARGET ${IOX_TARGET}
         PROPERTY BUILD_RPATH
-            # TODO: iox-#1287 implement rpath auto detection to have no dependency on posh at this level.
+            # @todo iox-#1287 implement rpath auto detection to have no dependency on posh at this level.
             "${IOX_RPATH_PREFIX}/../iceoryx_hoofs"
             "${IOX_RPATH_PREFIX}/../iceoryx_posh"
             "${IOX_RPATH_PREFIX}/../iceoryx_platform"
             "${IOX_RPATH_PREFIX}/../iceoryx_binding_c"
-            #TODO: end iox-#1287
+            # @todo iox-#1287 END
 
-            # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
+            # @todo iox-#1287 to be compatible with our current iceoryx_meta structure where we have build/posh build/hoofs build/binding_c
             "${IOX_RPATH_PREFIX}/../hoofs"
             "${IOX_RPATH_PREFIX}/../posh"
             "${IOX_RPATH_PREFIX}/../platform"
             "${IOX_RPATH_PREFIX}/../binding_c"
-            # TODO: iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
+            # @todo iox-#1287 to be compatible with our current iceoryx_meta structure where the examples are again in a subfolder, build/iceoryx_examples/example_name
             "${IOX_RPATH_PREFIX}/../../hoofs"
             "${IOX_RPATH_PREFIX}/../../posh"
             "${IOX_RPATH_PREFIX}/../../platform"
             "${IOX_RPATH_PREFIX}/../../binding_c"
-            # TODO: iox-#1287 iox-roudi is stored directly in build, despite it should be stored in iceoryx_posh, adjust paths so that this works too
+            # @todo iox-#1287 iox-roudi is stored directly in build, despite it should be stored in iceoryx_posh, adjust paths so that this works too
             "${IOX_RPATH_PREFIX}/hoofs"
             "${IOX_RPATH_PREFIX}/posh"
             "${IOX_RPATH_PREFIX}/platform"
             "${IOX_RPATH_PREFIX}/binding_c"
-            # TODO: END iox-#1287
+            # @todo iox-#1287 END
     )
 endMacro()
 
@@ -217,8 +215,7 @@ Macro(iox_add_executable)
         target_link_libraries(${IOX_TARGET} ${IOX_LIBS_UNIX})
     endif()
 
-    # TODO iox-#1287 lasting fix for rpath without implicit posh dependencies
-    #                and auto lib detection
+    # @todo iox-#1287 lasting fix for rpath without implicit posh dependencies and auto lib detection
     ### iox_set_rpath( IS_EXECUTABLE TARGET ${IOX_TARGET} )
 
     if ( IOX_PLACE_IN_BUILD_ROOT )
@@ -245,8 +242,7 @@ Macro(iox_add_executable)
         elseif(QNX OR LINUX )
             target_link_options(${IOX_TARGET} BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
         elseif(APPLE)
-            # TODO iox-#1287
-            # not yet supported
+            # @todo iox-#1287 not yet supported
         elseif(UNIX)
             target_link_options(${IOX_TARGET} BEFORE PRIVATE -Wl,-z,stack-size=${IOX_STACK_SIZE})
         else()
@@ -274,13 +270,13 @@ endMacro()
 
 Macro(iox_add_library)
     set(switches USE_C_LANGUAGE NO_EXPORT NO_PACKAGE_SETUP NO_FIND_PACKAGE_SUPPORT STATIC)
-    set(arguments TARGET NAMESPACE PROJECT_PREFIX EXPORT_INCLUDE_DIR)
+    set(arguments TARGET NAMESPACE PROJECT_PREFIX)
     set(multiArguments FILES PUBLIC_LIBS PRIVATE_LIBS BUILD_INTERFACE
         INSTALL_INTERFACE ADDITIONAL_EXPORT_TARGETS
         PUBLIC_INCLUDES PRIVATE_INCLUDES
         PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
         PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
-        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE)
+        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE EXPORT_INCLUDE_DIRS)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     if ( NOT IOX_NO_PACKAGE_SETUP )
@@ -350,8 +346,7 @@ Macro(iox_add_library)
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_WIN32} PRIVATE ${IOX_PRIVATE_LIBS_WIN32})
     endif ( LINUX )
 
-    # TODO iox-#1287 lasting fix for rpath without implicit posh dependencies
-    #                and auto lib detection
+    # @todo iox-#1287 lasting fix for rpath without implicit posh dependencies and auto lib detection
     ### iox_set_rpath( TARGET ${IOX_TARGET} )
 
     foreach(INTERFACE ${IOX_BUILD_INTERFACE})
@@ -386,7 +381,7 @@ Macro(iox_add_library)
     if ( NOT IOX_NO_EXPORT )
         setup_install_directories_and_export_package(
             TARGETS ${IOX_TARGET} ${IOX_ADDITIONAL_EXPORT_TARGETS}
-            INCLUDE_DIRECTORY ${IOX_EXPORT_INCLUDE_DIR}include/
+            INCLUDE_DIRECTORIES ${IOX_EXPORT_INCLUDE_DIRS}
         )
     endif()
 

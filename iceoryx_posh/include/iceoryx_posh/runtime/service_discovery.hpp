@@ -75,7 +75,7 @@ class ServiceDiscovery
     getCallbackForIsStateConditionSatisfied(const popo::SubscriberState state);
 
     // use dynamic memory to reduce stack usage
-    /// @todo #1155 improve solution to avoid stack usage without using dynamic memory
+    /// @todo iox-#1155 improve solution to avoid stack usage without using dynamic memory
     std::unique_ptr<roudi::ServiceRegistry> m_serviceRegistry{new iox::roudi::ServiceRegistry};
     std::mutex m_serviceRegistryMutex;
 

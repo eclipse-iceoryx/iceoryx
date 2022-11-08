@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ template <uint64_t Capacity, uint64_t Align = 1>
 /// @NOLINTJUSTIFICATION static_storage provides uninitialized memory, correct initialization is the users
 ///                      responsibility whenever memory with "allocate" is acquired
 /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
-class static_storage
+class static_storage final
 {
   public:
     constexpr static_storage() noexcept = default;
@@ -98,7 +98,7 @@ class static_storage
     static constexpr uint64_t allocation_size() noexcept;
 
   private:
-    /// @NOLINTJUSTIFICATION todo #1196 will be replaced by uninitialized array
+    /// @NOLINTJUSTIFICATION @todo iox-#1732 will be refactored with BumpAllocator
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};

@@ -87,7 +87,8 @@ inline void PeriodicTask<T>::run() noexcept
     {
         m_callable();
 
-        /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
+        /// @todo iox-#337 use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once
+        /// available
         auto waitResult = m_stop->timedWait(m_interval);
         cxx::Expects(!waitResult.has_error());
 

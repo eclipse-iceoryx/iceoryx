@@ -31,7 +31,7 @@ namespace roudi
 class PortPoolMemoryBlock : public MemoryBlock
 {
   public:
-    /// @todo the PortPool needs to be refactored to use a typed MemPool
+    /// @todo iox-#1709 the PortPool needs to be refactored to use a typed MemPool
     /// once that is done, the cTor needs a configuration similar to MemPoolCollectionMemoryProvider
     PortPoolMemoryBlock() noexcept = default;
     ~PortPoolMemoryBlock() noexcept;

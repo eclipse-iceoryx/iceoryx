@@ -123,7 +123,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     bool setCapacity(const uint64_t newCapacity) noexcept;
 
   private:
-    using BufferIndex = typename Base::BufferIndex;
+    using BufferIndex = uint64_t;
     std::atomic<uint64_t> m_capacity{MaxCapacity};
     // must be operator= otherwise it is undefined, see https://en.cppreference.com/w/cpp/atomic/ATOMIC_FLAG_INIT
     std::atomic_flag m_resizeInProgress = ATOMIC_FLAG_INIT;

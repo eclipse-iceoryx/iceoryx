@@ -223,6 +223,9 @@ TEST_F(Mutex_test,
        MutexWithOnReleaseWhenLockedBehaviorUnlocksLockedMutexWhenThreadTerminatesAndSetsItIntoInconsistentState)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4da7b1fb-23f1-421c-acf3-2a3d9e26b1a1");
+#if defined(QNX) || defined(__QNX) || defined(__QNX__) || defined(QNX__)
+    GTEST_SKIP() << "iox-#1683 QNX supports robust mutex not like the posix standard describes them.";
+#endif
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(iox::posix::MutexBuilder()
                      .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
@@ -244,6 +247,9 @@ TEST_F(Mutex_test,
 TEST_F(Mutex_test, MutexWithStallWhenLockedBehaviorDoesntUnlockMutexWhenThreadTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9beae890-f18e-4878-a957-312920eb1833");
+#if defined(QNX) || defined(__QNX) || defined(__QNX__) || defined(QNX__)
+    GTEST_SKIP() << "iox-#1683 QNX supports robust mutex not like the posix standard describes them.";
+#endif
     iox::cxx::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(iox::posix::MutexBuilder()
                      .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::STALL_WHEN_LOCKED)

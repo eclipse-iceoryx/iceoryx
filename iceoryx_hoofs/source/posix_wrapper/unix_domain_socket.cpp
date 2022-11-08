@@ -23,7 +23,6 @@
 #include "iceoryx_platform/unistd.hpp"
 
 #include <chrono>
-#include <cstdlib>
 #include <string>
 
 
@@ -293,7 +292,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
     {
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
     }
-    return cxx::success<std::string>(message);
+    return cxx::success<std::string>(&message[0]);
 }
 
 cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept

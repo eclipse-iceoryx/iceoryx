@@ -29,6 +29,8 @@
 - Apps send only the heartbeat when monitoring is enabled in roudi [\#1436](https://github.com/eclipse-iceoryx/iceoryx/issues/1436)
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
+- Added equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
+- Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 
 **Bugfixes:**
 
@@ -52,6 +54,11 @@
 - iceoryx_posh_testing cannot find iceoryx_hoofs_testing in CMake [\#1602](https://github.com/eclipse-iceoryx/iceoryx/issues/1602)
 - locking_policy.cpp calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
 - Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
+- `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
+- `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
+- Removed `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
+- CI uses outdated clang-format [\#1736](https://github.com/eclipse-iceoryx/iceoryx/issues/1736)
+- Avoid UB when accessing `iox::expected` [\#1750](https://github.com/eclipse-iceoryx/iceoryx/issues/1750)
 
 **Refactoring:**
 
@@ -88,6 +95,12 @@
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
+- Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
+- `ReleativePointer::registerPtr` returns `cxx::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
+- `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Renamed `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
+- Prevent building GoogleTest when `GTest_DIR` is defined [\#1758](https://github.com/eclipse-iceoryx/iceoryx/issues/1758)
+- Refactored `iceoryx_posh_testing` library into own CMakeLists.txt [\#1516](https://github.com/eclipse-iceoryx/iceoryx/issues/1516)
 
 **Workflow:**
 
@@ -379,10 +392,42 @@
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```
 
-20. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
+20. `ReleativePointer::registerPtr` returns `cxx::optional`
+
+    ```cpp
+    // before
+    uint64_t id = RelativePointer::register(startAddress, numBytes);
+
+    if(id == INVALID_ID)
+    {
+        // Early exit
+    }
+
+    // after
+    auto maybeId = RelativePointer::register(startAddress, numBytes);
+
+    if(!id.has_value())
+    {
+        // Early exit
+    }
+    ```
+
+21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and moved it from namespace `rp::` to `memory::`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+    iox::rp::BaseRelativePointer myUntypedRelativePointer;
+
+    // after
+    #include "iceoryx_hoofs/memory/relative_pointer.hpp"
+    iox::memory::UntypedRelativePointer myUntypedRelativePointer;
+    ```
+
+22. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
 
     ```cmake
-    // before
+    # before
     cmake_minimum_required(VERSION 3.16)
     project(example)
     find_package(iceoryx_posh CONFIG REQUIRED)
@@ -393,22 +438,22 @@
     include(IceoryxPackageHelper)
     include(IceoryxPlatform)
 
-    // after
+    # after
     cmake_minimum_required(VERSION 3.16)
     project(example)
-    find_package(iceoryx_platform REQUIRED)         // new
+    find_package(iceoryx_platform REQUIRED)         # new
     find_package(iceoryx_posh CONFIG REQUIRED)
     find_package(iceoryx_hoofs CONFIG REQUIRED)
 
     include(IceoryxPackageHelper)
     include(IceoryxPlatform)
-    include(IceoryxPlatformSettings)                // new
+    include(IceoryxPlatformSettings)                # new
     ```
 
-21. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
+23. `iceoryx_hoofs/platform` was moved into separate package `iceoryx_platform`. All includes must
     be adjusted.
 
-    ```cxx
+    ```cpp
     // before
     #include "iceoryx_hoofs/platform/some_header.hpp"
 
@@ -416,9 +461,9 @@
     #include "iceoryx_platform/some_header.hpp"
     ```
 
-22. `cxx::unique_ptr` is no longer nullable.
+24. `cxx::unique_ptr` is no longer nullable and does not have a `reset` method anymore
 
-    ```cxx
+    ```cpp
     // before
     cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
     cxx::unique_ptr<int> emptyPtr(nullptr, someDeleter);
@@ -438,7 +483,7 @@
     // no more null check required since it is no longer nullable
     std::cout << *myPtr << std::endl;
 
-    myPtr.reset(ptrToOtherInt);
+    myPtr = std::move(uniquePtrToAnotherInt); // deleter(myPtr) is called before move
     cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
     ```
 
@@ -446,7 +491,7 @@
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
 
-23. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+25. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
     construction
 
     ```cpp
@@ -461,4 +506,300 @@
         .mutexType(iox::posix::MutexType::RECURSIVE)
         .create(myMutex);
     myMutex->lock();
+    ```
+
+26. Change return type of `cxx::vector::erase` from iterator to bool
+
+    ```cpp
+    // before
+    auto* iter = myCxxVector.erase(myCxxVector.begin());
+
+    // after
+    bool success = myCxxVector.erase(myCxxVector.begin());
+    ```
+
+27. `cxx::function` is no longer nullable.
+
+    ```cpp
+    // before
+    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    cxx::function<void()> emptyFunction;
+
+    if (helloFunc) { // required since the object could always be null
+        helloFunc();
+    }
+
+    // after
+    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    cxx::optional<cxx::function<void()>> emptyPtr(cxx::nullopt); // if function shall be nullable use cxx::optional
+
+    // no more null check required since it is no longer nullable
+    helloFunc();
+    ```
+
+    Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
+    will warn the user with a used after move warning when one accesses a moved object. Accessing
+    a moved `function` is well defined and behaves like dereferencing a `nullptr`.
+
+28. `LogLevel` enum tags are renamed to better match the log4j log levels
+
+    | before     | after   |
+    |:----------:|:-------:|
+    | `kOff`     | `OFF`   |
+    | `kFatal`   | `FATAL` |
+    | `kError`   | `ERROR` |
+    | `kWarn`    | `WARN`  |
+    | `kInfo`    | `INFO`  |
+    | `kDebug`   | `DEBUG` |
+    | `kVerbose` | `TRACE` |
+
+    In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
+
+29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+
+30. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/log/logmanager.hpp"
+
+    auto& logger = iox::log::createLogger("MyComponent", "MyContext", iox::log::LogLevel::kInfo);
+
+    logger.LogInfo() << "Hello World";
+
+    // after
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    iox::log::Logger::init(iox::log::LogLevel::INFO);
+
+    IOX_LOG(INFO) << "Hello World";
+    ```
+
+31. Setting the default log level changed
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/log/logmanager.hpp"
+
+    iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+
+    // after
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    iox::log::Logger::init(iox::log::LogLevel::ERROR);
+    ```
+
+    Please look at the logger design document for more details like setting the log level via environment variables.
+
+32. Changing the log level at runtime changed
+
+    ```cpp
+    // before
+    logger.SetLogLevel(); // directly on the instance
+
+    // after
+    iox::log::Logger::setLogLevel(iox::log::LogLevel::DEBUG);
+    ```
+
+33. Using the logger in libraries is massively simplified
+
+    ```cpp
+    // before
+    // ==== file foo_logging.hpp ====
+    #ifndef FOO_LOGGING_HPP_INCLUDED
+    #define FOO_LOGGING_HPP_INCLUDED
+
+    #include "iceoryx_hoofs/log/logging_free_function_building_block.hpp"
+
+    namespace foo
+    {
+        struct LoggingComponent
+        {
+            static constexpr char Ctx[] = "FOO";
+            static constexpr char Description[] = "Log context of the FOO component!";
+        };
+
+        static constexpr auto LogFatal = iox::log::ffbb::LogFatal<LoggingComponent>;
+        static constexpr auto LogError = iox::log::ffbb::LogError<LoggingComponent>;
+        static constexpr auto LogWarn = iox::log::ffbb::LogWarn<LoggingComponent>;
+        static constexpr auto LogInfo = iox::log::ffbb::LogInfo<LoggingComponent>;
+        static constexpr auto LogDebug = iox::log::ffbb::LogDebug<LoggingComponent>;
+        static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponent>;
+    } // namespace foo
+    #endif // FOO_LOGGING_HPP_INCLUDED
+
+    // ==== file foo_logging.cpp ====
+    #include "foo_logging.hpp"
+
+    namespace foo
+    {
+        constexpr char ComponentPosh::Ctx[];
+        constexpr char ComponentPosh::Description[];
+
+    } // namespace foo
+
+    // ==== file bar.cpp ====
+    #include "foo_logging.hpp"
+
+    namespace foo
+    {
+        void myFunc()
+        {
+            LogInfo() << "Hello World";
+        }
+    }
+
+
+    // after
+    // ==== file bar.cpp ====
+    #include "iceoryx_hoofs/log/logging.hpp"
+
+    namespace foo
+    {
+        void myFunc()
+        {
+            IOX_LOG(INFO) << "Hello World";
+        }
+    }
+    ```
+
+34. Free function logger calls changed
+
+    | before         | after            |
+    |:--------------:|:----------------:|
+    | `LogFatal()`   | `IOX_LOG(FATAL)` |
+    | `LogError()`   | `IOX_LOG(ERROR)` |
+    | `LogWarn()`    | `IOX_LOG(WARN)`  |
+    | `LogInfo()`    | `IOX_LOG(INFO)`  |
+    | `LogDebug()`   | `IOX_LOG(DEBUG)` |
+    | `LogVerbose()` | `IOX_LOG(TRACE)` |
+
+35. Logger formatting changed
+
+    ```cpp
+    // before
+    LogInfo() << iox::log::HexFormat(42);
+    LogInfo() << iox::log::BinFormat(73); // currently not supported
+    LogInfo() << iox::log::RawBuffer(buf); // currently not supported
+
+    // after
+    IOX_LOG(INFO) << iox::log::hex(42);
+    IOX_LOG(INFO) << iox::log::oct(42);
+    ```
+
+36. Creating an instance of `LogStream` does not work anymore
+
+    ```cpp
+    // before
+    auto stream = LogInfo();
+    stream << "fibonacci: "
+    for(auto fib : {1, 1, 2, 3, 5, 8})
+    {
+        stream << fib << ", ";
+    }
+    stream << "...";
+    stream.Flush();
+
+    // after
+    IOX_LOG(INFO) << [] (auto& stream) -> auto& {
+        stream << "fibonacci: "
+        for(auto fib : {1, 1, 2, 3, 5, 8})
+        {
+            stream << fib << ", ";
+        }
+        stream << "...";
+        return stream;
+    };
+    ```
+
+37. Testing of `LogStream::operator<<` overload for custom types changed
+
+    ```cpp
+    // before
+    Logger_Mock loggerMock;
+    iox::log::LogStream(loggerMock) << myType;
+
+    ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.m_logs[0].message, StrEq(EXPECTED_STRING));
+
+    // after
+    iox::testing::Logger_Mock loggerMock;
+    IOX_LOGSTREAM_MOCK(loggerMock) << myType;
+
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_STRING));
+    ```
+
+38. Suppressing the logger output in tests
+
+    ```cpp
+    // before
+    // using gTest ::testing::internal::CaptureStdout() or ::testing::internal::CaptureStderr()
+    // in every test fixture setup method. This also suppresses the output of the sanitizer
+    // and makes debugging of CI failures unnecessary hard. In addition, it might crash the unittest
+    // when `EXPECT_DEATH` is used
+
+    // after
+    // ==== unittests.cpp ====
+    #include "iceoryx_hoofs/testing/logger.hpp"
+
+    #include <gtest/gtest.h>
+
+    int main(int argc, char* argv[])
+    {
+        ::testing::InitGoogleTest(&argc, argv);
+
+        iox::testing::Logger::init();
+
+        return RUN_ALL_TESTS();
+    }
+    ```
+
+    The log messages are cached and printed when a test fails. To print log messages also for passed tests,
+    the `IOX_TESTING_ALLOW_LOG` environment variable can be used,
+    e.g. `IOX_TESTING_ALLOW_LOG=ON ./unittests --gtest_filter=MyTest\*`. This might be helpful to debug tests.
+
+39. Checking the log message of test objects in unit tests
+
+    ```cpp
+    // before
+    // some wild stuff with std::clog redirecting or ::testing::internal::CaptureStdout()
+    sut.methodCallWithLogOutput();
+    // some wild stuff getting the output from the redirected clog or ::testing::internal::internal::GetCapturedStdout()
+
+    // after
+    #include "iceoryx_hoofs/testing/logger.hpp"
+
+    sut.methodCallWithLogOutput();
+    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    {
+        auto logMessages = iox::testing::Logger::getLogMessages();
+        ASSERT_THAT(logMessages.size(), Eq(1U));
+        EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+    }
+    ```
+
+    Have a look at the logger design document for more details on how to setup the testing logger.
+
+40. Changed the include path and namespace of several classes in `iceoryx_hoofs`:
+
+    * `iox::bar::foo` to `iox::foo`
+        * `iceoryx_hoofs/bar/foo.hpp` to `iox/foo.hpp`
+
+41. Use proper aligned `iox::UninitializedArray` instead of C-style array
+
+    ```cpp
+    // before
+    char myCharArray[Capacity];
+
+    using element_t = uint8_t[sizeof(T)];
+    alignas(T) element_t myAlignedArray[Capacity];
+
+    // after
+    #include "iox/uninitialized_array.hpp"
+
+    iox::UninitializedArray<char, Capacity, iox::ZeroedBuffer> myCharArray;
+
+    iox::UninitializedArray<T, Capacity> myAlignedArray;
+
     ```

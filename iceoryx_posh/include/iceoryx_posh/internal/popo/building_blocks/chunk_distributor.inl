@@ -54,7 +54,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
     const auto alreadyKnownReceiver =
         std::find_if(getMembers()->m_queues.begin(),
                      getMembers()->m_queues.end(),
-                     [&](const rp::RelativePointer<ChunkQueueData_t> queue) { return queue.get() == queueToAdd; });
+                     [&](const memory::RelativePointer<ChunkQueueData_t> queue) { return queue.get() == queueToAdd; });
 
     // check if the queue is not already in the list
     if (alreadyKnownReceiver == getMembers()->m_queues.end())
@@ -63,7 +63,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
         {
             // AXIVION Next Construct AutosarC++19_03-A0.1.2, AutosarC++19_03-M0-3-2 : we checked the capacity, so
             // pushing will be fine
-            getMembers()->m_queues.push_back(rp::RelativePointer<ChunkQueueData_t>(queueToAdd));
+            getMembers()->m_queues.push_back(memory::RelativePointer<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
@@ -103,7 +103,9 @@ inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDat
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
-    const auto iter = std::find(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), queueToRemove);
+    const auto iter = std::find(getMembers()->m_queues.begin(),
+                                getMembers()->m_queues.end(),
+                                static_cast<ChunkQueueData_t* const>(queueToRemove));
     if (iter != getMembers()->m_queues.end())
     {
         // AXIVION Next Construct AutosarC++19_03-A0.1.2 : we don't use iter any longer so return value can be ignored
@@ -177,8 +179,8 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
             //          and without this intersection we would deliver to dead queues
             typename MemberType_t::LockGuard_t lock(*getMembers());
             typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
-            auto greaterThan = [](rp::RelativePointer<ChunkQueueData_t>& a,
-                                  rp::RelativePointer<ChunkQueueData_t>& b) -> bool {
+            auto greaterThan = [](memory::RelativePointer<ChunkQueueData_t>& a,
+                                  memory::RelativePointer<ChunkQueueData_t>& b) -> bool {
                 return reinterpret_cast<uint64_t>(a.get()) > reinterpret_cast<uint64_t>(b.get());
             };
             std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), greaterThan);
@@ -347,7 +349,7 @@ inline void ChunkDistributor<ChunkDistributorDataType>::cleanup() noexcept
     }
     else
     {
-        /// @todo currently we have a deadlock / mutex destroy vulnerability if the ThreadSafePolicy is used
+        /// @todo iox-#1711 currently we have a deadlock / mutex destroy vulnerability if the ThreadSafePolicy is used
         /// and a sending application dies when having the lock for sending. If the RouDi daemon wants to
         /// cleanup or does discovery changes we have a deadlock or an exception when destroying the mutex
         /// As long as we don't have a multi-threaded lock-free ChunkDistributor or another concept we die here

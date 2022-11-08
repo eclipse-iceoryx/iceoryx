@@ -141,24 +141,27 @@ class WaitSet_test : public Test
 
         iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied() const noexcept
         {
-            return (m_isEventBased) ? iox::cxx::function<bool()>()
-                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::nullopt
+                                    : iox::popo::WaitSetIsConditionSatisfiedCallback(
+                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::function<bool()>()
-                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::nullopt
+                                    : iox::popo::WaitSetIsConditionSatisfiedCallback(
+                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::function<bool()>()
-                                    : iox::cxx::function<bool()>{*this, &SimpleEventClass::hasTriggered};
+            return (m_isEventBased) ? iox::cxx::nullopt
+                                    : iox::popo::WaitSetIsConditionSatisfiedCallback(
+                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         bool hasTriggered() const

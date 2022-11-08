@@ -144,11 +144,8 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
         return cxx::error<ListenerError>(ListenerError::LISTENER_FULL);
     }
 
-    if (!m_events[index]->init(
-            index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback))
-    {
-        return cxx::error<ListenerError>(ListenerError::EMPTY_INVALIDATION_CALLBACK);
-    }
+    m_events[index]->init(
+        index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
     return cxx::success<uint32_t>(index);
 }
 

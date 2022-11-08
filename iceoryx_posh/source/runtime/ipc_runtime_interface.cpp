@@ -150,7 +150,7 @@ bool IpcRuntimeInterface::sendKeepalive() noexcept
                : true;
 }
 
-rp::BaseRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
+memory::UntypedRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
     cxx::Ensures(m_segmentManagerAddressOffset.has_value()
                  && "No segment manager available! Should have been fetched in the c'tor");
@@ -211,8 +211,6 @@ void IpcRuntimeInterface::waitForRoudi(cxx::DeadlineTimer& timer) noexcept
 IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t transmissionTimestamp) noexcept
 {
     // wait for the register ack from the RouDi daemon. If we receive another response we do a retry
-    // @todo if the IPC channels are properly setup and cleaned up, always the expected REG_ACK should be received here,
-    // so if not this issue should be passed to the error handling later
     constexpr size_t MAX_RETRY_COUNT = 3;
     size_t retryCounter = 0;
     while (retryCounter++ < MAX_RETRY_COUNT)
@@ -234,7 +232,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
 
                 // read out the shared memory base address and save it
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), m_shmTopicSize);
-                rp::BaseRelativePointer::offset_t offset{0U};
+                memory::UntypedRelativePointer::offset_t offset{0U};
                 iox::cxx::convert::fromString(receiveBuffer.getElementAtIndex(2U).c_str(), offset);
                 m_segmentManagerAddressOffset.emplace(offset);
 

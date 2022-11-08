@@ -33,7 +33,7 @@ class CompatibilityCheckLevel_test : public Test
   public:
     void TearDown()
     {
-        m_loggerMock.m_logs.clear();
+        m_loggerMock.logs.clear();
     }
 
     iox::testing::Logger_Mock m_loggerMock;
@@ -48,8 +48,8 @@ TEST_F(CompatibilityCheckLevel_test, OffLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::OFF"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::OFF"));
 }
 
 TEST_F(CompatibilityCheckLevel_test, MajorLeadsToCorrectString)
@@ -61,8 +61,8 @@ TEST_F(CompatibilityCheckLevel_test, MajorLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::MAJOR"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::MAJOR"));
 }
 
 TEST_F(CompatibilityCheckLevel_test, MinorLeadsToCorrectString)
@@ -74,8 +74,8 @@ TEST_F(CompatibilityCheckLevel_test, MinorLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::MINOR"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::MINOR"));
 }
 
 TEST_F(CompatibilityCheckLevel_test, PatchLeadsToCorrectString)
@@ -87,8 +87,8 @@ TEST_F(CompatibilityCheckLevel_test, PatchLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::PATCH"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::PATCH"));
 }
 
 TEST_F(CompatibilityCheckLevel_test, CommitIdLeadsToCorrectString)
@@ -100,8 +100,8 @@ TEST_F(CompatibilityCheckLevel_test, CommitIdLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::COMMIT_ID"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::COMMIT_ID"));
 }
 
 TEST_F(CompatibilityCheckLevel_test, BuildDateLeadsToCorrectString)
@@ -113,8 +113,8 @@ TEST_F(CompatibilityCheckLevel_test, BuildDateLeadsToCorrectString)
         IOX_LOGSTREAM_MOCK(m_loggerMock) << sut;
     }
 
-    ASSERT_THAT(m_loggerMock.m_logs.size(), Eq(1U));
-    EXPECT_THAT(m_loggerMock.m_logs[0].message, Eq("CompatibilityCheckLevel::BUILD_DATE"));
+    ASSERT_THAT(m_loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(m_loggerMock.logs[0].message, Eq("CompatibilityCheckLevel::BUILD_DATE"));
 }
 
 } // namespace

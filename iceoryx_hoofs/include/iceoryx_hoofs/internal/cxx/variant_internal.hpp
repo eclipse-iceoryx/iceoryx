@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 #define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
 
-#include <cassert>
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
 #include <cstdint>
 #include <type_traits>
 #include <utility>
@@ -94,7 +95,7 @@ struct get_type_at_index<N, N, T, Targs...>
 template <uint64_t N, typename T, typename... Targs>
 struct call_at_index
 {
-    static void destructor(const uint64_t index, byte_t* ptr) noexcept
+    static void destructor(const uint64_t index, void* ptr) noexcept
     {
         if (N == index)
         {
@@ -108,13 +109,13 @@ struct call_at_index
         }
     }
 
-    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void move(const uint64_t index, void* source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            *reinterpret_cast<T*>(destination) = std::move(*reinterpret_cast<T*>(source));
+            *reinterpret_cast<T* const>(destination) = std::move(*reinterpret_cast<T*>(source));
         }
         else
         {
@@ -122,7 +123,7 @@ struct call_at_index
         }
     }
 
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void moveConstructor(const uint64_t index, void* source, void* const destination) noexcept
     {
         if (N == index)
         {
@@ -136,13 +137,13 @@ struct call_at_index
         }
     }
 
-    static void copy(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copy(const uint64_t index, const void* const source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            *reinterpret_cast<T*>(destination) = *reinterpret_cast<const T*>(source);
+            *reinterpret_cast<T* const>(destination) = *reinterpret_cast<const T* const>(source);
         }
         else
         {
@@ -150,27 +151,38 @@ struct call_at_index
         }
     }
 
-    static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copyConstructor(const uint64_t index, const void* const source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            new (destination) T(*reinterpret_cast<const T*>(source));
+            new (destination) T(*reinterpret_cast<const T* const>(source));
         }
         else
         {
             call_at_index<N + 1, Targs...>::copyConstructor(index, source, destination);
         }
     }
+
+    static bool equality(const uint64_t index, const void* const lhs, const void* const rhs)
+    {
+        if (N == index)
+        {
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter and encapsulated in this class
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            return *reinterpret_cast<const T* const>(lhs) == *reinterpret_cast<const T* const>(rhs);
+        }
+        return call_at_index<N + 1, Targs...>::equality(index, lhs, rhs);
+    }
 };
 
 template <uint64_t N, typename T>
 struct call_at_index<N, T>
 {
-    // NOLINTJUSTIFICATION d'tor changes the data to which source is pointing to
+    // NOLINTJUSTIFICATION d'tor changes the data to which ptr is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void destructor(const uint64_t index, byte_t* ptr) noexcept
+    static void destructor(const uint64_t index, void* ptr) noexcept
     {
         if (N == index)
         {
@@ -180,29 +192,29 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call destructor for variant element");
+            ExpectsWithMsg(false, "Could not call destructor for variant element");
         }
     }
 
     // NOLINTJUSTIFICATION move c'tor changes the data to which source is pointing to
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void move(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void move(const uint64_t index, void* source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            *reinterpret_cast<T*>(destination) = std::move(*reinterpret_cast<T*>(source));
+            *reinterpret_cast<T* const>(destination) = std::move(*reinterpret_cast<T*>(source));
         }
         else
         {
-            assert(false && "Could not call move assignment for variant element");
+            ExpectsWithMsg(false, "Could not call move assignment for variant element");
         }
     }
 
     // NOLINTJUSTIFICATION Both 'source' and 'destination' will be changed and can't be const
     // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void moveConstructor(const uint64_t index, byte_t* source, byte_t* destination) noexcept
+    static void moveConstructor(const uint64_t index, void* source, void* const destination) noexcept
     {
         if (N == index)
         {
@@ -212,38 +224,48 @@ struct call_at_index<N, T>
         }
         else
         {
-            assert(false && "Could not call move constructor for variant element");
+            ExpectsWithMsg(false, "Could not call move constructor for variant element");
         }
     }
 
-    static void copy(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copy(const uint64_t index, const void* const source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            *reinterpret_cast<T*>(destination) = *reinterpret_cast<const T*>(source);
+            *reinterpret_cast<T* const>(destination) = *reinterpret_cast<const T* const>(source);
         }
         else
         {
-            assert(false && "Could not call copy assignment for variant element");
+            ExpectsWithMsg(false, "Could not call copy assignment for variant element");
         }
     }
 
-    // NOLINTJUSTIFICATION 'operator new()' needs non-const 'destination'
-    // NOLINTNEXTLINE(readability-non-const-parameter)
-    static void copyConstructor(const uint64_t index, const byte_t* source, byte_t* destination) noexcept
+    static void copyConstructor(const uint64_t index, const void* const source, void* const destination) noexcept
     {
         if (N == index)
         {
             // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            new (destination) T(*reinterpret_cast<const T*>(source));
+            new (destination) T(*reinterpret_cast<const T* const>(source));
         }
         else
         {
-            assert(false && "Could not call copy constructor for variant element");
+            ExpectsWithMsg(false, "Could not call copy constructor for variant element");
         }
+    }
+
+    static bool equality(const uint64_t index, const void* const lhs, const void* const rhs) noexcept
+    {
+        if (N == index)
+        {
+            // AXIVION Next Construct AutosarC++19_03-A5.2.4 : Type safety ensured through template parameter and encapsulated in this class
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+            return *reinterpret_cast<const T* const>(lhs) == *reinterpret_cast<const T* const>(rhs);
+        }
+        ExpectsWithMsg(false, "Could not call equality operator for variant element");
+        return false;
     }
 };
 

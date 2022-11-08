@@ -229,7 +229,7 @@ bool serviceMatch(const ServiceDescription& first, const ServiceDescription& sec
 
 std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept
 {
-    /// @todo #415 Add classHash, scope and interface
+    /// @todo iox-#1141 Add classHash, scope and interface
     stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getInstanceIDString()
            << ", Event: " << service.getEventIDString();
     return stream;
@@ -237,7 +237,7 @@ std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service
 
 log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& service) noexcept
 {
-    /// @todo #415 Add classHash, scope and interface
+    /// @todo iox-#1141 Add classHash, scope and interface
     stream << "Service: " << service.getServiceIDString() << ", Instance: " << service.getInstanceIDString()
            << ", Event: " << service.getEventIDString();
     return stream;

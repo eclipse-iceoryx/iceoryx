@@ -1,0 +1,42 @@
+@startuml
+
+title Eclipse iceoryx software layers (v3.0.0)
+
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+   backgroundColor<<namespace>> yellow
+}
+
+skinparam package {
+   backgroundColor green
+}
+
+skinparam frame {
+   backgroundColor chocolate
+}
+
+[iceoryx_platform]
+[iceoryx_dust]
+[iceoryx_hoofs]
+[iceoryx_posh]
+[iceoryx_binding_c]
+[C user app]
+[C++ user app]
+
+note right of iceoryx_platform : Basic platform support library with quality level 1+
+note top of iceoryx_hoofs : Basic building block library with quality level 1+
+note top of iceoryx_dust : Basic building block library with quality level 2
+note top of iceoryx_posh : Shared memory transport (POsix SHared memory)
+note right of iceoryx_binding_c : C API for iceoryx_posh
+
+[iceoryx_hoofs]  ..>  [iceoryx_platform]
+[iceoryx_dust]  ..>  [iceoryx_platform]
+[iceoryx_posh]  ..>  [iceoryx_hoofs]
+[iceoryx_dust]  ..>  [iceoryx_hoofs]
+[iceoryx_posh]  ..>  [iceoryx_dust]
+[iceoryx_binding_c]  ..>  [iceoryx_posh]
+[C user app]  ..>  [iceoryx_binding_c]
+[C++ user app]  ..>  [iceoryx_posh]
+@enduml

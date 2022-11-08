@@ -17,7 +17,6 @@
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <thread>
 
@@ -38,7 +37,7 @@ NamedPipe::NamedPipe() noexcept
     this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
 }
 
-// NOLINTNEXTLINE(readability-function-size) todo(iox-#832): make a struct out of arguments
+// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
 NamedPipe::NamedPipe(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize,
@@ -342,7 +341,7 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
     UnnamedSemaphoreBuilder()
         .initialValue(maxMsgNumber)
         .isInterProcessCapable(true)
-        .create(semaphores[SEND_SEMAPHORE])
+        .create(m_sendSemaphore)
         .or_else([&](auto) { signalError("send"); });
 
     if (!isInitialized)
@@ -353,7 +352,7 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
     UnnamedSemaphoreBuilder()
         .initialValue(0U)
         .isInterProcessCapable(true)
-        .create(semaphores[RECEIVE_SEMAPHORE])
+        .create(m_receiveSemaphore)
         .or_else([&](auto) { signalError("receive"); });
 
     if (!isInitialized)
@@ -366,12 +365,12 @@ NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
 
 UnnamedSemaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
 {
-    return *semaphores[SEND_SEMAPHORE];
+    return *m_sendSemaphore;
 }
 
 UnnamedSemaphore& NamedPipe::NamedPipeData::receiveSemaphore() noexcept
 {
-    return *semaphores[RECEIVE_SEMAPHORE];
+    return *m_receiveSemaphore;
 }
 
 bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept

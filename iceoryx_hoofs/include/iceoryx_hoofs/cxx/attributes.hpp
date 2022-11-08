@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_CXX_ATTRIBUTES_HPP
 #define IOX_HOOFS_CXX_ATTRIBUTES_HPP
 
@@ -33,7 +34,6 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 
 // NOLINTJUSTIFICATION cannot be implemented with a function, required as inline code
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
-
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
 /// Purpose is to suppress the unused compiler warning by adding an attribute to the return value
 /// @param[in] expr name of the function where the return value is not used.
@@ -55,9 +55,9 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 #elif defined(__APPLE__) && defined(__clang__)
 // On APPLE we are using C++17 which makes the keyword [[nodiscard]] available
 #define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
-#elif (defined(__clang__) && __clang_major__ >= 4)
+#elif (defined(__clang__) && (__clang_major__ >= 4))
 #define IOX_NO_DISCARD [[gnu::warn_unused]]
-#elif (defined(__GNUC__) && __GNUC__ >= 5)
+#elif (defined(__GNUC__) && (__GNUC__ >= 5))
 #define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
@@ -79,7 +79,7 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 #elif __cplusplus >= 201703L
 // clang prints a warning therefore we exclude it here
 #define IOX_FALLTHROUGH [[fallthrough]]
-#elif (defined(__GNUC__) && __GNUC__ >= 7) && !defined(__clang__)
+#elif (defined(__GNUC__) && (__GNUC__ >= 7)) && !defined(__clang__)
 #define IOX_FALLTHROUGH [[gnu::fallthrough]]
 #else
 // on an unknown platform we use for now nothing since we do not know what is supported there
@@ -99,7 +99,6 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 #else
 #define IOX_MAYBE_UNUSED
 #endif
-
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 } // namespace cxx

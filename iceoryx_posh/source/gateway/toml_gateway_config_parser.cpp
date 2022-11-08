@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
@@ -36,7 +36,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         return iox::cxx::success<GatewayConfig>(config);
     }
 
-    /// @todo Replace with C++17 std::filesystem::exists()
+    /// @todo iox-#1718 Replace with C++17 std::filesystem::exists()
     iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {

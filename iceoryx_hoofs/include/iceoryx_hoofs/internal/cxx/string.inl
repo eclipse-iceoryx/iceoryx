@@ -23,6 +23,7 @@ namespace iox
 {
 namespace cxx
 {
+
 template <uint64_t Capacity>
 inline string<Capacity>::string(const string& other) noexcept
 {
@@ -346,7 +347,7 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
 template <uint64_t Capacity>
 inline const char* string<Capacity>::c_str() const noexcept
 {
-    return m_rawstring;
+    return &m_rawstring[0];
 }
 
 template <uint64_t Capacity>

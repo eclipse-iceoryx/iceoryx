@@ -18,7 +18,6 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
-#include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
 namespace iox

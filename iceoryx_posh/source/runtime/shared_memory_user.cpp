@@ -16,10 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 
 namespace iox
@@ -30,7 +29,7 @@ constexpr cxx::perms SharedMemoryUser::SHM_SEGMENT_PERMISSIONS;
 
 SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,
-                                   const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
+                                   const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
     posix::SharedMemoryObjectBuilder()
         .name(roudi::SHM_NAME)
@@ -40,9 +39,16 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-            rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segmentId},
-                                                 sharedMemoryObject.getBaseAddress(),
-                                                 sharedMemoryObject.getSizeInBytes());
+            auto registeredSuccessfully =
+                memory::UntypedRelativePointer::registerPtrWithId(memory::segment_id_t{segmentId},
+                                                                  sharedMemoryObject.getBaseAddress(),
+                                                                  sharedMemoryObject.getSizeInBytes());
+
+            if (!registeredSuccessfully)
+            {
+                errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
+            }
+
             LogDebug() << "Application registered management segment "
                        << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
                        << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
@@ -54,10 +60,10 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .or_else([](auto&) { errorHandler(PoshError::POSH__SHM_APP_MAPP_ERR); });
 }
 
-void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
-                                        const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
+void SharedMemoryUser::openDataSegments(
+    const uint64_t segmentId, const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    auto* ptr = rp::BaseRelativePointer::getPtr(rp::BaseRelativePointer::id_t{segmentId}, segmentManagerAddressOffset);
+    auto* ptr = memory::UntypedRelativePointer::getPtr(memory::segment_id_t{segmentId}, segmentManagerAddressOffset);
     auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
@@ -77,9 +83,15 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segment.m_segmentId},
-                                                     sharedMemoryObject.getBaseAddress(),
-                                                     sharedMemoryObject.getSizeInBytes());
+                auto registeredSuccessfully =
+                    memory::UntypedRelativePointer::registerPtrWithId(memory::segment_id_t{segment.m_segmentId},
+                                                                      sharedMemoryObject.getBaseAddress(),
+                                                                      sharedMemoryObject.getSizeInBytes());
+
+                if (!registeredSuccessfully)
+                {
+                    errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
+                }
 
                 LogDebug() << "Application registered payload data segment "
                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "

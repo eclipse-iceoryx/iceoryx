@@ -16,7 +16,6 @@
 #ifndef IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 #define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_platform/unistd.hpp"
@@ -52,6 +51,10 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 {
 };
 
+// @todo iox-#1723 use string_view as argument
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Requires char base type to print strings originating
+// from string literals, cxx::string::c_str(), std::string::c_str() or other sources. Only with char we
+// can achieve the task.
 void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
@@ -328,6 +331,14 @@ struct OrElse
 };
 
 template <typename Derived, typename ValueType, typename ErrorType>
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
+//
 // not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
@@ -343,6 +354,14 @@ struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
 };
 
 template <typename Derived>
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
+//
 // not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
@@ -356,6 +375,14 @@ struct FunctionalInterfaceImpl<Derived, void, void>
 };
 
 template <typename Derived, typename ValueType>
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
+//
 // not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
@@ -371,6 +398,14 @@ struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValu
 };
 
 template <typename Derived, typename ErrorType>
+// AXIVION Next Construct AutosarC++19_03-A10.1.1 : The rule explicitly states that multiple inheritance
+// from interface classes is allowed. C++ interface classes can also provide default implementation but
+// have the downside to still enforce a user-side forward implementation. This implies a lot of
+// code duplication and more test overhead.
+// All classes which are inherited from in FunctionalInterfaceImpl are also non-virtual stateless interface classes
+// with a default implementation. But they dont come with the downside of an explicit user-side
+// forward implementation.
+//
 // not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
@@ -396,7 +431,7 @@ struct FunctionalInterfaceImpl<Derived, void, ErrorType>
 ///        a reference to the underlying error.
 ///
 /// @note When inheriting from this type one does not have to write additional unit tests.
-///       Instead add a factory for your class to `test_cxx_functional_interface_types.hpp`,
+///       Instead add a factory for your class to "test_cxx_functional_interface_types.hpp",
 ///       add the type to the FunctionalInterfaceImplementations and all typed tests will be
 ///       generated.
 template <typename Derived, typename ValueType, typename ErrorType>

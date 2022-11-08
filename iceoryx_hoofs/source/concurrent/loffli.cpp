@@ -19,8 +19,6 @@
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
-#include <cassert>
-
 namespace iox
 {
 namespace concurrent
@@ -55,7 +53,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
     do
     {
         // we are empty if next points to an element with index of Size
-        if (oldHead.indexToNextFreeIndex >= m_size)
+        if (oldHead.indexToNextFreeIndex >= m_size || !m_nextFreeIndex)
         {
             return false;
         }
@@ -67,8 +65,7 @@ bool LoFFLi::pop(Index_t& index) noexcept
 
     /// comes from outside, is not shared and therefore no synchronization is needed
     index = oldHead.indexToNextFreeIndex;
-    /// @todo what if interrupted here an another thread guesses the index and
-    ///         calls push
+    /// What if interrupted here an another thread guesses the index and calls push?
     /// @brief murphy case: m_nextFreeIndex does not require any synchronization since it
     ///         either is used by the same thread in push or it is given to another
     ///         thread which performs the cleanup and during this process a synchronization
@@ -91,7 +88,7 @@ bool LoFFLi::push(const Index_t index) noexcept
     /// we want to avoid double free's therefore we check if the index was acquired
     /// in pop and the push argument "index" is valid
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) index is limited by capacity
-    if (index >= m_size || m_nextFreeIndex.get()[index] != m_invalidIndex)
+    if (index >= m_size || !m_nextFreeIndex || m_nextFreeIndex.get()[index] != m_invalidIndex)
     {
         return false;
     }

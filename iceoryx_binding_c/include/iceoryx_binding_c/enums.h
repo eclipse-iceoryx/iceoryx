@@ -155,7 +155,6 @@ enum iox_ListenerResult
     ListenerResult_LISTENER_FULL,
     ListenerResult_EVENT_ALREADY_ATTACHED,
     ListenerResult_EMPTY_EVENT_CALLBACK,
-    ListenerResult_EMPTY_INVALIDATION_CALLBACK,
     ListenerResult_UNDEFINED_ERROR,
     ListenerResult_SUCCESS
 };

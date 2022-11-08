@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 
 #include <atomic>
@@ -73,17 +73,15 @@ class MemPool
     void adjustMinFree() noexcept;
     bool isMultipleOfAlignment(const uint32_t value) const noexcept;
 
-    rp::RelativePointer<uint8_t> m_rawMemory;
+    memory::RelativePointer<uint8_t> m_rawMemory;
 
     uint32_t m_chunkSize{0U};
     /// needs to be 32 bit since loffli supports only 32 bit numbers
     /// (cas is only 64 bit and we need the other 32 bit for the aba counter)
     uint32_t m_numberOfChunks{0U};
 
-    /// @todo: put this into one struct and in a separate class in concurrent.
     std::atomic<uint32_t> m_usedChunks{0U};
     std::atomic<uint32_t> m_minFree{0U};
-    /// @todo: end
 
     freeList_t m_freeIndices;
 };

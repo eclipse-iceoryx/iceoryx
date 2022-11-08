@@ -60,8 +60,8 @@ const NotificationInfo& Trigger::getNotificationInfo() const noexcept
 
 void Trigger::invalidate() noexcept
 {
-    m_hasTriggeredCallback = cxx::function<bool()>();
-    m_resetCallback = cxx::function<void(uint64_t)>();
+    m_hasTriggeredCallback = [] { return false; };
+    m_resetCallback = [](auto) {};
     m_uniqueId = INVALID_TRIGGER_ID;
     m_triggerType = TriggerType::INVALID;
     m_originTriggerType = INVALID_TRIGGER_ID;
@@ -87,8 +87,15 @@ bool Trigger::isLogicalEqualTo(const void* const notificationOrigin,
 }
 
 Trigger::Trigger(Trigger&& rhs) noexcept
+    : m_notificationInfo{rhs.m_notificationInfo}
+    , m_hasTriggeredCallback{std::move(rhs.m_hasTriggeredCallback)}
+    , m_resetCallback{std::move(rhs.m_resetCallback)}
+    , m_uniqueId{rhs.m_uniqueId}
+    , m_triggerType{rhs.m_triggerType}
+    , m_originTriggerType{rhs.m_originTriggerType}
+    , m_originTriggerTypeHash{rhs.m_originTriggerTypeHash}
 {
-    *this = std::move(rhs);
+    rhs.invalidate();
 }
 
 Trigger& Trigger::operator=(Trigger&& rhs) noexcept

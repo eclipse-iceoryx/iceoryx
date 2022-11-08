@@ -161,6 +161,7 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
         return false;
     }
 
+    // AXIVION Next Line AutosarC++19_03-A18.5.10 : every entry of m_data is aligned to alignof(T)
     new (&m_data[m_size++]) T(std::forward<Targs>(args)...);
     return true;
 }

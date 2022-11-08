@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_WAIT_SET_INL
 #define IOX_POSH_POPO_WAIT_SET_INL
 
+#include "iceoryx_posh/popo/wait_set.hpp"
+
 namespace iox
 {
 namespace popo
@@ -81,7 +83,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
     {
         m_triggerArray[*index].emplace(StateBasedTrigger,
                                        &eventOrigin,
-                                       hasTriggeredCallback,
+                                       *hasTriggeredCallback,
                                        invalidationCallback,
                                        eventId,
                                        eventCallback,
@@ -115,7 +117,7 @@ WaitSet<Capacity>::attachEvent(T& eventOrigin,
     static_assert(IS_EVENT_ENUM<EventType>, "Only enums with an underlying EventEnumIdentifier are allowed.");
 
     return attachImpl(eventOrigin,
-                      WaitSetIsConditionSatisfiedCallback(),
+                      cxx::nullopt,
                       eventId,
                       eventCallback,
                       static_cast<uint64_t>(eventType),
@@ -142,7 +144,7 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachEvent(
     T& eventOrigin, const uint64_t eventId, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     return attachImpl(eventOrigin,
-                      WaitSetIsConditionSatisfiedCallback(),
+                      cxx::nullopt,
                       eventId,
                       eventCallback,
                       static_cast<uint64_t>(NoEventEnumUsed::PLACEHOLDER),

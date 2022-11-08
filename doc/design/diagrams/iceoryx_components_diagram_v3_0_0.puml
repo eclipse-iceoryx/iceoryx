@@ -1,0 +1,141 @@
+@startuml
+
+title Eclipse iceoryx Component Overview
+
+skinparam BackgroundColor transparent
+skinparam componentStyle uml2
+
+skinparam component {
+   backgroundColor<<namespace>> yellow
+   backgroundColor<<module>> Cornsilk
+}
+
+skinparam package {
+   backgroundColor green
+}
+
+skinparam frame {
+   backgroundColor chocolate
+}
+
+' PlantUML package: CMake package
+' PlantUML frame: CMake library
+
+' @todo #539
+' RouDi split, separate files and namespaces for static/dynamic discovery
+' Implement exported libraries (add_library in iceoryx_posh/CMakeLists.txt)
+' RouDiEnvironment shall not be in roudi namespace, but in testing
+
+header Eclipse iceoryx component overview
+
+' Platform Library containing platform abstraction with quality level 1
+package iceoryx_platform  {
+   frame "platform library" {
+      component "Platform abstraction" <<module>>
+   }
+}
+
+' HOOFS: Helpful Objects Optimised For Safety
+' Library containing modern C++ STL constructs with quality level 1+
+package iceoryx_hoofs  {
+   frame "hoofs library" {
+
+      component "Memory & lifetime management" <<module>>
+      component Containers <<module>>
+      component "Vocabulary types" <<module>>
+      component Filesystem <<module>>
+      component Functional <<module>>
+      component Utility <<module>>
+      component Primitives <<module>>
+      component Buffers <<module>>
+      component "Inter-process communication" <<module>>
+      component "Threads & sychronisation" <<module>>
+      component "Generalized design patterns & abstractions" <<module>>
+      component Reporting <<module>>
+      component Time <<module>>
+   }
+}
+
+' DUST: Deemed Useful Software Thingies
+' Library containing modern C++ STL constructs with quality level 2
+package iceoryx_dust  {
+   frame "dust library" {
+      component "Containers" <<module>> as additional_containers
+      component "Filesystem" <<module>> as additional_filesystem
+      component "Buffers" <<module>> as additional_buffers
+      component "Inter-process communication" <<module>> as additional_ipc
+   }
+}
+
+' POSH: POSIX SHared memory
+' Publish/subscribe IPC communication infrastructure based on shared memory
+package iceoryx_posh {
+   frame "core library" {
+      component popo <<namespace>>
+      component capro <<namespace>>
+      component mepoo <<namespace>>
+      component version <<namespace>>
+      component build <<namespace>>
+   }
+
+   frame "runtime library" {
+      component runtime <<namespace>>
+   }
+
+   frame "gateway library" {
+      component gw <<namespace>>
+   }
+
+   frame "config library" {
+      component config <<namespace>>
+   }
+
+   component errors <<namespace>>
+
+   frame "RouDi library" {
+      component roudi <<namespace>>
+   }
+}
+
+' DDS: Data Distribution Service
+'
+package iceoryx_dds  {
+   component dds <<namespace>>
+   component gw <<namespace>> as gateway_dds
+}
+
+' AUTOSAR Adaptive: ara::com
+'
+package automotive_soa  {
+}
+
+' iceoryx-rs: Rust binding for iceoryx
+'
+package iceoryx_rs  {
+}
+
+' C-Binding
+package iceoryx_binding_c  {
+   component cpp2c <<namespace>>
+   component c2cpp <<namespace>>
+}
+
+
+' Introspection
+package iceoryx_introspection  {
+   component client <<namespace>> {
+      component introspection <<namespace>>
+   }
+}
+
+iceoryx_hoofs  ..>  iceoryx_platform  : use
+iceoryx_dust  ..>  iceoryx_platform  : use
+iceoryx_posh  ..>  iceoryx_hoofs  : use
+iceoryx_dust  ..>  iceoryx_hoofs : use
+iceoryx_posh  ..>  iceoryx_dust : use
+iceoryx_dds  ..>  iceoryx_posh  : use
+iceoryx_rs  ..>  iceoryx_posh  : use
+automotive_soa  ..>  iceoryx_posh  : use
+iceoryx_binding_c  ..>  iceoryx_posh  : use
+introspection  ..>  iceoryx_posh  : use
+@enduml

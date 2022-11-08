@@ -178,23 +178,6 @@ class function_test : public Test
     }
 };
 
-TEST_F(function_test, DefaultConstructionCreatesNoCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "18b1f6fe-df79-495b-bd14-c4b9a3dba44a");
-    test_function sut;
-
-    EXPECT_FALSE(sut.operator bool());
-}
-
-TEST_F(function_test, ConstructionFromFunctionNullPointerIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e07d3ea5-1ace-4047-b796-a423d4e62421");
-    int (*fp)(int) = nullptr;
-    test_function sut(fp);
-
-    EXPECT_FALSE(sut.operator bool());
-}
-
 TEST_F(function_test, ConstructionFromFunctorIsCallable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2969913d-a849-47c5-a76b-f32481e03ea5");
@@ -203,7 +186,6 @@ TEST_F(function_test, ConstructionFromFunctorIsCallable)
     test_function sut(f);
 
     EXPECT_EQ(Functor::numCreated, 1U);
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -214,7 +196,6 @@ TEST_F(function_test, ConstructionFromLambdaIsCallable)
     auto lambda = [state = capture](int32_t n) { return state + n; };
     test_function sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), lambda(1));
 }
 
@@ -223,7 +204,6 @@ TEST_F(function_test, ConstructionFromFreeFunctionIsCallable)
     ::testing::Test::RecordProperty("TEST_ID", "2d808b65-182b-44b0-a501-c9b6ab3c80e7");
     test_function sut(freeFunction);
 
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
 }
 
@@ -233,7 +213,6 @@ TEST_F(function_test, ConstructionFromStaticFunctionIsCallable)
     // is essentially also a free function but we test the case to be sure
     test_function sut(staticFunction);
 
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), staticFunction(1));
 }
 
@@ -243,7 +222,6 @@ TEST_F(function_test, ConstructionFromMemberFunctionIsCallable)
     Functor f(37);
     test_function sut(f, &Functor::operator());
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = f(1);
     EXPECT_EQ(sut(1), result + 1);
 }
@@ -254,7 +232,6 @@ TEST_F(function_test, ConstructionFromConstMemberFunctionIsCallable)
     Functor f(37);
     test_function sut(f, &Functor::getState);
 
-    ASSERT_TRUE(sut.operator bool());
     auto state = f.getState(1);
     EXPECT_EQ(sut(1), state);
     EXPECT_EQ(f.getState(1), state); // state is unchanged by the previous call
@@ -269,7 +246,6 @@ TEST_F(function_test, ConstructionFromAnotherFunctionIsCallable)
     function<signature, Bytes / 2> f(lambda); // the other function type must be small enough to fit
     test_function sut(f);
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = f(1);
     EXPECT_EQ(sut(1), result + 1);
     EXPECT_EQ(capture, INITIAL + 2);
@@ -291,8 +267,6 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     // test whether the function really owns the functor
     // (no dependency or side effects)
     test_function sut(functor);
-
-    ASSERT_TRUE(sut.operator bool());
 
     // both increment their state independently
     EXPECT_EQ(sut(1U), functor(1U));
@@ -331,8 +305,6 @@ TEST_F(function_test, CopyCtorCopiesStoredFunctor)
     test_function sut(f);
 
     EXPECT_EQ(Functor::numCopied, 1U);
-    ASSERT_TRUE(sut.operator bool());
-    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -346,11 +318,7 @@ TEST_F(function_test, MoveCtorMovesStoredFunctor)
     test_function sut(std::move(f));
 
     EXPECT_EQ(Functor::numMoved, 1U);
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
 }
 
 TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
@@ -364,8 +332,6 @@ TEST_F(function_test, CopyAssignmentCopiesStoredFunctor)
 
     EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 1U);
-    ASSERT_TRUE(sut.operator bool());
-    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -383,11 +349,7 @@ TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
     // (f is not callable but can be reassigned)
     EXPECT_EQ(Functor::numDestroyed, 2U);
     EXPECT_EQ(Functor::numMoved, 1U);
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
 }
 
 
@@ -399,8 +361,6 @@ TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
     /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
-    ASSERT_TRUE(sut.operator bool());
-    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -410,11 +370,7 @@ TEST_F(function_test, MoveCtorMovesStoredFreeFunction)
     test_function f(freeFunction);
     test_function sut(std::move(f));
 
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
 }
 
 TEST_F(function_test, CopyAssignmentCopiesStoredFreeFunction)
@@ -429,8 +385,6 @@ TEST_F(function_test, CopyAssignmentCopiesStoredFreeFunction)
     EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
-    ASSERT_TRUE(sut.operator bool());
-    ASSERT_TRUE(f.operator bool());
     EXPECT_EQ(sut(1), f(1));
 }
 
@@ -446,77 +400,7 @@ TEST_F(function_test, MoveAssignmentMovesStoredFreeFunction)
     EXPECT_EQ(Functor::numDestroyed, 1U);
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
-    ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
-}
-
-TEST_F(function_test, CopiedNonCallableFunctionIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "627cc564-8dcb-4656-9042-d99011907af5");
-    test_function f;
-    Functor::resetCounts();
-
-    /// @NOLINTJUSTIFICATION the copy constructor is tested here
-    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
-    test_function sut(f);
-
-    EXPECT_EQ(Functor::numCopied, 0U);
-    EXPECT_EQ(Functor::numMoved, 0U);
-    EXPECT_FALSE(sut.operator bool());
-    EXPECT_FALSE(f.operator bool());
-}
-
-TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "54ae2f6d-b731-44f5-a611-33b13db1d820");
-    test_function f;
-    Functor::resetCounts();
-
-    test_function sut(std::move(f));
-
-    EXPECT_EQ(Functor::numCopied, 0U);
-    EXPECT_EQ(Functor::numMoved, 0U);
-    EXPECT_FALSE(sut.operator bool());
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
-}
-
-TEST_F(function_test, CopyAssignedNonCallableFunctionIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "fa30787b-5726-4e38-9537-b7662294df4d");
-    test_function f;
-    test_function sut(Functor(73));
-
-    Functor::resetCounts();
-    sut = f;
-
-    EXPECT_EQ(Functor::numDestroyed, 1U);
-    EXPECT_EQ(Functor::numCopied, 0U);
-    EXPECT_EQ(Functor::numMoved, 0U);
-    EXPECT_FALSE(sut.operator bool());
-    EXPECT_FALSE(f.operator bool());
-}
-
-TEST_F(function_test, MoveAssignedNonCallableFunctionIsNotCallable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c98885d8-42e0-4cd4-bd74-0dd6a750ef90");
-    test_function f;
-    test_function sut(Functor(73));
-
-    Functor::resetCounts();
-    sut = std::move(f);
-
-    EXPECT_EQ(Functor::numDestroyed, 1U);
-    EXPECT_EQ(Functor::numCopied, 0U);
-    EXPECT_EQ(Functor::numMoved, 0U);
-    EXPECT_FALSE(sut.operator bool());
-    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
-    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
-    EXPECT_FALSE(f.operator bool());
 }
 
 TEST_F(function_test, MemberSwapWorks)
@@ -529,9 +413,7 @@ TEST_F(function_test, MemberSwapWorks)
 
     sut1.swap(sut2);
 
-    ASSERT_TRUE(sut1.operator bool());
     EXPECT_EQ(sut1(1), f2(1));
-    ASSERT_TRUE(sut2.operator bool());
     EXPECT_EQ(sut2(1), f1(1));
 }
 
@@ -545,9 +427,7 @@ TEST_F(function_test, StaticSwapWorks)
 
     swap(sut1, sut2);
 
-    ASSERT_TRUE(sut1.operator bool());
     EXPECT_EQ(sut1(1), f2(1));
-    ASSERT_TRUE(sut2.operator bool());
     EXPECT_EQ(sut2(1), f1(1));
 }
 
@@ -559,7 +439,6 @@ TEST_F(function_test, FunctorOfSizeSmallerThanStorageBytesCanBeStored)
     EXPECT_LE(sizeof(Functor), BYTES);
     Functor f(73);
     iox::cxx::function<signature, BYTES> sut(f);
-    EXPECT_TRUE(sut.operator bool());
 }
 
 TEST_F(function_test, IsStorableIsConsistent)
@@ -614,7 +493,6 @@ TEST_F(function_test, CallWithVoidSignatureWorks)
     auto lambda = [&]() { ++value; };
     iox::cxx::function<void(void), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     sut();
 
     EXPECT_EQ(value, initial + 1);
@@ -629,7 +507,6 @@ TEST_F(function_test, CallWithReferenceArgumentsWorks)
     auto lambda = [](Arg& a) { ++a.value; };
     iox::cxx::function<void(Arg&), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     sut(arg);
 
     EXPECT_EQ(arg.value, initial + 1);
@@ -644,7 +521,6 @@ TEST_F(function_test, CallWithConstReferenceArgumentsWorks)
     auto lambda = [](const Arg& a) { return a.value + 1; };
     iox::cxx::function<int32_t(const Arg&), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = sut(arg);
 
     EXPECT_EQ(result, initial + 1);
@@ -661,7 +537,6 @@ TEST_F(function_test, CallWithValueArgumentsWorks)
     auto lambda = [](const Arg a) { return a.value + 1; };
     iox::cxx::function<int32_t(Arg&), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = sut(arg);
 
     EXPECT_EQ(result, initial + 1);
@@ -676,7 +551,6 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
     auto lambda = [](Arg&& a) { return a.value + 1; };
     iox::cxx::function<int32_t(Arg &&), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = sut(std::move(arg));
 
     EXPECT_EQ(result, initial + 1);
@@ -697,7 +571,6 @@ TEST_F(function_test, CallWithMixedArgumentsWorks)
     auto lambda = [](Arg& a1, const Arg& a2, Arg&& a3, Arg a4) { return a1.value + a2.value + a3.value + a4.value; };
     iox::cxx::function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
 
-    ASSERT_TRUE(sut.operator bool());
     auto result = sut(arg1, arg2, std::move(arg3), arg4);
 
     EXPECT_EQ(result, sum);

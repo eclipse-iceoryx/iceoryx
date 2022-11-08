@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
+#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 
 #include "mocks/roudi_memory_block_mock.hpp"
 #include "mocks/roudi_memory_provider_mock.hpp"
@@ -54,13 +54,13 @@ class MemoryProvider_Test : public Test
     {
         // since the MemoryProvider registers for relative pointer, it is necessary to call unregisterAll, to have a
         // clean environment especially for the first test
-        iox::rp::BaseRelativePointer::unregisterAll();
+        iox::memory::UntypedRelativePointer::unregisterAll();
     }
 
     void TearDown() override
     {
         // unregisterAll is also called to leave a clean environment after the last test
-        iox::rp::BaseRelativePointer::unregisterAll();
+        iox::memory::UntypedRelativePointer::unregisterAll();
     }
 
     static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
@@ -341,15 +341,16 @@ TEST_F(MemoryProvider_Test, SegmentIdValueAfterCreationIsValid)
     ::testing::Test::RecordProperty("TEST_ID", "56307b8c-724b-4bb2-8619-a127205db184");
     constexpr uint64_t DummyMemorySize{1024};
     uint8_t dummy[DummyMemorySize];
-    auto segmentIdOffset = iox::rp::BaseRelativePointer::registerPtr(dummy, DummyMemorySize);
+    auto segmentIdOffset = iox::memory::UntypedRelativePointer::registerPtr(dummy, DummyMemorySize);
 
+    ASSERT_TRUE(segmentIdOffset.has_value());
     ASSERT_FALSE(commonSetup().has_error());
 
     auto segmentId = sut.segmentId();
     ASSERT_THAT(segmentId.has_value(), Eq(true));
     // the segment id being monotonic increasing is an implementation detail, in the case that the implementation
     // changes, just remove this check, since we already check to get a valid result
-    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset + 1U));
+    EXPECT_THAT(segmentId.value(), Eq(segmentIdOffset.value() + 1U));
 }
 
 TEST_F(MemoryProvider_Test, SegmentIdValueAfterDestructionIsUnset)

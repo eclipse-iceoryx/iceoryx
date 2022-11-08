@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 
@@ -71,14 +72,7 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     stack& copy(const stack& rhs) noexcept;
     stack& move(stack&& rhs) noexcept;
 
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
-    // the stack class
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    using element_t = uint8_t[sizeof(T)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
-    // the stack class
-    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    alignas(T) element_t m_data[Capacity];
+    UninitializedArray<T, Capacity> m_data;
     uint64_t m_size{0U};
 };
 } // namespace cxx
