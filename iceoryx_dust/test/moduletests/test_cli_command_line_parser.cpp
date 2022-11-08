@@ -794,6 +794,8 @@ TEST_F(CommandLineParser_test, FailWhenSwitchIsNotRegistered_MixedArguments)
 
 TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForShortOptionsOnly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "b3b71f74-29d6-44b2-b1b7-c92a99e3ba5c");
+
     constexpr int32_t DEFAULT_VALUE_1 = 4712;
     constexpr int32_t DEFAULT_VALUE_2 = 19230;
 
@@ -815,6 +817,8 @@ TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForShortOptionsOnly)
 
 TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "d3efb8c4-b546-418e-85b9-a6c2b447c0cb");
+
     constexpr int32_t DEFAULT_VALUE_1 = 187293;
     constexpr int32_t DEFAULT_VALUE_2 = 5512341;
 
@@ -844,6 +848,7 @@ TEST_F(CommandLineParser_test, DefaultValuesAreLoadedForLongOptionsOnly)
 
 TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "a414b0f8-88cc-4a0a-bc73-c9be1f5dcc79");
     bool wasErrorHandlerCalled;
     OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
     optionSet.addRequired('a', "", "", "int");
@@ -857,6 +862,7 @@ TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithShortOptionsOnly)
 
 TEST_F(CommandLineParser_test, DetectMissingRequiredOptionsWithLongOptionsOnly)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "8115efb2-9ddf-4457-9d69-526f215d974a");
     bool wasErrorHandlerCalled;
     OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
     optionSet.addRequired(iox::cli::NO_SHORT_OPTION, "alpha", "", "int");
