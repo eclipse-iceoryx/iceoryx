@@ -43,8 +43,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Restore lychee cache
+        uses: actions/cache@v3
+        with:
+          path: .lycheecache
+          key: cache-lychee-${{ github.ref_name }}
+
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.5.2
         with:
           fail: true
-          args: --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
+          args: --cache --max-cache-age 1d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
