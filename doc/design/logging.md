@@ -75,10 +75,12 @@ in combination with the error handler and vice versa.
    independent of the log level threshold for cases where the logger framework
    does the filtering itself.
 
-9. For tests, the default logger shall be replaced to suppress the log messages in
-   passed tests but output them for failed tests. This keeps the noise low but
-   still provides useful information when needed. Additionally, there shall be an
-   environment variable to circumvent the suppression when desired.
+9. Logging with the default logger shall be non-blocking during runtime.
+
+10. For tests, the default logger shall be replaced to suppress the log messages in
+    passed tests but output them for failed tests. This keeps the noise low but
+    still provides useful information when needed. Additionally, there shall be an
+    environment variable to circumvent the suppression when desired.
 
 ### Solution
 
