@@ -81,7 +81,7 @@ class PointerRepository
     /// @param[in] id is the id to be unregistered
     /// @return true if successful, otherwise false
     /// @attention the relative pointers corresponding to this id become unsafe to use
-    bool unregisterPtr(id_t id) noexcept;
+    bool unregisterPtr(const id_t id) noexcept;
 
     /// @brief unregisters all ids
     /// @attention the relative pointers corresponding to this id become unsafe to use
@@ -90,12 +90,12 @@ class PointerRepository
     /// @brief gets the base pointer, i.e. the starting address, associated with id
     /// @param[in] id is the segment id
     /// @return the base pointer associated with the id
-    ptr_t getBasePtr(id_t id) const noexcept;
+    ptr_t getBasePtr(const id_t id) const noexcept;
 
     /// @brief returns the id for a given pointer ptr
     /// @param[in] ptr is the pointer whose corresponding id is searched for
     /// @return the id the pointer was registered to
-    id_t searchId(ptr_t ptr) const noexcept;
+    id_t searchId(const ptr_t ptr) const noexcept;
 
   private:
     /// @todo iox-#1701 if required protect vector against concurrent modification
