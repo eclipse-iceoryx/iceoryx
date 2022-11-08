@@ -13,13 +13,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_OPTION_MANAGER_HPP
-#define IOX_HOOFS_CLI_OPTION_MANAGER_HPP
+#ifndef IOX_DUST_CLI_OPTION_MANAGER_HPP
+#define IOX_DUST_CLI_OPTION_MANAGER_HPP
 
+#include "iceoryx_dust/internal/cli/command_line_parser.hpp"
+#include "iceoryx_dust/internal/cli/option_definition.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
-#include "iceoryx_hoofs/internal/cli/option_definition.hpp"
 
 namespace iox
 {
@@ -85,5 +85,5 @@ class OptionManager
 } // namespace cli
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cli/option_manager.inl"
+#include "iceoryx_dust/internal/cli/option_manager.inl"
 #endif

@@ -44,15 +44,9 @@ iox_add_library(
     PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}ou/include
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES
-        source/cli/arguments.cpp
-        source/cli/command_line_parser.cpp
-        source/cli/option.cpp
-        source/cli/option_definition.cpp
-        source/cli/option_manager.cpp
-        source/concurrent/active_object.cpp
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp
         source/cxx/deadline_timer.cpp
@@ -81,7 +75,7 @@ iox_add_library(
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
         source/posix_wrapper/types.cpp
-        source/posix_wrapper/unnamed_semaphore.cpoup
+        source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
         source/relocatable_pointer/base_relative_pointer.cpp
         source/relocatable_pointer/relative_pointer_data.cpp

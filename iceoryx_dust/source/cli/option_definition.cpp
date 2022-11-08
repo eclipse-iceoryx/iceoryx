@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/option_definition.hpp"
+#include "iceoryx_dust/internal/cli/option_definition.hpp"
 
 namespace iox
 {

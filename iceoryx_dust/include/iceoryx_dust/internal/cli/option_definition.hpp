@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CLI_OPTION_DEFINITION_HPP
-#define IOX_HOOFS_CLI_OPTION_DEFINITION_HPP
+#ifndef IOX_DUST_CLI_OPTION_DEFINITION_HPP
+#define IOX_DUST_CLI_OPTION_DEFINITION_HPP
 
-#include "iceoryx_hoofs/cli/types.hpp"
+#include "iceoryx_dust/cli/types.hpp"
+#include "iceoryx_dust/internal/cli/arguments.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cli/arguments.hpp"
 #include <cstdint>
 
 namespace iox

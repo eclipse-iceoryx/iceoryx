@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cli/command_line_parser.hpp"
+#include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 
@@ -168,7 +168,7 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
 {
     m_optionSet = &optionSet;
 
-    m_argc = static_cast<uint64_t>(algorithm::max(0, argc));
+    m_argc = static_cast<uint64_t>(algorithm::maxVal(0, argc));
     m_argv = argv;
     m_argcOffset = argcOffset;
     // reset options otherwise multiple parse calls work on already parsed options
@@ -181,7 +181,7 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
 
     m_optionValue.m_binaryName = m_argv[0];
 
-    for (uint64_t i = algorithm::max(argcOffset, static_cast<uint64_t>(1U)); i < m_argc; ++i)
+    for (uint64_t i = algorithm::maxVal(argcOffset, static_cast<uint64_t>(1U)); i < m_argc; ++i)
     {
         const auto skipCommandLineArgument = [&] { ++i; };
 

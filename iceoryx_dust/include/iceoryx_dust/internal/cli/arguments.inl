@@ -13,10 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_INL
-#define IOX_HOOFS_CLI_COMMAND_LINE_OPTION_VALUE_INL
+#ifndef IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
+#define IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
 
-#include "iceoryx_hoofs/internal/cli/arguments.hpp"
+#include "iceoryx_dust/internal/cli/arguments.hpp"
 
 namespace iox
 {

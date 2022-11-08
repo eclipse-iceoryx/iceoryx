@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CLI_TYPES_HPP
-#define IOX_HOOFS_CLI_TYPES_HPP
+#ifndef IOX_DUST_CLI_TYPES_HPP
+#define IOX_DUST_CLI_TYPES_HPP
 
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 #include <cstdint>
 

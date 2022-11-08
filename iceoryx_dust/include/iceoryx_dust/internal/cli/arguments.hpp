@@ -13,14 +13,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CLI_ARGUMENTS_HPP
-#define IOX_HOOFS_CLI_ARGUMENTS_HPP
+#ifndef IOX_DUST_CLI_ARGUMENTS_HPP
+#define IOX_DUST_CLI_ARGUMENTS_HPP
 
-#include "iceoryx_hoofs/cli/types.hpp"
+#include "iceoryx_dust/cli/types.hpp"
+#include "iceoryx_dust/internal/cli/option.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/cli/option.hpp"
 
 namespace iox
 {
@@ -73,5 +73,5 @@ class Arguments
 } // namespace cli
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cli/arguments.inl"
+#include "iceoryx_dust/internal/cli/arguments.inl"
 #endif

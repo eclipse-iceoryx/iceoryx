@@ -14,36 +14,30 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
-#define IOX_HOOFS_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
+#include "iceoryx_dust/internal/cli/arguments.hpp"
 
-#include <memory>
-#include <string>
-#include <vector>
-
-struct CmdArgs
+namespace iox
 {
-    int argc = 0;
-    char** argv = nullptr;
+namespace cli
+{
+namespace internal
+{
+const char* Arguments::binaryName() const noexcept
+{
+    return m_binaryName;
+}
 
-    explicit CmdArgs(const std::vector<std::string>& arguments)
-        : argc{static_cast<int>(arguments.size())}
-        , argv{new char*[argc]}
+bool Arguments::isSwitchSet(const OptionName_t& switchName) const noexcept
+{
+    for (const auto& a : m_arguments)
     {
-        contents = std::make_unique<std::vector<std::string>>(arguments);
-        for (int i = 0; i < argc; ++i)
+        if (a.isSwitch && a.hasOptionName(switchName))
         {
-            argv[i] = const_cast<char*>((*contents)[i].data());
+            return true;
         }
     }
-
-    ~CmdArgs()
-    {
-        delete[] argv;
-    }
-
-    std::unique_ptr<std::vector<std::string>> contents;
-};
-
-
-#endif
+    return false;
+}
+} // namespace internal
+} // namespace cli
+} // namespace iox
