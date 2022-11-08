@@ -165,6 +165,11 @@ using void_t = void;
 //////////////////
 
 /// @brief Provides a translation from a type into its human readable name
+/// NOLINTJUSTIFICATION The name should be stored in a compile time variable. Access is always
+///   safe since it is null terminated and always constant. Other alternatives are not available
+///   at compile time.
+/// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+
 template <typename T>
 struct TypeInfo
 {
@@ -262,6 +267,7 @@ struct TypeInfo<iox::cxx::string<N>>
 };
 template <uint64_t N>
 constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
+/// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 //////////////////
 /// END TypeInfo
 //////////////////
