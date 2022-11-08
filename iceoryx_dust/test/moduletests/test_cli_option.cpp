@@ -54,7 +54,7 @@ struct OptionWithDetailsFactory
 
 
 using Implementations_t = Types<OptionFactory, OptionWithDetailsFactory>;
-TYPED_TEST_SUITE(OptionTest, Implementations_t);
+TYPED_TEST_SUITE(OptionTest, Implementations_t, );
 
 TYPED_TEST(OptionTest, emptyOptionIsDetected)
 {

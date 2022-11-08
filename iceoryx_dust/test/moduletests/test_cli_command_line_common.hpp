@@ -28,10 +28,10 @@ struct CmdArgs
 
     explicit CmdArgs(const std::vector<std::string>& arguments)
         : argc{static_cast<int>(arguments.size())}
-        , argv{new char*[argc]}
+        , argv{new char*[static_cast<uint64_t>(argc)]}
     {
         contents = std::make_unique<std::vector<std::string>>(arguments);
-        for (int i = 0; i < argc; ++i)
+        for (uint64_t i = 0; i < static_cast<uint64_t>(argc); ++i)
         {
             argv[i] = const_cast<char*>((*contents)[i].data());
         }

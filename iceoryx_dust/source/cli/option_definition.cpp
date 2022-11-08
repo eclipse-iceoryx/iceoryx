@@ -25,7 +25,7 @@ namespace internal
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
                                    const cxx::function<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
-    , m_onFailureCallback{(onFailureCallback) ? onFailureCallback : [] { std::exit(EXIT_FAILURE); }}
+    , m_onFailureCallback{onFailureCallback}
 {
     constexpr bool IS_SWITCH = true;
     std::move(*this).addOption({{'h', IS_SWITCH, {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
