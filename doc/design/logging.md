@@ -26,9 +26,9 @@ variables, e.g. the log level.
 | FATAL    | For fatal and non-recoverable errors which essentially lead to termination of the program. |
 | ERROR    | For severe but recoverable errors. |
 | WARN     | For cases when something unintentional happens which is not considered a severe error. |
-| INFO     | For important status information a user should be aware of. |
-| DEBUG    | Anything that is helpful for debugging. |
-| TRACE    | Any comment could be replaced by logging call with log level trace. |
+| INFO     | Anything which could be relevant for the daily user. |
+| DEBUG    | Anything that is helpful for debugging, i.e. the info log level for the fellow developer. |
+| TRACE    | Anything that might be helpful for debugging in some cases but would be too verbose for debug log level. |
 
 The log levels `FATAL`, `ERROR` and `WARN` should not be used independently but
 in combination with the error handler and vice versa.
@@ -135,8 +135,9 @@ passing the new logger as argument to the function. The logger must have a stati
 lifetime and should therefore be placed in the data segment.
 
 The logger can only be set once and subsequent calls to `Logger::setActiveLogger`
-will not replace the logger anymore but log error messages to both the existing
-logger and the desired new logger.
+will have no effect. Instead, an error message will be logged to both loggers to
+notify both parties of the unsuccessful attempt to switch the active logger and
+the application will continue to use the original logger for subsequent logs.
 
 The call to `iox::log::Logger::init` will initialize the logger and needs to be
 done after `Logger::setActiveLogger`.
