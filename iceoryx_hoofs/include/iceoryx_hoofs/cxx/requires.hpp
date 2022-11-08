@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_REQUIRES_HPP
 #define IOX_HOOFS_CXX_REQUIRES_HPP
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -32,12 +32,24 @@ void Require(
 // implementing C++ Core Guideline, I.6. Prefer Expects
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-expects
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
+/// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
+/// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 #define Expects(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+/// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+/// @NOLINTEND(cppcoreguidelines-macro-usage)
 
 // implementing C++ Core Guideline, I.8. Prefer Ensures
 // see:
 // https://github.com/isocpp/CppCoreGuidelines/blob/master/CppCoreGuidelines.md#Ri-ensures
+/// @NOLINTJUSTIFICATION macro required to capture file, line, function origin of call implicitly
+/// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
+/// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
+/// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 #define Ensures(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+/// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
+/// @NOLINTEND(cppcoreguidelines-macro-usage)
 
 
 } // namespace cxx

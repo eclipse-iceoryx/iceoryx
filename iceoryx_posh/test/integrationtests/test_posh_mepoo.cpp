@@ -461,6 +461,6 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     // Currently we expect that the RouDi is ready at least after 2 seconds
     auto maxtime = 2000_ms;
     EXPECT_THAT(timediff, Le(maxtime));
-});
+})
 
 } // namespace

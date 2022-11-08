@@ -15,14 +15,6 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
 - optional, [ncurses](https://invisible-island.net/ncurses/), 6.2 or later. Required by introspection tool (only for Linux, QNX and MacOS).
 
-#### Optional, Cyclone DDS Gateway
-
-The Cyclone DDS gateway depends currently on [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds).
-When building it with the CMake option `-DDDS_GATEWAY=ON` it will be automatically installed as a dependency.
-Furthermore, you have to install:
-
-- [GNU Bison](https://www.gnu.org/software/bison/manual/), 3.0.4 or later
-
 ### Mac OS
 
 Before installing iceoryx you need to install XCode and git. Optionally, ncurses library is required for
@@ -224,3 +216,65 @@ colcon build
     ```
 
 This build method makes the most sense in combination with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git)
+
+## Build with Bazel
+
+A second option is to build iceoryx with [Bazel](https://bazel.build/) as an alternative build and test tool.
+In comparison to CMake it offers an easier syntax with better performance and a hermetic build mode for reproducible builds.
+
+To install Bazel you can use [Bazelisk](https://bazel.build/install/bazelisk).
+Bazel uses workspaces and BUILD files to set up the infrastructure. You will notice
+that in the root directory of iceoryx a `WORKSPACE` is added that defines the workspace folder.
+In general, a Bazel workspace contains the project-specific source code and build outputs.
+In the corresponding iceoryx modules (e.g. iceoryx_hoofs) you will find `BUILD` files
+that contain instructions for Bazel to build and test targets.<cite>[[1]]</cite>
+
+[1]: https://bazel.build/install/bazelisk
+
+To build a specific target with Bazel you can use the `bazel build` command:
+
+```bash
+cd iceoryx
+bazel build //iceoryx_posh:iox-roudi
+```
+
+The `//iceoryx_posh` argument is the location of the BUILD file for the package.
+BUILD files can be seen similar to CMakeLists.txt files where the build targets are defined.
+The `iox-roudi` separated by a colon is the actual target defined in the BUILD file.
+
+!!! tip
+    Using `bazel build //...` will build all Bazel targets.
+
+!!! note
+    The names for iceoryx targets like libraries, applications and test are the same as in the CMake build system.
+
+You will notice that four additional `bazel-*` folders are created in the iceoryx root folder.
+They contain the build artifacts and test log. Bazel compiles the libraries always static and
+dynamic and place them into the `bazel-out` folder.
+
+Executing tests with Bazel is similar like building:
+
+```bash
+cd iceoryx
+bazel test //iceoryx_hoofs/test:hoofs_moduletests
+```
+
+!!! tip
+    Using `bazel test //...` will run all tests defined in Bazel.
+
+!!! note
+    Logs and generated XML files with the results are automatically created and
+    stored within the `bazel-testlogs` folder.
+
+Bazel offers the possibility to execute binaries:
+
+```bash
+cd iceoryx
+bazel run //iceoryx_posh:iox-roudi
+```
+
+!!! tip
+    Calling `bazel test` or `bazel run` directly without a previous `bazel build` is possible and will build the necessary targets automatically.
+
+The support for Bazel in iceoryx is work in progress but the most important libraries and applications are covered.
+Ideas and Remarks are always welcome, feel free to create an issue or discussion on the GitHub repository.

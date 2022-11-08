@@ -26,6 +26,8 @@ namespace cxx
 {
 namespace internal
 {
+/// @NOLINTJUSTIFICATION todo #1196 will be obsolote with new error handler
+/// @NOLINTNEXTLINE(readability-function-size)
 void Require(
     const bool condition, const char* file, const int line, const char* function, const char* conditionString) noexcept
 {

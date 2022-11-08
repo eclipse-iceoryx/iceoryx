@@ -17,12 +17,12 @@
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 
-#include "iceoryx_hoofs/platform/grp.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
-#include "iceoryx_hoofs/platform/pwd.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/grp.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/pwd.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <limits>
 
@@ -30,22 +30,15 @@ namespace iox
 {
 namespace posix
 {
-PosixRights::PosixRights(bool f_read, bool f_write, bool f_execute) noexcept
-    : m_read(f_read)
-    , m_write(f_write)
-    , m_execute(f_execute)
+PosixGroup::PosixGroup(gid_t id) noexcept
+    : m_id(id)
+    , m_doesExist(getGroupName(id).has_value())
 {
 }
 
-PosixGroup::PosixGroup(gid_t f_id) noexcept
-    : m_id(f_id)
-    , m_doesExist(getGroupName(f_id).has_value())
+PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
 {
-}
-
-PosixGroup::PosixGroup(const PosixGroup::string_t& f_name) noexcept
-{
-    auto id = getGroupID(f_name);
+    auto id = getGroupID(name);
     if (id.has_value())
     {
         m_id = id.value();
@@ -67,43 +60,41 @@ PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
     return PosixGroup(getegid());
 }
 
-cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::string_t& f_name) noexcept
+cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
 {
-    auto getgrnamCall = posixCall(getgrnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getgrnamCall = posixCall(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getgrnamCall.has_error())
     {
-        std::cerr << "Error: Could not find group '" << f_name << "'." << std::endl;
+        std::cerr << "Error: Could not find group '" << name << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
     return cxx::make_optional<gid_t>(getgrnamCall->value->gr_gid);
 }
 
-cxx::optional<PosixGroup::string_t> PosixGroup::getGroupName(gid_t f_id) noexcept
+cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
 {
-    auto getgrgidCall = posixCall(getgrgid)(f_id).failureReturnValue(nullptr).evaluate();
+    auto getgrgidCall = posixCall(getgrgid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getgrgidCall.has_error())
     {
-        std::cerr << "Error: Could not find group with id '" << f_id << "'." << std::endl;
+        std::cerr << "Error: Could not find group with id '" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
 
-    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getgrgidCall->value->gr_name));
+    return cxx::make_optional<groupName_t>(groupName_t(iox::cxx::TruncateToCapacity, getgrgidCall->value->gr_name));
 }
 
-PosixGroup::string_t PosixGroup::getName() const noexcept
+PosixGroup::groupName_t PosixGroup::getName() const noexcept
 {
     auto name = getGroupName(m_id);
     if (name.has_value())
     {
         return name.value();
     }
-    else
-    {
-        return string_t();
-    }
+
+    return groupName_t();
 }
 
 gid_t PosixGroup::getID() const noexcept
@@ -116,28 +107,28 @@ bool PosixGroup::doesExist() const noexcept
     return m_doesExist;
 }
 
-cxx::optional<uid_t> PosixUser::getUserID(const PosixGroup::string_t& f_name) noexcept
+cxx::optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
-    auto getpwnamCall = posixCall(getpwnam)(f_name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getpwnamCall = posixCall(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getpwnamCall.has_error())
     {
-        std::cerr << "Error: Could not find user '" << f_name << "'." << std::endl;
+        std::cerr << "Error: Could not find user '" << name << "'." << std::endl;
         return cxx::nullopt_t();
     }
     return cxx::make_optional<uid_t>(getpwnamCall->value->pw_uid);
 }
 
-cxx::optional<PosixUser::string_t> PosixUser::getUserName(uid_t f_id) noexcept
+cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
 {
-    auto getpwuidCall = posixCall(getpwuid)(f_id).failureReturnValue(nullptr).evaluate();
+    auto getpwuidCall = posixCall(getpwuid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getpwuidCall.has_error())
     {
-        std::cerr << "Error: Could not find user with id'" << f_id << "'." << std::endl;
+        std::cerr << "Error: Could not find user with id'" << id << "'." << std::endl;
         return cxx::nullopt_t();
     }
-    return cxx::make_optional<string_t>(string_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
+    return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
 }
 
 PosixUser::groupVector_t PosixUser::getGroups() const noexcept
@@ -157,10 +148,12 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
 
+    /// NOLINTJUSTIFICATION todo iox-#1196: use upcoming cxx::array
+    /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     gid_t groups[MaxNumberOfGroups];
     int32_t numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, groups, &numGroups)
+    auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
                                 .failureReturnValue(-1)
                                 .evaluate();
     if (getgrouplistCall.has_error())
@@ -178,21 +171,23 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     groupVector_t vec;
     for (int32_t i = 0; i < numGroups; ++i)
     {
+        /// NOLINTJUSTIFICATION todo iox-#1196: will be fixed when upcoming cxx::array is used
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         vec.emplace_back(PosixGroup(groups[i]));
     }
 
     return vec;
 }
 
-PosixUser::PosixUser(uid_t f_id) noexcept
-    : m_id(f_id)
-    , m_doesExist(getUserName(f_id).has_value())
+PosixUser::PosixUser(uid_t id) noexcept
+    : m_id(id)
+    , m_doesExist(getUserName(id).has_value())
 {
 }
 
-PosixUser::PosixUser(const PosixUser::string_t& f_name) noexcept
+PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
 {
-    auto id = getUserID(f_name);
+    auto id = getUserID(name);
     if (id.has_value())
     {
         m_id = id.value();
@@ -204,17 +199,15 @@ PosixUser::PosixUser(const PosixUser::string_t& f_name) noexcept
     }
 }
 
-PosixUser::string_t PosixUser::getName() const noexcept
+PosixUser::userName_t PosixUser::getName() const noexcept
 {
     auto name = getUserName(m_id);
     if (name.has_value())
     {
         return name.value();
     }
-    else
-    {
-        return string_t();
-    }
+
+    return userName_t();
 }
 
 uid_t PosixUser::getID() const noexcept

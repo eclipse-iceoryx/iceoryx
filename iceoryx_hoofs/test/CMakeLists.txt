@@ -27,6 +27,7 @@ set(PROJECT_PREFIX "hoofs")
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
 file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 file(GLOB_RECURSE MOCKTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/mocktests/*.cpp")
+file(GLOB STRESSTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/stresstests/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
@@ -59,26 +60,23 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
                     FILES                   ${INTEGRATIONTESTS_SRC}
 )
 
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_stresstests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl pthread rt
+                    FILES                   ${STRESSTESTS_SRC}
+)
+
 iox_add_executable( TARGET                  test_stress_sofi
                     INCLUDE_DIRECTORIES     .
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_LINUX              acl dl pthread rt
-                    FILES                   stresstests/test_stress_sofi.cpp
+                    FILES                   stresstests/sofi/test_stress_sofi.cpp
 )
 
 add_subdirectory(stresstests/benchmark_optional_and_expected)
-
-## TODO: iox-#1287 remove those compiler warning exceptions
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
-else()
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion) # -Wpedantic results in errors at the time mocks
-endif()
 
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${TEST_CXX_FLAGS})
 target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
 target_compile_options(test_stress_sofi PRIVATE ${TEST_CXX_FLAGS})
-## TODO: END iox-#1287 remove those compiler warning exceptions
-
-

@@ -29,8 +29,7 @@ using namespace ::testing;
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
 
-TYPED_TEST_SUITE(LoFFLi_test, LoFFLiTestSubjects);
-
+TYPED_TEST_SUITE(LoFFLi_test, LoFFLiTestSubjects, );
 
 template <typename LoFFLiType>
 class LoFFLi_test : public Test
@@ -38,7 +37,7 @@ class LoFFLi_test : public Test
   public:
     void SetUp() override
     {
-        m_loffli.init(m_memoryLoFFLi, Size);
+        m_loffli.init(&m_memoryLoFFLi[0], Size);
     }
 
     void TearDown() override
@@ -46,7 +45,8 @@ class LoFFLi_test : public Test
     }
 
     using LoFFLiIndex_t = typename LoFFLiType::Index_t;
-    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)];
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed for LoFFLi::init
+    LoFFLiIndex_t m_memoryLoFFLi[LoFFLiType::requiredIndexMemorySize(Size)]{0};
     LoFFLiType m_loffli;
 };
 
@@ -54,23 +54,31 @@ TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab877f29-cab0-48ae-a2c0-054633b6415a");
     decltype(this->m_loffli) loFFLi;
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(loFFLi.init(nullptr, 1), ".*");
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb9c797b-22b4-4572-a7a2-eaf13574dbac");
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
-    EXPECT_DEATH(loFFLi.init(memoryLoFFLi, 0), ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], 0), ".*");
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
 {
     ::testing::Test::RecordProperty("TEST_ID", "14b4b82c-ae2b-4bd2-97cf-93fcea87f050");
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
-    EXPECT_DEATH(loFFLi.init(memoryLoFFLi, UINT32_MAX - 1), ".*");
+    // todo #1196 remove EXPECT_DEATH
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
+    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1), ".*");
 }
 
 
@@ -120,7 +128,7 @@ TYPED_TEST(LoFFLi_test, SinglePush)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b7bf346-056b-4b1c-a6e9-92b54233598e");
     constexpr uint32_t AFFE = 0xAFFE;
-    uint32_t index;
+    uint32_t index{0};
     this->m_loffli.pop(index);
 
     uint32_t indexPush = index;
@@ -134,7 +142,7 @@ TYPED_TEST(LoFFLi_test, PushTillFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "610e3e8f-1db9-4a92-a5e8-2d1bb0077123");
     std::vector<uint32_t> useList;
-    uint32_t index;
+    uint32_t index{0};
     while (this->m_loffli.pop(index))
     {
         useList.push_back(index);
@@ -151,7 +159,7 @@ TYPED_TEST(LoFFLi_test, PushRandomOrder)
     ::testing::Test::RecordProperty("TEST_ID", "73700ca3-3a37-48af-8485-91e0a7b4e3d0");
     std::vector<uint32_t> useListToPush;
     std::vector<uint32_t> useListPoped;
-    uint32_t index;
+    uint32_t index{0};
     while (this->m_loffli.pop(index))
     {
         useListToPush.push_back(index);
@@ -181,7 +189,7 @@ TYPED_TEST(LoFFLi_test, PushRandomOrder)
 TYPED_TEST(LoFFLi_test, PushWrongIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9a3fabd1-17c0-4e40-8390-53ca4d656d91");
-    uint32_t index;
+    uint32_t index{0};
     this->m_loffli.pop(index);
 
     uint32_t indexPush = index + 1;
@@ -191,7 +199,7 @@ TYPED_TEST(LoFFLi_test, PushWrongIndex)
 TYPED_TEST(LoFFLi_test, PushOutOfBoundIndex)
 {
     ::testing::Test::RecordProperty("TEST_ID", "261ba489-1cec-44db-8c41-d9e71c761d91");
-    uint32_t index;
+    uint32_t index{0};
     this->m_loffli.pop(index);
 
     EXPECT_THAT(this->m_loffli.push(Size), Eq(false));

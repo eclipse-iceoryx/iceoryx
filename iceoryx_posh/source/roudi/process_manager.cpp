@@ -20,10 +20,10 @@
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/relocatable_pointer/relative_pointer.hpp"
-#include "iceoryx_hoofs/platform/signal.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
-#include "iceoryx_hoofs/platform/wait.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/signal.hpp"
+#include "iceoryx_platform/types.hpp"
+#include "iceoryx_platform/wait.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -183,7 +183,7 @@ void ProcessManager::evaluateKillError(const Process& process,
     {
         LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                   << "' could not be killed with"
-                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: ’"
+                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: '"
                   << errorString << "'";
         errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
     }
@@ -263,11 +263,12 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
+    const bool sendKeepAlive = isMonitored;
 
-    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, m_segmentManager);
+    auto offset = rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, m_segmentManager);
     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
                << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
-               << m_mgmtSegmentId;
+               << m_mgmtSegmentId << sendKeepAlive;
 
     m_processList.back().sendViaIpcChannel(sendBuffer);
 
@@ -353,7 +354,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
             popo::InterfacePortData* port = m_portManager.acquireInterfacePortData(interface, name, node);
 
             // send ReceiverPort to app as a serialized relative pointer
-            auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, port);
+            auto offset = rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, port);
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
@@ -371,7 +372,8 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
         .and_then([&](auto& process) {
             m_portManager.acquireNodeData(runtimeName, nodeName)
                 .and_then([&](auto nodeData) {
-                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, nodeData);
+                    auto offset =
+                        rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, nodeData);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
@@ -423,7 +425,8 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
             if (!maybeSubscriber.has_error())
             {
                 // send SubscriberPort to app as a serialized relative pointer
-                auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, maybeSubscriber.value());
+                auto offset = rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId},
+                                                                 maybeSubscriber.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
@@ -475,7 +478,8 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             if (!maybePublisher.has_error())
             {
                 // send PublisherPort to app as a serialized relative pointer
-                auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, maybePublisher.value());
+                auto offset = rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId},
+                                                                 maybePublisher.value());
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
@@ -547,7 +551,8 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                 .acquireClientPortData(
                     service, clientOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& clientPort) {
-                    auto relativePtrToClientPort = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, clientPort);
+                    auto relativePtrToClientPort =
+                        rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, clientPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
@@ -598,7 +603,8 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                 .acquireServerPortData(
                     service, serverOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo)
                 .and_then([&](auto& serverPort) {
-                    auto relativePtrToServerPort = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, serverPort);
+                    auto relativePtrToServerPort =
+                        rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, serverPort);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
@@ -631,7 +637,8 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
         .and_then([&](auto& process) { // Try to create a condition variable
             m_portManager.acquireConditionVariableData(runtimeName)
                 .and_then([&](auto condVar) {
-                    auto offset = rp::BaseRelativePointer::getOffset(m_mgmtSegmentId, condVar);
+                    auto offset =
+                        rp::BaseRelativePointer::getOffset(rp::BaseRelativePointer::id_t{m_mgmtSegmentId}, condVar);
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(

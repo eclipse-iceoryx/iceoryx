@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,20 +79,21 @@ class VersionInfo
     static VersionInfo getCurrentVersion() noexcept;
 
   protected:
-    static const uint64_t SERIALIZATION_STRING_SIZE = 100u;
+    static constexpr uint64_t SERIALIZATION_STRING_SIZE = 100;
     using SerializationString_t = cxx::string<SERIALIZATION_STRING_SIZE>;
 
     static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
     static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
-    static_assert(cxx::strlen2(ICEORYX_BUILDDATE) < BUILD_DATE_STRING_SIZE,
+    static constexpr uint64_t NULL_TERMINATION_SIZE{1};
+    static_assert((cxx::arrayCapacity(ICEORYX_BUILDDATE) - NULL_TERMINATION_SIZE) < BUILD_DATE_STRING_SIZE,
                   "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
 
   protected:
     bool m_valid{true};
-    uint16_t m_versionMajor{0u};
-    uint16_t m_versionMinor{0u};
-    uint16_t m_versionPatch{0u};
-    uint16_t m_versionTweak{0u};
+    uint16_t m_versionMajor{0};
+    uint16_t m_versionMinor{0};
+    uint16_t m_versionPatch{0};
+    uint16_t m_versionTweak{0};
     BuildDateString_t m_buildDateString;
     CommitIdString_t m_commitIdString;
 };

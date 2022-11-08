@@ -663,13 +663,12 @@ TEST_F(ClientPort_test, asStringLiteralConvertsClientSendErrorValuesToStrings)
 TEST_F(ClientPort_test, LogStreamConvertsClientSendErrorValueToString)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b5b4421c-6b05-44ea-b7a6-823b3714fabd");
-    Logger_Mock loggerMock;
+    iox::testing::Logger_Mock loggerMock;
 
     auto sut = iox::popo::ClientSendError::SERVER_NOT_AVAILABLE;
 
     {
-        auto logstream = iox::log::LogStream(loggerMock);
-        logstream << sut;
+        IOX_LOGSTREAM_MOCK(loggerMock) << sut;
     }
 
     ASSERT_THAT(loggerMock.m_logs.size(), Eq(1U));
@@ -927,9 +926,6 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
                                                 iox::ConnectionState::WAIT_FOR_OFFER,
                                                 iox::ConnectionState::CONNECTED,
                                                 iox::ConnectionState::DISCONNECT_REQUESTED};
-
-    // disable logging to prevent spamming the console with LogFatal outputs
-    auto logLevelScopeGuard = iox::LoggerPosh().SetLogLevelForScope(iox::log::LogLevel::kOff);
 
     for (auto targetState : ALL_STATES)
     {

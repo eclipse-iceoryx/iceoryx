@@ -18,11 +18,11 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <bitset>
 #include <cstdlib>
@@ -34,29 +34,39 @@ namespace iox
 {
 namespace posix
 {
-constexpr void* SharedMemoryObject::NO_ADDRESS_HINT;
+constexpr const void* const SharedMemoryObject::NO_ADDRESS_HINT;
 constexpr uint64_t SIGBUS_ERROR_MESSAGE_LENGTH = 1024U + platform::IOX_MAX_SHM_NAME_LENGTH;
 
+/// NOLINTJUSTIFICATION global variables are only accessible from within this compilation unit
+/// NOLINTBEGIN(cppcoreguidelines-avoid-non-const-global-variables)
+///
+/// NOLINTJUSTIFICATION c array required to print a signal safe error message in memsetSigbusHandler
+/// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static char sigbusErrorMessage[SIGBUS_ERROR_MESSAGE_LENGTH];
 static std::mutex sigbusHandlerMutex;
+/// NOLINTEND(cppcoreguidelines-avoid-non-const-global-variables)
 
 static void memsetSigbusHandler(int) noexcept
 {
-    auto result = write(STDERR_FILENO, sigbusErrorMessage, strnlen(sigbusErrorMessage, SIGBUS_ERROR_MESSAGE_LENGTH));
+    auto result =
+        write(STDERR_FILENO, &sigbusErrorMessage[0], strnlen(&sigbusErrorMessage[0], SIGBUS_ERROR_MESSAGE_LENGTH));
     IOX_DISCARD_RESULT(result);
     _exit(EXIT_FAILURE);
 }
 
+// NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
+// results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
     auto printErrorDetails = [this] {
         LogError() << "Unable to create a shared memory object with the following properties [ name = " << m_name
                    << ", sizeInBytes = " << m_memorySizeInBytes << ", access mode = " << asStringLiteral(m_accessMode)
                    << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = "
-                   << ((m_baseAddressHint) ? log::HexFormat(reinterpret_cast<uint64_t>(*m_baseAddressHint))
-                                           : log::HexFormat(static_cast<uint64_t>(0U)))
+                   << ((m_baseAddressHint) ? iox::log::hex(m_baseAddressHint.value())
+                                           : iox::log::hex(static_cast<uint64_t>(0U)))
                    << ((m_baseAddressHint) ? "" : " (no hint set)")
-                   << ", permissions = " << log::BinFormat(static_cast<mode_t>(m_permissions)) << " ]";
+                   << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()
@@ -101,9 +111,18 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
             // shared memory objects concurrently
             std::lock_guard<std::mutex> lock(sigbusHandlerMutex);
             auto memsetSigbusGuard = registerSignalHandler(Signal::BUS, memsetSigbusHandler);
+            if (memsetSigbusGuard.has_error())
+            {
+                printErrorDetails();
+                LogError() << "Failed to temporarily override SIGBUS to safely zero the shared memory";
+                return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
+            }
 
-            snprintf(
-                sigbusErrorMessage,
+            // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be used signal safe in
+            //                     a possible signal call
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg,hicpp-vararg)
+            IOX_DISCARD_RESULT(snprintf(
+                &sigbusErrorMessage[0],
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
@@ -114,7 +133,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                 asStringLiteral(m_accessMode),
                 asStringLiteral(m_openMode),
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong());
+                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong()));
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }

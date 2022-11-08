@@ -1,0 +1,33 @@
+# Symlinked to:
+# currently no symlinks
+
+InheritParentConfig:  true
+
+Checks: '
+-cert-err58-cpp,
+-cppcoreguidelines-avoid-non-const-global-variables,
+-cppcoreguidelines-owning-memory,
+-cppcoreguidelines-special-member-functions,
+-hicpp-special-member-functions,
+-readability-identifier-naming,
+'
+
+## Justifications for rule deactivation ##
+#
+# * rule: cert-err58-cpp
+#   justification: caused by TEST_F in gtest with internal macro generated construct: test_info_
+#
+# * rule: cppcoreguidelines-avoid-non-const-global-variables
+#   justification: same as for 'cert-err58-cpp'
+#
+# * rule: cppcoreguidelines-owning-memory
+#   justification: caused by TEST_F in gtest with internal macro generated construct: testing::internal::TestFactoryBase *
+#
+# * rule: cppcoreguidelines-special-member-functions
+#   justification: structs and classes in tests do not all follow the rule of five
+#
+# * rule: hicpp-special-member-functions
+#   justification: same as for 'cppcoreguidelines-special-member-functions'
+#
+# * rule: readability-identifier-naming
+#   justification: structs and classes in tests do not obey the same naming convention like in production code

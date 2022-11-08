@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,11 +52,9 @@ class BasePort
     BasePort& operator=(BasePort&&) noexcept;
     virtual ~BasePort() = default;
 
-    /// @brief a port can be constructed from a nullptr, additionally it also can be moved
-    ///         and in these cases the member methods would work on a nullptr.
-    ///         to circumvent this problem
+    /// @brief Checks whether the memberpointer is not null
     /// @return if the memberpointer is not null it returns true, otherwise false
-    operator bool() const noexcept;
+    explicit operator bool() const noexcept;
 
     /// @brief Reads Type of actual CaPro Port (publisher/subscriber...)
     /// @return m_portType  Type of Port in struct BasePortType

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +17,17 @@
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_INL
 #define IOX_HOOFS_CXX_SCOPED_STATIC_INL
 
+#include "iceoryx_hoofs/cxx/scoped_static.hpp"
+
 namespace iox
 {
 namespace cxx
 {
 template <typename T, typename... CTorArgs>
-inline GenericRAII makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
+inline ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
 {
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
-    return GenericRAII([] {}, [&memory] { memory.reset(); });
+    return ScopeGuard([&memory] { memory.reset(); });
 }
 } // namespace cxx
 } // namespace iox

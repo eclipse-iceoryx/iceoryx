@@ -21,13 +21,15 @@ set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_introspection VERSION ${IOX_VERSION_STRING})
 
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
-iox_make_unique_includedir()
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)

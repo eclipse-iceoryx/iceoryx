@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,10 +31,10 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
                                          const RuntimeName_t& runtimeName,
                                          const units::Duration roudiWaitingTimeout) noexcept
     : m_runtimeName(runtimeName)
-    , m_AppIpcInterface(runtimeName)
     , m_RoudiIpcInterface(roudiName)
 {
-    if (!m_AppIpcInterface.isInitialized())
+    m_AppIpcInterface.emplace(runtimeName);
+    if (!m_AppIpcInterface->isInitialized())
     {
         errorHandler(PoshError::IPC_INTERFACE__UNABLE_TO_CREATE_APPLICATION_CHANNEL);
         return;
@@ -123,7 +123,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
     if (regState != RegState::FINISHED)
     {
-        m_AppIpcInterface.cleanupResource();
+        m_AppIpcInterface.reset();
     }
     switch (regState)
     {
@@ -145,7 +145,9 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
 bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
-    return m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_runtimeName});
+    return (m_sendKeepalive)
+               ? m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE), m_runtimeName})
+               : true;
 }
 
 rp::BaseRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
@@ -163,7 +165,7 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
         return false;
     }
 
-    if (!m_AppIpcInterface.receive(answer))
+    if (!m_AppIpcInterface->receive(answer))
     {
         LogError() << "Could not receive request via App IPC channel interface.\n";
         return false;
@@ -218,13 +220,13 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
         using namespace units::duration_literals;
         IpcMessage receiveBuffer;
         // wait for IpcMessageType::REG_ACK from RouDi for 1 seconds
-        if (m_AppIpcInterface.timedReceive(1_s, receiveBuffer))
+        if (m_AppIpcInterface->timedReceive(1_s, receiveBuffer))
         {
             std::string cmd = receiveBuffer.getElementAtIndex(0U);
 
             if (stringToIpcMessageType(cmd.c_str()) == IpcMessageType::REG_ACK)
             {
-                constexpr uint32_t REGISTER_ACK_PARAMETERS = 5U;
+                constexpr uint32_t REGISTER_ACK_PARAMETERS = 6U;
                 if (receiveBuffer.getNumberOfElements() != REGISTER_ACK_PARAMETERS)
                 {
                     errorHandler(PoshError::IPC_INTERFACE__REG_ACK_INVALIG_NUMBER_OF_PARAMS);
@@ -239,6 +241,7 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 int64_t receivedTimestamp{0U};
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(3U).c_str(), receivedTimestamp);
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
+                cxx::convert::fromString(receiveBuffer.getElementAtIndex(5U).c_str(), m_sendKeepalive);
                 if (transmissionTimestamp == receivedTimestamp)
                 {
                     return RegAckResult::SUCCESS;

@@ -31,10 +31,11 @@ void GenericValueErrorFactory::configureNextTestCase() noexcept
     // we increment all the values with an arbitrary value (23) int every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
-    usedTestValue += 23;
-    anotherTestValue += 23;
-    usedErrorValue += 23;
-    anotherErrorValue += 23;
+    constexpr value_t NEXT_CASE_INCREMENT_VALUE = 23;
+    usedTestValue += NEXT_CASE_INCREMENT_VALUE;
+    anotherTestValue += NEXT_CASE_INCREMENT_VALUE;
+    usedErrorValue += NEXT_CASE_INCREMENT_VALUE;
+    anotherErrorValue += NEXT_CASE_INCREMENT_VALUE;
 }
 
 GenericValueErrorFactory::Type GenericValueErrorFactory::createValidObject() noexcept
@@ -81,8 +82,10 @@ void OptionalFactory::configureNextTestCase() noexcept
     // we increment all the values with an arbitrary value every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
-    usedTestValue += 67;
-    anotherTestValue += 69;
+    constexpr value_t NEXT_CASE_VALUE_INCREMENT = 67;
+    constexpr value_t NEXT_CASE_VALUE_2_INCREMENT = 69;
+    usedTestValue += NEXT_CASE_VALUE_INCREMENT;
+    anotherTestValue += NEXT_CASE_VALUE_2_INCREMENT;
 }
 
 OptionalFactory::Type OptionalFactory::createValidObject() noexcept
@@ -111,10 +114,12 @@ void ExpectedValueErrorFactory::configureNextTestCase() noexcept
     // we increment all the values with an static arbitrary value in every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
-    usedTestValue += 189;
-    anotherTestValue += 189;
-    usedErrorValue += 191;
-    anotherErrorValue += 191;
+    constexpr value_t NEXT_CASE_VALUE_INCREMENT = 189;
+    constexpr error_t NEXT_CASE_ERROR_INCREMENT = 191;
+    usedTestValue += NEXT_CASE_VALUE_INCREMENT;
+    anotherTestValue += NEXT_CASE_VALUE_INCREMENT;
+    usedErrorValue += NEXT_CASE_ERROR_INCREMENT;
+    anotherErrorValue += NEXT_CASE_ERROR_INCREMENT;
 }
 
 ExpectedValueErrorFactory::Type ExpectedValueErrorFactory::createValidObject() noexcept
@@ -141,8 +146,9 @@ void ExpectedErrorFactory::configureNextTestCase() noexcept
     // we increment all the values with an static arbitrary value in every test case
     // so that we have some variation with every test and reduce the false positives
     // probability due to memory corruptions
-    usedErrorValue += 191;
-    anotherErrorValue += 191;
+    constexpr error_t NEXT_CASE_INCREMENT_VALUE = 191;
+    usedErrorValue += NEXT_CASE_INCREMENT_VALUE;
+    anotherErrorValue += NEXT_CASE_INCREMENT_VALUE;
 }
 
 ExpectedErrorFactory::Type ExpectedErrorFactory::createValidObject() noexcept

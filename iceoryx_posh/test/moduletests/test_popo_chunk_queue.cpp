@@ -84,8 +84,7 @@ using ChunkQueueSubjects =
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer>,
           TypeDefinitions<SingleThreadedPolicy, iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer>>;
 
-TYPED_TEST_SUITE(ChunkQueue_test, ChunkQueueSubjects);
-
+TYPED_TEST_SUITE(ChunkQueue_test, ChunkQueueSubjects, );
 
 template <typename TestTypes>
 class ChunkQueue_test : public Test, public ChunkQueue_testBase
@@ -268,8 +267,7 @@ TYPED_TEST(ChunkQueue_test, AttachSecondConditionVariable)
 /// @note this could be changed to a parameterized ChunkQueueSaturatingFIFO_test when there are more FIFOs available
 using ChunkQueueFiFoTestSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
-TYPED_TEST_SUITE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects);
-
+TYPED_TEST_SUITE(ChunkQueueFiFo_test, ChunkQueueFiFoTestSubjects, );
 
 template <typename PolicyType>
 class ChunkQueueFiFo_test : public Test, public ChunkQueue_testBase
@@ -299,9 +297,10 @@ TYPED_TEST(ChunkQueueFiFo_test, Capacity)
 }
 
 /// @note API currently not supported
-TYPED_TEST(ChunkQueueFiFo_test, DISABLED_SetCapacity)
+TYPED_TEST(ChunkQueueFiFo_test, SetCapacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2e1c144-bb55-4423-b62b-bfd8d5a64927");
+    GTEST_SKIP() << "todo iox-#615 API currently not supported";
     this->m_popper.setCapacity(this->RESIZED_CAPACITY);
     EXPECT_THAT(this->m_popper.getCurrentCapacity(), Eq(this->RESIZED_CAPACITY));
 }
@@ -332,8 +331,7 @@ TYPED_TEST(ChunkQueueFiFo_test, PushFull)
 /// @note this could be changed to a parameterized ChunkQueueOverflowingFIFO_test when there are more FIFOs available
 using ChunkQueueSoFiSubjects = Types<ThreadSafePolicy, SingleThreadedPolicy>;
 
-TYPED_TEST_SUITE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects);
-
+TYPED_TEST_SUITE(ChunkQueueSoFi_test, ChunkQueueSoFiSubjects, );
 
 template <typename PolicyType>
 class ChunkQueueSoFi_test : public Test, public ChunkQueue_testBase

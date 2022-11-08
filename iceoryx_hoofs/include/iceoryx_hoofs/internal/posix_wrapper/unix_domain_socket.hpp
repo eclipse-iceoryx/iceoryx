@@ -21,11 +21,11 @@
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
-#include "iceoryx_hoofs/platform/socket.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/un.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
+#include "iceoryx_platform/socket.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/un.hpp"
 
 namespace iox
 {
@@ -73,9 +73,6 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
     static cxx::expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
 
-    /// @brief close the unix domain socket.
-    cxx::expected<IpcChannelError> destroy() noexcept;
-
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
@@ -96,43 +93,24 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
     cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
-    /// @brief checks whether the unix domain socket is outdated
-    /// @return true if the unix domain socket is outdated, false otherwise, IpcChannelError if error occured
-    cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
-
   private:
-    /// @brief c'tor
-    /// @param name for the unix domain socket
-    /// @param channel side client or server
-    /// @param maxMsgSize max message size that can be transmitted
-    /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    /// @brief c'tor
-    /// @param NoPathPrefix signalling that this constructor does not add a path prefix
-    /// @param name for the unix domain socket
-    /// @param channel side client or server
-    /// @param maxMsgSize max message size that can be transmitted
-    /// @param maxMsgNumber max messages that can be queued
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
                      const IpcChannelSide channelSide,
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    /// @brief initializes the unix domain socket
-    /// @return IpcChannelError if error occured
+    cxx::expected<IpcChannelError> destroy() noexcept;
+
     cxx::expected<IpcChannelError> initalizeSocket() noexcept;
 
-    /// @brief create an IpcChannelError from the provides error code
-    /// @return IpcChannelError if error occured
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
 
-    /// @brief Tries to close the file descriptor
-    /// @return IpcChannelError if error occured
     cxx::expected<IpcChannelError> closeFileDescriptor() noexcept;
 
   private:

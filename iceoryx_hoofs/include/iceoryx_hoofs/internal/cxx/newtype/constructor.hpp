@@ -23,28 +23,48 @@ namespace cxx
 {
 namespace newtype
 {
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct CopyConstructable
 {
   protected:
     ~CopyConstructable() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct MoveConstructable
 {
   protected:
     ~MoveConstructable() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ConstructByValueCopy
 {
   protected:
     ~ConstructByValueCopy() = default;
 };
 
-template <typename T>
+template <typename>
+// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct DefaultConstructable
 {
   protected:

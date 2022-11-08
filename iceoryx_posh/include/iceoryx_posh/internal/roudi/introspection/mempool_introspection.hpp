@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +17,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -87,7 +88,7 @@ class MemPoolIntrospection
 
   private:
     units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
-    concurrent::PeriodicTask<cxx::MethodCallback<void>> m_publishingTask{
+    concurrent::PeriodicTask<cxx::function<void()>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "MemPoolIntr", *this, &MemPoolIntrospection::send};
 };
 

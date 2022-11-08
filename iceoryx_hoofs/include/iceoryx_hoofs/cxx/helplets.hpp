@@ -27,8 +27,8 @@
 #include <limits>
 #include <type_traits>
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 namespace iox
 {
@@ -81,64 +81,82 @@ template <typename T, typename = typename std::enable_if<std::is_pointer<T>::val
 struct not_null
 {
   public:
+    // this class should behave like a pointer which never can be nullptr, adding explicit
+    // would defeat the purpose
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     not_null(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t != nullptr);
     }
 
+    // this should behave like a pointer which never can be nullptr, adding explicit
+    // would defeat the purpose
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T, T Minimum>
 struct greater_or_equal
 {
   public:
+    // this class should behave like a T but which never can be less than Minimum.
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     greater_or_equal(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t >= Minimum);
     }
 
+    // this class should behave like a T but which never can be less than Minimum.
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T, T Minimum, T Maximum>
 struct range
 {
   public:
+    // this class should behave like a T but with values only in range [Minimum, Maximum]
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     range(T t) noexcept
-        : value(t)
+        : m_value(t)
     {
         Expects(t >= Minimum && t <= Maximum);
     }
 
+    // this class should behave like a T but with values only in range [Minimum, Maximum]
+    // Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
-        return value;
+        return m_value;
     }
 
   private:
-    T value;
+    T m_value;
 };
 
 template <typename T>
 T align(const T value, const T alignment) noexcept
 {
     T remainder = value % alignment;
-    return value + ((remainder == 0u) ? 0u : alignment - remainder);
+    return value + ((remainder == 0U) ? 0U : alignment - remainder);
 }
 
 /// @brief allocates aligned memory which can only be free'd by alignedFree
@@ -152,10 +170,10 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept;
 void alignedFree(void* const memory) noexcept;
 
 /// template recursion stopper for maximum alignment calculation
-template <size_t s = 0>
+template <size_t S = 0>
 constexpr size_t maxAlignment() noexcept
 {
-    return s;
+    return S;
 }
 
 /// calculate maximum alignment of supplied types
@@ -166,10 +184,10 @@ constexpr size_t maxAlignment() noexcept
 }
 
 /// template recursion stopper for maximum size calculation
-template <size_t s = 0>
+template <size_t S = 0>
 constexpr size_t maxSize() noexcept
 {
-    return s;
+    return S;
 }
 
 /// calculate maximum size of supplied types
@@ -179,42 +197,21 @@ constexpr size_t maxSize() noexcept
     return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
 }
 
-/// Convert Enum class type to string
-template <typename T, typename Enumeration>
-const char* convertEnumToString(T port, const Enumeration source) noexcept
+/// @brief Get the capacity of a C array at compile time
+/// @code
+/// constexpr uint32_t FOO[42]{};
+/// std::cout << arrayCapacity(FOO) << std::endl; // will print 42
+/// @endcode
+/// @tparam T the type of the array filled out by the compiler.
+/// @tparam CapacityValue the capacity of the array filled out by the compiler.
+/// @param[in] The actual content of the array is not of interest. Its just the capacity of the array that matters.
+/// @return Returns the capacity of the array at compile time.
+template <typename T, uint64_t CapacityValue>
+// returning capacity of C array at compile time is safe, no possibility of out of bounds access
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityValue]) noexcept
 {
-    return port[static_cast<size_t>(source)];
-}
-
-/// cast an enum to its underlying type
-template <typename enum_type>
-auto enumTypeAsUnderlyingType(enum_type const value) noexcept -> typename std::underlying_type<enum_type>::type
-{
-    return static_cast<typename std::underlying_type<enum_type>::type>(value);
-}
-
-/// calls a given functor for every element in a given container
-/// @tparam[in] Container type which must be iteratable
-/// @tparam[in] Functor which has one argument, the element type of the container
-/// @param[in] c container which should be iterated
-/// @param[in] f functor which should be applied to every element
-template <typename Container, typename Functor>
-void forEach(Container& c, const Functor& f) noexcept
-{
-    for (auto& element : c)
-    {
-        f(element);
-    }
-}
-
-/// @brief Get the size of a string represented by a char array at compile time.
-/// @tparam The size of the char array filled out by the compiler.
-/// @param[in] The actual content of the char array is not of interest. Its just the size of the array that matters.
-/// @return Returns the size of a char array at compile time.
-template <uint64_t SizeValue>
-static constexpr uint64_t strlen2(char const (&/*notInterested*/)[SizeValue]) noexcept
-{
-    return SizeValue - 1;
+    return CapacityValue;
 }
 
 /// @brief get the best fitting unsigned integer type for a given value at compile time
@@ -249,15 +246,56 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
-/// @brief checks if the given string is a valid filename
+enum class RelativePathComponents
+{
+    REJECT,
+    ACCEPT
+};
+
+/// @brief checks if the given string is a valid path entry. A path entry is the string between
+///        two path separators.
+/// @note A valid path entry for iceoryx must be platform independent and also supported
+///       by various file systems. The file systems we intend to support are
+///         * linux: ext3, ext4, btrfs
+///         * windows: ntfs, exfat, fat
+///         * freebsd: ufs, ffs
+///         * apple: apfs
+///         * qnx: etfs
+///         * android: ext3, ext4, fat
+///
+///       Sometimes it is also possible that a certain file character is supported by the filesystem
+///       itself but not by the platforms SDK. One example are files which end with a dot like "myFile."
+///       which are supported by ntfs but not by the Windows SDK.
+/// @param[in] name the path entry in question
+/// @param[in] relativePathComponents are relative path components are allowed for this path entry
+/// @return true if it is valid, otherwise false
+template <uint64_t StringCapacity>
+bool isValidPathEntry(const string<StringCapacity>& name,
+                      const RelativePathComponents& relativePathComponents) noexcept;
+
+/// @brief checks if the given string is a valid filename. It must fulfill the
+///        requirements of a valid path entry (see, isValidPathEntry) and is not allowed
+///        to contain relative path components
+/// @param[in] name the string to verify
 /// @return true if the string is a filename, otherwise false
 template <uint64_t StringCapacity>
 bool isValidFileName(const string<StringCapacity>& name) noexcept;
 
 /// @brief verifies if the given string is a valid path to a file
+/// @param[in] name the string to verify
 /// @return true if the string is a path to a file, otherwise false
 template <uint64_t StringCapacity>
-bool isValidFilePath(const string<StringCapacity>& name) noexcept;
+bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name is a valid path, otherwise false
+/// @param[in] name the string to verify
+template <uint64_t StringCapacity>
+bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name ends with a path separator, otherwise false
+/// @param[in] name the string which may contain a path separator at the end
+template <uint64_t StringCapacity>
+bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
 /// @brief Converts a value of type F to a corresponding value of type T. This function needs to be specialized by the
 /// user for the types to be converted.

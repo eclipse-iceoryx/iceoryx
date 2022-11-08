@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -208,7 +208,7 @@ TEST_F(Trigger_test, TriggerWithInvalidHasTriggeredCallbackCallsErrorHandlerAndI
 
     Trigger sut(StateBasedTrigger,
                 &m_triggerClass,
-                cxx::ConstMethodCallback<bool>(),
+                cxx::function<bool()>(),
                 {m_triggerClass, &TriggerClass::resetCall},
                 eventId,
                 createNotificationCallback(TriggerClass::callback),
@@ -241,7 +241,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetCallCallsErrorHandlerAndIsInvalid)
     Trigger sut(StateBasedTrigger,
                 &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, uint64_t>(),
+                cxx::function<void(uint64_t)>(),
                 eventId,
                 createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
@@ -309,7 +309,7 @@ TEST_F(Trigger_test, TriggerWithEmptyResetInvalidatesTriggerWhenBeingResetted)
     Trigger sut(StateBasedTrigger,
                 &m_triggerClass,
                 {m_triggerClass, &TriggerClass::hasTriggered},
-                cxx::MethodCallback<void, uint64_t>(),
+                cxx::function<void(uint64_t)>(),
                 eventId,
                 createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,
@@ -341,118 +341,6 @@ TEST_F(Trigger_test, HasTriggeredCallbackReturnsAlwaysFalseWhenInvalid)
     sut.reset();
 
     EXPECT_FALSE(sut.isStateConditionSatisfied());
-}
-
-TEST_F(Trigger_test, UpdateOriginLeadsToDifferentHasTriggeredCallback)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "49bb8996-baea-4f9b-84eb-3a1b7b12b10b");
-    TriggerClass secondTriggerClass;
-    Trigger sut = createValidStateBasedTrigger();
-
-    sut.updateOrigin(secondTriggerClass);
-
-    secondTriggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.isStateConditionSatisfied());
-    secondTriggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.isStateConditionSatisfied());
-}
-
-TEST_F(Trigger_test, TriggerUpdateOriginToSameOriginChangesNothing)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f0790144-6307-4d17-85a2-b1ff22f0de11");
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 123U;
-    constexpr uint64_t originTypeHash = 123123U;
-    Trigger sut = createValidStateBasedTrigger(id, originType, originTypeHash);
-    sut.updateOrigin(m_triggerClass);
-
-    EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, UpdateOriginDoesNotUpdateHasTriggeredIfItsNotOriginatingFromOrigin)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "69d05155-84e8-4ae9-9a36-cf09dcc5426a");
-    constexpr uint64_t USER_DEFINED_EVENT_ID = 891U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t type = 0U;
-    constexpr uint64_t typeHash = 0U;
-    TriggerClass secondTriggerClass, thirdTriggerClass;
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                {thirdTriggerClass, &TriggerClass::hasTriggered},
-                {m_triggerClass, &TriggerClass::resetCall},
-                USER_DEFINED_EVENT_ID,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
-
-    sut.updateOrigin(secondTriggerClass);
-
-    thirdTriggerClass.m_hasTriggered = false;
-    EXPECT_FALSE(sut.isStateConditionSatisfied());
-    thirdTriggerClass.m_hasTriggered = true;
-    EXPECT_TRUE(sut.isStateConditionSatisfied());
-}
-
-TEST_F(Trigger_test, UpdateOriginLeadsToDifferentResetCallback)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "075fc5f8-ecef-482b-a5a9-e0c1257156e6");
-    Trigger sut = createValidStateBasedTrigger();
-    TriggerClass secondTriggerClass;
-
-    sut.updateOrigin(secondTriggerClass);
-    auto uniqueId = sut.getUniqueId();
-    sut.reset();
-
-    EXPECT_EQ(secondTriggerClass.m_resetCallTriggerArg, uniqueId);
-}
-
-TEST_F(Trigger_test, UpdateOriginDoesNotUpdateResetIfItsNotOriginatingFromOrigin)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8c41d2cf-d556-49de-ab07-87ee2a194694");
-    constexpr uint64_t USER_DEFINED_EVENT_ID = 892U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t type = 0U;
-    constexpr uint64_t typeHash = 0U;
-    TriggerClass secondTriggerClass, thirdTriggerClass;
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                {m_triggerClass, &TriggerClass::hasTriggered},
-                {thirdTriggerClass, &TriggerClass::resetCall},
-                USER_DEFINED_EVENT_ID,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
-
-    sut.updateOrigin(secondTriggerClass);
-    auto uniqueId = sut.getUniqueId();
-    sut.reset();
-
-    EXPECT_EQ(thirdTriggerClass.m_resetCallTriggerArg, uniqueId);
-}
-
-TEST_F(Trigger_test, UpdateOriginUpdatesOriginOfNotificationInfo)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d1c99278-38c2-4195-8058-94fd8c4061fa");
-    constexpr uint64_t USER_DEFINED_EVENT_ID = 893U;
-    constexpr uint64_t uniqueTriggerId = 0U;
-    constexpr uint64_t type = 0U;
-    constexpr uint64_t typeHash = 0U;
-    TriggerClass secondTriggerClass;
-    Trigger sut(StateBasedTrigger,
-                &m_triggerClass,
-                {m_triggerClass, &TriggerClass::hasTriggered},
-                {m_triggerClass, &TriggerClass::resetCall},
-                USER_DEFINED_EVENT_ID,
-                createNotificationCallback(TriggerClass::callback),
-                uniqueTriggerId,
-                type,
-                typeHash);
-
-    sut.updateOrigin(secondTriggerClass);
-    EXPECT_TRUE(sut.getNotificationInfo().doesOriginateFrom(&secondTriggerClass));
 }
 
 TEST_F(Trigger_test, TriggerIsLogicalEqualToItself)
@@ -648,47 +536,6 @@ TEST_F(Trigger_test, InvalidEventBasedTriggerIsNotLogicalEqualToDifferentEventOr
     EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
 }
 
-TEST_F(Trigger_test, ValidEventBasedTriggerUpdateOriginWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "78e691d5-9572-4eda-83f3-45a5d8b04265");
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 24598U;
-    constexpr uint64_t originTypeHash = 24883U;
-    TriggerClass anotherTriggerClass;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    sut.updateOrigin(anotherTriggerClass);
-
-    EXPECT_TRUE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
-    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, ValidEventBasedTriggerUpdateOriginWorksToSameOriginChangesNothing)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e64bd163-fae3-4e72-b351-e947d1eaf64f");
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 324598U;
-    constexpr uint64_t originTypeHash = 324883U;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    sut.updateOrigin(m_triggerClass);
-
-    EXPECT_TRUE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
-TEST_F(Trigger_test, InvalidEventBasedTriggerUpdateOriginDoesNotWork)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1c53ac2c-6fc4-4beb-9c2d-0bafcbbd3ff8");
-    constexpr uint64_t id = 0U;
-    constexpr uint64_t originType = 424598U;
-    constexpr uint64_t originTypeHash = 424883U;
-    Trigger sut = createValidEventBasedTrigger(id, originType, originTypeHash);
-    sut.invalidate();
-    TriggerClass anotherTriggerClass;
-    sut.updateOrigin(anotherTriggerClass);
-
-    EXPECT_FALSE(sut.isLogicalEqualTo(&anotherTriggerClass, originType, originTypeHash));
-    EXPECT_FALSE(sut.isLogicalEqualTo(&m_triggerClass, originType, originTypeHash));
-}
-
 TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIsInvalid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f57c80dc-13d9-49c6-9fca-1f7b51b836b9");
@@ -707,7 +554,7 @@ TEST_F(Trigger_test, EventBasedTriggerWithEmptyResetCallInvokesErrorHandlerAndIs
 
     Trigger sut(EventBasedTrigger,
                 &m_triggerClass,
-                cxx::MethodCallback<void, uint64_t>(),
+                cxx::function<void(uint64_t)>(),
                 eventId,
                 createNotificationCallback(TriggerClass::callback),
                 uniqueTriggerId,

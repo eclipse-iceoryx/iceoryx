@@ -47,7 +47,7 @@ void sigHandler(int signalValue)
     iox_ws_mark_for_destruction(waitset);
 }
 
-int main()
+int main(void)
 {
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);

@@ -18,11 +18,11 @@
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "test.hpp"
@@ -157,10 +157,10 @@ class MePooSegment_test : public Test
 };
 MePooSegment_test::SharedMemoryObject_MOCK::createFct MePooSegment_test::SharedMemoryObject_MOCK::createVerificator;
 
-TEST_F(MePooSegment_test, DISABLED_sharedMemoryFileHandleRightsAfterConstructor)
+TEST_F(MePooSegment_test, SharedMemoryFileHandleRightsAfterConstructor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4719f767-3413-46cd-8d1e-92a3ca92760e");
-    /// @todo
+    GTEST_SKIP() << "todo iox-#611 Test needs to be written";
 }
 
 TEST_F(MePooSegment_test, ADD_TEST_WITH_ADDITIONAL_USER(SharedMemoryCreationParameter))

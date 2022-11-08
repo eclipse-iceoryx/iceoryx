@@ -1,5 +1,5 @@
 // Copyright (c) 2019, 2021 by  Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@ TEST_F(SharedChunk_Test, VerifyMoveConstructorOfSharedChunk)
 
     SharedChunk sut2(std::move(sut1));
 
-    EXPECT_THAT(sut1, Eq(false));
+    EXPECT_FALSE(sut1);
     EXPECT_THAT(sut2.release(), Eq(chunkManagement));
 }
 
@@ -111,7 +111,7 @@ TEST_F(SharedChunk_Test, VerifiyMoveAssigmentForSharedChunk)
 
     sut2 = std::move(sut1);
 
-    EXPECT_THAT(sut1, Eq(false));
+    EXPECT_FALSE(sut1);
     EXPECT_THAT(sut2.release(), Eq(chunkManagement));
 }
 

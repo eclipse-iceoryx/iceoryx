@@ -178,7 +178,8 @@ struct ReqRes
 };
 
 using CommunicationKind = Types<PubSub, ReqRes>;
-TYPED_TEST_SUITE(ServiceDiscovery_test, CommunicationKind);
+
+TYPED_TEST_SUITE(ServiceDiscovery_test, CommunicationKind, );
 
 //
 // Built-in topics can be found
@@ -255,16 +256,6 @@ TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
 // Check whether attaching, notification and detaching of waitset and listener works
 // Only PUB/SUB
 //
-
-TEST_F(ServiceDiscoveryNotification_test, FindServiceWithEmptyCallableDoesNotDie)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7e1bf253-ce81-47cc-9b4a-605de7e49b64");
-    const iox::capro::ServiceDescription SERVICE_DESCRIPTION("ninjababy", "pow", "pow");
-    iox::popo::UntypedPublisher publisher(SERVICE_DESCRIPTION);
-    iox::cxx::function_ref<void(const ServiceDescription&)> searchFunction;
-    this->sut.findService(
-        iox::capro::Wildcard, iox::capro::Wildcard, iox::capro::Wildcard, searchFunction, MessagingPattern::PUB_SUB);
-}
 
 TEST_F(ServiceDiscoveryNotification_test, ServiceDiscoveryIsAttachableToWaitSet)
 {
@@ -793,7 +784,8 @@ using TestVariations = Types<PS_SIE,
 // note that testing all variations is costly but ensures coverage of every
 // combination of wildcards, communication type and many equivalence classes
 // of a search setup, i.e. the existing services in the system
-TYPED_TEST_SUITE(ServiceDiscoveryFindService_test, TestVariations);
+
+TYPED_TEST_SUITE(ServiceDiscoveryFindService_test, TestVariations, );
 
 // *************************************************************************************************
 // All tests run for publishers and servers as well as all 8 search variations.
@@ -958,7 +950,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 //
 // test mixed operation of PUB/SUB and REQ/RES
@@ -1064,6 +1056,6 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
     this->testFindService(s1);
     this->testFindService(s2);
     this->testFindService(s3);
-};
+}
 
 } // namespace

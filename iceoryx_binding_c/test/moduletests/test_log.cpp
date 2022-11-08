@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/logmanager.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"
@@ -30,28 +30,28 @@ using namespace iox::log;
 TEST(iox_log_test, LogLevelIsSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cbfc1b9d-d770-441c-b53d-11b1685ca0b4");
-    auto& logManager = iox::log::LogManager::GetLogManager();
+    auto& logger = iox::log::Logger::get();
 
     iox_set_loglevel(Iceoryx_LogLevel_Off);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kOff);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::OFF);
 
     iox_set_loglevel(Iceoryx_LogLevel_Fatal);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kFatal);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::FATAL);
 
-    iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kDebug);
+    iox_set_loglevel(Iceoryx_LogLevel_Error);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::ERROR);
 
     iox_set_loglevel(Iceoryx_LogLevel_Warn);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kWarn);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::WARN);
 
     iox_set_loglevel(Iceoryx_LogLevel_Info);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kInfo);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::INFO);
 
     iox_set_loglevel(Iceoryx_LogLevel_Debug);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kDebug);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::DEBUG);
 
-    iox_set_loglevel(Iceoryx_LogLevel_Verbose);
-    EXPECT_EQ(logManager.DefaultLogLevel(), LogLevel::kVerbose);
+    iox_set_loglevel(Iceoryx_LogLevel_Trace);
+    EXPECT_EQ(logger.getLogLevel(), LogLevel::TRACE);
 }
 
 } // namespace

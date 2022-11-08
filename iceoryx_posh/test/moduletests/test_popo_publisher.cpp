@@ -115,11 +115,11 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfALambdaWithAdditionalAr
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
     auto result = sut.publishResultOf(
-        [](DummyData* allocation, int intVal) {
+        [](DummyData* allocation, uint64_t intVal) {
             auto data = new (allocation) DummyData();
             data->val = intVal;
         },
-        42);
+        42U);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
@@ -167,7 +167,7 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAddi
     ::testing::Test::RecordProperty("TEST_ID", "6a14a270-118d-4067-9906-3a608fe046cd");
     struct CallableStruct
     {
-        void operator()(DummyData* allocation, int, float)
+        void operator()(DummyData* allocation, uint64_t, float)
         {
             auto data = new (allocation) DummyData();
             data->val = 777;
@@ -177,7 +177,7 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfACallableStructWithAddi
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
-    auto result = sut.publishResultOf(CallableStruct{}, 42, 77.77);
+    auto result = sut.publishResultOf(CallableStruct{}, 42U, 77.77F);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //
@@ -188,7 +188,7 @@ void freeFunctionNoAdditionalArgs(DummyData* allocation)
     auto data = new (allocation) DummyData();
     data->val = 777;
 }
-void freeFunctionWithAdditionalArgs(DummyData* allocation, int, float)
+void freeFunctionWithAdditionalArgs(DummyData* allocation, uint64_t, float)
 {
     auto data = new (allocation) DummyData();
     data->val = 777;
@@ -214,7 +214,7 @@ TEST_F(PublisherTest, CanLoanSamplesAndPublishTheResultOfFunctionPointerWithAddi
         .WillOnce(Return(ByMove(iox::cxx::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
     EXPECT_CALL(portMock, sendChunk(chunkMock.chunkHeader()));
     // ===== Test ===== //
-    auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42, 77.77);
+    auto result = sut.publishResultOf(freeFunctionWithAdditionalArgs, 42U, 77.77F);
     // ===== Verify ===== //
     EXPECT_FALSE(result.has_error());
     // ===== Cleanup ===== //

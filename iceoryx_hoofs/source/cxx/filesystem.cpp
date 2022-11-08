@@ -23,6 +23,132 @@ namespace iox
 namespace cxx
 {
 template <typename StreamType>
+static void outputToStream(StreamType& stream, const char* text, bool& hasPrecedingEntry)
+{
+    if (hasPrecedingEntry)
+    {
+        stream << ", ";
+    }
+    hasPrecedingEntry = true;
+
+    stream << text;
+}
+
+template <typename StreamType>
+static void finishEntry(StreamType& stream, const bool hasPrecedingEntry, const bool isLastEntry = false)
+{
+    if (hasPrecedingEntry)
+    {
+        stream << "}";
+    }
+    else
+    {
+        stream << "none}";
+    }
+
+    if (!isLastEntry)
+    {
+        stream << ",  ";
+    }
+}
+
+template <typename StreamType>
+static void printOwnerPermissions(StreamType& stream, const perms value)
+{
+    bool hasPrecedingEntry = false;
+    stream << "owner: {";
+
+    if ((value & perms::owner_read) != perms::none)
+    {
+        outputToStream(stream, "read", hasPrecedingEntry);
+    }
+
+    if ((value & perms::owner_write) != perms::none)
+    {
+        outputToStream(stream, "write", hasPrecedingEntry);
+    }
+
+    if ((value & perms::owner_exec) != perms::none)
+    {
+        outputToStream(stream, "execute", hasPrecedingEntry);
+    }
+
+    finishEntry(stream, hasPrecedingEntry);
+}
+
+template <typename StreamType>
+static void printGroupPermissions(StreamType& stream, const perms value)
+{
+    bool hasPrecedingEntry = false;
+    stream << "group: {";
+
+    if ((value & perms::group_read) != perms::none)
+    {
+        outputToStream(stream, "read", hasPrecedingEntry);
+    }
+
+    if ((value & perms::group_write) != perms::none)
+    {
+        outputToStream(stream, "write", hasPrecedingEntry);
+    }
+
+    if ((value & perms::group_exec) != perms::none)
+    {
+        outputToStream(stream, "execute", hasPrecedingEntry);
+    }
+
+    finishEntry(stream, hasPrecedingEntry);
+}
+
+template <typename StreamType>
+static void printOtherPermissions(StreamType& stream, const perms value)
+{
+    bool hasPrecedingEntry = false;
+    stream << "others: {";
+
+    if ((value & perms::others_read) != perms::none)
+    {
+        outputToStream(stream, "read", hasPrecedingEntry);
+    }
+
+    if ((value & perms::others_write) != perms::none)
+    {
+        outputToStream(stream, "write", hasPrecedingEntry);
+    }
+
+    if ((value & perms::others_exec) != perms::none)
+    {
+        outputToStream(stream, "execute", hasPrecedingEntry);
+    }
+
+    finishEntry(stream, hasPrecedingEntry);
+}
+
+template <typename StreamType>
+static void printSpecialBits(StreamType& stream, const perms value)
+{
+    bool hasPrecedingEntry = false;
+    stream << "special bits: {";
+    if ((value & perms::set_uid) != perms::none)
+    {
+        outputToStream(stream, "set_uid", hasPrecedingEntry);
+    }
+
+    if ((value & perms::set_gid) != perms::none)
+    {
+        outputToStream(stream, "set_git", hasPrecedingEntry);
+    }
+
+    if ((value & perms::sticky_bit) != perms::none)
+    {
+        outputToStream(stream, "sticky_bit", hasPrecedingEntry);
+    }
+
+    constexpr bool IS_LAST_ENTRY = true;
+    finishEntry(stream, hasPrecedingEntry, IS_LAST_ENTRY);
+}
+
+template <typename StreamType>
 StreamType& operator<<(StreamType& stream, perms value) noexcept
 {
     if (value == perms::unknown)
@@ -31,113 +157,10 @@ StreamType& operator<<(StreamType& stream, perms value) noexcept
         return stream;
     }
 
-    bool hasPrecedingEntry = false;
-    auto outputToStream = [&](const char* text) {
-        if (hasPrecedingEntry)
-        {
-            stream << ", ";
-        }
-        hasPrecedingEntry = true;
-
-        stream << text;
-    };
-
-    auto finishEntry = [&](bool isLastEntry = false) {
-        if (hasPrecedingEntry)
-        {
-            stream << "}";
-        }
-        else
-        {
-            stream << "none}";
-        }
-
-        if (!isLastEntry)
-        {
-            stream << ",  ";
-        }
-        hasPrecedingEntry = false;
-    };
-
-    // owner
-    stream << "owner: {";
-
-    if ((value & perms::owner_read) != perms::none)
-    {
-        outputToStream("read");
-    }
-
-    if ((value & perms::owner_write) != perms::none)
-    {
-        outputToStream("write");
-    }
-
-    if ((value & perms::owner_exec) != perms::none)
-    {
-        outputToStream("execute");
-    }
-
-    finishEntry();
-
-    // group
-    stream << "group: {";
-
-    if ((value & perms::group_read) != perms::none)
-    {
-        outputToStream("read");
-    }
-
-    if ((value & perms::group_write) != perms::none)
-    {
-        outputToStream("write");
-    }
-
-    if ((value & perms::group_exec) != perms::none)
-    {
-        outputToStream("execute");
-    }
-
-    finishEntry();
-
-    // other
-    stream << "others: {";
-
-    if ((value & perms::others_read) != perms::none)
-    {
-        outputToStream("read");
-    }
-
-    if ((value & perms::others_write) != perms::none)
-    {
-        outputToStream("write");
-    }
-
-    if ((value & perms::others_exec) != perms::none)
-    {
-        outputToStream("execute");
-    }
-
-    finishEntry();
-
-    // special bits
-    stream << "special bits: {";
-    if ((value & perms::set_uid) != perms::none)
-    {
-        outputToStream("set_uid");
-    }
-
-    if ((value & perms::set_gid) != perms::none)
-    {
-        outputToStream("set_git");
-    }
-
-    if ((value & perms::sticky_bit) != perms::none)
-    {
-        outputToStream("sticky_bit");
-    }
-
-    constexpr bool IS_LAST_ENTRY = true;
-    finishEntry(IS_LAST_ENTRY);
+    printOwnerPermissions(stream, value);
+    printGroupPermissions(stream, value);
+    printOtherPermissions(stream, value);
+    printSpecialBits(stream, value);
 
     return stream;
 }

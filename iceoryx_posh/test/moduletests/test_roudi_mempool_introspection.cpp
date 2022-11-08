@@ -135,7 +135,7 @@ class MemPoolIntrospection_test : public Test
     }
 
     template <typename MemPoolInfoStruct>
-    void initMemPoolInfo(int index, MemPoolInfoStruct& info)
+    void initMemPoolInfo(uint32_t index, MemPoolInfoStruct& info)
     {
         info.m_chunkSize = index * 100 + 10;
         info.m_minFreeChunks = index * 100 + 45;
@@ -146,7 +146,7 @@ class MemPoolIntrospection_test : public Test
     // initializes the mempool info with a defined pattern
     void initMemPoolInfoContainer(MemPoolInfoContainer& memPoolInfoContainer)
     {
-        int index = 0;
+        uint32_t index = 0;
         for (auto& info : memPoolInfoContainer)
         {
             initMemPoolInfo(index, info);
@@ -158,7 +158,7 @@ class MemPoolIntrospection_test : public Test
     template <typename MemPoolInfoType1, typename MemPoolInfoType2>
     bool compareMemPoolInfo(MemPoolInfoType1& first, MemPoolInfoType2& second)
     {
-        int index = 0;
+        uint32_t index = 0;
         for (auto& info : first)
         {
             if (info.m_chunkSize != second[index].m_chunkSize)
@@ -217,12 +217,14 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     introspectionAccess.send();
 }
 
-/// @todo test with multiple segments and also test the mempool info from RouDiInternalMemoryManager
-/// @todo This test is not very useful as it is highly implementation-dependent and fails if the implementation changes.
-/// Should be realized as an integration test with a roudi environment and less mocking classes instead.
-TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
+/// @todo iox-#518 Test with multiple segments and also test the mempool info from RouDiInternalMemoryManager
+TEST_F(MemPoolIntrospection_test, Send_withSubscribers)
 {
     ::testing::Test::RecordProperty("TEST_ID", "52c48ddb-e7b6-450d-b262-1e24401ac878");
+    GTEST_SKIP()
+        << "todo iox-#518 This test is not very useful as it is highly implementation-dependent and fails if the "
+           "implementation changes. Should be realized as an integration test with a roudi environment and less "
+           "mocking classes instead.";
     EXPECT_CALL(callChecker(), offer()).Times(1);
 
     MemPoolIntrospectionAccess introspectionAccess(
@@ -241,7 +243,7 @@ TEST_F(MemPoolIntrospection_test, DISABLED_send_withSubscribers)
     ChunkMock<Topic> chunk;
     const auto& sample = chunk.sample();
 
-    introspectionAccess.send(); /// @todo expect call to MemPoolHandler::getMemPoolInfo
+    introspectionAccess.send(); /// @todo iox-#518 expect call to MemPoolHandler::getMemPoolInfo
 
     EXPECT_CALL(m_publisherPortImpl_mock, sendChunk(_)).Times(1);
     ASSERT_EQ(sample->size(), 1u);
@@ -277,6 +279,6 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     std::this_thread::sleep_for(std::chrono::milliseconds(
         6 * snapshotInterval.toMilliseconds())); // the thread should sleep, if not, we have 12 runs
     introspectionAccess.stop();
-});
+})
 
 } // namespace

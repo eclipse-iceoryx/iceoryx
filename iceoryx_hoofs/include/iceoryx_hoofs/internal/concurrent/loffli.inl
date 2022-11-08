@@ -17,13 +17,15 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOFFLI_INL
 #define IOX_HOOFS_CONCURRENT_LOFFLI_INL
 
+#include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+
 namespace iox
 {
 namespace concurrent
 {
-inline constexpr std::size_t LoFFLi::requiredIndexMemorySize(const uint32_t capacity) noexcept
+inline constexpr uint64_t LoFFLi::requiredIndexMemorySize(const uint64_t capacity) noexcept
 {
-    return (static_cast<size_t>(capacity) + 1U) * sizeof(LoFFLi::Index_t);
+    return (capacity + 1U) * sizeof(LoFFLi::Index_t);
 }
 
 } // namespace concurrent

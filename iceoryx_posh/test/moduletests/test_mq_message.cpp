@@ -78,7 +78,7 @@ TEST_F(IpcMessage_test, CTorWithInitializerList_validEntries)
     IpcMessage message3({"", "", ""});
     EXPECT_THAT(message3.isValid(), Eq(true));
     EXPECT_THAT(message3.getNumberOfElements(), Eq(3u));
-    for (int i = 0; i < 3; ++i)
+    for (uint16_t i = 0; i < 3; ++i)
     {
         EXPECT_THAT(message3.getElementAtIndex(i), Eq(""));
     }

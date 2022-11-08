@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/forward_list.hpp"
+#include "iceoryx_dust/cxx/forward_list.hpp"
 #include "iceoryx_hoofs/cxx/list.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/stack.hpp"
@@ -416,7 +416,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c378e0db-d863-4cad-9efa-4daec364b266");
-    using Type_t = ComplexDataType<stack<int64_t, 10>>;
+    using Type_t = ComplexDataType<stack<uint64_t, 10>>;
     auto publisher = createPublisher<Type_t>();
     this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
@@ -427,7 +427,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
                          sample->someNumber = 41231;
                          for (uint64_t i = 0U; i < 10U; ++i)
                          {
-                             sample->complexType.push(i + 123);
+                             sample->complexType.push(i + 123U);
                          }
                          sample.publish();
                      })

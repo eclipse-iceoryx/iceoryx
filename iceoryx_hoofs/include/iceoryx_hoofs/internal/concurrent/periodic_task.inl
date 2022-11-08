@@ -25,8 +25,9 @@ namespace concurrent
 {
 template <typename T>
 template <typename... Args>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
-                                     const posix::ThreadName_t taskName,
+                                     const posix::ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : m_callable(std::forward<Args>(args)...)
     , m_taskName(taskName)
@@ -37,9 +38,10 @@ inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskManualStart_t,
 
 template <typename T>
 template <typename... Args>
+// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline PeriodicTask<T>::PeriodicTask(const PeriodicTaskAutoStart_t,
                                      const units::Duration interval,
-                                     const posix::ThreadName_t taskName,
+                                     const posix::ThreadName_t& taskName,
                                      Args&&... args) noexcept
     : PeriodicTask(PeriodicTaskManualStart, taskName, std::forward<Args>(args)...)
 {
@@ -83,7 +85,7 @@ inline void PeriodicTask<T>::run() noexcept
     posix::SemaphoreWaitState waitState = posix::SemaphoreWaitState::NO_TIMEOUT;
     do
     {
-        IOX_DISCARD_RESULT(m_callable());
+        m_callable();
 
         /// @todo use a refactored posix::Timer::wait method returning TIMER_TICK and TIMER_STOPPED once available
         auto waitResult = m_stop->timedWait(m_interval);

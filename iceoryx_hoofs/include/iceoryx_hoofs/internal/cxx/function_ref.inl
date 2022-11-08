@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,22 +15,34 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CXX_FUNCTION_REF_INL
+#define IOX_HOOFS_CXX_FUNCTION_REF_INL
+
+#include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
+#include <memory>
+
 namespace iox
 {
 namespace cxx
 {
 template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::function_ref() noexcept
-    : m_pointerToCallable(nullptr)
-    , m_functionPointer(nullptr)
-{
-}
-
-template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
+// AXIVION Next Construct AutosarC++19_03-A12.1.2 : Members are initialized in the same manner, NSDMI with nullptr is
+// explicit
+// AXIVION Next Construct AutosarC++19_03-A8.4.6 : Only ArgTypes needs to be forwarded
 inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callable) noexcept
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.3, CertC++-EXP55 : Type-safety ensured by
+    // casting back on call
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast)
     : m_pointerToCallable(const_cast<void*>(reinterpret_cast<const void*>(std::addressof(callable))))
+    // AXIVION Next Line AutosarC++19_03-A15.4.4 : Lambda not 'noexcept' as callable might throw
     , m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4, CertC++-EXP36 : The class design ensures a cast to the actual
+        // type of target
+        // AXIVION Next Construct AutosarC++19_03-A5.3.2, AutosarC++19_03-M5.2.8 : Check for 'nullptr' is
+        // performed on call NOLINTNEXTLINE (cppcoreguidelines-pro-type-reinterpret-cast)
         return (*reinterpret_cast<typename std::add_pointer<CallableType>::type>(target))(
             std::forward<ArgTypes>(args)...);
     })
@@ -38,17 +50,24 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(CallableType&& callab
 }
 
 template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (*function)(ArgTypes...)) noexcept
-{
+inline function_ref<ReturnType(ArgTypes...)>::function_ref(ReturnType (&function)(ArgTypes...)) noexcept
     // the cast is required to work on POSIX systems
-    m_pointerToCallable = reinterpret_cast<void*>(function);
-
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-A5.2.4-M5.2.6 : Type-safety ensured by casting
+    // back function pointer on call
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    : m_pointerToCallable(reinterpret_cast<void*>(function))
+    ,
     // the lambda does not capture and is thus convertible to a function pointer
     // (required by the C++ standard)
-    m_functionPointer = [](void* target, ArgTypes... args) -> ReturnType {
-        auto f = reinterpret_cast<ReturnType (*)(ArgTypes...)>(target);
+    m_functionPointer([](void* target, ArgTypes... args) -> ReturnType {
+        using PointerType = ReturnType (*)(ArgTypes...);
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : The class design ensures a cast to the actual type of target
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast,hicpp-use-auto)
+        PointerType f = reinterpret_cast<PointerType>(target);
+        // AXIVION Next Line AutosarC++19_03-A5.3.2 : Check for 'nullptr' is performed on call
         return f(args...);
-    };
+    })
+{
 }
 
 template <class ReturnType, class... ArgTypes>
@@ -59,7 +78,7 @@ inline function_ref<ReturnType(ArgTypes...)>::function_ref(function_ref&& rhs) n
 
 template <class ReturnType, class... ArgTypes>
 inline function_ref<ReturnType(ArgTypes...)>&
-function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgTypes...)>&& rhs) noexcept
+function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgTypes...)>&& rhs) & noexcept
 {
     if (this != &rhs)
     {
@@ -76,14 +95,9 @@ template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
 {
     // Expect that a callable was assigned beforehand
+    // AXIVION Next Line AutosarC++19_03-M5.3.1 : 'nullptr' check shall be performed explicitly
     cxx::Expects((m_pointerToCallable != nullptr) && "Empty function_ref invoked");
     return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
-}
-
-template <class ReturnType, class... ArgTypes>
-inline function_ref<ReturnType(ArgTypes...)>::operator bool() const noexcept
-{
-    return m_pointerToCallable != nullptr;
 }
 
 template <class ReturnType, class... ArgTypes>
@@ -94,6 +108,7 @@ inline void function_ref<ReturnType(ArgTypes...)>::swap(function_ref<ReturnType(
 }
 
 template <class ReturnType, class... ArgTypes>
+// AXIVION Next Line AutosarC++19_03-A2.10.4 : Overload for swap(function_ref, function_ref) as in STL
 inline void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept
 {
     lhs.swap(rhs);
@@ -101,3 +116,5 @@ inline void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<Return
 
 } // namespace cxx
 } // namespace iox
+
+#endif // IOX_HOOFS_CXX_FUNCTION_REF_INL

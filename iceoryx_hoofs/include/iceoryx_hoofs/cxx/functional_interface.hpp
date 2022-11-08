@@ -19,7 +19,7 @@
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <utility>
 
@@ -29,9 +29,6 @@ namespace cxx
 {
 template <uint64_t Capacity>
 class string;
-
-template <uint64_t Capacity>
-using charArray = char[Capacity];
 
 namespace internal
 {
@@ -58,6 +55,11 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Expect
 {
     /// @brief Expects that the object is valid, otherwise the method prints the
@@ -72,6 +74,11 @@ struct Expect
 };
 
 template <typename Derived, typename ValueType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ExpectWithValue
 {
     /// @brief Expects that the object is valid and returns the contained value, otherwise
@@ -111,6 +118,11 @@ struct ExpectWithValue
 };
 
 template <typename Derived, typename ValueType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct ValueOr
 {
     /// @brief When the object contains a value a copy will be returned otherwise
@@ -136,6 +148,11 @@ struct ValueOr
 };
 
 template <typename Derived, typename ValueType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThenWithValue
 {
     using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
@@ -183,6 +200,11 @@ struct AndThenWithValue
 };
 
 template <typename Derived>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThen
 {
     using and_then_callback_t = cxx::function_ref<void()>;
@@ -216,6 +238,11 @@ struct AndThen
 };
 
 template <typename Derived, typename ErrorType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElseWithValue
 {
     using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
@@ -263,6 +290,11 @@ struct OrElseWithValue
 };
 
 template <typename Derived>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElse
 {
     using or_else_callback_t = cxx::function_ref<void()>;
@@ -296,6 +328,11 @@ struct OrElse
 };
 
 template <typename Derived, typename ValueType, typename ErrorType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
                                  public ValueOr<Derived, ValueType>,
                                  public AndThenWithValue<Derived, ValueType>,
@@ -306,6 +343,11 @@ struct FunctionalInterfaceImpl : public ExpectWithValue<Derived, ValueType>,
 };
 
 template <typename Derived>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct FunctionalInterfaceImpl<Derived, void, void>
     : public Expect<Derived>, public AndThen<Derived>, public OrElse<Derived>
 {
@@ -314,6 +356,11 @@ struct FunctionalInterfaceImpl<Derived, void, void>
 };
 
 template <typename Derived, typename ValueType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValue<Derived, ValueType>,
                                                            public ValueOr<Derived, ValueType>,
                                                            public AndThenWithValue<Derived, ValueType>,
@@ -324,6 +371,11 @@ struct FunctionalInterfaceImpl<Derived, ValueType, void> : public ExpectWithValu
 };
 
 template <typename Derived, typename ErrorType>
+// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// not deleted.
+// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
+// explicitly calling the destructor of the base type.
+// NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct FunctionalInterfaceImpl<Derived, void, ErrorType>
     : public Expect<Derived>, public AndThen<Derived>, public OrElseWithValue<Derived, ErrorType>
 {

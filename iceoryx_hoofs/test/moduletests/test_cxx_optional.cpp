@@ -87,6 +87,7 @@ TEST_F(Optional_test, const_value)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ac529426-2780-4c66-ad33-8b745ab3cb29");
     m_sutWithValue = 1234;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to test const method
     EXPECT_THAT(const_cast<const iox::cxx::optional<int64_t>*>(&m_sutWithValue)->value(), Eq(1234));
 }
 
@@ -129,6 +130,7 @@ TEST_F(Optional_test, ConstArrowOperator)
     ::testing::Test::RecordProperty("TEST_ID", "515aab10-cf10-4c56-b160-a7ef9d33937f");
     iox::cxx::optional<TestClass> sut{{0, 0}};
     sut->value = 12345;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to test const method
     EXPECT_THAT((*const_cast<const iox::cxx::optional<TestClass>*>(&sut))->value, Eq(12345));
 }
 
@@ -143,6 +145,7 @@ TEST_F(Optional_test, ConstDereferenceOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8da28aec-48f8-4d39-896f-5a443b9eb0ab");
     *m_sutWithValue = 789;
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to test const method
     EXPECT_THAT(**const_cast<const iox::cxx::optional<int64_t>*>(&m_sutWithValue), Eq(789));
 }
 
@@ -230,6 +233,7 @@ TEST_F(Optional_test, CopyCTorWithNoValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "597ca8af-264b-4261-9223-15854e7f351a");
     iox::cxx::optional<TestClass> sut = iox::cxx::nullopt_t();
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization) copy constructor shall be tested
     iox::cxx::optional<TestClass> sut2(sut);
 
     ASSERT_THAT(sut2.has_value(), Eq(false));
@@ -281,6 +285,8 @@ TEST_F(Optional_test, MoveCTorWithValue)
     ASSERT_THAT(sut2.has_value(), Eq(true));
     EXPECT_THAT(sut2->value, Eq(4711));
     EXPECT_THAT(sut2->secondValue, Eq(1337));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -292,6 +298,8 @@ TEST_F(Optional_test, MoveCTorWithNoValue)
     iox::cxx::optional<TestClass> sut2(std::move(sut));
 
     ASSERT_THAT(sut2.has_value(), Eq(false));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(sut.has_value(), Eq(false));
 }
 
@@ -365,6 +373,8 @@ TEST_F(Optional_test, DestructorOnCopyCTor)
         iox::cxx::optional<DTorTest> sut{DTorTest()};
         {
             DTorTest::dtorCounter = 0;
+            // destructor on copy constructor shall be tested
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             iox::cxx::optional<DTorTest> sut2{sut};
             EXPECT_THAT(DTorTest::dtorCounter, Eq(0));
         }
@@ -402,6 +412,8 @@ TEST_F(Optional_test, DestructorOnMoveCTor)
             DTorTest::dtorCounter = 0;
             iox::cxx::optional<DTorTest> sut2{std::move(sut)};
             EXPECT_THAT(DTorTest::dtorCounter, Eq(1)); // dtor of sut
+            // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(sut.has_value(), Eq(false));
             DTorTest::dtorCounter = 0;
         }
@@ -453,6 +465,7 @@ TEST_F(Optional_test, MakeOptional)
     {
         Make() = default;
 
+        // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
         Make(int a, int b)
             : a(a)
             , b(b)
@@ -488,7 +501,7 @@ TEST_F(Optional_test, CopyConstructionWithElementWorks)
     EXPECT_THAT(sut->secondValue, Eq(6));
 }
 
-constexpr char DEFAULT_STRING[]{"Live long and prosper"};
+const std::string DEFAULT_STRING{"Live long and prosper"};
 constexpr int8_t DEFAULT_INT{0};
 constexpr int8_t DEFAULT_MULTIPLICATOR{2};
 
@@ -502,17 +515,17 @@ struct TestStructForInPlaceConstruction
     TestStructForInPlaceConstruction& operator=(const TestStructForInPlaceConstruction&) = delete;
     TestStructForInPlaceConstruction& operator=(TestStructForInPlaceConstruction&&) = delete;
 
-    TestStructForInPlaceConstruction(const int8_t& val)
+    explicit TestStructForInPlaceConstruction(const int8_t& val)
         : val(val)
     {
     }
 
-    TestStructForInPlaceConstruction(int8_t&& val)
-        : val(DEFAULT_MULTIPLICATOR * val)
+    explicit TestStructForInPlaceConstruction(int8_t&& val)
+        : val(static_cast<int8_t>(DEFAULT_MULTIPLICATOR * val))
     {
     }
 
-    TestStructForInPlaceConstruction(std::unique_ptr<std::string> ptr)
+    explicit TestStructForInPlaceConstruction(std::unique_ptr<std::string> ptr)
         : ptr(std::move(ptr))
     {
     }
@@ -551,10 +564,13 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithLVal)
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithPodRVal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de7e36ea-44f9-4b82-9b0d-0bce8af2a10a");
-    int8_t val = 23;
+    constexpr int8_t VALUE = 23;
+    int8_t val = VALUE;
+    // move constructor of TestStructForInPlaceConstruction is called
+    // NOLINTNEXTLINE(hicpp-move-const-arg, performance-move-const-arg)
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, std::move(val));
     ASSERT_TRUE(sut.has_value());
-    EXPECT_THAT(sut->val, Eq(DEFAULT_MULTIPLICATOR * val));
+    EXPECT_THAT(sut->val, Eq(DEFAULT_MULTIPLICATOR * VALUE));
     ASSERT_TRUE(sut->ptr);
     EXPECT_THAT(sut->ptr->c_str(), StrEq(DEFAULT_STRING));
 }
@@ -562,26 +578,26 @@ TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithPodRV
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithComplexTypeRVal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2a43bdf4-dfdf-4b3b-908b-d162b13435a9");
-    constexpr char NEW_STRING[]{"Without followers, evil cannot spread"};
+    const std::string NEW_STRING{"Without followers, evil cannot spread"};
     std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, std::move(ptr));
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(DEFAULT_INT));
     ASSERT_TRUE(sut->ptr);
-    EXPECT_THAT(sut->ptr->c_str(), StrEq(NEW_STRING));
+    EXPECT_THAT(sut->ptr->c_str(), NEW_STRING);
 }
 
 TEST_F(Optional_test, InPlaceConstructionCtorCallsCorrectCtorWhenCalledWithMixedArgs)
 {
     ::testing::Test::RecordProperty("TEST_ID", "49f1376c-6723-4231-83da-4682e89f1b6e");
     constexpr int8_t VAL = 11;
-    constexpr char NEW_STRING[]{"Insufficient facts always invite danger"};
+    const std::string NEW_STRING{"Insufficient facts always invite danger"};
 
     std::unique_ptr<std::string> ptr(new std::string(NEW_STRING));
     iox::cxx::optional<TestStructForInPlaceConstruction> sut(iox::cxx::in_place, VAL, std::move(ptr));
     ASSERT_TRUE(sut.has_value());
     EXPECT_THAT(sut->val, Eq(VAL));
     ASSERT_TRUE(sut->ptr);
-    EXPECT_THAT(sut->ptr->c_str(), StrEq(NEW_STRING));
+    EXPECT_THAT(sut->ptr->c_str(), NEW_STRING);
 }
 } // namespace

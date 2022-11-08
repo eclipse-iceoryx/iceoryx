@@ -23,7 +23,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
+#include "iceoryx_platform/stat.hpp"
 
 #include <cstdint>
 
@@ -37,6 +37,7 @@ enum class SharedMemoryObjectError
 {
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
+    INTERNAL_LOGIC_FAILURE,
 };
 
 class SharedMemoryObjectBuilder;
@@ -48,7 +49,7 @@ class SharedMemoryObject
   public:
     using Builder = SharedMemoryObjectBuilder;
 
-    static constexpr void* NO_ADDRESS_HINT = nullptr;
+    static constexpr const void* const NO_ADDRESS_HINT = nullptr;
     SharedMemoryObject(const SharedMemoryObject&) = delete;
     SharedMemoryObject& operator=(const SharedMemoryObject&) = delete;
     SharedMemoryObject(SharedMemoryObject&&) noexcept = default;

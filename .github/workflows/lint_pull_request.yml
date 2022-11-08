@@ -6,28 +6,24 @@ on:
 
 jobs:
   clang-tidy-review:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
-      - name: compiler versions
-        run: |
-          echo $(gcc --version)
-          echo $(clang --version)
-
-      - name: Install iceoryx dependencies and clang-tidy
-        run: sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev clang-tidy-12 clang-12
-
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+
       - name: Get git diff
         id: changed_files
-        uses: Ana06/get-changed-files@v2.1.0
-      - name: Clang-Tidy of added files
+        uses: Ana06/get-changed-files@v1.2
+      - name: diff scan, clang-tidy for all files which are in `.clang-tidy-diff-scans.txt`
         run: |
-          for diff_file in ${{ steps.changed_files.outputs.added }}; do
-            ./tools/scripts/clang_tidy_check.sh ci_pull_request ${diff_file}
+          for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
+            ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt ${diff_file}
           done
 
   verify-links-in-markdown-documentation:

@@ -50,11 +50,9 @@ if ! tools/scripts/clang_format.sh hook; then
     exit 1
 fi
 
-## unique test IDs
-notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
-if [[ -n "$notUniqueIds" ]]; then
-    echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
-    echo "$notUniqueIds"
+## check for test IDs
+if ! tools/scripts/check_test_ids.sh; then
+    echo "Error checking test IDs"
     exit 1
 fi
 

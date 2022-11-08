@@ -20,8 +20,8 @@
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/platform/pthread.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_platform/pthread.hpp"
 
 #include <atomic>
 
@@ -55,6 +55,9 @@ enum class ThreadError
 /// optional<Thread> myThread;
 /// ThreadBuilder().create(myThread, callable).expect("Couldn't create a thread.");
 /// @endcode
+/// NOLINTJUSTIFICATION m_threadHandle is always initialized during create in the ThreadBuilder hence it is impossible
+/// to create a Thread without an initialized m_threadHandle
+/// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 class Thread
 {
   public:
@@ -66,9 +69,6 @@ class Thread
     Thread& operator=(Thread&&) = delete;
 
     ~Thread() noexcept;
-
-    // @todo set name during creation and remove method
-    void setName(const ThreadName_t& name) noexcept;
 
     /// @brief Returns the name of the thread
     /// @return An iox::cxx::string containing the name of the thread
@@ -87,10 +87,14 @@ class Thread
     iox_pthread_t m_threadHandle;
     callable_t m_callable;
     bool m_isThreadConstructed{false};
+    ThreadName_t m_threadName;
 };
 
 class ThreadBuilder
 {
+    /// @brief Set the name of the thread
+    IOX_BUILDER_PARAMETER(ThreadName_t, name, "")
+
   public:
     /// @brief Creates a thread
     /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored

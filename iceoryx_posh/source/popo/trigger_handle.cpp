@@ -1,4 +1,4 @@
-// Copyright (c) 2020, 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ TriggerHandle::TriggerHandle() noexcept
 }
 
 TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
-                             const cxx::MethodCallback<void, uint64_t> resetCallback,
+                             const cxx::function<void(uint64_t)> resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
     : m_conditionVariableDataPtr(&conditionVariableData)
     , m_resetCallback(resetCallback)
@@ -110,8 +110,7 @@ void TriggerHandle::reset() noexcept
         return;
     }
 
-    // constructor ensured that resetCallback is valid
-    IOX_DISCARD_RESULT(m_resetCallback(m_uniqueTriggerId));
+    m_resetCallback(m_uniqueTriggerId);
 
     invalidate();
 }
@@ -121,7 +120,7 @@ void TriggerHandle::invalidate() noexcept
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
     m_conditionVariableDataPtr = nullptr;
-    m_resetCallback = cxx::MethodCallback<void, uint64_t>();
+    m_resetCallback = cxx::function<void(uint64_t)>();
     m_uniqueTriggerId = Trigger::INVALID_TRIGGER_ID;
 }
 

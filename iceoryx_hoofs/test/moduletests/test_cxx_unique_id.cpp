@@ -71,6 +71,9 @@ TEST(UniqueId_test, CopyConstructingUniqueIdsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "e498c41f-2f15-4c6a-a2a5-57d6c7be1412");
     auto id = UniqueId();
     auto idValue = static_cast<UniqueId::value_type>(id);
+
+    /// @NOLINTJUSTIFICATION we test the copy constructor here
+    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     auto sut{id};
     auto sutValue = static_cast<UniqueId::value_type>(sut);
 

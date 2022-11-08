@@ -218,10 +218,10 @@ class iox_listener_test : public Test
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 
-/// @todo iox-#1106 will be enabled when worked on this issue
-TEST_F(iox_listener_test, DISABLED_InitListenerWithNullptrForStorageReturnsNullptr)
+TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee5f8898-c178-4546-9bb4-6e3329f1b632");
+    GTEST_SKIP() << "todo iox-#1106 Enable once nullptr in binding_c is implemented";
     EXPECT_EQ(iox_listener_init(nullptr), nullptr);
 }
 
@@ -291,19 +291,19 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 }
 
-/// @todo iox-#1106 will be enabled when worked on this issue
-TEST_F(iox_listener_test, DISABLED_AttachingSubscriberEventWithNullptrCallbackFails)
+TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "db39c3ef-1518-4769-942e-642d0f58abdb");
+    GTEST_SKIP() << "todo iox-#1106 Enable once nullptr in binding_c is implemented";
     EXPECT_THAT(iox_listener_attach_subscriber_event(
                     &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, NULL),
                 Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
 }
 
-/// @todo iox-#1106 will be enabled when worked on this issue
-TEST_F(iox_listener_test, DISABLED_AttachingUserTriggerEventWithNullptrCallbackFails)
+TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrCallbackFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "990e8f3c-36f0-4687-8246-ce8a02f969ae");
+    GTEST_SKIP() << "todo iox-#1106 Enable once nullptr in binding_c is implemented";
     EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], NULL),
                 Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
 }
@@ -355,7 +355,7 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackIsCalledWhenTriggered, Repea
     iox_user_trigger_trigger(m_userTrigger[0U]);
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0U]));
-});
+})
 
 TIMING_TEST_F(iox_listener_test, UserTriggerCallbackWithContextDataIsCalledWhenTriggered, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "55c61dc2-4aa3-4c26-b14a-5c137ad1f20e");
@@ -367,7 +367,7 @@ TIMING_TEST_F(iox_listener_test, UserTriggerCallbackWithContextDataIsCalledWhenT
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_userTriggerCallbackArgument, Eq(m_userTrigger[0U]));
     EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
-});
+})
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "541b118b-4a7a-4ea5-aa5f-8e922dfd4aa0");
@@ -388,7 +388,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackIsCalledSampleIsReceived, Rep
 
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
-});
+})
 
 TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSampleIsReceived, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "a51ff99b-f1df-458d-b3c0-a97ddfacf4ec");
@@ -415,7 +415,7 @@ TIMING_TEST_F(iox_listener_test, SubscriberCallbackWithContextDataIsCalledSample
     std::this_thread::sleep_for(TIMEOUT);
     EXPECT_THAT(g_subscriberCallbackArgument, Eq(&m_subscriber[0U]));
     EXPECT_THAT(g_contextData, Eq(static_cast<void*>(&someContextData)));
-});
+})
 
 TEST_F(iox_listener_test, AttachingClientWorks)
 {
@@ -460,7 +460,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWorks, Repeat(5), [&] {
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
 
     iox_client_deinit(client);
-});
+})
 
 TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "64178bc6-ec8f-4504-aceb-6a32ee568ab8");
@@ -481,7 +481,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingClientEventWithContextDataWorks, Repea
     iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
 
     iox_client_deinit(client);
-});
+})
 
 //////////////////////
 /// BEGIN server tests
@@ -548,7 +548,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
 
     iox_server_deinit(server);
-});
+})
 
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "ae71bd2c-474b-4f39-b2d8-7959d26e7d90");
@@ -569,7 +569,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingServerEventWithContextDataWorks, Repea
     iox_listener_detach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED);
 
     iox_server_deinit(server);
-});
+})
 
 //////////////////////
 /// END server tests
@@ -621,7 +621,7 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
 
 void notifyServiceDiscovery(SubscriberPortData& portData)
 {
-    ConditionNotifier(*portData.m_chunkReceiverData.m_conditionVariableDataPtr, 0).notify();
+    ConditionNotifier(*portData.m_chunkReceiverData.m_conditionVariableDataPtr.get(), 0).notify();
 }
 
 TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWorks, Repeat(5), [&] {
@@ -642,7 +642,7 @@ TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWorks, Repeat(5),
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
 
     iox_service_discovery_deinit(serviceDiscovery);
-});
+})
 
 TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "257c27a5-95c6-489d-919f-125471b399e8");
@@ -667,6 +667,6 @@ TIMING_TEST_F(iox_listener_test, NotifyingServiceDiscoveryEventWithContextDataWo
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
 
     iox_service_discovery_deinit(serviceDiscovery);
-});
+})
 
 } // namespace

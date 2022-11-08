@@ -12,7 +12,7 @@ cmake --build build
 ```
 
 CMake automatically installs GoogleTest as a local dependency and builds the tests against it. Please note that
-if you want to build tests for extensions like the DDS-Gateway you need to enable this extension as well in the
+if you want to build tests for extensions like the C binding you need to enable this extension as well in the
 CMake build. To build the tests for all extensions simply add `-DBUILD_ALL` to the CMake command.
 
 !!! hint
@@ -94,7 +94,7 @@ This should be used only rarely and only in coordination with an iceoryx maintai
 
 !!! note
     iceoryx needs to be built as a static library to work with sanitizer flags, which is automatically achieved when using
-    the script. If you want to use the ${ICEORYX_WARNINGS} then you have to call `find_package(iceoryx_hoofs)` and `include(IceoryxPlatform)`
+    the script. If you want to use the ${ICEORYX_CXX_WARNINGS} then you have to call `find_package(iceoryx_hoofs)` and `include(IceoryxPlatform)`
     to make use of the ${ICEORYX_SANITIZER_FLAGS}.
 
 ## iceoryx library build
@@ -105,7 +105,7 @@ In the default case, the iceoryx libraries are installed by `make install` into 
 As an alternative you can install the libs into a custom folder by setting `-DCMAKE_INSTALL_PREFIX=/custom/install/path`
 as build flag for the CMake file in iceoryx_meta.
 
-iceoryx_meta collects all libraries (hoofs, posh etc.) and extensions (binding_c, dds) and can be a starting point for
+iceoryx_meta collects all libraries (hoofs, posh etc.) and extensions (binding_c) and can be a starting point for
 the CMake build. The provided build script `tools/iceoryx_build_test.sh` uses iceoryx_meta.
 
 Per default, iceoryx is built as static lib for better usability.
@@ -142,10 +142,41 @@ machine. With `./tools/scripts/ice_env.sh` one can create a
 docker container with preinstalled dependencies and a configuration similar to
 the CI target container.
 
-When for instance the target ubuntu 18.04 fails we can start the container with
+When for instance the target Ubuntu 18.04 fails we can start the container with
 
 ```sh
 ./tools/scripts/ice_env.sh enter ubuntu:18.04
 ```
 
 which enters the environment automatically and one can start debugging.
+
+## Bazel
+
+When working with Bazel, additional tools can help the developer to maintain
+a consistent codebase similar to the Clang Tools (clang-format and clang-tidy) for C++.
+The [Buildifier Tool](https://github.com/bazelbuild/buildtools/blob/master/buildifier/README.md)
+offers formatting and linting for Bazel files.
+
+The formatting is based on rules given by Buildifier and the linting is based on
+a list of [warnings](https://github.com/bazelbuild/buildtools/blob/master/WARNINGS.md).
+
+To check formatting of the Bazel files the following command needs to run in the iceoryx
+workspace.
+
+```bash
+cd iceoryx
+bazel run //:buildifier
+```
+
+Buildifier automatically reformat the code.
+
+For formatting and linting this command will do the job:
+
+```bash
+cd iceoryx
+bazel run //:buildifier_lint
+```
+
+The CI will check for the correct formatting and linting.
+See the `BUILD.bazel` file
+in iceoryx workspace for available commands.

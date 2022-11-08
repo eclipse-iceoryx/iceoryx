@@ -40,18 +40,18 @@ using UntypedClientWithMocks = iox::popo::UntypedClientImpl<BaseClientWithMocks>
 using TypedClientWithMocks = iox::popo::ClientImpl<uint64_t, uint64_t, BaseClientWithMocks>;
 
 template <typename T>
-uint64_t resetCallsFromDtors()
+int resetCallsFromDtors()
 {
     // from derived and base class
-    return 2U;
+    return 2;
 }
 
 template <>
-uint64_t resetCallsFromDtors<BaseClientWithMocks>()
+int resetCallsFromDtors<BaseClientWithMocks>()
 {
     // from base only
-    return 1U;
-};
+    return 1;
+}
 
 template <typename Base>
 class TestBaseClient : public Base
@@ -75,7 +75,7 @@ class TestBaseClient : public Base
 
 using BaseClientTypes = Types<BaseClientWithMocks, UntypedClientWithMocks, TypedClientWithMocks>;
 
-TYPED_TEST_SUITE(BaseClient_test, BaseClientTypes);
+TYPED_TEST_SUITE(BaseClient_test, BaseClientTypes, );
 
 template <typename SutType>
 class BaseClient_test : public Test
@@ -277,7 +277,7 @@ TYPED_TEST(BaseClient_test, GetCallbackForIsStateConditionSatisfiedReturnsCallba
 
     constexpr bool HAS_RESPONSES{true};
     EXPECT_CALL(this->sut->port(), hasNewResponses).WillOnce(Return(HAS_RESPONSES));
-    EXPECT_FALSE(callback().has_error());
+    EXPECT_TRUE(callback());
 }
 
 TYPED_TEST(BaseClient_test, DisableStateCallsUnderlyingPortAndTriggerHandle)

@@ -40,18 +40,18 @@ using UntypedServerWithMocks = iox::popo::UntypedServerImpl<BaseServerWithMocks>
 using TypedServerWithMocks = iox::popo::ServerImpl<uint64_t, uint64_t, BaseServerWithMocks>;
 
 template <typename T>
-uint64_t resetCallsFromDtors()
+int resetCallsFromDtors()
 {
     // from derived and base class
-    return 2U;
+    return 2;
 }
 
 template <>
-uint64_t resetCallsFromDtors<BaseServerWithMocks>()
+int resetCallsFromDtors<BaseServerWithMocks>()
 {
     // from base only
-    return 1U;
-};
+    return 1;
+}
 
 template <typename Base>
 class TestBaseServer : public Base
@@ -75,7 +75,7 @@ class TestBaseServer : public Base
 
 using BaseServerTypes = Types<BaseServerWithMocks, UntypedServerWithMocks, TypedServerWithMocks>;
 
-TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes);
+TYPED_TEST_SUITE(BaseServer_test, BaseServerTypes, );
 
 template <typename SutType>
 class BaseServer_test : public Test
@@ -287,7 +287,7 @@ TYPED_TEST(BaseServer_test, GetCallbackForIsStateConditionSatisfiedReturnsCallba
 
     constexpr bool HAS_REQUESTS{true};
     EXPECT_CALL(this->sut->port(), hasNewRequests).WillOnce(Return(HAS_REQUESTS));
-    EXPECT_FALSE(callback().has_error());
+    EXPECT_TRUE(callback());
 }
 
 TYPED_TEST(BaseServer_test, DisableStateCallsUnderlyingPortAndTriggerHandle)

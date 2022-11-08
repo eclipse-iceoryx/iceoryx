@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/generic_raii.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
@@ -53,7 +53,7 @@ std::vector<UniquePortId> uniquePortIds;
 using PortDataTypes =
     Types<BasePortData, PublisherPortData, SubscriberPortData, ClientPortData, ServerPortData, InterfacePortData>;
 
-TYPED_TEST_SUITE(BasePort_test, PortDataTypes);
+TYPED_TEST_SUITE(BasePort_test, PortDataTypes, );
 
 // port data factories
 

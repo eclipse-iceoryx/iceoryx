@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_CONVERT_INL
 #define IOX_HOOFS_CXX_CONVERT_INL
 
+#include "iceoryx_hoofs/cxx/convert.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -72,41 +74,52 @@ inline bool convert::fromString<std::string>(const char* v, std::string& dest) n
 template <>
 inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 {
-    if (strlen(v) != 1u)
+    if (strlen(v) != 1U)
     {
         std::cerr << v << " is not a char" << std::endl;
         return false;
     }
+
+    /// @NOLINTJUSTIFICATION encapsulated in abstraction
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     dest = v[0];
     return true;
 }
 
+/// @NOLINTJUSTIFICATION iox-#1196 todo convert must be refactored
+/// @NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 template <>
 inline bool convert::fromString<string<100>>(const char* v, string<100>& dest) noexcept
 {
     dest = string<100>(TruncateToCapacity, v);
     return true;
 }
+/// @NOLINTEND(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
 
 inline bool convert::stringIsNumber(const char* v, const NumberType type) noexcept
 {
+    /// @NOLINTJUSTIFICATION encapsulated in abstraction
+    /// @NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (v[0] == '\0')
+    {
         return false;
+    }
 
     bool hasDot = false;
 
-    for (uint32_t i = 0u; v[i] != '\0'; ++i)
+    for (uint32_t i = 0U; v[i] != '\0'; ++i)
     {
-        if (v[i] >= 48 && v[i] <= 57) // 48 == ascii 0, 57 == ascii 9
+        if (v[i] >= '0' && v[i] <= '9')
         {
             continue;
         }
-        else if (type != NumberType::UNSIGNED_INTEGER && i == 0u
-                 && (v[i] == 43 || v[i] == 45)) // 43 == ascii +, 45 == ascii -
+
+        if (type != NumberType::UNSIGNED_INTEGER && i == 0U && (v[i] == '+' || v[i] == '-'))
         {
             continue;
         }
-        else if (type == NumberType::FLOAT && !hasDot && v[i] == 46) // 46 == ascii .
+
+        if (type == NumberType::FLOAT && !hasDot && v[i] == '.')
         {
             hasDot = true;
         }
@@ -115,6 +128,7 @@ inline bool convert::stringIsNumber(const char* v, const NumberType type) noexce
             return false;
         }
     }
+    /// @NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
 
     return true;
 }

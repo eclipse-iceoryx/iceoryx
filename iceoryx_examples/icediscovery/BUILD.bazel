@@ -1,0 +1,79 @@
+# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_binary(
+    name = "iox-cpp-offer-service",
+    srcs = [
+        "iox_offer_service.cpp",
+    ],
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
+
+cc_binary(
+    name = "iox-cpp-find-service",
+    srcs = [
+        "iox_find_service.cpp",
+    ],
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
+
+cc_library(
+    name = "discovery_blocking",
+    srcs = ["src/discovery_blocking.cpp"],
+    hdrs = ["include/discovery_blocking.hpp"],
+    strip_include_prefix = "include",
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
+
+cc_binary(
+    name = "iox-cpp-wait-for-service",
+    srcs = [
+        "iox_wait_for_service.cpp",
+    ],
+    deps = [
+        ":discovery_blocking",
+        "//iceoryx_posh",
+    ],
+)
+
+cc_library(
+    name = "discovery_monitor",
+    srcs = ["src/discovery_monitor.cpp"],
+    hdrs = ["include/discovery_monitor.hpp"],
+    strip_include_prefix = "include",
+    deps = [
+        "//iceoryx_posh",
+    ],
+)
+
+cc_binary(
+    name = "iox-cpp-discovery-monitor",
+    srcs = [
+        "iox_discovery_monitor.cpp",
+    ],
+    deps = [
+        ":discovery_monitor",
+        "//iceoryx_posh",
+    ],
+)

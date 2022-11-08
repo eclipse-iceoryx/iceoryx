@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/message_queue.hpp"
+#include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
@@ -97,8 +97,9 @@ class CMqInterfaceStartupRace_test : public Test
         constexpr uint32_t DUMMY_SHM_OFFSET{73};
         constexpr uint32_t DUMMY_SEGMENT_ID{13};
         constexpr uint32_t INDEX_OF_TIMESTAMP{4};
+        constexpr uint32_t SEND_KEEP_ALIVE{true};
         regAck << IpcMessageTypeToString(IpcMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
-               << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID;
+               << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID << SEND_KEEP_ALIVE;
 
         if (m_appQueue.has_error())
         {
@@ -118,9 +119,10 @@ class CMqInterfaceStartupRace_test : public Test
 };
 
 #if !defined(__APPLE__)
-TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
+TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a94080de-e07d-433b-be0d-6ca748006664");
+    GTEST_SKIP() << "todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue
@@ -164,9 +166,10 @@ TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMq)
     roudi.join();
 }
 
-TEST_F(CMqInterfaceStartupRace_test, DISABLED_ObsoleteRouDiMqWithFullMq)
+TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e7594a83-d0d1-49fb-8882-9d4dcc0372ef");
+    GTEST_SKIP() << "todo iox-#1106 Test is not compatible on all platforms and needs to be refactored or removed";
     /// @note this test checks if the application handles the situation when the roudi mqueue was not properly cleaned
     /// up and tries to use the obsolet mqueue while RouDi gets restarted and cleans its resources up and creates a new
     /// mqueue, the obsolete mqueue was filled up to the max message size, e.g. by the KEEP_ALIVE messages

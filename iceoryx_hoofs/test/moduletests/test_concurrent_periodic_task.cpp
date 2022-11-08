@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 
@@ -46,17 +46,12 @@ struct PeriodicTaskTestType
   public:
     PeriodicTaskTestType() = default;
 
-    PeriodicTaskTestType(uint64_t callCounterOffset)
+    explicit PeriodicTaskTestType(uint64_t callCounterOffset)
     {
         callCounter = callCounterOffset;
     }
 
     void operator()()
-    {
-        increment();
-    }
-
-    void incrementMethod()
     {
         increment();
     }
@@ -74,12 +69,12 @@ uint64_t PeriodicTaskTestType::callCounter{0};
 class PeriodicTask_test : public Test
 {
   public:
-    virtual void SetUp()
+    void SetUp() override
     {
         PeriodicTaskTestType::callCounter = 0;
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
     }
 };
@@ -167,7 +162,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithDefaultConstru
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWithArguments, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "be2b7225-344d-4700-974d-830d7ade60e3");
@@ -181,7 +176,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectWithConstructorWit
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter,
                 AllOf(Ge(CALL_COUNTER_OFFSET + MIN_RUNS), Le(CALL_COUNTER_OFFSET + MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "dfc65bfa-ce9b-432f-af1a-07948e776f31");
@@ -193,7 +188,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repea
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "71b34fd4-4b2b-43e5-a574-9261460cca7c");
@@ -205,7 +200,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "2939849e-c0c6-49ba-8cde-24fc84336ee6");
@@ -217,24 +212,19 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
-// clang-format off
-// due to the `()` enclosing the lambda, clang-format is messing this up
-// the `()` are needed since the `TIMING_TEST_F` macro is messing up the forwarding to the MethodCallback c'tor
-TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithMethodCallback, Repeat(3), ([&] {
-  ::testing::Test::RecordProperty("TEST_ID", "69736fff-5f48-4641-a1ee-ffde3df06a8d");
+TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
+    ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
     {
-        PeriodicTaskTestType testType;
-        concurrent::PeriodicTask<cxx::MethodCallback<void>> sut{PeriodicTaskAutoStart,
-            INTERVAL, "Test", testType, &PeriodicTaskTestType::incrementMethod};
+        concurrent::PeriodicTask<cxx::function<void()>> sut(
+            PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
 
-            std::this_thread::sleep_for(SLEEP_TIME);
+        std::this_thread::sleep_for(SLEEP_TIME);
     }
 
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-}));
-// clang-format on
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfterStart, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "af749dd8-e1ac-4b66-88ab-8839ee639818");
@@ -252,7 +242,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
 
     EXPECT_THAT(elapsedTime, Le(2 * SLEEP_TIME));
     EXPECT_THAT(PeriodicTaskTestType::callCounter, AllOf(Ge(MIN_RUNS), Le(MAX_RUNS)));
-});
+})
 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlockingOnStop, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4a4db536-3691-4a73-aeb0-09cd37009b9e");
@@ -264,5 +254,5 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlocki
     auto elapsedTime{std::chrono::duration_cast<std::chrono::milliseconds>(stop - start)};
 
     EXPECT_THAT(elapsedTime, Ge(SLEEP_TIME));
-});
+})
 } // namespace

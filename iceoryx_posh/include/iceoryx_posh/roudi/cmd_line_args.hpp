@@ -28,8 +28,8 @@ namespace config
 {
 struct CmdLineArgs_t
 {
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::ON};
-    iox::log::LogLevel logLevel{iox::log::LogLevel::kWarn};
+    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
+    iox::log::LogLevel logLevel{iox::log::LogLevel::WARN};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
     cxx::optional<uint16_t> uniqueRouDiId{cxx::nullopt};

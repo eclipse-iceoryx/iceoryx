@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ bool Event_t::init(const uint64_t eventId,
                    const uint64_t eventTypeHash,
                    internal::GenericCallbackRef_t callback,
                    internal::TranslationCallbackRef_t translationCallback,
-                   const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept
+                   const cxx::function<void(uint64_t)> invalidationCallback) noexcept
 {
     if (invalidationCallback)
     {
@@ -82,8 +82,7 @@ bool Event_t::reset() noexcept
 {
     if (isInitialized())
     {
-        // isInitialized == true ensures that the invalidationCallback is set
-        IOX_DISCARD_RESULT(m_invalidationCallback(m_eventId));
+        m_invalidationCallback(m_eventId);
 
         m_eventId = INVALID_ID;
         m_origin = nullptr;
@@ -91,7 +90,7 @@ bool Event_t::reset() noexcept
         m_eventTypeHash = INVALID_ID;
         m_callback = nullptr;
         m_translationCallback = nullptr;
-        m_invalidationCallback = cxx::MethodCallback<void, uint64_t>();
+        m_invalidationCallback = cxx::function<void(uint64_t)>();
 
         return true;
     }
@@ -101,8 +100,7 @@ bool Event_t::reset() noexcept
 bool Event_t::isInitialized() const noexcept
 {
     return m_origin != nullptr && m_eventId != INVALID_ID && m_eventType != INVALID_ID && m_eventTypeHash != INVALID_ID
-           && m_callback != nullptr && m_translationCallback != nullptr
-           && m_invalidationCallback != cxx::MethodCallback<void, uint64_t>();
+           && m_callback != nullptr && m_translationCallback != nullptr && m_invalidationCallback;
 }
 } // namespace internal
 

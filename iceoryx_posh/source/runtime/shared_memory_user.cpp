@@ -17,9 +17,9 @@
 
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 
 namespace iox
@@ -40,11 +40,12 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
-            rp::BaseRelativePointer::registerPtr(
-                segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+            rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segmentId},
+                                                 sharedMemoryObject.getBaseAddress(),
+                                                 sharedMemoryObject.getSizeInBytes());
             LogDebug() << "Application registered management segment "
-                       << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                       << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+                       << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                       << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -56,8 +57,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                                         const rp::BaseRelativePointer::offset_t segmentManagerAddressOffset) noexcept
 {
-    auto ptr = rp::BaseRelativePointer::getPtr(segmentId, segmentManagerAddressOffset);
-    auto segmentManager = reinterpret_cast<mepoo::SegmentManager<>*>(ptr);
+    auto* ptr = rp::BaseRelativePointer::getPtr(rp::BaseRelativePointer::id_t{segmentId}, segmentManagerAddressOffset);
+    auto* segmentManager = static_cast<mepoo::SegmentManager<>*>(ptr);
 
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
     for (const auto& segment : segmentMapping)
@@ -76,12 +77,13 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                rp::BaseRelativePointer::registerPtr(
-                    segment.m_segmentId, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                rp::BaseRelativePointer::registerPtr(rp::BaseRelativePointer::id_t{segment.m_segmentId},
+                                                     sharedMemoryObject.getBaseAddress(),
+                                                     sharedMemoryObject.getSizeInBytes());
 
                 LogDebug() << "Application registered payload data segment "
-                           << iox::log::HexFormat(reinterpret_cast<uint64_t>(sharedMemoryObject.getBaseAddress()))
-                           << " with size " << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                           << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })

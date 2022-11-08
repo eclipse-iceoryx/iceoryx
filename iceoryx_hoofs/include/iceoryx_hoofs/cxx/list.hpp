@@ -23,7 +23,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -271,6 +271,9 @@ class list
 
         /// @brief construct a const_iterator from an iterator
         /// @param[in] iter is the iterator which will deliver list and index info for the const_iterator
+        /// @NOLINTJUSTIFICATION conversion from non const iterator to const iterator follows the
+        ///                      STL behavior and should be allowed
+        /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
         IteratorBase(const IteratorBase<false>& iter) noexcept;
 
         /// @brief assigns a const_iterator from an iterator; needs to be implemented because the copy c'tor is also
@@ -379,9 +382,13 @@ class list
     // to the beginning and end of the list. This additional element (index position 'capacity' aka
     // BEGIN_END_LINK_INDEX) 'previous' will point to the last valid element (end()) and 'next' will point to the
     // first used list element (begin())
+
+    /// @NOLINTJUSTIFICATION todo #1196 will be replaced by uninitialized array
+    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     NodeLink m_links[NODE_LINK_COUNT];
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
+    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 
     size_type m_size{0U};
 }; // list

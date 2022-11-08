@@ -17,6 +17,8 @@
 #ifndef IOX_HOOFS_CXX_SERIALIZATION_INL
 #define IOX_HOOFS_CXX_SERIALIZATION_INL
 
+#include "iceoryx_hoofs/cxx/serialization.hpp"
+
 namespace iox
 {
 namespace cxx
@@ -74,19 +76,12 @@ inline std::string Serialization::serializer(const T& t, const Targs&... args) n
     std::string serializedString = getString(t);
     std::string serializedStringLength = convert::toString(serializedString.size());
 
-    return serializedStringLength + separator + serializedString + serializer(args...);
+    return serializedStringLength + SEPARATOR + serializedString + serializer(args...);
 }
 
 inline bool Serialization::deserialize(const std::string& serializedString) noexcept
 {
-    if (serializedString.empty())
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return serializedString.empty();
 }
 
 template <typename T, typename... Targs>
@@ -110,25 +105,25 @@ inline bool Serialization::deserialize(const std::string& serializedString, T& t
 
 inline bool Serialization::removeFirstEntry(std::string& firstEntry, std::string& remainder) noexcept
 {
-    uint64_t pos = remainder.find_first_of(separator);
+    uint64_t pos = remainder.find_first_of(SEPARATOR);
     if (pos == std::string::npos)
     {
         return false;
     }
 
-    uint64_t length;
+    uint64_t length{0};
     if (!convert::fromString(remainder.substr(0, pos).c_str(), length))
     {
         return false;
     }
 
-    if (remainder.size() < pos + length + 1u)
+    if (remainder.size() < pos + length + 1U)
     {
         return false;
     }
 
-    firstEntry = remainder.substr(pos + 1u, length);
-    remainder = remainder.substr(pos + 1u + length);
+    firstEntry = remainder.substr(pos + 1U, length);
+    remainder = remainder.substr(pos + 1U + length);
 
     return true;
 }
@@ -146,12 +141,7 @@ inline bool Serialization::getNth(const unsigned int index, T& t) const noexcept
         }
     }
 
-    if (!convert::fromString(entry.c_str(), t))
-    {
-        return false;
-    }
-
-    return true;
+    return convert::fromString(entry.c_str(), t);
 }
 } // namespace cxx
 } // namespace iox

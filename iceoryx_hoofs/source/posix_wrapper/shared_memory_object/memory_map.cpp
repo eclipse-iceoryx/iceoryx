@@ -34,11 +34,11 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
         l_memoryProtection = PROT_READ;
         break;
     case AccessMode::READ_WRITE:
+        // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
         l_memoryProtection = PROT_READ | PROT_WRITE;
         break;
     }
-    // PRQA S 3066 1 # incompatibility with POSIX definition of mmap
-
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
                                   m_length,
@@ -46,8 +46,11 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                                   static_cast<int32_t>(m_flags),
                                   m_fileDescriptor,
                                   m_offset)
-                      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
-                      .failureReturnValue(reinterpret_cast<void*>(MAP_FAILED))
+
+                      // NOLINTJUSTIFICATION cast required, type of error MAP_FAILED defined by POSIX to be void*
+                      // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
+                      .failureReturnValue(MAP_FAILED)
+                      // NOLINTEND(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
                       .evaluate();
 
     if (result)
@@ -148,8 +151,8 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
             std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
         }
 
-        m_baseAddress = std::move(rhs.m_baseAddress);
-        m_length = std::move(rhs.m_length);
+        m_baseAddress = rhs.m_baseAddress;
+        m_length = rhs.m_length;
 
         rhs.m_baseAddress = nullptr;
         rhs.m_length = 0U;

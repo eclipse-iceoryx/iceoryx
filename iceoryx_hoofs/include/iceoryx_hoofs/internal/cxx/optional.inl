@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,33 +17,48 @@
 #ifndef IOX_HOOFS_CXX_OPTIONAL_INL
 #define IOX_HOOFS_CXX_OPTIONAL_INL
 
+#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/cxx/optional.hpp"
+
 namespace iox
 {
 namespace cxx
 {
+// m_data is not initialized since this is a constructor for an optional with no value; an access of the value would
+// lead to the application's termination
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
-inline optional<T>::optional(const nullopt_t&) noexcept
+inline optional<T>::optional(const nullopt_t& noVal IOX_MAYBE_UNUSED) noexcept
 {
 }
 
+// m_data is not initialized since this is a constructor for an optional with no value; an access of the value would
+// lead to the application's termination
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 inline optional<T>::optional() noexcept
     : optional(nullopt_t())
 {
 }
 
+// m_data is set inside construct_value
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 inline optional<T>::optional(T&& value) noexcept
 {
     construct_value(std::forward<T>(value));
 }
 
+// m_data is set inside construct_value
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 inline optional<T>::optional(const T& value) noexcept
 {
     construct_value(value);
 }
 
+// if rhs has a value m_data is set inside construct_value, otherwise this stays an optional with has no value
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 inline optional<T>::optional(const optional& rhs) noexcept
 {
@@ -53,6 +68,8 @@ inline optional<T>::optional(const optional& rhs) noexcept
     }
 }
 
+// if rhs has a value m_data is set inside construct_value, otherwise this stays an optional with has no value
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 inline optional<T>::optional(optional&& rhs) noexcept
 {
@@ -63,8 +80,11 @@ inline optional<T>::optional(optional&& rhs) noexcept
     }
 }
 
+// m_data is set inside construct_value
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <typename T>
 template <typename... Targs>
+// NOLINTNEXTLINE(readability-named-parameter, hicpp-named-parameter) justification in header
 inline optional<T>::optional(in_place_t, Targs&&... args) noexcept
 {
     construct_value(std::forward<Targs>(args)...);
@@ -125,6 +145,7 @@ inline optional<T>::~optional() noexcept
     }
 }
 
+// NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) justification in header
 template <typename T>
 template <typename U>
 inline typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional<T>>::type&
@@ -160,7 +181,7 @@ constexpr inline bool optional<T>::operator==(const optional<T>& rhs) const noex
 }
 
 template <typename T>
-constexpr inline bool optional<T>::operator==(const nullopt_t&) const noexcept
+constexpr inline bool optional<T>::operator==(const nullopt_t& rhs IOX_MAYBE_UNUSED) const noexcept
 {
     return !m_hasValue;
 }
@@ -239,13 +260,13 @@ template <typename T>
 inline T& optional<T>::value() & noexcept
 {
     Expects(has_value());
-    return *static_cast<T*>(static_cast<void*>(m_data));
+    return *static_cast<T*>(static_cast<void*>(&m_data));
 }
 
 template <typename T>
 inline const T& optional<T>::value() const& noexcept
 {
-    // PRQA S 3066 1 # const cast to avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<optional<T>*>(this)->value();
 }
 
@@ -253,12 +274,13 @@ template <typename T>
 inline T&& optional<T>::value() && noexcept
 {
     Expects(has_value());
-    return std::move(*static_cast<T*>(static_cast<void*>(m_data)));
+    return std::move(*static_cast<T*>(static_cast<void*>(&m_data)));
 }
 
 template <typename T>
 inline const T&& optional<T>::value() const&& noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return std::move(*const_cast<optional<T>*>(this)->value());
 }
 
@@ -266,7 +288,7 @@ template <typename T>
 template <typename... Targs>
 inline void optional<T>::construct_value(Targs&&... args) noexcept
 {
-    new (static_cast<T*>(static_cast<void*>(m_data))) T(std::forward<Targs>(args)...);
+    new (static_cast<T*>(static_cast<void*>(&m_data))) T(std::forward<Targs>(args)...);
     m_hasValue = true;
 }
 

@@ -33,17 +33,21 @@ using namespace iox::cxx;
 template <uint32_t Size, uint32_t Align = 1U>
 struct alignas(Align) Bytes
 {
+    /// @NOLINTJUSTIFICATION required to provide raw memory in tests
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     uint8_t data[Size] = {};
 
     void set(uint8_t value)
     {
-        memset(data, value, Size);
+        memset(&data[0], value, Size);
     }
 
     bool hasValue(uint8_t value)
     {
         for (uint32_t i = 0; i < Size; ++i)
         {
+            /// @NOLINTJUSTIFICATION verify content of memory
+            /// @NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
             if (data[i] != value)
             {
                 return false;
@@ -175,7 +179,7 @@ TEST(static_storage_test, ClearSetsStorageBytesToZeroIfThereIsNoObjectStored)
     ::testing::Test::RecordProperty("TEST_ID", "debd1562-2b68-485b-a5df-d38ecf50e3ef");
     using Data = Bytes<16, 4>;
     static_storage<18, 2> sut;
-    auto data = sut.allocate<Data>();
+    auto* data = sut.allocate<Data>();
     ASSERT_NE(data, nullptr);
     data->set(37);
     EXPECT_TRUE(data->hasValue(37));
@@ -190,7 +194,7 @@ TEST(static_storage_test, ClearHasNoEffectIfThereIsAnObjectStored)
     ::testing::Test::RecordProperty("TEST_ID", "8882ef4d-92df-4370-9f84-5b6ead3d6d2c");
     using Data = Bytes<16, 4>;
     static_storage<18, 2> sut;
-    auto data = sut.allocate<Data>();
+    auto* data = sut.allocate<Data>();
     ASSERT_NE(data, nullptr);
     data->set(37);
     EXPECT_TRUE(data->hasValue(37));
@@ -203,7 +207,9 @@ TEST(static_storage_test, AllocationIsAligned)
 {
     ::testing::Test::RecordProperty("TEST_ID", "645c0194-7aea-4f9c-b379-212fbcaa05f7");
     static_storage<17, 2> sut;
-    uintptr_t p = reinterpret_cast<uintptr_t>(sut.allocate(16, 4));
+    /// @NOLINTJUSTIFICATION required for testing
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto p = reinterpret_cast<uintptr_t>(sut.allocate(16, 4));
     EXPECT_EQ(p % 4, 0);
 }
 
@@ -212,7 +218,9 @@ TEST(static_storage_test, TypedAllocationIsAligned)
     ::testing::Test::RecordProperty("TEST_ID", "bb990529-2721-4db8-8b17-02719021210e");
     using Data = Bytes<4, 8>;
     static_storage<17, 2> sut;
-    uintptr_t p = reinterpret_cast<uintptr_t>(sut.allocate<Data>());
+    /// @NOLINTJUSTIFICATION required for testing
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    auto p = reinterpret_cast<uintptr_t>(sut.allocate<Data>());
     EXPECT_EQ(p % 8, 0);
 }
 

@@ -19,8 +19,9 @@
 CONTAINER_NAME_PREFIX="ice_env_"
 CONTAINER_MEMORY_SIZE="6g"
 CONTAINER_SHM_MEMORY_SIZE="2g"
-DEFAULT_OS_VERSION="ubuntu:20.04"
+DEFAULT_OS_VERSION="ubuntu:22.04"
 CMAKE_VERSION="cmake-3.23.1-linux-x86_64"
+CLANG_VERSION="15"
 ICEORYX_PATH=$(git rev-parse --show-toplevel)
 
 COLOR_RESET='\033[0m'
@@ -35,6 +36,12 @@ install_cmake() {
     tar xf ${CMAKE_VERSION}.tar.gz
 }
 
+set_new_default_clang_binary() {
+    local CLANG_BINARY_PATH=$1
+    rm -rf ${CLANG_BINARY_PATH}
+    ln -s ${CLANG_BINARY_PATH}-${CLANG_VERSION} ${CLANG_BINARY_PATH}
+}
+
 setup_docker_image() {
     echo "Europe/Berlin" > /etc/timezone
     ln -sf /usr/share/zoneinfo/Europe/Berlin /etc/localtime
@@ -42,16 +49,32 @@ setup_docker_image() {
     # ubuntu/debian and derivatives
     if command -v apt &>/dev/null; then
         apt update
-        apt -y install libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev
+        apt -y install g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format wget libncurses5-dev libacl1-dev wget lsb-release software-properties-common vim
         install_cmake
+
+        # install newest clang
+        wget https://apt.llvm.org/llvm.sh
+        chmod +x llvm.sh
+        # patch so that no interaction is required
+        sed -i 's/^add-apt-repository/add-apt-repository -y/g' llvm.sh
+        ./llvm.sh ${CLANG_VERSION} all
+
+        # set newest clang as default
+        set_new_default_clang_binary /usr/bin/clang
+        set_new_default_clang_binary /usr/bin/clang++
+        set_new_default_clang_binary /usr/bin/clang-tidy
+        set_new_default_clang_binary /usr/bin/clang-format
+
     # archlinux based ones
     elif command -v pacman &>/dev/null; then
-        pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm wget ncurses
+        pacman -Syu --noconfirm base base-devel clang cmake git fish gdb lldb llvm wget ncurses vim
         install_cmake
     else
         echo Please install the following packages to have a working iceoryx environment:
-        echo libbison-dev g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
+        echo g++ gcc sudo cmake git fish gdb lldb llvm clang clang-format ncurses
     fi
+
+    git config --global --add safe.directory /iceoryx
 
     mkdir -p /root/.config/fish
     echo "set -gx PATH /iceoryx/tools/ci /iceoryx/scripts \$PATH" >> /root/.config/fish/config.fish
@@ -109,7 +132,7 @@ create_docker() {
                --shm-size $CONTAINER_SHM_MEMORY_SIZE ${OS_VERSION}
     echo -e "  ${COLOR_CYAN}setting up iceoryx development environment${COLOR_RESET} [${FONT_BOLD}$CONTAINER_NAME${COLOR_RESET}]"
 
-    docker exec -it $CONTAINER_NAME /iceoryx/$(git rev-parse --show-prefix)/$0 setup $OS_VERSION
+    docker exec -it $CONTAINER_NAME /iceoryx/$(realpath $0 --relative-to=$ICEORYX_PATH) setup $OS_VERSION
 }
 
 startup_docker() {

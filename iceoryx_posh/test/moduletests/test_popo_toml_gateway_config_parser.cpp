@@ -36,7 +36,7 @@ namespace
 {
 using ParseErrorInputFile_t = std::pair<iox::config::TomlGatewayConfigParseError, iox::roudi::ConfigFilePathString_t>;
 using CheckCharactersValidity_t = std::pair<std::string, bool>;
-}; // namespace
+} // namespace
 
 // ======================================== Fixture ======================================== //
 class TomlGatewayConfigParserTest : public TestWithParam<ParseErrorInputFile_t>
@@ -211,11 +211,14 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfi
     EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
 }
 
-// Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is used. Then this
-// test fails on every machine which is using such a config.
-TEST_F(TomlGatewayConfigParserSuiteTest, DISABLED_ParseWithoutParameterTakeDefaultPathReturnNoError)
+/// @note Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is used. Then this
+/// test fails on every machine which is using such a config.
+TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithoutParameterTakeDefaultPathReturnNoError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f18a7245-c4d5-4ad2-a74e-a622103f45f3");
+    GTEST_SKIP() << "todo iox-#908 Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is "
+                    "used, this "
+                    "test would fail on every machine that uses this configuration";
     auto result = TomlGatewayConfigParser::parse();
     ASSERT_FALSE(result.has_error());
 

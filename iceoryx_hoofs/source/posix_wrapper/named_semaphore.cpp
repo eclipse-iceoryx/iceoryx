@@ -16,7 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/log/hoofs_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -53,6 +53,8 @@ static cxx::expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) 
 }
 
 static cxx::expected<bool, SemaphoreError>
+// NOLINTJUSTIFICATION the cognitive complexity results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 tryOpenExistingSemaphore(cxx::optional<NamedSemaphore>& uninitializedSemaphore,
                          const NamedSemaphore::Name_t& name) noexcept
 {
@@ -96,6 +98,11 @@ tryOpenExistingSemaphore(cxx::optional<NamedSemaphore>& uninitializedSemaphore,
     return cxx::success<bool>(false);
 }
 
+/// NOLINTJUSTIFICATION used only internally in this file. Furthermore the problem cannot be avoided since
+///                     those arguments are required by the posix function sem_open. One could call it
+///                     before this function and provide the result but this would increase code complexity
+///                     even further. The cognitive complexity results from the expanded log macro
+/// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 static cxx::expected<SemaphoreError> createSemaphore(cxx::optional<NamedSemaphore>& uninitializedSemaphore,
                                                      const NamedSemaphore::Name_t& name,
                                                      const OpenMode openMode,
@@ -146,7 +153,10 @@ static cxx::expected<SemaphoreError> createSemaphore(cxx::optional<NamedSemaphor
 }
 
 cxx::expected<SemaphoreError>
-NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) noexcept
+// NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
+// results from the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
+NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) const noexcept
 {
     if (!cxx::isValidFileName(m_name))
     {
@@ -176,7 +186,8 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
         }
         return cxx::success<>();
     }
-    else if (m_openMode == OpenMode::OPEN_OR_CREATE)
+
+    if (m_openMode == OpenMode::OPEN_OR_CREATE)
     {
         auto result = tryOpenExistingSemaphore(uninitializedSemaphore, m_name);
         if (result.has_error())
@@ -191,7 +202,8 @@ NamedSemaphoreBuilder::create(cxx::optional<NamedSemaphore>& uninitializedSemaph
 
         return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);
     }
-    else if (m_openMode == OpenMode::EXCLUSIVE_CREATE)
+
+    if (m_openMode == OpenMode::EXCLUSIVE_CREATE)
     {
         return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);
     }

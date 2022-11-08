@@ -65,7 +65,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
-    auto response = cxx::unique_ptr<Res>(reinterpret_cast<Res*>(payload), [this](auto* payload) {
+    auto response = cxx::unique_ptr<Res>(static_cast<Res*>(payload), [this](auto* payload) {
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });

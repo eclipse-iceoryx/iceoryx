@@ -53,13 +53,13 @@ class Counter
         ++numCreated;
     }
 
-    Counter(const Counter&)
+    Counter(const Counter& rhs IOX_MAYBE_UNUSED)
     {
         ++numCreated;
         ++numCopied;
     }
 
-    Counter(Counter&&)
+    Counter(Counter&& rhs IOX_MAYBE_UNUSED) noexcept
     {
         ++numMoved;
     }
@@ -69,14 +69,22 @@ class Counter
         ++numDestroyed;
     }
 
-    Counter& operator=(const Counter&)
+    Counter& operator=(const Counter& rhs)
     {
-        ++numCopied;
+        if (this != &rhs)
+        {
+            ++numCopied;
+        }
+        return *this;
     }
 
-    Counter& operator=(Counter&&)
+    Counter& operator=(Counter&& rhs) noexcept
     {
-        ++numMoved;
+        if (this != &rhs)
+        {
+            ++numMoved;
+        }
+        return *this;
     }
 
     static void resetCounts()
@@ -104,9 +112,8 @@ uint64_t Counter<T>::numDestroyed = 0U;
 class Functor : public Counter<Functor>
 {
   public:
-    Functor(int32_t state)
-        : Counter<Functor>()
-        , m_state(state)
+    explicit Functor(int32_t state)
+        : m_state(state)
     {
     }
 
@@ -128,12 +135,12 @@ class Functor : public Counter<Functor>
 int32_t freeFunction(int32_t n)
 {
     return n + 1;
-};
+}
 
 struct Arg : Counter<Arg>
 {
     Arg() = default;
-    Arg(uint32_t value)
+    explicit Arg(int32_t value)
         : value(value){};
     Arg(const Arg&) = default;
     Arg& operator=(const Arg&) = default;
@@ -145,10 +152,10 @@ struct Arg : Counter<Arg>
     // Note that this is mainly an issue if the argument is passed by value.
     // The std::function also fails to compile in this case (gcc implementation).
 
-    int32_t value;
+    int32_t value{0};
 };
 
-int32_t freeFunctionWithCopyableArg(Arg arg)
+int32_t freeFunctionWithCopyableArg(const Arg& arg)
 {
     return arg.value;
 }
@@ -273,7 +280,7 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     ::testing::Test::RecordProperty("TEST_ID", "8302046f-cd6a-4527-aca6-3e6408f87a6b");
     constexpr uint32_t INITIAL_STATE = 73U;
     static_storage<1024U> storage;
-    auto p = storage.allocate<Functor>();
+    auto* p = storage.allocate<Functor>();
     p = new (p) Functor(INITIAL_STATE);
 
     // call the dtor in any case (even if the test fails due to ASSERT)
@@ -319,6 +326,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFunctor)
     test_function f(functor);
     Functor::resetCounts();
 
+    /// @NOLINTJUSTIFICATION the copy constructor is tested here
+    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
     EXPECT_EQ(Functor::numCopied, 1U);
@@ -339,6 +348,8 @@ TEST_F(function_test, MoveCtorMovesStoredFunctor)
     EXPECT_EQ(Functor::numMoved, 1U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -374,6 +385,8 @@ TEST_F(function_test, MoveAssignmentMovesStoredFunctor)
     EXPECT_EQ(Functor::numMoved, 1U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), functor(1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -382,6 +395,8 @@ TEST_F(function_test, CopyCtorCopiesStoredFreeFunction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8f95a82a-c879-48b1-aa56-316bf15b983a");
     test_function f(freeFunction);
+    /// @NOLINTJUSTIFICATION the copy constructor is tested here
+    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
     ASSERT_TRUE(sut.operator bool());
@@ -397,6 +412,8 @@ TEST_F(function_test, MoveCtorMovesStoredFreeFunction)
 
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -431,6 +448,8 @@ TEST_F(function_test, MoveAssignmentMovesStoredFreeFunction)
     EXPECT_EQ(Functor::numMoved, 0U);
     ASSERT_TRUE(sut.operator bool());
     EXPECT_EQ(sut(1), freeFunction(1));
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -440,6 +459,8 @@ TEST_F(function_test, CopiedNonCallableFunctionIsNotCallable)
     test_function f;
     Functor::resetCounts();
 
+    /// @NOLINTJUSTIFICATION the copy constructor is tested here
+    /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     test_function sut(f);
 
     EXPECT_EQ(Functor::numCopied, 0U);
@@ -459,6 +480,8 @@ TEST_F(function_test, MovedNonCallableFunctionIsNotCallable)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -491,6 +514,8 @@ TEST_F(function_test, MoveAssignedNonCallableFunctionIsNotCallable)
     EXPECT_EQ(Functor::numCopied, 0U);
     EXPECT_EQ(Functor::numMoved, 0U);
     EXPECT_FALSE(sut.operator bool());
+    // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_FALSE(f.operator bool());
 }
 
@@ -567,8 +592,8 @@ TEST_F(function_test, IsNotStorableDueToSignature)
 TEST_F(function_test, CallWithCopyConstructibleArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "20018d76-6255-407a-b3d3-77b6b480067d");
-    iox::cxx::function<int32_t(Arg), 1024> sut(freeFunctionWithCopyableArg);
-    std::function<int32_t(Arg)> func(freeFunctionWithCopyableArg);
+    iox::cxx::function<int32_t(const Arg&), 1024> sut(freeFunctionWithCopyableArg);
+    std::function<int32_t(const Arg&)> func(freeFunctionWithCopyableArg);
     Arg::resetCounts();
 
     Arg arg(73);
@@ -631,7 +656,9 @@ TEST_F(function_test, CallWithValueArgumentsWorks)
     const int32_t initial = 73;
     Arg arg(initial);
 
-    auto lambda = [](Arg a) { return a.value + 1; };
+    /// @NOLINTJUSTIFICATION value argument is tested here
+    /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
+    auto lambda = [](const Arg a) { return a.value + 1; };
     iox::cxx::function<int32_t(Arg&), 128> sut(lambda);
 
     ASSERT_TRUE(sut.operator bool());
@@ -665,6 +692,8 @@ TEST_F(function_test, CallWithMixedArgumentsWorks)
 
     constexpr int32_t sum = 10;
 
+    /// @NOLINTJUSTIFICATION value argument is tested here
+    /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
     auto lambda = [](Arg& a1, const Arg& a2, Arg&& a3, Arg a4) { return a1.value + a2.value + a3.value + a4.value; };
     iox::cxx::function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
 

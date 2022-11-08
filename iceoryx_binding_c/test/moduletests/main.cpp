@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/testing/logger.hpp"
+
 #include "test.hpp"
 
 /// just to check that no non-existing headers are included
@@ -27,16 +29,18 @@ using ::testing::_;
 
 // in case this isn't executed before the other tests, just call
 // 'checkIceoryxBindingCStorageSizes' directly in main
-/// @todo iox-#308 enable this check once the stack is used to store the objects
-TEST(SanityCheck, DISABLED_CheckStorageSizeAndAlingment)
+TEST(SanityCheck, CheckStorageSizeAndAlingment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "879abe49-6cfb-43f8-a9a1-b6c20b99293f");
+    GTEST_SKIP() << "todo iox-#308 enable this check once the stack is used to store the objects";
     checkIceoryxBindingCStorageSizes();
 }
 
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
+
+    iox::testing::Logger::init();
 
     return RUN_ALL_TESTS();
 }

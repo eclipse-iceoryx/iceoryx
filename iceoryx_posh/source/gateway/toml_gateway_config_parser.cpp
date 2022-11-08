@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
-#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
-#include "iceoryx_posh/internal/log/posh_config_logging.hpp"
+#include "iceoryx_dust/cxx/file_reader.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
@@ -54,10 +55,9 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     catch (const std::exception& parserException)
     {
         auto parserError = iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER;
-
-        LogWarn() << iox::cxx::convertEnumToString(iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS,
-                                                   parserError)
-                  << ": " << parserException.what();
+        auto errorStringIndex = static_cast<uint64_t>(parserError);
+        LogWarn() << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
+                  << parserException.what();
 
         return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }
@@ -102,11 +102,8 @@ iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml)
             TomlGatewayConfigParseError::MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
     }
 
-    uint8_t count = 0;
     for (const auto& service : *serviceArray)
     {
-        ++count;
-
         auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);

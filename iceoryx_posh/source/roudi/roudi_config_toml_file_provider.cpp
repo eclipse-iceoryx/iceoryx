@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by Apex AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
+#include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
-#include "iceoryx_hoofs/platform/getopt.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
 
@@ -76,9 +77,9 @@ TomlRouDiConfigFileProvider::parse() noexcept
     catch (const std::exception& parserException)
     {
         auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
-
-        LogWarn() << iox::cxx::convertEnumToString(iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS, parserError)
-                  << ": " << parserException.what();
+        auto errorStringIndex = static_cast<uint64_t>(parserError);
+        LogWarn() << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
+                  << parserException.what();
 
         return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
     }
@@ -145,8 +146,8 @@ TomlRouDiConfigFileProvider::parse() noexcept
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, reader),
-             iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, writer),
+            {iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, reader),
+             iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, writer),
              mempoolConfig});
     }
 

@@ -142,7 +142,7 @@ TEST(ChunkHeader_test, ChunkHeaderBinaryCompatibilityCheck)
 TEST(ChunkHeader_test, ChunkHeaderUserPayloadSizeTypeIsLargeEnoughForMempoolChunk)
 {
     ::testing::Test::RecordProperty("TEST_ID", "540e2e95-0890-4522-ae7f-c6d867679e0b");
-    using ChunkSize_t = iox::cxx::invoke_result<decltype(&MemPool::getChunkSize), MemPool>::type;
+    using ChunkSize_t = iox::platform::invoke_result<decltype(&MemPool::getChunkSize), MemPool>::type;
 
     auto maxOfChunkSizeType = std::numeric_limits<ChunkSize_t>::max();
     auto maxOfUserPayloadSizeType = std::numeric_limits<decltype(std::declval<ChunkHeader>().userPayloadSize())>::max();
@@ -448,7 +448,7 @@ void checkUserPayloadNotOverlappingWithUserHeader(const ChunkHeader& sut, const 
     const uint64_t chunkStartAddress{reinterpret_cast<uint64_t>(&sut)};
     const uint64_t userPayloadStartAddress{reinterpret_cast<uint64_t>(sut.userPayload())};
     const uint64_t userHeaderSizeAndPadding{
-        iox::algorithm::max(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)))};
+        iox::algorithm::maxVal(userHeaderSize, static_cast<uint32_t>(alignof(UserPayloadOffset_t)))};
     constexpr uint64_t BACK_OFFSET_SIZE{sizeof(UserPayloadOffset_t)};
     const uint64_t expectedRequiredSpace{sizeof(ChunkHeader) + userHeaderSizeAndPadding + BACK_OFFSET_SIZE};
 

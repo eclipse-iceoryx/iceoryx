@@ -21,7 +21,9 @@ set(IOX_VERSION_STRING "2.90.0")
 project(iceoryx_posh VERSION ${IOX_VERSION_STRING})
 
 find_package(Threads REQUIRED)
+find_package(iceoryx_platform REQUIRED)
 find_package(iceoryx_hoofs REQUIRED)
+find_package(iceoryx_dust REQUIRED)
 
 option(DOWNLOAD_TOML_LIB "Download cpptoml via the CMake ExternalProject module" ON)
 option(TOML_CONFIG "TOML support for RouDi with dynamic configuration" ON)
@@ -37,6 +39,7 @@ endif()
 
 include(IceoryxPackageHelper)
 include(IceoryxPlatform)
+include(IceoryxPlatformSettings)
 
 include(cmake/IceoryxPoshDeployment.cmake)
 
@@ -44,8 +47,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-iox_make_unique_includedir()
-
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 include(cmake/iceoryxversions.cmake)
 
 ########## Multiple libraries are exported, the setup and installation is done
@@ -89,10 +91,10 @@ iox_add_library(
                             source/version
                             source/runtime
     PUBLIC_LIBS             iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_dust::iceoryx_dust
     PRIVATE_LIBS            ${CMAKE_THREAD_LIBS_INIT}
     PRIVATE_LIBS_LINUX      rt
     FILES
-        source/log/posh_logging.cpp
         source/capro/capro_message.cpp
         source/capro/service_description.cpp
         source/error_handling/error_handling.cpp
@@ -242,7 +244,6 @@ if(TOML_CONFIG)
                             ${CMAKE_BINARY_DIR}/dependencies/install/include
         INSTALL_INTERFACE   include/${PREFIX}
         FILES
-            source/log/posh_config_logging.cpp
             source/gateway/gateway_config.cpp
             source/gateway/toml_gateway_config_parser.cpp
             source/roudi/roudi_config_toml_file_provider.cpp
@@ -288,7 +289,7 @@ install(
 
 # install deployment file to make posh config accessible by other packages
 install(
-    FILES 
+    FILES
         cmake/IceoryxPoshDeployment.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}
 )
@@ -302,6 +303,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
     #
     ######### posh roudi environment ##########
     #
+    find_package(iceoryx_hoofs_testing REQUIRED)
     iox_add_library(
         STATIC
         TARGET                  iceoryx_posh_testing

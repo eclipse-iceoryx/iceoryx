@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/platform/types.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
@@ -55,7 +55,7 @@ class ProcessManager_test : public Test
     }
 
     const iox::RuntimeName_t m_processname{"TestProcess"};
-    const pid_t m_pid{42U};
+    const uint32_t m_pid{42U};
     PosixUser m_user{iox::posix::PosixUser::getUserOfCurrentProcess().getName()};
     const bool m_isMonitored{true};
     VersionInfo m_versionInfo{42U, 42U, 42U, 42U, "Foo", "Bar"};

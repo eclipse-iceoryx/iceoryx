@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,20 +16,32 @@
 #ifndef IOX_HOOFS_CXX_STACK_HPP
 #define IOX_HOOFS_CXX_STACK_HPP
 
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+
 #include <cstdint>
 
 namespace iox
 {
 namespace cxx
 {
+// AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
+// access
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
 /// @brief stack implementation with a simple push pop interface
 /// @tparam T type which the stack contains
 /// @tparam Capacity the capacity of the stack
 template <typename T, uint64_t Capacity>
-class stack
+class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 {
   public:
+    stack() noexcept = default;
+    stack(const stack& rhs) noexcept;
+    stack(stack&& rhs) noexcept;
+    stack& operator=(const stack& rhs) noexcept;
+    stack& operator=(stack&& rhs) noexcept;
+    ~stack() noexcept;
+
     /// @brief returns the last pushed element when the stack contains elements
     ///         otherwise a cxx::nullopt
     cxx::optional<T> pop() noexcept;
@@ -41,6 +53,9 @@ class stack
     template <typename... Targs>
     bool push(Targs&&... args) noexcept;
 
+    /// @brief calls the destructor of all contained elements in reverse creation order and empties the stack
+    void clear() noexcept;
+
     /// @brief returns the stack size
     uint64_t size() const noexcept;
 
@@ -48,9 +63,23 @@ class stack
     static constexpr uint64_t capacity() noexcept;
 
   private:
+    T& getUnchecked(const uint64_t index) noexcept;
+    const T& getUnchecked(const uint64_t index) const noexcept;
+
+    void clearFrom(const uint64_t index) noexcept;
+
+    stack& copy(const stack& rhs) noexcept;
+    stack& move(stack&& rhs) noexcept;
+
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
+    // the stack class
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the char array is wrapped inside
+    // the stack class
+    /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     alignas(T) element_t m_data[Capacity];
-    uint64_t m_size = 0U;
+    uint64_t m_size{0U};
 };
 } // namespace cxx
 } // namespace iox

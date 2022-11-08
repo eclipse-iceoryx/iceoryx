@@ -51,6 +51,8 @@ class Buffer
   private:
     using byte_t = uint8_t;
 
+    // NOLINTJUSTIFICATION required by low level buffer building block and encapsulated in abstraction
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     alignas(ElementType) byte_t m_buffer[Capacity * sizeof(ElementType)];
 
     ElementType* toPtr(index_t index) const noexcept;
@@ -59,6 +61,6 @@ class Buffer
 } // namespace concurrent
 } // namespace iox
 
-#include "buffer.inl"
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.inl"
 
 #endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_HPP

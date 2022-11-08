@@ -66,7 +66,7 @@ void onRequestReceived(iox_server_t server)
 }
 //! [process request]
 
-int main()
+int main(void)
 {
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);

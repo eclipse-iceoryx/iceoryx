@@ -53,19 +53,6 @@ inline RelativePointer<T>& RelativePointer<T>::operator=(ptr_t ptr) noexcept
 
 template <typename T>
 template <typename U>
-inline typename std::enable_if<!std::is_void<U>::value, U&>::type RelativePointer<T>::operator*() noexcept
-{
-    return *get();
-}
-
-template <typename T>
-inline T* RelativePointer<T>::operator->() noexcept
-{
-    return get();
-}
-
-template <typename T>
-template <typename U>
 inline typename std::enable_if<!std::is_void<U>::value, const U&>::type RelativePointer<T>::operator*() const noexcept
 {
     return *get();
@@ -80,13 +67,15 @@ inline T* RelativePointer<T>::operator->() const noexcept
 template <typename T>
 inline T* RelativePointer<T>::get() const noexcept
 {
-    return static_cast<T*>(computeRawPtr());
+    auto ptr = static_cast<T*>(computeRawPtr());
+    cxx::Ensures(ptr != nullptr);
+    return ptr;
 }
 
 template <typename T>
-inline RelativePointer<T>::operator T*() const noexcept
+inline RelativePointer<T>::operator bool() const noexcept
 {
-    return get();
+    return computeRawPtr() != nullptr;
 }
 
 template <typename T>

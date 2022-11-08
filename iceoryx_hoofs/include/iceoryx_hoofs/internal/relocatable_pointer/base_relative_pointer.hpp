@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_RELOCATABLE_POINTER_BASE_RELATIVE_POINTER_HPP
 
-#include "pointer_repository.hpp"
+#include "iceoryx_hoofs/cxx/newtype.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/pointer_repository.hpp"
 
 #include <cstdint>
 
@@ -51,7 +52,17 @@ namespace rp
 class BaseRelativePointer
 {
   public:
-    using id_t = uint64_t;
+    struct id_t : public cxx::NewType<uint64_t,
+                                      cxx::newtype::DefaultConstructable,
+                                      cxx::newtype::CopyConstructable,
+                                      cxx::newtype::Convertable,
+                                      cxx::newtype::ConstructByValueCopy,
+                                      cxx::newtype::MoveConstructable>
+    {
+        using ThisType::ThisType;
+    };
+
+    using id_underlying_t = id_t::value_type;
     using ptr_t = void*;
     using const_ptr_t = const void* const;
     using offset_t = std::uintptr_t;
@@ -59,20 +70,20 @@ class BaseRelativePointer
     /// @brief constructs a BaseRelativePointer pointing to the same pointee as ptr in a segment identified by id
     /// @param[in] ptr the pointer whose pointee shall be the same for this
     /// @param[in] id is the unique id of the segment
-    BaseRelativePointer(ptr_t ptr, id_t id) noexcept;
+    BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept;
 
     /// @brief constructs a BaseRelativePointer from a given offset and segment id
     /// @param[in] offset is the offset
     /// @param[in] id is the unique id of the segment
-    BaseRelativePointer(offset_t offset, id_t id) noexcept;
+    BaseRelativePointer(const offset_t offset, const id_t id) noexcept;
 
     /// @brief constructs a BaseRelativePointer pointing to the same pointer as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    BaseRelativePointer(ptr_t ptr = nullptr) noexcept;
+    explicit BaseRelativePointer(const ptr_t ptr = nullptr) noexcept;
 
     /// @brief copy constructor
     /// @param[in] other is the copy origin
-    BaseRelativePointer(const BaseRelativePointer& other) noexcept;
+    BaseRelativePointer(const BaseRelativePointer& other) noexcept = default;
 
     /// @brief move constructor
     /// @param[in] other is the move origin
@@ -99,7 +110,7 @@ class BaseRelativePointer
 
     /// @brief returns the id which identifies the segment
     /// @return the id which identifies the segment
-    id_t getId() const noexcept;
+    id_underlying_t getId() const noexcept;
 
     /// @brief returns the offset
     /// @return the offset
@@ -113,7 +124,7 @@ class BaseRelativePointer
     /// @param[in] ptr starting address of the segment to be registered
     /// @param[in] size is the size of the segment
     /// @return id it was registered to
-    static id_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
+    static id_underlying_t registerPtr(const ptr_t ptr, uint64_t size = 0U) noexcept;
 
     /// @brief tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id is the id of the segment
@@ -150,7 +161,7 @@ class BaseRelativePointer
     /// @brief get the id for a given ptr
     /// @param[in] ptr the pointer whose corresponding id is searched for
     /// @return id the pointer was registered to
-    static id_t searchId(ptr_t ptr) noexcept;
+    static id_underlying_t searchId(ptr_t ptr) noexcept;
 
     /// @brief checks if given id is valid
     /// @param[in] id is the id to be checked
@@ -159,7 +170,7 @@ class BaseRelativePointer
 
     /// @brief returns the pointer repository
     /// @return the pointer repository
-    static PointerRepository<id_t, ptr_t>& getRepository() noexcept;
+    static PointerRepository<id_underlying_t, ptr_t>& getRepository() noexcept;
 
     /// @brief get the offset from the start address of the segment and ptr
     /// @param[in] ptr is the pointer whose offset should be calculated
@@ -170,12 +181,17 @@ class BaseRelativePointer
     /// @return the pointer for stored id and offset
     ptr_t computeRawPtr() const noexcept;
 
-    static constexpr id_t NULL_POINTER_ID = std::numeric_limits<id_t>::max();
+    static constexpr id_underlying_t NULL_POINTER_ID{std::numeric_limits<id_underlying_t>::max()};
     static constexpr offset_t NULL_POINTER_OFFSET = std::numeric_limits<offset_t>::max();
 
   protected:
-    id_t m_id{NULL_POINTER_ID};
+    ~BaseRelativePointer() noexcept = default;
+
+    // BaseRelativePointer only used with RelativePointer
+    // NOLINTBEGIN(cppcoreguidelines-non-private-member-variables-in-classes)
+    id_underlying_t m_id{NULL_POINTER_ID};
     offset_t m_offset{NULL_POINTER_OFFSET};
+    // NOLINTEND(cppcoreguidelines-non-private-member-variables-in-classes)
 };
 } // namespace rp
 } // namespace iox

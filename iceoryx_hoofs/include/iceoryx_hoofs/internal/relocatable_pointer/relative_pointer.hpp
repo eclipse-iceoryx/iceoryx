@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_RELOCATABLE_POINTER_RELATIVE_POINTER_HPP
 
-#include "base_relative_pointer.hpp"
+#include "iceoryx_hoofs/internal/relocatable_pointer/base_relative_pointer.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -51,7 +51,7 @@ class RelativePointer : public BaseRelativePointer
 
     /// @brief constructs a RelativePointer pointing to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
-    RelativePointer(ptr_t ptr) noexcept;
+    explicit RelativePointer(ptr_t ptr) noexcept;
 
     /// @brief assigns the RelativePointer to point to the same pointee as ptr
     /// @param[in] ptr the pointer whose pointee shall be the same for this
@@ -62,29 +62,19 @@ class RelativePointer : public BaseRelativePointer
     /// @tparam U a template parameter to enable the dereferencing operator only for non-void T
     /// @return a reference to the underlying object
     template <typename U = T>
-    typename std::enable_if<!std::is_void<U>::value, U&>::type operator*() noexcept;
-
-    /// @brief access to the underlying object
-    /// @return a pointer to the underlying object
-    T* operator->() noexcept;
-
-    /// @brief dereferencing operator which returns a const reference to the underlying object
-    /// @tparam U a template parameter to enable the dereferencing operator only for non-void T
-    /// @return a const reference to the underlying object
-    template <typename U = T>
     typename std::enable_if<!std::is_void<U>::value, const U&>::type operator*() const noexcept;
 
     /// @brief read-only access to the underlying object
-    /// @return a const pointer to the underlying object
+    /// @return a pointer to the underlying object
     T* operator->() const noexcept;
 
     /// @brief access the underlying object
     /// @return a pointer to the underlying object
     T* get() const noexcept;
 
-    /// @brief converts the RelativePointer to a pointer of the type of the underlying object
-    /// @return a pointer of type T pointing to the underlying object
-    operator T*() const noexcept;
+    /// @brief converts the RelativePointer to bool
+    /// @return bool which contains true if the RelativePointer contains a pointer
+    explicit operator bool() const noexcept;
 
     /// @brief checks if this and ptr point to the same pointee
     /// @param[in] ptr is the pointer whose pointee is compared with this' pointee

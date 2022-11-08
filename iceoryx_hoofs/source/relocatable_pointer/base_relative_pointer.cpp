@@ -21,13 +21,17 @@ namespace iox
 {
 namespace rp
 {
-BaseRelativePointer::BaseRelativePointer(ptr_t ptr, id_t id) noexcept
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::BaseRelativePointer(const ptr_t ptr, const id_t id) noexcept
     : m_id(id)
     , m_offset(computeOffset(ptr))
 {
 }
 
-BaseRelativePointer::BaseRelativePointer(offset_t offset, id_t id) noexcept
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
+BaseRelativePointer::BaseRelativePointer(const offset_t offset, const id_t id) noexcept
     : m_id(id)
     , m_offset(offset)
 {
@@ -36,13 +40,6 @@ BaseRelativePointer::BaseRelativePointer(offset_t offset, id_t id) noexcept
 BaseRelativePointer::BaseRelativePointer(ptr_t ptr) noexcept
     : m_id(searchId(ptr))
     , m_offset(computeOffset(ptr))
-{
-}
-
-// NOLINTNEXTLINE(hicpp-use-equals-default) style consistency
-BaseRelativePointer::BaseRelativePointer(const BaseRelativePointer& other) noexcept
-    : m_id(other.m_id)
-    , m_offset(other.m_offset)
 {
 }
 
@@ -89,7 +86,7 @@ BaseRelativePointer::ptr_t BaseRelativePointer::get() const noexcept
     return computeRawPtr();
 }
 
-BaseRelativePointer::id_t BaseRelativePointer::getId() const noexcept
+BaseRelativePointer::id_underlying_t BaseRelativePointer::getId() const noexcept
 {
     return m_id;
 }
@@ -101,27 +98,33 @@ BaseRelativePointer::offset_t BaseRelativePointer::getOffset() const noexcept
 
 BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr() const noexcept
 {
-    return getBasePtr(m_id);
+    return getBasePtr(id_t{m_id});
 }
 
-BaseRelativePointer::id_t BaseRelativePointer::registerPtr(const ptr_t ptr, uint64_t size) noexcept
+BaseRelativePointer::id_underlying_t BaseRelativePointer::registerPtr(const ptr_t ptr, uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::registerPtr(const id_t id, const ptr_t ptr, uint64_t size) noexcept
 {
-    return getRepository().registerPtr(id, ptr, size);
+    return getRepository().registerPtr(static_cast<id_underlying_t>(id), ptr, size);
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::unregisterPtr(const id_t id) noexcept
 {
-    return getRepository().unregisterPtr(id);
+    return getRepository().unregisterPtr(static_cast<id_underlying_t>(id));
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::ptr_t BaseRelativePointer::getBasePtr(const id_t id) noexcept
 {
-    return getRepository().getBasePtr(id);
+    return getRepository().getBasePtr(static_cast<id_underlying_t>(id));
 }
 
 void BaseRelativePointer::unregisterAll() noexcept
@@ -129,16 +132,22 @@ void BaseRelativePointer::unregisterAll() noexcept
     getRepository().unregisterAll();
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::offset_t BaseRelativePointer::getOffset(const id_t id, const_ptr_t ptr) noexcept
 {
-    if (id == NULL_POINTER_ID)
+    if (static_cast<id_underlying_t>(id) == NULL_POINTER_ID)
     {
         return NULL_POINTER_OFFSET;
     }
     auto* basePtr = getBasePtr(id);
+    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return reinterpret_cast<offset_t>(ptr) - reinterpret_cast<offset_t>(basePtr);
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offset_t offset) noexcept
 {
     if (offset == NULL_POINTER_OFFSET)
@@ -146,11 +155,12 @@ BaseRelativePointer::ptr_t BaseRelativePointer::getPtr(const id_t id, const offs
         return nullptr;
     }
     auto* basePtr = getBasePtr(id);
-    // NOLINTNEXTLINE(performance-no-int-to-ptr) reliance on integers for offset computation by design
+    // NOLINTJUSTIFICATION Cast needed for pointer arithmetic
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
 }
 
-BaseRelativePointer::id_t BaseRelativePointer::searchId(ptr_t ptr) noexcept
+BaseRelativePointer::id_underlying_t BaseRelativePointer::searchId(ptr_t ptr) noexcept
 {
     if (ptr == nullptr)
     {
@@ -159,25 +169,28 @@ BaseRelativePointer::id_t BaseRelativePointer::searchId(ptr_t ptr) noexcept
     return getRepository().searchId(ptr);
 }
 
+// NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
+// NOLINTNEXTLINE(performance-unnecessary-value-param)
 bool BaseRelativePointer::isValid(id_t id) noexcept
 {
-    return getRepository().isValid(id);
+    return getRepository().isValid(static_cast<id_underlying_t>(id));
 }
 
-PointerRepository<BaseRelativePointer::id_t, BaseRelativePointer::ptr_t>& BaseRelativePointer::getRepository() noexcept
+PointerRepository<BaseRelativePointer::id_underlying_t, BaseRelativePointer::ptr_t>&
+BaseRelativePointer::getRepository() noexcept
 {
-    static PointerRepository<id_t, ptr_t> repository;
+    static PointerRepository<id_underlying_t, ptr_t> repository;
     return repository;
 }
 
 BaseRelativePointer::offset_t BaseRelativePointer::computeOffset(ptr_t ptr) const noexcept
 {
-    return getOffset(m_id, ptr);
+    return getOffset(id_t{m_id}, ptr);
 }
 
 BaseRelativePointer::ptr_t BaseRelativePointer::computeRawPtr() const noexcept
 {
-    return getPtr(m_id, m_offset);
+    return getPtr(id_t{m_id}, m_offset);
 }
 } // namespace rp
 } // namespace iox

@@ -16,35 +16,8 @@
 #ifndef IOX_HOOFS_LOG_HOOFS_LOGGING_HPP
 #define IOX_HOOFS_LOG_HOOFS_LOGGING_HPP
 
-/// @todo this might be needed to be public when the logger is used in templates
-#include "iceoryx_hoofs/log/logging_free_function_building_block.hpp"
+// @todo iox-#1345 for transition only; delete this file
 
-namespace iox
-{
-struct LoggingComponentHoofs
-{
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    static constexpr char Ctx[] = "HOOFS";
-    // NOLINTNEXTLINE(readability-identifier-naming)
-    static constexpr char Description[] = "Log context of the HOOFS component!";
-};
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LoggerHoofs = iox::log::ffbb::ComponentLogger<LoggingComponentHoofs>;
-
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogFatal = iox::log::ffbb::LogFatal<LoggingComponentHoofs>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogError = iox::log::ffbb::LogError<LoggingComponentHoofs>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogWarn = iox::log::ffbb::LogWarn<LoggingComponentHoofs>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogInfo = iox::log::ffbb::LogInfo<LoggingComponentHoofs>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogDebug = iox::log::ffbb::LogDebug<LoggingComponentHoofs>;
-// NOLINTNEXTLINE(readability-identifier-naming)
-static constexpr auto LogVerbose = iox::log::ffbb::LogVerbose<LoggingComponentHoofs>;
-
-} // namespace iox
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #endif

@@ -50,8 +50,8 @@ Please make sure you have:
 
 1. Signed the [Eclipse Contributor Agreement](http://www.eclipse.org/legal/ECA.php)
 2. Created an issue before creating a branch, e.g. `Super duper feature` with issue number `123`
-3. All branches have the following naming format: `iox-#[issue]-branch-name` e.g. `iox-#123-super-duper-feature`
-4. All commits have the following naming format: `iox-#[issue] commit message` e.g. `iox-#123 implemented super-duper feature`
+3. All branches have the following naming format: `iox-[issue]-branch-name` e.g. `iox-123-super-duper-feature`
+4. All commits have the following naming format: `iox-#[issue] Commit message` e.g. `iox-#123 Implement super-duper feature`
 5. All commits have been signed with `git commit -s`
 6. The `iceoryx-unreleased.md` in `doc/website/release-notes` is updated with the GitHub issue
    that is closed by the Pull-Request
@@ -119,6 +119,8 @@ codebase follows these rules, things are work in progress.
 See [error-handling.md](./doc/design/error-handling.md) for additional
 information about logging and error handling.
 
+For formatting and linting rules on Bazel files see the [installation guide for contributors](./doc/website/advanced/installation-guide-for-contributors.md#bazel).
+
 ### Naming conventions
 
 * File names with `lower_snake_case`: `my_thing.hpp`
@@ -132,6 +134,38 @@ information about logging and error handling.
 * Objects created from a method returning a `cxx::optional<Foo>` shall be named `maybeFoo`
 * Objects created from a method returning a `cxx::expected<Foo, FooError>` shall
 contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
+
+### clang-tidy suppressions
+
+**WARNING:** never suppress `concurrency-mt-unsafe`!
+This warning can be emitted by free c functions. When such a function is used
+in a class one is not allowed to create multiple instances of such a class and
+access them from different threads. Even when every instance is contained in only
+one thread, the underlying thread-unsafe function is maybe accessed concurrently
+which can result in race conditions.
+
+If required constructs create clang-tidy warnings one can suppress them with a
+justification and either `NOLINTNEXTLINE(warning-type)` or
+`NOLINTBEGIN(warning-type)` & `NOLINTEND(warning-type)`.
+
+Those suppressions always require a justification which has to be provided with
+`NOLINTJUSTIFICATION`. But do not repeat yourself in the justification. If the
+doxygen documentation, or a suppression in the header for the same declaration
+provides already an argument please refer to it.
+A justification should always state why the suppressed construct is required
+and how the code ensures the safe usage.
+
+Furthermore, `NOLINTBEGIN` should only be used for a range as small as possible
+and maybe for a whole function but not more.
+
+#### Examples
+
+```cpp
+// NOLINTJUSTIFICATION we require the 'construct' to implement XXX and the safe usage
+//                         is guaranteed through YYY
+// NOLINTBEGIN(some-warning)
+auto a = myLineOfCodeWithWarning();
+```
 
 ### Doxygen
 
@@ -218,6 +252,17 @@ uuid.uuid4()
 uuidgen -r
 ```
 
+In rare cases you may want to exclude a GoogleTest case from the execution (e.g. sporadic failures).
+When doing that you need to add a macro call right after the Test ID:
+
+```cpp
+::testing::Test::RecordProperty("TEST_ID", "12345678-9ab-cdef-fedc-1234567890ac");
+GTEST_SKIP() << "todo iox-#1234 Enable test once the API is supported";
+```
+
+A technical reason and a valid ticket number is needed to track the re-enabling (or removing)
+of the test.
+
 ### Integration tests
 
 Integration tests test the interaction of several classes. They are optional for new code.
@@ -241,7 +286,7 @@ You can do this with one command in the iceoryx folder like this:
 ./tools/iceoryx_build_test.sh clean build-all -c <testlevel>
 ```
 
-Optionally, you can use the build-all option to get the coverage for extensions like DDS or the C-Binding.
+Optionally, you can use the build-all option to get the coverage for extensions like the C-Binding.
 The -c flag indicates that you want to generate a coverage report and requires you to pass the test level.
 By default the test level is set to `all`.
 
@@ -273,6 +318,9 @@ If you want to report a vulnerability, please use the [Eclipse process](https://
 
 #### Static code analysis
 
+The iceoryx maintainers have a partnership with [Axivion](https://www.axivion.com/en/) and use their
+[Axivion Suite](https://www.axivion.com/en/products/static-code-analysis/) to run a static code analysis.
+
 Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to group issues into the rulesets:
 
 | Ruleset name | Github issue label | Priority |
@@ -286,14 +334,27 @@ If one of the rules is not followed, a rationale is added in the following manne
 Either with a comment in the same line:
 
 ```cpp
-*mynullptr = foo; // PRQA S 4242 # Short description why
+*mynullptr = foo; // AXIVION Same Line Ruleset-A1.2.3 : Short description why
 ```
 
-Or with a comment one line above (the number after the warning number indicates that next ’n’ lines are inclusive)
+Or with a comment one line above:
 
 ```cpp
-// PRQA S 4242 1 # Short description why
+// AXIVION Next Line Ruleset-A1.2.3 : Short description why
 *mynullptr = foo;
+```
+
+It is also possible to suppress a rule for a complete construct:
+
+```cpp
+// AXIVION Construct Ruleset-A1.2.3 : Short description why
+class Foo
+{
+  void doSomething()
+  {
+    // Do something useful
+  }
+};
 ```
 
 ### Header

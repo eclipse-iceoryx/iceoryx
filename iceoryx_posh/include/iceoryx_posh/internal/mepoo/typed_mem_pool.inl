@@ -140,7 +140,7 @@ inline uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_n
         cxx::align(f_numberOfChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
     uint64_t memorySizeForIndices = MemPool::freeList_t::requiredIndexMemorySize(f_numberOfChunks);
     uint64_t memorySizeForIndicesOfManangementAndDataMemPools =
-        2 * cxx::align(static_cast<uint64_t>(memorySizeForIndices), MemPool::CHUNK_MEMORY_ALIGNMENT);
+        2 * cxx::align(memorySizeForIndices, MemPool::CHUNK_MEMORY_ALIGNMENT);
     return memorySizeForManagementPoolChunks + memorySizeForIndicesOfManangementAndDataMemPools;
 }
 

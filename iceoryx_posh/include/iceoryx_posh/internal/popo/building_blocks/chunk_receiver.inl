@@ -101,8 +101,8 @@ template <typename ChunkReceiverDataType>
 inline void ChunkReceiver<ChunkReceiverDataType>::release(const mepoo::ChunkHeader* const chunkHeader) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);
-    // PRQA S 4127 1 # d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
-    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk)) // PRQA S 4127
+    // d'tor of SharedChunk will release the memory, we do not have to touch the returned chunk
+    if (!getMembers()->m_chunksInUse.remove(chunkHeader, chunk))
     {
         errorHandler(PoshError::POPO__CHUNK_RECEIVER_INVALID_CHUNK_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
     }

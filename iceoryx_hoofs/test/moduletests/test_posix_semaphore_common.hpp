@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_MODULETESTS_TEST_POSIX_SEMAPHORE_COMMON_HPP
 #define IOX_HOOFS_MODULETESTS_TEST_POSIX_SEMAPHORE_COMMON_HPP
 
-#include "iceoryx_hoofs/platform/semaphore.hpp"
+#include "iceoryx_platform/semaphore.hpp"
 #include "test.hpp"
 
 template <typename SemaphoreType>
@@ -31,7 +31,7 @@ inline bool setSemaphoreToZeroAndVerifyValue(SemaphoreType& semaphore, const uin
         {
             return false;
         }
-        if (*result == false)
+        if (!*result)
         {
             return (count == expectedValue);
         }

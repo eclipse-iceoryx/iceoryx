@@ -21,7 +21,7 @@
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/platform/mman.hpp"
+#include "iceoryx_platform/mman.hpp"
 
 #include <cstdint>
 
@@ -57,9 +57,11 @@ enum class MemoryMapFlags : int32_t
     PRIVATE_CHANGES = MAP_PRIVATE,
 
     /// @brief SHARED and enforce the base address hint
+    // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
     SHARE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_SHARED | MAP_FIXED,
 
     /// @brief PRIVATE and enforce the base address hint
+    // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined POSIX, no logical fault
     PRIVATE_CHANGES_AND_FORCE_BASE_ADDRESS_HINT = MAP_PRIVATE | MAP_FIXED,
 };
 

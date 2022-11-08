@@ -37,25 +37,28 @@ This ensures data transmissions with constant latency, regardless of the size of
 </p>
 
 You're right, middleware is a cluttered term and can somehow be all or nothing. To get a better impression what
-this means for iceoryx, please have a loot at our [goals and non-goals](doc/goals-non-goals.md).
+this means for iceoryx, please have a look at our [goals and non-goals](doc/goals-non-goals.md).
 
 Don't get too frightened of the API when strolling through the examples. Think of the untyped C++ and the C API as a
 "plumbing" one ("plumbing" as defined in Git, which means low-level). We're not using the "plumbing" APIs ourselves, but
 instead the typed C++ API. The normal use case is that iceoryx is integrated as high-performance IPC transport layer in
 a bigger framework with additional API layers.
-An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/). Others are listed in the next section.
+An example for such a "porcelain" API would be [ROS 2](https://www.ros.org/).
 
 You can find the full API documentation on 🌐 [https://iceoryx.io](https://iceoryx.io). <!--NOLINT explicit link to website-->
 
 ### Supported Platforms
 
-|Operating System| supports access rights for shared memory | command line parsing    |
-|----------------|:----------------------------------------:|:-----------------------:|
-| Linux          | yes                                      | yes                     |
-| QNX            | yes                                      | yes                     |
-| MacOS          | no, not planned for implementation       | yes                     |
-| Windows 10     | no, not planned for implementation       | will be implemented     |
-| FreeBSD (Unix) | no, not planned for implementation       | yes                     |
+Modification or addition of new platforms is described in the
+[custom iceoryx platforms](doc/website/advanced/custom-iceoryx-platform.md) article.
+
+|Operating System| Compiler  | supports access rights for shared memory | command line parsing    |
+|----------------|-----------|:----------------------------------------:|:-----------------------:|
+| Linux          | gcc/clang | yes                                      | yes                     |
+| QNX            | gcc       | yes                                      | yes                     |
+| MacOS          | clang     | no, not planned for implementation       | yes                     |
+| Windows 10     | msvc      | no, not planned for implementation       | will be implemented     |
+| FreeBSD (Unix) | clang     | no, not planned for implementation       | yes                     |
 
 In general unix platforms should work with iceoryx but we only test FreeBSD on our CI.
 
@@ -92,19 +95,19 @@ Please see the dedicated [README.md](tools/docker/README.md) for information on 
 
 ### Quality levels & platforms
 
-> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1+, where 1+ is highest level.
+> [Quality level](./CONTRIBUTING.md#quality-levels) are 5 to 1+, where 1+ is the highest level.
 
 Please see the [Quality Declaration](./QUALITY_DECLARATION.md) for details of the quality measures according to ROS 2 guidelines.
 
-|CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS | Comment                             |
-|-----------------------|:-------------:|:-----------------:|:---------------------------------------:|:-----------------------------------:|
-| iceoryx_hoofs         | 2             | 1+                | 1                                       | Except code in the namespace `aux`  |
-| iceoryx_posh          | 2             | 1+, 2             | 1                                       | Except code in the namespace `aux`  |
-| iceoryx_binding_c     | 2             | 1+                | 1                                       |                                     |
-| iceoryx_examples      | 5             | 4                 | 4                                       | All example code in this folder     |
-| iceoryx_dds           | 4             | 4                 | 4                                       |                                     |
-| iceoryx_introspection | 5             | 4                 | 4                                       |                                     |
-| iceoryx_meta          | 5             | 5                 | 5                                       |                                     |
+|CMake project/target   | Current Level | Target Level QNX  | Target Level <br> Linux, Windows, macOS |
+|-----------------------|:-------------:|:-----------------:|:---------------------------------------:|
+| iceoryx_hoofs         | 2             | 1+                | 1                                       |
+| iceoryx_posh          | 2             | 1+, 2             | 1                                       |
+| iceoryx_dust          | 2             | 2                 | 2                                       |
+| iceoryx_binding_c     | 2             | 2                 | 2                                       |
+| iceoryx_examples      | 5             | 4                 | 4                                       |
+| iceoryx_introspection | 5             | 4                 | 4                                       |
+| iceoryx_meta          | 5             | 5                 | 5                                       |
 
 Is something missing or you've got ideas for other nifty examples? Jump right away to the next section!
 
@@ -116,13 +119,15 @@ Please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) for a quick read-up abo
 
 Get to know the upcoming features and the project scope in [PLANNED_FEATURES.md](./PLANNED_FEATURES.md).
 
-## Innovations enabled by iceoryx
+## Bindings and innovations enabled by iceoryx
 
-|Name | Description | Technologies |
-|---|---|---|
-| [Larry.Robotics](https://gitlab.com/larry.robotics) | An iceoryx demonstrator for tinker, thinker and toddler | Demonstrator |
-| [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs) | Experimental Rust wrapper for iceoryx | Rust |
-| [IceRay](https://github.com/elBoberido/iceray) | An iceoryx introspection client written in Rust | Rust |
+|Name                                                                                 | Description                                                      | Technologies |
+|-------------------------------------------------------------------------------------|------------------------------------------------------------------|--------------|
+| [iceoryx-rs](https://github.com/eclipse-iceoryx/iceoryx-rs)                         | Rust binding for iceoryx                                         | Rust         |
+| [iceoryx-automotive-soa](https://github.com/eclipse-iceoryx/iceoryx-automotive-soa) | Binding for automotive frameworks like AUTOSAR Adaptive ara::com | C++          |
+| [iceoryx-gateway-dds](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds)       | Gateway for Cyclone DDS                                          | DDS          |
+| [iceray](https://github.com/elBoberido/iceray)                                      | An iceoryx introspection client written in Rust                  | Rust         |
+| [Larry.Robotics](https://gitlab.com/larry.robotics)                                 | An iceoryx demonstrator for tinker, thinker and toddler          | Demonstrator |
 
 ## Frequently Asked Questions (FAQ)
 

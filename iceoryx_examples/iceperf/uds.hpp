@@ -19,12 +19,12 @@
 
 #include "base.hpp"
 
-#include "iceoryx_hoofs/platform/fcntl.hpp"
-#include "iceoryx_hoofs/platform/mqueue.hpp"
-#include "iceoryx_hoofs/platform/socket.hpp"
-#include "iceoryx_hoofs/platform/stat.hpp"
-#include "iceoryx_hoofs/platform/un.hpp"
-#include "iceoryx_hoofs/platform/unistd.hpp"
+#include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/mqueue.hpp"
+#include "iceoryx_platform/socket.hpp"
+#include "iceoryx_platform/stat.hpp"
+#include "iceoryx_platform/un.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <string>
 

@@ -24,25 +24,21 @@ namespace iox
 namespace concurrent
 {
 template <typename T, typename MutexType, typename... Targs>
-smart_lock<T, MutexType> make_smart_lock(Targs&&... args) noexcept
+inline smart_lock<T, MutexType> make_smart_lock(Targs&&... args) noexcept
 {
     return smart_lock<T, MutexType>(T(std::forward<Targs>(args)...));
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::smart_lock() noexcept
-{
-}
-
-template <typename T, typename MutexType>
 template <typename... ArgTypes>
-smart_lock<T, MutexType>::smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept
+// NOLINTNEXTLINE(readability-named-parameter, hicpp-named-parameter) justification in Doxygen documentation
+inline smart_lock<T, MutexType>::smart_lock(ForwardArgsToCTor_t, ArgTypes&&... args) noexcept
     : base(std::forward<ArgTypes>(args)...)
 {
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::smart_lock(const smart_lock& rhs) noexcept
+inline smart_lock<T, MutexType>::smart_lock(const smart_lock& rhs) noexcept
     : base([&] {
         std::lock_guard<MutexType> guard(rhs.lock);
         return rhs.base;
@@ -51,7 +47,7 @@ smart_lock<T, MutexType>::smart_lock(const smart_lock& rhs) noexcept
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::smart_lock(smart_lock&& rhs) noexcept
+inline smart_lock<T, MutexType>::smart_lock(smart_lock&& rhs) noexcept
     : base([&] {
         std::lock_guard<MutexType> guard(rhs.lock);
         return std::move(rhs.base);
@@ -60,7 +56,7 @@ smart_lock<T, MutexType>::smart_lock(smart_lock&& rhs) noexcept
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(const smart_lock& rhs) noexcept
+inline smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(const smart_lock& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -74,7 +70,7 @@ smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(const smart_lock& 
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(smart_lock&& rhs) noexcept
+inline smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(smart_lock&& rhs) noexcept
 {
     if (this != &rhs)
     {
@@ -87,26 +83,32 @@ smart_lock<T, MutexType>& smart_lock<T, MutexType>::operator=(smart_lock&& rhs) 
 }
 
 template <typename T, typename MutexType>
-typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() noexcept
+inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() noexcept
 {
     return Proxy(base, lock);
 }
 
 template <typename T, typename MutexType>
-const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() const noexcept
+// const return type improves const correctness, operator-> can be chained with underlying operator->
+// NOLINTNEXTLINE(readability-const-return-type)
+inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::operator->() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>*>(this)->operator->();
 }
 
 template <typename T, typename MutexType>
-typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() noexcept
+inline typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() noexcept
 {
     return Proxy(base, lock);
 }
 
 template <typename T, typename MutexType>
-const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
+// const return type improves const correctness, operator-> can be chained with underlying operator->
+// NOLINTNEXTLINE(readability-const-return-type)
+inline const typename smart_lock<T, MutexType>::Proxy smart_lock<T, MutexType>::getScopeGuard() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>*>(this)->getScopeGuard();
 }
 
@@ -120,7 +122,7 @@ inline T smart_lock<T, MutexType>::getCopy() const noexcept
 // PROXY OBJECT
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::Proxy::Proxy(T& base, MutexType& lock) noexcept
+inline smart_lock<T, MutexType>::Proxy::Proxy(T& base, MutexType& lock) noexcept
     : base(base)
     , lock(lock)
 {
@@ -128,24 +130,23 @@ smart_lock<T, MutexType>::Proxy::Proxy(T& base, MutexType& lock) noexcept
 }
 
 template <typename T, typename MutexType>
-smart_lock<T, MutexType>::Proxy::~Proxy() noexcept
+inline smart_lock<T, MutexType>::Proxy::~Proxy() noexcept
 {
     lock.unlock();
 }
 
 template <typename T, typename MutexType>
-T* smart_lock<T, MutexType>::Proxy::operator->() noexcept
+inline T* smart_lock<T, MutexType>::Proxy::operator->() noexcept
 {
     return &base;
 }
 
 template <typename T, typename MutexType>
-const T* smart_lock<T, MutexType>::Proxy::operator->() const noexcept
+inline const T* smart_lock<T, MutexType>::Proxy::operator->() const noexcept
 {
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>::Proxy*>(this)->operator->();
 }
-
-
 } // namespace concurrent
 } // namespace iox
 

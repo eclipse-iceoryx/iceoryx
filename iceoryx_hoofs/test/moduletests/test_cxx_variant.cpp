@@ -46,6 +46,8 @@ class variant_Test : public Test
     class ComplexClass
     {
       public:
+        // NOLINTJUSTIFICATION Ok-ish for tests
+        // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
         ComplexClass(int a, float b)
             : a(a)
             , b(b)
@@ -82,7 +84,7 @@ class variant_Test : public Test
         {
             *this = rhs;
         }
-        DoubleDelete(DoubleDelete&& rhs)
+        DoubleDelete(DoubleDelete&& rhs) noexcept
             : doDtorCall{false}
         {
             *this = std::move(rhs);
@@ -98,18 +100,18 @@ class variant_Test : public Test
             return *this;
         }
 
-        DoubleDelete& operator=(DoubleDelete&& rhs)
+        DoubleDelete& operator=(DoubleDelete&& rhs) noexcept
         {
             if (this != &rhs)
             {
                 Delete();
-                doDtorCall = std::move(rhs.doDtorCall);
+                doDtorCall = rhs.doDtorCall;
                 rhs.doDtorCall = false;
             }
             return *this;
         }
 
-        void Delete()
+        void Delete() const
         {
             if (doDtorCall)
             {
@@ -184,19 +186,18 @@ TEST_F(variant_Test, EmplaceValidElementWorks)
 TEST_F(variant_Test, EmplaceSecondValidElementWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb4ba160-dd0c-4255-9916-cc56d950e970");
-    sut.emplace<ComplexClass>(123, 456.789f);
+    sut.emplace<ComplexClass>(123, 456.789F);
     ASSERT_THAT(sut.emplace<ComplexClass>(912, 65.03F), Eq(true));
     ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
     EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(912));
     EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(65.03F));
 }
 
-TEST_F(variant_Test, DISABLED_emplaceInvalidElement)
+TEST_F(variant_Test, EmplaceInvalidElementCompileTimeCheck)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6fa3b290-8249-4825-8eac-72235a06710e");
-    // this is a compile time check, if you uncomment this the compiler will
-    // fail
-    //    EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
+    GTEST_SKIP() << "Compile time check, if you uncomment this test, the compiler will fail";
+    // EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
 }
 
 TEST_F(variant_Test, EmplaceWhenAlreadyDifferentTypeAssignedDoesNotWork)
@@ -229,6 +230,8 @@ TEST_F(variant_Test, GetVariantWithIncorrectValueFails)
 TEST_F(variant_Test, ConstGetOnUninitializedVariantFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "16b511c8-e56a-48c9-bbff-5a7d07e7a500");
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Eq(nullptr));
 }
 
@@ -236,6 +239,8 @@ TEST_F(variant_Test, constGetVariantWithCorrectValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4419f569-0541-43ab-8448-9ba10556b459");
     sut.emplace<float>(123.12F);
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<float>(), Ne(nullptr));
 }
 
@@ -243,13 +248,15 @@ TEST_F(variant_Test, ConstGetVariantWithIncorrectValueFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "979e1131-e981-4f67-bef2-a1fe4770c5a6");
     sut.emplace<float>(123.12F);
+    // NOLINTJUSTIFICATION Re-use 'sut' and testing const methods
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     EXPECT_THAT(const_cast<const decltype(sut)*>(&sut)->get<int>(), Eq(nullptr));
 }
 
 TEST_F(variant_Test, Get_ifWhenUninitializedReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "64585111-3495-4c01-8900-af2e19223e62");
-    float bla;
+    float bla{0.0F};
     EXPECT_THAT(sut.get_if<float>(&bla), Eq(&bla));
 }
 
@@ -257,7 +264,7 @@ TEST_F(variant_Test, Get_ifInitializedWithCorrectValueWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "27b80822-0f32-46a6-83d9-595b35e23139");
     sut.emplace<float>(12.1F);
-    float bla;
+    float bla{0.0F};
     EXPECT_THAT(sut.get_if<float>(&bla), Ne(&bla));
 }
 
@@ -265,7 +272,7 @@ TEST_F(variant_Test, Get_ifInitializedWithIncorrectValueReturnsProvidedValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4126af94-d4ce-405a-bcc7-1b6d1fce6d0b");
     sut.emplace<float>(12.1F);
-    int bla;
+    int bla{0};
     EXPECT_THAT(sut.get_if<int>(&bla), Eq(&bla));
 }
 
@@ -305,6 +312,8 @@ TEST_F(variant_Test, CopyCTorWithoutValueResultsInInvalidVariant)
 {
     ::testing::Test::RecordProperty("TEST_ID", "31b12efc-4f2d-4b3c-ad72-c12ca8a0cfc3");
     iox::cxx::variant<int, char> schlomo;
+    // NOLINTJUSTIFICATION Copy c'tor shall be tested
+    // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     iox::cxx::variant<int, char> ignatz(schlomo);
     ASSERT_THAT(ignatz.index(), Eq(iox::cxx::INVALID_VARIANT_INDEX));
 }
@@ -344,6 +353,8 @@ TEST_F(variant_Test, MoveCTorWithValueLeadsToSameValue)
     iox::cxx::variant<int, char> ignatz(std::move(schlomo));
     ASSERT_THAT(ignatz.get<int>(), Ne(nullptr));
     EXPECT_THAT(*ignatz.get<int>(), Eq(123));
+    // NOLINTJUSTIFICATION check if move is invalidating the object
+    // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
     EXPECT_THAT(schlomo.index(), Eq(0U));
 }
 
@@ -390,6 +401,8 @@ TEST_F(variant_Test, CreatingSecondObjectViaCopyCTorResultsInTwoDTorCalls)
         ignatz.emplace<DTorTest>();
         DTorTest::dtorWasCalled = false;
         {
+            // NOLINTJUSTIFICATION Copy c'tor shall be tested
+            // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
             iox::cxx::variant<int, DTorTest> schlomo(ignatz);
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
         }
@@ -428,6 +441,8 @@ TEST_F(variant_Test, CreatingSecondObjectViaMoveCTorResultsInTwoDTorCalls)
         {
             iox::cxx::variant<int, DTorTest> schlomo(std::move(ignatz));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
+            // NOLINTJUSTIFICATION check if move is invalidating the object
+            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(ignatz.index(), Eq(1U));
         }
         EXPECT_THAT(DTorTest::dtorWasCalled, Eq(true));
@@ -447,6 +462,8 @@ TEST_F(variant_Test, CreatingSecondObjectViaMoveAssignmentResultsInTwoDTorCalls)
             iox::cxx::variant<int, DTorTest> schlomo;
             schlomo.emplace<int>(123);
             schlomo = std::move(ignatz);
+            // NOLINTJUSTIFICATION check if move is invalidating the object
+            // NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
             EXPECT_THAT(ignatz.index(), Eq(1U));
             EXPECT_THAT(DTorTest::dtorWasCalled, Eq(false));
         }
@@ -589,6 +606,8 @@ TEST_F(variant_Test, ComplexDTorWithCopyCTor)
     DoubleDelete::dtorCalls = 0;
     {
         iox::cxx::variant<int, DoubleDelete> schlomo{iox::cxx::in_place_type<DoubleDelete>()};
+        // NOLINTJUSTIFICATION Copy c'tor shall be tested
+        // NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
         iox::cxx::variant<int, DoubleDelete> sut{schlomo};
     }
 
@@ -660,7 +679,8 @@ TEST_F(variant_Test, MoveVariantIntoVariantOfDifferentType)
     ::testing::Test::RecordProperty("TEST_ID", "1f292f13-8a88-4f73-8589-df4d5259c791");
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
-    iox::cxx::variant<DoubleDelete, ComplexClass> sut1, sut2;
+    iox::cxx::variant<DoubleDelete, ComplexClass> sut1;
+    iox::cxx::variant<DoubleDelete, ComplexClass> sut2;
     sut1.emplace<DoubleDelete>();
     sut2.emplace<ComplexClass>(12, 12.12F);
 
@@ -674,7 +694,8 @@ TEST_F(variant_Test, CopyVariantIntoVariantOfDifferentType)
     ::testing::Test::RecordProperty("TEST_ID", "d0ea4fed-7b18-4d0d-aa05-d76911fb29f7");
     DoubleDelete::ctorCalls = 0;
     DoubleDelete::dtorCalls = 0;
-    iox::cxx::variant<DoubleDelete, ComplexClass> sut1, sut2;
+    iox::cxx::variant<DoubleDelete, ComplexClass> sut1;
+    iox::cxx::variant<DoubleDelete, ComplexClass> sut2;
     sut1.emplace<DoubleDelete>();
     sut2.emplace<ComplexClass>(12, 12.12F);
 

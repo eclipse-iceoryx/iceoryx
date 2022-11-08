@@ -44,15 +44,5 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     FILES                   ${MODULETESTS_SRC}
                     LIBS                    ${TEST_LINK_LIBS}
                     LIBS_APPLE              dl
-                    LIBS_LINUX              acl dl pthread rt
+                    LIBS_LINUX              acl dl rt
 )
-
-## TODO: iox-#1287 remove those compiler warning exceptions
-if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} /bigobj)
-else()
-    set(TEST_CXX_FLAGS PRIVATE ${ICEORYX_WARNINGS} ${ICEORYX_SANITIZER_FLAGS} -Wno-pedantic -Wno-conversion)
-endif()
-
-target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-## TODO: END iox-#1287 remove those compiler warning exceptions

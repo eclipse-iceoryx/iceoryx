@@ -66,7 +66,6 @@ class TestRouDiProcessOutput(unittest.TestCase):
 
     def test_full_output(self, proc_output, roudi_process):
         with assertSequentialStdout(proc_output, roudi_process) as cm:
-            cm.assertInStdout('Log level set to:')
             cm.assertInStdout('RouDi is ready for clients')
 
             if os.name != 'nt':
@@ -77,5 +76,4 @@ class TestRouDiProcessOutput(unittest.TestCase):
 
     def test_out_of_order(self, proc_output, roudi_process):
         with assertSequentialStdout(proc_output, roudi_process) as cm:
-            cm.assertInStdout('Log level set to:')
             cm.assertInStdout('RouDi is ready for clients')

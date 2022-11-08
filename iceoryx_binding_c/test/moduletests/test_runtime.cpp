@@ -69,13 +69,13 @@ TEST_F(BindingC_Runtime_test, RuntimeNameLengthIsOutOfLimit)
     ::testing::Test::RecordProperty("TEST_ID", "8fd6735d-f331-4c9c-9a91-3f06d3856d15");
     std::string tooLongName(iox::MAX_RUNTIME_NAME_LENGTH + 1, 's');
 
-    EXPECT_DEATH({ iox_runtime_init(tooLongName.c_str()); }, "Runtime name has more than 100 characters!");
+    EXPECT_DEATH({ iox_runtime_init(tooLongName.c_str()); }, ".*");
 }
 
 TEST_F(BindingC_Runtime_test, RuntimeNameIsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb1b76c9-5420-42a9-88b3-db2e36e332de");
-    EXPECT_DEATH({ iox_runtime_init(nullptr); }, "Runtime name is a nullptr!");
+    EXPECT_DEATH({ iox_runtime_init(nullptr); }, ".*");
 }
 
 TEST_F(BindingC_Runtime_test, GetInstanceNameIsNullptr)

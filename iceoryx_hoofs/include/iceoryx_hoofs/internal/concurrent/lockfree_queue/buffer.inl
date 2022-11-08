@@ -14,6 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
+#define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL
+
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/buffer.hpp"
+
 namespace iox
 {
 namespace concurrent
@@ -52,8 +57,11 @@ template <typename ElementType, uint64_t Capacity, typename index_t>
 ElementType* Buffer<ElementType, Capacity, index_t>::toPtr(index_t index) const noexcept
 {
     auto ptr = &(m_buffer[index * sizeof(ElementType)]);
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, cppcoreguidelines-pro-type-const-cast) type erasure
     return reinterpret_cast<ElementType*>(const_cast<byte_t*>(ptr));
 }
 
 } // namespace concurrent
 } // namespace iox
+
+#endif // IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_BUFFER_INL

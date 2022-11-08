@@ -148,25 +148,25 @@ TEST_F(PoshRuntime_test, NoAppName)
 }
 
 // To be able to test the singleton and avoid return the exisiting instance, we don't use the test fixture
-TEST(PoshRuntime, LeadingSlashAppName)
+TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "77542d11-6230-4c1e-94b2-6cf3b8fa9c6e");
-    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
 
-    const iox::RuntimeName_t invalidAppName = "/miau";
+    for (auto i : {"/miau",
+                   "/fuu/bar",
+                   "plum/bus",
+                   ".",
+                   "..",
+                   "strawberriesWithMayonnaiseIs/..",
+                   "ohLookADot.",
+                   "amIADirectory/",
+                   "",
+                   "letsFlyInto "})
+    {
+        const iox::RuntimeName_t invalidAppName(iox::cxx::TruncateToCapacity, i);
 
-    auto errorHandlerCalled{false};
-    iox::PoshError receivedError{iox::PoshError::NO_ERROR};
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
-        [&errorHandlerCalled, &receivedError](const auto error, const iox::ErrorLevel) {
-            errorHandlerCalled = true;
-            receivedError = error;
-        });
-
-    PoshRuntime::initRuntime(invalidAppName);
-
-    EXPECT_TRUE(errorHandlerCalled);
-    ASSERT_THAT(receivedError, Eq(iox::PoshError::POSH__RUNTIME_LEADING_SLASH_PROVIDED));
+        EXPECT_DEATH(PoshRuntime::initRuntime(invalidAppName), ".*");
+    }
 }
 
 // since getInstance is a singleton and test class creates instance of Poshruntime
@@ -175,8 +175,7 @@ TEST(PoshRuntime, LeadingSlashAppName)
 TEST(PoshRuntime, AppNameEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63900656-4fbb-466d-b6cc-f2139121092c");
-    EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); },
-                 "Cannot initialize runtime. Application name has not been specified!");
+    EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); }, ".*");
 }
 
 
@@ -1160,7 +1159,7 @@ TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
 
             FactoryAccess::setRuntimeFactory(FactoryAccess::factory_t());
         },
-        "Cannot set runtime factory. Passed factory must not be empty!");
+        ".*");
 }
 
 } // namespace

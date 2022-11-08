@@ -25,7 +25,7 @@
 #include <limits>
 #include <type_traits>
 
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
 {
@@ -107,7 +107,7 @@ class variant
 {
   private:
     /// @brief contains the size of the largest element
-    static constexpr uint64_t TYPE_SIZE = algorithm::max(sizeof(Types)...);
+    static constexpr uint64_t TYPE_SIZE = algorithm::maxVal(sizeof(Types)...);
 
   public:
     /// @brief the default constructor constructs a variant which does not contain
@@ -123,7 +123,7 @@ class variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type at index
     template <uint64_t N, typename... CTorArguments>
-    constexpr variant(const in_place_index<N>& index, CTorArguments&&... args) noexcept;
+    constexpr explicit variant(const in_place_index<N>& index, CTorArguments&&... args) noexcept;
 
     /// @brief creates a variant and perform an in place construction of the type T.
     ///         If T is not part of the variant you get a compiler error.
@@ -133,7 +133,7 @@ class variant
     /// @param[in] args variadic list of arguments which will be forwarded to the constructor to
     ///                 the type
     template <typename T, typename... CTorArguments>
-    constexpr variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
+    constexpr explicit variant(const in_place_type<T>& type, CTorArguments&&... args) noexcept;
 
     /// @brief creates a variant from a user supplied value
     /// @tparam[in] T type of the value to be stored in the variant
@@ -142,7 +142,7 @@ class variant
               typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
               typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
               typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
-    constexpr variant(T&& arg) noexcept;
+    constexpr explicit variant(T&& arg) noexcept;
 
     /// @brief if the variant contains an element the elements copy constructor is called
     ///     otherwise an empty variant is copied
@@ -177,6 +177,8 @@ class variant
     /// @param[in] rhs source object for the underlying move assignment
     /// @return reference to the variant itself
     template <typename T>
+    // NOLINTJUSTIFICATION Correct return type is used through enable_if
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature)
     typename std::enable_if<!std::is_same<T, variant<Types...>&>::value, variant<Types...>>::type&
     operator=(T&& rhs) noexcept;
 
@@ -259,8 +261,11 @@ class variant
     constexpr uint64_t index() const noexcept;
 
   private:
-    alignas(algorithm::max(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0u};
-    uint64_t m_type_index = INVALID_VARIANT_INDEX;
+    /// @todo #1196 Replace with UninitializedArray
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+    alignas(algorithm::maxVal(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0U};
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+    uint64_t m_type_index{INVALID_VARIANT_INDEX};
 
   private:
     template <typename T>

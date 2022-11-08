@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_POSH_POPO_LISTENER_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
@@ -51,7 +51,7 @@ class Event_t
               const uint64_t eventTypeHash,
               internal::GenericCallbackRef_t callback,
               internal::TranslationCallbackRef_t translationCallback,
-              const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
+              const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
     void executeCallback() noexcept;
     bool isInitialized() const noexcept;
 
@@ -67,7 +67,7 @@ class Event_t
     void* m_userType = nullptr;
 
     uint64_t m_eventId = INVALID_ID;
-    cxx::MethodCallback<void, uint64_t> m_invalidationCallback;
+    cxx::function<void(uint64_t)> m_invalidationCallback;
 };
 } // namespace internal
 
@@ -176,14 +176,13 @@ class ListenerImpl
     class Event_t;
 
     void threadLoop() noexcept;
-    cxx::expected<uint32_t, ListenerError>
-    addEvent(void* const origin,
-             void* const userType,
-             const uint64_t eventType,
-             const uint64_t eventTypeHash,
-             internal::GenericCallbackRef_t callback,
-             internal::TranslationCallbackRef_t translationCallback,
-             const cxx::MethodCallback<void, uint64_t> invalidationCallback) noexcept;
+    cxx::expected<uint32_t, ListenerError> addEvent(void* const origin,
+                                                    void* const userType,
+                                                    const uint64_t eventType,
+                                                    const uint64_t eventTypeHash,
+                                                    internal::GenericCallbackRef_t callback,
+                                                    internal::TranslationCallbackRef_t translationCallback,
+                                                    const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 

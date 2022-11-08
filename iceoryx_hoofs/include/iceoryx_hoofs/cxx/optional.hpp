@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,15 +79,18 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the application
     ///         terminates.
-    optional(const nullopt_t&) noexcept;
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    optional(const nullopt_t& noValue) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
     ///         T. This optional has a value.
     /// @param[in] value rvalue of type T which will be moved into the optional
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
     optional(T&& value) noexcept;
 
     /// @brief Creates an optional by using the copy constructor of T.
     /// @param[in] value lvalue of type T which will be copy constructed into the optional
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
     optional(const T& value) noexcept;
 
     /// @brief Creates an optional and an object inside the optional on construction by perfectly forwarding args to the
@@ -95,7 +98,9 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @tparam Targs is the template parameter pack for the perfectly forwarded arguments
     /// @param[in] in_place_t compile time variable to distinguish between constructors with certain behavior
     template <typename... Targs>
-    optional(in_place_t, Targs&&... args) noexcept;
+    // in_place_t is a compile time variable to call the in-place-construction
+    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
+    explicit optional(in_place_t, Targs&&... args) noexcept;
 
     /// @brief The destructor will call the destructor of T if a value is set.
     ~optional() noexcept;
@@ -132,7 +137,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
 
     /// @brief Comparison with nullopt_t for easier unset optional comparison
     /// @return true if the optional is unset, otherwise false
-    constexpr bool operator==(const nullopt_t&) const noexcept;
+    constexpr bool operator==(const nullopt_t& rhs) const noexcept;
 
     /// @brief If the optionals have values it compares these values by using
     ///         their comparison operator.
@@ -142,7 +147,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
 
     /// @brief Comparision with nullopt_t for easier unset optional comparison
     /// @return true if the optional is set, otherwise false
-    constexpr bool operator!=(const nullopt_t&) const noexcept;
+    constexpr bool operator!=(const nullopt_t& rhs) const noexcept;
 
     /// @brief Direct assignment of the underlying value. If the optional has no
     ///         value then a new T is constructed by forwarding the assignment to
@@ -151,6 +156,7 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     /// @param[in] value value to assign to the underlying optional value
     /// @return reference to the current optional
     template <typename U = T>
+    // NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature) return type is optional&
     typename std::enable_if<!std::is_same<U, optional<T>&>::value, optional>::type& operator=(U&& value) noexcept;
 
     /// @brief Returns a pointer to the underlying value. If the optional has no
@@ -224,8 +230,22 @@ class optional : public FunctionalInterface<optional<T>, T, void>
     const T&& value() const&& noexcept;
 
   private:
-    alignas(T) byte_t m_data[sizeof(T)];
+    // the hasValue member should be first member in the memory layout to reveal casting
+    // bugs early.
+    //
+    // See the following problem:
+    //   void initHandle(void * ptr) {
+    //     Handle * handle = static_cast<Handle>(ptr);
+    //   }
+    //   void doStuff(cxx::optional<Handle> & handle) {
+    //     // uses optional<Handle> instead of handle, if the bool is the second parameter such
+    //     // mistakes can be introduced quickly in low level c abstraction classes
+    //     initHandle(&handle);
+    //   }
     bool m_hasValue{false};
+    // safe access is guaranteed since the array is wrapped inside the optional
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    alignas(T) byte_t m_data[sizeof(T)];
 
   private:
     template <typename... Targs>

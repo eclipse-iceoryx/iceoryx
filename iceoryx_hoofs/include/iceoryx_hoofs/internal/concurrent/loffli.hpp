@@ -27,19 +27,22 @@ namespace iox
 {
 namespace concurrent
 {
+constexpr uint32_t NODE_ALIGNMENT{8};
+constexpr uint32_t NODE_SIZE{8};
+
 class LoFFLi
 {
   public:
     using Index_t = uint32_t;
 
   private:
-    struct alignas(8) Node
+    struct alignas(NODE_ALIGNMENT) Node
     {
         Index_t indexToNextFreeIndex;
         uint32_t abaCounter;
     };
 
-    static_assert(sizeof(Node) <= 8U,
+    static_assert(sizeof(Node) <= NODE_SIZE,
                   "The size of 'Node' must not exceed 8 bytes in order to be lock-free on 64 bit systems!");
 
     /// @todo introduce typesafe indices with the properties listed below
@@ -92,7 +95,7 @@ class LoFFLi
     /// Calculates the required memory size for a free-list
     /// @param [in] capacity is the number of elements of the free-list
     /// @return the required memory size for a free-list with the requested capacity
-    static inline constexpr std::size_t requiredIndexMemorySize(const uint32_t capacity) noexcept;
+    static inline constexpr uint64_t requiredIndexMemorySize(const uint64_t capacity) noexcept;
 };
 
 } // namespace concurrent

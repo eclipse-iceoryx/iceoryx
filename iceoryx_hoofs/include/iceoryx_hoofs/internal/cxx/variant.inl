@@ -30,13 +30,14 @@ inline constexpr variant<Types...>::variant(const variant& rhs) noexcept
 {
     if (m_type_index != INVALID_VARIANT_INDEX)
     {
-        internal::call_at_index<0, Types...>::copyConstructor(
-            m_type_index, const_cast<internal::byte_t*>(rhs.m_storage), m_storage);
+        internal::call_at_index<0, Types...>::copyConstructor(m_type_index, rhs.m_storage, m_storage);
     }
 }
 
 template <typename... Types>
 template <uint64_t N, typename... CTorArguments>
+// NOLINTJUSTIFICATION First param is helper struct only
+// NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArguments&&... args) noexcept
 {
     emplace_at_index<N>(std::forward<CTorArguments>(args)...);
@@ -44,6 +45,8 @@ inline constexpr variant<Types...>::variant(const in_place_index<N>&, CTorArgume
 
 template <typename... Types>
 template <typename T, typename... CTorArguments>
+// NOLINTJUSTIFICATION First param is helper struct only
+// NOLINTNEXTLINE(hicpp-named-parameter)
 inline constexpr variant<Types...>::variant(const in_place_type<T>&, CTorArguments&&... args) noexcept
 {
     emplace<T>(std::forward<CTorArguments>(args)...);
@@ -71,16 +74,14 @@ inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& 
 
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::copyConstructor(
-                    m_type_index, const_cast<internal::byte_t*>(rhs.m_storage), m_storage);
+                internal::call_at_index<0, Types...>::copyConstructor(m_type_index, rhs.m_storage, m_storage);
             }
         }
         else
         {
             if (m_type_index != INVALID_VARIANT_INDEX)
             {
-                internal::call_at_index<0, Types...>::copy(
-                    m_type_index, const_cast<internal::byte_t*>(rhs.m_storage), m_storage);
+                internal::call_at_index<0, Types...>::copy(m_type_index, rhs.m_storage, m_storage);
             }
         }
     }
@@ -137,6 +138,8 @@ inline void variant<Types...>::call_element_destructor() noexcept
     }
 }
 
+// NOLINTJUSTIFICATION Correct return type is used through enable_if
+// NOLINTNEXTLINE(cppcoreguidelines-c-copy-assignment-signature)
 template <typename... Types>
 template <typename T>
 inline typename std::enable_if<!std::is_same<T, variant<Types...>&>::value, variant<Types...>>::type&
@@ -220,6 +223,8 @@ inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
 variant<Types...>::get_at_index() const noexcept
 {
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
 }
 
@@ -231,33 +236,36 @@ inline const T* variant<Types...>::get() const noexcept
     {
         return nullptr;
     }
-    else
-    {
-        return static_cast<const T*>(static_cast<const void*>(m_storage));
-    }
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return static_cast<const T*>(static_cast<const void*>(m_storage));
 }
 
 template <typename... Types>
 template <typename T>
 inline T* variant<Types...>::get() noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const variant*>(this)->get<T>());
 }
 
 template <typename... Types>
 template <typename T>
-inline T* variant<Types...>::get_if(T* default_value) noexcept
+inline T* variant<Types...>::get_if(T* defaultValue) noexcept
 {
-    return const_cast<T*>(const_cast<const variant*>(this)->get_if<T>(const_cast<const T*>(default_value)));
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<T*>(const_cast<const variant*>(this)->get_if<T>(const_cast<const T*>(defaultValue)));
 }
 
 template <typename... Types>
 template <typename T>
-inline const T* variant<Types...>::get_if(const T* default_value) const noexcept
+inline const T* variant<Types...>::get_if(const T* defaultValue) const noexcept
 {
     if (has_bad_variant_element_access<T>())
     {
-        return default_value;
+        return defaultValue;
     }
 
     return this->get<T>();

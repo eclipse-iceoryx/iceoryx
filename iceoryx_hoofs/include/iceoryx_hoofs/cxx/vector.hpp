@@ -35,6 +35,8 @@ namespace cxx
 /// @attention Out of bounds access or accessing an empty vector can lead to a program termination!
 ///
 template <typename T, uint64_t Capacity>
+// NOLINTJUSTIFICATION todo iox-#1196 will be solved with upcoming uninitialized array
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init,hicpp-member-init)
 class vector
 {
   public:
@@ -53,7 +55,7 @@ class vector
 
     /// @brief creates a vector with count copies of elements constructed with the default constructor of T
     /// @param [in] count is the number copies which are inserted into the vector
-    vector(const uint64_t count) noexcept;
+    explicit vector(const uint64_t count) noexcept;
 
     /// @brief copy constructor to copy a vector of the same capacity
     vector(const vector& rhs) noexcept;
@@ -196,9 +198,15 @@ class vector
     iterator erase(iterator position) noexcept;
 
   private:
+    T& at_unchecked(const uint64_t index) noexcept;
+    const T& at_unchecked(const uint64_t index) const noexcept;
+
+    /// @todo #1196 Replace with UninitializedArray
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
     using element_t = uint8_t[sizeof(T)];
     alignas(T) element_t m_data[Capacity];
-    uint64_t m_size = 0u;
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+    uint64_t m_size{0U};
 };
 } // namespace cxx
 } // namespace iox

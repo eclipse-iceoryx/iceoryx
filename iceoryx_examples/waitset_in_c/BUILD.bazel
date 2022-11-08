@@ -1,0 +1,80 @@
+# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# SPDX-License-Identifier: Apache-2.0
+
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+
+cc_library(
+    name = "additional_c_header",
+    hdrs = [
+        "sleep_for.h",
+        "topic_data.h",
+    ],
+)
+
+cc_binary(
+    name = "iox-c-waitset-publisher",
+    srcs = [
+        "ice_c_waitset_publisher.c",
+    ],
+    deps = [
+        ":additional_c_header",
+        "//iceoryx_binding_c",
+    ],
+)
+
+cc_binary(
+    name = "iox-c-waitset-gateway",
+    srcs = [
+        "ice_c_waitset_gateway.c",
+    ],
+    deps = [
+        ":additional_c_header",
+        "//iceoryx_binding_c",
+    ],
+)
+
+cc_binary(
+    name = "iox-c-waitset-grouping",
+    srcs = [
+        "ice_c_waitset_grouping.c",
+    ],
+    deps = [
+        ":additional_c_header",
+        "//iceoryx_binding_c",
+    ],
+)
+
+cc_binary(
+    name = "iox-c-waitset-individual",
+    srcs = [
+        "ice_c_waitset_individual.c",
+    ],
+    deps = [
+        ":additional_c_header",
+        "//iceoryx_binding_c",
+    ],
+)
+
+cc_binary(
+    name = "iox-c-waitset-timer-driven-execution",
+    srcs = [
+        "ice_c_waitset_timer_driven_execution.c",
+    ],
+    deps = [
+        ":additional_c_header",
+        "//iceoryx_binding_c",
+    ],
+)

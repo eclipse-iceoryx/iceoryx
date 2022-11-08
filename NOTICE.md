@@ -55,20 +55,6 @@ cpptoml library (v0.1.1)
 * Usage: as-is, static-linking
 * enabled by default build
 
-Eclipse Cyclone DDS (Branch master)
-
-* License: Eclipse Public License v. 2.0 or the Eclipse Distribution License v. 1.0
-* Project: <https://projects.eclipse.org/projects/iot.cyclonedds>
-* Source: <https://github.com/eclipse-cyclonedds/cyclonedds>
-* Usage: as-is, static-linking
-
-C++ binding for Eclipse Cyclone DDS (Branch master)
-
-* License: Eclipse Public License v. 2.0 or the Eclipse Distribution License v. 1.0
-* Project: <https://projects.eclipse.org/projects/iot.cyclonedds>
-* Source: <https://github.com/eclipse-cyclonedds/cyclonedds-cxx>
-* Usage: as-is, static-linking
-
 ### Tools used by iceoryx
 
 Google Test (release-1.10.0)

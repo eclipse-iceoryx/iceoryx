@@ -32,27 +32,23 @@ const std::string TestFileName = "/tmp/PosixAccessRights_test.tmp";
 class PosixAccessRights_test : public Test
 {
   public:
-    PosixAccessRights_test()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
 
-        iox::posix::posixCall(system)(std::string("groups > " + TestFileName).c_str())
+        iox::posix::posixCall(system)(("groups > " + TestFileName).c_str())
             .failureReturnValue(-1)
             .evaluate()
             .or_else([](auto& r) {
                 std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
-                exit(EXIT_FAILURE);
+                std::terminate();
             });
 
         internal::CaptureStderr();
     }
 
-    void TearDown()
+    void TearDown() override
     {
         std::string output = internal::GetCapturedStderr();
         if (Test::HasFailure())
@@ -66,19 +62,8 @@ class PosixAccessRights_test : public Test
         }
     }
 
-    ~PosixAccessRights_test()
-    {
-    }
-
     std::fstream fileStream;
 };
 
 
-TEST_F(PosixAccessRights_test, DISABLED_testGroups)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2d367d91-8ef3-41d9-b0b5-ff1068a7d59e");
-    std::string bla;
-    std::getline(fileStream, bla, ' ');
-    EXPECT_TRUE(false);
-}
 } // namespace

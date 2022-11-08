@@ -60,14 +60,14 @@ constexpr T* static_storage<Capacity, Align>::allocate() noexcept
 template <uint64_t Capacity, uint64_t Align>
 constexpr void* static_storage<Capacity, Align>::allocate(const uint64_t align, const uint64_t size) noexcept
 {
-    if (m_ptr)
+    if (m_ptr != nullptr)
     {
         return nullptr; // cannot allocate, already in use
     }
 
-    size_t space = static_cast<size_t>(Capacity);
+    size_t space = Capacity;
     m_ptr = m_bytes;
-    if (std::align(align, size, m_ptr, space))
+    if (std::align(align, size, m_ptr, space) != nullptr)
     {
         // fits, ptr was potentially modified to reflect alignment
         return m_ptr;

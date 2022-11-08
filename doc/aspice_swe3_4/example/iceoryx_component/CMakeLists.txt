@@ -21,6 +21,8 @@ find_package(iceoryx_hoofs REQUIRED)
 
 include(IceoryxPlatform)
 
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
+
 #
 ########## lib ##########
 #

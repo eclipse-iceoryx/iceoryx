@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,13 +41,14 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
     // this is only necessary if it's not an empty chunk
     if (chunk)
     {
-        rp::RelativePointer<mepoo::ChunkManagement> ptr = chunk.release();
+        rp::RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
         cxx::Ensures(id <= rp::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
         cxx::Ensures(offset <= rp::RelativePointerData::OFFSET_RANGE
                      && "RelativePointer offset must fit into offset type!");
-        m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::id_t>(id), offset);
+        /// @todo #1196 Unify types to uint64_t
+        m_chunkManagement = rp::RelativePointerData(static_cast<rp::RelativePointerData::identifier_t>(id), offset);
     }
 }
 
@@ -57,9 +58,10 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::BaseRelativePointer::id_t{m_chunkManagement.id()});
     m_chunkManagement.reset();
-    return SharedChunk(chunkMgmt);
+    return SharedChunk(chunkMgmt.get());
 }
 
 SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
@@ -68,9 +70,10 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::BaseRelativePointer::id_t{m_chunkManagement.id()});
     chunkMgmt->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
-    return SharedChunk(chunkMgmt);
+    return SharedChunk(chunkMgmt.get());
 }
 
 bool ShmSafeUnmanagedChunk::isLogicalNullptr() const noexcept
@@ -84,8 +87,9 @@ ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
     {
         return nullptr;
     }
-    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
-    return chunkMgmt->m_chunkHeader;
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::BaseRelativePointer::id_t{m_chunkManagement.id()});
+    return chunkMgmt->m_chunkHeader.get();
 }
 
 const ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() const noexcept
@@ -100,7 +104,8 @@ bool ShmSafeUnmanagedChunk::isNotLogicalNullptrAndHasNoOtherOwners() const noexc
         return false;
     }
 
-    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), m_chunkManagement.id());
+    auto chunkMgmt = rp::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
+                                                                 rp::BaseRelativePointer::id_t{m_chunkManagement.id()});
     return chunkMgmt->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 

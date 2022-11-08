@@ -35,9 +35,11 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 
 ThreadName_t getThreadName(iox_pthread_t thread) noexcept
 {
+    // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
-    posixCall(iox_pthread_getname_np)(thread, tempName, MAX_THREAD_NAME_LENGTH + 1U)
+    posixCall(iox_pthread_getname_np)(thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
         .successReturnValue(0)
         .evaluate()
         .or_else([](auto& r) {
@@ -47,7 +49,7 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
             cxx::Ensures(false && "internal logic error");
         });
 
-    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
 }
 
 cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
@@ -62,14 +64,15 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     uninitializedThread.emplace();
     uninitializedThread->m_callable = callable;
 
+    uninitializedThread->m_threadName = m_name;
+
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
-    auto createResult = posixCall(iox_pthread_create)(&uninitializedThread->m_threadHandle,
-                                                      threadAttributes,
-                                                      Thread::startRoutine,
-                                                      &uninitializedThread->m_callable)
-                            .successReturnValue(0)
-                            .evaluate();
+    auto createResult =
+        posixCall(iox_pthread_create)(
+            &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
+            .successReturnValue(0)
+            .evaluate();
     uninitializedThread->m_isThreadConstructed = !createResult.has_error();
     if (!uninitializedThread->m_isThreadConstructed)
     {
@@ -100,30 +103,9 @@ Thread::~Thread() noexcept
     }
 }
 
-void Thread::setName(const ThreadName_t& name) noexcept
-{
-    posixCall(iox_pthread_setname_np)(m_threadHandle, name.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to set thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
-}
-
 ThreadName_t Thread::getName() const noexcept
 {
-    char tempName[MAX_THREAD_NAME_LENGTH + 1U];
-
-    posixCall(iox_pthread_getname_np)(m_threadHandle, tempName, MAX_THREAD_NAME_LENGTH + 1U)
-        .successReturnValue(0)
-        .evaluate()
-        .expect("This should never happen! Failed to retrieve the thread name.");
-    /// @todo thread specific comm file under /proc/self/task/[tid]/comm is read. Opening this file can fail
-    /// and errors possible for open(2) can be retrieved. Handle them here?
-    /// @todo Do we really want to terminate here?
-
-    return ThreadName_t(cxx::TruncateToCapacity, tempName);
+    return m_threadName;
 }
 
 ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
@@ -131,8 +113,8 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
     switch (errnoValue)
     {
     case EAGAIN:
-        /// @todo add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both, the name of
-        /// the new thread and the name of the thread which created the new one
+        /// @todo iox-#1365 add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both,
+        /// the name of the new thread and the name of the thread which created the new one
         LogError() << "insufficient resources to create another thread";
         return ThreadError::INSUFFICIENT_RESOURCES;
     case EINVAL:
@@ -145,15 +127,25 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
         LogError() << "no appropriate permission to set required scheduling policy or parameters";
         return ThreadError::INSUFFICIENT_PERMISSIONS;
     default:
-        LogError() << "an unexpected error occurred in thread - this should never happen! errno: "
-                   << strerror(errnoValue);
+        LogError() << "an unexpected error occurred in thread - this should never happen!";
         return ThreadError::UNDEFINED;
     }
 }
 
 void* Thread::startRoutine(void* callable)
 {
-    (*static_cast<callable_t*>(callable))();
+    auto* self = static_cast<Thread*>(callable);
+    auto threadHandle = iox_pthread_self();
+
+    posixCall(iox_pthread_setname_np)(threadHandle, self->m_threadName.c_str())
+        .successReturnValue(0)
+        .evaluate()
+        .or_else([&self](auto&) {
+            LogWarn() << "failed to set thread name " << self->m_threadName;
+            self->m_threadName.clear();
+        });
+
+    self->m_callable();
     return nullptr;
 }
 } // namespace posix

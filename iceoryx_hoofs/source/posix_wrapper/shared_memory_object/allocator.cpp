@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 #include <iostream>
 
@@ -33,6 +33,8 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
     /// @todo memset to set memory and to avoid the usage of unavailable memory
 }
 
+// NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
+// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     cxx::Expects(size > 0);
@@ -41,8 +43,11 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
         !m_allocationFinalized
         && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
 
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
     uint64_t alignedPosition = cxx::align(currentAddress, static_cast<uint64_t>(alignment));
+
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
 
     byte_t* l_returnValue = nullptr;

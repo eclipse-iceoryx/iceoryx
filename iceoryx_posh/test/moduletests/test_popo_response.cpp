@@ -39,7 +39,7 @@ TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
     auto sendResult = sutProducer.send();
 
     EXPECT_FALSE(sendResult.has_error());
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
@@ -51,7 +51,7 @@ TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
     auto sendResult = movedSut.send();
 
     EXPECT_FALSE(sendResult.has_error());
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
@@ -65,7 +65,7 @@ TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
 
     ASSERT_TRUE(sendResult.has_error());
     EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
-    EXPECT_THAT(sutProducer.get(), Eq(nullptr));
+    EXPECT_FALSE(sutProducer);
 }
 
 TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)

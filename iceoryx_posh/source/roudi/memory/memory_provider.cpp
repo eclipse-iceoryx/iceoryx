@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
@@ -88,8 +88,8 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
     m_size = totalSize;
     m_segmentId = rp::BaseRelativePointer::registerPtr(m_memory, m_size);
 
-    LogDebug() << "Registered memory segment " << iox::log::HexFormat(reinterpret_cast<uint64_t>(m_memory))
-               << " with size " << m_size << " to id " << m_segmentId;
+    LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
+               << m_segmentId;
 
     iox::posix::Allocator allocator(m_memory, m_size);
 
@@ -108,7 +108,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
         return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
     }
 
-    for (auto memoryBlock : m_memoryBlocks)
+    for (auto* memoryBlock : m_memoryBlocks)
     {
         memoryBlock->destroy();
     }
@@ -117,9 +117,9 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        rp::BaseRelativePointer::unregisterPtr(m_segmentId);
+        rp::BaseRelativePointer::unregisterPtr(rp::BaseRelativePointer::id_t{m_segmentId});
         m_memory = nullptr;
-        m_size = 0u;
+        m_size = 0U;
     }
 
     return destructionResult;

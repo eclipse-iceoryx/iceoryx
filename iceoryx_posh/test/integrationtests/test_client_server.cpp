@@ -271,7 +271,8 @@ TEST_F(ClientServer_test, SlowServerDoesNotBlockClient)
     Server<DummyRequest, DummyResponse> server{sd, serverOptions};
 
     // send request till queue overflows
-    for (uint64_t i = 0; i < serverOptions.requestQueueCapacity + NUMBER_OF_OVERFLOWS; ++i)
+    const int64_t iMax = static_cast<int64_t>(serverOptions.requestQueueCapacity) + NUMBER_OF_OVERFLOWS;
+    for (int64_t i = 0; i < iMax; ++i)
     {
         auto loanResult = client.loan();
         ASSERT_FALSE(loanResult.has_error());

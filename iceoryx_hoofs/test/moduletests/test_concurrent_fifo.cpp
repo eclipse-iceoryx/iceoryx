@@ -32,11 +32,11 @@ constexpr uint64_t FIFO_CAPACITY = 10;
 class FiFo_Test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 

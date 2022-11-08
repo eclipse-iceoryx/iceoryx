@@ -49,7 +49,7 @@ TEST(AdaptiveWaitTest, repeatCallingWaitUntilItSaturatesTakesAtLeastCorrectAmoun
     iox::units::Duration waitingTime = iox::units::Duration::fromMicroseconds(
         (AdaptiveWaitSut::INITIAL_REPETITIONS - AdaptiveWaitSut::YIELD_REPETITIONS)
         * AdaptiveWaitSut::INITIAL_WAITING_TIME.count());
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(), Ge(waitingTime.toNanoseconds()));
+    EXPECT_THAT((end - start).count(), Ge(waitingTime.toNanoseconds()));
 }
 
 TEST(AdaptiveWaitTest, waitWaitsAtLeastFINAL_WAITING_TIMEafterINITIAL_REPETITIONS)
@@ -74,7 +74,7 @@ TEST(AdaptiveWaitTest, waitWaitsAtLeastFINAL_WAITING_TIMEafterINITIAL_REPETITION
     auto end = std::chrono::steady_clock::now();
 
     EXPECT_THAT(
-        std::chrono::nanoseconds(end - start).count(),
+        (end - start).count(),
         Ge(iox::units::Duration::fromMilliseconds(AdaptiveWaitSut::FINAL_WAITING_TIME.count()).toNanoseconds()));
 }
 
@@ -107,8 +107,7 @@ TEST(AdaptiveWaitTest, wait_loopWaitsAtLeastAsLongAsTheConditionsReturnsTrue)
 
     continueToWait.store(false);
 
-    EXPECT_THAT(std::chrono::nanoseconds(end - start).count(),
-                Ge(iox::units::Duration::fromMilliseconds(waitTime.count()).toNanoseconds()));
+    EXPECT_THAT((end - start).count(), Ge(iox::units::Duration::fromMilliseconds(waitTime.count()).toNanoseconds()));
 
     waitThread.join();
 }

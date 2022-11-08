@@ -17,13 +17,13 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
-#include "iceoryx_hoofs/platform/time.hpp"
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
+#include "iceoryx_platform/time.hpp"
 
 #include "test.hpp"
 #include "test_posix_semaphore_common.hpp"
@@ -45,15 +45,7 @@ class SemaphoreInterfaceTest : public Test
     using SutFactory = T;
     using SutType = typename SutFactory::SutType;
 
-    SemaphoreInterfaceTest()
-    {
-    }
-
-    ~SemaphoreInterfaceTest()
-    {
-    }
-
-    void SetUp()
+    void SetUp() override
     {
         deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
         ASSERT_TRUE(SutFactory::create(sut, 0U));
@@ -65,7 +57,7 @@ class SemaphoreInterfaceTest : public Test
         return SutFactory::create(sut, value);
     }
 
-    void TearDown()
+    void TearDown() override
     {
     }
 
@@ -108,7 +100,8 @@ struct NamedSemaphoreTest
 };
 
 using Implementations = Types<UnnamedSemaphoreTest, NamedSemaphoreTest>;
-TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations);
+
+TYPED_TEST_SUITE(SemaphoreInterfaceTest, Implementations, );
 
 TYPED_TEST(SemaphoreInterfaceTest, InitialValueIsSetCorrect)
 {
@@ -141,7 +134,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
         return;
     }
 
-    uint32_t INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX);
+    auto INITIAL_VALUE = static_cast<uint32_t>(IOX_SEM_VALUE_MAX);
 
     ASSERT_FALSE(this->createSutWithInitialValue(INITIAL_VALUE).has_error());
 
@@ -242,6 +235,8 @@ TYPED_TEST(SemaphoreInterfaceTest, FailingTimedWaitDoesNotChangeSemaphoreValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cb2f5ded-7c04-4e2d-ab41-bbe231a520c7");
     constexpr uint64_t NUMBER_OF_DECREMENTS = 4U;
+    // NOLINTJUSTIFICATION user defined literal no risk of number-letter mixup
+    // NOLINTNEXTLINE(hicpp-uppercase-literal-suffix,readability-uppercase-literal-suffix)
     constexpr iox::units::Duration timeToWait = 2_us;
 
     for (uint64_t i = 0; i < NUMBER_OF_DECREMENTS; ++i)
@@ -303,9 +298,10 @@ TYPED_TEST(SemaphoreInterfaceTest, TimedWaitBlocksAtLeastDefinedSleepTimeAndSign
 {
     ::testing::Test::RecordProperty("TEST_ID", "71ca9773-f724-4625-8550-6c56ef135ad7");
 
-    auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::system_clock::now();
     auto result = this->sut->timedWait(this->TIMING_TEST_WAIT_TIME);
-    auto end = std::chrono::steady_clock::now();
+    auto end = std::chrono::system_clock::now();
+
 
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(iox::posix::SemaphoreWaitState::TIMEOUT));

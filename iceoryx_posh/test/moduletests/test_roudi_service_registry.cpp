@@ -165,7 +165,8 @@ class ServiceRegistry_test : public Test
 constexpr auto CAPACITY = ServiceRegistry::CAPACITY;
 
 typedef ::testing::Types<PublisherTest, ServerTest> TestTypes;
-TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes);
+
+TYPED_TEST_SUITE(ServiceRegistry_test, TestTypes, );
 
 TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturnsNothing)
 {

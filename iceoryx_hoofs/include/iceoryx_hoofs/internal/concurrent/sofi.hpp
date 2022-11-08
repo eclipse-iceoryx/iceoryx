@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_SOFI_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_correction.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -61,13 +61,13 @@ class SoFi
 
   public:
     /// @brief default constructor which constructs an empty sofi
-    SoFi() noexcept;
+    SoFi() noexcept = default;
 
     /// @brief pushs an element into sofi. if sofi is full the oldest data will be
     ///         returned and the pushed element is stored in its place instead.
-    /// @param[in] valueOut value which should be stored
-    /// @param[out] f_paramOut_r if sofi is overflowing  the value of the overridden value
-    ///                            is stored here
+    /// @param[in] valueIn value which should be stored
+    /// @param[out] valueOut if sofi is overflowing  the value of the overridden value
+    ///                      is stored here
     /// @concurrent restricted thread safe: single pop, single push no
     ///             push calls from multiple contexts
     /// @return return true if push was sucessfull else false.
@@ -84,9 +84,9 @@ class SoFi
     ///                        |-----A-------|
     ///                                      |-----B-------|
     ///                                                    |-----C-------|
-    ///                                     (’D’ is returned as value_out)
+    ///                                     (’D’ is returned as valueOut)
     ///
-    ///###################################################################
+    /// ###################################################################
     ///
     /// (if SOFI is not FULL , calling push() add new data)
     ///     Start|-------------|
@@ -98,7 +98,7 @@ class SoFi
     ///                                                     |-------------|
     ///                                                      (New Data)
     /// @endcode
-    bool push(const ValueType& valueOut, ValueType& f_paramOut_r) noexcept;
+    bool push(const ValueType& valueIn, ValueType& valueOut) noexcept;
 
     /// @brief pop the oldest element
     /// @param[out] valueOut storage of the pop'ed value
@@ -151,13 +151,16 @@ class SoFi
     uint64_t size() const noexcept;
 
   private:
+    // @todo iox-#1196 Replace with UninitializedArray
+    // safe access is guaranteed since the array is wrapped inside the SoFi
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     ValueType m_data[INTERNAL_SOFI_SIZE];
     uint64_t m_size = INTERNAL_SOFI_SIZE;
 
     /// @brief the write/read pointers are "atomic pointers" so that they are not
     /// reordered (read or written too late)
-    std::atomic<uint64_t> m_readPosition{0u};
-    std::atomic<uint64_t> m_writePosition{0u};
+    std::atomic<uint64_t> m_readPosition{0};
+    std::atomic<uint64_t> m_writePosition{0};
 };
 
 } // namespace concurrent

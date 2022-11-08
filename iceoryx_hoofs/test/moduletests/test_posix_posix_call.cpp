@@ -21,6 +21,8 @@ using namespace ::testing;
 
 namespace
 {
+/// NOLINTJUSTIFICATION only used in testing
+/// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 int testFunction(int returnValue, int errnoValue)
 {
     errno = errnoValue;

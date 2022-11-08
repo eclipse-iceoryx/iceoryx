@@ -157,7 +157,8 @@ using FunctionalInterfaceImplementations = testing::Types<GenericValueErrorFacto
                                                           OptionalFactory,
                                                           ExpectedValueErrorFactory,
                                                           ExpectedErrorFactory>;
-TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations);
+
+TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations, );
 
 } // namespace test_cxx_functional_interface
 

@@ -18,66 +18,110 @@ concurrency-*,
 performance-*,
 hicpp-*,
 
--bugprone-use-after-move,
--bugprone-easily-swappable-parameters,
--bugprone-branch-clone,
--bugprone-implicit-widening-of-multiplication-result,
--bugprone-not-null-terminated-result,
--concurrency-mt-unsafe,
--readability-named-parameter,
--readability-avoid-const-params-in-decls,
--readability-else-after-return,
--readability-redundant-access-specifiers,
--readability-magic-numbers,
--readability-function-size,
--readability-static-accessed-through-instance,
--readability-qualified-auto,
--readability-uppercase-literal-suffix,
--readability-implicit-bool-conversion,
--readability-convert-member-functions-to-static,
--readability-inconsistent-declaration-parameter-name,
--readability-container-size-empty,
--readability-simplify-boolean-expr,
--readability-make-member-function-const,
--readability-const-return-type,
--readability-function-cognitive-complexity,
--readability-use-anyofallof,
--hicpp-named-parameter,
--hicpp-avoid-c-arrays,
--hicpp-no-array-decay,
--hicpp-signed-bitwise,
--hicpp-vararg,
--hicpp-no-malloc,
--hicpp-member-init,
--hicpp-use-auto,
--hicpp-uppercase-literal-suffix,
--hicpp-use-equals-default,
--hicpp-deprecated-headers,
--cert-env33-c,
--performance-move-const-arg,
--performance-no-int-to-ptr,
--performance-unnecessary-value-param,
--performance-for-range-copy,
--clang-analyzer-core.uninitialized.UndefReturn,
--clang-analyzer-optin.cplusplus.VirtualCall,
--cppcoreguidelines-avoid-c-arrays,
--cppcoreguidelines-pro-bounds-pointer-arithmetic,
--cppcoreguidelines-pro-bounds-constant-array-index,
--cppcoreguidelines-pro-bounds-array-to-pointer-decay,
--cppcoreguidelines-pro-type-vararg,
--cppcoreguidelines-macro-usage,
--cppcoreguidelines-avoid-non-const-global-variables,
--cppcoreguidelines-pro-type-reinterpret-cast,
--cppcoreguidelines-prefer-member-initializer,
--cppcoreguidelines-avoid-magic-numbers,
--cppcoreguidelines-pro-type-const-cast,
--cppcoreguidelines-pro-type-member-init,
--cppcoreguidelines-pro-bounds-pointer-arithmetic,
--cppcoreguidelines-owning-memory,
--cppcoreguidelines-init-variables,
--hicpp-move-const-arg,
--hicpp-invalid-access-moved'
+-cppcoreguidelines-non-private-member-variables-in-classes,
 
+-hicpp-named-parameter,
+
+-readability-avoid-const-params-in-decls,
+-readability-identifier-length,
+-readability-redundant-access-specifiers,
+-readability-redundant-declaration,
+
+-readability-identifier-naming,
+-readability-use-anyofallof,
+-readability-named-parameter,
+
+'
+
+### Temporarily disabled because massive API changes:
+# * rule: readability-identifier-naming
+
+### Justifications for deactivated rules
+# * rule: readability-avoid-const-params-in-decls
+#   justification: Symmetry with definition and declaration when we enforce to add const to every parameter
+#   example:
+#     bad:
+#       void myFunction(int); // declaration, broken symmetry, the argument is not const
+#       void myFunction(const int) {} // definition
+#     good:
+#       void myFunction(const int); // declaration
+#       void myFunction(const int) {} // definition
+#
+# * rule: readability-identifier-length
+#   justification: In some functions single letter variables make sense, this is covered by the review process
+#   example:
+#      bad:
+#        int sum(int summand1, int summand2); // here we would like to have single letter variable arguments
+#      good:
+#        int sum(int a, int b); // failure since a and b have less than three letters
+#
+# * rule: readability-redundant-access-specifiers
+#   justification: The access specifier can be used to separate methods from members.
+#   example:
+#      bad:
+#        private:
+#          int foo();
+#          int bar();
+#
+#          int baz { 42 };
+#      good:
+#        private:
+#          int foo();
+#          int bar();
+#
+#        private:
+#          int bar { 42 };
+#
+# * rule: readability-redundant-declaration
+#   justification: This rule has false positives with friend declarations.
+#   example:
+#      bad:
+#        // in hpp file
+#        class Foo {
+#            friend void bar(Foo& foo);
+#        };
+#        // in cpp file
+#        void bar(Foo& foo) {...}
+#      good:
+#        // in hpp file
+#        class Foo {
+#            friend void bar(Foo& foo);
+#        };
+#        void bar(Foo& foo);
+#        // in cpp file
+#        void bar(Foo& foo) {...}
+#
+# * rule: readability-use-anyofallof
+#   justification: requires C++20 and std::ranges but we only use C++14
+#
+# * rule: cppcoreguidelines-non-private-member-variables-in-classes
+#   justification: Sometimes it makes sense to have protected members to extend the base class.
+#                  Even public members are useful in lightweight classes (effectively structs).
+#                  This unnecessarily limits design options.
+#
+# * rule: readability-named-parameter, -hicpp-named-parameter
+#   justicfication: For tag types which just guide overloading no name is needed.
+#                   Declaration of private functions does not require a name (no doxygen comment).
+#                   For callbacks omitting the name is less verbose than to cast an unsued parameter to void.
+#   callbacks
+#   bad:
+#       auto callable = [] (auto /*foo*/) {...};
+#   good:
+#       auto callable = [] (auto) {};
+#   tag types
+#   optional:
+#       void foo(Tag1 tag); // (1) called with Tag1 type
+#       void foo(Tag2 tag); // (2) called with Tag2 type
+#       // dispatch site
+#       Tag1 tag;
+#       foo(tag); // calls (1)
+#   also ok:
+#       void foo(Tag1); // (1)
+#       void foo(Tag2); // (2)
+#       // dispatch site
+#       Tag1 tag;
+#       foo(tag); // calls (1)
+#
 ## Those warnings should be enabled
 ## They are disabled since they require a heavy API refactoring and when we enable it we clutter the code with // NOLINT comments
 # -bugprone-easily-swappable-parameters
@@ -124,28 +168,24 @@ HeaderFilterRegex:    ''
 FormatStyle:          file
 InheritParentConfig:  false
 
-# ToDo iox-#889: re-enable the following tests:
-# -hicpp-move-const-arg
-# -hicpp-invalid-access-moved
-
+# The options below are just uncommented temporarily so that we do not change
+# the public API during the hack a thon
 CheckOptions:
-  - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
-  - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
-  - { key: readability-identifier-naming.StructCase,              value: CamelCase }
-  - { key: readability-identifier-naming.TypeAliasCase,           value: CamelCase }
-  - { key: readability-identifier-naming.TypeAliasSuffix,         value: _t }
-  - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
-  - { key: readability-identifier-naming.MethodCase,              value: camelBack }
-  - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
-  - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
+  #   - { key: readability-identifier-naming.ClassCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.EnumCase,                value: CamelCase }
+  #   - { key: readability-identifier-naming.StructCase,              value: CamelCase }
+  #   - { key: readability-identifier-naming.UnionCase,               value: CamelCase }
+  #   - { key: readability-identifier-naming.MethodCase,              value: camelBack }
+  #   - { key: readability-identifier-naming.FunctionCase,            value: camelBack }
+  #   - { key: readability-identifier-naming.NamespaceCase,           value: lower_case }
   - { key: readability-identifier-naming.PrivateMemberPrefix,     value: m_ }
   - { key: readability-identifier-naming.ProtectedMemberPrefix,   value: m_ }
-  - { key: readability-identifier-naming.MemberCase,              value: camelBack }
-  - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
-  - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
-  - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
-  - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
+  # - { key: readability-identifier-naming.MemberCase,              value: camelBack }
+  # - { key: readability-identifier-naming.ConstexprVariableCase,   value: UPPER_CASE }
+  # - { key: readability-identifier-naming.EnumConstantCase,        value: UPPER_CASE }
+  # - { key: readability-identifier-naming.GlobalConstantCase,      value: UPPER_CASE }
+  # - { key: readability-identifier-naming.TemplateParameterCase,   value: CamelCase }
   - { key: readability-function-size.LineThreshold,               value: 200 }
   - { key: readability-function-size.StatementThreshold,          value: 200 }
   - { key: readability-function-size.BranchThreshold,             value: 10 }
-  - { key: readability-function-size.ParameterThreshold,          value: 3 }
+  - { key: readability-function-size.ParameterThreshold,          value: 4 }

@@ -17,14 +17,14 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/method_callback.hpp"
+#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
-#include "iceoryx_hoofs/platform/platform_settings.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 
 #include <cstdint>
@@ -97,7 +97,7 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 namespace popo
 {
-using WaitSetIsConditionSatisfiedCallback = cxx::ConstMethodCallback<bool>;
+using WaitSetIsConditionSatisfiedCallback = cxx::function<bool()>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 

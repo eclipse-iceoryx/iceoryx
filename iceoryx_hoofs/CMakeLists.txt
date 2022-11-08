@@ -21,15 +21,18 @@ set(IOX_VERSION_STRING "2.90.0")
 
 project(iceoryx_hoofs VERSION ${IOX_VERSION_STRING})
 
-include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPackageHelper.cmake")
+find_package(iceoryx_platform REQUIRED)
+
+include(IceoryxPackageHelper)
+include(IceoryxPlatformSettings)
+
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/IceoryxPlatform.cmake")
 
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
 
-iox_make_unique_includedir()
-add_subdirectory(platform)
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
 #
 ########## build iceoryx hoofs lib ##########
@@ -37,12 +40,11 @@ add_subdirectory(platform)
 iox_add_library(
     TARGET                      iceoryx_hoofs
     NAMESPACE                   iceoryx_hoofs
-    ADDITIONAL_EXPORT_TARGETS   iceoryx_platform
     PROJECT_PREFIX              ${PREFIX}
-    PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_platform
+    PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}ou/include
     INSTALL_INTERFACE           include/${PREFIX}
     FILES
         source/cli/arguments.cpp
@@ -62,32 +64,24 @@ iox_add_library(
         source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/file_reader/file_reader.cpp
-        source/log/hoofs_logging.cpp
-        source/log/logcommon.cpp
-        source/log/logger.cpp
-        source/log/logging_internal.cpp
-        source/log/logging.cpp
-        source/log/logmanager.cpp
-        source/log/logstream.cpp
+        source/log/platform_building_blocks/console_logger.cpp
+        source/log/platform_building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
-        source/posix_wrapper/message_queue.cpp
         source/posix_wrapper/mutex.cpp
-        source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/named_semaphore.cpp
         source/posix_wrapper/posix_access_rights.cpp
+        source/posix_wrapper/scheduler.cpp
         source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/allocator.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
-        source/posix_wrapper/signal_watcher.cpp
         source/posix_wrapper/system_configuration.cpp
         source/posix_wrapper/thread.cpp
         source/posix_wrapper/types.cpp
-        source/posix_wrapper/unnamed_semaphore.cpp
+        source/posix_wrapper/unnamed_semaphore.cpoup
         source/posix_wrapper/unix_domain_socket.cpp
         source/relocatable_pointer/base_relative_pointer.cpp
         source/relocatable_pointer/relative_pointer_data.cpp
@@ -114,7 +108,6 @@ endif()
 
 install(
     FILES
-        cmake/IceoryxPackageHelper.cmake
         cmake/IceoryxPlatform.cmake
         cmake/IceoryxVersion.cmake
     DESTINATION ${DESTINATION_CONFIGDIR}

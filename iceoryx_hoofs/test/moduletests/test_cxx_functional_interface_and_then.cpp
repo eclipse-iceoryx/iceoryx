@@ -30,11 +30,16 @@ TYPED_TEST(FunctionalInterface_test, AndThenHasCorrectSignature)
     EXPECT_THAT(DOES_AND_THEN_HAVE_A_VALUE, Eq(Factory::EXPECT_AND_THEN_WITH_VALUE));
 }
 
+// the macro is used as code generator to make the tests more readable. because of the
+// template nature of those tests this cannot be implemented in the same readable fashion
+// as with macros
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
     constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    /* NOLINTNEXTLINE(bugprone-macro-parentheses) prevents clang-tidy parsing failures */                              \
     TestName<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                           \
-        [](auto& sut, auto callback) { variationPoint.and_then(callback); })
+        [](auto& sut, auto callback) { (variationPoint).and_then(callback); })
 
 constexpr bool TYPE_HAS_VALUE_METHOD = true;
 constexpr bool TYPE_HAS_NO_VALUE_METHOD = false;
@@ -82,6 +87,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_LValueCas
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstLValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "80724fcd-78a4-4f52-82fe-1613069823f0");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, const_cast<const SutType&>(sut));
 }
 
@@ -94,6 +101,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_RValueCas
 TYPED_TEST(FunctionalInterface_test, AndThenIsCalledCorrectlyWhenValid_ConstRValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "225f1e86-6b37-47db-9e1f-f44040040e8a");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsCalledCorrectlyWhenValid, std::move(const_cast<const SutType&>(sut)));
 }
 
@@ -137,6 +146,8 @@ TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_LValueCase)
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstLValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fcd75d8-ce17-49c3-8a0a-d676d649b985");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, const_cast<const SutType&>(sut));
 }
 
@@ -149,85 +160,10 @@ TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_RValueCase)
 TYPED_TEST(FunctionalInterface_test, AndThenIsNotCalledWhenInvalid_ConstRValueCase)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d4162bb7-c2b3-4c82-bb78-bc63acf4b3b9");
+    // const_cast avoids code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     IOX_TEST_FUNCTIONAL_INTERFACE(AndThenIsNotCalledWhenInvalid, std::move(const_cast<const SutType&>(sut)));
 }
-
-template <bool HasValue>
-struct AndThenDoesNotCrashWithNullFunction;
-
-template <>
-struct AndThenDoesNotCrashWithNullFunction<TYPE_HAS_NO_VALUE_METHOD>
-{
-    template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& callAndThen)
-    {
-        auto sut = TestFactory::createValidObject();
-        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void()>()); });
-    }
-};
-
-template <>
-struct AndThenDoesNotCrashWithNullFunction<TYPE_HAS_VALUE_METHOD>
-{
-    template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& callAndThen)
-    {
-        auto sut = TestFactory::createValidObject();
-        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void(typename TestFactory::value_t&)>()); });
-    }
-};
-
-template <bool HasValue>
-struct AndThenDoesNotCrashWithNullFunction_Const;
-
-template <>
-struct AndThenDoesNotCrashWithNullFunction_Const<TYPE_HAS_NO_VALUE_METHOD>
-{
-    template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& callAndThen)
-    {
-        auto sut = TestFactory::createValidObject();
-        EXPECT_NO_DEATH([&] { callAndThen(sut, iox::cxx::function_ref<void()>()); });
-    }
-};
-
-template <>
-struct AndThenDoesNotCrashWithNullFunction_Const<TYPE_HAS_VALUE_METHOD>
-{
-    template <typename TestFactory, typename AndThenCall>
-    static void performTest(const AndThenCall& callAndThen)
-    {
-        auto sut = TestFactory::createValidObject();
-        EXPECT_NO_DEATH(
-            [&] { callAndThen(sut, iox::cxx::function_ref<void(const typename TestFactory::value_t&)>()); });
-    }
-};
-
-TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_LValueCase)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "661a087d-90ee-4b27-9af4-b4d4b211adeb");
-    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction, sut);
-}
-
-TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstLValueCase)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5913ed24-cb6e-47e6-a0af-c0650cc642a0");
-    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction_Const, const_cast<const SutType&>(sut));
-}
-
-TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_RValueCase)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d121b82a-de11-4ef4-a182-14c075066688");
-    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction, std::move(sut));
-}
-
-TYPED_TEST(FunctionalInterface_test, AndThenDoesNotCrashWithNullFunction_ConstRValueCase)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "42061fc8-963b-4b41-9016-1a3bde8706e7");
-    IOX_TEST_FUNCTIONAL_INTERFACE(AndThenDoesNotCrashWithNullFunction_Const,
-                                  std::move(const_cast<const SutType&>(sut)));
-}
-
 
 #undef IOX_TEST_FUNCTIONAL_INTERFACE
 } // namespace

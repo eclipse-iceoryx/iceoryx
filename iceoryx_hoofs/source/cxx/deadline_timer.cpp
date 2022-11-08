@@ -1,5 +1,5 @@
 // Copyright (c) 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ void DeadlineTimer::reset(const iox::units::Duration timeToWait) noexcept
 
 iox::units::Duration DeadlineTimer::remainingTime() const noexcept
 {
-    auto currentTime = getCurrentMonotonicTime();
+    const iox::units::Duration currentTime{getCurrentMonotonicTime()};
     if (m_endTime > currentTime)
     {
         return m_endTime - currentTime;
@@ -55,8 +55,7 @@ iox::units::Duration DeadlineTimer::remainingTime() const noexcept
 
 iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
 {
-    iox::units::Duration currentTime(std::chrono::steady_clock::now().time_since_epoch());
-    return currentTime;
+    return iox::units::Duration{std::chrono::steady_clock::now().time_since_epoch()};
 }
 
 

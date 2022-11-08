@@ -35,54 +35,52 @@ class SmartLockTester
     // just for clarity, we could also write ++m_a but we want
     // to highlight the possible race condition here when we call this from
     // multiple threads, therefore m_a = m_a + 1
-    SmartLockTester()
-    {
-    }
+    SmartLockTester() noexcept = default;
 
-    SmartLockTester(const int32_t a)
+    explicit SmartLockTester(const int32_t a) noexcept
         : m_a(a)
     {
     }
 
-    SmartLockTester(const SmartLockTester& rhs)
+    SmartLockTester(const SmartLockTester& rhs) noexcept
         : m_a(rhs.m_a)
     {
+        // NOLINTNEXTLINE(cert-oop58-cpp) used to test thread safety of smart_lock
         rhs.m_b = rhs.m_b + 1;
     }
 
-    SmartLockTester(SmartLockTester&& rhs)
+    SmartLockTester(SmartLockTester&& rhs) noexcept
         : m_a(rhs.m_a)
     {
-        rhs.isMoved = true;
+        rhs.m_isMoved = true;
         rhs.m_a = 0;
         rhs.m_b = rhs.m_b + 1;
     }
 
-    SmartLockTester& operator=(const SmartLockTester& rhs)
+    SmartLockTester& operator=(const SmartLockTester& rhs) noexcept
     {
         if (this != &rhs)
         {
+            // NOLINTNEXTLINE(cert-oop58-cpp) used to test thread safety of smart_lock
             rhs.m_b = rhs.m_b + 1;
             m_a = rhs.m_a;
         }
         return *this;
     }
 
-    SmartLockTester& operator=(SmartLockTester&& rhs)
+    SmartLockTester& operator=(SmartLockTester&& rhs) noexcept
     {
         if (this != &rhs)
         {
             rhs.m_b = rhs.m_b + 1;
             m_a = rhs.m_a;
             rhs.m_a = 0;
-            rhs.isMoved = true;
+            rhs.m_isMoved = true;
         }
         return *this;
     }
 
-    ~SmartLockTester()
-    {
-    }
+    ~SmartLockTester() noexcept = default;
 
     int32_t getA() const
     {
@@ -104,11 +102,15 @@ class SmartLockTester
         m_a = m_a + 1;
     }
 
-    bool isMoved = false;
+    bool isMoved() const
+    {
+        return m_isMoved;
+    }
 
   private:
     mutable int32_t m_a = 0;
     mutable int32_t m_b = 0;
+    bool m_isMoved = false;
 };
 
 class smart_lock_test : public Test
@@ -176,7 +178,9 @@ TEST_F(smart_lock_test, MoveConstructionOfUnderlyinObjectWorks)
     SmartLockTester tester(CTOR_VALUE);
     m_sut.emplace(ForwardArgsToCTor, std::move(tester));
     EXPECT_THAT((*m_sut)->getA(), Eq(CTOR_VALUE));
-    EXPECT_TRUE(tester.isMoved);
+    /// NOLINTJUSTIFICATION we want to test defined behavior of a moved smart_lock
+    /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved,clang-analyzer-cplusplus.Move)
+    EXPECT_TRUE(tester.isMoved());
 }
 
 TEST_F(smart_lock_test, CopyConstructorWorks)
@@ -212,7 +216,7 @@ TEST_F(smart_lock_test, MoveConstructorWorks)
 
     SutType_t sut2(std::move(*m_sut));
 
-    EXPECT_TRUE((*m_sut)->isMoved);
+    EXPECT_TRUE((*m_sut)->isMoved());
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
@@ -225,7 +229,7 @@ TEST_F(smart_lock_test, MoveAssignmentWorks)
     SutType_t sut2;
     sut2 = std::move(m_sut.value());
 
-    EXPECT_TRUE((*m_sut)->isMoved);
+    EXPECT_TRUE((*m_sut)->isMoved());
     EXPECT_THAT(sut2->getA(), Eq(CTOR_VALUE));
 }
 
@@ -316,6 +320,7 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughArrowOperator)
 TEST_F(smart_lock_test, ThreadSafeAccessThroughConstArrowOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0dedded-cf07-47dc-9032-e5de3db859d2");
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const arrow operator
     threadSafeOperationTest(this, [=] { (const_cast<const SutType_t&>(*m_sut))->constIncrementA(); });
     EXPECT_THAT((*m_sut)->getA(), Eq(NUMBER_OF_RUNS_PER_THREAD * NUMBER_OF_THREADS));
 }
@@ -334,6 +339,7 @@ TEST_F(smart_lock_test, ThreadSafeAccessThroughConstScopedGuard)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dc2efd41-4c0a-4ac0-93ed-f8e9195e0dfd");
     threadSafeOperationTest(this, [=] {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) used to explitly test const getScopeGuard()
         auto guard = const_cast<const SutType_t&>(*m_sut).getScopeGuard();
         guard->incrementA();
     });

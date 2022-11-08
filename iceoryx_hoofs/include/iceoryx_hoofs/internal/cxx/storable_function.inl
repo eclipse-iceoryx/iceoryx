@@ -37,6 +37,9 @@ storable_function<S, signature<ReturnType, Args...>>::storable_function(ReturnTy
     if (function)
     {
         m_invoker = invokeFreeFunction;
+        /// @NOLINTJUSTIFICATION we use type erasure in combination with compile time template arguments to restore
+        ///                      the correct type whenever the callable is used
+        /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
         m_callable = reinterpret_cast<void*>(function);
         m_operations.copyFunction = copyFreeFunction;
         m_operations.moveFunction = moveFreeFunction;
@@ -162,6 +165,8 @@ void storable_function<S, signature<ReturnType, Args...>>::storeFunctor(const Fu
     if (ptr)
     {
         // functor will fit, copy it
+        /// @NOLINTJUSTIFICATION ownership is encapsulated in storable_function and will be released in destroy
+        /// @NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         ptr = new (ptr) StoredType(functor);
 
         // erase the functor type and store as reference to the call in storage
@@ -197,6 +202,8 @@ void storable_function<S, signature<ReturnType, Args...>>::copy(const storable_f
     if (ptr)
     {
         auto obj = static_cast<CallableType*>(src.m_callable);
+        /// @NOLINTJUSTIFICATION ownership is encapsulated in storable_function and will be released in destroy
+        /// @NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         ptr = new (ptr) CallableType(*obj);
         dest.m_callable = ptr;
         dest.m_invoker = src.m_invoker;
@@ -227,6 +234,8 @@ void storable_function<S, signature<ReturnType, Args...>>::move(storable_functio
     if (ptr)
     {
         auto obj = static_cast<CallableType*>(src.m_callable);
+        /// @NOLINTJUSTIFICATION ownership is encapsulated in storable_function and will be released in destroy
+        /// @NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
         ptr = new (ptr) CallableType(std::move(*obj));
         dest.m_callable = ptr;
         dest.m_invoker = src.m_invoker;
@@ -284,6 +293,9 @@ ReturnType storable_function<S, signature<ReturnType, Args...>>::invoke(void* ca
 template <typename S, typename ReturnType, typename... Args>
 ReturnType storable_function<S, signature<ReturnType, Args...>>::invokeFreeFunction(void* callable, Args&&... args)
 {
+    /// @NOLINTJUSTIFICATION we use type erasure in combination with compile time template arguments to restore
+    ///                      the correct type whenever the callable is used
+    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return (reinterpret_cast<ReturnType (*)(Args...)>(callable))(std::forward<Args>(args)...);
 }
 

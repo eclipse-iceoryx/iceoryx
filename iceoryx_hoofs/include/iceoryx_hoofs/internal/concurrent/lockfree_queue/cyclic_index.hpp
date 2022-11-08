@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <limits>
 #include <type_traits>
-
 
 namespace iox
 {
@@ -53,6 +52,8 @@ class CyclicIndex
     explicit CyclicIndex(ValueType value = 0U) noexcept;
 
     CyclicIndex(ValueType index, ValueType cycle) noexcept;
+
+    ~CyclicIndex() = default;
 
     CyclicIndex(const CyclicIndex&) noexcept = default;
     CyclicIndex(CyclicIndex&&) noexcept = default;
@@ -89,6 +90,6 @@ class CyclicIndex
 } // namespace concurrent
 } // namespace iox
 
-#include "cyclic_index.inl"
+#include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.inl"
 
 #endif // IOX_HOOFS_LOCKFREE_QUEUE_CYCLIC_INDEX_HPP

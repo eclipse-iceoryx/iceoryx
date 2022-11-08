@@ -28,12 +28,14 @@ namespace iox
 {
 namespace rp
 {
+constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
+
 /// @brief Allows registration of memory segments with their start pointers and size.
 /// This class is used to resolve relative pointers in the corresponding address space of the application.
 /// Up to CAPACITY segments can be registered with MIN_ID = 1 to MAX_ID = CAPACITY - 1
 /// id 0 is reserved and allows relative pointers to behave like normal pointers
 /// (which is equivalent to measure the offset relative to 0).
-template <typename id_t, typename ptr_t, uint64_t CAPACITY = 10000U>
+template <typename id_t, typename ptr_t, uint64_t CAPACITY = MAX_POINTER_REPO_CAPACITY>
 class PointerRepository
 {
   private:
@@ -46,8 +48,11 @@ class PointerRepository
     /// @note 0 is a special purpose id and reserved
     /// id 0 is reserved to interpret the offset just as a raw pointer,
     /// i.e. its corresponding base ptr is 0
-    static constexpr size_t MIN_ID = 1U;
-    static constexpr size_t MAX_ID = CAPACITY - 1U;
+    static constexpr id_t MIN_ID{1U};
+    static constexpr id_t MAX_ID{CAPACITY - 1U};
+
+    static_assert(MAX_ID >= MIN_ID, "MAX_ID must be greater or equal than MIN_ID!");
+    static_assert(CAPACITY >= 2, "CAPACITY must be at least 2!");
 
   public:
     static constexpr id_t INVALID_ID = std::numeric_limits<id_t>::max();
@@ -106,7 +111,6 @@ class PointerRepository
     iox::cxx::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};
 };
-
 } // namespace rp
 } // namespace iox
 
