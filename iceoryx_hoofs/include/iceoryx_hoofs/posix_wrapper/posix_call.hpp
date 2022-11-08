@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <cstring>

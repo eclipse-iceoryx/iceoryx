@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
@@ -229,7 +230,14 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     //     initHandle(&handle);
     //   }
     bool m_hasValue{false};
-    typename std::aligned_storage<sizeof(T), alignof(T)>::type m_data;
+    struct alignas(T) element_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
+        // is wrapped inside the optional
+        // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+        byte_t data[sizeof(T)];
+    };
+    element_t m_data;
 
   private:
     template <typename... Targs>

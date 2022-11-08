@@ -17,13 +17,13 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 namespace
 {
 using namespace ::testing;
 
-using iox::containers::UninitializedArray;
+using iox::UninitializedArray;
 
 struct Integer
 {
@@ -102,8 +102,8 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
 
 typedef ::testing::Types<UninitializedArray<int, 10>,
                          UninitializedArray<Integer, 10>,
-                         UninitializedArray<int, 10, iox::containers::ZeroedBuffer>,
-                         UninitializedArray<Integer, 10, iox::containers::ZeroedBuffer>>
+                         UninitializedArray<int, 10, iox::ZeroedBuffer>,
+                         UninitializedArray<Integer, 10, iox::ZeroedBuffer>>
     TestArrays;
 
 TYPED_TEST_SUITE(UninitializedArrayTest, TestArrays, );
@@ -145,13 +145,13 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb213516-ab37-43e3-b2ec-098c98d777d1");
     constexpr uint64_t CAPACITY{32};
-    UninitializedArray<uint32_t, CAPACITY, iox::containers::ZeroedBuffer> buffer;
+    UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer> buffer;
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
     }
 
-    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::containers::ZeroedBuffer>();
+    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer>();
 
     for (auto& e : buffer)
     {
@@ -304,7 +304,7 @@ TYPED_TEST(UninitializedArrayTest, SizeOfUninitializedArrayEqualsCStyleArray)
     ::testing::Test::RecordProperty("TEST_ID", "e1c7ddec-b883-4eee-a4a4-a8dfbcaaec6d");
     using Buffer = typename TestFixture::Buffer;
     if (std::is_same<Buffer, UninitializedArray<Integer, 10>>::value
-        || std::is_same<Buffer, UninitializedArray<Integer, 10, iox::containers::ZeroedBuffer>>::value)
+        || std::is_same<Buffer, UninitializedArray<Integer, 10, iox::ZeroedBuffer>>::value)
     {
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) : needed for test purpose
         Integer testArray[10];

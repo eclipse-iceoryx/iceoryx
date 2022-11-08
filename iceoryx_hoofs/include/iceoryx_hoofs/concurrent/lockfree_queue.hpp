@@ -20,7 +20,7 @@
 
 #include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <atomic>
 
@@ -110,7 +110,7 @@ class LockFreeQueue
     // required to be a queue for LockFreeQueue to exhibit FIFO behaviour
     Queue m_usedIndices;
 
-    containers::UninitializedArray<ElementType, Capacity> m_buffer;
+    UninitializedArray<ElementType, Capacity> m_buffer;
 
     std::atomic<uint64_t> m_size{0U};
 

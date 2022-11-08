@@ -22,6 +22,7 @@
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <limits>
 
@@ -146,7 +147,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     }
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-    containers::UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
+    UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
     int32_t numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)

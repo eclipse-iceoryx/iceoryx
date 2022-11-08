@@ -785,7 +785,7 @@
     * `iox::bar::foo` to `iox::foo`
         * `iceoryx_hoofs/bar/foo.hpp` to `iox/foo.hpp`
 
-41. Use proper aligned `containers::UninitializedArray` instead of C-style array
+41. Use proper aligned `iox::UninitializedArray` instead of C-style array
 
     ```cpp
     // before
@@ -795,10 +795,10 @@
     alignas(T) element_t myAlignedArray[Capacity];
 
     // after
-    #include "iceoryx_hoofs/containers/uninitialized_array.hpp"
+    #include "iox/uninitialized_array.hpp"
 
-    containers::UninitializedArray<char, Capacity, containers::ZeroedBuffer> myCharArray;
+    iox::UninitializedArray<char, Capacity, iox::ZeroedBuffer> myCharArray;
 
-    containers::UninitializedArray<T, Capacity> myAlignedArray;
+    iox::UninitializedArray<T, Capacity> myAlignedArray;
 
     ```

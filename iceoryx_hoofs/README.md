@@ -35,13 +35,13 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`static_storage`                    | i        | Untyped aligned static storage.                                                                                                                                                                                          |
 |`shared_memory_object/Allocator`    | i        | Helper class for the `SharedMemoryObject`.                                                                                                                                                                               |
 
-### Containers (containers)
+### Container (container)
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`vector`               |          | Heap and exception free implementation of `std::vector`                                                                                                                                                                               |
 |`list`                 |          | Heap and exception free, relocatable implementation of `std::list`                                                                                                                                                                    |
-|`UninitializedArray`   | i        | Wrapper class for an uninitialized C-style array which can be zeroed via a template parameter                                                                                                                                         |
+|`UninitializedArray`   |          | Wrapper class for an uninitialized C-style array which can be zeroed via a template parameter                                                                                                                                         |
 
 ### Vocabulary types (vocabulary)
 
@@ -88,7 +88,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`attributes`           |          | C++17 and C++20 attributes are sometimes available through compiler extensions. The attribute macros defined in here (like `IOX_FALLTHROUGH`, `IOX_MAYBE_UNUSED` ... ) make sure that we are able to use them if the compiler supports it. |
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
 
-### Buffers (buffers)
+### Buffer (buffer)
 
 | class                              | internal | description                                                                                                                                                                                                                        |
 |:----------------------------------:|:--------:|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|

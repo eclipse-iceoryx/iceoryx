@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
-#define IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
+#ifndef IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
+#define IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
@@ -24,20 +24,21 @@
 
 namespace iox
 {
-namespace containers
-{
 /// @brief struct used as policy parameter in UninitializedArray to wrap an array with all elements zeroed
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
 template <typename ElementType, uint64_t Capacity>
 struct ZeroedBuffer
 {
+    struct alignas(ElementType) element_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+        cxx::byte_t data[sizeof(ElementType)];
+    };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    using element_t = cxx::byte_t[sizeof(ElementType)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    alignas(ElementType) element_t value[Capacity]{};
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    element_t value[Capacity]{};
 };
 
 /// @brief struct used as policy parameter in UninitializedArray to wrap an uninitialized array
@@ -46,12 +47,15 @@ struct ZeroedBuffer
 template <typename ElementType, uint64_t Capacity>
 struct NonZeroedBuffer
 {
+    struct alignas(ElementType) element_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+        cxx::byte_t data[sizeof(ElementType)];
+    };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-    using element_t = cxx::byte_t[sizeof(ElementType)];
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
-    alignas(ElementType) element_t value[Capacity];
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    element_t value[Capacity];
 };
 
 /// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
@@ -109,9 +113,8 @@ class UninitializedArray
     Buffer<ElementType, Capacity> m_buffer;
 };
 
-} // namespace containers
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.inl"
+#include "iox/detail/uninitialized_array.inl"
 
-#endif // IOX_HOOFS_CONTAINERS_UNINITIALIZED_ARRAY_HPP
+#endif // IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP

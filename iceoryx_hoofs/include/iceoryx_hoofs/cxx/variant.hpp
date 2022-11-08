@@ -265,10 +265,13 @@ class variant
     constexpr uint64_t index() const noexcept;
 
   private:
-    // NOLINTJUSTIFICATION safe access is guaranteed since the c-array is wrapped inside the variant class
-    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-    alignas(algorithm::maxVal(alignof(Types)...)) internal::byte_t m_storage[TYPE_SIZE]{0U};
-    // NOLINTEND(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+    struct alignas(Types...) storage_t
+    {
+        // NOLINTJUSTIFICATION safe access is guaranteed since the c-array is wrapped inside the variant class
+        // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
+        internal::byte_t data[TYPE_SIZE];
+    };
+    storage_t m_storage{};
     uint64_t m_type_index{INVALID_VARIANT_INDEX};
 
   private:

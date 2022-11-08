@@ -19,7 +19,7 @@
 #define IOX_DUST_CXX_FORWARD_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -356,8 +356,8 @@ class forward_list
     // are inserted by the user (starting from BEFORE_BEGIN_INDEX)
     size_type m_freeListHeadIdx{0U};
 
-    containers::UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
-    containers::UninitializedArray<T, Capacity> m_data;
+    UninitializedArray<NodeLink, NODE_LINK_COUNT> m_links;
+    UninitializedArray<T, Capacity> m_data;
 
     size_type m_size{0U};
 }; // forward_list

@@ -20,8 +20,8 @@
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -219,7 +219,7 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    containers::UninitializedArray<T, Capacity> m_data;
+    UninitializedArray<T, Capacity> m_data;
     uint64_t m_size{0U};
 };
 
