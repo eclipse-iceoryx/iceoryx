@@ -32,7 +32,7 @@ inline constexpr bool ConstexprCheckTrue(bool condition)
 }
 
 template <typename T>
-class SpanIterator
+class span_iterator
 {
   public:
     using iterator_category = std::random_access_iterator_tag;
@@ -41,24 +41,24 @@ class SpanIterator
     using pointer = T*;
     using reference = T&;
 
-    constexpr SpanIterator() = default;
+    constexpr span_iterator() = default;
 
 
-    constexpr SpanIterator(pointer start, const pointer end)
-        : SpanIterator(start, end, start)
+    constexpr span_iterator(pointer start, const pointer end)
+        : span_iterator(start, end, start)
     {
     }
 
-    constexpr SpanIterator(const pointer begin, const pointer end, pointer current)
+    constexpr span_iterator(const pointer begin, const pointer end, pointer current)
         : m_begin(begin)
         , m_end(end)
         , m_current(current)
     {
     }
 
-    constexpr SpanIterator(const SpanIterator& other) = default;
+    constexpr span_iterator(const span_iterator& other) = default;
 
-    constexpr operator SpanIterator<const T>() const noexcept
+    constexpr operator span_iterator<const T>() const noexcept
     {
         return {m_begin, m_end, m_current};
     }
@@ -76,7 +76,7 @@ class SpanIterator
         iox::cxx::ConstexprCheckTrue(m_begin <= m_current && m_current < m_end);
         return m_current;
     }
-    constexpr SpanIterator& operator++() noexcept
+    constexpr span_iterator& operator++() noexcept
     {
         iox::cxx::ConstexprCheckTrue(m_begin && m_current && m_end);
         iox::cxx::ConstexprCheckTrue(m_current < m_end);
@@ -85,14 +85,14 @@ class SpanIterator
         return *this;
     }
 
-    constexpr SpanIterator operator++(int) noexcept
+    constexpr span_iterator operator++(int) noexcept
     {
-        SpanIterator ret = *this;
+        span_iterator ret = *this;
         ++*this;
         return ret;
     }
 
-    constexpr SpanIterator& operator--() noexcept
+    constexpr span_iterator& operator--() noexcept
     {
         iox::cxx::ConstexprCheckTrue(m_begin && m_end);
         iox::cxx::ConstexprCheckTrue(m_begin < m_current);
@@ -100,14 +100,14 @@ class SpanIterator
         return *this;
     }
 
-    constexpr SpanIterator operator--(int) noexcept
+    constexpr span_iterator operator--(int) noexcept
     {
-        SpanIterator ret = *this;
+        span_iterator ret = *this;
         --*this;
         return ret;
     }
 
-    constexpr SpanIterator& operator+=(const difference_type n) noexcept
+    constexpr span_iterator& operator+=(const difference_type n) noexcept
     {
         if (n != 0)
             iox::cxx::ConstexprCheckTrue(m_begin && m_current && m_end);
@@ -120,19 +120,19 @@ class SpanIterator
         return *this;
     }
 
-    constexpr SpanIterator operator+(const difference_type n) const noexcept
+    constexpr span_iterator operator+(const difference_type n) const noexcept
     {
-        SpanIterator ret = *this;
+        span_iterator ret = *this;
         ret += n;
         return ret;
     }
 
-    friend constexpr SpanIterator operator+(const difference_type n, const SpanIterator& rhs) noexcept
+    friend constexpr span_iterator operator+(const difference_type n, const span_iterator& rhs) noexcept
     {
         return rhs + n;
     }
 
-    constexpr SpanIterator& operator-=(const difference_type n) noexcept
+    constexpr span_iterator& operator-=(const difference_type n) noexcept
     {
         if (n != 0)
             iox::cxx::ConstexprCheckTrue(m_begin && m_current && m_end);
@@ -144,15 +144,15 @@ class SpanIterator
         return *this;
     }
 
-    constexpr SpanIterator operator-(const difference_type n) const noexcept
+    constexpr span_iterator operator-(const difference_type n) const noexcept
     {
-        SpanIterator ret = *this;
+        span_iterator ret = *this;
         ret -= n;
         return ret;
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr difference_type operator-(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr difference_type operator-(const span_iterator<Type2>& rhs) const noexcept
     {
         iox::cxx::ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current - rhs.m_current;
@@ -164,39 +164,39 @@ class SpanIterator
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator==(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator==(const span_iterator<Type2>& rhs) const noexcept
     {
         iox::cxx::ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current == rhs.m_current;
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator!=(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator!=(const span_iterator<Type2>& rhs) const noexcept
     {
         return !(*this == rhs);
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator<(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator<(const span_iterator<Type2>& rhs) const noexcept
     {
         iox::cxx::ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current < rhs.m_current;
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator>(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator>(const span_iterator<Type2>& rhs) const noexcept
     {
         return rhs < *this;
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator<=(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator<=(const span_iterator<Type2>& rhs) const noexcept
     {
         return !(rhs < *this);
     }
 
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator>=(const SpanIterator<Type2>& rhs) const noexcept
+    constexpr bool operator>=(const span_iterator<Type2>& rhs) const noexcept
     {
         return !(*this < rhs);
     }

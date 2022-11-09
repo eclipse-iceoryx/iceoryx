@@ -225,7 +225,7 @@ class span : public internal::SpanStorage<Extent>
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
-    using iterator = iox::cxx::SpanIterator<T>;
+    using iterator = iox::cxx::span_iterator<T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     static constexpr uint64_t extent = Extent;
 
