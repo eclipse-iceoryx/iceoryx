@@ -1,14 +1,14 @@
 #pragma once
 
 #include <stdint.h>
-
 #include <type_traits>
 
-namespace eh
+namespace eh3
 {
 using error_level_t = uint32_t;
-
 constexpr error_level_t FATAL_LEVEL{0};
+
+// can also be considered the category of an error
 
 // mandatory fatal level that always exists
 struct Fatal
@@ -24,12 +24,12 @@ struct Fatal
 };
 
 template <class T>
-struct is_fatal : public std::false_type
+struct IsFatal : public std::false_type
 {
 };
 
 template <>
-struct is_fatal<Fatal> : public std::true_type
+struct IsFatal<Fatal> : public std::true_type
 {
 };
 
@@ -45,6 +45,12 @@ bool constexpr isFatal<Fatal>(Fatal)
     return true;
 }
 
+template <typename Level>
+bool constexpr requiresHandling(Level)
+{
+    return true;
+}
+
 // FATAL always requires handling
 bool constexpr requiresHandling(Fatal)
 {
@@ -53,4 +59,4 @@ bool constexpr requiresHandling(Fatal)
 
 constexpr Fatal FATAL;
 
-} // namespace eh
+} // namespace eh3
