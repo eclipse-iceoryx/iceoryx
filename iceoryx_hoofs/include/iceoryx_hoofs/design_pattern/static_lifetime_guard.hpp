@@ -19,6 +19,7 @@
 
 #include <atomic>
 #include <type_traits>
+#include <utility>
 
 namespace iox
 {
@@ -32,7 +33,9 @@ namespace design_pattern
 /// of the instance at least until G is destroyed
 /// @tparam T the type of the instance to be guarded
 ///
-/// @note dtor, ctor and copy ctor and instance are thread-safe
+/// @note all public functions except setCount are thread-safe
+/// @attention setCount is only supposed to be used while no guards are created
+/// concurrently
 ///
 /// @code
 /// // instance will be destroyed after guard
@@ -53,7 +56,7 @@ class StaticLifetimeGuard
 
     ~StaticLifetimeGuard() noexcept;
 
-    // assignment has no real purpose since the objects have no state,
+    // assignment does nothing since the objects have no state,
     // copy and move exist to support passing/returning a value object
     StaticLifetimeGuard& operator=(const StaticLifetimeGuard&) noexcept = default;
     StaticLifetimeGuard& operator=(StaticLifetimeGuard&&) noexcept = default;
@@ -73,6 +76,11 @@ class StaticLifetimeGuard
     /// @note This can be used to additionally extend or shorten the instance lifetime,
     /// This has to be done carefully, to ensure destruction or prevent early destruction.
     /// It is useful for testing purposes.
+    /// @attention setCount is only supposed to be used while no guards are created
+    /// concurrently as it will influence the guard mechanism.
+    /// The instance is destroyed once the counter reaches zero upon destruction of a guard,
+    /// i.e. changing the counter may lead to the instance never being destroyed
+    /// or being destroyed before the last guard.
     static uint64_t setCount(uint64_t count);
 
     /// @brief Get the current count value.

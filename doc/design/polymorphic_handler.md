@@ -14,17 +14,17 @@ that also inherits from `I`
 1. Any attempt to change the handler after it is finalized, shall call an function that has access
    to the current and new handler (for e.g. logging).
 
-The handler itself may not be thread-safe and multiple threads can concurrently use it. If this is
-desired, the classes implementing `I` must be thread-safe.
-
 To achieve this, we define another support class `StaticLifeTimeGuard` that solves the singleton lifetime problem.
 This class can be used on its own and is based on the nifty counter reference counting.
+
+The handler itself may not be thread-safe and multiple threads can concurrently use it. 
+If thread-safety of the instances is desired, the classes implementing `I` must be thread-safe.
 
 ## StaticLifetimeGuard
 
 ### Properties
 
-1. Manage a singleon instance of some type `T`
+1. Manage a singleton instance of some type `T`
 1. Lazy initialization on first use
 1. Thread-safe instance construction
 1. Provide a thread-safe way of obtaining the instance
@@ -51,6 +51,10 @@ static Foo& fooInstance = StaticLifetimeGuard<Foo>::instance();
 // the fooInstance is guaranteed destroyed after guard is destroyed
 // guard could also be held by another static
 
+// alternatively call a static function on the guard (well-defined)
+static Foo& sameFooInstance = guard.instance();
+
+// &fooInstance and &sameFooInstance are equal
 ```
 
 ### Manage static singleton lifetime dependencies
@@ -113,7 +117,7 @@ Due to atomic counter decrement, the instance is destroyed exactly once.
 
 ### Instance construction after destruction
 
-It is not possible replace the instance once constructed due to the static primary guard.
+It is not possible to replace the instance once constructed due to the static primary guard.
 Technically it would be possible by some static destructor after the primary guard (and all other
 guards) are destroyed, but this happens only during program termination.
 
@@ -121,7 +125,7 @@ guards) are destroyed, but this happens only during program termination.
 
 ### The Activatable interface
 
-To allow atomic acivation and deactivation of the handler without the use of mutexes, we require the
+To allow atomic activation and deactivation of the handler without the use of mutexes, we require the
 interface `I` to implement the `Activatable` interface (basically a concept). This just uses an atomic
 flag and provides two functions to set and unset the flag.
 
@@ -244,16 +248,3 @@ main exits (or longer, with explicit guards), the individual handlers are not ne
 thread-safe. This has to be ensured by the implementation of the `Interface`. In particular
 `DefaultHandler` and any other handler derived from `Interface` must be thread-safe if it is to be
 used by multiple threads.
-
-
-
-
-
-
-
-
-
-
-
-
-
