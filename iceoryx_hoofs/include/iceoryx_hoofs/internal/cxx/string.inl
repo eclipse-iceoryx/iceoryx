@@ -98,6 +98,7 @@ inline string<Capacity>& string<Capacity>::operator=(string<N>&& rhs) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>::string(const char (&other)[N]) noexcept
 {
@@ -107,8 +108,9 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 template <uint64_t Capacity>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(
-        TruncateToCapacity, other, [&]() -> uint64_t { return (other != nullptr) ? strnlen(other, Capacity) : 0U; }())
+    : string(TruncateToCapacity, other, [&other]() -> uint64_t {
+        return (other != nullptr) ? strnlen(other, Capacity) : 0U;
+    }())
 {
 }
 
@@ -131,14 +133,18 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-#if defined(__GNUC__) && __GNUC__ == 8 && __GNUC_MINOR__ == 3
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics, since
+// gcc 8 incorrectly warns here about out of bounds array access
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ == 3)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
         std::memcpy(&(m_rawstring[0]), other, Capacity);
-#if defined(__GNUC__) && __GNUC__ == 8 && __GNUC_MINOR__ == 3
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ == 3)
 #pragma GCC diagnostic pop
 #endif
+        // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
+
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
         std::cerr << "Constructor truncates the last " << count - Capacity << " characters of " << other
@@ -154,10 +160,11 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
-    static_assert(N <= Capacity + 1U,
+    static_assert(N <= (Capacity + 1U),
                   "Assignment failed. The given char array is larger than the capacity of the fixed string.");
 
     if (c_str() == rhs)
@@ -191,6 +198,7 @@ inline string<Capacity>& string<Capacity>::assign(const string<N>& str) noexcept
 
 template <uint64_t Capacity>
 template <uint64_t N>
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
 inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 {
@@ -205,7 +213,7 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
     {
         return false;
     }
-    const uint64_t strSize = strnlen(str, Capacity + 1U);
+    const uint64_t strSize{strnlen(str, Capacity + 1U)};
     if (Capacity < strSize)
     {
         std::cerr << "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity ("
@@ -221,7 +229,7 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
 template <uint64_t Capacity>
 inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
 {
-    uint64_t strSize = str.size();
+    uint64_t strSize{str.size()};
     if (Capacity < strSize)
     {
         std::cerr << "Assignment failed. The given std::string is larger than the capacity of the fixed string."
@@ -238,7 +246,7 @@ template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other) const noexcept
 {
-    uint64_t otherSize = internal::GetSize<T>::call(other);
+    uint64_t otherSize{internal::GetSize<T>::call(other)};
     auto result = memcmp(c_str(), internal::GetData<T>::call(other), std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
@@ -246,87 +254,9 @@ inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other)
         {
             return -1;
         }
-        return (m_rawstringSize > otherSize ? 1 : 0);
+        return ((m_rawstringSize > otherSize) ? 1 : 0);
     }
     return result;
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator==(const T& rhs) const noexcept
-{
-    return (compare(rhs) == 0);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator!=(const T& rhs) const noexcept
-{
-    return (compare(rhs) != 0);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator<(const T& rhs) const noexcept
-{
-    return (compare(rhs) < 0);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator<=(const T& rhs) const noexcept
-{
-    return (compare(rhs) <= 0);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator>(const T& rhs) const noexcept
-{
-    return (compare(rhs) > 0);
-}
-
-template <uint64_t Capacity>
-template <typename T>
-inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::operator>=(const T& rhs) const noexcept
-{
-    return (compare(rhs) >= 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) == 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) != 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) > 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) >= 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) < 0);
-}
-
-template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
-{
-    return (rhs.compare(lhs) <= 0);
 }
 
 template <uint64_t Capacity>
@@ -339,7 +269,7 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
         {
             return -1;
         }
-        return (m_rawstringSize > 1U ? 1 : 0);
+        return ((m_rawstringSize > 1U) ? 1L : 0L);
     }
     return result;
 }
@@ -387,7 +317,7 @@ inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
-    uint64_t strSize = rhs.size();
+    uint64_t strSize{rhs.size()};
     std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
@@ -400,7 +330,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
-    uint64_t strSize = rhs.size();
+    const uint64_t strSize{rhs.size()};
     std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
@@ -408,6 +338,8 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     return *this;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
 template <uint64_t Capacity>
 inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
 {
@@ -429,8 +361,8 @@ template <typename T1, typename T2>
 inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 concatenate(const T1& str1, const T2& str2) noexcept
 {
-    uint64_t size1 = internal::GetSize<T1>::call(str1);
-    uint64_t size2 = internal::GetSize<T2>::call(str2);
+    uint64_t size1{internal::GetSize<T1>::call(str1)};
+    uint64_t size2{internal::GetSize<T2>::call(str2)};
     using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
     std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(str1), size1);
@@ -449,6 +381,8 @@ concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 }
 
 template <typename T1, typename T2>
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox::cxx namespace which prevents easy
+// misuse
 inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& str1, const T2& str2) noexcept
 {
@@ -459,9 +393,9 @@ template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(str);
-    const char* tData = internal::GetData<T>::call(str);
-    uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
+    uint64_t tSize{internal::GetSize<T>::call(str)};
+    const char* tData{internal::GetData<T>::call(str)};
+    uint64_t clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
 
     if (tSize > clampedTSize)
     {
@@ -482,14 +416,14 @@ template <typename T>
 inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t,
                                                                                 const T& str) noexcept
 {
-    uint64_t tSize = internal::GetSize<T>::call(str);
-    const char* tData = internal::GetData<T>::call(str);
-    uint64_t clampedTSize = std::min(Capacity - m_rawstringSize, tSize);
+    uint64_t tSize{internal::GetSize<T>::call(str)};
+    const char* tData{internal::GetData<T>::call(str)};
+    uint64_t clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
 
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
     if (tSize > clampedTSize)
     {
-        std::cerr << "The last " << tSize - Capacity + m_rawstringSize << " characters of " << tData
+        std::cerr << "The last " << (tSize - Capacity) + m_rawstringSize << " characters of " << tData
                   << " are truncated, because the length is larger than the capacity." << std::endl;
     }
 
@@ -523,9 +457,9 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
     {
         return false;
     }
-    const auto new_size = m_rawstringSize + count;
+    const uint64_t new_size{m_rawstringSize + count};
     // check if the new size would exceed capacity or a size overflow occured
-    if (new_size > Capacity || new_size < m_rawstringSize)
+    if ((new_size > Capacity) || (new_size < m_rawstringSize))
     {
         return false;
     }
@@ -551,7 +485,7 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, c
         return nullopt;
     }
 
-    uint64_t length = std::min(count, m_rawstringSize - pos);
+    uint64_t length{std::min(count, m_rawstringSize - pos)};
     string subString;
     std::memcpy(&(subString.m_rawstring[0]), &m_rawstring[pos], length);
     subString.m_rawstring[length] = '\0';
@@ -574,12 +508,12 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find(const T
     {
         return nullopt;
     }
-    const char* found = std::strstr(c_str() + pos, internal::GetData<T>::call(str));
+    const char* found{std::strstr(c_str() + pos, internal::GetData<T>::call(str))};
     if (found == nullptr)
     {
         return nullopt;
     }
-    return (static_cast<uint64_t>(found - c_str()));
+    return static_cast<uint64_t>(found - c_str());
 }
 
 template <uint64_t Capacity>
@@ -591,8 +525,8 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
     {
         return nullopt;
     }
-    const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(str);
+    const char* found{nullptr};
+    const char* data{internal::GetData<T>::call(str)};
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
         found = std::strchr(data, m_rawstring[p]);
@@ -614,13 +548,13 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
         return nullopt;
     }
 
-    auto p = pos;
-    if (m_rawstringSize - 1U < p)
+    uint64_t p{pos};
+    if ((m_rawstringSize - 1U) < p)
     {
         p = m_rawstringSize - 1U;
     }
-    const char* found = nullptr;
-    const char* data = internal::GetData<T>::call(str);
+    const char* found{nullptr};
+    const char* data{internal::GetData<T>::call(str)};
     for (; p > 0U; --p)
     {
         found = std::strchr(data, m_rawstring[p]);
@@ -640,8 +574,8 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
 template <uint64_t Capacity>
 inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 {
-    // const_cast to avoid code duplication, safe since it's first casted to a const type and then the const is removed
-    // again
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication, safe since it's first
+    // casted to a const type and then the const is removed
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<char&>(const_cast<const string<Capacity>*>(this)->at(pos));
 }
@@ -649,7 +583,7 @@ inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 template <uint64_t Capacity>
 inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
 {
-    Expects(pos < size() && "Out of bounds access!");
+    ExpectsWithMsg((pos < size()), "Out of bounds access!");
     return m_rawstring[pos];
 }
 
@@ -664,6 +598,81 @@ inline constexpr const char& string<Capacity>::operator[](const uint64_t pos) co
 {
     return at(pos);
 }
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with std::string, char array or
+// char is also intended
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) == 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) != 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) > 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) >= 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) < 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
+{
+    return (rhs.compare(lhs) <= 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator==(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) == 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator!=(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) != 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator<(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) < 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator<=(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) <= 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator>(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) > 0);
+}
+
+template <typename T, uint64_t Capacity>
+inline IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs, const T& rhs) noexcept
+{
+    return (lhs.compare(rhs) >= 0);
+}
+// AXIVION ENABLE Style AutosarC++19_03-A13.5.5
 } // namespace cxx
 } // namespace iox
 

@@ -30,20 +30,22 @@ namespace iox
 {
 namespace cxx
 {
+// AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1 : C-array type usage is intentional
+
 template <typename T, typename ReturnType>
 using IsStringOrCharArrayOrChar =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value
-                             || std::is_same<T, char>::value),
+    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
+                             || (std::is_same<T, std::string>::value || std::is_same<T, char>::value)),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
-using IsStringOrCharArray =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, std::string>::value),
-                            ReturnType>::type;
+using IsStringOrCharArray = typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
+                                                     || std::is_same<T, std::string>::value),
+                                                    ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsStdStringOrCharArrayOrChar =
-    typename std::enable_if<(is_char_array<T>::value || std::is_same<T, std::string>::value
+    typename std::enable_if<((is_char_array<T>::value || std::is_same<T, std::string>::value)
                              || std::is_same<T, char>::value),
                             ReturnType>::type;
 
@@ -53,8 +55,8 @@ using IsCxxStringOrCharArray =
 
 template <typename T1, typename T2, typename ReturnType>
 using IsCxxStringOrCharArrayOrChar =
-    typename std::enable_if<(is_char_array<T1>::value || is_cxx_string<T1>::value || std::is_same<T1, char>::value)
-                                && (is_char_array<T2>::value || is_cxx_string<T2>::value
+    typename std::enable_if<((is_char_array<T1>::value || is_cxx_string<T1>::value) || std::is_same<T1, char>::value)
+                                && ((is_char_array<T2>::value || is_cxx_string<T2>::value)
                                     || std::is_same<T2, char>::value),
                             ReturnType>::type;
 
@@ -62,8 +64,8 @@ template <typename T1, typename T2, typename ReturnType>
 using IsCxxStringAndCxxStringOrCharArrayOrChar =
     typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
                                 || (is_cxx_string<T1>::value
-                                    && (is_char_array<T2>::value || std::is_same<T2, char>::value))
-                                || (is_cxx_string<T1>::value && is_cxx_string<T2>::value),
+                                    && ((is_char_array<T2>::value || std::is_same<T2, char>::value)
+                                        || (is_cxx_string<T1>::value && is_cxx_string<T2>::value))),
                             ReturnType>::type;
 
 /// @brief concatenates two iox::cxx::strings/string literals/chars
@@ -94,6 +96,8 @@ template <typename T1, typename T2, typename... Targs>
 IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox::cxx namespace which prevents easy
+// misuse
 /// @brief concatenates two iox::cxx::strings or one iox::cxx::string and one string literal/char; concatenation of two
 /// string literals/chars is not possible
 ///
@@ -115,7 +119,7 @@ constexpr TruncateToCapacity_t TruncateToCapacity{};
 /// @brief string implementation with some adjustments in the API, because we are not allowed to throw exceptions or use
 /// heap.
 template <uint64_t Capacity>
-class string
+class string final
 {
     static_assert(Capacity > 0U, "The capacity of the fixed string must be greater than 0!");
 
@@ -359,54 +363,6 @@ class string
     template <typename T>
     IsStringOrCharArray<T, int64_t> compare(const T& other) const noexcept;
 
-    /// @brief checks if self is equal to rhs
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if both strings are equal, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator==(const T& rhs) const noexcept;
-
-    /// @brief checks if self is not equal to rhs
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if both strings are not equal, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator!=(const T& rhs) const noexcept;
-
-    /// @brief checks if self is less than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if self is less than rhs, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator<(const T& rhs) const noexcept;
-
-    /// @brief checks if self is less than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if self is less than or equal to rhs, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator<=(const T& rhs) const noexcept;
-
-    /// @brief checks if self is greater than rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if self is greater than rhs, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator>(const T& rhs) const noexcept;
-
-    /// @brief checks if self is greater than or equal to rhs, in lexicographical order
-    ///
-    /// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with self
-    ///
-    /// @return true if self is greater than or equal to rhs, otherwise false
-    template <typename T>
-    IsStringOrCharArrayOrChar<T, bool> operator>=(const T& rhs) const noexcept;
-
     /// @brief compares self and a char
     ///
     /// @param [in] other is the char to compare with self
@@ -441,10 +397,14 @@ class string
     /// @brief clears the content of the string
     constexpr void clear() noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2 , AutosarC++19_03-A13.5.3: used for interoperability with
+    // std::string
     /// @brief converts the string to a std::string
     ///
     /// @return a std::string with data equivalent to those stored in the string
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) @todo iox-#260 remove this conversion and implement toStdString method
+
+    // @todo iox-#260 remove this conversion and implement toStdString method
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
@@ -585,7 +545,7 @@ class string
 
     template <typename T1, typename T2>
     friend IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
-    concatenate(const T1& t1, const T2& t2) noexcept;
+    concatenate(const T1& str1, const T2& str2) noexcept;
 
   private:
     /// @brief copies rhs fixed string to this with compile time check whether rhs capacity is less than or equal to
@@ -612,6 +572,17 @@ class string
     uint64_t m_rawstringSize{0U};
 };
 
+/// @brief outputs the fixed string on stream
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+///
+/// @return the stream output of the fixed string
+template <uint64_t Capacity>
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with std::string, char array or
+// char is also intended
 /// @brief checks if a lhs std::string, char array or char is equal to a rhs iox::cxx::string
 ///
 /// @param [in] rhs is the iox::cxx::string
@@ -665,14 +636,62 @@ IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capac
 template <typename T, uint64_t Capacity>
 IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief outputs the fixed string on stream
+/// @brief checks if lhs is equal to rhs
 ///
-/// @param [in] stream is the output stream
-/// @param [in] str is the fixed string
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
 ///
-/// @return the stream output of the fixed string
-template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+/// @return true if both strings are equal, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator==(const string<Capacity>& lhs, const T& rhs) noexcept;
+
+/// @brief checks if lhs is not equal to rhs
+///
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
+///
+/// @return true if both strings are not equal, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator!=(const string<Capacity>& lhs, const T& rhs) noexcept;
+
+/// @brief checks if lhs is less than rhs, in lexicographical order
+///
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
+///
+/// @return true if lhs is less than rhs, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator<(const string<Capacity>& lhs, const T& rhs) noexcept;
+
+/// @brief checks if lhs is less than or equal to rhs, in lexicographical order
+///
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
+///
+/// @return true if lhs is less than or equal to rhs, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator<=(const string<Capacity>& lhs, const T& rhs) noexcept;
+
+/// @brief checks if lhs is greater than rhs, in lexicographical order
+///
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
+///
+/// @return true if lhs is greater than rhs, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator>(const string<Capacity>& lhs, const T& rhs) noexcept;
+
+/// @brief checks if lhs is greater than or equal to rhs, in lexicographical order
+///
+/// @param [in] lhs is the iox::cxx::string
+/// @param [in] rhs is the iox::cxx::string, std::string, char array or char to compare with lhs
+///
+/// @return true if lhs is greater than or equal to rhs, otherwise false
+template <typename T, uint64_t Capacity>
+IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs, const T& rhs) noexcept;
+// AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
+// AXIVION ENABLE STYLE AutosarC++19_03-A18.1.1
+
 } // namespace cxx
 } // namespace iox
 #include "iceoryx_hoofs/internal/cxx/string.inl"
