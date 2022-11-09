@@ -38,7 +38,7 @@ class ConsoleLogger
     /// @return the current log level
     /// @note In case this class is used as template for a custom logger implementation keep in mind that this method
     /// must not have any side effects
-    /// @todo iox-#1345 update the design document with the requirement that this method must not have side effects
+    /// @todo iox-#1755 update the design document with the requirement that this method must not have side effects
     static LogLevel getLogLevel() noexcept;
 
     /// @brief Sets a new log level
@@ -113,7 +113,7 @@ class ConsoleLogger
         ThreadLocalData& operator=(const ThreadLocalData&) = delete;
         ThreadLocalData& operator=(ThreadLocalData&&) = delete;
 
-        /// @todo iox-#1345 this could be made a compile time option
+        /// @todo iox-#1755 this could be made a compile time option
         static constexpr uint32_t BUFFER_SIZE{1024};
         static constexpr uint32_t NULL_TERMINATED_BUFFER_SIZE{BUFFER_SIZE + 1};
 
@@ -123,7 +123,7 @@ class ConsoleLogger
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
         char buffer[NULL_TERMINATED_BUFFER_SIZE];
         uint32_t bufferWriteIndex; // initialized in corresponding cpp file
-        /// @todo iox-#1345 add thread local storage with thread id and print it in the log messages
+        /// @todo iox-#1755 add thread local storage with thread id and print it in the log messages
     };
 
     static ThreadLocalData& getThreadLocalData() noexcept;

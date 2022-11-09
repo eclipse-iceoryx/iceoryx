@@ -740,7 +740,7 @@
 
     // after
     // ==== unittests.cpp ====
-    #include "iceoryx_hoofs/testing/logger.hpp"
+    #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
     #include <gtest/gtest.h>
 
@@ -748,7 +748,7 @@
     {
         ::testing::InitGoogleTest(&argc, argv);
 
-        iox::testing::Logger::init();
+        iox::testing::TestingLogger::init();
 
         return RUN_ALL_TESTS();
     }
@@ -767,12 +767,12 @@
     // some wild stuff getting the output from the redirected clog or ::testing::internal::internal::GetCapturedStdout()
 
     // after
-    #include "iceoryx_hoofs/testing/logger.hpp"
+    #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
     sut.methodCallWithLogOutput();
-    if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+    if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
     {
-        auto logMessages = iox::testing::Logger::getLogMessages();
+        auto logMessages = iox::testing::TestingLogger::getLogMessages();
         ASSERT_THAT(logMessages.size(), Eq(1U));
         EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
     }

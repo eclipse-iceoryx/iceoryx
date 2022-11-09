@@ -17,8 +17,8 @@
 
 #include "iceoryx_hoofs/log/logging.hpp"
 
-#include "iceoryx_hoofs/testing/logger.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "test.hpp"
 
 namespace
@@ -50,23 +50,23 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
     iox::testing::Logger_Mock loggerMock;
     for (const auto& logEntryLogLevel : logEntryLogLevels)
     {
-        if (!iox::testing::Logger::doesLoggerSupportLogLevel(logEntryLogLevel.value))
+        if (!iox::testing::TestingLogger::doesLoggerSupportLogLevel(logEntryLogLevel.value))
         {
             continue;
         }
 
-        dynamic_cast<iox::testing::Logger&>(iox::log::Logger::get()).clearLogBuffer();
+        dynamic_cast<iox::testing::TestingLogger&>(iox::log::Logger::get()).clearLogBuffer();
         IOX_LOG_INTERNAL("", 0, "", logEntryLogLevel.value);
 
         if (logEntryLogLevel.value <= loggerLogLevel)
         {
-            ASSERT_THAT(iox::testing::Logger::getNumberOfLogMessages(), Eq(1U));
-            auto logMessage = iox::testing::Logger::getLogMessages().back();
+            ASSERT_THAT(iox::testing::TestingLogger::getNumberOfLogMessages(), Eq(1U));
+            auto logMessage = iox::testing::TestingLogger::getLogMessages().back();
             EXPECT_THAT(logMessage.find(logEntryLogLevel.string), Ne(std::string::npos));
         }
         else
         {
-            ASSERT_THAT(iox::testing::Logger::getNumberOfLogMessages(), Eq(0U));
+            ASSERT_THAT(iox::testing::TestingLogger::getNumberOfLogMessages(), Eq(0U));
         }
     }
 }

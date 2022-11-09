@@ -63,7 +63,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
 
     const time_t time{timestamp.tv_sec};
 
-/// @todo iox-#1345 since this will be part of the platform at one point, we might not be able to handle this via the
+/// @todo iox-#1755 since this will be part of the platform at one point, we might not be able to handle this via the
 /// platform abstraction; re-evaluate this when the move to the platform happens
 #if defined(_WIN32)
     // seems to be thread-safe on Windows
@@ -109,10 +109,10 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
     constexpr uint32_t MILLISECS_PER_SECOND{1000};
     const auto milliseconds = static_cast<int32_t>(timestamp.tv_nsec % MILLISECS_PER_SECOND);
 
-    /// @todo iox-#1345 do we also want to always log the iceoryx version and commit sha? Maybe do that only in
+    /// @todo iox-#1755 do we also want to always log the iceoryx version and commit sha? Maybe do that only in
     /// 'initLogger' with LogDebug
 
-    /// @todo iox-#1345 add an option to also print file, line and function
+    /// @todo iox-#1755 add an option to also print file, line and function
     unused(file);
     unused(line);
     unused(function);
@@ -136,7 +136,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
                                  COLOR_RESET);
     if (retVal < 0)
     {
-        /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
+        /// @todo iox-#1755 this path should never be reached since we ensured the correct encoding of the character
         /// conversion specifier; nevertheless, we might want to call the error handler after the error handler
         /// refactoring was merged
     }
@@ -149,7 +149,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
         }
         else
         {
-            /// @todo iox-#1345 currently the buffer is large enough that this does not happen but once the file or
+            /// @todo iox-#1755 currently the buffer is large enough that this does not happen but once the file or
             /// function will also be printed, they might be too long to fit into the buffer and will be truncated; once
             /// that feature is implemented, we need to take care of it
             getThreadLocalData().bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;
@@ -161,7 +161,7 @@ void ConsoleLogger::flush() noexcept
 {
     if (std::puts(&getThreadLocalData().buffer[0]) < 0)
     {
-        /// @todo iox-#1345 printing to the console failed; call the error handler after the error handler refactoring
+        /// @todo iox-#1755 printing to the console failed; call the error handler after the error handler refactoring
         /// was merged
     }
     assumeFlushed();
@@ -204,7 +204,7 @@ void ConsoleLogger::logString(const char* message) noexcept
 
     if (retVal < 0)
     {
-        /// @todo iox-#1345 this path should never be reached since we ensured the correct encoding of the character
+        /// @todo iox-#1755 this path should never be reached since we ensured the correct encoding of the character
         /// conversion specifier; nevertheless, we might want to call the error handler after the error handler
         /// refactoring was merged
     }
@@ -218,7 +218,7 @@ void ConsoleLogger::logString(const char* message) noexcept
         }
         else
         {
-            /// @todo iox-#1345 currently we don't support log messages larger than the log buffer and everything larger
+            /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
             /// that the log buffer will be truncated;
             /// it is intended to flush the buffer and create a new log message later on
             data.bufferWriteIndex = ThreadLocalData::BUFFER_SIZE;

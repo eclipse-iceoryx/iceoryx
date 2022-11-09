@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_TESTING_LOGGER_HPP
-#define IOX_HOOFS_TESTING_LOGGER_HPP
+#ifndef IOX_HOOFS_TESTING_TESTING_LOGGER_HPP
+#define IOX_HOOFS_TESTING_TESTING_LOGGER_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
@@ -34,29 +34,29 @@ namespace testing
 /// also be used to check for the occurrence on specific log messages, e.g. when a function is expected to log an error.
 /// @code
 /// callToFunctionWhichLogsAnError();
-/// if (iox::testing::Logger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
+/// if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
 /// {
-///     auto logMessages = iox::testing::Logger::getLogMessages();
+///     auto logMessages = iox::testing::TestingLogger::getLogMessages();
 ///     ASSERT_THAT(logMessages.size(), Eq(1U));
 ///     EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
 /// }
 /// @endcode
-class Logger : public log::TestingLoggerBase
+class TestingLogger : public log::TestingLoggerBase
 {
     using Base = log::TestingLoggerBase;
 
   public:
-    ~Logger() override = default;
+    ~TestingLogger() override = default;
 
-    Logger(const Logger&) = delete;
-    Logger(Logger&&) = delete;
+    TestingLogger(const TestingLogger&) = delete;
+    TestingLogger(TestingLogger&&) = delete;
 
-    Logger& operator=(const Logger&) = delete;
-    Logger& operator=(Logger&&) = delete;
+    TestingLogger& operator=(const TestingLogger&) = delete;
+    TestingLogger& operator=(TestingLogger&&) = delete;
 
     /// @brief Initialized the logger. This should be called in the main function of the test binary
     /// @code
-    /// #include "iceoryx_hoofs/testing/logger.hpp"
+    /// #include "iceoryx_hoofs/testing/testing_logger.hpp"
     ///
     /// #include "test.hpp"
     ///
@@ -64,7 +64,7 @@ class Logger : public log::TestingLoggerBase
     /// {
     ///     ::testing::InitGoogleTest(&argc, argv);
     ///
-    ///     iox::testing::Logger::init();
+    ///     iox::testing::TestingLogger::init();
     ///
     ///     return RUN_ALL_TESTS();
     /// }
@@ -97,7 +97,7 @@ class Logger : public log::TestingLoggerBase
     }
 
   private:
-    Logger() noexcept = default;
+    TestingLogger() noexcept = default;
 
     void flush() noexcept override;
 
@@ -121,4 +121,4 @@ class LogPrinter : public ::testing::EmptyTestEventListener
 } // namespace testing
 } // namespace iox
 
-#endif // IOX_HOOFS_TESTING_LOGGER_HPP
+#endif // IOX_HOOFS_TESTING_TESTING_LOGGER_HPP

@@ -1,0 +1,41 @@
+@startuml
+
+participant User
+participant LogStream
+participant Logger << static >>
+participant "logger : Logger" as loggerInstance
+
+User -> LogStream ** : IOX_LOG(...)
+activate LogStream
+LogStream -> Logger ++ : get
+Logger -> Logger ++ : activeLogger()
+note right
+  activeLogger is only called
+  to initialize the thread local
+  logger pointer or when the
+  active flag of the logger is false
+end note
+
+Logger -> Logger : std::lock
+Logger -> loggerInstance **
+
+return
+return
+
+LogStream -> loggerInstance ++ : createLogMessageHeader
+return
+
+return
+
+User -> LogStream ++ : << Hello World
+LogStream -> loggerInstance ++ : logString
+return
+return
+
+User -> LogStream ++ : dTor via ; on temporary
+LogStream -> loggerInstance ++ : flush
+return
+return
+destroy LogStream
+
+@enduml

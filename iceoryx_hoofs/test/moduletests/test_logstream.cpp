@@ -138,7 +138,7 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 }
 
 #if 0
-/// @todo iox-#1345 re-enable when LogRawBuffer will be re-implemented
+/// @todo iox-#1755 re-enable when LogRawBuffer will be re-implemented
 
 TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
 {
@@ -249,7 +249,7 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueMax)
 }
 
 #if 0
-/// @todo iox-#1345 re-enable when LogBin will be re-implemented
+/// @todo iox-#1755 re-enable when LogBin will be re-implemented
 
 template <typename LogType>
 void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)

@@ -1,0 +1,49 @@
+@startuml
+
+participant User
+participant MyLogger << static >>
+participant Logger << static >>
+participant "logger : Logger" as loggerInstance
+participant "myLogger : MyLogger" as myLoggerInstance
+
+User -> MyLogger ++ : init
+MyLogger -> myLoggerInstance **
+MyLogger -> Logger ++ : setActiveLogger(&myLogger)
+Logger -> Logger ++ : activeLogger(&myLogger)
+note left Logger
+  the static pointer
+  to the active logger
+  will be set to
+  myLogger
+end note
+
+Logger -> loggerInstance **
+note over loggerInstance
+  calling activeLogger
+  without parameter
+  will create this anyway
+  (e.g. by logging before
+  calling initLogger)
+  so there is no need
+  to to make it more
+  complicated by
+  branching
+end note
+
+return
+return
+
+MyLogger -> Logger ++ : init
+Logger -> Logger ++ : get
+Logger -> Logger ++ : activeLogger()
+return
+return
+Logger -> loggerInstance ++ : initLoggerInternal
+loggerInstance -> myLoggerInstance ++ : initLogger
+return
+return
+return
+
+return
+
+@enduml

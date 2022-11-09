@@ -42,7 +42,7 @@ namespace internal
 template <typename BaseLogger>
 inline Logger<BaseLogger>& Logger<BaseLogger>::get() noexcept
 {
-    /// @todo iox-#1345 use the PolymorphicHandler for the handling with the logger exchange once available
+    /// @todo iox-#1755 use the PolymorphicHandler for the handling with the logger exchange once available
 
     // NOLINTJUSTIFICATION needed for the functionality
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
@@ -91,7 +91,7 @@ inline Logger<BaseLogger>& Logger<BaseLogger>::activeLogger(Logger<BaseLogger>* 
             newLogger->createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
             logger->logString("Trying to replace logger after already initialized!");
             newLogger->flush();
-            /// @todo iox-#1345 call error handler after the error handler refactoring was merged
+            /// @todo iox-#1755 call error handler after the error handler refactoring was merged
         }
         else
         {
@@ -118,7 +118,7 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
         BaseLogger::createLogMessageHeader(__FILE__, __LINE__, __FUNCTION__, LogLevel::ERROR);
         BaseLogger::logString("Multiple initLogger calls");
         BaseLogger::flush();
-        /// @todo iox-#1345 call error handler after the error handler refactoring was merged
+        /// @todo iox-#1755 call error handler after the error handler refactoring was merged
     }
 }
 

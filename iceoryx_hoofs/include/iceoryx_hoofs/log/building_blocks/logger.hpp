@@ -31,7 +31,7 @@ namespace log
 {
 class LogStream;
 
-/// @todo iox-#1345 move this to e.g. helplets once we are able to depend on on it
+/// @todo iox-#1755 move this to e.g. helplets once we are able to depend on on it
 /// @brief Compares C-style strings with a char array, i.g. string literal for equality
 /// @tparam[in] N size of the char array
 /// @param[in] lhs C-style string to compare

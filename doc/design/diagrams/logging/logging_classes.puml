@@ -1,0 +1,82 @@
+@startuml
+
+package building_blocks <<Frame>> {
+
+enum LogLevel {
+    OFF = 0,
+    FATAL,
+    ERROR,
+    WARN,
+    INFO,
+    DEBUG,
+    TRACE,
+}
+
+class Logger <BaseLogger> {
+  + {static} void init(const LogLevel logLevel = LogLevelFromEnvOr(LogLevel::Info))
+  + {static} Logger& get()
+  + {static} void setActiveLogger(Logger* newLogger)
+  - void initLoggerInternal(LogLevel logLevel)
+  - {static} Logger& activeLogger(Logger* newLogger = nullptr)
+}
+
+class ConsoleLogger {
+  + {static} LogLevel getLogLevel()
+  + {static} void setLogLevel(LogLevel logLevel)
+  # ConsoleLogger()
+  # {abstract} void initLogger(LogLevel logLevel)
+  # {abstract} void createLogMessageHeader(const char* file, const int line, const char* function, LogLevel logLevel)
+  # {abstract} void flush()
+  # LogBuffer getLogBuffer() const
+  # void assumeFlushed()
+  # void logString(const char* message)
+  # void logBool(const bool value)
+  # void logDec(const T value) with T being arithmetic types
+  # void logHex(const T value) with T being unsigned integers, floats or pointer
+  # void logOct(const T value) with T being unsigned integers
+}
+
+}
+
+package testing <<Frame>> {
+
+class TestingLogger {
+  + {static} void init()
+  + {static} uint64_t getNumberOfLogMessages()
+  + {static} std::vector<std::string> getLogMessages()
+  + {static} bool doesLoggerSupportLogLevel(const LogLevel logLevel)
+  + void clearLogBuffer()
+  + void printLogBuffer()
+  - void TestingLogger()
+  - void flush()
+}
+
+}
+
+class LogHex <T> {}
+
+class LogOct <T> {}
+
+class LogStream {
+  + LogStream(const char* file, const int line, const char* function, LogLevel logLevel)
+  + LogStream(Logger& logger, const char* file, const int line, const char* function, LogLevel logLevel)
+  + LogStream(const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush)
+  + LogStream& self()
+  + LogStream& operator<<(const char* cstr)
+  + LogStream& operator<<(const std::string& str)
+  + LogStream& operator<<(const bool val)
+  + LogStream& operator<<(const T value) with T being arithmetic types
+  + LogStream& operator<<(const LogHex<T> val) with T being integers and floats
+  + LogStream& operator<<(const LogHex<const void * const> val)
+  + LogStream& operator<<(const LogOct<T> val) with T being integers
+  + LogStream& operator<<(const Callable& c) with signature 'LogStream&(LogStream&)'
+  - void flush()
+}
+
+ConsoleLogger <|-- Logger : via BaseLogger
+Logger <|-- TestingLogger
+Logger <.. LogStream : <<friend>>
+LogStream ..> LogHex : <<friend>>
+LogStream ..> LogOct : <<friend>>
+
+@enduml

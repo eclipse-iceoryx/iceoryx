@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/logger.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 
 #include <iostream>
@@ -23,9 +23,9 @@ namespace iox
 {
 namespace testing
 {
-void Logger::init() noexcept
+void TestingLogger::init() noexcept
 {
-    static Logger logger;
+    static TestingLogger logger;
     log::Logger::setActiveLogger(logger);
     log::Logger::init(log::logLevelFromEnvOr(log::LogLevel::TRACE));
     // disable logger output only after initializing the logger to get error messages from initialization
@@ -56,12 +56,12 @@ void Logger::init() noexcept
     listeners.Append(new (std::nothrow) LogPrinter);
 }
 
-void Logger::clearLogBuffer() noexcept
+void TestingLogger::clearLogBuffer() noexcept
 {
     m_loggerData->buffer.clear();
 }
 
-void Logger::printLogBuffer() noexcept
+void TestingLogger::printLogBuffer() noexcept
 {
     auto loggerData = m_loggerData.getScopeGuard();
     if (loggerData->buffer.empty())
@@ -76,19 +76,19 @@ void Logger::printLogBuffer() noexcept
     puts("#### Log end ####");
 }
 
-uint64_t Logger::getNumberOfLogMessages() noexcept
+uint64_t TestingLogger::getNumberOfLogMessages() noexcept
 {
-    auto& logger = dynamic_cast<Logger&>(log::Logger::get());
+    auto& logger = dynamic_cast<TestingLogger&>(log::Logger::get());
     return logger.m_loggerData->buffer.size();
 }
 
-std::vector<std::string> Logger::getLogMessages() noexcept
+std::vector<std::string> TestingLogger::getLogMessages() noexcept
 {
-    auto& logger = dynamic_cast<Logger&>(log::Logger::get());
+    auto& logger = dynamic_cast<TestingLogger&>(log::Logger::get());
     return logger.m_loggerData->buffer;
 }
 
-void Logger::flush() noexcept
+void TestingLogger::flush() noexcept
 {
     auto loggerData = m_loggerData.getScopeGuard();
     const auto logBuffer = Base::getLogBuffer();
@@ -104,10 +104,10 @@ void Logger::flush() noexcept
 
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
-    dynamic_cast<Logger&>(log::Logger::get()).clearLogBuffer();
-    Logger::setLogLevel(log::LogLevel::TRACE);
+    dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
+    TestingLogger::setLogLevel(log::LogLevel::TRACE);
 
-    /// @todo iox-#1345 register signal handler for sigterm to flush to logger;
+    /// @todo iox-#1755 register signal handler for sigterm to flush to logger;
     /// there might be tests to register a handler itself and when this is
     /// done at each start of the test only the tests who use their
     /// own signal handler are affected and don't get an log output on termination
@@ -117,10 +117,10 @@ void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
 {
     if (result.failed())
     {
-        dynamic_cast<Logger&>(log::Logger::get()).printLogBuffer();
+        dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
     }
 
-    /// @todo iox-#1345 de-register the signal handler from 'OnTestStart'
+    /// @todo iox-#1755 de-register the signal handler from 'OnTestStart'
 }
 
 } // namespace testing

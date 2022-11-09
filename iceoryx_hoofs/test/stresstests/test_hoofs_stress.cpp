@@ -19,7 +19,7 @@
 
 using namespace ::testing;
 
-/// @todo iox-#1345 init testing logger
+/// @todo iox-#1755 init testing logger
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);

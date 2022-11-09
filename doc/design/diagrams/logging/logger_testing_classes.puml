@@ -1,0 +1,29 @@
+@startuml
+
+class TestingLoggerBase
+note bottom
+  type alias to 'Logger<BaseLogger>' with
+  specific 'BaseLogger' implementation
+end note
+
+package testing <<Frame>> {
+class TestingLogger {
+}
+class LogPrinter {
+  + void OnTestStart(const ::testing::TestInfo&)
+  + void OnTestPartResult(const ::testing::TestPartResult& result)
+}
+}
+
+package gTest <<Frame>> {
+class ::testing::EmptyTestEventListener {
+}
+class ::testing::UnitTest {
+}
+}
+
+TestingLogger --|> TestingLoggerBase
+LogPrinter .> TestingLogger : <<uses>>
+LogPrinter --|> ::testing::EmptyTestEventListener
+
+@enduml

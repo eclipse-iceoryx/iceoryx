@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-/// @todo iox-#1345 the content of this file should be customizable;
+/// @todo iox-#1755 the content of this file should be customizable;
 /// in order to achieve this, this file will be moved to
 /// iceoryx_hoofs
 ///  |- customization
@@ -39,7 +39,7 @@ namespace log
 using Logger = internal::Logger<ConsoleLogger>;
 using TestingLoggerBase = internal::Logger<ConsoleLogger>;
 
-/// @todo iox-#1345 make this a option a cmake argument and use via a compile define
+/// @todo iox-#1755 make this a option a cmake argument and use via a compile define
 /// @brief If set to true, the IOX_LOG macro will ignore the the configured log level and forward all messages to the
 /// logger. This is useful in cases the default ConsoleLogger is replaced by a custom logger which does the filtering by
 /// itself

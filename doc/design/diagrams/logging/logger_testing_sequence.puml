@@ -1,0 +1,42 @@
+@startuml
+
+participant User
+participant TestingLogger << static >>
+participant Logger << static >>
+participant "logger : TestingLogger" as testingLoggerInstance
+participant LogPrinter
+participant gTest
+participant UnitTest
+participant TestEventListener
+
+User -> TestingLogger ++ : init
+TestingLogger -> testingLoggerInstance **
+TestingLogger -> Logger ++: setActiveLogger
+return
+TestingLogger -> Logger ++: init
+return
+TestingLogger -> UnitTest ++ : listeners
+return
+TestingLogger -> TestEventListener ++ : Append(LogPrinter*)
+return
+return
+
+User -> gTest ++ : RUN_ALL_TESTS
+
+gTest -> LogPrinter ++ : OnTestStart
+LogPrinter -> Logger ++: get
+return
+LogPrinter -> testingLoggerInstance ++ : clearLogBuffer
+return
+return
+
+gTest -> LogPrinter ++ : OnTestPartResult
+LogPrinter -> Logger ++: get
+return
+LogPrinter -> testingLoggerInstance ++ : printLogBuffer
+return
+return
+
+return
+
+@enduml

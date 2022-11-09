@@ -1,0 +1,28 @@
+@startuml
+
+participant User
+participant Logger << static >>
+participant "logger : Logger" as loggerInstance
+
+User -> Logger ++ : init
+
+Logger -> Logger ++ : get
+Logger -> Logger ++ : activeLogger
+Logger -> loggerInstance **
+note over loggerInstance
+  the default logger
+  is configured via
+  the alias in
+  log/logger.hpp
+end note
+return
+return
+
+Logger -> loggerInstance ++ : initLoggerInternal
+loggerInstance -> loggerInstance ++ : initLogger
+return
+return
+
+return
+
+@enduml
