@@ -34,7 +34,7 @@ jobs:
         with:
           version: 8
           platform: x64
-      - uses: jwlawson/actions-setup-cmake@v1.12
+      - uses: jwlawson/actions-setup-cmake@v1.13
         with:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
