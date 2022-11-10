@@ -110,6 +110,7 @@
 - Move `IOX_NO_DISCARD`, `IOX_FALLTHROUGH` and `IOX_MAYBE_UNUSED` to `iceoryx_platform` [\#1726](https://github.com/eclipse-iceoryx/iceoryx/issues/1726)
 - Move `cxx::static_storage` from `iceoryx_hoofs` to `iceoryx_dust` [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 - Remove `algorithm::uniqueMergeSortedContainers` from `algorithm.hpp`
+- Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 
 **Workflow:**
 
@@ -885,4 +886,23 @@
 
     // after
     #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+
+43. Move the conversions functions for `std::string` to `iceoryx_dust`:
+
+    ```cpp
+    // before
+    std::string myStdString("foo");
+    // std::string to iox::string
+    iox::string<3> myIoxString(TruncateToCapacity, myStdString);
+    // iox::string to std::string
+    std::string myConvertedIoxString = static_cast<std::string>(myIoxString);
+
+    // after
+    #include "iceoryx_dust/cxx/string_conversion.hpp"
+
+    std::string myStdString("foo");
+    // std::string to iox::string
+    iox::string<3> myIoxString = iox::cxx::into<iox::string<3>>(myStdString);
+    // iox::string to std::string
+    std::string myConvertedIoxString = iox::cxx::into<std::string>(myIoxString);
     ```
