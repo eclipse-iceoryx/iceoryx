@@ -93,7 +93,7 @@ class adaptive_wait
     ///       std::this_thread::yield();
     ///   }
     ///   auto end = std::chrono::steady_clock::now();
-    ///   std::cout << (end - start).count() << std::endl; // prints around 1ms
+    ///   IOX_LOG(INFO) << (end - start).count() // prints around 1ms
     /// @endcode
     static constexpr uint64_t YIELD_REPETITIONS = 10000U;
 

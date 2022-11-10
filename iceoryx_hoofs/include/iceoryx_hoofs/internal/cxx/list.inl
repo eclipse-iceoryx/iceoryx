@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 
 #include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 
 namespace iox
@@ -235,7 +236,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_ite
 
     if (m_size >= Capacity)
     {
-        errorMessage(__PRETTY_FUNCTION__, " capacity exhausted ");
+        IOX_LOG(DEBUG) << "capacity exhausted";
         return end();
     }
 
@@ -274,7 +275,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_itera
     // further narrow-down checks
     if (!isValidElementIdx(eraseIdx) || empty())
     {
-        errorMessage(__PRETTY_FUNCTION__, " iterator is end() or list is empty");
+        IOX_LOG(DEBUG) << "list is empty";
         return end();
     }
 
@@ -697,13 +698,6 @@ inline bool list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterato
     cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
     return isInvalidIterator(iter);
 }
-
-template <typename T, uint64_t Capacity>
-inline void list<T, Capacity>::errorMessage(const char* source, const char* msg) noexcept
-{
-    std::cerr << source << " ::: " << msg << std::endl;
-}
-
 
 } // namespace cxx
 } // namespace iox

@@ -124,10 +124,10 @@ class IOX_NO_DISCARD expected;
 ///
 ///     cxx::expected<float> errorOnlyMethod() {
 ///         return callMe().or_else([]{
-///             std::cerr << "Error Occured\n";
+///             IOX_LOG(ERROR) << "Error Occured\n";
 ///             /// perform some action
 ///         }).and_then([](cxx::expected<int, float> & result){
-///             std::cout << "Success, got " << result.value() << std::endl;
+///             IOX_LOG(INFO) << "Success, got " << result.value();
 ///             /// perform some action
 ///         });
 ///     }
@@ -389,7 +389,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     /// @code
     ///     cxx::expected<int, float> frodo(success<int>(45));
     ///     *frodo += 12;
-    ///     std::cout << *frodo << std::endl; // prints 57
+    ///     IOX_LOG(INFO) << *frodo; // prints 57
     /// @endcode
     ValueType& operator*() noexcept;
 
@@ -399,7 +399,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     /// @code
     ///     cxx::expected<int, float> frodo(success<int>(45));
     ///     *frodo += 12;
-    ///     std::cout << *frodo << std::endl; // prints 57
+    ///     IOX_LOG(INFO) << *frodo; // prints 57
     /// @endcode
     const ValueType& operator*() const noexcept;
 

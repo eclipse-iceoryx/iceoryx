@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,18 +40,12 @@ class SignalHandler_test : public Test
 
     void SetUp() override
     {
-        internal::CaptureStderr();
         signalOfCallback1 = INVALID_SIGNAL;
         signalOfCallback2 = INVALID_SIGNAL;
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     static void signalHandler1(int s)

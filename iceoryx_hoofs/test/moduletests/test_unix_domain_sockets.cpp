@@ -57,7 +57,6 @@ class UnixDomainSocket_test : public Test
             goodName, IpcChannelSide::SERVER, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
         ASSERT_THAT(serverResult.has_error(), Eq(false));
         server = std::move(serverResult.value());
-        CaptureStderr();
 
         auto clientResult = UnixDomainSocket::create(
             goodName, IpcChannelSide::CLIENT, UnixDomainSocket::MAX_MESSAGE_SIZE, MaxMsgNumber);
@@ -67,11 +66,6 @@ class UnixDomainSocket_test : public Test
 
     void TearDown() override
     {
-        std::string output = GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     static bool createTestSocket(const UnixDomainSocket::UdsName_t& name)
@@ -98,12 +92,12 @@ class UnixDomainSocket_test : public Test
                     .failureReturnValue(ERROR_CODE)
                     .evaluate()
                     .or_else([&](auto&) {
-                        std::cerr << "unable to bind socket\n";
+                        IOX_LOG(ERROR) << "unable to bind socket";
                         socketCreationSuccess = false;
                     });
             })
             .or_else([&](auto&) {
-                std::cerr << "unable to create socket\n";
+                IOX_LOG(ERROR) << "unable to create socket";
                 socketCreationSuccess = false;
             });
         return socketCreationSuccess;

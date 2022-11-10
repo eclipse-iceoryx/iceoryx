@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,9 +69,9 @@ constexpr Duration operator"" _d(unsigned long long int value) noexcept;
 ///   using namespace units::duration_literals;
 ///   auto someDays = 2 * 7_d + 5_ns;
 ///   auto someSeconds = 42_s + 500_ms;
-///   std::cout << someDays << std::endl;
-///   std::cout << someDays.nanoSeconds<uint64_t>() << " ns" << std::endl;
-///   std::cout << someSeconds.milliSeconds<int64_t>() << " ms" << std::endl;
+///   IOX_LOG(INFO) << someDays;
+///   IOX_LOG(INFO) << someDays.nanoSeconds<uint64_t>() << " ns";
+///   IOX_LOG(INFO) << someSeconds.milliSeconds<int64_t>() << " ms";
 /// @endcode
 class Duration
 {

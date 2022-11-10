@@ -18,6 +18,7 @@
 #define IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
 #include <functional>
@@ -68,8 +69,8 @@ class Watchdog
                 .and_then([&](auto& result) {
                     if (result == iox::posix::SemaphoreWaitState::TIMEOUT)
                     {
-                        std::cerr << "Watchdog observed no reaction after " << m_timeToWait << ". Taking measures!"
-                                  << std::endl;
+                        std::cerr << "Watchdog observed no reaction after " << m_timeToWait.toSeconds()
+                                  << "s. Taking measures!" << std::endl;
                         if (actionOnFailure)
                         {
                             actionOnFailure();

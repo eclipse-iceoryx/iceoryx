@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ class AccessController_test : public ::testing::Test
   public:
     void SetUp() override
     {
-        ::testing::internal::CaptureStderr();
         m_fileStream = fopen(TestFileName, "w");
         m_fileDescriptor = fileno(m_fileStream);
     }
@@ -44,12 +43,6 @@ class AccessController_test : public ::testing::Test
     {
         IOX_DISCARD_RESULT(fclose(m_fileStream));
         IOX_DISCARD_RESULT(std::remove(TestFileName));
-
-        std::string output = ::testing::internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     iox::posix::AccessController m_accessController;

@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ void SignalGuard::restorePreviousAction() noexcept
         posixCall(sigaction)(static_cast<int>(m_signal), &m_previousAction, nullptr)
             .successReturnValue(0)
             .evaluate()
-            .or_else([](auto&) { std::cerr << "Unable to restore the previous signal handling state!" << std::endl; });
+            .or_else([](auto&) { IOX_LOG(ERROR) << "Unable to restore the previous signal handling state!"; });
     }
 }
 

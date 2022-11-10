@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
-
 #include "test.hpp"
 
 #include <cstdint>
@@ -37,7 +36,6 @@ class RelativePointer_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         memset(
             static_cast<void*>(memoryPartition), memoryPatternValue, NUMBER_OF_MEMORY_PARTITIONS * SHARED_MEMORY_SIZE);
         ++memoryPatternValue;
@@ -46,11 +44,6 @@ class RelativePointer_test : public Test
     void TearDown() override
     {
         UntypedRelativePointer::unregisterAll();
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     uint8_t* partitionPtr(uint32_t partition)

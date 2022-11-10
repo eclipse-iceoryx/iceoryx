@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,12 +57,12 @@ enum class VariantQueueTypes : uint64_t
 ///     // overflow case
 ///     auto status = nonOverflowingQueue.push(123);
 ///     if ( !status ) {
-///         std::cout << "queue is full" << std::endl;
+///         IOX_LOG(INFO) << "queue is full";
 ///     }
 ///
 ///     auto overriddenElement = overflowingQueue.push(123);
 ///     if ( overriddenElement->has_value() ) {
-///         std::cout << "element " << overriddenElement->value() << " was overridden\n";
+///         IOX_LOG(INFO) << "element " << overriddenElement->value() << " was overridden";
 ///     }
 /// @endcode
 template <typename ValueType, uint64_t Capacity>

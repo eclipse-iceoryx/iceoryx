@@ -16,6 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -189,11 +190,9 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 
     if (!m_details.hasSilentErrno)
     {
-        auto flags = std::cerr.flags();
-        std::cerr << m_details.file << ":" << std::dec << m_details.line << " { " << m_details.callingFunction << " -> "
-                  << m_details.posixFunctionName << " }  :::  [ " << std::dec << m_details.result.errnum << " ]  "
-                  << m_details.result.getHumanReadableErrnum() << std::endl;
-        std::cerr.setf(flags);
+        IOX_LOG(ERROR) << m_details.file << ":" << m_details.line << " { " << m_details.callingFunction << " -> "
+                       << m_details.posixFunctionName << " }  :::  [ " << m_details.result.errnum << " ]  "
+                       << m_details.result.getHumanReadableErrnum();
     }
 
     return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
@@ -32,8 +33,7 @@ uint64_t pageSize() noexcept
                                      .failureReturnValue(-1)
                                      .evaluate()
                                      .or_else([](auto& r) {
-                                         std::cerr << "This should never happen: " << r.getHumanReadableErrnum()
-                                                   << std::endl;
+                                         IOX_LOG(ERROR) << "This should never happen: " << r.getHumanReadableErrnum();
                                          cxx::Ensures(false && "Internal logic error");
                                      })
                                      .value()

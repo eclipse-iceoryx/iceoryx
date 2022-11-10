@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
@@ -45,7 +46,7 @@ PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
     }
     else
     {
-        std::cerr << "Error: Group name not found" << std::endl;
+        IOX_LOG(ERROR) << "Error: Group name not found";
         m_id = std::numeric_limits<uint32_t>::max();
     }
 }
@@ -66,7 +67,7 @@ cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name)
 
     if (getgrnamCall.has_error())
     {
-        std::cerr << "Error: Could not find group '" << name << "'." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not find group '" << name << "'.";
         return cxx::nullopt_t();
     }
 
@@ -79,7 +80,7 @@ cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexce
 
     if (getgrgidCall.has_error())
     {
-        std::cerr << "Error: Could not find group with id '" << id << "'." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not find group with id '" << id << "'.";
         return cxx::nullopt_t();
     }
 
@@ -113,7 +114,7 @@ cxx::optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 
     if (getpwnamCall.has_error())
     {
-        std::cerr << "Error: Could not find user '" << name << "'." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not find user '" << name << "'.";
         return cxx::nullopt_t();
     }
     return cxx::make_optional<uid_t>(getpwnamCall->value->pw_uid);
@@ -125,7 +126,7 @@ cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
 
     if (getpwuidCall.has_error())
     {
-        std::cerr << "Error: Could not find user with id'" << id << "'." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not find user with id'" << id << "'.";
         return cxx::nullopt_t();
     }
     return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
@@ -142,7 +143,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     auto getpwnamCall = posixCall(getpwnam)(userName->c_str()).failureReturnValue(nullptr).evaluate();
     if (getpwnamCall.has_error())
     {
-        std::cerr << "Error: getpwnam call failed" << std::endl;
+        IOX_LOG(ERROR) << "Error: getpwnam call failed";
         return groupVector_t();
     }
 
@@ -155,13 +156,13 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
                                 .evaluate();
     if (getgrouplistCall.has_error())
     {
-        std::cerr << "Error: Could not obtain group list" << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not obtain group list";
         return groupVector_t();
     }
 
     if (numGroups == -1)
     {
-        std::cerr << "Error: List with negative size returned" << std::endl;
+        IOX_LOG(ERROR) << "Error: List with negative size returned";
         return groupVector_t();
     }
 
@@ -189,7 +190,7 @@ PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
     }
     else
     {
-        std::cerr << "Error: User name not found" << std::endl;
+        IOX_LOG(ERROR) << "Error: User name not found";
         m_id = std::numeric_limits<uint32_t>::max();
     }
 }
