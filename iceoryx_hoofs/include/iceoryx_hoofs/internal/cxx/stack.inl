@@ -24,16 +24,29 @@ namespace cxx
 {
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>::stack() noexcept
-    : details::stack_implementation<T>(&m_data[0], Capacity)
+    : details::stack_implementation<T>(span<T>(&m_data[0], Capacity))
 {
+}
+
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>::stack(const stack& rhs) noexcept
+    : stack()
+{
+    this->copy(rhs);
+}
+
+template <typename T, uint64_t Capacity>
+inline stack<T, Capacity>::stack(stack&& rhs) noexcept
+    : stack()
+{
+    this->move(std::forward<stack>(rhs));
 }
 
 namespace details
 {
 template <typename T>
-inline stack_implementation<T>::stack_implementation(T* const data, const uint64_t capacity) noexcept
+inline stack_implementation<T>::stack_implementation(const span<T>& data) noexcept
     : m_data{data}
-    , m_capacity{capacity}
 {
 }
 
@@ -171,7 +184,7 @@ template <typename T>
 template <typename... Targs>
 inline bool stack_implementation<T>::push(Targs&&... args) noexcept
 {
-    if (m_size >= m_capacity)
+    if (m_size >= m_data.size())
     {
         return false;
     }

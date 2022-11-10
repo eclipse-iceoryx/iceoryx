@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iceoryx_hoofs/cxx/span.hpp"
 #include "iceoryx_hoofs/internal/containers/uninitialized_array.hpp"
 
 #include <cstdint>
@@ -67,15 +68,14 @@ class stack_implementation
 
     void clearFrom(const uint64_t index) noexcept;
 
+  public:
     stack_implementation& copy(const stack_implementation& rhs) noexcept;
     stack_implementation& move(stack_implementation&& rhs) noexcept;
 
-  public:
-    stack_implementation(T* const data, const uint64_t capacity) noexcept;
+    explicit stack_implementation(const span<T>& data) noexcept;
 
   private:
-    T* m_data{nullptr};
-    uint64_t m_capacity{0U};
+    span<T> m_data;
     uint64_t m_size{0U};
 };
 } // namespace details
@@ -92,6 +92,13 @@ class stack final
 {
   public:
     stack() noexcept;
+    stack(const stack& rhs) noexcept;
+    stack(stack&& rhs) noexcept;
+
+    stack& operator=(const stack& rhs) noexcept = default;
+    stack& operator=(stack&& rhs) noexcept = default;
+    ~stack() noexcept = default;
+
     static constexpr uint64_t capacity = Capacity;
 
   private:
