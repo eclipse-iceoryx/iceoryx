@@ -145,7 +145,7 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     EXPECT_TRUE(entriesWrittenToFile);
 
     acl_t fileACL = acl_get_fd(m_fileDescriptor);
-    std::string localACLShortText = "u:" + currentUserName + ":rw,u::rw,g::r,o::-,m::rw";
+    std::string localACLShortText = "u:" + std::string(name->pwd.pw_name) + ":rw,u::rw,g::r,o::-,m::rw";
     acl_t localACL = acl_from_text(localACLShortText.c_str());
 
     auto* fileACLCStr = acl_to_text(fileACL, nullptr);
@@ -255,7 +255,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    PosixUser::userName_t currentUserName(iox::TruncateToCapacity, name->pwd.pw_name);
+    std::string currentUserName(name->pwd.pw_name);
 
     m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
     m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);

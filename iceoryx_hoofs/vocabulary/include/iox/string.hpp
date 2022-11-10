@@ -232,28 +232,6 @@ class string final
     // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
     string(TruncateToCapacity_t, const char* const other) noexcept;
 
-    /// @brief conversion constructor for std::string to string which truncates characters if the std::string size is
-    /// greater than the string capacity
-    ///
-    /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
-    /// constructors with certain behavior
-    /// @param [in] other is the std::string to convert
-    /// @attention truncates characters if the std::string size is greater than the string capacity
-    ///
-    /// @code
-    ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
-    ///
-    ///     int main()
-    ///     {
-    ///         std::string bar = "bar";
-    ///         string<4> fuu(TruncateToCapacity, bar);
-    ///     }
-    /// @endcode
-    // TruncateToCapacity_t is a compile time variable to distinguish between constructors
-    // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-    string(TruncateToCapacity_t, const std::string& other) noexcept;
-
     /// @brief constructor from cstring to string. Constructs the string with the first count characters of the cstring
     /// including null characters. If count is greater than the string capacity the remainder of the characters are
     /// truncated.
@@ -344,15 +322,7 @@ class string final
     /// @return true if the assignment succeeds, otherwise false
     bool unsafe_assign(const char* const str) noexcept;
 
-    /// @brief assigns a std::string to string. The assignment fails if the std::string size is greater than the string
-    /// capacity.
-    ///
-    /// @param [in] str is the std::string to assign
-    ///
-    /// @return true if the assignment succeeds, otherwise false
-    bool unsafe_assign(const std::string& str) noexcept;
-
-    /// @brief compares self and an iox::string, std::string or char array
+    /// @brief compares self and an iox::cxx::string, std::string or char array
     ///
     /// @param [in] other is the string to compare with self
     ///
@@ -395,16 +365,6 @@ class string final
 
     /// @brief clears the content of the string
     constexpr void clear() noexcept;
-
-    // AXIVION Next Construct AutosarC++19_03-A13.5.2 , AutosarC++19_03-A13.5.3: used for interoperability with
-    // std::string
-    /// @brief converts the string to a std::string
-    ///
-    /// @return a std::string with data equivalent to those stored in the string
-
-    // @todo iox-#260 remove this conversion and implement toStdString method
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    operator std::string() const noexcept;
 
     /// @brief since there are two valid options for what should happen when appending a string larger than this'
     /// capacity (failing or truncating), the fixed string does not support operator+=; use append for truncating or

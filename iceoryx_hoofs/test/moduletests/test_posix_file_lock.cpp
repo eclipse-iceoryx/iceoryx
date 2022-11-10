@@ -88,7 +88,9 @@ TEST_F(FileLock_test, InvalidPathLeadsToError)
 TEST_F(FileLock_test, MaxStringWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cf3418d-51d1-4ead-9001-e0d8e61617f0");
-    const FileLock::FileName_t maxString(iox::TruncateToCapacity, std::string(FileLock::FileName_t::capacity(), 'x'));
+    const FileLock::FileName_t maxString(iox::TruncateToCapacity,
+                                         std::string(FileLock::FileName_t::capacity(), 'x').c_str(),
+                                         FileLock::FileName_t::capacity());
     auto sut2 = iox::posix::FileLockBuilder().name(maxString).create();
     ASSERT_FALSE(sut2.has_error());
 }

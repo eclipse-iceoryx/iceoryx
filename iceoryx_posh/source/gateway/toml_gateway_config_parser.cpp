@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
+#include "iceoryx_dust/cxx/string_conversion.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 #include <cpptoml.h>
@@ -37,7 +38,8 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     }
 
     /// @todo iox-#1718 Replace with C++17 std::filesystem::exists()
-    iox::cxx::FileReader configFile(path, "", cxx::FileReader::ErrorMode::Ignore);
+    iox::cxx::FileReader configFile(
+        cxx::convert<roudi::ConfigFilePathString_t, std::string>(path), "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {
         LogWarn() << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
@@ -77,9 +79,9 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
         entry.m_serviceDescription =
-            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::TruncateToCapacity, *serviceName),
-                                           iox::capro::IdString_t(iox::TruncateToCapacity, *instance),
-                                           iox::capro::IdString_t(iox::TruncateToCapacity, *event));
+            iox::capro::ServiceDescription(cxx::convert<std::string, iox::capro::IdString_t>(*serviceName),
+                                           cxx::convert<std::string, iox::capro::IdString_t>(*instance),
+                                           cxx::convert<std::string, iox::capro::IdString_t>(*event));
         config.m_configuredServices.push_back(entry);
     }
 

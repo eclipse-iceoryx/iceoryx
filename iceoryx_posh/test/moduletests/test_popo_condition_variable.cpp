@@ -144,7 +144,7 @@ TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstruction)
 TEST_F(ConditionVariable_test, CorrectRuntimeNameAfterConstructionWithRuntimeName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "acc65071-09ec-40ce-82b4-74964525fabf");
-    EXPECT_THAT(m_condVarData.m_runtimeName.c_str(), StrEq(m_runtimeName));
+    EXPECT_THAT(m_condVarData.m_runtimeName, Eq(m_runtimeName));
 }
 
 TEST_F(ConditionVariable_test, AllNotificationsAreFalseAfterConstructionWithRuntimeName)

@@ -125,6 +125,16 @@ inline LogStream& LogStream::operator<<(const std::string& str) noexcept
     return *this;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
+template <uint64_t Capacity>
+inline LogStream& LogStream::operator<<(const cxx::string<Capacity>& str) noexcept
+{
+    m_logger.logString(str.c_str());
+    m_isFlushed = false;
+    return *this;
+}
+
 // AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
 // not require to implement '<<='
 inline LogStream& LogStream::operator<<(const bool val) noexcept

@@ -115,14 +115,6 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) n
 template <uint64_t Capacity>
 // TruncateToCapacity_t is a compile time variable to distinguish between constructors
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
-inline string<Capacity>::string(TruncateToCapacity_t, const std::string& other) noexcept
-    : string(TruncateToCapacity, other.c_str(), other.size())
-{
-}
-
-template <uint64_t Capacity>
-// TruncateToCapacity_t is a compile time variable to distinguish between constructors
-// NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter)
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, const uint64_t count) noexcept
 {
     if (other == nullptr)
@@ -224,21 +216,6 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
 }
 
 template <uint64_t Capacity>
-inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
-{
-    uint64_t strSize{str.size()};
-    if (Capacity < strSize)
-    {
-        IOX_LOG(DEBUG) << "Assignment failed. The given std::string is larger than the capacity of the fixed string.";
-        return false;
-    }
-    std::memcpy(&(m_rawstring[0]), str.c_str(), strSize);
-    m_rawstring[strSize] = '\0';
-    m_rawstringSize = strSize;
-    return true;
-}
-
-template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other) const noexcept
 {
@@ -299,12 +276,6 @@ inline constexpr void string<Capacity>::clear() noexcept
 {
     m_rawstring[0U] = '\0';
     m_rawstringSize = 0U;
-}
-
-template <uint64_t Capacity>
-inline string<Capacity>::operator std::string() const noexcept
-{
-    return std::string(c_str());
 }
 
 template <uint64_t Capacity>

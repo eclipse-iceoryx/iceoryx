@@ -19,6 +19,7 @@
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 #include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
+#include "iceoryx_dust/cxx/string_conversion.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 #include "test.hpp"
@@ -66,7 +67,8 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
     void CreateTmpTomlFile(std::shared_ptr<cpptoml::table> toml)
     {
         m_configFilePath.append(iox::TruncateToCapacity, "generated_gateway_config.toml");
-        std::fstream fs(m_configFilePath, std::fstream::out | std::fstream::trunc);
+        std::fstream fs(iox::cxx::convert<iox::roudi::ConfigFilePathString_t, std::string>(m_configFilePath),
+                        std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {
             fs << *toml;
@@ -368,9 +370,10 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     for (auto configuredService : config.m_configuredServices)
     {
         std::string stringentry = "validservice" + std::to_string(count);
-        EXPECT_EQ(configuredService.m_serviceDescription.getServiceIDString(), stringentry);
-        EXPECT_EQ(configuredService.m_serviceDescription.getInstanceIDString(), stringentry);
-        EXPECT_EQ(configuredService.m_serviceDescription.getEventIDString(), stringentry);
+        auto convertedStringentry = iox::cxx::convert<std::string, iox::capro::IdString_t>(stringentry);
+        EXPECT_EQ(configuredService.m_serviceDescription.getServiceIDString(), convertedStringentry);
+        EXPECT_EQ(configuredService.m_serviceDescription.getInstanceIDString(), convertedStringentry);
+        EXPECT_EQ(configuredService.m_serviceDescription.getEventIDString(), convertedStringentry);
         ++count;
     }
 }
