@@ -192,7 +192,6 @@ class variant final
     /// @tparam TypeIndex index of the type which will be created
     /// @tparam CTorArguments variadic types of the c'tor arguments
     /// @param[in] args arguments which will be forwarded to the constructor to the type at TypeIndex
-    /// @note terminates if the given TypeIndex is out of bounds
     template <uint64_t TypeIndex, typename... CTorArguments>
     void emplace_at_index(CTorArguments&&... args) noexcept;
 
@@ -200,7 +199,6 @@ class variant final
     ///         to the constructor of T.
     /// @tparam[in] T type which is created inside the variant
     /// @tparam[in] CTorArguments variadic types of the c'tor arguments
-    /// @note terminates if the variant does not contain the given type
     template <typename T, typename... CTorArguments>
     void emplace(CTorArguments&&... args) noexcept;
 
@@ -267,6 +265,7 @@ class variant final
     // AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive. internal::byte_t is a type alias for uint8_t
     struct alignas(Types...) storage_t
     {
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : data provides the actual storage and is accessed via m_storage since &m_storage.data = &m_storage
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the variant class
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
         internal::byte_t data[TYPE_SIZE];
@@ -277,14 +276,15 @@ class variant final
   private:
     template <typename T>
     bool has_bad_variant_element_access() const noexcept;
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1 : internal convenience function to easily use IOX_LOG
     static void error_message(const char* source, const char* msg) noexcept;
 
     void call_element_destructor() noexcept;
 
     template <typename... Ts>
-    friend constexpr bool operator==(const variant<Ts...>& lhs, const variant<Ts...>& rhs);
+    friend constexpr bool operator==(const variant<Ts...>& lhs, const variant<Ts...>& rhs) noexcept;
     template <typename... Ts>
-    friend constexpr bool operator!=(const variant<Ts...>& lhs, const variant<Ts...>& rhs);
+    friend constexpr bool operator!=(const variant<Ts...>& lhs, const variant<Ts...>& rhs) noexcept;
 };
 
 /// @brief returns true if the variant holds a given type T, otherwise false
@@ -297,7 +297,7 @@ constexpr bool holds_alternative(const variant<Types...>& variant) noexcept;
 /// @param[in] rhs right side of the comparison
 /// @return true if the variants are equal, otherwise false
 template <typename... Types>
-constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>& rhs);
+constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>& rhs) noexcept;
 
 /// @brief inequality check for two distinct variant types
 /// @tparam Types variadic number of types which can be stored in the variant
@@ -305,7 +305,7 @@ constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>&
 /// @param[in] rhs right side of the comparison
 /// @return true if the variants are not equal, otherwise false
 template <typename... Types>
-constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs);
+constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs) noexcept;
 
 } // namespace cxx
 } // namespace iox
