@@ -33,8 +33,6 @@ using namespace std;
 
 namespace iox
 {
-namespace cxx
-{
 // constants
 constexpr uint64_t dynamic_extent = std::numeric_limits<uint64_t>::max();
 
@@ -102,7 +100,7 @@ struct extent_impl<std::array<T, N>> : size_constant<N>
 };
 
 template <typename T, uint64_t N>
-struct extent_impl<iox::cxx::span<T, N>> : size_constant<N>
+struct extent_impl<iox::span<T, N>> : size_constant<N>
 {
 };
 
@@ -124,10 +122,10 @@ using is_not_span_t = iox::negation<is_span<std::decay_t<T>>>;
 
 template <typename Container, typename T>
 using container_has_convertible_data_t =
-    is_convertible_t<std::remove_pointer_t<decltype(iox::cxx::data(std::declval<Container>()))>, T>;
+    is_convertible_t<std::remove_pointer_t<decltype(iox::data(std::declval<Container>()))>, T>;
 
 template <typename Container>
-using is_integral_sized_container_t = std::is_integral<decltype(iox::cxx::size(std::declval<Container>()))>;
+using is_integral_sized_container_t = std::is_integral<decltype(iox::size(std::declval<Container>()))>;
 
 template <typename From, uint64_t FromExtent, typename To, uint64_t ToExtent>
 using enable_if_conversion_allowed_t =
@@ -225,31 +223,21 @@ class span : public internal::SpanStorage<Extent>
     using difference_type = std::ptrdiff_t;
     using pointer = T*;
     using reference = T&;
-    using iterator = iox::cxx::span_iterator<T>;
+    using iterator = iox::span_iterator<T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
     static constexpr uint64_t extent = Extent;
 
     // constructors, copy, assignment, and destructor
 
     /// @brief Constructs an empty span whose data() == nullptr and size() == 0.
-    constexpr span() noexcept
-        : SpanStorage_t(0)
-        , m_data(nullptr)
-    {
-        static_assert(Extent == dynamic_extent || Extent == 0, "Invalid Extent");
-    }
+    constexpr span() noexcept;
 
     /// @brief Constructs a span that is a view over the range [first, first + count);
     /// @tparam It
     /// @param first
     /// @param count
     template <typename It>
-    constexpr span(It first, uint64_t count) noexcept
-        : SpanStorage_t(count)
-        , m_data(internal::to_address(first))
-    {
-        iox::cxx::ConstexprCheckTrue(Extent == dynamic_extent || Extent == count);
-    }
+    constexpr span(It first, uint64_t count) noexcept;
 
     /// @brief Constructs a span that is a view over the range [first, last);
     /// @tparam It
@@ -258,12 +246,7 @@ class span : public internal::SpanStorage<Extent>
     /// @param begin
     /// @param end
     template <typename It, typename End, typename = std::enable_if_t<!std::is_convertible<End, uint64_t>::value>>
-    constexpr span(It begin, End end) noexcept
-        : span(begin, static_cast<uint64_t>(end - begin))
-    {
-        // check for non negative result
-        iox::cxx::ConstexprCheckTrue(begin <= end, "");
-    }
+    constexpr span(It begin, End end) noexcept;
 
     /// @brief Constructs a span that is a view over the array arr; the resulting span has size() == N and data() ==
     /// std::data(arr)
@@ -271,10 +254,7 @@ class span : public internal::SpanStorage<Extent>
     /// @tparam N
     /// @param array
     template <uint64_t N, typename = internal::enable_if_compatible_array_t<T (&)[N], T, Extent>>
-    constexpr span(T (&array)[N]) noexcept
-        : span(iox::cxx::data(array), N)
-    {
-    }
+    constexpr explicit span(T (&array)[N]) noexcept;
 
     /// @brief Constructs a span that is a view over the array arr; the resulting span has size() == N and data() ==
     /// std::data(arr)
@@ -283,10 +263,7 @@ class span : public internal::SpanStorage<Extent>
     /// @tparam N
     /// @param array
     template <typename U, uint64_t N, typename = internal::enable_if_compatible_array_t<std::array<U, N>&, T, Extent>>
-    constexpr span(std::array<U, N>& array) noexcept
-        : span(iox::cxx::data(array), N)
-    {
-    }
+    constexpr explicit span(std::array<U, N>& array) noexcept;
 
     /// @brief Constructs a span that is a view over the array arr; the resulting span has size() == N and data() ==
     /// std::data(arr)
@@ -297,31 +274,22 @@ class span : public internal::SpanStorage<Extent>
     template <typename U,
               uint64_t N,
               typename = internal::enable_if_compatible_array_t<const std::array<U, N>&, T, Extent>>
-    constexpr span(const std::array<U, N>& array) noexcept
-        : span(iox::cxx::data(array), N)
-    {
-    }
+    constexpr explicit span(const std::array<U, N>& array) noexcept;
 
-    /// @brief Convert from container (with std::size() and std::data() to iox::cxx::span)
+    /// @brief Convert from container (with std::size() and std::data() to iox::span)
     /// @tparam Container
     ///
     /// @param container
     template <typename Container, typename = internal::enable_if_compatible_dynamic_container_t<Container&, T, Extent>>
-    constexpr span(Container& container) noexcept
-        : span(iox::cxx::data(container), iox::cxx::size(container))
-    {
-    }
+    constexpr explicit span(Container& container) noexcept;
 
-    /// @brief Convert from container (with std::size() and std::data() to iox::cxx::span)
+    /// @brief Convert from container (with std::size() and std::data() to iox::span)
     /// @tparam Container
     /// @tparam
     /// @param container
     template <typename Container,
               typename = internal::enable_if_compatible_dynamic_container_t<const Container&, T, Extent>>
-    constexpr span(const Container& container) noexcept
-        : span(iox::cxx::data(container), iox::cxx::size(container))
-    {
-    }
+    constexpr explicit span(const Container& container) noexcept;
 
     constexpr span(const span& other) noexcept = default;
 
@@ -333,10 +301,7 @@ class span : public internal::SpanStorage<Extent>
     template <typename U,
               uint64_t OtherExtent,
               typename = internal::enable_if_conversion_allowed_t<U, OtherExtent, T, Extent>>
-    constexpr span(const span<U, OtherExtent>& other)
-        : span(other.data(), other.size())
-    {
-    }
+    constexpr explicit span(const span<U, OtherExtent>& other);
 
     /// @brief Defaulted copy constructor copies the size and data pointer
     /// @param other
@@ -352,42 +317,24 @@ class span : public internal::SpanStorage<Extent>
     /// @tparam Count
     /// @return
     template <uint64_t Count>
-    constexpr span<T, Count> first() const noexcept
-    {
-        static_assert(Count <= Extent, "Count must not exceed Extent");
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || Count <= size());
-        return {data(), Count};
-    }
+    constexpr span<T, Count> first() const noexcept;
 
     /// @brief obtains a subspan consisting of the first N elements of the sequence
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> first(uint64_t count) const noexcept
-    {
-        iox::cxx::ConstexprCheckTrue(count <= size());
-        return {data(), count};
-    }
+    constexpr span<T, dynamic_extent> first(uint64_t count) const noexcept;
 
     /// @brief obtains a subspan consisting of the last N elements of the sequence
     /// @tparam Count
     /// @return
     template <uint64_t Count>
-    constexpr span<T, Count> last() const noexcept
-    {
-        static_assert(Count <= Extent, "Count must not exceed Extent");
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || Count <= size());
-        return {data() + (size() - Count), Count};
-    }
+    constexpr span<T, Count> last() const noexcept;
 
 
     /// @brief obtains a subspan consisting of the last N elements of the sequence
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> last(uint64_t count) const noexcept
-    {
-        iox::cxx::ConstexprCheckTrue(count <= size());
-        return {data() + (size() - count), count};
-    }
+    constexpr span<T, dynamic_extent> last(uint64_t count) const noexcept;
 
     /// @brief
     /// @tparam Offset
@@ -395,189 +342,70 @@ class span : public internal::SpanStorage<Extent>
     /// @return
     template <uint64_t Offset, uint64_t Count = dynamic_extent>
     constexpr span<T, (Count != dynamic_extent ? Count : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent))>
-    subspan() const noexcept
-    {
-        static_assert(Offset <= Extent, "Offset must not exceed Extent");
-        static_assert(Count == dynamic_extent || Count <= Extent - Offset, "Count must not exceed Extent - Offset");
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || Offset <= size());
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || Count == dynamic_extent || Count <= size() - Offset);
-        return {data() + Offset, Count != dynamic_extent ? Count : size() - Offset};
-    }
+    subspan() const noexcept;
 
     /// @brief obtains a subspan
     /// @param offset
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> subspan(uint64_t offset, uint64_t count = dynamic_extent) const noexcept
-    {
-        iox::cxx::ConstexprCheckTrue(offset <= size());
-        iox::cxx::ConstexprCheckTrue(count == dynamic_extent || count <= size() - offset);
-        return {data() + offset, count != dynamic_extent ? count : size() - offset};
-    }
+    constexpr span<T, dynamic_extent> subspan(uint64_t offset, uint64_t count = dynamic_extent) const noexcept;
 
     // observers
 
     /// @brief returns the number of elements in the sequence
     /// @return
-    constexpr uint64_t size() const noexcept
-    {
-        return SpanStorage_t::size();
-    }
+    constexpr uint64_t size() const noexcept;
 
     /// @brief returns the size of the sequence in bytes
     /// @return
-    constexpr uint64_t size_bytes() const noexcept
-    {
-        return size() * sizeof(T);
-    }
+    constexpr uint64_t size_bytes() const noexcept;
 
     /// @brief checks if the sequence is empty
     /// @return
-    IOX_NO_DISCARD constexpr bool empty() const noexcept
-    {
-        return size() == 0;
-    }
+    constexpr bool empty() const noexcept;
 
     // element access
 
     /// @brief access the first element
     /// @return
-    constexpr T& front() const noexcept
-    {
-        static_assert(Extent == dynamic_extent || Extent > 0, "Extent must not be 0");
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || !empty());
-        return *data();
-    }
+    constexpr T& front() const noexcept;
 
     /// @brief access the last element
     /// @return
-    constexpr T& back() const noexcept
-    {
-        static_assert(Extent == dynamic_extent || Extent > 0, "Extent must not be 0");
-        iox::cxx::ConstexprCheckTrue(Extent != dynamic_extent || !empty());
-        return *(data() + size() - 1);
-    }
+    constexpr T& back() const noexcept;
 
     /// @brief accesses an element of the sequence
     /// @param idx
     /// @return
-    constexpr T& operator[](uint64_t idx) const noexcept
-    {
-        iox::cxx::ConstexprCheckTrue(idx < size());
-        return *(data() + idx);
-    }
-
+    constexpr T& operator[](uint64_t idx) const noexcept;
     /// @brief returns a pointer to the beginning of the sequence of elements
     /// @return
-    constexpr T* data() const noexcept
-    {
-        return m_data;
-    }
+    constexpr T* data() const noexcept;
 
     // iterator support
 
     /// @brief returns an iterator to the beginning
     /// @return
-    constexpr iterator begin() const noexcept
-    {
-        return iterator(m_data, m_data + size());
-    }
+    constexpr iterator begin() const noexcept;
 
     /// @brief returns an iterator to the end
     /// @return
-    constexpr iterator end() const noexcept
-    {
-        return iterator(m_data, m_data + size(), m_data + size());
-    }
+    constexpr iterator end() const noexcept;
 
     /// @brief returns a reverse iterator to the beginning
     /// @return
-    constexpr reverse_iterator rbegin() const noexcept
-    {
-        return reverse_iterator{end()};
-    }
+    constexpr reverse_iterator rbegin() const noexcept;
 
     /// @brief returns a reverse iterator to the end
     /// @return
-    constexpr reverse_iterator rend() const noexcept
-    {
-        return reverse_iterator{begin()};
-    }
+    constexpr reverse_iterator rend() const noexcept;
 
   private:
     T* m_data;
 };
 
-// inline definition is not supported prior to C++17, workaround here
-template <class T, uint64_t Extent>
-constexpr uint64_t span<T, Extent>::extent;
-
-// object representation
-template <typename T, uint64_t X>
-span<const uint8_t, (X == dynamic_extent ? dynamic_extent : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
-{
-    return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
-}
-
-template <typename T, uint64_t X, typename = std::enable_if_t<!std::is_const<T>::value>>
-span<uint8_t, (X == dynamic_extent ? dynamic_extent : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
-{
-    return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
-}
-
-// helpers for creation of a span.
-template <int&... ArgBarrier, typename It>
-constexpr auto make_span(It it, uint64_t size) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t>(it, size);
-}
-
-template <int&... ArgBarrier,
-          typename It,
-          typename End,
-          typename = std::enable_if_t<!iox::cxx::is_convertible_v<End, uint64_t>>>
-constexpr auto make_span(It it, End end) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t>(it, end);
-}
-
-template <int&... ArgBarrier, typename Container>
-constexpr auto make_span(Container&& container) noexcept
-{
-    using RemovePtr_t = std::remove_pointer_t<decltype(data(std::declval<Container>()))>;
-    using Extent = internal::extent_t<Container>;
-    return span<RemovePtr_t, Extent::value>(std::forward<Container>(container));
-}
-
-template <uint64_t N, int&... ArgBarrier, typename It>
-constexpr auto make_span(It it, uint64_t size) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t, N>(it, size);
-}
-
-template <uint64_t N,
-          int&... ArgBarrier,
-          typename It,
-          typename End,
-          typename = std::enable_if_t<!iox::cxx::is_convertible_v<End, uint64_t>>>
-constexpr auto make_span(It it, End end) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t, N>(it, end);
-}
-
-template <uint64_t N, int&... ArgBarrier, typename Container>
-constexpr auto make_span(Container&& container) noexcept
-{
-    using RemovePtr_t = std::remove_pointer_t<decltype(data(std::declval<Container>()))>;
-    return span<RemovePtr_t, N>(data(container), size(container));
-}
-
-
-} // namespace cxx
 } // namespace iox
+
+#include "iceoryx_hoofs/internal/cxx/span.inl"
 
 #endif // IOX_HOOFS_CXX_SPAN_HPP

@@ -23,7 +23,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 class span_test : public Test
 {
@@ -108,19 +108,19 @@ TEST_F(span_test, NewSpanCreatedFromArray)
 
     span<const int> const_span(array);
     EXPECT_EQ(array, const_span.data());
-    EXPECT_EQ(iox::cxx::size(array), const_span.size());
+    EXPECT_EQ(iox::size(array), const_span.size());
     for (size_t i = 0; i < const_span.size(); ++i)
         EXPECT_EQ(array[i], const_span[i]);
 
     span<int> dyn_span(array);
     EXPECT_EQ(array, dyn_span.data());
-    EXPECT_EQ(iox::cxx::size(array), dyn_span.size());
+    EXPECT_EQ(iox::size(array), dyn_span.size());
     for (size_t i = 0; i < dyn_span.size(); ++i)
         EXPECT_EQ(array[i], dyn_span[i]);
 
-    span<int, iox::cxx::size(array)> static_span(array);
+    span<int, iox::size(array)> static_span(array);
     EXPECT_EQ(array, static_span.data());
-    EXPECT_EQ(iox::cxx::size(array), static_span.size());
+    EXPECT_EQ(iox::size(array), static_span.size());
     for (size_t i = 0; i < static_span.size(); ++i)
         EXPECT_EQ(array[i], static_span[i]);
 }
@@ -132,7 +132,7 @@ TEST_F(span_test, NewSpanCreatedFromConstexprArray)
 
     constexpr span<const int> dyn_span(arr);
     static_assert(arr == dyn_span.data(), "");
-    static_assert(iox::cxx::size(arr) == dyn_span.size(), "");
+    static_assert(iox::size(arr) == dyn_span.size(), "");
 
     static_assert(arr[0] == dyn_span[0], "");
     static_assert(arr[1] == dyn_span[1], "");
@@ -140,9 +140,9 @@ TEST_F(span_test, NewSpanCreatedFromConstexprArray)
     static_assert(arr[3] == dyn_span[3], "");
     static_assert(arr[4] == dyn_span[4], "");
 
-    constexpr span<const int, iox::cxx::size(arr)> static_span(arr);
+    constexpr span<const int, iox::size(arr)> static_span(arr);
     static_assert(arr == static_span.data(), "");
-    static_assert(iox::cxx::size(arr) == static_span.size(), "");
+    static_assert(iox::size(arr) == static_span.size(), "");
 
     static_assert(arr[0] == static_span[0], "");
     static_assert(arr[1] == static_span[1], "");
@@ -176,7 +176,7 @@ TEST_F(span_test, NewSpanFromConstIoxCxxVector)
     ::testing::Test::RecordProperty("TEST_ID", "a7b1177b-0db5-44b8-bacd-b75d25c3a448");
     constexpr uint64_t CAPACITY{6U};
     constexpr int DEFAULT_VALUE{1};
-    iox::cxx::vector<int, CAPACITY> vector(CAPACITY, DEFAULT_VALUE);
+    iox::vector<int, CAPACITY> vector(CAPACITY, DEFAULT_VALUE);
     vector[2] = 2;
     vector[3] = 3;
     vector[4] = 5;
