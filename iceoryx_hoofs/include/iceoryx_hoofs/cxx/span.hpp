@@ -26,7 +26,6 @@
 #include <cstdint>
 #include <cstdio>
 #include <limits>
-#include <type_traits>
 #include <utility>
 
 using namespace std;
@@ -153,10 +152,10 @@ using enable_if_compatible_dynamic_container_t =
     std::enable_if_t<is_compatible_container_t<Container, T>::value && Extent == dynamic_extent>;
 
 template <uint64_t Extent>
-class SpanStorage
+class span_storage
 {
   public:
-    constexpr explicit SpanStorage(uint64_t) noexcept
+    constexpr explicit span_storage(uint64_t) noexcept
     {
     }
     constexpr uint64_t size() const noexcept
@@ -166,9 +165,9 @@ class SpanStorage
 };
 
 template <>
-struct SpanStorage<dynamic_extent>
+struct span_storage<dynamic_extent>
 {
-    constexpr explicit SpanStorage(uint64_t size) noexcept
+    constexpr explicit span_storage(uint64_t size) noexcept
         : size_(size)
     {
     }
@@ -211,10 +210,10 @@ constexpr auto to_address(const Ptr& p, None...) noexcept
 /// @tparam T - element type; must be a complete object type that is not an abstract class type
 /// @tparam Extent - the number of elements in the sequence, or std::dynamic_extent if dynamic
 template <typename T, uint64_t Extent>
-class span : public internal::SpanStorage<Extent>
+class span : public internal::span_storage<Extent>
 {
   private:
-    using SpanStorage_t = internal::SpanStorage<Extent>;
+    using span_storage_t = internal::span_storage<Extent>;
 
   public:
     using element_type = T;

@@ -22,7 +22,7 @@ namespace iox
 {
 template <typename T, uint64_t Extent>
 inline constexpr span<T, Extent>::span() noexcept
-    : SpanStorage_t(0)
+    : span_storage_t(0)
     , m_data(nullptr)
 {
     static_assert(Extent == dynamic_extent || Extent == 0, "Invalid Extent");
@@ -31,7 +31,7 @@ inline constexpr span<T, Extent>::span() noexcept
 template <typename T, uint64_t Extent>
 template <typename It>
 inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
-    : SpanStorage_t(count)
+    : span_storage_t(count)
     , m_data(internal::to_address(first))
 {
     iox::ConstexprCheckTrue(Extent == dynamic_extent || Extent == count);
@@ -145,7 +145,7 @@ inline constexpr span<T, dynamic_extent> span<T, Extent>::subspan(uint64_t offse
 template <typename T, uint64_t Extent>
 inline constexpr uint64_t span<T, Extent>::size() const noexcept
 {
-    return SpanStorage_t::size();
+    return span_storage_t::size();
 }
 
 template <typename T, uint64_t Extent>
