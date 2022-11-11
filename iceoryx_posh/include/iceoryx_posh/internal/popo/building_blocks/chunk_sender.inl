@@ -26,7 +26,7 @@ namespace cxx
 {
 template <>
 constexpr popo::AllocationError
-from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error)
 {
     switch (error)
     {

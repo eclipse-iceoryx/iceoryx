@@ -22,20 +22,14 @@ namespace iox
 {
 namespace cxx
 {
-template <typename F, typename T>
-inline constexpr T convert(const F value)
-{
-    return From<F, T>::convertInternal(value);
-}
-
 template <uint64_t N>
-inline std::string From<string<N>, std::string>::convertInternal(const string<N>& value)
+inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value)
 {
     return std::string(value.c_str(), value.size());
 }
 
 template <uint64_t N>
-inline string<N> From<std::string, string<N>>::convertInternal(const std::string& value) noexcept
+inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& value) noexcept
 {
     return string<N>(TruncateToCapacity, value.c_str(), value.size());
 }

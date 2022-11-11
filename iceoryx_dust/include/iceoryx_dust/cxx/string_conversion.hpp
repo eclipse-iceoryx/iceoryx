@@ -16,6 +16,7 @@
 #ifndef IOX_DUST_STRING_CONVERSION_HPP
 #define IOX_DUST_STRING_CONVERSION_HPP
 
+#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
 
 #include <string>
@@ -24,29 +25,17 @@ namespace iox
 {
 namespace cxx
 {
-template <typename Source, typename Destination>
-struct From;
-
-/// @brief Converts an object of type F to an object of type T
-/// @tparam F type of source
-/// @tparam T type of destination
-/// @param[value] value to convert
-/// @return converted value
-template <typename F, typename T>
-constexpr T convert(const F value);
-
 template <uint64_t N>
-struct From<string<N>, std::string>
+struct FromImpl<string<N>, std::string>
 {
-    static std::string convertInternal(const string<N>& value);
+    static std::string fromImpl(const string<N>& value);
 };
 
 template <uint64_t N>
-struct From<std::string, string<N>>
+struct FromImpl<std::string, string<N>>
 {
-    static string<N> convertInternal(const std::string& value) noexcept;
+    static string<N> fromImpl(const std::string& value) noexcept;
 };
-
 } // namespace cxx
 } // namespace iox
 

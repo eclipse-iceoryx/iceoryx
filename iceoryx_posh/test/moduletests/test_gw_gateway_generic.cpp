@@ -147,12 +147,11 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result =
-            sut->addChannel(iox::capro::ServiceDescription(
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
-                            StubbedIceoryxTerminal::Options());
+        auto result = sut->addChannel(
+            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -168,12 +167,11 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result =
-            sut->addChannel(iox::capro::ServiceDescription(
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                iox::cxx::convert<std::string, iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
-                            StubbedIceoryxTerminal::Options());
+        auto result = sut->addChannel(
+            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 

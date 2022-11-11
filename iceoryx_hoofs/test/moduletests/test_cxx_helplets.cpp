@@ -42,7 +42,7 @@ namespace iox
 namespace cxx
 {
 template <>
-constexpr B from<A, B>(A e) noexcept
+constexpr B from<A, B>(A e)
 {
     switch (e)
     {

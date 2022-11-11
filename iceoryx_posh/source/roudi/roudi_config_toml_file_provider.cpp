@@ -114,10 +114,8 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
     iox::RouDiConfig_t parsedConfig;
     for (auto segment : *segments)
     {
-        auto writer = segment->get_as<std::string>("writer").value_or(
-            cxx::convert<posix::PosixGroup::groupName_t, std::string>(groupOfCurrentProcess));
-        auto reader = segment->get_as<std::string>("reader").value_or(
-            cxx::convert<posix::PosixGroup::groupName_t, std::string>(groupOfCurrentProcess));
+        auto writer = segment->get_as<std::string>("writer").value_or(cxx::into<std::string>(groupOfCurrentProcess));
+        auto reader = segment->get_as<std::string>("reader").value_or(cxx::into<std::string>(groupOfCurrentProcess));
         iox::mepoo::MePooConfig mempoolConfig;
         auto mempools = segment->get_table_array("mempool");
         if (!mempools)

@@ -25,7 +25,7 @@ namespace cxx
 {
 template <>
 constexpr popo::ServerRequestResult
-from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value) noexcept
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value)
 {
     switch (value)
     {

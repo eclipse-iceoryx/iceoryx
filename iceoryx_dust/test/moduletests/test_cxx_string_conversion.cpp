@@ -42,7 +42,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSize0ResultsInSize0)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString;
-    string<STRINGCAP> fuu = convert<std::string, MyString>(testString);
+    string<STRINGCAP> fuu = into<MyString>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0U));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
@@ -54,7 +54,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeSmallerCapaResults
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP - 1U, 'M');
-    string<STRINGCAP> fuu = convert<std::string, MyString>(testString);
+    string<STRINGCAP> fuu = into<MyString>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1U));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
@@ -66,7 +66,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeCapaResultsInSizeC
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
-    string<STRINGCAP> fuu = convert<std::string, MyString>(testString);
+    string<STRINGCAP> fuu = into<MyString>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
@@ -78,7 +78,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeGreaterCapaResults
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP + 1U, 'M');
-    string<STRINGCAP> fuu = convert<std::string, MyString>(testString);
+    string<STRINGCAP> fuu = into<MyString>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString.substr(0U, STRINGCAP)));
@@ -89,7 +89,7 @@ TYPED_TEST(StdString_test, EmptyStringToSTDStringConvResultsInZeroSize)
     ::testing::Test::RecordProperty("TEST_ID", "753888b8-12e2-4534-a2fd-32b29b457803");
     using MyString = typename TestFixture::stringType;
     MyString sut;
-    std::string testString = convert<MyString, std::string>(sut);
+    std::string testString = into<std::string>(sut);
     EXPECT_THAT(testString.size(), Eq(0U));
     EXPECT_THAT(testString.c_str(), StrEq(""));
 }
@@ -102,7 +102,7 @@ TYPED_TEST(StdString_test, StringOfSizeCapaToSTDStringConvResultsInSizeCapa)
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString1(STRINGCAP, 'M');
     EXPECT_THAT(sut.unsafe_assign(testString1.c_str()), Eq(true));
-    std::string testString2 = convert<MyString, std::string>(sut);
+    std::string testString2 = into<std::string>(sut);
 
     EXPECT_THAT(testString2.size(), Eq(STRINGCAP));
     EXPECT_THAT(testString2.c_str(), StrEq(testString1.substr(0, STRINGCAP)));

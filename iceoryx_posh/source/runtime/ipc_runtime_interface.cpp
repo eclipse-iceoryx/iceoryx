@@ -146,8 +146,8 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
 bool IpcRuntimeInterface::sendKeepalive() noexcept
 {
-    return (m_sendKeepalive) ? m_RoudiIpcInterface.send({IpcMessageTypeToString(IpcMessageType::KEEPALIVE),
-                                                         cxx::convert<RuntimeName_t, std::string>(m_runtimeName)})
+    return (m_sendKeepalive) ? m_RoudiIpcInterface.send(
+               {IpcMessageTypeToString(IpcMessageType::KEEPALIVE), cxx::into<std::string>(m_runtimeName)})
                              : true;
 }
 

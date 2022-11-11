@@ -133,9 +133,9 @@ class PortManager_test : public Test
                 }
             }
         }
-        return {iox::cxx::convert<std::string, iox::capro::IdString_t>(convert::toString(m_sIdCounter)),
-                iox::cxx::convert<std::string, iox::capro::IdString_t>(convert::toString(m_eventIdCounter)),
-                iox::cxx::convert<std::string, iox::capro::IdString_t>(convert::toString(m_instIdCounter))};
+        return {iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_sIdCounter)),
+                iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_eventIdCounter)),
+                iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_instIdCounter))};
     }
 
     void acquireMaxNumberOfInterfaces(
@@ -146,7 +146,7 @@ class PortManager_test : public Test
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto interfacePort = m_portManager->acquireInterfacePortData(
-                iox::capro::Interfaces::INTERNAL, iox::cxx::convert<std::string, iox::RuntimeName_t>(newProcessName));
+                iox::capro::Interfaces::INTERNAL, iox::cxx::into<iox::RuntimeName_t>(newProcessName));
             ASSERT_NE(interfacePort, nullptr);
             if (f)
             {
@@ -162,8 +162,8 @@ class PortManager_test : public Test
         for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto condVar = m_portManager->acquireConditionVariableData(
-                iox::cxx::convert<std::string, iox::RuntimeName_t>(newProcessName));
+            auto condVar =
+                m_portManager->acquireConditionVariableData(iox::cxx::into<iox::RuntimeName_t>(newProcessName));
             ASSERT_FALSE(condVar.has_error());
             if (f)
             {
@@ -181,8 +181,8 @@ class PortManager_test : public Test
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto newNodeName = nodeName + iox::cxx::convert::toString(i);
-            auto node = m_portManager->acquireNodeData(iox::cxx::convert<std::string, RuntimeName_t>(newProcessName),
-                                                       iox::cxx::convert<std::string, NodeName_t>(newNodeName));
+            auto node = m_portManager->acquireNodeData(iox::cxx::into<RuntimeName_t>(newProcessName),
+                                                       iox::cxx::into<NodeName_t>(newNodeName));
             ASSERT_FALSE(node.has_error());
             if (f)
             {
