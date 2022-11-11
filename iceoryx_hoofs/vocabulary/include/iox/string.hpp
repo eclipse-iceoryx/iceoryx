@@ -217,7 +217,8 @@ class string final
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to distinguish between
     /// constructors with certain behavior
     /// @param [in] other is the cstring to convert
-    /// @attention truncates characters if the size is greater than the string capacity
+    /// @attention Passed strings need to be null-terminated. Truncates characters if the size is greater than the
+    /// string capacity.
     ///
     /// @code
     ///     #include "iox/string.hpp"
@@ -316,6 +317,7 @@ class string final
 
     /// @brief assigns a cstring to string. The assignment fails if the cstring size is greater than the string
     /// capacity.
+    /// @attention Passed strings need to be null-terminated.
     ///
     /// @param [in] str is the cstring to assign
     ///
