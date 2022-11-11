@@ -18,7 +18,6 @@
 #define IOX_HOOFS_CXX_VARIANT_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/internal/cxx/variant_internal.hpp"
 
 #include <cstdint>

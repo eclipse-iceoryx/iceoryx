@@ -135,7 +135,7 @@ The features are tested at module(unit) -integration and system test level. The 
 
 ### Coverage [4.iii]
 
-The Eclipse iceoryx project use [gcov](https://gcc.gnu.org/onlinedocs/gcc/Gcov.html) to measure the following code coverage metrics:
+The Eclipse iceoryx project use [gcov](https://gcc.gnu.org/onlinedocs/gcc/gcov.html) to measure the following code coverage metrics:
 
 - Line Coverage
 - Function Coverage
