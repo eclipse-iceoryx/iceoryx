@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "test_design_functional_interface_common.hpp"
+#include "iox/attributes.hpp"
 
 namespace test_design_functional_interface
 {

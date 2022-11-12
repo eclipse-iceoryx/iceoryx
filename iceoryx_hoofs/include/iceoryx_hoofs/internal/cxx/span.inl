@@ -56,14 +56,14 @@ inline constexpr span<T, Extent>::span(
 
 template <typename T, uint64_t Extent>
 template <typename U, uint64_t N, typename>
-inline constexpr span<T, Extent>::span(std::array<U, N>& array) noexcept
+inline constexpr span<T, Extent>::span(iox::UninitializedArray<U, N>& array) noexcept
     : span(iox::data(array), N)
 {
 }
 
 template <typename T, uint64_t Extent>
 template <typename U, uint64_t N, typename>
-inline constexpr span<T, Extent>::span(const std::array<U, N>& array) noexcept
+inline constexpr span<T, Extent>::span(const iox::UninitializedArray<U, N>& array) noexcept
     : span(iox::data(array), N)
 {
 }

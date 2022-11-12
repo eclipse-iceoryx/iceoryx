@@ -18,12 +18,11 @@
 #ifndef IOX_HOOFS_PRIMITIVES_TYPE_TRAITS_HPP
 #define IOX_HOOFS_PRIMITIVES_TYPE_TRAITS_HPP
 
-#include <array>
 #include <cstdint>
 #include <type_traits>
 
 #include "iceoryx_platform/platform_settings.hpp"
-#include "iox/attributes.hpp"
+#include "iox/uninitialized_array.hpp"
 
 namespace iox
 {
@@ -198,17 +197,17 @@ template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type_t;
 
 template <typename T>
-struct is_std_array : std::false_type
+struct is_iox_array : std::false_type
 {
 };
 
 template <typename T, uint64_t N>
-struct is_std_array<std::array<T, N>> : std::true_type
+struct is_iox_array<iox::UninitializedArray<T, N>> : std::true_type
 {
 };
 
 template <typename T>
-using is_not_std_array_t = iox::negation<is_std_array<std::decay_t<T>>>;
+using is_not_iox_array_t = iox::negation<is_iox_array<std::decay_t<T>>>;
 
 template <typename T>
 using is_c_array_t = std::is_array<std::remove_reference_t<T>>;

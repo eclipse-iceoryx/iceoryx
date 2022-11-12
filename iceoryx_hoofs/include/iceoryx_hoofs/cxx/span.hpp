@@ -19,10 +19,9 @@
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/span_iterator.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/uninitialized_array.hpp"
 
 #include <algorithm>
-#include <array>
-#include <cstddef>
 #include <cstdint>
 #include <cstdio>
 #include <limits>
@@ -94,7 +93,7 @@ struct extent_impl<T[N]> : size_constant<N>
 };
 
 template <typename T, uint64_t N>
-struct extent_impl<std::array<T, N>> : size_constant<N>
+struct extent_impl<iox::UninitializedArray<T, N>> : size_constant<N>
 {
 };
 
@@ -139,7 +138,7 @@ using enable_if_compatible_array_t =
 // SFINAE Verify it the passed container can be converted to a span<T>.
 template <typename Container, typename T>
 using is_compatible_container_t = conjunction<is_not_span_t<Container>,
-                                              iox::is_not_std_array_t<Container>,
+                                              iox::is_not_iox_array_t<Container>,
                                               iox::is_not_c_array_t<Container>,
                                               container_has_convertible_data_t<Container, T>,
                                               is_integral_sized_container_t<Container>>;
@@ -261,8 +260,10 @@ class span : public internal::span_storage<Extent>
     /// @tparam
     /// @tparam N
     /// @param array
-    template <typename U, uint64_t N, typename = internal::enable_if_compatible_array_t<std::array<U, N>&, T, Extent>>
-    constexpr explicit span(std::array<U, N>& array) noexcept;
+    template <typename U,
+              uint64_t N,
+              typename = internal::enable_if_compatible_array_t<iox::UninitializedArray<U, N>&, T, Extent>>
+    constexpr explicit span(iox::UninitializedArray<U, N>& array) noexcept;
 
     /// @brief Constructs a span that is a view over the array arr; the resulting span has size() == N and data() ==
     /// std::data(arr)
@@ -272,8 +273,8 @@ class span : public internal::span_storage<Extent>
     /// @param array
     template <typename U,
               uint64_t N,
-              typename = internal::enable_if_compatible_array_t<const std::array<U, N>&, T, Extent>>
-    constexpr explicit span(const std::array<U, N>& array) noexcept;
+              typename = internal::enable_if_compatible_array_t<const iox::UninitializedArray<U, N>&, T, Extent>>
+    constexpr explicit span(const iox::UninitializedArray<U, N>& array) noexcept;
 
     /// @brief Convert from container (with std::size() and std::data() to iox::span)
     /// @tparam Container
