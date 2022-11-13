@@ -2133,7 +2133,7 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToNanosecond
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, StreamingOperator)
+TEST(Duration_test, StdStreamingOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "526d6cf3-b3df-44ce-8668-a0a170c94919");
     std::stringstream capture;

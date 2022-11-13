@@ -18,6 +18,8 @@
 #define IOX_HOOFS_UNITS_DURATION_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/time.hpp" // required for QNX
 
 #include <chrono>
@@ -295,6 +297,7 @@ class Duration
     friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
+    friend iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) noexcept;
 
     static constexpr uint32_t SECS_PER_MINUTE{60U};
     static constexpr uint32_t SECS_PER_HOUR{3600U};
