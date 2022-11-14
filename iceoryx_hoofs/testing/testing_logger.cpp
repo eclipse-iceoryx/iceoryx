@@ -117,6 +117,12 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
     dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
     TestingLogger::setLogLevel(log::LogLevel::TRACE);
 
+    std::set_terminate([]() {
+        std::cout << "Terminate called\n" << std::flush;
+        dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
+        std::abort();
+    });
+
     /// @todo iox-#1755 register signal handler for sigterm to flush to logger;
     /// there might be tests to register a handler itself and when this is
     /// done at each start of the test only the tests who use their
