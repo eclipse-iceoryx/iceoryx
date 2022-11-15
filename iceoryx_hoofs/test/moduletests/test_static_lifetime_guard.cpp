@@ -202,6 +202,15 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0077e73d-ddf5-47e7-a7c6-93819f376175");
+
+    // ensure that the old instance is destroyed if it exists
+    if (Guard::count() > 0)
+    {
+        Guard guard;
+        Guard::setCount(1);
+        // now the instance will be destroyed once the guard is destroyed
+    }
+
     Foo::reset();
     EXPECT_EQ(Guard::count(), 0);
     {

@@ -48,18 +48,19 @@ class Activatable
     bool isActive() const noexcept;
 
   private:
-    bool m_active{true};
+    std::atomic<bool> m_active{true};
 };
 
 namespace detail
 {
 
-///@brief default hooks for the PolymorphicHandler
-///@note template hooks to avoid forced virtual inheritance (STL approach),
+/// @brief default hooks for the PolymorphicHandler
+/// @tparam Interface the handler interface
+/// @note template hooks to avoid forced virtual inheritance
 template <typename Interface>
 struct DefaultHooks
 {
-    /// @brief called after if the polymorphic handler is set or reset after finalize
+    /// @brief called if the polymorphic handler is set or reset after finalize
     /// @param currentInstance the current instance of the handler singleton
     /// @param newInstance the instance of the handler singleton to be set
     static void onSetAfterFinalize(Interface& currentInstance, Interface& newInstance) noexcept;
@@ -78,7 +79,7 @@ struct DefaultHooks
 /// @note The lifetime of external non-default instances must exceed the lifetime of the PolymorphicHandler.
 /// @note The PolymorphicHandler is guaranteed to provide a valid handler during the whole program lifetime (static).
 ///       It is hence not advisable to have other static variables depend on the PolymorphicHandler.
-///       It must be ensured that the are destroyed before the PolymorphicHandler.
+///       It must be ensured that they are destroyed before the PolymorphicHandler.
 /// @note Hooks must implement
 ///       static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
 template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>

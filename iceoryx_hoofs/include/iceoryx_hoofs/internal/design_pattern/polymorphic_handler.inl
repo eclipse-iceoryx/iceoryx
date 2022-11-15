@@ -42,17 +42,17 @@ void DefaultHooks<Interface>::onSetAfterFinalize(Interface&, Interface&) noexcep
 
 void Activatable::activate() noexcept
 {
-    m_active = true;
+    m_active.store(true, std::memory_order_relaxed);
 }
 
 void Activatable::deactivate() noexcept
 {
-    m_active = false;
+    m_active.store(false, std::memory_order_relaxed);
 }
 
 bool Activatable::isActive() const noexcept
 {
-    return m_active;
+    return m_active.load(std::memory_order_relaxed);
 }
 
 // The get method is considered to be on the hot path and works as follows:
@@ -72,20 +72,18 @@ bool Activatable::isActive() const noexcept
 //    - deactivate the old handler (can still be used as it still needs to exist)
 //
 
-// on any call after the handler was changes in another thread
+// on any call after the handler was changed in another thread
 // 1. we check whether the handler is active
 // (can be outdated information but will eventually be false once the atomic value is updated)
-// 2. if it was changed it is now inactive and we wait to obtain the mutex lock
-// under lock, we update the local handler to the new one (note that it cannot change
-// while this happens as we hold the lock)
-
+// 2. if it was changed it is now inactive and we update the local handler
+// Note that it may change again hence we loop (usually it acts like an if, i.e. checks once)
 template <typename Interface, typename Default, typename Hooks>
 Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) false positive, thread_local
     thread_local Interface* localHandler = getCurrent(); // initialized once per thread on first call
 
-    if (!localHandler->isActive())
+    while (!localHandler->isActive())
     {
         localHandler = getCurrent();
     }
@@ -108,10 +106,11 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& 
     auto& ins = instance();
     // m_current is now guaranteed to be set
 
-    if (ins.m_isFinal.load())
+    if (ins.m_isFinal.load(std::memory_order_acquire))
     {
         // it must be ensured that the handlers still exist and are thread-safe,
-        // this is ensured for the default handler
+        // this is ensured for the default handler by m_defaultGuard
+        // (the primary guard that is constructed with the instance alone is not sufficient)
         Hooks::onSetAfterFinalize(*getCurrent(), handler);
         return nullptr;
     }
@@ -135,7 +134,7 @@ template <typename Interface, typename Default, typename Hooks>
 void PolymorphicHandler<Interface, Default, Hooks>::finalize() noexcept
 {
     auto& ins = instance();
-    ins.m_isFinal.store(true);
+    ins.m_isFinal.store(true, std::memory_order_release);
 }
 
 template <typename Interface, typename Default, typename Hooks>
