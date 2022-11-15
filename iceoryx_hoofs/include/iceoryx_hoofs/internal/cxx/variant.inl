@@ -64,12 +64,7 @@ inline constexpr variant<Types...>::variant(T&& arg) noexcept
 {
 }
 
-// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
-// template <typename T,
-// typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
-// typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
-// typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
-// constexpr explicit variant(T&& arg) noexcept;
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overload excluded via std::enable_if in operator=(T&& rhs)
 template <typename... Types>
 inline constexpr variant<Types...>& variant<Types...>::operator=(const variant& rhs) noexcept
 {
@@ -106,12 +101,7 @@ inline constexpr variant<Types...>::variant(variant&& rhs) noexcept
     }
 }
 
-// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overloading excluded via std::enable_if in
-// template <typename T,
-// typename = std::enable_if_t<!std::is_same<std::decay_t<T>, variant>::value>,
-// typename std::enable_if_t<!internal::is_in_place_index<std::decay_t<T>>::value, bool> = false,
-// typename std::enable_if_t<!internal::is_in_place_type<std::decay_t<T>>::value, bool> = false>
-// constexpr explicit variant(T&& arg) noexcept;
+// AXIVION Next Construct AutosarC++19_03-A13.3.1 : False positive. Overload excluded via std::enable_if in operator=(T&& rhs)
 template <typename... Types>
 inline constexpr variant<Types...>& variant<Types...>::operator=(variant&& rhs) noexcept
 {

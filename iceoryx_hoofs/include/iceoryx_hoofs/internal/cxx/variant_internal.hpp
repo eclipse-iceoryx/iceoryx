@@ -242,7 +242,7 @@ struct call_at_index<N, T>
     }
 };
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
-// AXIVION DISABLE STYLE AutosarC++19_03-A5.3.2
+// AXIVION ENABLE STYLE AutosarC++19_03-A5.3.2
 // AXIVION ENABLE STYLE AutosarC++19_03-A18.5.10, FaultDetection-IndirectAssignmentOverflow
 // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.8, AutosarC++19_03-A5.2.4
 
