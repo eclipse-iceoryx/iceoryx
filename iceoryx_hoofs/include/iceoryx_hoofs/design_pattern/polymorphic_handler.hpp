@@ -35,7 +35,16 @@ namespace design_pattern
 class Activatable
 {
   public:
-    Activatable() = default;
+    Activatable() noexcept = default;
+
+    Activatable(const Activatable&) noexcept;
+    Activatable& operator=(const Activatable&) noexcept;
+
+    // there is no useful move operation
+    Activatable(Activatable&&) noexcept = delete;
+    Activatable& operator=(Activatable&&) noexcept = delete;
+
+    ~Activatable() noexcept = default;
 
     /// @brief Switch on.
     void activate() noexcept;
@@ -95,13 +104,17 @@ class PolymorphicHandler
     friend class StaticLifetimeGuard<Self>;
 
   public:
-    /// @brief get the current singleton instance
+    /// @brief set the current singleton instance
     /// @return the current instance
+    /// @note we cannot be sure to use the current handler unless we call get,
+    /// i.e. a reference obtained from get may reference a previous handler
+    /// (that is still functional but inactive)
     static Interface& get() noexcept;
 
     /// @brief set the current singleton instance
     /// @param handlerGuard a guard to the handler instance to be set
-    /// @return pointer to the previous instance
+    /// @return pointer to the previous instance or nullptr if the handler could not be replaced
+    /// @note the handler cannot be replaced if it was finalized
     /// @note using a guard in the interface prevents the handler to be destroyed while it is used,
     ///       passing the guard by value is necessary (it has no state anyway)
     template <typename Handler>

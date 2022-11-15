@@ -100,15 +100,21 @@ TEST_F(PolymorphicHandler_test, handlerIsInitializedWithDefault)
     auto& handler = Handler::get();
 
     EXPECT_EQ(handler.id(), DEFAULT_ID);
+    EXPECT_TRUE(handler.isActive());
 }
 
 TEST_F(PolymorphicHandler_test, settingAlternateWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b2f0cfe-f13c-4fa0-aa93-5ddd4f0904d1");
-    Handler::set(alternateGuard);
+    auto* prevHandler = Handler::set(alternateGuard);
     auto& handler = Handler::get();
 
     EXPECT_EQ(handler.id(), ALTERNATE_ID);
+    EXPECT_TRUE(handler.isActive());
+
+    ASSERT_NE(prevHandler, nullptr);
+    EXPECT_EQ(prevHandler->id(), DEFAULT_ID);
+    EXPECT_FALSE(prevHandler->isActive());
 }
 
 TEST_F(PolymorphicHandler_test, alternatePointsToExternalMemory)
@@ -126,22 +132,61 @@ TEST_F(PolymorphicHandler_test, explicitlySettingToDefaultWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32e4d808-c848-4bf9-b878-e163ca825539");
     Handler::set(alternateGuard);
-    Handler::set(defaultGuard);
+    auto* prevHandler = Handler::set(defaultGuard);
 
     auto& handler = Handler::get();
     auto* ptr = static_cast<Interface*>(&defaultHandler);
 
     EXPECT_EQ(&handler, ptr);
+    ASSERT_NE(prevHandler, nullptr);
+    EXPECT_EQ(prevHandler->id(), ALTERNATE_ID);
+}
+
+TEST_F(PolymorphicHandler_test, returnValueOfSetPointsToPreviousInstance)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "96447d94-ea27-4d51-8959-12e7752728ae");
+    auto& expectedHandler = Handler::get();
+
+    auto* prevHandler = Handler::set(alternateGuard);
+
+    ASSERT_NE(prevHandler, nullptr);
+    EXPECT_EQ(&expectedHandler, prevHandler);
+    EXPECT_FALSE(prevHandler->isActive());
 }
 
 TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef8a99da-22a6-497e-b2ec-bf72cc3ae943");
     Handler::set(alternateGuard);
+    auto& prevHandler = Handler::get();
+    EXPECT_EQ(prevHandler.id(), ALTERNATE_ID);
+
+    // note that we have to use reset to set it back to the internal default
     Handler::reset();
 
     auto& handler = Handler::get();
     EXPECT_EQ(handler.id(), DEFAULT_ID);
+    EXPECT_TRUE(handler.isActive());
+
+    EXPECT_FALSE(prevHandler.isActive());
+}
+
+TEST_F(PolymorphicHandler_test, setToCurrentHandlerWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "54e22290-a7b4-4552-a18f-953571381d38");
+
+    // change to alternateHandler
+    Handler::set(alternateGuard);
+    EXPECT_TRUE(alternateHandler.isActive());
+
+    // set to alternateHandler again, should stay active
+    // while this is a useless operation, we cannot forbid it via interface
+    auto* prevHandler = Handler::set(alternateGuard);
+    auto& handler = Handler::get();
+
+    EXPECT_EQ(&handler, prevHandler);
+    EXPECT_EQ(prevHandler, &alternateHandler);
+    EXPECT_TRUE(handler.isActive());
 }
 
 TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
@@ -149,13 +194,16 @@ TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
     ::testing::Test::RecordProperty("TEST_ID", "171ac802-01b9-4e08-80a6-6f2defecaf6d");
 
     auto& handler = Handler::get();
+
+    // reset the handler value to non-zero and check later whether they are set to non-zero as expecteded
     handler.reset();
     alternateHandler.reset();
 
     // note that all following tests will also call the after finalize
     // hook but we only check if we care whether it was called
     Handler::finalize();
-    Handler::set(alternateGuard);
+    auto* prevHandler = Handler::set(alternateGuard);
+    EXPECT_EQ(prevHandler, nullptr);
 
     // does the hook set the values to the corresponding arguments?
     EXPECT_EQ(handler.value, DEFAULT_ID);
@@ -190,16 +238,10 @@ class Activatable_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     iox::design_pattern::Activatable sut;
@@ -209,6 +251,35 @@ TEST_F(Activatable_test, isActiveAfterConstruction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "874b600a-7976-4c97-a800-55bac11c4eaa");
     EXPECT_TRUE(sut.isActive());
+}
+
+TEST_F(Activatable_test, copyCtorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f8e6b2c7-a8bf-441d-8066-66096329b21f");
+    {
+        auto copy(sut);
+        EXPECT_TRUE(copy.isActive());
+    }
+
+    {
+        sut.deactivate();
+        auto copy(sut);
+        EXPECT_FALSE(copy.isActive());
+    }
+}
+
+TEST_F(Activatable_test, copyAssignmentWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "241ad501-2295-4da7-accd-50872264997d");
+    iox::design_pattern::Activatable other;
+
+    sut.deactivate();
+    EXPECT_FALSE(sut.isActive());
+    sut = other;
+    EXPECT_TRUE(sut.isActive());
+    other.deactivate();
+    sut = other;
+    EXPECT_FALSE(sut.isActive());
 }
 
 TEST_F(Activatable_test, isNotActiveAfterDeactivate)
