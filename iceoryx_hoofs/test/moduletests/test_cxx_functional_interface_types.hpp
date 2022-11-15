@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 #define IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 #include "test_cxx_functional_interface_common.hpp"
 
 namespace test_cxx_functional_interface

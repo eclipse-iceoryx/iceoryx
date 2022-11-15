@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
-#define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
+#define IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 
@@ -254,4 +254,4 @@ struct call_at_index<N, T>
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP

@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CONCURRENT_FIFO_HPP
 #define IOX_HOOFS_CONCURRENT_FIFO_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <atomic>

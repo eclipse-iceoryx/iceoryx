@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 
 
 namespace iox

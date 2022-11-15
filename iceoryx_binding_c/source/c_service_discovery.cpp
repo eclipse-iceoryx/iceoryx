@@ -16,9 +16,9 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iox/optional.hpp"
 
 using namespace iox;
 using namespace iox::runtime;

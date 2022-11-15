@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_OPTIONAL_INL
-#define IOX_HOOFS_CXX_OPTIONAL_INL
+#ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_INL
+#define IOX_HOOFS_VOCABULARY_OPTIONAL_INL
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -339,4 +339,4 @@ bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_OPTIONAL_INL
+#endif // IOX_HOOFS_VOCABULARY_OPTIONAL_INL

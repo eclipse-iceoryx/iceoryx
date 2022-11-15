@@ -17,8 +17,8 @@
 #ifndef IOX_DUST_CLI_TYPES_HPP
 #define IOX_DUST_CLI_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 

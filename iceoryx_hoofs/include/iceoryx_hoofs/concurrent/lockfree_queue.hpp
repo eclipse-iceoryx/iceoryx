@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <atomic>

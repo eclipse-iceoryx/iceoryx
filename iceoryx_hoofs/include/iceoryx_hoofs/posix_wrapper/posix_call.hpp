@@ -18,8 +18,8 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>

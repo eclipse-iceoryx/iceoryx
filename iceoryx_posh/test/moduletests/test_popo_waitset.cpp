@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 #include <chrono>

@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MOCKS_CLIENT_MOCK_HPP
 #define IOX_POSH_MOCKS_CLIENT_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/internal/popo/base_client.hpp"
+#include "iox/expected.hpp"
 #include "mocks/base_port_mock.hpp"
 
 #include "test.hpp"

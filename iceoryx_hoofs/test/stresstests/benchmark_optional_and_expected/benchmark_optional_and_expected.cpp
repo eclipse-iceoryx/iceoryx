@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include "benchmark.hpp"
 

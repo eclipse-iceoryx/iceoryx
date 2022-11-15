@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_OPTIONAL_HPP
-#define IOX_HOOFS_CXX_OPTIONAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
+#define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
@@ -51,7 +51,7 @@ constexpr in_place_t in_place{};
 ///         factory functions which can fail.
 ///
 /// @code
-///     #include "iceoryx_hoofs/cxx/optional.hpp"
+///     #include "iox/optional.hpp"
 ///
 ///     cxx::optional<void*> SomeFactory() {
 ///         void *memory = malloc(1234);
@@ -310,6 +310,6 @@ struct is_optional<optional<T>> : std::true_type
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/optional.inl"
+#include "iox/detail/optional.inl"
 
-#endif // IOX_HOOFS_CXX_OPTIONAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_OPTIONAL_HPP

@@ -17,12 +17,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 

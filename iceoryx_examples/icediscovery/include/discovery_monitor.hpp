@@ -20,7 +20,7 @@
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <vector>
 

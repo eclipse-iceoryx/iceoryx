@@ -14,13 +14,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_HPP
-#define IOX_HOOFS_CXX_STRING_HPP
+#ifndef IOX_HOOFS_VOCABULARY_STRING_HPP
+#define IOX_HOOFS_VOCABULARY_STRING_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/internal/cxx/string_internal.hpp"
-#include "iceoryx_hoofs/internal/cxx/string_type_traits.hpp"
+#include "iox/detail/string_internal.hpp"
+#include "iox/detail/string_type_traits.hpp"
+#include "iox/optional.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -198,7 +198,7 @@ class string final
     /// @note if the array is not zero-terminated, the last value will be overwritten with 0
     ///
     /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -222,7 +222,7 @@ class string final
     /// @attention truncates characters if the size is greater than the string capacity
     ///
     /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -243,7 +243,7 @@ class string final
     /// @attention truncates characters if the std::string size is greater than the string capacity
     ///
     /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -266,7 +266,7 @@ class string final
     /// @param [in] count is the number of characters for constructing the string
     ///
     /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -289,7 +289,7 @@ class string final
     /// @note if the array is not zero-terminated, the last value will be overwritten with 0
     ///
     /// @code
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -323,7 +323,7 @@ class string final
     ///
     /// @code
     ///
-    ///     #include "iceoryx_hoofs/cxx/string.hpp"
+    ///     #include "iox/string.hpp"
     ///     using namespace iox::cxx;
     ///
     ///     int main()
@@ -695,6 +695,6 @@ IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs, const
 
 } // namespace cxx
 } // namespace iox
-#include "iceoryx_hoofs/internal/cxx/string.inl"
+#include "iox/detail/string.inl"
 
-#endif // IOX_HOOFS_CXX_STRING_HPP
+#endif // IOX_HOOFS_VOCABULARY_STRING_HPP

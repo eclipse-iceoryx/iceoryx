@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CXX_HELPLETS_HPP
 #define IOX_HOOFS_CXX_HELPLETS_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/string.hpp"
 
 #include <cassert>
 #include <cstdint>

@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_TYPE_TRAITS_HPP
-#define IOX_HOOFS_CXX_STRING_TYPE_TRAITS_HPP
+#ifndef IOX_HOOFS_VOCABULARY_STRING_TYPE_TRAITS_HPP
+#define IOX_HOOFS_VOCABULARY_STRING_TYPE_TRAITS_HPP
 
 #include <cstdint>
 
@@ -38,4 +38,4 @@ struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_STRING_TYPE_TRAITS_HPP
+#endif // IOX_HOOFS_VOCABULARY_STRING_TYPE_TRAITS_HPP

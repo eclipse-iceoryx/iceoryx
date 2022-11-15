@@ -18,9 +18,9 @@
 #ifndef IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
 #define IOX_POSH_GW_TOML_FILE_CONFIG_PARSER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
 
 namespace cpptoml
 {

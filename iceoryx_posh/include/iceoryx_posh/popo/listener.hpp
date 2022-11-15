@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/expected.hpp"
 
 #include <thread>
 

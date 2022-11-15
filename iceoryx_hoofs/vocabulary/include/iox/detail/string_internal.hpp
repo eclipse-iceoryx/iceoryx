@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_INTERNAL_HPP
-#define IOX_HOOFS_CXX_STRING_INTERNAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
+#define IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 
@@ -177,4 +177,4 @@ struct SumCapa<T, Targs...>
 // AXIVION ENABLE STYLE AutosarC++19_03-A18.1.1
 } // namespace cxx
 } // namespace iox
-#endif // IOX_HOOFS_CXX_STRING_INTERNAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP

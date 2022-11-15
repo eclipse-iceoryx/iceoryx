@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_HPP
-#define IOX_HOOFS_CXX_VARIANT_HPP
+#ifndef IOX_HOOFS_VOCABULARY_VARIANT_HPP
+#define IOX_HOOFS_VOCABULARY_VARIANT_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/cxx/variant_internal.hpp"
+#include "iox/detail/variant_internal.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -75,7 +75,7 @@ static constexpr uint64_t INVALID_VARIANT_INDEX{std::numeric_limits<uint64_t>::m
 /// @param Types... variadic list of types which the variant should be able to store
 ///
 /// @code
-///     #include "iceoryx_hoofs/cxx/variant.hpp"
+///     #include "iox/variant.hpp"
 ///     #include <iostream>
 ///
 ///     cxx::variant<int, float, double> someVariant;
@@ -309,6 +309,6 @@ constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>&
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/variant.inl"
+#include "iox/detail/variant.inl"
 
-#endif // IOX_HOOFS_CXX_VARIANT_HPP
+#endif // IOX_HOOFS_VOCABULARY_VARIANT_HPP

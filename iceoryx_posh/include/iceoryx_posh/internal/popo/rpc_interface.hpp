@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_RPC_INTERFACE_HPP
 #define IOX_POSH_RPC_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {

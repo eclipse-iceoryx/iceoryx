@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 #include "iox/unique_ptr.hpp"
 
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"

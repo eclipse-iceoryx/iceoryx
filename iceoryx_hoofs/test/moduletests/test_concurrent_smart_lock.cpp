@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 #include <atomic>

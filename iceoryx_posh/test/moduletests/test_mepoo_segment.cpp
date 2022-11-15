@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iox/expected.hpp"
 #include "test.hpp"
 
 

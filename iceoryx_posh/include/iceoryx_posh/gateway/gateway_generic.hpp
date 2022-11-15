@@ -18,10 +18,7 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
@@ -30,6 +27,9 @@
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <atomic>
 #include <thread>

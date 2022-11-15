@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
-#include "iceoryx_hoofs/internal/cxx/string_type_traits.hpp"
+#include "iox/detail/string_type_traits.hpp"
 
 namespace iox
 {

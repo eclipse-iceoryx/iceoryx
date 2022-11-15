@@ -18,7 +18,6 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_platform/resource.hpp"
 #include "iceoryx_platform/semaphore.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {

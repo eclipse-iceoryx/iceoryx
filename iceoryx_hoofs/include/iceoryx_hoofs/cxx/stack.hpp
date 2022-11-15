@@ -17,7 +17,7 @@
 #define IOX_HOOFS_CXX_STACK_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>

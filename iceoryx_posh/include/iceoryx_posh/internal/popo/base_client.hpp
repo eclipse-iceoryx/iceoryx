@@ -18,12 +18,12 @@
 #ifndef IOX_POSH_POPO_BASE_CLIENT_HPP
 #define IOX_POSH_POPO_BASE_CLIENT_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {

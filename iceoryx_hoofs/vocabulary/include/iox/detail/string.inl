@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_STRING_INL
 #define IOX_HOOFS_CXX_STRING_INL
 
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {

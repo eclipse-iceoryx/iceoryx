@@ -19,7 +19,7 @@
 
 // NOLINTJUSTIFICATION iox-#1036 will be replaced by builder pattern
 // NOLINTBEGIN
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace DesignPattern
 {

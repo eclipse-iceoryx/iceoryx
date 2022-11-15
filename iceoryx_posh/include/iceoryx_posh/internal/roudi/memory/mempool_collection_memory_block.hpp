@@ -21,7 +21,7 @@
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 

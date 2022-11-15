@@ -19,7 +19,7 @@
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <utility>
 

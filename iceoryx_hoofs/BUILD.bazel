@@ -33,7 +33,7 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [

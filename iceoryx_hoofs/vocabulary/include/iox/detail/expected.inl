@@ -14,10 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_EXPECTED_INL
-#define IOX_HOOFS_CXX_EXPECTED_INL
+#ifndef IOX_HOOFS_VOCABULARY_EXPECTED_INL
+#define IOX_HOOFS_VOCABULARY_EXPECTED_INL
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -442,4 +442,4 @@ inline constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs,
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_EXPECTED_INL
+#endif // IOX_HOOFS_VOCABULARY_EXPECTED_INL

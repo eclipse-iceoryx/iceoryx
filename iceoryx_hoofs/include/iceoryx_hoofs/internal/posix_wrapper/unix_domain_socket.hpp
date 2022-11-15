@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/un.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {

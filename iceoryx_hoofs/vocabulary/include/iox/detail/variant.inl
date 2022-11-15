@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CXX_VARIANT_INL
 #define IOX_HOOFS_CXX_VARIANT_INL
 
-#include "iceoryx_hoofs/cxx/variant.hpp"
+#include "iox/variant.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox

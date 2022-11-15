@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
 #define IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {

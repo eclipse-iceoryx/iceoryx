@@ -16,10 +16,10 @@
 #ifndef IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 #define IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
+#include "iox/optional.hpp"
 
 #include <mutex>
 #include <vector>

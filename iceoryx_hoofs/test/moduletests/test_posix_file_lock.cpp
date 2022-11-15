@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(__APPLE__)
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 namespace

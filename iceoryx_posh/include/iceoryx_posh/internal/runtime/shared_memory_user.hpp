@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 #define IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/optional.hpp"
 
 
 namespace iox

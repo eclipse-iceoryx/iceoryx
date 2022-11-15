@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_platform/types.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <string>
 

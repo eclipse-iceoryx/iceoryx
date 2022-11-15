@@ -19,10 +19,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 

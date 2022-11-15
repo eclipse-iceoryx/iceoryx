@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_platform/types.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 namespace

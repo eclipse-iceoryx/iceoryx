@@ -18,9 +18,9 @@
 #ifndef IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 #define IOX_POSH_RUNTIME_IPC_RUNTIME_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {

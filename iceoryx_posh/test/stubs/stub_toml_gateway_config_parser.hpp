@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {

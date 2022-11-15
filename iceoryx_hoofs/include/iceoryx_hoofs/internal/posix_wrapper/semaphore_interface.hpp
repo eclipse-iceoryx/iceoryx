@@ -16,9 +16,9 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SEMAPHORE_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {

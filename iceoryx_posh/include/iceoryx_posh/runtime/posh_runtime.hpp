@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -33,6 +32,7 @@
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iox/optional.hpp"
 
 #include <atomic>
 
