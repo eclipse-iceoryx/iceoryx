@@ -127,9 +127,6 @@ struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
 {
 };
 
-template <uint64_t Capacity>
-class string;
-
 /// @brief struct to check whether an argument is a char array
 template <typename T>
 struct is_char_array : std::false_type
@@ -141,17 +138,6 @@ template <uint64_t N>
 // does not use them
 /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 struct is_char_array<char[N]> : std::true_type
-{
-};
-
-/// @brief struct to check whether an argument is a cxx string
-template <typename T>
-struct is_cxx_string : std::false_type
-{
-};
-
-template <uint64_t N>
-struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 {
 };
 

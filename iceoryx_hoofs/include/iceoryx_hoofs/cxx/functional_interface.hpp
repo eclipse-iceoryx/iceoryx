@@ -26,9 +26,6 @@ namespace iox
 {
 namespace cxx
 {
-template <uint64_t Capacity>
-class string;
-
 namespace internal
 {
 template <typename Derived, class = void>

@@ -278,25 +278,4 @@ TEST(TypeTraitsTest, CharArraysAreIdentifiedCorrectly)
     EXPECT_TRUE(is_char_array<char[10]>::value);
     /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 }
-
-TEST(TypeTraitsTest, NonCxxStringsAreIdentifiedCorrectly)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
-
-    EXPECT_FALSE(is_cxx_string<int>::value);
-    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
-    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<int[10]>::value);
-    EXPECT_FALSE(is_cxx_string<char[11]>::value);
-    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<char>::value);
-}
-
-TEST(TypeTraitsTest, CxxStringsAreIdentifiedCorrectly)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
-
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<1>>::value);
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<10>>::value);
-}
 } // namespace
