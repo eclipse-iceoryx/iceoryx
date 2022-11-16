@@ -33,7 +33,7 @@ constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
 /// id 0 is reserved and allows relative pointers to behave like normal pointers
 /// (which is equivalent to measure the offset relative to 0).
 template <typename id_t, typename ptr_t, uint64_t CAPACITY = MAX_POINTER_REPO_CAPACITY>
-class PointerRepository
+class PointerRepository final
 {
   private:
     struct Info
