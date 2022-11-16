@@ -50,8 +50,8 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
     uint64_t alignment() const noexcept override;
 
     /// @brief This function enables the access to the SegmentManager
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept;
+    /// @return an optional pointer to the underlying type, nullopt_t if value is not initialized
+    optional<mepoo::SegmentManager<>*> segmentManager() const noexcept;
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable

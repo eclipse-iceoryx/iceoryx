@@ -203,7 +203,7 @@ class ClientPort_test : public Test
         return options;
     }();
 
-    iox::cxx::optional<SutClientPort> clientPortForStateTransitionTests;
+    iox::optional<SutClientPort> clientPortForStateTransitionTests;
 
   public:
     static constexpr uint32_t USER_PAYLOAD_SIZE{32U};
@@ -259,7 +259,7 @@ TEST_F(ClientPort_test, ReleaseRequestWithNullptrCallsErrorHandler)
     ::testing::Test::RecordProperty("TEST_ID", "f21bc4ab-4080-4994-b862-5cb8c8738b46");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -293,7 +293,7 @@ TEST_F(ClientPort_test, SendRequestWithNullptrOnConnectedClientPortCallsErrorHan
     ::testing::Test::RecordProperty("TEST_ID", "e50da541-7621-46e8-accb-46a6b5d7e69b");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -417,7 +417,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithNullptrIsTerminating)
     ::testing::Test::RecordProperty("TEST_ID", "b6ad4c2a-7c52-45ee-afd3-29c286489311");
     auto& sut = clientPortWithConnectOnCreate;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -437,7 +437,7 @@ TEST_F(ClientPort_test, ReleaseResponseWithValidResponseReleasesChunkToTheMempoo
 
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
 
-    iox::cxx::optional<iox::mepoo::SharedChunk> sharedChunk{
+    iox::optional<iox::mepoo::SharedChunk> sharedChunk{
         getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
     sut.responseQueuePusher.push(sharedChunk.value());
     sharedChunk.reset();
@@ -464,7 +464,7 @@ TEST_F(ClientPort_test, ReleaseQueuedResponsesReleasesAllChunksToTheMempool)
 
     for (uint32_t i = 0; i < NUMBER_OF_QUEUED_RESPONSES; ++i)
     {
-        iox::cxx::optional<iox::mepoo::SharedChunk> sharedChunk{
+        iox::optional<iox::mepoo::SharedChunk> sharedChunk{
             getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader))};
         sut.responseQueuePusher.push(sharedChunk.value());
         sharedChunk.reset();
@@ -979,7 +979,7 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
                 tryAdvanceToState(sut, targetState);
             }
 
-            iox::cxx::optional<iox::PoshError> detectedError;
+            iox::optional<iox::PoshError> detectedError;
             auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
                 [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
                     detectedError.emplace(error);

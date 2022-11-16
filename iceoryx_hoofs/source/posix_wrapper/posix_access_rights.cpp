@@ -61,30 +61,30 @@ PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
     return PosixGroup(getegid());
 }
 
-cxx::optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
+optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
 {
     auto getgrnamCall = posixCall(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getgrnamCall.has_error())
     {
         IOX_LOG(ERROR) << "Error: Could not find group '" << name << "'.";
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 
-    return cxx::make_optional<gid_t>(getgrnamCall->value->gr_gid);
+    return make_optional<gid_t>(getgrnamCall->value->gr_gid);
 }
 
-cxx::optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
+optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
 {
     auto getgrgidCall = posixCall(getgrgid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getgrgidCall.has_error())
     {
         IOX_LOG(ERROR) << "Error: Could not find group with id '" << id << "'.";
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 
-    return cxx::make_optional<groupName_t>(groupName_t(iox::cxx::TruncateToCapacity, getgrgidCall->value->gr_name));
+    return make_optional<groupName_t>(groupName_t(iox::TruncateToCapacity, getgrgidCall->value->gr_name));
 }
 
 PosixGroup::groupName_t PosixGroup::getName() const noexcept
@@ -108,28 +108,28 @@ bool PosixGroup::doesExist() const noexcept
     return m_doesExist;
 }
 
-cxx::optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
+optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
     auto getpwnamCall = posixCall(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getpwnamCall.has_error())
     {
         IOX_LOG(ERROR) << "Error: Could not find user '" << name << "'.";
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
-    return cxx::make_optional<uid_t>(getpwnamCall->value->pw_uid);
+    return make_optional<uid_t>(getpwnamCall->value->pw_uid);
 }
 
-cxx::optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
+optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
 {
     auto getpwuidCall = posixCall(getpwuid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getpwuidCall.has_error())
     {
         IOX_LOG(ERROR) << "Error: Could not find user with id'" << id << "'.";
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
-    return cxx::make_optional<userName_t>(userName_t(iox::cxx::TruncateToCapacity, getpwuidCall->value->pw_name));
+    return make_optional<userName_t>(userName_t(iox::TruncateToCapacity, getpwuidCall->value->pw_name));
 }
 
 PosixUser::groupVector_t PosixUser::getGroups() const noexcept

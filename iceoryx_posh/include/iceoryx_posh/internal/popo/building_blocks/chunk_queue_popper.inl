@@ -46,7 +46,7 @@ ChunkQueuePopper<ChunkQueueDataType>::getMembers() noexcept
 }
 
 template <typename ChunkQueueDataType>
-inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop() noexcept
+inline optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop() noexcept
 {
     auto retVal = getMembers()->m_queue.pop();
 
@@ -62,13 +62,13 @@ inline cxx::optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::t
                        << "' but expected '" << mepoo::ChunkHeader::CHUNK_HEADER_VERSION << "'! Dropping chunk!";
             errorHandler(PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
                          ErrorLevel::SEVERE);
-            return cxx::nullopt_t();
+            return nullopt_t();
         }
-        return cxx::make_optional<mepoo::SharedChunk>(chunk);
+        return make_optional<mepoo::SharedChunk>(chunk);
     }
     else
     {
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 

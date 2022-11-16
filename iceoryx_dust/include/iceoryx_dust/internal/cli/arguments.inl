@@ -25,31 +25,31 @@ namespace cli
 namespace internal
 {
 template <typename T>
-inline cxx::expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
+inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
     T value;
     if (!cxx::convert::fromString(stringValue.c_str(), value))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return cxx::error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
+        return error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
     }
-    return cxx::success<T>(value);
+    return success<T>(value);
 }
 
 template <>
-inline cxx::expected<bool, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
+inline expected<bool, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
     if (stringValue != "true" && stringValue != "false")
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return cxx::error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
+        return error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
     }
 
-    return cxx::success<bool>(stringValue == "true");
+    return success<bool>(stringValue == "true");
 }
 
 template <typename T>
-inline cxx::expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionName) const noexcept
+inline expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionName) const noexcept
 {
     for (const auto& a : m_arguments)
     {
@@ -59,7 +59,7 @@ inline cxx::expected<T, Arguments::Error> Arguments::get(const OptionName_t& opt
         }
     }
 
-    return cxx::error<Error>(Error::NO_SUCH_VALUE);
+    return error<Error>(Error::NO_SUCH_VALUE);
 }
 } // namespace internal
 } // namespace cli

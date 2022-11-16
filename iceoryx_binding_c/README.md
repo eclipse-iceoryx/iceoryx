@@ -54,7 +54,7 @@ enum class Color {
 class Channel {
     public:
         Channel(const std::string &name);
-        cxx::optional<void*> receive();
+        optional<void*> receive();
         bool send(void * data);
         void allHailHypnotoad();
 };

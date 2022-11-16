@@ -94,7 +94,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
     iox::runtime::IpcMessage data{""};
-    iox::cxx::optional<iox::PoshError> sendViaIpcChannelStatusFail;
+    iox::optional<iox::PoshError> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&sendViaIpcChannelStatusFail](const iox::PoshError error, const iox::ErrorLevel errorLevel) {

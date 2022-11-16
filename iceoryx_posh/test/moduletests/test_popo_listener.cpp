@@ -156,7 +156,7 @@ iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeAttached;
 iox::concurrent::smart_lock<std::vector<EventAndSutPair_t>> g_toBeDetached;
 std::array<TriggerSourceAndCount, iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER> g_triggerCallbackArg;
 uint64_t g_triggerCallbackRuntimeInMs = 0U;
-iox::cxx::optional<iox::posix::UnnamedSemaphore> g_callbackBlocker;
+iox::optional<iox::posix::UnnamedSemaphore> g_callbackBlocker;
 
 class Listener_test : public Test
 {
@@ -281,7 +281,7 @@ class Listener_test : public Test
     using eventArray_t = SimpleEventClass[iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER + OVERFLOW_TEST_APPENDIX];
     eventArray_t m_simpleEvents;
     ConditionVariableData m_condVarData{"Maulbeerblättle"};
-    iox::cxx::optional<TestListener> m_sut;
+    iox::optional<TestListener> m_sut;
 
     const iox::units::Duration m_fatalTimeout = 2_s;
     Watchdog m_watchdog{m_fatalTimeout};

@@ -80,7 +80,7 @@ class SegmentManager
 
     struct SegmentUserInformation
     {
-        cxx::optional<std::reference_wrapper<MemoryManager>> m_memoryManager;
+        optional<std::reference_wrapper<MemoryManager>> m_memoryManager;
         uint64_t m_segmentID;
     };
 

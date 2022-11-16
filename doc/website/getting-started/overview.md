@@ -53,11 +53,11 @@ else
 }
 ```
 
-Here `result` is an `expected` and hence we may get an error. This can happen if we try to loan too many samples
+Here `result` is an `iox::expected` and hence we may get an error. This can happen if we try to loan too many samples
 and exhaust memory. We have to handle this potential error since the expected class has the `nodiscard` keyword
 attached. This means we get a warning (or an error when build in strict mode) when we don't handle it. We could
 also explicitly discard it with `IOX_DISCARD_RESULT` which is discouraged. If you want to know more about
-`expected`, take a look at
+`iox::expected`, take a look at
 [How optional and error values are returned in iceoryx](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 Let's create a corresponding subscriber.
 
@@ -335,7 +335,7 @@ The API is offered in two languages, C++ and C. Detailed information can be foun
 [C example](../../../iceoryx_examples/icedelivery_in_c).
 
 Many parts of the C++ API follow a functional programming approach which is less error-prone. This requires using
-the monadic types `cxx::expected` and `cxx::optional` which are introduced
+the monadic types `iox::expected` and `iox::optional` which are introduced
 [here](../concepts/how-optional-and-error-values-are-returned-in-iceoryx.md).
 
 With the C++ API, we distinguish between the `typed API` and the `untyped API`. In the typed API, the underlying

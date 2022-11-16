@@ -119,14 +119,14 @@ class MePooSegment_test : public Test
 
         IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
-        IOX_BUILDER_PARAMETER(iox::cxx::optional<const void*>, baseAddressHint, iox::cxx::nullopt)
+        IOX_BUILDER_PARAMETER(iox::optional<const void*>, baseAddressHint, iox::nullopt)
 
         IOX_BUILDER_PARAMETER(iox::cxx::perms, permissions, iox::cxx::perms::none)
 
       public:
-        iox::cxx::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
+        iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
         {
-            return iox::cxx::success<SharedMemoryObject_MOCK>(
+            return iox::success<SharedMemoryObject_MOCK>(
                 SharedMemoryObject_MOCK(m_name,
                                         m_memorySizeInBytes,
                                         m_accessMode,

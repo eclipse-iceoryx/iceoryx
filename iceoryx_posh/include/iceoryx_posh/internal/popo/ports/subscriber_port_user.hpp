@@ -65,7 +65,7 @@ class SubscriberPortUser : public BasePort
     /// the queue is returned (FiFo queue)
     /// @return New chunk header, ChunkReceiveResult on error
     /// or if there are no new chunks in the underlying queue
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGetChunk() noexcept;
+    expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGetChunk() noexcept;
 
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

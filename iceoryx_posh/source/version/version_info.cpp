@@ -43,8 +43,8 @@ VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
     SerializationString_t tmp_commitIdString;
     m_valid = serial.extract(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
-    m_buildDateString = BuildDateString_t(cxx::TruncateToCapacity, tmp_m_buildDateString.c_str());
-    m_commitIdString = CommitIdString_t(cxx::TruncateToCapacity, tmp_commitIdString.c_str());
+    m_buildDateString = BuildDateString_t(TruncateToCapacity, tmp_m_buildDateString.c_str());
+    m_commitIdString = CommitIdString_t(TruncateToCapacity, tmp_commitIdString.c_str());
 }
 
 /// @brief Serialization of the VersionInfo.
@@ -108,7 +108,7 @@ bool VersionInfo::isValid() noexcept
 VersionInfo VersionInfo::getCurrentVersion() noexcept
 {
     BuildDateString_t buildDateStringCxx(ICEORYX_BUILDDATE);
-    CommitIdString_t shortCommitIdString(cxx::TruncateToCapacity, ICEORYX_SHA1, COMMIT_ID_STRING_SIZE);
+    CommitIdString_t shortCommitIdString(TruncateToCapacity, ICEORYX_SHA1, COMMIT_ID_STRING_SIZE);
 
     return VersionInfo(static_cast<uint16_t>(ICEORYX_VERSION_MAJOR),
                        static_cast<uint16_t>(ICEORYX_VERSION_MINOR),

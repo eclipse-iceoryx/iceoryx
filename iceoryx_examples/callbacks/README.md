@@ -119,7 +119,7 @@ listener
 ```
 
 Since a user trigger has only one event, we do not have to specify an event when we attach
-it to the listener. `attachEvent` returns a `cxx::expected` to inform us if the attachment
+it to the listener. `attachEvent` returns a `expected` to inform us if the attachment
 succeeded. When this is not the case the error handling is performed in the `.or_else([](auto){` part
 after each `attachEvent` call.
 In this example, we choose to attach the same callback twice to make things easier
@@ -247,8 +247,8 @@ Our `CounterService` has the following members:
 ```cpp
 iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
 iox::popo::Subscriber<CounterTopic> m_subscriberRight;
-iox::cxx::optional<CounterTopic> m_leftCache;
-iox::cxx::optional<CounterTopic> m_rightCache;
+iox::optional<CounterTopic> m_leftCache;
+iox::optional<CounterTopic> m_rightCache;
 iox::popo::Listener m_listener;
 ```
 

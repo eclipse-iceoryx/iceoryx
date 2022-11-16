@@ -140,8 +140,7 @@ inline T* RelativePointer<T>::getBasePtr() const noexcept
 }
 
 template <typename T>
-inline cxx::optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(ptr_t const ptr,
-                                                                              const uint64_t size) noexcept
+inline optional<segment_id_underlying_t> RelativePointer<T>::registerPtr(ptr_t const ptr, const uint64_t size) noexcept
 {
     return getRepository().registerPtr(ptr, size);
 }

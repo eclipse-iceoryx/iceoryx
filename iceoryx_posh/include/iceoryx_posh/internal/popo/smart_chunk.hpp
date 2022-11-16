@@ -41,7 +41,7 @@ struct SmartChunkPrivateData
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::optional<iox::unique_ptr<T>> smartChunkUniquePtr;
+    optional<iox::unique_ptr<T>> smartChunkUniquePtr;
     std::reference_wrapper<TransmissionInterface> producerRef;
 };
 
@@ -58,7 +58,7 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
     SmartChunkPrivateData& operator=(const SmartChunkPrivateData&) = delete;
     ~SmartChunkPrivateData() = default;
 
-    cxx::optional<iox::unique_ptr<const T>> smartChunkUniquePtr;
+    optional<iox::unique_ptr<const T>> smartChunkUniquePtr;
 };
 } // namespace internal
 

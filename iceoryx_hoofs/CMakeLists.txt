@@ -57,6 +57,7 @@ iox_add_library(
                                 legacy/include/
                                 memory/include/
                                 container/include/
+                                vocabulary/include/
     FILES
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp

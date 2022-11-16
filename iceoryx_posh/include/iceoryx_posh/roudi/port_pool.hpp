@@ -72,14 +72,14 @@ class PortPool
     cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
     getConditionVariableDataList() noexcept;
 
-    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,
                      mepoo::MemoryManager* const memoryManager,
                      const RuntimeName_t& runtimeName,
                      const popo::PublisherOptions& publisherOptions,
                      const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
+    expected<SubscriberPortType::MemberType_t*, PortPoolError>
     addSubscriberPort(const capro::ServiceDescription& serviceDescription,
                       const RuntimeName_t& runtimeName,
                       const popo::SubscriberOptions& subscriberOptions,
@@ -104,7 +104,7 @@ class PortPool
     /// @param[in] clientOptions for the new client port
     /// @param[in] memoryInfo for the new client port
     /// @return on success a pointer to a ClientPortData; on error a PortPoolError
-    cxx::expected<popo::ClientPortData*, PortPoolError>
+    expected<popo::ClientPortData*, PortPoolError>
     addClientPort(const capro::ServiceDescription& serviceDescription,
                   mepoo::MemoryManager* const memoryManager,
                   const RuntimeName_t& runtimeName,
@@ -118,21 +118,21 @@ class PortPool
     /// @param[in] serverOptions for the new server port
     /// @param[in] memoryInfo for the new server port
     /// @return on success a pointer to a ServerPortData; on error a PortPoolError
-    cxx::expected<popo::ServerPortData*, PortPoolError>
+    expected<popo::ServerPortData*, PortPoolError>
     addServerPort(const capro::ServiceDescription& serviceDescription,
                   mepoo::MemoryManager* const memoryManager,
                   const RuntimeName_t& runtimeName,
                   const popo::ServerOptions& serverOptions,
                   const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;
 
-    cxx::expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
-                                                                            const capro::Interfaces interface) noexcept;
+    expected<popo::InterfacePortData*, PortPoolError> addInterfacePort(const RuntimeName_t& runtimeName,
+                                                                       const capro::Interfaces interface) noexcept;
 
-    cxx::expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
-                                                                 const NodeName_t& nodeName,
-                                                                 const uint64_t nodeDeviceIdentifier) noexcept;
+    expected<runtime::NodeData*, PortPoolError> addNodeData(const RuntimeName_t& runtimeName,
+                                                            const NodeName_t& nodeName,
+                                                            const uint64_t nodeDeviceIdentifier) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    expected<popo::ConditionVariableData*, PortPoolError>
     addConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     /// @brief Removes a PublisherPortData from the internal pool

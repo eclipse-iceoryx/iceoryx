@@ -57,9 +57,10 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
     iox::cxx::Expects(subscriber != nullptr);
     iox::cxx::Expects(callback != nullptr);
 
-    auto result = self->attachEvent(*subscriber,
-                                    c2cpp::subscriberEvent(subscriberEvent),
-                                    NotificationCallback<cpp2c_Subscriber, internal::NoType_t>{callback, nullptr});
+    auto result =
+        self->attachEvent(*subscriber,
+                          c2cpp::subscriberEvent(subscriberEvent),
+                          NotificationCallback<cpp2c_Subscriber, popo::internal::NoType_t>{callback, nullptr});
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());
@@ -98,7 +99,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t co
     iox::cxx::Expects(callback != nullptr);
 
     auto result =
-        self->attachEvent(*userTrigger, NotificationCallback<UserTrigger, internal::NoType_t>{callback, nullptr});
+        self->attachEvent(*userTrigger, NotificationCallback<UserTrigger, popo::internal::NoType_t>{callback, nullptr});
     if (result.has_error())
     {
         return cpp2c::listenerResult(result.get_error());
@@ -173,7 +174,7 @@ iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
     auto result = self->attachEvent(
         *client,
         c2cpp::clientEvent(clientEvent),
-        NotificationCallback<std::remove_pointer_t<iox_client_t>, internal::NoType_t>{callback, nullptr});
+        NotificationCallback<std::remove_pointer_t<iox_client_t>, popo::internal::NoType_t>{callback, nullptr});
     return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
                                 : iox_ListenerResult::ListenerResult_SUCCESS;
 }
@@ -220,7 +221,7 @@ iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
     auto result = self->attachEvent(
         *server,
         c2cpp::serverEvent(serverEvent),
-        NotificationCallback<std::remove_pointer_t<iox_server_t>, internal::NoType_t>{callback, nullptr});
+        NotificationCallback<std::remove_pointer_t<iox_server_t>, popo::internal::NoType_t>{callback, nullptr});
     return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
                                 : iox_ListenerResult::ListenerResult_SUCCESS;
 }
@@ -264,9 +265,10 @@ iox_listener_attach_service_discovery_event(iox_listener_t const self,
     iox::cxx::Expects(serviceDiscovery != nullptr);
     iox::cxx::Expects(callback != nullptr);
 
-    auto result = self->attachEvent(*serviceDiscovery,
-                                    c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
-                                    NotificationCallback<ServiceDiscovery, internal::NoType_t>{callback, nullptr});
+    auto result =
+        self->attachEvent(*serviceDiscovery,
+                          c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
+                          NotificationCallback<ServiceDiscovery, popo::internal::NoType_t>{callback, nullptr});
 
     return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
                                 : iox_ListenerResult::ListenerResult_SUCCESS;

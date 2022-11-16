@@ -48,7 +48,7 @@ class NodeBindingExtension : public iox::runtime::Node
 
 iox_node_t iox_node_create(const char* const nodeName)
 {
-    return PoshRuntime::getInstance().createNode(NodeProperty(NodeName_t(iox::cxx::TruncateToCapacity, nodeName), 0u));
+    return PoshRuntime::getInstance().createNode(NodeProperty(NodeName_t(iox::TruncateToCapacity, nodeName), 0u));
 }
 
 void iox_node_destroy(iox_node_t const self)

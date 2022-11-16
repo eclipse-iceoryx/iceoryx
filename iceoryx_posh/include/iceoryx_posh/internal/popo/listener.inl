@@ -24,13 +24,13 @@ namespace popo
 {
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
-inline cxx::expected<ListenerError>
+inline expected<ListenerError>
 ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
                                     const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return cxx::error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -49,12 +49,12 @@ ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
 
 template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
-inline cxx::expected<ListenerError> ListenerImpl<Capacity>::attachEvent(
+inline expected<ListenerError> ListenerImpl<Capacity>::attachEvent(
     T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return cxx::error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -119,7 +119,7 @@ inline ListenerImpl<Capacity>::~ListenerImpl() noexcept
 }
 
 template <uint64_t Capacity>
-inline cxx::expected<uint32_t, ListenerError>
+inline expected<uint32_t, ListenerError>
 ListenerImpl<Capacity>::addEvent(void* const origin,
                                  void* const userType,
                                  const uint64_t eventType,
@@ -134,19 +134,19 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
-            return cxx::error<ListenerError>(ListenerError::EVENT_ALREADY_ATTACHED);
+            return error<ListenerError>(ListenerError::EVENT_ALREADY_ATTACHED);
         }
     }
 
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
     {
-        return cxx::error<ListenerError>(ListenerError::LISTENER_FULL);
+        return error<ListenerError>(ListenerError::LISTENER_FULL);
     }
 
     m_events[index]->init(
         index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
-    return cxx::success<uint32_t>(index);
+    return success<uint32_t>(index);
 }
 
 template <uint64_t Capacity>

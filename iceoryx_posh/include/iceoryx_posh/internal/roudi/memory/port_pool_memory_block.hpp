@@ -50,8 +50,8 @@ class PortPoolMemoryBlock : public MemoryBlock
     uint64_t alignment() const noexcept override;
 
     /// @brief This function enables the access to the PortPool
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<PortPoolData*> portPool() const noexcept;
+    /// @return an optional pointer to the underlying type, nullopt_t if value is not initialized
+    optional<PortPoolData*> portPool() const noexcept;
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable

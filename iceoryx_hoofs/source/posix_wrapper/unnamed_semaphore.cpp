@@ -22,14 +22,14 @@ namespace iox
 {
 namespace posix
 {
-cxx::expected<SemaphoreError>
-UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept
+expected<SemaphoreError>
+UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept
 {
     if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
         IOX_LOG(ERROR) << "The unnamed semaphore initial value of " << m_initialValue
                        << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
-        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
     uninitializedSemaphore.emplace();
@@ -59,7 +59,7 @@ UnnamedSemaphoreBuilder::create(cxx::optional<UnnamedSemaphore>& uninitializedSe
         }
     }
 
-    return cxx::success<>();
+    return success<>();
 }
 
 UnnamedSemaphore::~UnnamedSemaphore() noexcept

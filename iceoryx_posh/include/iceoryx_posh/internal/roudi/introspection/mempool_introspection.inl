@@ -73,9 +73,9 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
     uint32_t id) noexcept
 {
     sample.m_readerGroupName.assign("");
-    sample.m_readerGroupName.append(cxx::TruncateToCapacity, readerGroup.getName());
+    sample.m_readerGroupName.append(TruncateToCapacity, readerGroup.getName());
     sample.m_writerGroupName.assign("");
-    sample.m_writerGroupName.append(cxx::TruncateToCapacity, writerGroup.getName());
+    sample.m_writerGroupName.append(TruncateToCapacity, writerGroup.getName());
     sample.m_id = id;
 }
 

@@ -27,7 +27,7 @@
 
 //! [sig handler]
 std::atomic_bool keepRunning{true};
-iox::cxx::optional<iox::popo::WaitSet<>> waitset;
+iox::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {

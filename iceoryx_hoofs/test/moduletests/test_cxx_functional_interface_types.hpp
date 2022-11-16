@@ -59,7 +59,7 @@ struct GenericPlainFactory
 struct OptionalFactory
 {
     using value_t = uint64_t;
-    using Type = iox::cxx::optional<value_t>;
+    using Type = iox::optional<value_t>;
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = true;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = false;
@@ -77,7 +77,7 @@ struct ExpectedValueErrorFactory
     using value_t = uint64_t;
     using error_t = uint64_t;
 
-    using Type = iox::cxx::expected<value_t, error_t>;
+    using Type = iox::expected<value_t, error_t>;
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = true;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;
@@ -97,7 +97,7 @@ struct ExpectedErrorFactory
 {
     using error_t = uint64_t;
 
-    using Type = iox::cxx::expected<error_t>;
+    using Type = iox::expected<error_t>;
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;

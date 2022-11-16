@@ -32,14 +32,14 @@ inline UntypedSubscriberImpl<BaseSubscriberType>::UntypedSubscriberImpl(const ca
 }
 
 template <typename BaseSubscriberType>
-inline cxx::expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<BaseSubscriberType>::take() noexcept
+inline expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<BaseSubscriberType>::take() noexcept
 {
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())
     {
-        return cxx::error<ChunkReceiveResult>(result.get_error());
+        return error<ChunkReceiveResult>(result.get_error());
     }
-    return cxx::success<const void*>(result.value()->userPayload());
+    return success<const void*>(result.value()->userPayload());
 }
 
 template <typename BaseSubscriberType>

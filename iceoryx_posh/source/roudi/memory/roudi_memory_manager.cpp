@@ -52,20 +52,20 @@ RouDiMemoryManager::~RouDiMemoryManager() noexcept
     destroyMemory().or_else([](auto) { LogWarn() << "Failed to cleanup RouDiMemoryManager in destructor."; });
 }
 
-cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
+expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
 {
     if (m_memoryProvider.push_back(memoryProvider))
     {
-        return cxx::success<>();
+        return success<>();
     }
-    return cxx::error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED);
+    return error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED);
 }
 
-cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() noexcept
+expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() noexcept
 {
     if (m_memoryProvider.empty())
     {
-        return cxx::error<RouDiMemoryManagerError>(RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT);
+        return error<RouDiMemoryManagerError>(RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT);
     }
 
     for (auto memoryProvider : m_memoryProvider)
@@ -75,7 +75,7 @@ cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemo
         {
             LogError() << "Could not create memory: MemoryProviderError = "
                        << MemoryProvider::getErrorString(result.get_error());
-            return cxx::error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
+            return error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
         }
     }
 
@@ -84,12 +84,12 @@ cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemo
         memoryProvider->announceMemoryAvailable();
     }
 
-    return cxx::success<>();
+    return success<>();
 }
 
-cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexcept
+expected<RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexcept
 {
-    cxx::expected<RouDiMemoryManagerError> result = cxx::success<void>();
+    expected<RouDiMemoryManagerError> result = success<void>();
     for (auto memoryProvider : m_memoryProvider)
     {
         auto destructionResult = memoryProvider->destroy();
@@ -100,7 +100,7 @@ cxx::expected<RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexc
             /// @note do not return on first error but try to cleanup the remaining resources
             if (!result.has_error())
             {
-                result = cxx::error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED);
+                result = error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_DESTRUCTION_FAILED);
             }
         }
     }

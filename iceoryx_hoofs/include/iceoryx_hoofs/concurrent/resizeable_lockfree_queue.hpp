@@ -84,14 +84,14 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @param[in] value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
+    iox::optional<ElementType> push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
     /// @param[in] value to be inserted is moved into the queue if possible
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
+    iox::optional<ElementType> push(ElementType&& value) noexcept;
 
     // overloads to set the capacity
     // 1) The most general one allows providing a removeHandler to specify remove behavior.
@@ -152,7 +152,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     bool tryGetUsedIndex(BufferIndex& index) noexcept;
 
     template <typename T>
-    iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
+    iox::optional<ElementType> pushImpl(T&& value) noexcept;
 };
 
 } // namespace concurrent

@@ -87,7 +87,7 @@ inline bool BaseSubscriber<port_t>::hasMissedData() noexcept
 }
 
 template <typename port_t>
-inline cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscriber<port_t>::takeChunk() noexcept
+inline expected<const mepoo::ChunkHeader*, ChunkReceiveResult> BaseSubscriber<port_t>::takeChunk() noexcept
 {
     return m_port.tryGetChunk();
 }
@@ -141,9 +141,9 @@ BaseSubscriber<port_t>::getCallbackForIsStateConditionSatisfied(const Subscriber
     switch (subscriberState)
     {
     case SubscriberState::HAS_DATA:
-        return WaitSetIsConditionSatisfiedCallback(cxx::in_place, *this, &SelfType::hasData);
+        return WaitSetIsConditionSatisfiedCallback(in_place, *this, &SelfType::hasData);
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename port_t>

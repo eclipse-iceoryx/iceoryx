@@ -157,7 +157,7 @@ class ProcessManager : public ProcessManagerInterface
 
 
   private:
-    cxx::optional<Process*> findProcess(const RuntimeName_t& name) noexcept;
+    optional<Process*> findProcess(const RuntimeName_t& name) noexcept;
 
     void monitorProcesses() noexcept;
     void discoveryUpdate() noexcept override;

@@ -26,7 +26,7 @@ namespace cxx
 /// create a ScopeGuard object to cleanup a static optional object at the end of the scope
 /// @tparam [in] T memory container which has emplace(...) and reset
 /// @tparam [in] CTorArgs ctor types for the object to construct
-/// @param [in] memory is a reference to a memory container, e.g. cxx::optional
+/// @param [in] memory is a reference to a memory container, e.g. optional
 /// @param [in] ctorArgs ctor arguments for the object to construct
 /// @return cxx::ScopeGuard
 template <typename T, typename... CTorArgs>

@@ -74,7 +74,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
 }
 
-PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept
+PoshRuntime& PoshRuntime::defaultRuntimeFactory(optional<const RuntimeName_t*> name) noexcept
 {
     // Manual construction and destruction of the PoshRuntimeImpl, inspired by
     // the nifty counter idiom.
@@ -92,15 +92,15 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(cxx::optional<const RuntimeName_
 // singleton access
 PoshRuntime& PoshRuntime::getInstance() noexcept
 {
-    return getInstance(cxx::nullopt);
+    return getInstance(nullopt);
 }
 
 PoshRuntime& PoshRuntime::initRuntime(const RuntimeName_t& name) noexcept
 {
-    return getInstance(cxx::make_optional<const RuntimeName_t*>(&name));
+    return getInstance(make_optional<const RuntimeName_t*>(&name));
 }
 
-PoshRuntime& PoshRuntime::getInstance(cxx::optional<const RuntimeName_t*> name) noexcept
+PoshRuntime& PoshRuntime::getInstance(optional<const RuntimeName_t*> name) noexcept
 {
     return getRuntimeFactory()(name);
 }
@@ -116,7 +116,7 @@ cxx::ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
                            });
 }
 
-PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept
+PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
     : m_appName(verifyInstanceName(name))
 {
     if (cxx::isCompiledOn32BitSystem())
@@ -125,7 +125,7 @@ PoshRuntime::PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept
     }
 }
 
-const RuntimeName_t& PoshRuntime::verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept
+const RuntimeName_t& PoshRuntime::verifyInstanceName(optional<const RuntimeName_t*> name) noexcept
 {
     if (!name.has_value())
     {

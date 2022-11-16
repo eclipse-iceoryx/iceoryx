@@ -27,14 +27,19 @@
 
 namespace iox
 {
-namespace cxx
+namespace internal
 {
+/// @brief Type trait which verifies whether the passed type T is of type optional
+template <typename...>
+struct IsOptional;
+} // namespace internal
+
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code
-///     cxx::expected<int, float> callMe() {
+///     expected<int, float> callMe() {
 ///         //...
-///         return cxx::success<int>(55);
+///         return success<int>(55);
 ///     }
 /// @endcode
 template <typename T = void>
@@ -62,9 +67,9 @@ struct success
 
 /// @brief helper struct to create an error only expected which is signalling success more easily
 /// @code
-///     cxx::expected<float> callMe() {
+///     expected<float> callMe() {
 ///         //...
-///         return cxx::success<>();
+///         return success<>();
 ///     }
 /// @endcode
 template <>
@@ -75,9 +80,9 @@ struct success<void>
 /// @brief helper struct to create an expected which is signalling an error more easily
 /// @param T type which the success helper class should contain
 /// @code
-///     cxx::expected<float> callMe() {
+///     expected<float> callMe() {
 ///         //...
-///         return cxx::error<float>(12.34f);
+///         return error<float>(12.34f);
 ///     }
 /// @endcode
 template <typename T>
@@ -112,31 +117,31 @@ class IOX_NO_DISCARD expected;
 /// @param ErrorType type of the error which can be stored in the expected
 ///
 /// @code
-///     cxx::expected<int, float> callMe() {
+///     expected<int, float> callMe() {
 ///         bool l_errorOccured;
 ///         // ... do stuff
 ///         if ( l_errorOccured ) {
-///             return cxx::error<float>(55.1f);
+///             return error<float>(55.1f);
 ///         } else if ( !l_errorOccured ) {
-///             return cxx::success<int>(123);
+///             return success<int>(123);
 ///         }
 ///     }
 ///
-///     cxx::expected<float> errorOnlyMethod() {
+///     expected<float> errorOnlyMethod() {
 ///         return callMe().or_else([]{
 ///             IOX_LOG(ERROR) << "Error Occured\n";
 ///             /// perform some action
-///         }).and_then([](cxx::expected<int, float> & result){
+///         }).and_then([](expected<int, float> & result){
 ///             IOX_LOG(INFO) << "Success, got " << result.value();
 ///             /// perform some action
 ///         });
 ///     }
 ///
-///     cxx::expected<std::vector<int>, int> allHailHypnotoad(success<std::vector<int>>({6,6,6}));
+///     expected<std::vector<int>, int> allHailHypnotoad(success<std::vector<int>>({6,6,6}));
 ///     allHailHypnotoad->push_back(7);
 /// @endcode
 template <typename ErrorType>
-class IOX_NO_DISCARD expected<ErrorType> final : public FunctionalInterface<expected<ErrorType>, void, ErrorType>
+class IOX_NO_DISCARD expected<ErrorType> final : public cxx::FunctionalInterface<expected<ErrorType>, void, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -263,7 +268,7 @@ class IOX_NO_DISCARD expected<ErrorType> final : public FunctionalInterface<expe
 /// @param ErrorType type of the error which can be stored in the expected
 template <typename ValueType, typename ErrorType>
 class IOX_NO_DISCARD expected<ValueType, ErrorType> final
-    : public FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
+    : public cxx::FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -387,7 +392,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     ///         success value. if the expected contains an error the error handler is called
     /// @return reference to the contained value
     /// @code
-    ///     cxx::expected<int, float> frodo(success<int>(45));
+    ///     expected<int, float> frodo(success<int>(45));
     ///     *frodo += 12;
     ///     IOX_LOG(INFO) << *frodo; // prints 57
     /// @endcode
@@ -397,7 +402,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     ///         success value. if the expected contains an error the error handler is called
     /// @return const reference to the contained value
     /// @code
-    ///     cxx::expected<int, float> frodo(success<int>(45));
+    ///     expected<int, float> frodo(success<int>(45));
     ///     *frodo += 12;
     ///     IOX_LOG(INFO) << *frodo; // prints 57
     /// @endcode
@@ -407,7 +412,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     ///         if the expected contains an error the error handler is called
     /// @return pointer of type ValueType to the contained value
     /// @code
-    ///     cxx::expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
+    ///     expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
     ///     holyPiotr->push_back(4);
     /// @endcode
     ValueType* operator->() noexcept;
@@ -416,7 +421,7 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     ///         if the expected contains an error the the error handler is called
     /// @return pointer of type const ValueType to the contained value
     /// @code
-    ///     cxx::expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
+    ///     expected<std::vector<int>, int> holyPiotr(success<std::vector<int>>({1,2,3}));
     ///     holyPiotr->push_back(4);
     /// @endcode
     const ValueType* operator->() const noexcept;
@@ -426,9 +431,9 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     /// @return converts an expected which can contain a value and an error to an
     ///         expected which contains only an error
     /// @code
-    ///     cxx::expected<int, int> someErrorProneFunction(){}
+    ///     expected<int, int> someErrorProneFunction(){}
     ///
-    ///     cxx::expected<int> isItSuccessful() {
+    ///     expected<int> isItSuccessful() {
     ///         return someErrorProneFunction();
     ///     }
     /// @endcode
@@ -494,7 +499,6 @@ template <typename ValueType, typename ErrorType>
 constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs,
                           const expected<ValueType, ErrorType>& rhs) noexcept;
 
-} // namespace cxx
 } // namespace iox
 
 #include "iox/detail/expected.inl"

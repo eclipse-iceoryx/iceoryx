@@ -69,8 +69,8 @@ TEST(ErrorHandlerMock_test, UnsettingTemporaryErrorHandlerWithKnownModuleWorks)
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultLevelIsCaught)
 {
     ::testing::Test::RecordProperty("TEST_ID", "988401f2-9eb0-4246-868c-3057dd6c2560");
-    iox::cxx::optional<KnownError> detectedError;
-    iox::cxx::optional<iox::ErrorLevel> detectedLevel;
+    iox::optional<KnownError> detectedError;
+    iox::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>([&](const auto error, const iox::ErrorLevel level) {
             detectedError.emplace(error);
@@ -88,8 +88,8 @@ TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndDefaultL
 TEST(ErrorHandlerMock_test, CallingErrorHandlerWithErrorOfKnownModuleAndNonDefaultLevelIsCaught)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df123c54-a089-4515-87ff-cc16206d45af");
-    iox::cxx::optional<KnownError> detectedError;
-    iox::cxx::optional<iox::ErrorLevel> detectedLevel;
+    iox::optional<KnownError> detectedError;
+    iox::optional<iox::ErrorLevel> detectedLevel;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<KnownError>([&](const auto error, const iox::ErrorLevel level) {
             detectedError.emplace(error);

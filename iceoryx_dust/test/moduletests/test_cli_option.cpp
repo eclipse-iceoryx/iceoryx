@@ -66,7 +66,7 @@ TYPED_TEST(OptionTest, optionWithLongOptionIsNotEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "03557f6a-38b6-42ab-8660-ae21aa218da3");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "TheLeafSheepWantsToBeYourFriend");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "TheLeafSheepWantsToBeYourFriend");
     EXPECT_FALSE(sut.isEmpty());
 }
 
@@ -83,7 +83,7 @@ TYPED_TEST(OptionTest, optionWithShortAndLongOptionIsNotEmpty)
     ::testing::Test::RecordProperty("TEST_ID", "b25ddf2d-e105-44e5-a313-3cc13bc9ad06");
     auto sut = this->createEmpty();
     sut.shortOption = 'b';
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "PleaseDoNotPetTheHypnotoad");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "PleaseDoNotPetTheHypnotoad");
     EXPECT_FALSE(sut.isEmpty());
 }
 
@@ -98,7 +98,7 @@ TYPED_TEST(OptionTest, longOptionWithoutDashDoesNotStartWithDash)
 {
     ::testing::Test::RecordProperty("TEST_ID", "88cafc0a-2d20-4d13-9ba0-01549064cad3");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "WhyDoesDonaldDuckNeverWearsPants?");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "WhyDoesDonaldDuckNeverWearsPants?");
     EXPECT_FALSE(sut.longOptionNameDoesStartWithDash());
 }
 
@@ -106,7 +106,7 @@ TYPED_TEST(OptionTest, longOptionWithLeadingDashIsDetected)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ca0fd4f-dfc3-45f3-9ff7-0ed83acf410c");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "-dashOhNo");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "-dashOhNo");
     EXPECT_TRUE(sut.longOptionNameDoesStartWithDash());
 }
 
@@ -144,7 +144,7 @@ TYPED_TEST(OptionTest, hasSameLongOptionNameFailsWhenBothAreDifferent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe0d1aca-57fb-4841-b5dd-14d97a15c871");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "ChemistryIsTheArt...");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "ChemistryIsTheArt...");
     EXPECT_FALSE(sut.hasLongOptionName("...OfTastingAPlum"));
 }
 
@@ -152,7 +152,7 @@ TYPED_TEST(OptionTest, hasSameLongOptionNameWorksWhenBothAreEqual)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65b2adc8-c35b-422f-bf57-7816faf3b18f");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "IWouldBeMoreProductiveOnHawaii");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "IWouldBeMoreProductiveOnHawaii");
     EXPECT_TRUE(sut.hasLongOptionName("IWouldBeMoreProductiveOnHawaii"));
 }
 
@@ -190,7 +190,7 @@ TYPED_TEST(OptionTest, hasOptionNameWorksWhenEqualToLongOption)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b55c180c-bb2d-470c-91bf-a1c0c06c3aab");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "AskYourselfWhatWouldHypnotoadDo");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "AskYourselfWhatWouldHypnotoadDo");
     EXPECT_TRUE(sut.hasOptionName("AskYourselfWhatWouldHypnotoadDo"));
 }
 
@@ -207,7 +207,7 @@ TYPED_TEST(OptionTest, sameShortAndLongOptionsWithDifferentValueAreTheSameOption
     ::testing::Test::RecordProperty("TEST_ID", "b5a14fc2-d1af-49ee-8fbc-a5850361cf4e");
     auto sut = this->createEmpty();
     sut.shortOption = 'k';
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "IHateMeetings");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "IHateMeetings");
     sut.value = "bla";
 
     auto sut2 = this->createEmpty();
@@ -224,12 +224,12 @@ TYPED_TEST(OptionTest, sameShortOptionDifferentLongOptionAreNotTheSameOption)
     ::testing::Test::RecordProperty("TEST_ID", "4b30a170-65cd-4c83-acca-28531acc7167");
     auto sut = this->createEmpty();
     sut.shortOption = 'k';
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "BlueberrysAreNice");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "BlueberrysAreNice");
     sut.value = "bla";
 
     auto sut2 = this->createEmpty();
     sut2.shortOption = sut.shortOption;
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "ButWhatAboutTheSwedishWhitebeam");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "ButWhatAboutTheSwedishWhitebeam");
     sut2.value = "WhoCaresAboutOwnership";
 
     EXPECT_FALSE(sut.isSameOption(sut2));
@@ -240,7 +240,7 @@ TYPED_TEST(OptionTest, sameLongOptionDifferentShortOptionAreNotTheSameOption)
     ::testing::Test::RecordProperty("TEST_ID", "e158eb85-ed58-45e3-bf35-e64c4a4e83ea");
     auto sut = this->createEmpty();
     sut.shortOption = 'k';
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "ArnoldSchwarzeneggerIsMozart");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "ArnoldSchwarzeneggerIsMozart");
     sut.value = "bla";
 
     auto sut2 = this->createEmpty();
@@ -277,7 +277,7 @@ TYPED_TEST(OptionTest, setupLongOptionHasLongOption)
 {
     ::testing::Test::RecordProperty("TEST_ID", "02b4a288-9e52-4668-bb16-0a87706c5095");
     auto sut = this->createEmpty();
-    sut.longOption = iox::cli::OptionName_t(iox::cxx::TruncateToCapacity, "MozartHadASon");
+    sut.longOption = iox::cli::OptionName_t(iox::TruncateToCapacity, "MozartHadASon");
     EXPECT_TRUE(sut.hasLongOption());
 }
 

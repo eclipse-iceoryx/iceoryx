@@ -27,6 +27,7 @@ namespace
 using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
+using namespace iox;
 
 TEST(UniquePortId_test, SettingTheRouDiIdWorks)
 {

@@ -60,7 +60,7 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
                 ->push(value);
 
-        return (hadSpace) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
+        return (hadSpace) ? nullopt : make_optional<ValueType>(value);
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
@@ -69,7 +69,7 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->push(value, overriddenValue);
 
-        return (hadSpace) ? cxx::nullopt : cxx::make_optional<ValueType>(overriddenValue);
+        return (hadSpace) ? nullopt : make_optional<ValueType>(overriddenValue);
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     {
@@ -77,7 +77,7 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
                 ->tryPush(value);
 
-        return (hadSpace) ? cxx::nullopt : cxx::make_optional<ValueType>(value);
+        return (hadSpace) ? nullopt : make_optional<ValueType>(value);
     }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
@@ -87,7 +87,7 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
     }
     }
 
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename ValueType, uint64_t Capacity>
@@ -108,7 +108,7 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
             m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
                 ->pop(returnType);
 
-        return (hasReturnType) ? make_optional<ValueType>(returnType) : cxx::nullopt;
+        return (hasReturnType) ? make_optional<ValueType>(returnType) : nullopt;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
@@ -119,7 +119,7 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
     }
     }
 
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename ValueType, uint64_t Capacity>

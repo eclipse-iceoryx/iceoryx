@@ -50,7 +50,7 @@ class SubscriberImpl : public BaseSubscriberType
     /// @details The sample takes care of the cleanup. Don't store the raw pointer to the content of the sample, but
     /// always the whole sample.
     ///
-    cxx::expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
+    expected<Sample<const T, const H>, ChunkReceiveResult> take() noexcept;
 
     using PortType = typename BaseSubscriberType::PortType;
 

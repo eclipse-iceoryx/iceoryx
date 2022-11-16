@@ -89,7 +89,7 @@ void RuntimeTestInterface::eraseRuntime(const RuntimeName_t& name)
     }
 }
 
-PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(cxx::optional<const RuntimeName_t*> name)
+PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const RuntimeName_t*> name)
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 

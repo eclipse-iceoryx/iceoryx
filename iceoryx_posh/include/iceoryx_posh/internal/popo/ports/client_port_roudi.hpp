@@ -58,12 +58,12 @@ class ClientPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that requests changes to the desired connection state of the client
     /// @return CaPro message with desired connection state, empty optional if no state change
-    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
+    optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message to the client for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the client and release all the chunks it currently holds
@@ -76,15 +76,14 @@ class ClientPortRouDi : public BasePort
 
     void handleCaProProtocolViolation(const iox::capro::CaproMessageType messageType) noexcept;
 
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     handleCaProMessageForStateNotConnected(const capro::CaproMessage& caProMessage) noexcept;
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     handleCaProMessageForStateConnectRequested(const capro::CaproMessage& caProMessage) noexcept;
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     handleCaProMessageForStateWaitForOffer(const capro::CaproMessage& caProMessage) noexcept;
-    cxx::optional<capro::CaproMessage>
-    handleCaProMessageForStateConnected(const capro::CaproMessage& caProMessage) noexcept;
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage> handleCaProMessageForStateConnected(const capro::CaproMessage& caProMessage) noexcept;
+    optional<capro::CaproMessage>
     handleCaProMessageForStateDisconnectRequested(const capro::CaproMessage& caProMessage) noexcept;
 
     ChunkSender<ClientChunkSenderData_t> m_chunkSender;

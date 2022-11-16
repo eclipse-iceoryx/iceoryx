@@ -46,7 +46,7 @@ struct PublisherOptions
     /// @brief serialization of the PublisherOptions
     cxx::Serialization serialize() const noexcept;
     /// @brief deserialization of the PublisherOptions
-    static cxx::expected<PublisherOptions, cxx::Serialization::Error>
+    static expected<PublisherOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
 };
 

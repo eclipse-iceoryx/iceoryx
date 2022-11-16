@@ -23,7 +23,7 @@
 #include <limits> // workaround for missing include in cpptoml.h
 #include <regex>
 
-iox::cxx::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
+iox::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
 iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t& path) noexcept
 {
     iox::config::GatewayConfig config;
@@ -33,7 +33,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     {
         LogWarn() << "Invalid file path provided. Falling back to built-in config.";
         config.setDefaults();
-        return iox::cxx::success<GatewayConfig>(config);
+        return iox::success<GatewayConfig>(config);
     }
 
     /// @todo iox-#1718 Replace with C++17 std::filesystem::exists()
@@ -41,7 +41,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     if (!configFile.isOpen())
     {
         LogWarn() << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
-        return iox::cxx::success<GatewayConfig>(config);
+        return iox::success<GatewayConfig>(config);
     }
 
     LogInfo() << "Using gateway config at: " << path;
@@ -59,13 +59,13 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         LogWarn() << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
                   << parserException.what();
 
-        return iox::cxx::error<iox::config::TomlGatewayConfigParseError>(parserError);
+        return iox::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }
 
     auto result = validate(*parsedToml);
     if (result.has_error())
     {
-        return iox::cxx::error<TomlGatewayConfigParseError>(result.get_error());
+        return iox::error<TomlGatewayConfigParseError>(result.get_error());
     }
 
     // Prepare config object
@@ -77,29 +77,28 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
         entry.m_serviceDescription =
-            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *serviceName),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *instance),
-                                           iox::capro::IdString_t(iox::cxx::TruncateToCapacity, *event));
+            iox::capro::ServiceDescription(iox::capro::IdString_t(iox::TruncateToCapacity, *serviceName),
+                                           iox::capro::IdString_t(iox::TruncateToCapacity, *instance),
+                                           iox::capro::IdString_t(iox::TruncateToCapacity, *event));
         config.m_configuredServices.push_back(entry);
     }
 
-    return iox::cxx::success<GatewayConfig>(config);
+    return iox::success<GatewayConfig>(config);
 }
 
-iox::cxx::expected<iox::config::TomlGatewayConfigParseError>
+iox::expected<iox::config::TomlGatewayConfigParseError>
 iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields
     auto serviceArray = parsedToml.get_table_array(GATEWAY_CONFIG_SERVICE_TABLE_NAME);
     if (!serviceArray)
     {
-        return iox::cxx::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION);
+        return iox::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION);
     }
 
     if (serviceArray->get().size() > iox::MAX_GATEWAY_SERVICES)
     {
-        return iox::cxx::error<TomlGatewayConfigParseError>(
-            TomlGatewayConfigParseError::MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
+        return iox::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
     }
 
     for (const auto& service : *serviceArray)
@@ -111,19 +110,17 @@ iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml)
         // check for incomplete service descriptions
         if (!serviceName || !instance || !event)
         {
-            return iox::cxx::error<TomlGatewayConfigParseError>(
-                TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
+            return iox::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION);
         }
 
         // check for invalid characters in strings
         if (hasInvalidCharacter(*serviceName) || hasInvalidCharacter(*instance) || hasInvalidCharacter(*event))
         {
-            return iox::cxx::error<TomlGatewayConfigParseError>(
-                TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION);
+            return iox::error<TomlGatewayConfigParseError>(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION);
         }
     }
 
-    return iox::cxx::success<>();
+    return iox::success<>();
 }
 
 bool iox::config::TomlGatewayConfigParser::hasInvalidCharacter(const std::string& s) noexcept

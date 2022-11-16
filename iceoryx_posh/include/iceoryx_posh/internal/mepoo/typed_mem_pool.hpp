@@ -54,9 +54,9 @@ class TypedMemPool
     TypedMemPool& operator=(TypedMemPool&&) = delete;
 
     template <typename... Targs>
-    cxx::expected<SharedPointer<T>, TypedMemPoolError> createObject(Targs&&... args) noexcept;
+    expected<SharedPointer<T>, TypedMemPoolError> createObject(Targs&&... args) noexcept;
     template <typename ErrorType, typename... Targs>
-    cxx::expected<SharedPointer<T>, cxx::variant<TypedMemPoolError, ErrorType>>
+    expected<SharedPointer<T>, variant<TypedMemPoolError, ErrorType>>
     createObjectWithCreationPattern(Targs&&... args) noexcept;
     uint32_t getChunkCount() const noexcept;
     uint32_t getUsedChunks() const noexcept;
@@ -67,7 +67,7 @@ class TypedMemPool
 
   private:
     static uint64_t requiredChunkSize() noexcept;
-    cxx::expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
+    expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
 
   private:
     MemPool m_memPool;

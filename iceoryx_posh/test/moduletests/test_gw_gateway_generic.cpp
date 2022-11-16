@@ -148,9 +148,9 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     {
         auto result =
             sut->addChannel(iox::capro::ServiceDescription(
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i))),
                             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
@@ -169,9 +169,9 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     {
         auto result =
             sut->addChannel(iox::capro::ServiceDescription(
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::cxx::TruncateToCapacity, iox::cxx::convert::toString(i))),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
+                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i))),
                             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }

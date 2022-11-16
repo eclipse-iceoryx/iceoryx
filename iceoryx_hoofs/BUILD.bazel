@@ -41,6 +41,7 @@ cc_library(
         "include/",
         "legacy/include/",
         "memory/include/",
+        "vocabulary/include/",
     ],
     linkopts = select({
         "//iceoryx_platform:linux-clang": [

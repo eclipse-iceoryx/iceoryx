@@ -144,7 +144,7 @@ void MemoryManager::configureMemoryManager(const MePooConfig& mePooConfig,
     generateChunkManagementPool(managementAllocator);
 }
 
-cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkSettings& chunkSettings) noexcept
+expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkSettings& chunkSettings) noexcept
 {
     void* chunk{nullptr};
     MemPool* memPoolPointer{nullptr};
@@ -169,7 +169,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         LogFatal() << "There are no mempools available!";
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, ErrorLevel::SEVERE);
-        return cxx::error<Error>(Error::NO_MEMPOOLS_AVAILABLE);
+        return error<Error>(Error::NO_MEMPOOLS_AVAILABLE);
     }
     else if (memPoolPointer == nullptr)
     {
@@ -180,7 +180,7 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
           << requiredChunkSize;
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, ErrorLevel::SEVERE);
-        return cxx::error<Error>(Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE);
+        return error<Error>(Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE);
     }
     else if (chunk == nullptr)
     {
@@ -192,14 +192,14 @@ cxx::expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const C
         };
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, ErrorLevel::MODERATE);
-        return cxx::error<Error>(Error::MEMPOOL_OUT_OF_CHUNKS);
+        return error<Error>(Error::MEMPOOL_OUT_OF_CHUNKS);
     }
     else
     {
         auto chunkHeader = new (chunk) ChunkHeader(aquiredChunkSize, chunkSettings);
         auto chunkManagement = new (m_chunkManagementPool.front().getChunk())
             ChunkManagement(chunkHeader, memPoolPointer, &m_chunkManagementPool.front());
-        return cxx::success<SharedChunk>(SharedChunk(chunkManagement));
+        return success<SharedChunk>(SharedChunk(chunkManagement));
     }
 }
 

@@ -91,8 +91,8 @@ class IpcInterface_test : public Test
     {
     }
 
-    cxx::optional<SutType> server;
-    cxx::optional<SutType> client;
+    optional<SutType> server;
+    optional<SutType> client;
     static const size_t MaxMsgSize;
     static constexpr uint64_t MaxMsgNumber = 10U;
 };
@@ -158,7 +158,7 @@ TYPED_TEST(IpcInterface_test, CreateAgainAndEmptyWorks)
     using namespace iox::units;
     using namespace std::chrono;
 
-    cxx::optional<typename TestFixture::SutType> server;
+    optional<typename TestFixture::SutType> server;
     server.emplace(anotherGoodName);
     ASSERT_TRUE(server->openIpcChannel(IpcChannelSide::SERVER));
 

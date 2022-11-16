@@ -79,8 +79,8 @@ class IpcRuntimeInterface
 
   private:
     RuntimeName_t m_runtimeName;
-    cxx::optional<memory::UntypedRelativePointer::offset_t> m_segmentManagerAddressOffset;
-    cxx::optional<IpcInterfaceCreator> m_AppIpcInterface;
+    optional<memory::UntypedRelativePointer::offset_t> m_segmentManagerAddressOffset;
+    optional<IpcInterfaceCreator> m_AppIpcInterface;
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};

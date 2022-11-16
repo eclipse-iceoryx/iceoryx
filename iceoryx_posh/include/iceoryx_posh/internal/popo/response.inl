@@ -25,7 +25,7 @@ namespace popo
 {
 template <typename T>
 template <typename S, typename>
-inline cxx::expected<ServerSendError> Response<T>::send() noexcept
+inline expected<ServerSendError> Response<T>::send() noexcept
 {
     if (BaseType::m_members.smartChunkUniquePtr)
     {
@@ -35,7 +35,7 @@ inline cxx::expected<ServerSendError> Response<T>::send() noexcept
     {
         LogError() << "Tried to send empty Response! Might be an already sent or moved Response!";
         errorHandler(PoshError::POSH__SENDING_EMPTY_RESPONSE, ErrorLevel::MODERATE);
-        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
+        return error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 }
 

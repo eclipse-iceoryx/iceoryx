@@ -53,17 +53,17 @@ class PosixShmMemoryProvider : public MemoryProvider
   protected:
     /// @copydoc MemoryProvider::createMemory
     /// @note This creates and maps a POSIX shared memory to the address space of the application
-    cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
+    expected<void*, MemoryProviderError> createMemory(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @copydoc MemoryProvider::destroyMemory
     /// @note This closes and unmaps a POSIX shared memory
-    cxx::expected<MemoryProviderError> destroyMemory() noexcept;
+    expected<MemoryProviderError> destroyMemory() noexcept;
 
   private:
     ShmName_t m_shmName;
     posix::AccessMode m_accessMode{posix::AccessMode::READ_ONLY};
     posix::OpenMode m_openMode{posix::OpenMode::OPEN_EXISTING};
-    cxx::optional<posix::SharedMemoryObject> m_shmObject;
+    optional<posix::SharedMemoryObject> m_shmObject;
 
     static constexpr cxx::perms SHM_MEMORY_PERMISSIONS =
         cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;

@@ -31,7 +31,7 @@ constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
 constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
 #endif
 
-using IpcChannelName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH>;
+using IpcChannelName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 namespace posix
 {
 enum class IpcChannelError : uint8_t

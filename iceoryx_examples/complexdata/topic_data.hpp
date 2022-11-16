@@ -26,6 +26,7 @@
 #include "iox/variant.hpp"
 
 using namespace iox::cxx;
+using namespace iox;
 
 //! [complexdata type]
 struct ComplexDataType

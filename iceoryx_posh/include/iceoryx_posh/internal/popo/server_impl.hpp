@@ -55,7 +55,7 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
     /// @return Either a Request or a ServerRequestResult.
     /// @details The Request takes care of the cleanup. Don't store the raw pointer to the content of the Request, but
     /// always the whole Request.
-    cxx::expected<Request<const Req>, ServerRequestResult> take() noexcept;
+    expected<Request<const Req>, ServerRequestResult> take() noexcept;
 
     /// @brief Get a Response from loaned shared memory and construct the data with the given arguments.
     /// @param[in] request The request to which the Response belongs to, to determine where to send the response
@@ -64,18 +64,18 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
     /// loan.
     /// @details The loaned Response is automatically released when it goes out of scope.
     template <typename... Args>
-    cxx::expected<Response<Res>, AllocationError> loan(const Request<const Req>& request, Args&&... args) noexcept;
+    expected<Response<Res>, AllocationError> loan(const Request<const Req>& request, Args&&... args) noexcept;
 
     /// @brief Sends the given Response and then releases its loan.
     /// @param response to send.
     /// @return Error if sending was not successful
-    cxx::expected<ServerSendError> send(Response<Res>&& response) noexcept override;
+    expected<ServerSendError> send(Response<Res>&& response) noexcept override;
 
   protected:
     using BaseServerT::port;
 
   private:
-    cxx::expected<Response<Res>, AllocationError> loanUninitialized(const Request<const Req>& request) noexcept;
+    expected<Response<Res>, AllocationError> loanUninitialized(const Request<const Req>& request) noexcept;
 };
 } // namespace popo
 } // namespace iox

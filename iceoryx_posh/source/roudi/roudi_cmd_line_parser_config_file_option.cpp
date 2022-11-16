@@ -24,7 +24,7 @@ namespace iox
 {
 namespace config
 {
-cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::parse(
+expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::parse(
     int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option LONG_OPTIONS[] = {{"help", no_argument, nullptr, 'h'},
@@ -46,7 +46,7 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
             auto result = CmdLineParser::parse(argc, argv);
             if (result.has_error())
             {
-                return cxx::error<CmdLineParserResult>(result.get_error());
+                return error<CmdLineParserResult>(result.get_error());
             }
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
@@ -62,7 +62,7 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
         }
         case 'c':
         {
-            m_customConfigFilePath = roudi::ConfigFilePathString_t(cxx::TruncateToCapacity, optarg);
+            m_customConfigFilePath = roudi::ConfigFilePathString_t(TruncateToCapacity, optarg);
             break;
         }
         default:
@@ -72,7 +72,7 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
             auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
             if (result.has_error())
             {
-                return cxx::error<CmdLineParserResult>(result.get_error());
+                return error<CmdLineParserResult>(result.get_error());
             }
         }
         };
@@ -82,13 +82,13 @@ cxx::expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption:
             break;
         }
     }
-    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                     m_logLevel,
-                                                     m_compatibilityCheckLevel,
-                                                     m_processKillDelay,
-                                                     m_uniqueRouDiId,
-                                                     m_run,
-                                                     m_customConfigFilePath});
+    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
+                                                m_logLevel,
+                                                m_compatibilityCheckLevel,
+                                                m_processKillDelay,
+                                                m_uniqueRouDiId,
+                                                m_run,
+                                                m_customConfigFilePath});
 }
 
 } // namespace config

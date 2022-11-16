@@ -22,8 +22,6 @@
 
 namespace iox
 {
-namespace cxx
-{
 // AXIVION DISABLE STYLE AutosarC++19_03-A12.6.1 : m_data is not initialized here, since this is a
 // constructor for an optional with no value; an access of the value would lead to the
 // application's termination
@@ -239,7 +237,7 @@ inline void optional<T>::reset() noexcept
 template <typename T>
 inline T& optional<T>::value() & noexcept
 {
-    Expects(has_value());
+    cxx::Expects(has_value());
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the
@@ -258,7 +256,7 @@ inline const T& optional<T>::value() const& noexcept
 template <typename T>
 inline T&& optional<T>::value() && noexcept
 {
-    Expects(has_value());
+    cxx::Expects(has_value());
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the
@@ -336,7 +334,6 @@ bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept
     return rhs.has_value();
 }
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_HOOFS_VOCABULARY_OPTIONAL_INL

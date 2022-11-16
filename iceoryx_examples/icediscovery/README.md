@@ -359,9 +359,9 @@ Finally we provide a custom implementation of `findService` which returns a cont
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][findService]-->
 ```cpp
-ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
-                                        const iox::cxx::optional<iox::capro::IdString_t>& instance,
-                                        const iox::cxx::optional<iox::capro::IdString_t>& event)
+ServiceContainer Discovery::findService(const iox::optional<iox::capro::IdString_t>& service,
+                                        const iox::optional<iox::capro::IdString_t>& instance,
+                                        const iox::optional<iox::capro::IdString_t>& event)
 {
     ServiceContainer result;
     auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };

@@ -55,7 +55,7 @@ static void memsetSigbusHandler(int) noexcept
 // NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
 // results from the expanded log macro
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
-cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
+expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder::create() noexcept
 {
     auto printErrorDetails = [this] {
         auto logBaseAddressHint = [this](log::LogStream& stream) noexcept -> log::LogStream& {
@@ -90,7 +90,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
-        return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
+        return error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
     auto memoryMap = MemoryMapBuilder()
@@ -106,7 +106,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Failed to map created shared memory into process!";
-        return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
+        return error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
     Allocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
@@ -125,7 +125,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
             {
                 printErrorDetails();
                 IOX_LOG(ERROR) << "Failed to temporarily override SIGBUS to safely zero the shared memory";
-                return cxx::error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
+                return error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
             // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be used signal safe in
@@ -151,7 +151,7 @@ cxx::expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBui
                        << "]";
     }
 
-    return cxx::success<SharedMemoryObject>(
+    return success<SharedMemoryObject>(
         SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap), std::move(allocator), m_memorySizeInBytes));
 }
 

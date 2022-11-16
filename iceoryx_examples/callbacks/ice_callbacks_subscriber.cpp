@@ -28,8 +28,8 @@
 
 constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
-iox::cxx::optional<CounterTopic> leftCache;
-iox::cxx::optional<CounterTopic> rightCache;
+iox::optional<CounterTopic> leftCache;
+iox::optional<CounterTopic> rightCache;
 
 //! [heartbeat callback]
 void heartbeatCallback(iox::popo::UserTrigger*)

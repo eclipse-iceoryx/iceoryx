@@ -85,29 +85,29 @@ class PoshRuntimeImpl : public PoshRuntime
     friend class roudi::RuntimeTestInterface;
 
     // Protected constructor for IPC setup
-    PoshRuntimeImpl(cxx::optional<const RuntimeName_t*> name,
+    PoshRuntimeImpl(optional<const RuntimeName_t*> name,
                     const RuntimeLocation location = RuntimeLocation::SEPARATE_PROCESS_FROM_ROUDI) noexcept;
 
   private:
-    cxx::expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
+    expected<PublisherPortUserType::MemberType_t*, IpcMessageErrorType>
     requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
+    expected<SubscriberPortUserType::MemberType_t*, IpcMessageErrorType>
     requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<popo::ClientPortUser::MemberType_t*, IpcMessageErrorType>
+    expected<popo::ClientPortUser::MemberType_t*, IpcMessageErrorType>
     requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<popo::ServerPortUser::MemberType_t*, IpcMessageErrorType>
+    expected<popo::ServerPortUser::MemberType_t*, IpcMessageErrorType>
     requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, IpcMessageErrorType>
+    expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
     mutable posix::mutex m_appIpcRequestMutex{false};
 
     IpcRuntimeInterface m_ipcChannelInterface;
-    cxx::optional<SharedMemoryUser> m_ShmInterface;
+    optional<SharedMemoryUser> m_ShmInterface;
 
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");

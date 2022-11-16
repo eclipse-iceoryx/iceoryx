@@ -32,30 +32,30 @@ MemoryProvider::~MemoryProvider() noexcept
     // destroy has to be called manually from outside, since it calls a pure virtual function
 }
 
-cxx::expected<MemoryProviderError> MemoryProvider::addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept
+expected<MemoryProviderError> MemoryProvider::addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept
 {
     if (isAvailable())
     {
-        return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     if (m_memoryBlocks.push_back(memoryBlock))
     {
-        return cxx::success<void>();
+        return success<void>();
     }
-    return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
+    return error<MemoryProviderError>(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
 }
 
-cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
+expected<MemoryProviderError> MemoryProvider::create() noexcept
 {
     if (m_memoryBlocks.empty())
     {
-        return cxx::error<MemoryProviderError>(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
+        return error<MemoryProviderError>(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
     }
 
     if (isAvailable())
     {
-        return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     uint64_t totalSize = 0u;
@@ -78,7 +78,7 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     if (memoryResult.has_error())
     {
-        return cxx::error<MemoryProviderError>(memoryResult.get_error());
+        return error<MemoryProviderError>(memoryResult.get_error());
     }
 
     m_memory = memoryResult.value();
@@ -101,14 +101,14 @@ cxx::expected<MemoryProviderError> MemoryProvider::create() noexcept
         memoryBlock->m_memory = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
     }
 
-    return cxx::success<void>();
+    return success<void>();
 }
 
-cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
+expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 {
     if (!isAvailable())
     {
-        return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
+        return error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
     }
 
     for (auto* memoryBlock : m_memoryBlocks)
@@ -128,9 +128,9 @@ cxx::expected<MemoryProviderError> MemoryProvider::destroy() noexcept
     return destructionResult;
 }
 
-cxx::optional<void*> MemoryProvider::baseAddress() const noexcept
+optional<void*> MemoryProvider::baseAddress() const noexcept
 {
-    return isAvailable() ? cxx::make_optional<void*>(m_memory) : cxx::nullopt_t();
+    return isAvailable() ? make_optional<void*>(m_memory) : nullopt_t();
 }
 
 uint64_t MemoryProvider::size() const noexcept
@@ -138,9 +138,9 @@ uint64_t MemoryProvider::size() const noexcept
     return m_size;
 }
 
-cxx::optional<uint64_t> MemoryProvider::segmentId() const noexcept
+optional<uint64_t> MemoryProvider::segmentId() const noexcept
 {
-    return isAvailable() ? cxx::make_optional<uint64_t>(m_segmentId) : cxx::nullopt_t();
+    return isAvailable() ? make_optional<uint64_t>(m_segmentId) : nullopt_t();
 }
 
 void MemoryProvider::announceMemoryAvailable() noexcept

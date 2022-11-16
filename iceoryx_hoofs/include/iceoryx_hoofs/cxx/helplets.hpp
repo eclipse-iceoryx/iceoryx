@@ -32,12 +32,11 @@
 
 namespace iox
 {
-namespace cxx
-{
 template <uint64_t Capacity>
 class string;
 struct TruncateToCapacity_t;
-
+namespace cxx
+{
 namespace internal
 {
 /// @brief struct to find the best fitting unsigned integer type

@@ -26,6 +26,8 @@
 
 namespace iox
 {
+template <uint64_t>
+class string;
 namespace cxx
 {
 ///
@@ -243,16 +245,13 @@ struct TypeInfo<long double>
     static constexpr const char NAME[] = "long double";
 };
 
-template <uint64_t>
-class string;
-
 template <uint64_t N>
-struct TypeInfo<iox::cxx::string<N>>
+struct TypeInfo<iox::string<N>>
 {
     static constexpr const char NAME[] = "string";
 };
 template <uint64_t N>
-constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
+constexpr const char TypeInfo<iox::string<N>>::NAME[];
 /// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 //////////////////
 /// END TypeInfo

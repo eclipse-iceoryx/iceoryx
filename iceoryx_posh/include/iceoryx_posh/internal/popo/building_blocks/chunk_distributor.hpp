@@ -81,13 +81,13 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                     const uint64_t requestedHistory = 0U) noexcept;
+    expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+                                                const uint64_t requestedHistory = 0U) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
-    cxx::expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
@@ -108,17 +108,17 @@ class ChunkDistributor
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
     /// @param[in] chunk is the SharedChunk to be delivered
     /// @return ChunkDistributorError if the queue was not found
-    cxx::expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
-                                                        const uint32_t lastKnownQueueIndex,
-                                                        mepoo::SharedChunk chunk) noexcept;
+    expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
+                                                   const uint32_t lastKnownQueueIndex,
+                                                   mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Lookup for the index of a queue with a specific cxx::UniqueId
     /// @param[in] uniqueQueueId is the unique ID of the queue to query the index
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
     /// found at the index, the queue is searched by iteration over all stored queues
-    /// @return the index of the queue with uniqueQueueId or cxx::nullopt if the queue was not found
-    cxx::optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
-                                          const uint32_t lastKnownQueueIndex) const noexcept;
+    /// @return the index of the queue with uniqueQueueId or nullopt if the queue was not found
+    optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
+                                     const uint32_t lastKnownQueueIndex) const noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara

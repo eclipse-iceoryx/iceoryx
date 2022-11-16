@@ -85,9 +85,9 @@ inline bool isValidPathToFile(const string<StringCapacity>& name) noexcept
     string<StringCapacity> filePart{name};
     string<StringCapacity> pathPart;
 
-    name.find_last_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(cxx::TruncateToCapacity,
-                                                                           &platform::IOX_PATH_SEPARATORS[0],
-                                                                           platform::IOX_NUMBER_OF_PATH_SEPARATORS))
+    name.find_last_of(string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(TruncateToCapacity,
+                                                                      &platform::IOX_PATH_SEPARATORS[0],
+                                                                      platform::IOX_NUMBER_OF_PATH_SEPARATORS))
         .and_then([&](auto position) {
             name.substr(position + 1).and_then([&filePart](auto& s) { filePart = s; });
             name.substr(0, position).and_then([&pathPart](auto& s) { pathPart = s; });
@@ -111,8 +111,8 @@ inline bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept
 
     while (!temp.empty())
     {
-        auto separatorPosition = temp.find_first_of(cxx::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
-            cxx::TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
+        auto separatorPosition = temp.find_first_of(string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
+            TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
 
         // multiple slashes are explicitly allowed. the following paths
         // are equivalent:

@@ -49,7 +49,7 @@ class FixedPositionContainer
     cxx::vector<T*, Capacity> content() noexcept;
 
   private:
-    cxx::vector<cxx::optional<T>, Capacity> m_data;
+    cxx::vector<optional<T>, Capacity> m_data;
 };
 
 struct PortPoolData

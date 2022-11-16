@@ -126,13 +126,13 @@ class SharedMemoryObjectBuilder
     ///        memory to the provided address. Since it is a hint, this mapping can
     ///        fail. The .getBaseAddress() method of the SharedMemoryObject returns
     ///        the actual mapped base address.
-    IOX_BUILDER_PARAMETER(cxx::optional<const void*>, baseAddressHint, cxx::nullopt)
+    IOX_BUILDER_PARAMETER(optional<const void*>, baseAddressHint, nullopt)
 
     /// @brief Defines the access permissions of the shared memory
     IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
 
   public:
-    cxx::expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
+    expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
 };
 } // namespace posix
 } // namespace iox

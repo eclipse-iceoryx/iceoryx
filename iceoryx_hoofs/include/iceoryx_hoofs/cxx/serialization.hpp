@@ -107,7 +107,7 @@ class Serialization
     template <typename T>
     bool getNth(const unsigned int index, T& t) const noexcept;
 
-    /// @brief This is an error which can be used for 'cxx::expected' on a custom deserialization when 'extract' fails
+    /// @brief This is an error which can be used for 'iox::expected' on a custom deserialization when 'extract' fails
     enum class Error
     {
         DESERIALIZATION_FAILED, ///< indicates a failed deserialization

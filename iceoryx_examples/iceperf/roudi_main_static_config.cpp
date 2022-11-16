@@ -59,12 +59,12 @@ int main(int argc, char* argv[])
     /// These names defines groups whose members are either to read/write from/to the respective shared memory segment.
     /// @note the groups needs to be registered in /etc/groups.
     /// @code
-    /// iox::posix::PosixGroup::string_t readerGroup{iox::cxx::TruncateToCapacity, "readerGroup"};
-    /// iox::posix::PosixGroup::string_t writerGroup{iox::cxx::TruncateToCapacity, "writerGroup"};
+    /// iox::posix::PosixGroup::string_t readerGroup{iox::TruncateToCapacity, "readerGroup"};
+    /// iox::posix::PosixGroup::string_t writerGroup{iox::TruncateToCapacity, "writerGroup"};
     /// iox::mepoo::SegmentConfig::SegmentEntry segentry({readerGroup, writerGroup, mepooConfig});
     /// roudiConfig.m_sharedMemorySegments.push_back(
-    /// {iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, reader),
-    ///  iox::posix::PosixGroup::string_t(iox::cxx::TruncateToCapacity, writer),
+    /// {iox::posix::PosixGroup::string_t(iox::TruncateToCapacity, reader),
+    ///  iox::posix::PosixGroup::string_t(iox::TruncateToCapacity, writer),
     ///  mempoolConfig})
     /// @endcode
 

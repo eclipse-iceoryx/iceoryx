@@ -155,7 +155,7 @@ TEST_F(stack_test, isEmptyOnCreation)
     ::testing::Test::RecordProperty("TEST_ID", "2a9ce587-9daf-479d-95da-0df96325023f");
     EXPECT_THAT(m_sut.size(), Eq(0U));
     EXPECT_THAT(m_sut.capacity(), Eq(STACK_SIZE));
-    EXPECT_THAT(m_sut.pop(), Eq(cxx::nullopt));
+    EXPECT_THAT(m_sut.pop(), Eq(nullopt));
 }
 
 TEST_F(stack_test, pushingOneElementWithDefaultCtorSucceeds)
@@ -207,7 +207,7 @@ TEST_F(stack_test, popCreatesSpaceForAnotherElement)
     ::testing::Test::RecordProperty("TEST_ID", "3ebf7f6d-81ef-45d6-83a6-80f8588cbba6");
     pushElements(STACK_SIZE);
 
-    EXPECT_THAT(m_sut.pop(), Ne(cxx::nullopt));
+    EXPECT_THAT(m_sut.pop(), Ne(nullopt));
     EXPECT_TRUE(m_sut.push());
     EXPECT_THAT(TestClass::dTor, Eq(1));
 }

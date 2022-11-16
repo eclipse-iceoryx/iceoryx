@@ -27,7 +27,7 @@ namespace internal
 void print_expect_message(const char* message) noexcept
 {
     // print_expect_message is only called from expect. expect allows only
-    // cxx::string or char arrays which are both correctly null terminated
+    // string or char arrays which are both correctly null terminated
     IOX_LOG(FATAL) << message;
 }
 } // namespace internal

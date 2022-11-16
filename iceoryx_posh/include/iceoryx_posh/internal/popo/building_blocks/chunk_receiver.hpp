@@ -76,7 +76,7 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
     /// disappears
     /// @return New chunk header, ChunkReceiveResult on error
     /// or if there are no new chunks in the underlying queue
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGet() noexcept;
+    expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGet() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

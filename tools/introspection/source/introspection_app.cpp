@@ -673,11 +673,11 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
     // Refresh once in case of timeout messages
     refreshTerminal();
 
-    cxx::optional<popo::Sample<const MemPoolIntrospectionInfoContainer>> memPoolSample;
-    cxx::optional<popo::Sample<const ProcessIntrospectionFieldTopic>> processSample;
-    cxx::optional<popo::Sample<const PortIntrospectionFieldTopic>> portSample;
-    cxx::optional<popo::Sample<const PortThroughputIntrospectionFieldTopic>> portThroughputSample;
-    cxx::optional<popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>> subscriberPortChangingDataSamples;
+    optional<popo::Sample<const MemPoolIntrospectionInfoContainer>> memPoolSample;
+    optional<popo::Sample<const ProcessIntrospectionFieldTopic>> processSample;
+    optional<popo::Sample<const PortIntrospectionFieldTopic>> portSample;
+    optional<popo::Sample<const PortThroughputIntrospectionFieldTopic>> portThroughputSample;
+    optional<popo::Sample<const SubscriberPortChangingIntrospectionFieldTopic>> subscriberPortChangingDataSamples;
 
     while (true)
     {

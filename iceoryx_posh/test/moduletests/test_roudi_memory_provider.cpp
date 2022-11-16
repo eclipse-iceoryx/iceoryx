@@ -35,15 +35,15 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
   public:
     using MemoryProvider::getErrorString;
 
-    iox::cxx::expected<void*, MemoryProviderError>
-    createMemory(const uint64_t size IOX_MAYBE_UNUSED, const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
+    iox::expected<void*, MemoryProviderError> createMemory(const uint64_t size IOX_MAYBE_UNUSED,
+                                                           const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
     {
-        return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
+        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
 
-    iox::cxx::expected<MemoryProviderError> destroyMemory() noexcept override
+    iox::expected<MemoryProviderError> destroyMemory() noexcept override
     {
-        return iox::cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
+        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
     }
 };
 
@@ -66,7 +66,7 @@ class MemoryProvider_Test : public Test
     static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
     static constexpr uint64_t COMMON_SETUP_MEMORY_ALIGNMENT{8};
 
-    iox::cxx::expected<MemoryProviderError> commonSetup()
+    iox::expected<MemoryProviderError> commonSetup()
     {
         EXPECT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
         EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));

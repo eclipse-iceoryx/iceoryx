@@ -191,7 +191,7 @@ CommandLineParser::parse(const OptionDefinition& optionSet, int argc, char* argv
         }
 
         uint64_t optionNameStart = (m_argv[i][1] == '-') ? 2 : 1;
-        auto optionEntry = m_optionSet->getOption(OptionName_t(cxx::TruncateToCapacity, m_argv[i] + optionNameStart));
+        auto optionEntry = m_optionSet->getOption(OptionName_t(TruncateToCapacity, m_argv[i] + optionNameStart));
 
         if (!optionEntry)
         {

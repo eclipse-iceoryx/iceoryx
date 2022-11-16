@@ -174,8 +174,8 @@ TEST(TypeTraitsTest, IsFunctionPointerResolvesToFalse)
 TEST(TypeTraitsTest, TypeInfo_StringTypeTranslatesCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e20e6698-3c0c-4b28-a8bb-f5c5dd05a107");
-    EXPECT_THAT(TypeInfo<iox::cxx::string<1>>::NAME, StrEq("string"));
-    EXPECT_THAT(TypeInfo<iox::cxx::string<123>>::NAME, StrEq("string"));
+    EXPECT_THAT(TypeInfo<iox::string<1>>::NAME, StrEq("string"));
+    EXPECT_THAT(TypeInfo<iox::string<123>>::NAME, StrEq("string"));
 }
 
 TEST(TypeTraitsTest, TypeInfo_int8_tTranslatesCorrectly)
@@ -264,7 +264,7 @@ TEST(TypeTraitsTest, NonCharArraysAreIdentifiedCorrectly)
     /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_char_array<int[10]>::value);
-    EXPECT_FALSE(is_char_array<iox::cxx::string<11>>::value);
+    EXPECT_FALSE(is_char_array<iox::string<11>>::value);
     EXPECT_FALSE(is_char_array<char>::value);
 }
 

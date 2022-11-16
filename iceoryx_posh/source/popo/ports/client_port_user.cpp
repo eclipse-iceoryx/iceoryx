@@ -38,21 +38,21 @@ ClientPortUser::MemberType_t* ClientPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<RequestHeader*, AllocationError>
-ClientPortUser::allocateRequest(const uint32_t userPayloadSize, const uint32_t userPayloadAlignment) noexcept
+expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const uint32_t userPayloadSize,
+                                                                          const uint32_t userPayloadAlignment) noexcept
 {
     auto allocateResult = m_chunkSender.tryAllocate(
         getUniqueID(), userPayloadSize, userPayloadAlignment, sizeof(RequestHeader), alignof(RequestHeader));
 
     if (allocateResult.has_error())
     {
-        return cxx::error<AllocationError>(allocateResult.get_error());
+        return error<AllocationError>(allocateResult.get_error());
     }
 
     auto* requestHeader = new (allocateResult.value()->userHeader())
         RequestHeader(getMembers()->m_chunkReceiverData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
 
-    return cxx::success<RequestHeader*>(requestHeader);
+    return success<RequestHeader*>(requestHeader);
 }
 
 void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
@@ -67,13 +67,13 @@ void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
 }
 
-cxx::expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
+expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
 {
     if (requestHeader == nullptr)
     {
         LogError() << "Attempted to send a nullptr request!";
         errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
-        return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
+        return error<ClientSendError>(ClientSendError::INVALID_REQUEST);
     }
 
     const auto connectRequested = getMembers()->m_connectRequested.load(std::memory_order_relaxed);
@@ -81,17 +81,17 @@ cxx::expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const 
     {
         releaseRequest(requestHeader);
         LogWarn() << "Try to send request without being connected!";
-        return cxx::error<ClientSendError>(ClientSendError::NO_CONNECT_REQUESTED);
+        return error<ClientSendError>(ClientSendError::NO_CONNECT_REQUESTED);
     }
 
     auto numberOfReceiver = m_chunkSender.send(requestHeader->getChunkHeader());
     if (numberOfReceiver == 0U)
     {
         LogWarn() << "Try to send request but server is not available!";
-        return cxx::error<ClientSendError>(ClientSendError::SERVER_NOT_AVAILABLE);
+        return error<ClientSendError>(ClientSendError::SERVER_NOT_AVAILABLE);
     }
 
-    return cxx::success<void>();
+    return success<void>();
 }
 
 void ClientPortUser::connect() noexcept
@@ -115,17 +115,16 @@ ConnectionState ClientPortUser::getConnectionState() const noexcept
     return getMembers()->m_connectionState;
 }
 
-cxx::expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResponse() noexcept
+expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResponse() noexcept
 {
     auto getChunkResult = m_chunkReceiver.tryGet();
 
     if (getChunkResult.has_error())
     {
-        return cxx::error<ChunkReceiveResult>(getChunkResult.get_error());
+        return error<ChunkReceiveResult>(getChunkResult.get_error());
     }
 
-    return cxx::success<const ResponseHeader*>(
-        static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));
+    return success<const ResponseHeader*>(static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));
 }
 
 void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept

@@ -145,7 +145,7 @@ class PortManager_test : public Test
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto interfacePort = m_portManager->acquireInterfacePortData(
-                iox::capro::Interfaces::INTERNAL, iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+                iox::capro::Interfaces::INTERNAL, iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
             ASSERT_NE(interfacePort, nullptr);
             if (f)
             {
@@ -162,7 +162,7 @@ class PortManager_test : public Test
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto condVar = m_portManager->acquireConditionVariableData(
-                iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+                iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
             ASSERT_FALSE(condVar.has_error());
             if (f)
             {
@@ -179,9 +179,8 @@ class PortManager_test : public Test
     {
         for (unsigned int i = 0U; i < iox::MAX_NODE_NUMBER; i++)
         {
-            iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity,
-                                              runtimeName + iox::cxx::convert::toString(i));
-            iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
+            iox::RuntimeName_t newProcessName(iox::TruncateToCapacity, runtimeName + iox::cxx::convert::toString(i));
+            iox::NodeName_t newNodeName(iox::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
             auto node = m_portManager->acquireNodeData(newProcessName, newNodeName);
             ASSERT_FALSE(node.has_error());
             if (f)

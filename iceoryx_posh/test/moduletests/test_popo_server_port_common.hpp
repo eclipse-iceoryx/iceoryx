@@ -219,7 +219,7 @@ class ServerPort_test : public Test
         return options;
     }();
 
-    iox::cxx::optional<SutServerPort> clientPortForStateTransitionTests;
+    iox::optional<SutServerPort> clientPortForStateTransitionTests;
 
   public:
     static constexpr uint32_t USER_PAYLOAD_SIZE{32U};

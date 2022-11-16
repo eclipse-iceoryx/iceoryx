@@ -34,7 +34,7 @@ class PosixGroup
 {
   public:
     static constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
-    using groupName_t = cxx::string<MAX_GROUP_NAME_LENGTH>;
+    using groupName_t = string<MAX_GROUP_NAME_LENGTH>;
     explicit PosixGroup(const gid_t id) noexcept;
     explicit PosixGroup(const groupName_t& name) noexcept;
 
@@ -47,8 +47,8 @@ class PosixGroup
 
     static PosixGroup getGroupOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getGroupID(const groupName_t& name) noexcept;
-    static cxx::optional<groupName_t> getGroupName(gid_t id) noexcept;
+    static optional<uid_t> getGroupID(const groupName_t& name) noexcept;
+    static optional<groupName_t> getGroupName(gid_t id) noexcept;
 
   private:
     gid_t m_id;
@@ -61,7 +61,7 @@ class PosixUser
     using groupVector_t = cxx::vector<PosixGroup, MaxNumberOfGroups>;
 
     static constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
-    using userName_t = cxx::string<MAX_USER_NAME_LENGTH>;
+    using userName_t = string<MAX_USER_NAME_LENGTH>;
 
     explicit PosixUser(const uid_t id) noexcept;
     explicit PosixUser(const userName_t& name) noexcept;
@@ -74,8 +74,8 @@ class PosixUser
 
     static PosixUser getUserOfCurrentProcess() noexcept;
 
-    static cxx::optional<uid_t> getUserID(const userName_t& name) noexcept;
-    static cxx::optional<userName_t> getUserName(uid_t id) noexcept;
+    static optional<uid_t> getUserID(const userName_t& name) noexcept;
+    static optional<userName_t> getUserName(uid_t id) noexcept;
 
   private:
     uid_t m_id;

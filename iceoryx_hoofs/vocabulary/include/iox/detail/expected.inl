@@ -21,10 +21,20 @@
 
 namespace iox
 {
-namespace cxx
-{
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
 // available for delegation
+namespace internal
+{
+template <typename... T>
+struct IsOptional : std::false_type
+{
+};
+template <typename T>
+struct IsOptional<iox::optional<T>> : std::true_type
+{
+};
+} // namespace internal
+
 template <typename T>
 inline success<T>::success(const T& t) noexcept
     : value(t)
@@ -162,7 +172,7 @@ inline ErrorType& expected<ValueType, ErrorType>::get_error() & noexcept
 template <typename ValueType, typename ErrorType>
 inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexcept
 {
-    ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
+    cxx::ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
     return get_error_unchecked();
 }
 
@@ -181,7 +191,7 @@ inline ValueType&& expected<ValueType, ErrorType>::value() && noexcept
 template <typename ValueType, typename ErrorType>
 inline const ValueType& expected<ValueType, ErrorType>::value() const& noexcept
 {
-    ExpectsWithMsg(!has_error(), "Trying to access a value but an error is stored!");
+    cxx::ExpectsWithMsg(!has_error(), "Trying to access a value but an error is stored!");
     return value_unchecked();
 }
 
@@ -387,7 +397,7 @@ inline ErrorType& expected<ErrorType>::get_error() & noexcept
 template <typename ErrorType>
 inline const ErrorType& expected<ErrorType>::get_error() const& noexcept
 {
-    ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
+    cxx::ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
     return get_error_unchecked();
 }
 
@@ -438,8 +448,6 @@ inline constexpr bool operator!=(const expected<ValueType, ErrorType>& lhs,
 {
     return !(lhs == rhs);
 }
-
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_HOOFS_VOCABULARY_EXPECTED_INL

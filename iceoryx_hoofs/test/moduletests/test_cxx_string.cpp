@@ -21,7 +21,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 template <typename T>
 class stringTyped_test : public Test
@@ -2677,7 +2677,7 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
     const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);
     const std::string testStdString = expectedString.substr(1);
 
-    // append iox::cxx::string
+    // append iox::string
     sut.append(TruncateToCapacity, testCxxString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
@@ -3706,7 +3706,7 @@ TEST(stringTyped_test, CxxStringsAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
 
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<1>>::value);
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<10>>::value);
+    EXPECT_TRUE(is_cxx_string<iox::string<1>>::value);
+    EXPECT_TRUE(is_cxx_string<iox::string<10>>::value);
 }
 } // namespace

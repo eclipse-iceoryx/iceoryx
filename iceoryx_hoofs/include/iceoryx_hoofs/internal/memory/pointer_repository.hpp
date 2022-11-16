@@ -73,9 +73,9 @@ class PointerRepository final
     /// @brief registers the start pointer of a segment with a specific size
     /// @param[in] ptr is the start pointer of the segment
     /// @param[in] size is the size of the segment
-    /// @return the segment id to which the pointer was added wrapped in an cxx::optional, cxx::nullopt if pointer was
+    /// @return the segment id to which the pointer was added wrapped in an optional, nullopt if pointer was
     /// not added
-    cxx::optional<id_t> registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept;
+    optional<id_t> registerPtr(const ptr_t ptr, const uint64_t size = 0U) noexcept;
 
     /// @brief unregisters the id
     /// @param[in] id is the id to be unregistered

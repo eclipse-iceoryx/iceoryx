@@ -52,9 +52,9 @@ void PortPoolMemoryBlock::destroy() noexcept
     }
 }
 
-cxx::optional<PortPoolData*> PortPoolMemoryBlock::portPool() const noexcept
+optional<PortPoolData*> PortPoolMemoryBlock::portPool() const noexcept
 {
-    return m_portPoolData ? cxx::make_optional<PortPoolData*>(m_portPoolData) : cxx::nullopt_t();
+    return m_portPoolData ? make_optional<PortPoolData*>(m_portPoolData) : nullopt_t();
 }
 
 } // namespace roudi

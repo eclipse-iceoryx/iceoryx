@@ -43,8 +43,8 @@ inline bool PointerRepository<id_t, ptr_t, CAPACITY>::registerPtrWithId(const id
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>
-inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
-                                                                                 const uint64_t size) noexcept
+inline optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr(const ptr_t ptr,
+                                                                            const uint64_t size) noexcept
 {
     for (id_t id{1U}; id <= MAX_ID; ++id)
     {
@@ -54,7 +54,7 @@ inline cxx::optional<id_t> PointerRepository<id_t, ptr_t, CAPACITY>::registerPtr
         }
     }
 
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename id_t, typename ptr_t, uint64_t CAPACITY>

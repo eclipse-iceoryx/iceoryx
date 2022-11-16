@@ -74,8 +74,8 @@ class Channel
     /// @return A copy of the created channel, if successful.
     ///
     template <typename IceoryxPubSubOptions>
-    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
-                                                       const IceoryxPubSubOptions& options) noexcept;
+    static expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
+                                                  const IceoryxPubSubOptions& options) noexcept;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;

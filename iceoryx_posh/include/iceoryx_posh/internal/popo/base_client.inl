@@ -129,9 +129,9 @@ BaseClient<PortT, TriggerHandleT>::getCallbackForIsStateConditionSatisfied(const
     switch (clientState)
     {
     case ClientState::HAS_RESPONSE:
-        return WaitSetIsConditionSatisfiedCallback(cxx::in_place, *this, &SelfType::hasResponses);
+        return WaitSetIsConditionSatisfiedCallback(in_place, *this, &SelfType::hasResponses);
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename PortT, typename TriggerHandleT>

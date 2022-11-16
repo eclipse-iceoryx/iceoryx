@@ -20,8 +20,6 @@
 
 namespace iox
 {
-namespace cxx
-{
 template <uint64_t Capacity>
 class string;
 
@@ -32,10 +30,9 @@ struct is_cxx_string : std::false_type
 };
 
 template <uint64_t N>
-struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
+struct is_cxx_string<::iox::string<N>> : std::true_type
 {
 };
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_HOOFS_VOCABULARY_STRING_TYPE_TRAITS_HPP

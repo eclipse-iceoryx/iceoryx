@@ -37,15 +37,15 @@ UntypedServerImpl<BaseServerT>::~UntypedServerImpl() noexcept
 }
 
 template <typename BaseServerT>
-cxx::expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::take() noexcept
+expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::take() noexcept
 {
     auto requestResult = port().getRequest();
     if (requestResult.has_error())
     {
-        return cxx::error<ServerRequestResult>(requestResult.get_error());
+        return error<ServerRequestResult>(requestResult.get_error());
     }
 
-    return cxx::success<const void*>(mepoo::ChunkHeader::fromUserHeader(requestResult.value())->userPayload());
+    return success<const void*>(mepoo::ChunkHeader::fromUserHeader(requestResult.value())->userPayload());
 }
 
 template <typename BaseServerT>
@@ -59,26 +59,26 @@ void UntypedServerImpl<BaseServerT>::releaseRequest(const void* const requestPay
 }
 
 template <typename BaseServerT>
-cxx::expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const RequestHeader* const requestHeader,
-                                                                           const uint32_t payloadSize,
-                                                                           const uint32_t payloadAlignment) noexcept
+expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const RequestHeader* const requestHeader,
+                                                                      const uint32_t payloadSize,
+                                                                      const uint32_t payloadAlignment) noexcept
 {
     auto allocationResult = port().allocateResponse(requestHeader, payloadSize, payloadAlignment);
     if (allocationResult.has_error())
     {
-        return cxx::error<AllocationError>(allocationResult.get_error());
+        return error<AllocationError>(allocationResult.get_error());
     }
 
-    return cxx::success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
+    return success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
 }
 
 template <typename BaseServerT>
-cxx::expected<ServerSendError> UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
+expected<ServerSendError> UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
 {
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
     if (chunkHeader == nullptr)
     {
-        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
+        return error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 
     return port().sendResponse(static_cast<ResponseHeader*>(chunkHeader->userHeader()));

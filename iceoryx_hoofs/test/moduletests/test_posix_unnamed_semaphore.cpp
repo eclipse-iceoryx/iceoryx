@@ -23,6 +23,7 @@ namespace
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
+using namespace iox;
 
 class UnnamedSemaphoreTest : public Test
 {

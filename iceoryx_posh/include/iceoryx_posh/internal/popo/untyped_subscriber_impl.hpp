@@ -55,7 +55,7 @@ class UntypedSubscriberImpl : public BaseSubscriberType
     /// @details No automatic cleanup of the associated chunk is performed
     ///          and must be manually done by calling `release`
     ///
-    cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
+    expected<const void*, ChunkReceiveResult> take() noexcept;
 
     ///
     /// @brief Releases the ownership of the chunk provided by the user-payload pointer.

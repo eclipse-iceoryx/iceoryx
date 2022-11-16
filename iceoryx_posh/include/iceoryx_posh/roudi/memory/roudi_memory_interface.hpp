@@ -48,16 +48,16 @@ class RouDiMemoryInterface
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    virtual cxx::expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
+    virtual expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    virtual cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
+    virtual expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
 
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
-    virtual cxx::optional<PortPool*> portPool() noexcept = 0;
-    virtual cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
-    virtual cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
+    virtual optional<PortPool*> portPool() noexcept = 0;
+    virtual optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
+    virtual optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
 };
 } // namespace roudi
 } // namespace iox

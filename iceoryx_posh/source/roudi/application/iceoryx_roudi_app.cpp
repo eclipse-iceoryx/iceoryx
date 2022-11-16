@@ -36,10 +36,10 @@ uint8_t IceOryxRouDiApp::run() noexcept
 {
     if (m_run)
     {
-        static cxx::optional<IceOryxRouDiComponents> m_rouDiComponents;
+        static optional<IceOryxRouDiComponents> m_rouDiComponents;
         auto componentsScopeGuard = cxx::makeScopedStatic(m_rouDiComponents, m_config);
 
-        static cxx::optional<RouDi> roudi;
+        static optional<RouDi> roudi;
         auto roudiScopeGuard =
             cxx::makeScopedStatic(roudi,
                                   m_rouDiComponents.value().rouDiMemoryManager,

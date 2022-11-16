@@ -35,6 +35,7 @@ using namespace ::testing;
 
 using namespace iox::popo;
 using namespace iox::cxx;
+using namespace iox;
 using namespace iox::units::duration_literals;
 
 class WaitSetTest : public iox::popo::WaitSet<>
@@ -141,27 +142,27 @@ class WaitSet_test : public Test
 
         iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied() const noexcept
         {
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         bool hasTriggered() const

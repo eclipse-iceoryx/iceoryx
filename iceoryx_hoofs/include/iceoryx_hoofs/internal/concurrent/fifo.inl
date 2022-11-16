@@ -66,7 +66,7 @@ inline bool FiFo<ValueType, Capacity>::empty() const noexcept
 }
 
 template <class ValueType, uint64_t Capacity>
-inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
+inline optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
 {
     auto currentReadPos = m_read_pos.load(std::memory_order_acquire);
     bool isEmpty = (currentReadPos ==
@@ -75,7 +75,7 @@ inline cxx::optional<ValueType> FiFo<ValueType, Capacity>::pop() noexcept
                     m_write_pos.load(std::memory_order_acquire));
     if (isEmpty)
     {
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     ValueType out = m_data[currentReadPos % Capacity];
 

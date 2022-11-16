@@ -26,13 +26,13 @@ PoshRuntime*& getSingleProcessRuntime() noexcept
     return singleProcessRuntime;
 }
 
-PoshRuntime& singleProcessRuntimeFactory(cxx::optional<const RuntimeName_t*>) noexcept
+PoshRuntime& singleProcessRuntimeFactory(optional<const RuntimeName_t*>) noexcept
 {
     return *getSingleProcessRuntime();
 }
 
 PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) noexcept
-    : PoshRuntimeImpl(cxx::make_optional<const RuntimeName_t*>(&name), RuntimeLocation::SAME_PROCESS_LIKE_ROUDI)
+    : PoshRuntimeImpl(make_optional<const RuntimeName_t*>(&name), RuntimeLocation::SAME_PROCESS_LIKE_ROUDI)
 {
     auto currentFactory = PoshRuntime::getRuntimeFactory();
     if (currentFactory != nullptr && *currentFactory == PoshRuntime::defaultRuntimeFactory)

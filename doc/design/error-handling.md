@@ -54,7 +54,7 @@ To this end it is necessary to eliminate the use of all potentially throwing (th
 
 #### Alternatives to exceptions
 
-As an alternative to exceptions we use the error handler and a variation of return codes in the form of ``cxx::expected``, described below. ``cxx::expected`` can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another ``cxx::expected``). Error handling itself is performed by the error handler which handles errors occurring in the subcomponents of ``iceoryx::posh``.
+As an alternative to exceptions we use the error handler and a variation of return codes in the form of ``iox::expected``, described below. ``iox::expected`` can be used to communicate the error to the caller, who has to decide whether to handle the error itself or propagate it further (e.g. as another ``iox::expected``). Error handling itself is performed by the error handler which handles errors occurring in the subcomponents of ``iceoryx::posh``.
 
 ### Error handler
 
@@ -124,22 +124,22 @@ Although Expects end Ensures behave the same, the former is used to signify a pr
 
 Examples include expecting pointers that are not null (as input, intermediate or final result) or range checks of variables.
 
-### `cxx::expected`
+### `iox::expected`
 
-``cxx::expected<T, E>`` is a template which either holds the result of the computation of type ``T`` or an object of error type ``E``. The latter can be used to obtain additional information about the error, e.g. an error code.
+``iox::expected<T, E>`` is a template which either holds the result of the computation of type ``T`` or an object of error type ``E``. The latter can be used to obtain additional information about the error, e.g. an error code.
 In a way this extends error codes and may act as kind of a replacement of exceptions. It is usually used as return type of functions which may fail for various reasons and should be used if the error is supposed to be delegated to the caller and handled in the caller context.
 It is also possible to further propagate the error to the next function in the call-stack (since this must be done explicitly, which is comparable to rethrowing an exception).
 
-It is possible to use the ``nodiscard`` option to force the user to handle the returned ``cxx::expected``.
+It is possible to use the ``nodiscard`` option to force the user to handle the returned ``iox::expected``.
 If the error cannot be handled at a higher level by the caller, the error handler needs to be used.
 
-Examples include wrapping third party API functions that return error codes or obtaining a value from a container when this can fail for some reason (e.g. container is empty). If no additional information about the error is available or required, ``cxx::optional<T>`` can be used instead.
+Examples include wrapping third party API functions that return error codes or obtaining a value from a container when this can fail for some reason (e.g. container is empty). If no additional information about the error is available or required, ``iox::optional<T>`` can be used instead.
 
 ### Error handling in posh
 
 Error logging shall be done by the logger only, no calls to ``std::cerr`` or similar should be performed.
 
-All the methods presented (``cxx::expected``, ``Expects`` and ``Ensures`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
+All the methods presented (``iox::expected``, ``Expects`` and ``Ensures`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
 ### Error handling in hoofs
 
@@ -148,7 +148,7 @@ Some files may still use `std::cout`/`std::cerr`/`std::clog` but this should be 
 
 The error handler cannot be used in hoofs.
 
-Whether it is appropriate to use ``cxx::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``cxx::expected`` can be used freely to communicate potential failure to the caller.
+Whether it is appropriate to use ``iox::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``iox::expected`` can be used freely to communicate potential failure to the caller.
 
 It should be noted that since currently `Expects` and `Ensures` are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
 
@@ -220,13 +220,13 @@ int32_t myAlgorithm(int32_t* ptr) {
 Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``not_null`` incurs a runtime cost, which may be undesirable.
 When Expects and Ensures are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
 
-### `cxx::expected`
+### `expected`
 
 This example checks the arguments and if they are valid proceeds to compute a result and returns it.
 Otherwise it creates an Error object from an errorCode and returns it.
 
 ```cpp
-cxx::expected<SomeType, Error> func(Arg arg) {
+expected<SomeType, Error> func(Arg arg) {
     int32_t errorCode = checkArg(arg);
     if(isNoError(errorCode)) {
         SomeType result = computeResult(arg);
@@ -336,8 +336,8 @@ In this section we briefly describe ways to potentially improve or extend functi
 
 Allow deactivation in release mode, but it should still be possible to leave them active in release mode as well if desired. Deactivation in debug mode can also be considered but is less critical. Deactivation should eliminate all runtime overhead (i.e. condition evaluation).
 
-### cxx::expected
+### expected
 
-1. Consider renaming ``cxx::expected`` to ``cxx::result``, which is more in line with languages such as Rust and conveys the meaning more clearly.
-1. Add ``has_value`` (in addition to ``has_error``) for consistency with ``cxx::optional``.
+1. Consider renaming ``expected`` to ``cxx::result``, which is more in line with languages such as Rust and conveys the meaning more clearly.
+1. Add ``has_value`` (in addition to ``has_error``) for consistency with ``optional``.
 1. Improve the monadic error handling (beyond ``and_then``, ``or_else``) to allow for better pipelining of multiple consecutive calls (especially in the success case). This requires careful consideration of supported use cases and intended behavior but can reduce control flow code (``if ... else ...``) in error cases considerably.

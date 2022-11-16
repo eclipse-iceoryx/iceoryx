@@ -27,9 +27,9 @@ void MemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory IOX_MAYBE_UNUSED
     // nothing to do in the default implementation
 }
 
-cxx::optional<void*> MemoryBlock::memory() const noexcept
+optional<void*> MemoryBlock::memory() const noexcept
 {
-    return m_memory ? cxx::make_optional<void*>(m_memory) : cxx::nullopt_t();
+    return m_memory ? make_optional<void*>(m_memory) : nullopt_t();
 }
 
 } // namespace roudi

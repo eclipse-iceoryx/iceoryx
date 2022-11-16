@@ -27,7 +27,7 @@ namespace iox
 {
 namespace config
 {
-cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+expected<CmdLineArgs_t, CmdLineParserResult>
 CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cmdLineParsingMode) noexcept
 {
     constexpr option LONG_OPTIONS[] = {{"help", no_argument, nullptr, 'h'},
@@ -203,7 +203,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             // CmdLineParser did not understand the parameters, don't run
             m_run = false;
-            return cxx::error<CmdLineParserResult>(CmdLineParserResult::UNKNOWN_OPTION_USED);
+            return error<CmdLineParserResult>(CmdLineParserResult::UNKNOWN_OPTION_USED);
         }
         };
 
@@ -212,13 +212,13 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         }
     }
-    return cxx::success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                     m_logLevel,
-                                                     m_compatibilityCheckLevel,
-                                                     m_processKillDelay,
-                                                     m_uniqueRouDiId,
-                                                     m_run,
-                                                     iox::roudi::ConfigFilePathString_t("")});
+    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
+                                                m_logLevel,
+                                                m_compatibilityCheckLevel,
+                                                m_processKillDelay,
+                                                m_uniqueRouDiId,
+                                                m_run,
+                                                iox::roudi::ConfigFilePathString_t("")});
 } // namespace roudi
 } // namespace config
 } // namespace iox

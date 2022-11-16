@@ -33,7 +33,7 @@ enum class SharedPointerError
 /// @brief DesignPattern::Creation offers us a create method which forwards the arguments to
 /// the constructor. Use this class like in the code example below
 /// @code
-///     // cxx::expected
+///     // expected
 ///     auto sharedPointer = SharedPointer<int>::Create(mySharedChunk, 123);
 ///     if ( sharedPointer.has_error() ) {
 ///         // ...

@@ -80,7 +80,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
     return true;
 }
 
-cxx::expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
+expected<AccessController::smartAclPointer_t, AccessController::AccessControllerError>
 AccessController::createACL(const int32_t numEntries) noexcept
 {
     // allocate memory for a new ACL
@@ -88,7 +88,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
 
     if (aclInitCall.has_error())
     {
-        return cxx::error<AccessControllerError>(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
+        return error<AccessControllerError>(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
@@ -100,7 +100,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
-    return cxx::success<smartAclPointer_t>(aclInitCall->value, freeACL);
+    return success<smartAclPointer_t>(aclInitCall->value, freeACL);
 }
 
 bool AccessController::addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept

@@ -55,12 +55,12 @@ class ServerPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that changes the offer state of the server
     /// @return CaPro message with the new offer state, empty optional if no state change
-    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
+    optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message to the server for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the server and release all the chunks it currently holds
@@ -73,9 +73,8 @@ class ServerPortRouDi : public BasePort
 
     void handleCaProProtocolViolation(const capro::CaproMessageType messageType) const noexcept;
 
-    cxx::optional<capro::CaproMessage>
-    handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept;
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage> handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept;
+    optional<capro::CaproMessage>
     handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept;
 
     ChunkSender<ServerChunkSenderData_t> m_chunkSender;

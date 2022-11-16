@@ -37,6 +37,7 @@ using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::capro;
 using namespace iox::cxx;
+using namespace iox;
 using namespace iox::popo;
 using iox::roudi::RouDiEnvironment;
 
@@ -134,7 +135,7 @@ TEST_F(PoshRuntime_test, MaxAppNameLength)
     ::testing::Test::RecordProperty("TEST_ID", "dfdf3ce1-c7d4-4c57-94ea-6ed9479371e3");
     std::string maxValidName(iox::MAX_RUNTIME_NAME_LENGTH, 's');
 
-    auto& runtime = PoshRuntime::initRuntime(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, maxValidName));
+    auto& runtime = PoshRuntime::initRuntime(iox::RuntimeName_t(iox::TruncateToCapacity, maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
@@ -163,7 +164,7 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
                    "",
                    "letsFlyInto "})
     {
-        const iox::RuntimeName_t invalidAppName(iox::cxx::TruncateToCapacity, i);
+        const iox::RuntimeName_t invalidAppName(iox::TruncateToCapacity, i);
 
         EXPECT_DEATH(PoshRuntime::initRuntime(invalidAppName), ".*");
     }
@@ -192,7 +193,7 @@ TEST_F(PoshRuntime_test, GetInstanceNameIsSuccessful)
 TEST_F(PoshRuntime_test, GetMiddlewareInterfaceWithInvalidNodeNameIsNotSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d207e121-d7c2-4a23-a202-1af311f6982b");
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -739,7 +740,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWithInvalidNodeNameLeadsToErrorHandl
     iox::popo::ClientOptions clientOptions;
     clientOptions.nodeName = m_invalidNodeName;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -850,7 +851,7 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWithInvalidNodeNameLeadsToErrorHandl
     iox::popo::ServerOptions serverOptions;
     serverOptions.nodeName = m_invalidNodeName;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -916,7 +917,7 @@ TEST_F(PoshRuntime_test, CreatingNodeWithInvalidNodeNameLeadsToErrorHandlerCall)
     const uint32_t nodeDeviceIdentifier = 1U;
     iox::runtime::NodeProperty nodeProperty(m_invalidNodeName, nodeDeviceIdentifier);
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -1151,7 +1152,7 @@ TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
                 using PoshRuntime::setRuntimeFactory;
 
               private:
-                FactoryAccess(iox::cxx::optional<const iox::RuntimeName_t*> s)
+                FactoryAccess(iox::optional<const iox::RuntimeName_t*> s)
                     : PoshRuntime(s)
                 {
                 }

@@ -50,8 +50,8 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 struct MemPoolIntrospectionInfo
 {
     uint32_t m_id;
-    cxx::string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
-    cxx::string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
+    string<MAX_GROUP_NAME_LENGTH> m_writerGroupName;
+    string<MAX_GROUP_NAME_LENGTH> m_readerGroupName;
     MemPoolInfoContainer m_mempoolInfo;
 };
 

@@ -55,9 +55,9 @@ class CmdLineParser
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
-    /// @param[out] Result wrapped in an cxx::expected, either the parsed arguments as CmdLineArgs_t struct or
+    /// @param[out] Result wrapped in an expected, either the parsed arguments as CmdLineArgs_t struct or
     /// CmdLineParserResult
-    virtual cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+    virtual expected<CmdLineArgs_t, CmdLineParserResult>
     parse(int argc,
           char* argv[],
           const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
@@ -67,7 +67,7 @@ class CmdLineParser
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::OFF};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    cxx::optional<uint16_t> m_uniqueRouDiId;
+    optional<uint16_t> m_uniqueRouDiId;
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 };
 

@@ -55,16 +55,16 @@ Creation<DerivedClass, ErrorType>::verify(DerivedClass&& newObject) noexcept
 {
     if (!newObject.m_isInitialized)
     {
-        return iox::cxx::error<ErrorType>(newObject.m_errorValue);
+        return iox::error<ErrorType>(newObject.m_errorValue);
     }
 
-    return iox::cxx::success<DerivedClass>(std::move(newObject));
+    return iox::success<DerivedClass>(std::move(newObject));
 }
 
 template <typename DerivedClass, typename ErrorType>
 template <typename... Targs>
-inline iox::cxx::expected<ErrorType> Creation<DerivedClass, ErrorType>::placementCreate(void* const memory,
-                                                                                        Targs&&... args) noexcept
+inline iox::expected<ErrorType> Creation<DerivedClass, ErrorType>::placementCreate(void* const memory,
+                                                                                   Targs&&... args) noexcept
 {
     auto newClass = static_cast<DerivedClass*>(memory);
     new (newClass) DerivedClass(std::forward<Targs>(args)...);
@@ -73,10 +73,10 @@ inline iox::cxx::expected<ErrorType> Creation<DerivedClass, ErrorType>::placemen
     {
         ErrorType errorValue = newClass->m_errorValue;
         newClass->~DerivedClass();
-        return iox::cxx::error<ErrorType>(errorValue);
+        return iox::error<ErrorType>(errorValue);
     }
 
-    return iox::cxx::success<>();
+    return iox::success<>();
 }
 
 

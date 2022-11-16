@@ -188,7 +188,7 @@ TEST_F(SegmentManager_test, addingMoreThanOneWriterGroupFails)
     SegmentConfig segmentConfig = getInvalidSegmentConfig();
     SUT sut{segmentConfig, &allocator};
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);

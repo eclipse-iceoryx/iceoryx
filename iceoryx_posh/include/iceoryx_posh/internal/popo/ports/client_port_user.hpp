@@ -82,8 +82,8 @@ class ClientPortUser : public BasePort
     /// @param[in] userPayloadAlignment, alignment of the user-paylaod without additional headers
     /// @return on success pointer to a RequestHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    cxx::expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t userPayloadSize,
-                                                                   const uint32_t userPayloadAlignment) noexcept;
+    expected<RequestHeader*, AllocationError> allocateRequest(const uint32_t userPayloadSize,
+                                                              const uint32_t userPayloadAlignment) noexcept;
 
     /// @brief Releases an allocated request without sending it
     /// @param[in] requestHeader, pointer to the RequestHeader to free
@@ -92,7 +92,7 @@ class ClientPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] requestHeader, pointer to the RequestHeader to send
     /// @return ClientSendError if sending was not successful
-    cxx::expected<ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
+    expected<ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
 
     /// @brief try to connect to the server Caution: There can be delays between calling connect and a change
     /// in the connection state
@@ -114,9 +114,9 @@ class ClientPortUser : public BasePort
 
     /// @brief Tries to get the next response from the queue. If there is a new one, the ResponseHeader of the oldest
     /// response in the queue is returned (FiFo queue)
-    /// @return cxx::expected that has a new ResponseHeader if there are new responses in the underlying queue,
+    /// @return expected that has a new ResponseHeader if there are new responses in the underlying queue,
     /// ChunkReceiveResult on error
-    cxx::expected<const ResponseHeader*, ChunkReceiveResult> getResponse() noexcept;
+    expected<const ResponseHeader*, ChunkReceiveResult> getResponse() noexcept;
 
     /// @brief Release a response that was obtained with getResponseChunk
     /// @param[in] requestHeader, pointer to the ResponseHeader to release

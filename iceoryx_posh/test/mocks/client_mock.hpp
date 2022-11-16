@@ -50,19 +50,16 @@ class MockClientPortUser : public MockBasePort
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
-    MOCK_METHOD((iox::cxx::expected<iox::popo::RequestHeader*, iox::popo::AllocationError>),
+    MOCK_METHOD((iox::expected<iox::popo::RequestHeader*, iox::popo::AllocationError>),
                 allocateRequest,
                 (const uint32_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseRequest, (const iox::popo::RequestHeader* const), (noexcept));
-    MOCK_METHOD(iox::cxx::expected<iox::popo::ClientSendError>,
-                sendRequest,
-                (iox::popo::RequestHeader* const),
-                (noexcept));
+    MOCK_METHOD(iox::expected<iox::popo::ClientSendError>, sendRequest, (iox::popo::RequestHeader* const), (noexcept));
     MOCK_METHOD(void, connect, (), (noexcept));
     MOCK_METHOD(void, disconnect, (), (noexcept));
     MOCK_METHOD(iox::ConnectionState, getConnectionState, (), (const, noexcept));
-    MOCK_METHOD((iox::cxx::expected<const iox::popo::ResponseHeader*, iox::popo::ChunkReceiveResult>),
+    MOCK_METHOD((iox::expected<const iox::popo::ResponseHeader*, iox::popo::ChunkReceiveResult>),
                 getResponse,
                 (),
                 (noexcept));

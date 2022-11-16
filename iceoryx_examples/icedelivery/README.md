@@ -87,7 +87,7 @@ publisher.loan(sizeof(RadarObject))
     });
 ```
 
-The call to `loan()` returns a `cxx::expected`. By concatenating `and_then` and `or_else` branches are implicitly taken
+The call to `loan()` returns a `expected`. By concatenating `and_then` and `or_else` branches are implicitly taken
 and your code becomes less error-prone compared to using `if() { .. } else { .. }`. Well, it's a bit of a
 [lambda](https://en.wikipedia.org/wiki/Anonymous_function#C++_(since_C++11)) jungle. Read it like a story in a book:
 "Loan memory and then if it succeeds, fill it with some data or else if it fails, handle the error".

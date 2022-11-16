@@ -37,16 +37,16 @@ UntypedClientImpl<BaseClientT>::~UntypedClientImpl() noexcept
 }
 
 template <typename BaseClientT>
-cxx::expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint32_t payloadSize,
-                                                                           const uint32_t payloadAlignment) noexcept
+expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint32_t payloadSize,
+                                                                      const uint32_t payloadAlignment) noexcept
 {
     auto allocationResult = port().allocateRequest(payloadSize, payloadAlignment);
     if (allocationResult.has_error())
     {
-        return cxx::error<AllocationError>(allocationResult.get_error());
+        return error<AllocationError>(allocationResult.get_error());
     }
 
-    return cxx::success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
+    return success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
 }
 
 template <typename BaseClientT>
@@ -60,27 +60,27 @@ void UntypedClientImpl<BaseClientT>::releaseRequest(void* const requestPayload) 
 }
 
 template <typename BaseClientT>
-cxx::expected<ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
+expected<ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
 {
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
     if (chunkHeader == nullptr)
     {
-        return cxx::error<ClientSendError>(ClientSendError::INVALID_REQUEST);
+        return error<ClientSendError>(ClientSendError::INVALID_REQUEST);
     }
 
     return port().sendRequest(static_cast<RequestHeader*>(chunkHeader->userHeader()));
 }
 
 template <typename BaseClientT>
-cxx::expected<const void*, ChunkReceiveResult> UntypedClientImpl<BaseClientT>::take() noexcept
+expected<const void*, ChunkReceiveResult> UntypedClientImpl<BaseClientT>::take() noexcept
 {
     auto responseResult = port().getResponse();
     if (responseResult.has_error())
     {
-        return cxx::error<ChunkReceiveResult>(responseResult.get_error());
+        return error<ChunkReceiveResult>(responseResult.get_error());
     }
 
-    return cxx::success<const void*>(mepoo::ChunkHeader::fromUserHeader(responseResult.value())->userPayload());
+    return success<const void*>(mepoo::ChunkHeader::fromUserHeader(responseResult.value())->userPayload());
 }
 
 template <typename BaseClientT>

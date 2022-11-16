@@ -26,8 +26,8 @@ ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::S
 {
 }
 
-cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
-                                                           ReferenceCounter_t ServiceDescriptionEntry::*count)
+expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
+                                                      ReferenceCounter_t ServiceDescriptionEntry::*count)
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
@@ -37,7 +37,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
         ((*entry).*count)++;
-        return cxx::success<>();
+        return success<>();
     }
 
     // entry does not exist, find a free slot if it exists
@@ -50,7 +50,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
         m_freeIndex = NO_INDEX;
-        return cxx::success<>();
+        return success<>();
     }
 
     // search from start
@@ -60,7 +60,7 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
         {
             entry.emplace(serviceDescription);
             (*entry).*count = 1U;
-            return cxx::success<>();
+            return success<>();
         }
     }
 
@@ -70,19 +70,19 @@ cxx::expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceD
         auto& entry = m_serviceDescriptions.back();
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
-        return cxx::success<>();
+        return success<>();
     }
 
-    return cxx::error<Error>(Error::SERVICE_REGISTRY_FULL);
+    return error<Error>(Error::SERVICE_REGISTRY_FULL);
 }
 
-cxx::expected<ServiceRegistry::Error>
+expected<ServiceRegistry::Error>
 ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescription) noexcept
 {
     return add(serviceDescription, &ServiceDescriptionEntry::publisherCount);
 }
 
-cxx::expected<ServiceRegistry::Error>
+expected<ServiceRegistry::Error>
 ServiceRegistry::addServer(const capro::ServiceDescription& serviceDescription) noexcept
 {
     return add(serviceDescription, &ServiceDescriptionEntry::serverCount);
@@ -138,9 +138,9 @@ void ServiceRegistry::purge(const capro::ServiceDescription& serviceDescription)
     }
 }
 
-void ServiceRegistry::find(const cxx::optional<capro::IdString_t>& service,
-                           const cxx::optional<capro::IdString_t>& instance,
-                           const cxx::optional<capro::IdString_t>& event,
+void ServiceRegistry::find(const optional<capro::IdString_t>& service,
+                           const optional<capro::IdString_t>& instance,
+                           const optional<capro::IdString_t>& event,
                            cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)

@@ -62,9 +62,9 @@ void MemPoolSegmentManagerMemoryBlock::destroy() noexcept
     }
 }
 
-cxx::optional<mepoo::SegmentManager<>*> MemPoolSegmentManagerMemoryBlock::segmentManager() const noexcept
+optional<mepoo::SegmentManager<>*> MemPoolSegmentManagerMemoryBlock::segmentManager() const noexcept
 {
-    return m_segmentManager ? cxx::make_optional<mepoo::SegmentManager<>*>(m_segmentManager) : cxx::nullopt_t();
+    return m_segmentManager ? make_optional<mepoo::SegmentManager<>*>(m_segmentManager) : nullopt_t();
 }
 
 } // namespace roudi
