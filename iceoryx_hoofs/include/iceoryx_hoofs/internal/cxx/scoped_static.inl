@@ -27,7 +27,7 @@ template <typename T, typename... CTorArgs>
 inline ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
 {
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
-    return ScopeGuard([&memory] { memory.reset(); });
+    return ScopeGuard([&memory]() { memory.reset(); });
 }
 } // namespace cxx
 } // namespace iox
