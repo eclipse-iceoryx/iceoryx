@@ -186,7 +186,7 @@ inline DestinationType FromImpl<SourceType, DestinationType>::fromImpl(const Sou
 }
 
 template <typename DestinationType, typename SourceType>
-inline constexpr DestinationType into(const SourceType value) noexcept
+inline constexpr DestinationType into(const SourceType value)
 {
     return from<SourceType, DestinationType>(value);
 }

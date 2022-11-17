@@ -20,7 +20,6 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
-#include "iox/string.hpp"
 
 #include <string>
 

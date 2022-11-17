@@ -360,7 +360,7 @@ struct FromImpl
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename DestinationType, typename SourceType>
-constexpr DestinationType into(const SourceType value) noexcept;
+constexpr DestinationType into(const SourceType value);
 } // namespace cxx
 } // namespace iox
 
