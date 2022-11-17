@@ -23,6 +23,54 @@ namespace iox
 {
 namespace popo
 {
+namespace detail
+{
+inline ConditionListener::NotificationVector_t
+uniqueMergeSortedNotificationVector(const ConditionListener::NotificationVector_t& v1,
+                                    const ConditionListener::NotificationVector_t& v2) noexcept
+{
+    ConditionListener::NotificationVector_t mergedVector;
+    uint64_t indexV1{0U};
+    uint64_t indexV2{0U};
+    const uint64_t v1Size{v1.size()};
+    const uint64_t v2Size{v2.size()};
+
+    // Return value of 'emplace_back' is discarded as no overflow can happen since the notification vector stores only
+    // indices that represent active notifications
+    while ((indexV1 < v1Size) && (indexV2 < v2Size))
+    {
+        if (v1[indexV1] == v2[indexV2])
+        {
+            IOX_DISCARD_RESULT(mergedVector.emplace_back(v1[indexV1]));
+            ++indexV1;
+            ++indexV2;
+        }
+        else if (v1[indexV1] < v2[indexV2])
+        {
+            IOX_DISCARD_RESULT(mergedVector.emplace_back(v1[indexV1]));
+            ++indexV1;
+        }
+        else
+        {
+            IOX_DISCARD_RESULT(mergedVector.emplace_back(v2[indexV2]));
+            ++indexV2;
+        }
+    }
+
+    while (indexV2 < v2Size)
+    {
+        IOX_DISCARD_RESULT(mergedVector.emplace_back(v2[indexV2++]));
+    }
+
+    while (indexV1 < v1Size)
+    {
+        IOX_DISCARD_RESULT(mergedVector.emplace_back(v1[indexV1++]));
+    }
+
+    return mergedVector;
+}
+} // namespace detail
+
 template <uint64_t Capacity>
 inline WaitSet<Capacity>::WaitSet() noexcept
     : WaitSet(*runtime::PoshRuntime::getInstance().getMiddlewareConditionVariable())
@@ -317,7 +365,7 @@ inline void WaitSet<Capacity>::acquireNotifications(const WaitFunction& wait) no
     }
     else if (!notificationVector.empty())
     {
-        m_activeNotifications = algorithm::uniqueMergeSortedContainers(notificationVector, m_activeNotifications);
+        m_activeNotifications = detail::uniqueMergeSortedNotificationVector(notificationVector, m_activeNotifications);
     }
 }
 
@@ -352,7 +400,6 @@ inline constexpr uint64_t WaitSet<Capacity>::capacity() noexcept
 {
     return Capacity;
 }
-
 
 } // namespace popo
 } // namespace iox

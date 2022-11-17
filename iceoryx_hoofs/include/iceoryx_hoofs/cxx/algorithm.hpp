@@ -115,15 +115,6 @@ inline constexpr bool doesContainValue(const T) noexcept;
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
-
-/// @brief Merging two sorted containers so that the result is a sorted container
-///        where every element is contained only once
-/// @tparam[in] Container container type which has to support emplace_back() and size()
-/// @param[in] v1 the first sorted input container
-/// @param[in] v2 the second sorted input container
-/// @return sorted container which contains the elements of v1 and v2 and where every element is unique
-template <typename Container>
-Container uniqueMergeSortedContainers(const Container& v1, const Container& v2) noexcept;
 } // namespace algorithm
 } // namespace iox
 

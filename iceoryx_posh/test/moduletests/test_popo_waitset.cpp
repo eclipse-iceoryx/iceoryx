@@ -34,6 +34,7 @@ namespace
 using namespace ::testing;
 
 using namespace iox::popo;
+using namespace iox::popo::detail;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::units::duration_literals;
@@ -1534,6 +1535,231 @@ TEST_F(WaitSet_test, TimedWaitUnblocksAfterMarkForDestructionCall)
     EXPECT_TRUE(isThreadFinished.load());
 
     t.join();
+}
+
+TEST_F(WaitSet_test, MergeTwoDisjunctNonEmptySortedNotificationVectors)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4f39641f-de8a-434a-8a50-cd2b66b476da");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 37U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        first.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    for (type i = VECTOR_SIZE / 2U; i < VECTOR_SIZE; ++i)
+    {
+        second.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE));
+    for (type i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
+}
+
+TEST_F(WaitSet_test, MergeTwoDisjunctNonEmptySortedNotificationVectorsWithAGap)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "15d3c063-8bc5-47eb-84a4-35f055a1d82c");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 41U;
+    constexpr type GAP = 13U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        first.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    for (type i = VECTOR_SIZE / 2U; i < VECTOR_SIZE; ++i)
+    {
+        second.emplace_back(static_cast<type>(i + OFFSET + GAP));
+    }
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE));
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    for (type i = VECTOR_SIZE / 2U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET + GAP));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
+}
+
+TEST_F(WaitSet_test, MergeTwoAlternatingDisjunctNonEmptySortedNotificationVectors)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "02cc9514-6cfe-4e08-8806-f371561fef41");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 73U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        first.emplace_back(static_cast<type>(i * 2 + OFFSET));
+    }
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        second.emplace_back(static_cast<type>(i * 2 + 1 + OFFSET));
+    }
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE));
+    for (type i = 0; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
+}
+
+TEST_F(WaitSet_test, MergingIdenticalNotificationVectorResultsInUnchangedNotificationVector)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "50f05cf2-62fa-49b8-8380-1dd0ac2470ec");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 111U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t someNotificationVector;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        someNotificationVector.emplace_back(static_cast<type>(i * 2 + OFFSET));
+    }
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(someNotificationVector, someNotificationVector);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE / 2U));
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i * 2 + OFFSET));
+    }
+}
+
+TEST_F(WaitSet_test, MergingWithOneEmptyNotificationVectorResultsInUnchangedNotificationVector)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b0a0eb3a-08a3-4898-a8c9-a4f7eff0115c");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 123U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t someNotificationVector;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        someNotificationVector.emplace_back(static_cast<type>(i * 3 + OFFSET));
+    }
+
+    auto mergedNotificationVector =
+        uniqueMergeSortedNotificationVector(someNotificationVector, ConditionListener::NotificationVector_t());
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(5U));
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i * 3 + OFFSET));
+    }
+}
+
+TEST_F(WaitSet_test, MergePartiallyOverlappingSortedNotificationVectors)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c57dda77-81a5-413f-b54b-e924e67b66a5");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type VECTOR_SIZE = 10U;
+    constexpr type MAX_OVERLAPPING_INDEX = 8U;
+    constexpr type OFFSET = 155U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 3U; i < VECTOR_SIZE; ++i)
+    {
+        first.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    for (type i = 0U; i < MAX_OVERLAPPING_INDEX; ++i)
+    {
+        second.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE));
+    for (type i = 0U; i < VECTOR_SIZE; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
+}
+
+TEST_F(WaitSet_test, MergeWithDisjunctOneElementNotificationVector)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7a56b0f9-82d2-4f9a-881f-338dd572a453");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 160U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        first.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    second.emplace_back(static_cast<type>(VECTOR_SIZE / 2U + OFFSET));
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE / 2U + 1));
+    for (type i = 0U; i < VECTOR_SIZE / 2U + 1; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
+}
+
+TEST_F(WaitSet_test, MergeWithOverlappingOneElementNotificationVector)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "05fb7baf-51e9-4ff9-bb35-8ae4174b0216");
+    using type = ConditionListener::NotificationVector_t::value_type;
+    constexpr type OFFSET = 200U;
+    constexpr type VECTOR_SIZE = 10U;
+    ConditionListener::NotificationVector_t first;
+    ConditionListener::NotificationVector_t second;
+
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        first.emplace_back(static_cast<type>(i + OFFSET));
+    }
+
+    second.emplace_back(static_cast<type>(0 + OFFSET));
+
+    auto mergedNotificationVector = uniqueMergeSortedNotificationVector(first, second);
+    auto mergedNotificationVectorSwitched = uniqueMergeSortedNotificationVector(second, first);
+
+    ASSERT_THAT(mergedNotificationVector.size(), Eq(VECTOR_SIZE / 2U));
+    for (type i = 0U; i < VECTOR_SIZE / 2U; ++i)
+    {
+        EXPECT_THAT(mergedNotificationVector[i], Eq(i + OFFSET));
+    }
+    EXPECT_TRUE(mergedNotificationVector == mergedNotificationVectorSwitched);
 }
 
 } // namespace
