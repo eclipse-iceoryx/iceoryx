@@ -18,8 +18,7 @@
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_dust/cxx/string_conversion.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"

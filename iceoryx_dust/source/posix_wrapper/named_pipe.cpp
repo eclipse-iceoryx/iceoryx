@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
-#include "iceoryx_dust/cxx/string_conversion.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 

@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_STRING_CONVERSION_HPP
-#define IOX_DUST_STRING_CONVERSION_HPP
+#ifndef IOX_DUST_STD_STRING_SUPPORT_HPP
+#define IOX_DUST_STD_STRING_SUPPORT_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/string.hpp"
@@ -39,6 +39,6 @@ struct FromImpl<std::string, string<N>>
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/string_conversion.inl"
+#include "iceoryx_dust/internal/cxx/std_string_support.inl"
 
-#endif // IOX_DUST_STRING_CONVERSION_HPP
+#endif // IOX_DUST_STD_STRING_SUPPORT_HPP

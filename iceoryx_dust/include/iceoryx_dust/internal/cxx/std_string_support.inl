@@ -13,10 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_STRING_CONVERSION_INL
-#define IOX_DUST_STRING_CONVERSION_INL
+#ifndef IOX_DUST_STD_STRING_SUPPORT_INL
+#define IOX_DUST_STD_STRING_SUPPORT_INL
 
-#include "iceoryx_dust/cxx/string_conversion.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 
 namespace iox
 {
@@ -36,4 +36,4 @@ inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& v
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_DUST_STRING_CONVERSION_INL
+#endif // IOX_DUST_STD_STRING_SUPPORT_INL

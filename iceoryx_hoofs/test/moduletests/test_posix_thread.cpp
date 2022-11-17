@@ -81,7 +81,7 @@ TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 
     auto getResult = sut->getName();
 
-    EXPECT_THAT(getResult.c_str(), StrEq(emptyString.c_str()));
+    EXPECT_THAT(getResult, Eq(emptyString));
 }
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)

@@ -898,7 +898,7 @@
     std::string myConvertedIoxString = static_cast<std::string>(myIoxString);
 
     // after
-    #include "iceoryx_dust/cxx/string_conversion.hpp"
+    #include "iceoryx_dust/cxx/std_string_support.hpp"
 
     std::string myStdString("foo");
     // std::string to iox::string

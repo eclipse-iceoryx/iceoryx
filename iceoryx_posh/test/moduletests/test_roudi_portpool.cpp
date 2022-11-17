@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/string_conversion.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"

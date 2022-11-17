@@ -19,7 +19,7 @@
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
 #include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
-#include "iceoryx_dust/cxx/string_conversion.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 #include "test.hpp"

@@ -49,7 +49,7 @@ using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 /// @brief the topic for the mempool introspection that a user can subscribe to
 struct MemPoolIntrospectionInfo
 {
-    using GroupName_t = cxx::string<MAX_GROUP_NAME_LENGTH>;
+    using GroupName_t = string<MAX_GROUP_NAME_LENGTH>;
     uint32_t m_id;
     GroupName_t m_writerGroupName;
     GroupName_t m_readerGroupName;

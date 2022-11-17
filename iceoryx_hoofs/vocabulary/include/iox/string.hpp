@@ -21,6 +21,7 @@
 #include "iox/detail/string_internal.hpp"
 #include "iox/detail/string_type_traits.hpp"
 #include "iox/optional.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -29,6 +30,10 @@
 
 namespace iox
 {
+namespace log
+{
+class LogStream;
+}
 // AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 
 template <typename T, typename ReturnType>
@@ -540,7 +545,15 @@ class string final
 ///
 /// @return the stream output of the fixed string
 template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+
+/// @brief Logging support for the fixed string
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+/// @return a reference to the LogStream instance
+template <uint64_t Capacity>
+log::LogStream& operator<<(log::LogStream& stream, const string<Capacity>& str) noexcept;
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with std::string, char array or
 // char is also intended

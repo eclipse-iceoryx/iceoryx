@@ -314,6 +314,15 @@ inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& st
     return stream;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
+template <uint64_t Capacity>
+inline log::LogStream& operator<<(log::LogStream& stream, const string<Capacity>& str) noexcept
+{
+    stream << str.c_str();
+    return stream;
+}
+
 template <uint64_t Capacity>
 template <typename T>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) method is disabled via static_assert

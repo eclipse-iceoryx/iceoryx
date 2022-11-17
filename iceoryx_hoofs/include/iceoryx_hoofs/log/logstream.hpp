@@ -18,9 +18,9 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
+#include "iox/string.hpp"
 
 #include <string>
 
@@ -156,13 +156,6 @@ class LogStream
     /// @todo iox-#1755 instead of using std::string we could also accept everything with a c_str() method
     /// and avoid the std::string dependency; alternatively this could be implemented as free function
     LogStream& operator<<(const std::string& str) noexcept;
-
-    /// @brief Logging support for the fixed string
-    ///
-    /// @param [in] str is the fixed string
-    /// @return a reference to the LogStream instance
-    template <uint64_t Capacity>
-    LogStream& operator<<(const cxx::string<Capacity>& str) noexcept;
 
     /// @brief Logging support for boolean
     /// @param[in] val is the boolean to log
