@@ -40,6 +40,8 @@
 #undef CreateSemaphore
 #undef NO_ERROR
 #undef OPEN_EXISTING
+#undef IGNORE
+#undef OPTIONAL
 
 /// @todo iox-#1616 required by posix but defined in libc header string.h
 ///      move it into the upcoming libc layer in platform

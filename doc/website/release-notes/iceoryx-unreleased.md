@@ -6,6 +6,7 @@
 
 **Features:**
 
+- Add `command_line.hpp` which contains a macro builder to parse command line arguments quickly and safely [#1067](https://github.com/eclipse-iceoryx/iceoryx/issues/1067)
 - optional inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add clear method for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Add at method and operator[] for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)

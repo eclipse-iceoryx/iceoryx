@@ -1,0 +1,45 @@
+@startuml
+
+participant User
+participant UserCLIStruct
+participant OptionManager
+
+== Create a struct named UserCLIStruct to store command line option values ==
+
+rnote right User
+IOX_CLI_DEFINITION(UserCLIStruct, ProgramDescription)
+end note
+
+== Define options which are stored in struct members ==
+
+rnote right User
+IOX_CLI_OPTIONAL(a ...)
+IOX_CLI_REQUIRED(b ...)
+IOX_CLI_SWITCH(c ...)
+end note
+
+== Instantiate UserCLIStruct, parse command line arguments and populate members ==
+
+create UserCLIStruct
+
+User -> UserCLIStruct ++ : UserCLIStruct(argc, argv)
+
+
+UserCLIStruct -> OptionManager ++ : OptionManager(ProgramDescription)
+return
+
+UserCLIStruct -> OptionManager ++ : defineOption(a ...)
+return
+
+UserCLIStruct -> OptionManager ++ : defineOption(b ...)
+return
+
+UserCLIStruct -> OptionManager ++ : defineOption(c ...)
+return
+
+UserCLIStruct -> OptionManager ++ : populateDefinedOptions()
+return
+
+return
+
+@enduml

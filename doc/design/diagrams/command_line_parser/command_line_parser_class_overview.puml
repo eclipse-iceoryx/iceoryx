@@ -1,0 +1,69 @@
+@startuml
+
+class OptionDefinition {
+    +OptionDefinition(programDescription, onFailureCallback)
+    +addSwitch(..)
+    +addOptional(..)
+    +addRequired(..)
+}
+
+class Arguments {
+    +T get(optionName)
+    +bool has(optionName)
+    +BinaryName_t binaryName()
+}
+
+class CommandLineParser {
+    +Arguments parse(OptionDefinition, ..)
+}
+
+class Option {
+    +isSwitch()
+    +hasOptionName(optionName)
+    +isSameOption(otherOption)
+    +operator<(otherOption)
+    +isEmpty()
+    +longOptionNameDoesStartWithDash()
+    +shortOptionNameIsEqualDash()
+    +hasLongOptionName(optionName)
+    +hasShortOptionName(value)
+    +hasShortOption()
+    +hasLongOption()
+    #shortOption
+    #longOption
+    #value
+}
+
+class OptionWithDetails::Details{
+    #description
+    #type
+    #typeName
+}
+
+class OptionWithDetails {
+    OptionWithDetails(option, description, type, typeName)
+    operator<(otherOptionWithDetails)
+
+    #details
+}
+
+
+class OptionManager {
+    +OptionManager(programDescription, onFailureCallback)
+    +T defineOption(..)
+    +populateDefinedOptions(..)
+}
+note "Used only by the macro struct builder IOX_CLI_DEFINITION" as N1
+OptionManager .. N1
+
+
+OptionWithDetails "1" *-- "1" OptionWithDetails::Details
+Option <|--- OptionWithDetails
+
+Arguments "0..n" *-- "1" Option
+OptionDefinition "0..n" *-- "1" OptionWithDetails
+
+CommandLineParser "1" *-- "1" OptionDefinition : borrows
+CommandLineParser "1" *-- "1" Arguments : contains
+
+@enduml

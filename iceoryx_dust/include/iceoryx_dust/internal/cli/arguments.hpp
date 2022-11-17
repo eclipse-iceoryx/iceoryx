@@ -1,0 +1,77 @@
+// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_DUST_CLI_ARGUMENTS_HPP
+#define IOX_DUST_CLI_ARGUMENTS_HPP
+
+#include "iceoryx_dust/cli/types.hpp"
+#include "iceoryx_dust/internal/cli/option.hpp"
+#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/cxx/vector.hpp"
+
+namespace iox
+{
+namespace cli
+{
+namespace internal
+{
+/// @brief This class provides access to the command line argument values.
+///        When constructed with the default constructor it is empty. Calling
+///        CommandLineParser::parse creates and returns a populated Arguments
+///        object.
+///        This class should never be used directly. Use the CommandLine builder
+///        from `iceoryx_hoofs/cxx/command_line_argument_definition.hpp` to create a struct which contains
+///        the values.
+class Arguments
+{
+  public:
+    enum class Error
+    {
+        UNABLE_TO_CONVERT_VALUE,
+        NO_SUCH_VALUE
+    };
+
+    /// @brief returns the value of a specified option
+    /// @tparam T the type of the value
+    /// @param[in] optionName either one letter for the shortOption or the whole longOption
+    /// @return the contained value if the value is present and convertable, otherwise an Error which describes the
+    /// error
+    template <typename T>
+    cxx::expected<T, Error> get(const OptionName_t& optionName) const noexcept;
+
+    /// @brief returns true if the specified switch was set, otherwise false
+    /// @param[in] switchName either one letter for the shortOption or the whole longOption
+    bool isSwitchSet(const OptionName_t& switchName) const noexcept;
+
+    /// @brief returns the full path name of the binary
+    const char* binaryName() const noexcept;
+
+  private:
+    template <typename T>
+    cxx::expected<T, Error> convertFromString(const Argument_t& value) const noexcept;
+    friend class CommandLineParser;
+
+
+  private:
+    const char* m_binaryName;
+    cxx::vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
+};
+} // namespace internal
+} // namespace cli
+} // namespace iox
+
+#include "iceoryx_dust/internal/cli/arguments.inl"
+#endif

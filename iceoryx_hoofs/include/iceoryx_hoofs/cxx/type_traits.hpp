@@ -159,6 +159,119 @@ struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
 template <typename...>
 using void_t = void;
 
+
+//////////////////
+/// BEGIN TypeInfo
+//////////////////
+
+/// @brief Provides a translation from a type into its human readable name
+/// NOLINTJUSTIFICATION The name should be stored in a compile time variable. Access is always
+///   safe since it is null terminated and always constant. Other alternatives are not available
+///   at compile time.
+/// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+
+template <typename T>
+struct TypeInfo
+{
+    static_assert(always_false_v<T>, "unknown type");
+    static constexpr const char NAME[] = "unknown type";
+};
+template <typename T>
+constexpr const char TypeInfo<T>::NAME[];
+
+template <>
+struct TypeInfo<int8_t>
+{
+    static constexpr const char NAME[] = "int8_t";
+};
+
+template <>
+struct TypeInfo<int16_t>
+{
+    static constexpr const char NAME[] = "int16_t";
+};
+
+template <>
+struct TypeInfo<int32_t>
+{
+    static constexpr const char NAME[] = "int32_t";
+};
+
+template <>
+struct TypeInfo<int64_t>
+{
+    static constexpr const char NAME[] = "int64_t";
+};
+
+template <>
+struct TypeInfo<uint8_t>
+{
+    static constexpr const char NAME[] = "uint8_t";
+};
+
+template <>
+struct TypeInfo<uint16_t>
+{
+    static constexpr const char NAME[] = "uint16_t";
+};
+
+template <>
+struct TypeInfo<uint32_t>
+{
+    static constexpr const char NAME[] = "uint32_t";
+};
+
+template <>
+struct TypeInfo<uint64_t>
+{
+    static constexpr const char NAME[] = "uint64_t";
+};
+
+template <>
+struct TypeInfo<bool>
+{
+    static constexpr const char NAME[] = "bool";
+};
+
+template <>
+struct TypeInfo<char>
+{
+    static constexpr const char NAME[] = "char";
+};
+
+template <>
+struct TypeInfo<float>
+{
+    static constexpr const char NAME[] = "float";
+};
+
+template <>
+struct TypeInfo<double>
+{
+    static constexpr const char NAME[] = "double";
+};
+
+template <>
+struct TypeInfo<long double>
+{
+    static constexpr const char NAME[] = "long double";
+};
+
+template <uint64_t>
+class string;
+
+template <uint64_t N>
+struct TypeInfo<iox::cxx::string<N>>
+{
+    static constexpr const char NAME[] = "string";
+};
+template <uint64_t N>
+constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
+/// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+//////////////////
+/// END TypeInfo
+//////////////////
+
 } // namespace cxx
 } // namespace iox
 

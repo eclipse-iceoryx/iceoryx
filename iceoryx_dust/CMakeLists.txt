@@ -48,6 +48,11 @@ iox_add_library(
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
     FILES
+        source/cli/arguments.cpp
+        source/cli/command_line_parser.cpp
+        source/cli/option.cpp
+        source/cli/option_definition.cpp
+        source/cli/option_manager.cpp
         source/cxx/file_reader.cpp
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/signal_watcher.cpp

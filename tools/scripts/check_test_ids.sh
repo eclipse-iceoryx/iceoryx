@@ -21,18 +21,24 @@
 
 set -e
 
+ICEORYX_PATH=$(git rev-parse --show-toplevel)
+cd $ICEORYX_PATH
+
 ## sanity check for number of tests and test IDs
-numberOfTestCases=$(grep -rn --include="*.cpp" -e "^\(TEST\|TYPED_TEST\|TIMING_TEST\)" iceoryx_* | wc -l)
-numberOfFalsePositives=$(grep -rn --include="*.cpp" TYPED_TEST_SUITE iceoryx_* | wc -l)
-numberOfTestCasesWithoutFalsePositives=$numberOfTestCases-$numberOfFalsePositives
-numberOfTestIDs=$(grep -rn --include="*.cpp" "::testing::Test::RecordProperty" iceoryx_* | wc -l)
-if [[ "$numberOfTestCasesWithoutFalsePositives" -gt "$numberOfTestIDs" ]]; then
-    echo -e "\e[1;31mThe number of test IDs do not match the number of test cases!\e[m"
-    echo "number of test cases: $numberOfTestCases"
-    echo "number of false positives: $numberOfFalsePositives"
-    echo "number of test IDs: $numberOfTestIDs"
-    exit 1
-fi
+for file in $(find . -iname "*.cpp")
+do
+    echo "Check file: $file"
+    numberOfTestCases=$(grep -rn --include="*.cpp" -e "^\(TEST\|TYPED_TEST\|TIMING_TEST\)" $file | wc -l)
+    numberOfFalsePositives=$(grep -rn --include="*.cpp" TYPED_TEST_SUITE $file | wc -l)
+    set +e
+    numberOfTestCasesWithoutFalsePositives=$(expr $numberOfTestCases - $numberOfFalsePositives)
+    set -e
+    numberOfTestIDs=$(grep -rn --include="*.cpp" "::testing::Test::RecordProperty" $file | wc -l)
+    if [[ "$numberOfTestCasesWithoutFalsePositives" -gt "$numberOfTestIDs" ]]; then
+        echo -e "\e[1;31mThe file \"$file\" is missing test IDs for some test cases!\e[m"
+        exit 1
+    fi
+done
 
 ## unique test IDs
 notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)

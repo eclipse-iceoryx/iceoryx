@@ -1,0 +1,36 @@
+@startuml
+
+== Create a OptionDefinition and define the application options ==
+
+User -> OptionDefinition ++ : OptionDefinition(programName, onFailureCallback)
+return OptionDefinition
+
+User -> OptionDefinition ++ : addSwitch()
+return
+
+User -> OptionDefinition ++ : addOptional()
+return
+
+User -> OptionDefinition ++ : addRequired()
+return
+
+== Parse command line arguments ==
+
+User -> CommandLineParser ++ : parse(OptionDefinition)
+return Arguments
+
+== Acquire command line option values ==
+
+User -> Arguments ++ : has(switchName)
+return bool
+
+User -> Arguments ++ : get<TypeName>(optionalOptionName)
+return TypeName
+
+User -> Arguments ++ : get<TypeName>(requiredOptionName)
+return TypeName
+
+User -> Arguments ++ : binaryName()
+return BinaryName_t
+
+@enduml
