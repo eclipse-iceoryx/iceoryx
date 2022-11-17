@@ -18,6 +18,7 @@
 #define IOX_HOOFS_STORABLE_FUNCTION_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
 #include <iostream>
@@ -155,7 +156,9 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
   private:
     operations m_operations; // operations depending on type-erased callable (copy, move, destroy)
 
-    StorageType m_storage;                              // storage for the callable
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the storable_function
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    byte_t m_storage[Capacity];                         // storage for the callable
     void* m_callable{nullptr};                          // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
