@@ -64,18 +64,19 @@ struct BestFittingTypeImpl<true, true, false>
 {
     using Type_t = uint32_t;
 };
-
-constexpr char ASCII_A = 'a';
-constexpr char ASCII_Z = 'z';
-constexpr char ASCII_CAPITAL_A = 'A';
-constexpr char ASCII_CAPITAL_Z = 'Z';
-constexpr char ASCII_0 = '0';
-constexpr char ASCII_9 = '9';
-constexpr char ASCII_MINUS = '-';
-constexpr char ASCII_DOT = '.';
-constexpr char ASCII_COLON = ':';
-constexpr char ASCII_UNDERSCORE = '_';
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Not used as an integer but as actual character.
+constexpr char ASCII_A{'a'};
+constexpr char ASCII_Z{'z'};
+constexpr char ASCII_CAPITAL_A{'A'};
+constexpr char ASCII_CAPITAL_Z{'Z'};
+constexpr char ASCII_0{'0'};
+constexpr char ASCII_9{'9'};
+constexpr char ASCII_MINUS{'-'};
+constexpr char ASCII_DOT{'.'};
+constexpr char ASCII_COLON{':'};
+constexpr char ASCII_UNDERSCORE{'_'};
 } // namespace internal
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
 template <typename T, typename = typename std::enable_if<std::is_pointer<T>::value, void>::type>
 struct not_null
@@ -90,8 +91,8 @@ struct not_null
         Expects(t != nullptr);
     }
 
-    // this should behave like a pointer which never can be nullptr, adding explicit
-    // would defeat the purpose
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this should behave like a pointer which never can be nullptr,
+    // adding explicit would defeat the purpose
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
@@ -106,8 +107,8 @@ template <typename T, T Minimum>
 struct greater_or_equal
 {
   public:
-    // this class should behave like a T but which never can be less than Minimum.
-    // Adding explicit would defeat the purpose.
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but which never can be less
+    // than Minimum. Adding explicit would defeat the purpose.
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     greater_or_equal(T t) noexcept
         : m_value(t)
@@ -115,8 +116,8 @@ struct greater_or_equal
         Expects(t >= Minimum);
     }
 
-    // this class should behave like a T but which never can be less than Minimum.
-    // Adding explicit would defeat the purpose.
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
+    // which never can be less than Minimum. Adding explicit would defeat the purpose.
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
@@ -131,17 +132,17 @@ template <typename T, T Minimum, T Maximum>
 struct range
 {
   public:
-    // this class should behave like a T but with values only in range [Minimum, Maximum]
-    // Adding explicit would defeat the purpose.
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but with values only in
+    // range [Minimum, Maximum] Adding explicit would defeat the purpose.
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     range(T t) noexcept
         : m_value(t)
     {
-        Expects(t >= Minimum && t <= Maximum);
+        Expects((t >= Minimum) && (t <= Maximum));
     }
 
-    // this class should behave like a T but with values only in range [Minimum, Maximum]
-    // Adding explicit would defeat the purpose.
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but
+    // with values only in range [Minimum, Maximum]. Adding explicit would defeat the purpose.
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     constexpr operator T() const noexcept
     {
@@ -152,11 +153,13 @@ struct range
     T m_value;
 };
 
+/// @note value + alignment - 1 must not exceed the maximum value for type T
+/// @note alignment must be a power of two
 template <typename T>
+// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3: The function is in the iox::cxx namespace which prevents easy misuse
 T align(const T value, const T alignment) noexcept
 {
-    T remainder = value % alignment;
-    return value + ((remainder == 0U) ? 0U : alignment - remainder);
+    return (value + (alignment - 1)) & (-alignment);
 }
 
 /// @brief allocates aligned memory which can only be free'd by alignedFree
@@ -180,7 +183,7 @@ constexpr size_t maxAlignment() noexcept
 template <typename T, typename... Args>
 constexpr size_t maxAlignment() noexcept
 {
-    return alignof(T) > maxAlignment<Args...>() ? alignof(T) : maxAlignment<Args...>();
+    return (alignof(T) > maxAlignment<Args...>()) ? alignof(T) : maxAlignment<Args...>();
 }
 
 /// template recursion stopper for maximum size calculation
@@ -194,7 +197,7 @@ constexpr size_t maxSize() noexcept
 template <typename T, typename... Args>
 constexpr size_t maxSize() noexcept
 {
-    return sizeof(T) > maxSize<Args...>() ? sizeof(T) : maxSize<Args...>();
+    return (sizeof(T) > maxSize<Args...>()) ? sizeof(T) : maxSize<Args...>();
 }
 
 /// @brief Get the capacity of a C array at compile time
@@ -207,7 +210,8 @@ constexpr size_t maxSize() noexcept
 /// @param[in] The actual content of the array is not of interest. Its just the capacity of the array that matters.
 /// @return Returns the capacity of the array at compile time.
 template <typename T, uint64_t CapacityValue>
-// returning capacity of C array at compile time is safe, no possibility of out of bounds access
+// AXIVION Next Construct AutosarC++19_03-A18.1.1:returning capacity of C array at compile time is safe, no
+// possibility of out of bounds access
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityValue]) noexcept
 {
@@ -246,7 +250,7 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     return n && ((n & (n - 1U)) == 0U);
 }
 
-enum class RelativePathComponents
+enum class RelativePathComponents : std::uint32_t
 {
     REJECT,
     ACCEPT
@@ -270,8 +274,7 @@ enum class RelativePathComponents
 /// @param[in] relativePathComponents are relative path components are allowed for this path entry
 /// @return true if it is valid, otherwise false
 template <uint64_t StringCapacity>
-bool isValidPathEntry(const string<StringCapacity>& name,
-                      const RelativePathComponents& relativePathComponents) noexcept;
+bool isValidPathEntry(const string<StringCapacity>& name, const RelativePathComponents relativePathComponents) noexcept;
 
 /// @brief checks if the given string is a valid filename. It must fulfill the
 ///        requirements of a valid path entry (see, isValidPathEntry) and is not allowed
@@ -341,8 +344,8 @@ template <typename F, typename T>
 constexpr T from(const F value) noexcept;
 
 /// @brief Converts a value of type F to a corresponding value of type T. This is a convenience function which is
-/// automatically available when `from` is implemented. This function shall therefore not be specialized but always the
-/// `from` function.
+/// automatically available when 'from' is implemented. This function shall therefore not be specialized but always the
+/// 'from' function.
 /// @code
 /// Bar b = iox::cxx::into<Bar>(Foo::ENUM_VALUE);
 /// @endcode
