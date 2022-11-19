@@ -30,8 +30,8 @@ namespace
 using namespace ::testing;
 using namespace iox::cli;
 using namespace iox::cli::internal;
-using namespace iox::cxx;
 using namespace iox;
+using namespace iox::cxx;
 
 class CommandLineParser_test : public Test
 {
@@ -915,7 +915,7 @@ Arguments SuccessTest(const std::vector<std::string>& options,
 }
 
 template <typename T>
-void verifyEntry(const Arguments& options, const OptionName_t& entry, const iox::optional<T>& value)
+void verifyEntry(const Arguments& options, const OptionName_t& entry, const optional<T>& value)
 {
     auto result = options.get<T>(entry);
 
@@ -942,7 +942,7 @@ void verifyEntry(const Arguments& options, const OptionName_t& entry, const iox:
 }
 
 template <>
-void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, const iox::optional<float>& value)
+void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, const optional<float>& value)
 {
     auto result = options.get<float>(entry);
 
@@ -969,7 +969,7 @@ void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, con
 }
 
 template <>
-void verifyEntry<double>(const Arguments& options, const OptionName_t& entry, const iox::optional<double>& value)
+void verifyEntry<double>(const Arguments& options, const OptionName_t& entry, const optional<double>& value)
 {
     auto result = options.get<double>(entry);
 
@@ -1289,10 +1289,10 @@ TEST_F(CommandLineParser_test, MultipleConversionFailures)
                     switchesToRegister,
                     requiredValuesToRegister);
 
-    verifyEntry<uint8_t>(option, "a-opt", iox::nullopt);
-    verifyEntry<int16_t>(option, "i-req", iox::nullopt);
-    verifyEntry<float>(option, "j-req", iox::nullopt);
-    verifyEntry<int64_t>(option, "g-req", iox::nullopt);
+    verifyEntry<uint8_t>(option, "a-opt", nullopt);
+    verifyEntry<int16_t>(option, "i-req", nullopt);
+    verifyEntry<float>(option, "j-req", nullopt);
+    verifyEntry<int64_t>(option, "g-req", nullopt);
 }
 /// END conversions
 

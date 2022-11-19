@@ -66,7 +66,7 @@ iox_add_library(
         source/cxx/functional_interface.cpp
         source/cxx/helplets.cpp
         source/cxx/requires.cpp
-        source/cxx/type_traits.cpp
+        vocabulary/source/string_type_traits.cpp
         source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
