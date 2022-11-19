@@ -31,6 +31,7 @@ cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
         "source/**/*.cpp",
+        "vocabulary/source/**/*.cpp",
         "source/**/*.hpp",
     ]),
     hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
