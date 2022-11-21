@@ -940,6 +940,60 @@ void verifyEntry(const Arguments& options, const OptionName_t& entry, const iox:
         });
 }
 
+template <>
+void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, const iox::cxx::optional<float>& value)
+{
+    auto result = options.get<float>(entry);
+
+    value
+        .and_then([&](auto& v) {
+            // ASSERT_ does not work in function calls
+            if (result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(*result, FloatEq(v));
+        })
+        .or_else([&] {
+            if (!result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+        });
+}
+
+template <>
+void verifyEntry<double>(const Arguments& options, const OptionName_t& entry, const iox::cxx::optional<double>& value)
+{
+    auto result = options.get<double>(entry);
+
+    value
+        .and_then([&](auto& v) {
+            // ASSERT_ does not work in function calls
+            if (result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(*result, DoubleEq(v));
+        })
+        .or_else([&] {
+            if (!result.has_error())
+            {
+                EXPECT_TRUE(false);
+                return;
+            }
+
+            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+        });
+}
+
 /// BEGIN acquire values correctly
 
 TEST_F(CommandLineParser_test, ReadOptionSuccessfully_SingleArgument)

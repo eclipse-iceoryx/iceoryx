@@ -91,7 +91,7 @@ TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValues
     EXPECT_THAT(sut.lightSwitch2(), Eq(false));
 
     EXPECT_THAT(sut.requiredString().c_str(), StrEq("bluubb"));
-    EXPECT_THAT(sut.requiredFloat(), Eq(123.456F));
+    EXPECT_THAT(sut.requiredFloat(), FloatEq(123.456F));
     EXPECT_THAT(sut.requiredUint(), Eq(12));
 }
 
@@ -133,7 +133,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
     EXPECT_THAT(sut.lightSwitch2(), Eq(true));
 
     EXPECT_THAT(sut.requiredString().c_str(), StrEq("schnappidububa"));
-    EXPECT_THAT(sut.requiredFloat(), Eq(456.123F));
+    EXPECT_THAT(sut.requiredFloat(), FloatEq(456.123F));
     EXPECT_THAT(sut.requiredUint(), Eq(1212));
 }
 
@@ -175,7 +175,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
     EXPECT_THAT(sut.lightSwitch2(), Eq(true));
 
     EXPECT_THAT(sut.requiredString().c_str(), StrEq("AllYouNeedIsHorst"));
-    EXPECT_THAT(sut.requiredFloat(), Eq(810.123F));
+    EXPECT_THAT(sut.requiredFloat(), FloatEq(810.123F));
     EXPECT_THAT(sut.requiredUint(), Eq(31415));
 }
 } // namespace
