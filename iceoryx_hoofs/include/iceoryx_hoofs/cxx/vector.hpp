@@ -219,7 +219,7 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    UninitializedArray<T, Capacity> m_data;
+    UninitializedArray<T, Capacity> m_data{};
     uint64_t m_size{0U};
 };
 
