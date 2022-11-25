@@ -1,5 +1,6 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,6 +81,14 @@ class convert
     /// @return false = if the conversion fails otherwise true
     template <typename Destination>
     static bool fromString(const char* v, Destination& dest) noexcept;
+
+    /// @brief Sets dest from a given string. If the conversion fails false is
+    ///         returned and the value of dest is undefined.
+    /// @param[in] v string which contains the value of dest
+    /// @param[in] dest destination to which the value should be written
+    /// @return false = if the conversion fails otherwise true
+    template <uint64_t Capacity>
+    static bool fromString(const char* v, string<Capacity>& dest) noexcept;
 
     /// @brief checks if a given string v is a number
     /// @param[in] v string which contains the number
