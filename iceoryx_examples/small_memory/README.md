@@ -8,13 +8,12 @@ management limits as documented in the
 [configuration guide](./doc/website/advanced/configuration-guide.md).
 
 This configuration has two parts:
-* The resource limits set in cmake during configuration with cmake options in
-the format `IOX_*`. This will influence the management shared memory segment
-size.
-* The memory pool configuration, set either in source code when configuration
-the RouDi object, or when starting `iox-roudi` by specifying a TOML
-configuration file. This will influence the individual memory pool shared
-memory segment sizes.
+* The resource limits set in cmake during configuration with options in the
+format `IOX_*`. This will influence the management shared memory segment size.
+* The memory pool configuration, set either in source code when creating the
+RouDi object, or when starting `iox-roudi` by specifying a TOML configuration
+file. This will influence the individual memory pool shared memory segment
+sizes.
 
 This is an example guide showing how to run the basic hello world example with
 truly minimal resource limits to achieve shared memory usage of less than 100
@@ -22,8 +21,8 @@ kB.
 
 ## How to build
 
-Build iceoryx RouDi process and the hello world example with the given CMake
-options configuration for minimal memory usage. For example, as follows:
+Build iceoryx RouDi application and the hello world example with the given
+CMake option configuration for minimal memory usage. For example, as follows:
 
 ```
 cmake -Bbuild -Hiceoryx_meta -Ciceoryx_examples/small_memory/options.cmake -DEXAMPLES=ON
@@ -31,9 +30,9 @@ cmake --build build --target iox-roudi iox-cpp-publisher-helloworld iox-cpp-subs
 ```
 
 Please note that it might be impossible to build some other iceoryx examples,
-since the decreased maximum length of service and runtime names might cause
-some static assertion failures. This problem demonstrates that the user has to
-be careful when decreasing the iceoryx resource limits set during cmake
+since the decreased maximum length of service and runtime name strings might
+cause some static assertion failures. This problem demonstrates that the user
+has to be careful when decreasing the iceoryx resource limits set during cmake
 configuration.
 
 ## How to run
@@ -44,7 +43,8 @@ Launch the RouDi process with the given TOML config file:
 build/iox-roudi -c iceoryx_examples/small_memory/roudi_config.toml &
 ```
 
-Optionally, it is possible to specify the `-l debug` flag to enable logging and see the memory allocation size:
+Optionally, it is possible to specify the `-l debug` flag to enable logging and
+see the memory allocation size:
 
 ```
 2022-11-24 11:51:20.564 [Debug]: Trying to reserve 88248 bytes in the shared memory [iceoryx_mgmt]
