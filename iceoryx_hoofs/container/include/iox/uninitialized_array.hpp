@@ -27,6 +27,7 @@ namespace iox
 /// @brief struct used as policy parameter in UninitializedArray to wrap an array with all elements zeroed
 /// @tparam ElementType is the array type
 /// @tparam Capacity is the array size
+// AXIVION DISABLE STYLE AutosarC++19_03-A9.6.1 : False positive. Used ElementTypes have defined size.
 template <typename ElementType, uint64_t Capacity>
 struct ZeroedBuffer
 {
@@ -57,7 +58,7 @@ struct NonZeroedBuffer
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity];
 };
-
+// AXIVION ENABLE STYLE AutosarC++19_03-A9.6.1
 /// @brief Wrapper class for a C-style array of type ElementType and size Capacity. Per default it is uninitialized but
 /// all elements can be zeroed via template parameter ZeroedBuffer.
 /// @tparam ElementType is the array type
@@ -66,7 +67,7 @@ struct NonZeroedBuffer
 /// default) and an uninitialized array with all elements zeroed (=ZeroedBuffer)
 /// @note Out of bounds access leads to undefined behavior
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NonZeroedBuffer>
-class UninitializedArray
+class UninitializedArray final
 {
     static_assert(Capacity > 0U, "The size of the UninitializedArray must be greater than 0!");
 
