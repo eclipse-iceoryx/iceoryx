@@ -39,6 +39,14 @@ if(NOT IOX_COMMUNICATION_POLICY)
     set(IOX_COMMUNICATION_POLICY ManyToManyPolicy)
 endif()
 
+# Refer to iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp
+# for info why this is needed.
+if(APPLE)
+    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 98)
+else()
+    set(IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT 100)
+endif()
+
 configure_option(
     NAME IOX_MAX_PUBLISHERS
     DEFAULT_VALUE 512
@@ -101,7 +109,7 @@ configure_option(
 )
 configure_option(
     NAME IOX_MAX_RUNTIME_NAME_LENGTH
-    DEFAULT_VALUE 100
+    DEFAULT_VALUE ${IOX_MAX_RUNTIME_NAME_LENGTH_DEFAULT}
 )
 configure_option(
     NAME IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY
