@@ -124,7 +124,7 @@ uint64_t ResizeableLockFreeQueue<ElementType, MaxCapacity>::decreaseCapacity(con
     uint64_t decreased = 0U;
     while (decreased < toDecrease)
     {
-        BufferIndex index;
+        BufferIndex index{0};
         while (decreased < toDecrease)
         {
             if (!Base::m_freeIndices.pop(index))
@@ -197,7 +197,7 @@ iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity
 {
     cxx::optional<ElementType> evictedValue;
 
-    BufferIndex index;
+    BufferIndex index{0};
 
     while (!Base::m_freeIndices.pop(index))
     {
