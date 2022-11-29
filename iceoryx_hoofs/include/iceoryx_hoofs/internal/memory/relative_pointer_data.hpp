@@ -75,7 +75,7 @@ class RelativePointerData
     /// @note offset in bits for storing and reading the id
     static constexpr uint64_t ID_BIT_SIZE{16U};
     /// @note internal representation of a nullptr
-    static constexpr offset_t LOGICAL_NULLPTR{NULL_POINTER_OFFSET << ID_BIT_SIZE | NULL_POINTER_ID};
+    static constexpr offset_t LOGICAL_NULLPTR{(NULL_POINTER_OFFSET << ID_BIT_SIZE) | NULL_POINTER_ID};
     uint64_t m_idAndOffset{LOGICAL_NULLPTR};
 };
 
