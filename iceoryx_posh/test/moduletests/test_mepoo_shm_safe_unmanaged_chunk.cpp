@@ -16,11 +16,11 @@
 
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
 
@@ -60,7 +60,7 @@ class ShmSafeUnmanagedChunk_test : public Test
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = 100;
     static constexpr uint32_t CHUNK_SIZE = 128;
 
-    iox::posix::Allocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{m_memory.get(), MEMORY_SIZE};
 };
 
 TEST_F(ShmSafeUnmanagedChunk_test, DefaultConstructedResultsInLogicalNullptr)

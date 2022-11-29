@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 namespace
@@ -45,7 +45,7 @@ class MemPool_test : public Test
 
     alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t
         m_rawMemory[NUMBER_OF_CHUNKS * CHUNK_SIZE + LOFFLI_MEMORY_REQUIREMENT];
-    iox::posix::Allocator allocator;
+    iox::BumpAllocator allocator;
 
     MemPool sut;
 };
@@ -54,7 +54,7 @@ TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b15b0da5-74e0-481b-87b6-53888b8a9890");
     char memory[8192];
-    iox::posix::Allocator allocator{memory, 8192U};
+    iox::BumpAllocator allocator{memory, 8192U};
 
     iox::mepoo::MemPool sut(CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator);
 
@@ -68,7 +68,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee06090a-8e3c-4df2-b74e-ed50e29b84e6");
     char memory[8192U];
-    iox::posix::Allocator allocator{memory, 100U};
+    iox::BumpAllocator allocator{memory, 100U};
     constexpr uint32_t NOT_ALLIGNED_CHUNKED_SIZE{33U};
 
     iox::optional<iox::PoshError> detectedError;

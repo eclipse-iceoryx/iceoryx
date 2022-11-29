@@ -75,7 +75,7 @@ class ChunkDistributor_test : public Test
     static constexpr uint32_t MAX_NUMBER_QUEUES = 128U;
     static constexpr uint32_t MEMPOOL_CHUNK_COUNT{iox::MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY * 2};
     std::unique_ptr<uint8_t[]> memory{new uint8_t[MEMORY_SIZE]};
-    iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
+    iox::BumpAllocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, MEMPOOL_CHUNK_COUNT, allocator, allocator};
     MemPool chunkMgmtPool{128U, MEMPOOL_CHUNK_COUNT, allocator, allocator};
 

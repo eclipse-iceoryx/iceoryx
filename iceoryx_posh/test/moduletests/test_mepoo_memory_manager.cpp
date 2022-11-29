@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 namespace
@@ -35,7 +35,7 @@ class MemoryManager_test : public Test
     void SetUp() override
     {
         rawMemory = malloc(rawMemorySize);
-        allocator = new iox::posix::Allocator(rawMemory, rawMemorySize);
+        allocator = new iox::BumpAllocator(rawMemory, rawMemorySize);
         sut = new iox::mepoo::MemoryManager();
     };
     void TearDown() override
@@ -66,7 +66,7 @@ class MemoryManager_test : public Test
     static constexpr uint32_t CHUNK_SIZE_128{128};
     static constexpr uint32_t CHUNK_SIZE_256{256U};
 
-    iox::posix::Allocator* allocator;
+    iox::BumpAllocator* allocator;
     void* rawMemory;
     size_t rawMemorySize = 1000000;
 

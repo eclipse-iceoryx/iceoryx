@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP
+#ifndef IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
+#define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
 #include <cstdint>
 namespace iox
@@ -23,24 +23,26 @@ namespace iox
 namespace posix
 {
 class SharedMemoryObject;
+}
 
-class Allocator
+class BumpAllocator
 {
     using byte_t = uint8_t;
 
 
   public:
+    // remove:
     static constexpr uint64_t MEMORY_ALIGNMENT = 8U;
     /// @brief A bump allocator for the memory provided in the ctor arguments
     /// @param[in] startAddress of the memory this allocator manages
     /// @param[in] length of the memory this allocator manages
-    Allocator(void* const startAddress, const uint64_t length) noexcept;
+    BumpAllocator(void* const startAddress, const uint64_t length) noexcept;
 
-    Allocator(const Allocator&) = delete;
-    Allocator(Allocator&&) noexcept = default;
-    Allocator& operator=(const Allocator&) noexcept = delete;
-    Allocator& operator=(Allocator&&) noexcept = default;
-    ~Allocator() noexcept = default;
+    BumpAllocator(const BumpAllocator&) = delete;
+    BumpAllocator(BumpAllocator&&) noexcept = default;
+    BumpAllocator& operator=(const BumpAllocator&) noexcept = delete;
+    BumpAllocator& operator=(BumpAllocator&&) noexcept = default;
+    ~BumpAllocator() noexcept = default;
 
     /// @brief allocates on the memory supplied with the ctor
     /// @param[in] size of the memory to allocate
@@ -49,7 +51,8 @@ class Allocator
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
   protected:
-    friend class SharedMemoryObject;
+    friend class posix::SharedMemoryObject;
+    // make free function; destructive move?
     void finalizeAllocation() noexcept;
 
   private:
@@ -58,7 +61,6 @@ class Allocator
     uint64_t m_currentPosition = 0U;
     bool m_allocationFinalized = false;
 };
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_ALLOCATOR_HPP
+#endif // IOX_HOOFS_POSIX_MEMORY_BUMP_ALLOCATOR_HPP

@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
@@ -45,8 +46,8 @@ class TypedMemPool
 {
   public:
     TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-                 posix::Allocator& managementAllocator,
-                 posix::Allocator& chunkMemoryAllocator) noexcept;
+                 BumpAllocator& managementAllocator,
+                 BumpAllocator& chunkMemoryAllocator) noexcept;
 
     TypedMemPool(const TypedMemPool&) = delete;
     TypedMemPool(TypedMemPool&&) = delete;

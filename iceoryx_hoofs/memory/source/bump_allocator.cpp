@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
@@ -24,10 +24,8 @@
 
 namespace iox
 {
-namespace posix
-{
-constexpr uint64_t Allocator::MEMORY_ALIGNMENT;
-Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
+constexpr uint64_t BumpAllocator::MEMORY_ALIGNMENT;
+BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) noexcept
     : m_startAddress(static_cast<byte_t*>(startAddress))
     , m_length(length)
 {
@@ -35,7 +33,7 @@ Allocator::Allocator(void* const startAddress, const uint64_t length) noexcept
 
 // NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
+void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     cxx::Expects(size > 0);
 
@@ -70,10 +68,9 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
     return static_cast<void*>(l_returnValue);
 }
 
-void Allocator::finalizeAllocation() noexcept
+void BumpAllocator::finalizeAllocation() noexcept
 {
     m_allocationFinalized = true;
 }
 
-} // namespace posix
 } // namespace iox

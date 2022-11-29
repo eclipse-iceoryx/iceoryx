@@ -141,7 +141,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT) + 1, 1); });
+    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, BumpAllocator::MEMORY_ALIGNMENT) + 1, 1); });
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
@@ -158,7 +158,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    for (uint64_t i = 0; i < cxx::align(memorySize, posix::Allocator::MEMORY_ALIGNMENT); ++i)
+    for (uint64_t i = 0; i < cxx::align(memorySize, BumpAllocator::MEMORY_ALIGNMENT); ++i)
     {
         void* test = sut->allocate(1, 1);
         ASSERT_THAT(test, Ne(nullptr));

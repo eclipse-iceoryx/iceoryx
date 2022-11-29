@@ -108,7 +108,7 @@ class PortUser_IntegrationTest : public Test
     std::atomic<uint64_t> m_publisherRunFinished{0U};
 
     // Memory objects
-    Allocator m_memoryAllocator{g_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
 

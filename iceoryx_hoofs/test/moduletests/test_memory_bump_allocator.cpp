@@ -15,15 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace testing;
 
-class Allocator_Test : public Test
+class BumpAllocator_Test : public Test
 {
   public:
     void SetUp() override
@@ -38,34 +37,34 @@ class Allocator_Test : public Test
         free(memory);
     }
 
-    static constexpr uint64_t MEMORY_ALIGNMENT{iox::posix::Allocator::MEMORY_ALIGNMENT};
+    static constexpr uint64_t MEMORY_ALIGNMENT{8};
 
     void* memory{nullptr};
     size_t memorySize = 10016;
 };
 
-TEST_F(Allocator_Test, allocateOneSmallElement)
+TEST_F(BumpAllocator_Test, allocateOneSmallElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f689e95c-5743-4370-93f0-8a23b909c75a");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
     int* bla = static_cast<int*>(sut.allocate(sizeof(int), MEMORY_ALIGNMENT));
     *bla = 123;
     EXPECT_THAT(*bla, Eq(123));
 }
 
-TEST_F(Allocator_Test, allocateEverythingWithSingleElement)
+TEST_F(BumpAllocator_Test, allocateEverythingWithSingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2e1085b-08fe-4b08-b022-0385b5a53fca");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
     int* bla = static_cast<int*>(sut.allocate(memorySize, 1));
     *bla = 123;
     EXPECT_THAT(*bla, Eq(123));
 }
 
-TEST_F(Allocator_Test, allocateEverythingWithMultipleElements)
+TEST_F(BumpAllocator_Test, allocateEverythingWithMultipleElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21d0fa61-54f9-41a0-8e53-e3448784497b");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
     for (size_t i = 0; i < memorySize; i += 32)
     {
         auto* bla = static_cast<size_t*>(sut.allocate(32, 1));
@@ -74,10 +73,11 @@ TEST_F(Allocator_Test, allocateEverythingWithMultipleElements)
     }
 }
 
-TEST_F(Allocator_Test, allocateTooMuchSingleElement)
+TEST_F(BumpAllocator_Test, allocateTooMuchSingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9deed5c0-19d8-4469-a5c3-f185d4d881f1");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
+    std::set_terminate([]() { std::cout << "", std::abort(); });
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
     // hiccpp-vararg)
@@ -86,10 +86,10 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
     // hiccpp-vararg)
 }
 
-TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
+TEST_F(BumpAllocator_Test, allocateTooMuchMultipleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "435151e8-cc34-41ce-8115-5c179716a60a");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
     for (size_t i = 0; i < memorySize; i += 32)
     {
         sut.allocate(32, 1);
@@ -103,19 +103,19 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
     // hiccpp-vararg)
 }
 
-TEST_F(Allocator_Test, allocateAndAlignment)
+TEST_F(BumpAllocator_Test, allocateAndAlignment)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4252ddcc-05d4-499f-ad7c-30bffb420e08");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
     auto* bla = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
     auto* bla2 = static_cast<uint8_t*>(sut.allocate(5, MEMORY_ALIGNMENT));
     EXPECT_THAT(bla2 - bla, Eq(8U));
 }
 
-TEST_F(Allocator_Test, allocateElementOfSizeZero)
+TEST_F(BumpAllocator_Test, allocateElementOfSizeZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "17caa50c-94bf-4a1d-a1ec-dfda563caa0b");
-    iox::posix::Allocator sut(memory, memorySize);
+    iox::BumpAllocator sut(memory, memorySize);
 
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
@@ -125,18 +125,18 @@ TEST_F(Allocator_Test, allocateElementOfSizeZero)
     // hiccpp-vararg)
 }
 
-TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
+TEST_F(BumpAllocator_Test, allocateAfterFinalizeAllocation)
 {
     ::testing::Test::RecordProperty("TEST_ID", "323fc1af-481f-4732-b7d3-fa32da389cef");
-    class AllocatorAccess : iox::posix::Allocator
+    class AllocatorAccess : iox::BumpAllocator
     {
       public:
         AllocatorAccess(void* const f_startAddress, const uint64_t f_length)
-            : iox::posix::Allocator(f_startAddress, f_length)
+            : iox::BumpAllocator(f_startAddress, f_length)
         {
         }
-        using iox::posix::Allocator::allocate;
-        using iox::posix::Allocator::finalizeAllocation;
+        using iox::BumpAllocator::allocate;
+        using iox::BumpAllocator::finalizeAllocation;
     };
     AllocatorAccess sut(memory, memorySize);
     sut.allocate(5, MEMORY_ALIGNMENT);

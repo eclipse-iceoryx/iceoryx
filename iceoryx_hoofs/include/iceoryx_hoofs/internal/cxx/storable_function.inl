@@ -169,6 +169,7 @@ inline void swap(storable_function<Capacity, T>& f, storable_function<Capacity, 
 template <typename T>
 void* allocate(byte_t* startAddress)
 {
+    // static_assert: startAddress + size < Capacity
     uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignof(T));
     return reinterpret_cast<void*>(alignedPosition);
 }

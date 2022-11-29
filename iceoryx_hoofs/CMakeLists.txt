@@ -80,7 +80,6 @@ iox_add_library(
         source/posix_wrapper/scheduler.cpp
         source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
-        source/posix_wrapper/shared_memory_object/allocator.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
@@ -91,6 +90,7 @@ iox_add_library(
         source/posix_wrapper/unix_domain_socket.cpp
         source/memory/relative_pointer_data.cpp
         source/units/duration.cpp
+        memory/source/bump_allocator.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
 
@@ -63,7 +63,7 @@ class ChunkQueue_testBase
     static constexpr size_t MEGABYTE = 1U << 20U;
     static constexpr size_t MEMORY_SIZE = 4U * MEGABYTE;
     std::unique_ptr<char[]> memory{new char[MEMORY_SIZE]};
-    iox::posix::Allocator allocator{memory.get(), MEMORY_SIZE};
+    iox::BumpAllocator allocator{memory.get(), MEMORY_SIZE};
     MemPool mempool{
         sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};
     MemPool chunkMgmtPool{128U, 2U * iox::MAX_SUBSCRIBER_QUEUE_CAPACITY, allocator, allocator};

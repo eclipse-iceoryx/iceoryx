@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iox/bump_allocator.hpp"
 
 namespace iox
 {
@@ -51,7 +51,7 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 
 void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
-    posix::Allocator allocator(memory, size());
+    BumpAllocator allocator(memory, size());
     auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 

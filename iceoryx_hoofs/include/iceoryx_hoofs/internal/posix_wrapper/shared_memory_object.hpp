@@ -19,10 +19,10 @@
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -70,7 +70,7 @@ class SharedMemoryObject
     void finalizeAllocation() noexcept;
 
     /// @brief Returns the reference to the underlying allocator
-    Allocator& getAllocator() noexcept;
+    BumpAllocator& getBumpAllocator() noexcept;
 
     /// @brief Returns start- or base-address of the shared memory.
     const void* getBaseAddress() const noexcept;
@@ -94,7 +94,7 @@ class SharedMemoryObject
   private:
     SharedMemoryObject(SharedMemory&& sharedMemory,
                        MemoryMap&& memoryMap,
-                       Allocator&& allocator,
+                       BumpAllocator&& allocator,
                        const uint64_t memorySizeInBytes) noexcept;
 
   private:
@@ -102,7 +102,7 @@ class SharedMemoryObject
 
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
-    Allocator m_allocator;
+    BumpAllocator m_allocator;
 };
 
 class SharedMemoryObjectBuilder

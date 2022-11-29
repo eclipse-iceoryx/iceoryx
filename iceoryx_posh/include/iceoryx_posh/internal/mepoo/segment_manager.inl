@@ -28,7 +28,7 @@ namespace mepoo
 {
 template <typename SegmentType>
 inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentConfig,
-                                                   posix::Allocator* managementAllocator) noexcept
+                                                   BumpAllocator* managementAllocator) noexcept
     : m_managementAllocator(managementAllocator)
 {
     cxx::Expects(segmentConfig.m_sharedMemorySegments.capacity() <= m_segmentContainer.capacity());

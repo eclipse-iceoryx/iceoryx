@@ -102,7 +102,7 @@ class iox_sub_test : public Test
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
     static constexpr uint32_t CHUNK_SIZE = 128U;
 
-    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 

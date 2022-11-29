@@ -34,7 +34,7 @@ constexpr cxx::perms MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SE
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     const MePooConfig& mempoolConfig,
-    posix::Allocator& managementAllocator,
+    BumpAllocator& managementAllocator,
     const posix::PosixGroup& readerGroup,
     const posix::PosixGroup& writerGroup,
     const iox::mepoo::MemoryInfo& memoryInfo) noexcept
@@ -59,7 +59,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, m_sharedMemoryObject.getAllocator());
+    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, m_sharedMemoryObject.getBumpAllocator());
     m_sharedMemoryObject.finalizeAllocation();
 }
 

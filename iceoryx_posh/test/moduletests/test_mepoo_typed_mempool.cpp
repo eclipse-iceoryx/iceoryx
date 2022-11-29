@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/mepoo/typed_mem_pool.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
 
@@ -57,7 +57,7 @@ class TypedMemPool_test : public Test
     void TearDown(){};
 
     alignas(MemPool::CHUNK_MEMORY_ALIGNMENT) uint8_t m_rawMemory[NumberOfChunks * ChunkSize + LoFFLiMemoryRequirement];
-    iox::posix::Allocator allocator;
+    iox::BumpAllocator allocator;
 
     TypedMemPool<TestClass> sut;
 };

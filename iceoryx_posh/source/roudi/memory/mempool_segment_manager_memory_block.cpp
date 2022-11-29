@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iox/bump_allocator.hpp"
 
 namespace iox
 {
@@ -48,7 +48,7 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
 
 void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
-    posix::Allocator allocator(memory, size());
+    BumpAllocator allocator(memory, size());
     auto segmentManager = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
     m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
 }

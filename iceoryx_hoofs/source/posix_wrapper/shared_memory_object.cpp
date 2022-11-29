@@ -109,7 +109,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
-    Allocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
+    BumpAllocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
     if (sharedMemory->hasOwnership())
     {
@@ -157,7 +157,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
 
 SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
                                        MemoryMap&& memoryMap,
-                                       Allocator&& allocator,
+                                       BumpAllocator&& allocator,
                                        const uint64_t memorySizeInBytes) noexcept
     : m_memorySizeInBytes(memorySizeInBytes)
     , m_sharedMemory(std::move(sharedMemory))
@@ -176,7 +176,7 @@ void SharedMemoryObject::finalizeAllocation() noexcept
     m_allocator.finalizeAllocation();
 }
 
-Allocator& SharedMemoryObject::getAllocator() noexcept
+BumpAllocator& SharedMemoryObject::getBumpAllocator() noexcept
 {
     return m_allocator;
 }

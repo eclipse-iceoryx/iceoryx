@@ -102,7 +102,7 @@ class iox_notification_info_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024 * 1024 * 100;
     uint8_t m_memory[MEMORY_SIZE];
-    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
     SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
