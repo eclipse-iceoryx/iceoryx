@@ -50,7 +50,7 @@ jobs:
           key: cache-lychee-${{ github.ref_name }}
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.5.2
+        uses: lycheeverse/lychee-action@v1.5.4
         with:
           fail: true
           args: --cache --max-cache-age 1d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
