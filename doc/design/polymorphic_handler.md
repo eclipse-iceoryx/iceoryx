@@ -123,19 +123,10 @@ guards) are destroyed, but this happens only during program termination.
 
 ## Using the Polymorphic Handler
 
-### The Activatable interface
-
-To allow atomic activation and deactivation of the handler without the use of mutexes, we require the
-interface `I` to implement the `Activatable` interface (basically a concept). This just uses an atomic
-flag and provides two functions to set and unset the flag.
-
-Concretely, this requires `I` to derive from `Activatable` (could be solved without inheritance as
-well but then we cannot easily enforce the interface).
-
 ### Basic Usage
 
 ```cpp
-struct Interface : public Activatable {
+struct Interface {
 public:
     virtual void foo() = 0;
 };
@@ -204,9 +195,7 @@ handler.
 If externally set handlers are required to live even longer, explicit guards of them must be kept by
 other static objects.
 
-### Why implementing Activatable is required
-
-Requiring any handler to derive from `Activatable` (via the interface `I`) is a mild restriction.
+### Switching between multiple handlers
 
 When a new handler is set by
 
@@ -218,9 +207,7 @@ Handler::set(guard);
 
 1. Create a guard for the new handler
 1. Obtain the new handler instance from the guard
-1. Activate the new handler (via `Activatable::activate`)
 1. Exchange the old handler with the new handler
-1. Deactiavte the old handler (via `Activatable::deactivate`)
 
 Afterwards both handlers still exist (they have static lifetime), and using either works if a
 reference to it is known. Any threads calling `Handler::get` will use the new handler, but there may
@@ -231,14 +218,19 @@ Any thread keeps track of its latest known local handler using a `thread_local` 
 handler is initialized the first time the thread uses `Handler`. This is guaranteed to provide the
 latest handler instance, but the latest instance can change in the meantime.
 
-The thread can then check whether the local handler is still considered active
-(`Activatable::isActive`). If it is active the thread will proceed to use the local handler (which
-is active at this very moment **but may change any time after the check**). Otherwise it will obtain
-the new handler.
+The thread can then check whether the local handler is still considered by comparing it to the
+global handler (which can be loaded with a relaxed atomic). If both are equal then it is considered
+unchanged and the thread will proceed to use the local handler.
+Otherwise it will obtain the new handler with a stronger memory synchronization (more costly).
+
+Note that the current handler can change any time but there is no problem as all handlers remain
+usbale during the entire program lifetime. Due to this, there are no issues like the ABA problem,
+the worst thing that can happen is working with a outdated handler.
 
 This does not require blocking and only relies on fairly cheap atomic operations.
-Without using a mutex, it is unavoidable that threads will always use the latest handler (as it may
-change at any time). However, this is not required, it only is required that a handler that is
+Without using a mutex while using the handler, it is impossible that
+threads will always use the latest handler (as it maychange at any time).
+However, this is not required, it only is required that a handler that is
 obtained can be safely accessed. The latter is ensured by using `StaticLifetimeGuard`.
 
 ### Thread safety

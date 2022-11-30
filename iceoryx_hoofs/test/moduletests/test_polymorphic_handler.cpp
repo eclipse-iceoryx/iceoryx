@@ -24,7 +24,7 @@ namespace
 {
 using namespace ::testing;
 
-struct Interface : public iox::design_pattern::Activatable
+struct Interface
 {
     virtual ~Interface() = default;
 
@@ -100,7 +100,6 @@ TEST_F(PolymorphicHandler_test, handlerIsInitializedWithDefault)
     auto& handler = Handler::get();
 
     EXPECT_EQ(handler.id(), DEFAULT_ID);
-    EXPECT_TRUE(handler.isActive());
 }
 
 TEST_F(PolymorphicHandler_test, settingAlternateWorks)
@@ -110,11 +109,9 @@ TEST_F(PolymorphicHandler_test, settingAlternateWorks)
     auto& handler = Handler::get();
 
     EXPECT_EQ(handler.id(), ALTERNATE_ID);
-    EXPECT_TRUE(handler.isActive());
 
     ASSERT_NE(prevHandler, nullptr);
     EXPECT_EQ(prevHandler->id(), DEFAULT_ID);
-    EXPECT_FALSE(prevHandler->isActive());
 }
 
 TEST_F(PolymorphicHandler_test, alternatePointsToExternalMemory)
@@ -151,7 +148,6 @@ TEST_F(PolymorphicHandler_test, returnValueOfSetPointsToPreviousInstance)
 
     ASSERT_NE(prevHandler, nullptr);
     EXPECT_EQ(&expectedHandler, prevHandler);
-    EXPECT_FALSE(prevHandler->isActive());
 }
 
 TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
@@ -166,9 +162,6 @@ TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
 
     auto& handler = Handler::get();
     EXPECT_EQ(handler.id(), DEFAULT_ID);
-    EXPECT_TRUE(handler.isActive());
-
-    EXPECT_FALSE(prevHandler.isActive());
 }
 
 TEST_F(PolymorphicHandler_test, setToCurrentHandlerWorks)
@@ -177,16 +170,14 @@ TEST_F(PolymorphicHandler_test, setToCurrentHandlerWorks)
 
     // change to alternateHandler
     Handler::set(alternateGuard);
-    EXPECT_TRUE(alternateHandler.isActive());
 
-    // set to alternateHandler again, should stay active
+    // set to alternateHandler again
     // while this is a useless operation, we cannot forbid it via interface
     auto* prevHandler = Handler::set(alternateGuard);
     auto& handler = Handler::get();
 
     EXPECT_EQ(&handler, prevHandler);
     EXPECT_EQ(prevHandler, &alternateHandler);
-    EXPECT_TRUE(handler.isActive());
 }
 
 TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
@@ -231,90 +222,6 @@ TEST_F(PolymorphicHandler_test, obtainingGuardWorks)
     EXPECT_EQ(Guard<Handler>::count(), 1);
     Guard<Handler> guard(Handler::guard());
     EXPECT_EQ(Guard<Handler>::count(), 2);
-}
-
-class Activatable_test : public Test
-{
-  public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-
-    iox::design_pattern::Activatable sut;
-};
-
-TEST_F(Activatable_test, isActiveAfterConstruction)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "874b600a-7976-4c97-a800-55bac11c4eaa");
-    EXPECT_TRUE(sut.isActive());
-}
-
-TEST_F(Activatable_test, copyCtorWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f8e6b2c7-a8bf-441d-8066-66096329b21f");
-    {
-        auto copy(sut);
-        EXPECT_TRUE(copy.isActive());
-    }
-
-    {
-        sut.deactivate();
-        auto copy(sut);
-        EXPECT_FALSE(copy.isActive());
-    }
-}
-
-TEST_F(Activatable_test, copyAssignmentWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "241ad501-2295-4da7-accd-50872264997d");
-    iox::design_pattern::Activatable other;
-
-    sut.deactivate();
-    EXPECT_FALSE(sut.isActive());
-    sut = other;
-    EXPECT_TRUE(sut.isActive());
-    other.deactivate();
-    sut = other;
-    EXPECT_FALSE(sut.isActive());
-}
-
-TEST_F(Activatable_test, isNotActiveAfterDeactivate)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "b9f052b1-33dd-4e71-9887-26581d219492");
-    sut.deactivate();
-    EXPECT_FALSE(sut.isActive());
-}
-
-TEST_F(Activatable_test, isNotActiveAfterMultiDeactivate)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8ab19dd3-83a4-4e95-a4d2-3c9d973ab28b");
-    sut.deactivate();
-    sut.deactivate();
-    EXPECT_FALSE(sut.isActive());
-}
-
-TEST_F(Activatable_test, isActiveAfterReactivation)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "ec26ea62-d979-4f28-89a2-59d4639b52b2");
-    sut.deactivate();
-    sut.activate();
-    EXPECT_TRUE(sut.isActive());
-}
-
-TEST_F(Activatable_test, isActiveAfterMultiActivation)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5593d002-394b-4e30-908c-d56d9b56c58e");
-    sut.activate();
-    EXPECT_TRUE(sut.isActive());
-
-    sut.deactivate();
-    sut.activate();
-    sut.activate();
-    EXPECT_TRUE(sut.isActive());
 }
 
 } // namespace

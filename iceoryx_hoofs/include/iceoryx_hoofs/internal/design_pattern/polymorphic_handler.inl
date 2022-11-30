@@ -40,66 +40,47 @@ void DefaultHooks<Interface>::onSetAfterFinalize(Interface&, Interface&) noexcep
 
 } // namespace detail
 
-Activatable::Activatable(const Activatable& other) noexcept
-    : m_active(other.m_active.load(std::memory_order_relaxed))
-{
-}
-
-Activatable& Activatable::operator=(const Activatable& other) noexcept
-{
-    if (this != &other)
-    {
-        m_active = other.m_active.load(std::memory_order_relaxed);
-    }
-    return *this;
-}
-
-void Activatable::activate() noexcept
-{
-    m_active.store(true, std::memory_order_relaxed);
-}
-
-void Activatable::deactivate() noexcept
-{
-    m_active.store(false, std::memory_order_relaxed);
-}
-
-bool Activatable::isActive() const noexcept
-{
-    return m_active.load(std::memory_order_relaxed);
-}
-
 // The get method is considered to be on the hot path and works as follows:
 //
 // On first call (in a thread):
 // 1. localHandler is initialized
 //    - getCurrent is called
 //    - instantiates singleton instance()
-//    - instantiates default
+//    - instantiates default handler
 //    - sets m_current of instance to default instance (release)
-//    - default is active
 
-// 2. If any thread changes the active handler with set or reset, it will:
-//    - set the new handler to active
+// 2. If any thread changes the handler with set or reset, it will:
+//    - be detected by
 //    - set the current handler to the new handler
 //    - deactivate the old handler (can still be used as it still needs to exist)
 //
 
 // On any call after the handler was changed in another thread
-// 1. we check whether the handler is active
-// (can be outdated information but will eventually be false once the atomic value is updated)
-// 2. if it was changed it is now inactive and we update the local handler
-// Note that it may change again but we do not loop in order to prevent blocking by misuse.
+// 1. We detect the change by comparison with the localHandler (can assume that addresses are unique by
+// design as we use singletons in static memory)
+// 2. If it was changed we perform a synchronizing load and obtain the current handler
+// Note that it may change again but this is unavoidable if it can change concurrently
+// without locks and not a problem.
 template <typename Interface, typename Default, typename Hooks>
 Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) false positive, thread_local
     thread_local Interface* localHandler = getCurrent(); // initialized once per thread on first call
 
-    if (!localHandler->isActive())
+    // weak load, required since it could be set in another thread concurrently
+    auto* currentHandler = instance().m_current.load(std::memory_order_relaxed);
+
+    // is the known localHandler outdated?
+    // NB: this is a variation of double checked locking but with atomics:
+    // we avoid the more costly operation on the hot path unless there was a change (rare case)
+    if (localHandler != currentHandler)
     {
+        // stronger sync of memory
         localHandler = getCurrent();
+        // note that it may concurrently change again but we do not loop to check as there is no
+        // point in such a lock-free code (it may also change while returning)
     }
+
     return *localHandler;
 }
 
@@ -128,16 +109,8 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& 
         return nullptr;
     }
 
-    handler.activate(); // it may have been deactivated before, so always reactivate it
     auto prev = ins.m_current.exchange(&handler, std::memory_order_acq_rel);
 
-    // self exchange? if so, do not deactivate
-    if (&handler != prev)
-    {
-        // anyone still using the old handler will eventually see that it is inactive
-        // and switch to the new handler
-        prev->deactivate();
-    }
     return prev;
 }
 

@@ -27,39 +27,6 @@ namespace iox
 {
 namespace design_pattern
 {
-/// @brief Implements the Activatable concept to be used in the PolymorphicHandler
-/// The concept implements a binary switch. By default is switched on (active).
-/// Anyone defining another custom handler interface is supposed to derive from Activatable.
-/// @note While this is public, it is also partially implementation detail and partially convenience
-/// to use the PolymorphicHandler.
-class Activatable
-{
-  public:
-    Activatable() noexcept = default;
-
-    Activatable(const Activatable&) noexcept;
-    Activatable& operator=(const Activatable&) noexcept;
-
-    // there is no useful move operation
-    Activatable(Activatable&&) noexcept = delete;
-    Activatable& operator=(Activatable&&) noexcept = delete;
-
-    ~Activatable() noexcept = default;
-
-    /// @brief Switch on.
-    void activate() noexcept;
-
-    /// @brief Switch off.
-    void deactivate() noexcept;
-
-    /// @brief Query switch state.
-    /// @return true if active (on), false otherwise (off).
-    bool isActive() const noexcept;
-
-  private:
-    std::atomic<bool> m_active{true};
-};
-
 namespace detail
 {
 
@@ -95,10 +62,6 @@ template <typename Interface, typename Default, typename Hooks = detail::Default
 class PolymorphicHandler
 {
     static_assert(std::is_base_of<Interface, Default>::value, "Default must inherit from Interface");
-
-    // actually it suffices to provide the methods activate, deactivate, isActive
-    // but they need to behave correctly and inheritance enforces this
-    static_assert(std::is_base_of<Activatable, Interface>::value, "Interface must inherit from Activatable");
 
     using Self = PolymorphicHandler<Interface, Default, Hooks>;
     friend class StaticLifetimeGuard<Self>;
