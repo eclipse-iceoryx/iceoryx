@@ -86,11 +86,11 @@ class PolymorphicHandler_test : public Test
   public:
     void SetUp() override
     {
-        Handler::reset();
     }
 
     void TearDown() override
     {
+        Handler::reset();
     }
 };
 
@@ -184,20 +184,26 @@ TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
 {
     ::testing::Test::RecordProperty("TEST_ID", "171ac802-01b9-4e08-80a6-6f2defecaf6d");
 
-    auto& handler = Handler::get();
+    // we always finalize it to be alternateHandler
+    Handler::set(alternateGuard);
 
     // reset the handler value to non-zero and check later whether they are set to non-zero as expecteded
-    handler.reset();
+    defaultHandler.reset();
     alternateHandler.reset();
 
-    // note that all following tests will also call the after finalize
-    // hook but we only check if we care whether it was called
+    // NB: we know that the current handler is alternateHandler before finalize
     Handler::finalize();
-    auto* prevHandler = Handler::set(alternateGuard);
+
+    // verify the handler values are 0 before calling set
+    // (the hook should change this)
+    EXPECT_EQ(defaultHandler.value, 0);
+    EXPECT_EQ(alternateHandler.value, 0);
+
+    auto* prevHandler = Handler::set(defaultGuard);
     EXPECT_EQ(prevHandler, nullptr);
 
     // does the hook set the values to the corresponding arguments?
-    EXPECT_EQ(handler.value, DEFAULT_ID);
+    EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
     EXPECT_EQ(alternateHandler.value, ALTERNATE_ID);
 }
 
@@ -205,15 +211,26 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
 {
     ::testing::Test::RecordProperty("TEST_ID", "996220e3-7985-4d57-bd3f-844987cf99dc");
 
-    auto& handler = Handler::get();
-    handler.reset();
+    // we always finalize it to be alternateHandler (in the other test or here)
+    Handler::set(alternateGuard);
+
+    defaultHandler.reset();
     alternateHandler.reset();
 
+    // NB: we know that the current handler is alternateHandler before finalize
+    // it does not matter whether it was called before
     Handler::finalize();
+
+    // verify the handler values are 0 before calling reset
+    // (the hook should change this)
+    EXPECT_EQ(defaultHandler.value, 0);
+    EXPECT_EQ(alternateHandler.value, 0);
+
     Handler::reset();
 
-    EXPECT_EQ(handler.value, DEFAULT_ID);
-    EXPECT_EQ(alternateHandler.value, 0);
+    // does the hook set the values to the corresponding arguments?
+    EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
+    EXPECT_EQ(alternateHandler.value, ALTERNATE_ID);
 }
 
 TEST_F(PolymorphicHandler_test, obtainingGuardWorks)

@@ -68,6 +68,7 @@ class StaticLifetimeGuard_test : public Test
 
     void TearDown() override
     {
+        Foo::reset();
     }
 };
 
@@ -99,7 +100,6 @@ TEST_F(StaticLifetimeGuard_test, setCountWorks)
 TEST_F(StaticLifetimeGuard_test, guardPreventsDestruction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a8c5953-f2d7-4539-89ba-b4686bbb6319");
-    Foo::reset();
     EXPECT_EQ(Foo::ctorCalled, 0);
     EXPECT_EQ(Foo::dtorCalled, 0);
     EXPECT_EQ(g_instance.id, 1);
@@ -125,7 +125,6 @@ TEST_F(StaticLifetimeGuard_test, guardPreventsDestruction)
 TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ab6396d-7c63-4626-92ed-c7f3ea67bbf1");
-    Foo::reset();
     Guard guard;
     {
         EXPECT_EQ(Guard::count(), 2);
@@ -143,7 +142,6 @@ TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, moveIncreasesLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32a2fdbf-cb02-408c-99a3-373aa66b2764");
-    Foo::reset();
     Guard guard;
     {
         EXPECT_EQ(Guard::count(), 2);
@@ -161,7 +159,6 @@ TEST_F(StaticLifetimeGuard_test, moveIncreasesLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, assignmentDoesNotChangeLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1c04ac75-d47a-44da-b8dc-6f567a53d3fc");
-    Foo::reset();
     Guard guard1;
     Guard guard2;
 
@@ -178,7 +175,6 @@ TEST_F(StaticLifetimeGuard_test, assignmentDoesNotChangeLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b5a22a9-87bc-434b-9d07-9f3c20a6944e");
-    Foo::reset();
     {
         Guard guard;
         auto& instance = Guard::instance();
@@ -202,7 +198,6 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0077e73d-ddf5-47e7-a7c6-93819f376175");
-
     // ensure that the old instance is destroyed if it exists
     if (Guard::count() > 0)
     {
@@ -211,7 +206,6 @@ TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
         // now the instance will be destroyed once the guard is destroyed
     }
 
-    Foo::reset();
     EXPECT_EQ(Guard::count(), 0);
     {
         Guard guard;
