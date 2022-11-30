@@ -44,6 +44,8 @@ class SharedMemoryObject_Test : public Test
         // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
         // hiccpp-vararg)
     }
+
+    static constexpr uint64_t MEMORY_ALIGNMENT{8};
 };
 
 TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
@@ -141,7 +143,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, BumpAllocator::MEMORY_ALIGNMENT) + 1, 1); });
+    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, MEMORY_ALIGNMENT) + 1, 1); });
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
@@ -158,7 +160,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    for (uint64_t i = 0; i < cxx::align(memorySize, BumpAllocator::MEMORY_ALIGNMENT); ++i)
+    for (uint64_t i = 0; i < cxx::align(memorySize, MEMORY_ALIGNMENT); ++i)
     {
         void* test = sut->allocate(1, 1);
         ASSERT_THAT(test, Ne(nullptr));

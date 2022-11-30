@@ -24,9 +24,8 @@
 
 namespace iox
 {
-constexpr uint64_t BumpAllocator::MEMORY_ALIGNMENT;
 BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) noexcept
-    : m_startAddress(static_cast<byte_t*>(startAddress))
+    : m_startAddress(static_cast<cxx::byte_t*>(startAddress))
     , m_length(length)
 {
 }
@@ -48,7 +47,7 @@ void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noe
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
 
-    byte_t* l_returnValue = nullptr;
+    cxx::byte_t* l_returnValue = nullptr;
 
     if (m_length >= alignedPosition + size)
     {

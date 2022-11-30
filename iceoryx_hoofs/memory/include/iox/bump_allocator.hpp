@@ -17,7 +17,10 @@
 #ifndef IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 #define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+
 #include <cstdint>
+
 namespace iox
 {
 namespace posix
@@ -27,12 +30,7 @@ class SharedMemoryObject;
 
 class BumpAllocator
 {
-    using byte_t = uint8_t;
-
-
   public:
-    // remove:
-    static constexpr uint64_t MEMORY_ALIGNMENT = 8U;
     /// @brief A bump allocator for the memory provided in the ctor arguments
     /// @param[in] startAddress of the memory this allocator manages
     /// @param[in] length of the memory this allocator manages
@@ -56,7 +54,7 @@ class BumpAllocator
     void finalizeAllocation() noexcept;
 
   private:
-    byte_t* m_startAddress{nullptr};
+    cxx::byte_t* m_startAddress{nullptr};
     uint64_t m_length{0U};
     uint64_t m_currentPosition = 0U;
     bool m_allocationFinalized = false;
