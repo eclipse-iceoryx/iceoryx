@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -177,7 +177,7 @@ TEST_F(variant_Test, CreatingVariantWithSameTypeChoosesFirstFittingType)
 TEST_F(variant_Test, EmplaceValidElementWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "24021bd7-3749-4ca3-9b35-db3cb4837bff");
-    ASSERT_THAT(sut.emplace<ComplexClass>(123, 456.789F), Eq(true));
+    sut.emplace<ComplexClass>(123, 456.789F);
     ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
     EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(123));
     EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(456.789F));
@@ -187,7 +187,7 @@ TEST_F(variant_Test, EmplaceSecondValidElementWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb4ba160-dd0c-4255-9916-cc56d950e970");
     sut.emplace<ComplexClass>(123, 456.789F);
-    ASSERT_THAT(sut.emplace<ComplexClass>(912, 65.03F), Eq(true));
+    sut.emplace<ComplexClass>(912, 65.03F);
     ASSERT_THAT(sut.get<ComplexClass>(), Ne(nullptr));
     EXPECT_THAT(sut.get<ComplexClass>()->a, Eq(912));
     EXPECT_THAT(sut.get<ComplexClass>()->b, Eq(65.03F));
@@ -197,14 +197,7 @@ TEST_F(variant_Test, EmplaceInvalidElementCompileTimeCheck)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6fa3b290-8249-4825-8eac-72235a06710e");
     GTEST_SKIP() << "Compile time check, if you uncomment this test, the compiler will fail";
-    // EXPECT_THAT(sut.emplace< unsigned int >(0), Eq(false));
-}
-
-TEST_F(variant_Test, EmplaceWhenAlreadyDifferentTypeAssignedDoesNotWork)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f2c0825a-349c-4acb-9643-cb046f7e0310");
-    sut.emplace<int>(123);
-    EXPECT_THAT(sut.emplace<float>(123.F), Eq(false));
+    // sut.emplace<unsigned int>(0);
 }
 
 TEST_F(variant_Test, GetOnUninitializedVariantFails)
@@ -511,7 +504,7 @@ TEST_F(variant_Test, SameTypeVariantAndEmplaceWithIndexResultsInCorrectValue)
     ::testing::Test::RecordProperty("TEST_ID", "fb55e6d8-d42d-4073-b5db-5300c56df540");
     iox::cxx::variant<int, float, int> schlomo;
 
-    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    schlomo.emplace_at_index<2>(123);
     EXPECT_THAT(*schlomo.get_at_index<2>(), Eq(123));
 }
 
@@ -520,7 +513,7 @@ TEST_F(variant_Test, SameTypeVariantResultsInCorrectIndex)
     ::testing::Test::RecordProperty("TEST_ID", "10994259-9fb5-411f-9e12-365f2d8e09fd");
     iox::cxx::variant<int, float, int> schlomo;
 
-    EXPECT_THAT(schlomo.emplace_at_index<1>(1.23F), Eq(true));
+    schlomo.emplace_at_index<1>(1.23F);
     EXPECT_THAT(schlomo.index(), Eq(1U));
 }
 
@@ -529,7 +522,7 @@ TEST_F(variant_Test, SameTypeVariantReturnsNothingForIncorrectIndex)
     ::testing::Test::RecordProperty("TEST_ID", "04c16cb1-f67f-47fa-bde8-f15ff0d044c3");
     iox::cxx::variant<int, float, int> schlomo;
 
-    ASSERT_THAT(schlomo.emplace_at_index<2>(123), Eq(true));
+    schlomo.emplace_at_index<2>(123);
     EXPECT_THAT(schlomo.get_at_index<1>(), Eq(nullptr));
 }
 
@@ -539,7 +532,7 @@ TEST_F(variant_Test, ConstSameTypeVariantAndEmplaceWithIndexResultsInCorrectValu
     iox::cxx::variant<int, float, int> schlomo;
     const iox::cxx::variant<int, float, int>* ignatz = &schlomo;
 
-    ASSERT_THAT(schlomo.emplace_at_index<2>(4123), Eq(true));
+    schlomo.emplace_at_index<2>(4123);
     EXPECT_THAT(*ignatz->get_at_index<2>(), Eq(4123));
 }
 

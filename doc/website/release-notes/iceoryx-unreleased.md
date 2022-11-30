@@ -11,7 +11,7 @@
 - Add clear method for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Add at method and operator[] for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - expected inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
-- Added CI check of used headers against a list [\#1252](https://github.com/eclipse-iceoryx/iceoryx/issues/1252)
+- Add CI check of used headers against a list [\#1252](https://github.com/eclipse-iceoryx/iceoryx/issues/1252)
 - Add insert method for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend compare method of `iox::cxx::string` to compare additionally with std::string and char array [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Add compare method for `iox::cxx::string` and chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
@@ -29,7 +29,7 @@
 - Apps send only the heartbeat when monitoring is enabled in roudi [\#1436](https://github.com/eclipse-iceoryx/iceoryx/issues/1436)
 - Support [Bazel](https://bazel.build/) as optional build system [\#1542](https://github.com/eclipse-iceoryx/iceoryx/issues/1542)
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
-- Added equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
+- Add equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
 - Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 
 **Bugfixes:**
@@ -56,7 +56,7 @@
 - Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
-- Removed `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
+- Remove `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
 - CI uses outdated clang-format [\#1736](https://github.com/eclipse-iceoryx/iceoryx/issues/1736)
 - Avoid UB when accessing `iox::expected` [\#1750](https://github.com/eclipse-iceoryx/iceoryx/issues/1750)
 
@@ -82,15 +82,15 @@
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
 - `SignalHandler` returns an `expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove the unused `PosixRights` struct [\#1556](https://github.com/eclipse-iceoryx/iceoryx/issues/1556)
-- Moved quality level 2 classes to new package `iceoryx_dust` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
-- Removed unused classes from `iceoryx_hoofs` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
+- Move quality level 2 classes to new package `iceoryx_dust` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
+- Remove unused classes from `iceoryx_hoofs` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
   - `cxx::PoorMansHeap`
   - Other `internal` classes
 - Cleanup helplets [\#1560](https://github.com/eclipse-iceoryx/iceoryx/issues/1560)
-- Moved package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
+- Move package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
 - Set `SOVERSION` with project major version for shared libraries in CMake [\#1308](https://github.com/eclipse-iceoryx/iceoryx/issues/1308)
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
-- Renamed `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
+- Rename `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
@@ -98,9 +98,10 @@
 - Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `cxx::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
-- Renamed `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
+- Rename `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - Prevent building GoogleTest when `GTest_DIR` is defined [\#1758](https://github.com/eclipse-iceoryx/iceoryx/issues/1758)
-- Refactored `iceoryx_posh_testing` library into own CMakeLists.txt [\#1516](https://github.com/eclipse-iceoryx/iceoryx/issues/1516)
+- Refactor `iceoryx_posh_testing` library into own CMakeLists.txt [\#1516](https://github.com/eclipse-iceoryx/iceoryx/issues/1516)
+- Change return type of `cxx::variant::emplace_at_index` and `emplace` to void [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 
 **Workflow:**
 
