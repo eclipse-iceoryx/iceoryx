@@ -91,8 +91,10 @@ struct get_type_at_index<N, N, T, Targs...>
     using type = T;
 };
 
-// AXIVION DISABLE STYLE AutosarC++19_03-M5.2.8, AutosarC++19_03-A5.2.4 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design of variant; note that this is an internal class used by variant
-// AXIVION DISABLE STYLE AutosarC++19_03-A18.5.10, FaultDetection-IndirectAssignmentOverflow : destination is aligned to the maximum alignment of Types, see variant.hpp
+// AXIVION DISABLE STYLE AutosarC++19_03-M5.2.8 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design of variant; note that this is an internal class used by variant
+// AXIVION DISABLE STYLE AutosarC++19_03-A5.2.4 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design of variant; note that this is an internal class used by variant
+// AXIVION DISABLE STYLE AutosarC++19_03-A18.5.10 : destination is aligned to the maximum alignment of Types, see variant.hpp
+// AXIVION DISABLE STYLE FaultDetection-IndirectAssignmentOverflow : destination is aligned to the maximum alignment of Types, see variant.hpp
 // AXIVION DISABLE STYLE AutosarC++19_03-A5.3.2 : this is an internal struct used only by variant; all pointer arguments are checked in the variant class before the static functions are called
 // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast)
 template <uint64_t N, typename T, typename... Targs>
@@ -243,8 +245,10 @@ struct call_at_index<N, T>
 };
 // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast)
 // AXIVION ENABLE STYLE AutosarC++19_03-A5.3.2
-// AXIVION ENABLE STYLE AutosarC++19_03-A18.5.10, FaultDetection-IndirectAssignmentOverflow
-// AXIVION ENABLE STYLE AutosarC++19_03-M5.2.8, AutosarC++19_03-A5.2.4
+// AXIVION ENABLE STYLE FaultDetection-IndirectAssignmentOverflow
+// AXIVION ENABLE STYLE AutosarC++19_03-A18.5.10
+// AXIVION ENABLE STYLE AutosarC++19_03-A5.2.4
+// AXIVION ENABLE STYLE AutosarC++19_03-M5.2.8
 
 } // namespace internal
 } // namespace cxx
