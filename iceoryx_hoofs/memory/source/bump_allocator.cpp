@@ -39,6 +39,8 @@ void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noe
     cxx::Expects(
         !m_allocationFinalized
         && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
+    // return a nullptr instead of terminate? Then this could be checked in SharedMemoryObject and the log messages
+    // could be printed there...
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
@@ -70,6 +72,12 @@ void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noe
 void BumpAllocator::finalizeAllocation() noexcept
 {
     m_allocationFinalized = true;
+}
+
+void BumpAllocator::deallocate() noexcept
+{
+    m_currentPosition = 0;
+    m_allocationFinalized = false;
 }
 
 } // namespace iox

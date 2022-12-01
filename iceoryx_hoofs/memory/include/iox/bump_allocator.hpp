@@ -48,9 +48,12 @@ class BumpAllocator
     /// @note May terminate if out of memory or finalizeAllocation() was called before
     void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
+    /// @brief mark the memory as unused
+    void deallocate() noexcept;
+
   protected:
     friend class posix::SharedMemoryObject;
-    // make free function; destructive move?
+    // make free function; destructive move? - then we would not be able to deallocate and allocate again afterwards
     void finalizeAllocation() noexcept;
 
   private:

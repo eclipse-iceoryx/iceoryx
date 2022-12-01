@@ -173,7 +173,6 @@ void* allocate(byte_t* startAddress, uint64_t Capacity)
     uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignof(T));
     cxx::Expects(alignedPosition + sizeof(T) - reinterpret_cast<uint64_t>(startAddress) < Capacity
                  && "type does not fit into storage");
-    // cxx::Expects(alignedPosition + sizeof(T) < Capacity && "type does not fit into storage");
     return reinterpret_cast<void*>(alignedPosition);
 }
 

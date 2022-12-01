@@ -149,4 +149,42 @@ TEST_F(BumpAllocator_Test, allocateAfterFinalizeAllocation)
     // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
     // hiccpp-vararg)
 }
+
+TEST_F(BumpAllocator_Test, allocateAfterDeallocateWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    iox::BumpAllocator sut(memory, memorySize);
+    sut.allocate(memorySize, 1);
+
+    sut.deallocate();
+
+    int* bla = static_cast<int*>(sut.allocate(memorySize, 1));
+    *bla = 1990;
+    EXPECT_THAT(*bla, Eq(1990));
+}
+
+TEST_F(BumpAllocator_Test, allocateAfterFinalizeAllocationAndDeallocateWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "");
+    class AllocatorAccess : iox::BumpAllocator
+    {
+      public:
+        AllocatorAccess(void* const startAddress, const uint64_t length)
+            : iox::BumpAllocator(startAddress, length)
+        {
+        }
+        using iox::BumpAllocator::allocate;
+        using iox::BumpAllocator::deallocate;
+        using iox::BumpAllocator::finalizeAllocation;
+    };
+    AllocatorAccess sut(memory, memorySize);
+    sut.allocate(memorySize, 1);
+    sut.finalizeAllocation();
+
+    sut.deallocate();
+
+    int* bla = static_cast<int*>(sut.allocate(memorySize, 1));
+    *bla = 32;
+    EXPECT_THAT(*bla, Eq(32));
+}
 } // namespace
