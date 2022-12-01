@@ -50,9 +50,8 @@ void DefaultHooks<Interface>::onSetAfterFinalize(Interface&, Interface&) noexcep
 //    - sets m_current of instance to default instance (release)
 
 // 2. If any thread changes the handler with set or reset, it will:
-//    - be detected by
+//    - be detected by comparison with local handler
 //    - set the current handler to the new handler
-//    - deactivate the old handler (can still be used as it still needs to exist)
 //
 
 // On any call after the handler was changed in another thread

@@ -36,6 +36,14 @@
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
 ./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/polymorphic_handler.hpp
+./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp
+
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/design_pattern/polymorphic_handler.inl
+./iceoryx_hoofs/include/iceoryx_hoofs/internal/design_pattern/static_lifetime_guard.inl
+
+./iceoryx_hoofs/test/moduletests/test_polymorphic_handler.cpp
+./iceoryx_hoofs/test/moduletests/test_static_lifetime_guard.cpp
 
 ./iceoryx_hoofs/container/include/iox/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*

@@ -229,7 +229,7 @@ the worst thing that can happen is working with a outdated handler.
 
 This does not require blocking and only relies on fairly cheap atomic operations.
 Without using a mutex while using the handler, it is impossible that
-threads will always use the latest handler (as it maychange at any time).
+threads will always use the latest handler (as it may change at any time).
 However, this is not required, it only is required that a handler that is
 obtained can be safely accessed. The latter is ensured by using `StaticLifetimeGuard`.
 

@@ -45,19 +45,21 @@ struct DefaultHooks
 } // namespace detail
 
 /// @brief Implements a singleton handler that has a default instance and can be changed
-///        to another instance at runtime. All instances have to derive from the same interface.
-///        The singleton handler owns the default instance but all other instances are created externally.
-/// @tparam Interface The interface of the handler instances. Must inherit from Activatable.
+/// to another instance at runtime. All instances have to derive from the same interface.
+/// The singleton handler owns the default instance but all other instances are created externally.
+/// @tparam Interface The interface of the handler instances.
 /// @tparam Default The type of the default instance. Must be equal to or derive from Interface.
+/// @tparam Hooks A struct that implements onSetAfterFinalize which is called when
+/// attempting to set or reset the handler after finalize was called.
 ///
 /// @note In the special case where Default equals Interface, no polymorphism is required.
-///       It is then possible to e.g. switch between multiple instances of Default type.
+/// It is then possible to e.g. switch between multiple instances of Default type.
 /// @note The lifetime of external non-default instances must exceed the lifetime of the PolymorphicHandler.
 /// @note The PolymorphicHandler is guaranteed to provide a valid handler during the whole program lifetime (static).
-///       It is hence not advisable to have other static variables depend on the PolymorphicHandler.
-///       It must be ensured that they are destroyed before the PolymorphicHandler.
+/// It is hence not advisable to have other static variables depend on the PolymorphicHandler.
+/// It must be ensured that they are destroyed before the PolymorphicHandler.
 /// @note Hooks must implement
-///       static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
+/// static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
 template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>
 class PolymorphicHandler
 {
