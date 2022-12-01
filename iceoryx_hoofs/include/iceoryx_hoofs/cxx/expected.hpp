@@ -234,8 +234,8 @@ class IOX_NO_DISCARD expected<ErrorType> : public FunctionalInterface<expected<E
     template <typename... Targs>
     static expected create_error(Targs&&... args) noexcept;
 
-    /// @brief  returns true if the expected contains an error otherwise false
-    /// @return bool which contains true if the expected contains an error
+    /// @brief  returns true if the expected signals success otherwise false
+    /// @return bool which contains true if the expected signals success
     explicit operator bool() const noexcept;
 
     /// @brief  returns true if the expected contains an error otherwise false
