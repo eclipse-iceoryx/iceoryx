@@ -20,12 +20,18 @@
 
 namespace iox
 {
+template <class C>
+inline constexpr auto size(const C& c) -> decltype(c.size())
+{
+    return c.size();
+}
+
 template <typename T, uint64_t Extent>
 inline constexpr span<T, Extent>::span() noexcept
     : span_storage_t(0)
     , m_data(nullptr)
 {
-    static_assert(Extent == dynamic_extent || Extent == 0, "Invalid Extent");
+    static_assert(Extent == DYNAMIC_EXTENT || Extent == 0, "Invalid Extent");
 }
 
 template <typename T, uint64_t Extent>
@@ -34,7 +40,7 @@ inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
     : span_storage_t(count)
     , m_data(internal::to_address(first))
 {
-    iox::ConstexprCheckTrue(Extent == dynamic_extent || Extent == count);
+    iox::ConstexprCheckTrue(Extent == DYNAMIC_EXTENT || Extent == count);
 }
 
 template <typename T, uint64_t Extent>
@@ -43,7 +49,7 @@ inline constexpr span<T, Extent>::span(It begin, End end) noexcept
     : span(begin, static_cast<uint64_t>(end - begin))
 {
     // check for non negative result
-    iox::ConstexprCheckTrue(begin <= end, "");
+    static_assert(begin <= end, "");
 }
 
 template <typename T, uint64_t Extent>
@@ -94,14 +100,14 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::first() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || Count <= size());
+    static_assert(Extent != DYNAMIC_EXTENT || Count <= size());
     return {data(), Count};
 }
 
 template <typename T, uint64_t Extent>
-inline constexpr span<T, dynamic_extent> span<T, Extent>::first(uint64_t count) const noexcept
+inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::first(uint64_t count) const noexcept
 {
-    iox::ConstexprCheckTrue(count <= size());
+    static_assert(count <= size());
     return {data(), count};
 }
 
@@ -110,36 +116,36 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::last() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || Count <= size());
+    static_assert(Extent != DYNAMIC_EXTENT || Count <= size());
     return {data() + (size() - Count), Count};
 }
 
 template <typename T, uint64_t Extent>
-inline constexpr span<T, dynamic_extent> span<T, Extent>::last(uint64_t count) const noexcept
+inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::last(uint64_t count) const noexcept
 {
-    iox::ConstexprCheckTrue(count <= size());
+    static_assert(count <= size());
     return {data() + (size() - count), count};
 }
 
 template <typename T, uint64_t Extent>
 template <uint64_t Offset, uint64_t Count>
 inline constexpr span<T,
-                      (Count != dynamic_extent ? Count : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent))>
+                      (Count != DYNAMIC_EXTENT ? Count : (Extent != DYNAMIC_EXTENT ? Extent - Offset : DYNAMIC_EXTENT))>
 span<T, Extent>::subspan() const noexcept
 {
     static_assert(Offset <= Extent, "Offset must not exceed Extent");
-    static_assert(Count == dynamic_extent || Count <= Extent - Offset, "Count must not exceed Extent - Offset");
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || Offset <= size());
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || Count == dynamic_extent || Count <= size() - Offset);
-    return {data() + Offset, Count != dynamic_extent ? Count : size() - Offset};
+    static_assert(Count == DYNAMIC_EXTENT || Count <= Extent - Offset, "Count must not exceed Extent - Offset");
+    static_assert(Extent != DYNAMIC_EXTENT || Offset <= size());
+    static_assert(Extent != DYNAMIC_EXTENT || Count == DYNAMIC_EXTENT || Count <= size() - Offset);
+    return {data() + Offset, Count != DYNAMIC_EXTENT ? Count : size() - Offset};
 }
 
 template <typename T, uint64_t Extent>
-inline constexpr span<T, dynamic_extent> span<T, Extent>::subspan(uint64_t offset, uint64_t count) const noexcept
+inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::subspan(uint64_t offset, uint64_t count) const noexcept
 {
-    iox::ConstexprCheckTrue(offset <= size());
-    iox::ConstexprCheckTrue(count == dynamic_extent || count <= size() - offset);
-    return {data() + offset, count != dynamic_extent ? count : size() - offset};
+    static_assert(offset <= size());
+    static_assert(count == DYNAMIC_EXTENT || count <= size() - offset);
+    return {data() + offset, count != DYNAMIC_EXTENT ? count : size() - offset};
 }
 
 template <typename T, uint64_t Extent>
@@ -163,16 +169,16 @@ inline constexpr bool span<T, Extent>::empty() const noexcept
 template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::front() const noexcept
 {
-    static_assert(Extent == dynamic_extent || Extent > 0, "Extent must not be 0");
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || !empty());
+    static_assert(Extent == DYNAMIC_EXTENT || Extent > 0, "Extent must not be 0");
+    iox::ConstexprCheckTrue(Extent != DYNAMIC_EXTENT || !empty());
     return *data();
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::back() const noexcept
 {
-    static_assert(Extent == dynamic_extent || Extent > 0, "Extent must not be 0");
-    iox::ConstexprCheckTrue(Extent != dynamic_extent || !empty());
+    static_assert(Extent == DYNAMIC_EXTENT || Extent > 0, "Extent must not be 0");
+    static_assert(Extent != DYNAMIC_EXTENT || !empty());
     return *(data() + size() - 1);
 }
 
@@ -218,14 +224,14 @@ constexpr uint64_t span<T, Extent>::extent;
 
 // object representation
 template <typename T, uint64_t X>
-span<const uint8_t, (X == dynamic_extent ? dynamic_extent : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
+span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
 }
 
 template <typename T, uint64_t X, typename = std::enable_if_t<!std::is_const<T>::value>>
-span<uint8_t, (X == dynamic_extent ? dynamic_extent : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
+span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
@@ -242,7 +248,7 @@ constexpr auto make_span(It it, uint64_t size) noexcept
 template <int&... ArgBarrier,
           typename It,
           typename End,
-          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
+          typename = std::enable_if_t<!iox::IS_CONVERTIBLE_V<End, uint64_t>>>
 constexpr auto make_span(It it, End end) noexcept
 {
     using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
@@ -268,7 +274,7 @@ template <uint64_t N,
           int&... ArgBarrier,
           typename It,
           typename End,
-          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
+          typename = std::enable_if_t<!iox::IS_CONVERTIBLE_V<End, uint64_t>>>
 constexpr auto make_span(It it, End end) noexcept
 {
     using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;

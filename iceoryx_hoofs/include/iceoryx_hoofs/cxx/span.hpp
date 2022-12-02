@@ -32,49 +32,73 @@ using namespace std;
 namespace iox
 {
 // constants
-constexpr uint64_t dynamic_extent = std::numeric_limits<uint64_t>::max();
+constexpr uint64_t DYNAMIC_EXTENT = std::numeric_limits<uint64_t>::max();
 
 template <class From, class To>
-constexpr bool is_convertible_v = std::is_convertible<From, To>::value;
+constexpr bool IS_CONVERTIBLE_V = std::is_convertible<From, To>::value;
 
 // Implementation of C++17 std::size() and std::data()
-template <class C>
-constexpr auto size(const C& c) -> decltype(c.size())
-{
-    return c.size();
-}
 
+/// @brief Returns c.size(), converted to the return type if necessary.
+/// @tparam C
+/// @param c A container or view with a size member function
+/// @return The size of c
+template <class C>
+constexpr auto size(const C& c) -> decltype(c.size());
+
+/// @brief Returns N
+/// @tparam T
+/// @tparam N
+/// @param
+/// @return
 template <class T, std::uint64_t N>
 constexpr std::uint64_t size(const T (&)[N]) noexcept
 {
     return N;
 }
 
+/// @brief Returns a pointer to the block of memory containing the elements of the range.
+/// @tparam C
+/// @param c A container or view with a data() member function
+/// @return Returns c.data()
 template <class C>
 constexpr auto data(C& c) -> decltype(c.data())
 {
     return c.data();
 }
 
+/// @brief Returns a pointer to the block of memory containing the elements of the range.
+/// @tparam C
+/// @param c A container or view with a data() member function
+/// @return Returns c.data()
 template <class C>
 constexpr auto data(const C& c) -> decltype(c.data())
 {
     return c.data();
 }
 
+/// @brief Returns a pointer to the block of memory containing the elements of the range.
+/// @tparam T
+/// @tparam N
+/// @param array An array of arbitrary type
+/// @return Returns array
 template <class T, std::uint64_t N>
 constexpr T* data(T (&array)[N]) noexcept
 {
     return array;
 }
 
+/// @brief Returns a pointer to the block of memory containing the elements of the range.
+/// @tparam E
+/// @param il An initilizer list
+/// @return return il.begin()
 template <class E>
 constexpr const E* data(std::initializer_list<E> il) noexcept
 {
     return il.begin();
 }
 
-template <typename T, uint64_t Extent = dynamic_extent>
+template <typename T, uint64_t Extent = DYNAMIC_EXTENT>
 class span;
 
 namespace internal
@@ -83,7 +107,7 @@ template <uint64_t I>
 using size_constant = std::integral_constant<uint64_t, I>;
 
 template <typename T>
-struct extent_impl : size_constant<dynamic_extent>
+struct extent_impl : size_constant<DYNAMIC_EXTENT>
 {
 };
 
@@ -127,12 +151,12 @@ using is_integral_sized_container_t = std::is_integral<decltype(iox::size(std::d
 
 template <typename From, uint64_t FromExtent, typename To, uint64_t ToExtent>
 using enable_if_conversion_allowed_t =
-    std::enable_if_t<(ToExtent == dynamic_extent || ToExtent == FromExtent) && is_convertible_t<From, To>::value>;
+    std::enable_if_t<(ToExtent == DYNAMIC_EXTENT || ToExtent == FromExtent) && is_convertible_t<From, To>::value>;
 
 // SFINAE Verify it the passed array can be converted to a span<T>.
 template <typename Array, typename T, uint64_t Extent>
 using enable_if_compatible_array_t =
-    std::enable_if_t<(Extent == dynamic_extent || Extent == internal::extent_t<Array>::value)
+    std::enable_if_t<(Extent == DYNAMIC_EXTENT || Extent == internal::extent_t<Array>::value)
                      && container_has_convertible_data_t<Array, T>::value>;
 
 // SFINAE Verify it the passed container can be converted to a span<T>.
@@ -148,7 +172,7 @@ using enable_if_compatible_container_t = std::enable_if_t<is_compatible_containe
 
 template <typename Container, typename T, uint64_t Extent>
 using enable_if_compatible_dynamic_container_t =
-    std::enable_if_t<is_compatible_container_t<Container, T>::value && Extent == dynamic_extent>;
+    std::enable_if_t<is_compatible_container_t<Container, T>::value && Extent == DYNAMIC_EXTENT>;
 
 template <uint64_t Extent>
 class span_storage
@@ -164,7 +188,7 @@ class span_storage
 };
 
 template <>
-struct span_storage<dynamic_extent>
+struct span_storage<DYNAMIC_EXTENT>
 {
     constexpr explicit span_storage(uint64_t size) noexcept
         : size_(size)
@@ -322,7 +346,7 @@ class span : public internal::span_storage<Extent>
     /// @brief obtains a subspan consisting of the first N elements of the sequence
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> first(uint64_t count) const noexcept;
+    constexpr span<T, DYNAMIC_EXTENT> first(uint64_t count) const noexcept;
 
     /// @brief obtains a subspan consisting of the last N elements of the sequence
     /// @tparam Count
@@ -334,21 +358,21 @@ class span : public internal::span_storage<Extent>
     /// @brief obtains a subspan consisting of the last N elements of the sequence
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> last(uint64_t count) const noexcept;
+    constexpr span<T, DYNAMIC_EXTENT> last(uint64_t count) const noexcept;
 
     /// @brief
     /// @tparam Offset
     /// @tparam Count
     /// @return
-    template <uint64_t Offset, uint64_t Count = dynamic_extent>
-    constexpr span<T, (Count != dynamic_extent ? Count : (Extent != dynamic_extent ? Extent - Offset : dynamic_extent))>
+    template <uint64_t Offset, uint64_t Count = DYNAMIC_EXTENT>
+    constexpr span<T, (Count != DYNAMIC_EXTENT ? Count : (Extent != DYNAMIC_EXTENT ? Extent - Offset : DYNAMIC_EXTENT))>
     subspan() const noexcept;
 
     /// @brief obtains a subspan
     /// @param offset
     /// @param count
     /// @return
-    constexpr span<T, dynamic_extent> subspan(uint64_t offset, uint64_t count = dynamic_extent) const noexcept;
+    constexpr span<T, DYNAMIC_EXTENT> subspan(uint64_t offset, uint64_t count = DYNAMIC_EXTENT) const noexcept;
 
     // observers
 
