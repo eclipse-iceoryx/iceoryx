@@ -32,15 +32,9 @@ BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) no
 
 // NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
+cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
-    cxx::Expects(size > 0);
-
-    cxx::Expects(
-        !m_allocationFinalized
-        && "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
-    // return a nullptr instead of terminate? Then this could be checked in SharedMemoryObject and the log messages
-    // could be printed there...
+    cxx::ExpectsWithMsg(size > 0, "Cannot allocate memory of size 0");
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
@@ -59,25 +53,17 @@ void* BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noe
     }
     else
     {
-        IOX_LOG(ERROR) << "Trying to allocate additional " << size << " bytes in the shared memory of capacity "
-                       << m_length << " when there are already " << alignedPosition << " aligned bytes in use.";
-        IOX_LOG(ERROR) << "Only " << m_length - alignedPosition << " bytes left.";
-
-        cxx::Expects(false && "Not enough space left in shared memory");
+        IOX_LOG(WARN) << "Trying to allocate additional " << size << " bytes in the memory of capacity " << m_length
+                      << " when there are already " << alignedPosition << " aligned bytes in use.\n Only "
+                      << m_length - alignedPosition << " bytes left.";
+        return cxx::error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
     }
 
-    return static_cast<void*>(l_returnValue);
-}
-
-void BumpAllocator::finalizeAllocation() noexcept
-{
-    m_allocationFinalized = true;
+    return cxx::success<void*>(l_returnValue);
 }
 
 void BumpAllocator::deallocate() noexcept
 {
     m_currentPosition = 0;
-    m_allocationFinalized = false;
 }
-
 } // namespace iox

@@ -17,16 +17,18 @@
 #ifndef IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 #define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
+#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
-namespace posix
+
+enum class BumpAllocatorError
 {
-class SharedMemoryObject;
-}
+    OUT_OF_MEMORY
+};
 
 class BumpAllocator
 {
@@ -43,24 +45,19 @@ class BumpAllocator
     ~BumpAllocator() noexcept = default;
 
     /// @brief allocates on the memory supplied with the ctor
-    /// @param[in] size of the memory to allocate
+    /// @param[in] size of the memory to allocate, must be greater than 0
     /// @param[in] alignment of the memory to allocate
-    /// @note May terminate if out of memory or finalizeAllocation() was called before
-    void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    /// @return returns an expected containing a pointer to the allocated memory if memory is available, otherwise
+    /// BumpAllocatorError::OUT_OF_MEMORY
+    cxx::expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief mark the memory as unused
     void deallocate() noexcept;
-
-  protected:
-    friend class posix::SharedMemoryObject;
-    // make free function; destructive move? - then we would not be able to deallocate and allocate again afterwards
-    void finalizeAllocation() noexcept;
 
   private:
     cxx::byte_t* m_startAddress{nullptr};
     uint64_t m_length{0U};
     uint64_t m_currentPosition = 0U;
-    bool m_allocationFinalized = false;
 };
 } // namespace iox
 

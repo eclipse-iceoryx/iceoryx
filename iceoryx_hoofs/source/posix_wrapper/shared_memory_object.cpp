@@ -168,12 +168,18 @@ SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
 
 void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
-    return m_allocator.allocate(size, alignment);
+    cxx::ExpectsWithMsg(
+        !m_allocationFinalized,
+        "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
+
+    auto allocationResult = m_allocator.allocate(size, alignment);
+    cxx::ExpectsWithMsg(!allocationResult.has_error(), "Not enough space left in shared memory");
+    return allocationResult.value();
 }
 
 void SharedMemoryObject::finalizeAllocation() noexcept
 {
-    m_allocator.finalizeAllocation();
+    m_allocationFinalized = true;
 }
 
 BumpAllocator& SharedMemoryObject::getBumpAllocator() noexcept

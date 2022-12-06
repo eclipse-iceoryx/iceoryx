@@ -103,6 +103,7 @@ class SharedMemoryObject
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
     BumpAllocator m_allocator;
+    bool m_allocationFinalized{false};
 };
 
 class SharedMemoryObjectBuilder

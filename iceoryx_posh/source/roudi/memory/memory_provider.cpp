@@ -98,7 +98,12 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     for (auto* memoryBlock : m_memoryBlocks)
     {
-        memoryBlock->m_memory = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
+        auto allocationResult = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
+        if (allocationResult.has_error())
+        {
+            return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
+        }
+        memoryBlock->m_memory = allocationResult.value();
     }
 
     return success<void>();

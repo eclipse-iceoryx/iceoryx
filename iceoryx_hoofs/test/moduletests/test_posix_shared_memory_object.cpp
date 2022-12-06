@@ -37,6 +37,9 @@ class SharedMemoryObject_Test : public Test
 
     static void PerformDeathTest(const std::function<void()>& deathTest)
     {
+        std::set_terminate([]() { std::cout << "", std::abort(); });
+
+        internal::GetCapturedStderr();
         // @todo iox-#1613 remove EXPECT_DEATH
         // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
         // hiccpp-vararg)

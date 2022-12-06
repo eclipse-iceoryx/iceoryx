@@ -49,7 +49,9 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
 void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
-    auto segmentManager = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
+    auto allocationResult = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
+    cxx::Expects(!allocationResult.has_error());
+    auto* segmentManager = allocationResult.value();
     m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
 }
 

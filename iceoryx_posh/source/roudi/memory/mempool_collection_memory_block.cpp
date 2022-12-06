@@ -52,7 +52,9 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
-    auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
+    auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
+    cxx::Expects(!allocationResult.has_error());
+    auto* memoryManager = allocationResult.value();
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 
     m_memoryManager->configureMemoryManager(m_memPoolConfig, allocator, allocator);
