@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/function.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 #include <functional>
@@ -252,9 +253,16 @@ TEST_F(function_test, ConstructionFromAnotherFunctionIsCallable)
 TEST_F(function_test, FunctionStateIsIndependentOfSource)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8302046f-cd6a-4527-aca6-3e6408f87a6b");
-    constexpr uint32_t INITIAL_STATE = 73U;
-    static_storage<1024U> storage;
-    auto* p = storage.allocate<Functor>();
+    constexpr uint32_t INITIAL_STATE = 73;
+    constexpr uint32_t MEMORY_SIZE = 1024;
+
+    // NOLINTNEXTLINE(hicpp-no-malloc, cppcoreguidelines-no-malloc) low-level memory management for testing purpose
+    void* memory = malloc(MEMORY_SIZE);
+    iox::BumpAllocator storage(memory, MEMORY_SIZE);
+    auto allocationResult = storage.allocate(sizeof(Functor), alignof(Functor));
+    ASSERT_FALSE(allocationResult.has_error());
+
+    auto* p = static_cast<Functor*>(allocationResult.value());
     p = new (p) Functor(INITIAL_STATE);
 
     // call the dtor in any case (even if the test fails due to ASSERT)
@@ -270,7 +278,8 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
     EXPECT_EQ(sut(1U), functor(1U));
 
     guard.reset(); // call the deleter
-    storage.clear();
+    // NOLINTNEXTLINE(hicpp-no-malloc, cppcoreguidelines-no-malloc) low-level memory management for testing purpose
+    free(memory);
 
     EXPECT_EQ(sut(1U), INITIAL_STATE + 2U);
 }

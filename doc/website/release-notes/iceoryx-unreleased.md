@@ -31,6 +31,7 @@
 - Support user defined platforms with cmake switch `-DIOX_PLATFORM_PATH` [\#1619](https://github.com/eclipse-iceoryx/iceoryx/issues/1619)
 - Add equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
 - Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
+- Implement BumpAllocator [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 
 **Bugfixes:**
 
@@ -106,6 +107,7 @@
 - Change return type of `cxx::variant::emplace_at_index` and `emplace` to void [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Replace uses of `std::cout`, `std::cerr` with the iceoryx logger [\#1756](https://github.com/eclipse-iceoryx/iceoryx/issues/1756)
 - Move `IOX_NO_DISCARD`, `IOX_FALLTHROUGH` and `IOX_MAYBE_UNUSED` to `iceoryx_platform` [\#1726](https://github.com/eclipse-iceoryx/iceoryx/issues/1726)
+- Move `cxx::static_storage` from `iceoryx_hoofs` to `iceoryx_dust` [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 
 **Workflow:**
 
@@ -808,3 +810,14 @@
     iox::UninitializedArray<T, Capacity> myAlignedArray;
 
     ```
+
+42. Move `static_storage` from `iceoryx_hoofs` to `iceoryx_dust`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
+
+    // after
+    #include "iceoryx_dust/internal/cxx/static_storage.hpp"
+    ```
+

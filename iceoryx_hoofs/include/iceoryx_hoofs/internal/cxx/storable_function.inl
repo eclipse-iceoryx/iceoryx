@@ -26,6 +26,7 @@ namespace iox
 namespace cxx
 {
 // AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename Functor, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const Functor& functor) noexcept
@@ -35,9 +36,10 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 
 // AXIVION Next Construct AutosarC++19_03-A12.1.5: constructor delegation is not feasible here due
 // to lack of sufficient common initialization
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
 // AXIVION Next Construct AutosarC++19_03-M5.2.6: the converted pointer is only used
 // as its original function pointer type after reconversion (type erasure)
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     ReturnType (*function)(Args...)) noexcept
@@ -56,6 +58,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
@@ -69,6 +72,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const T& object,
@@ -83,6 +87,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 }
 
 // AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     const storable_function& other) noexcept
@@ -92,9 +97,10 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     m_operations.copy(other, *this);
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
 // AXIVION Next Construct AutosarC++19_03-A12.8.4: we copy only the operation pointer table
 // (required) and will perform a move with its type erased move function
+// AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
+// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     storable_function&& other) noexcept
@@ -169,11 +175,13 @@ inline void swap(storable_function<Capacity, T>& f, storable_function<Capacity, 
 template <typename T>
 void* allocate(byte_t* startAddress, uint64_t Capacity)
 {
-    // static_assert: startAddress + size < Capacity
-    uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignof(T));
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
+    uint64_t alignment = alignof(T);
+    uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignment);
     cxx::Expects(alignedPosition + sizeof(T) - reinterpret_cast<uint64_t>(startAddress) < Capacity
                  && "type does not fit into storage");
     return reinterpret_cast<void*>(alignedPosition);
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
 }
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
@@ -204,6 +212,7 @@ inline void storable_function<Capacity, signature<ReturnType, Args...>>::copy(co
     const auto obj = static_cast<CallableType*>(src.m_callable);
     cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
 
+    // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above
     new (dest.m_callable) CallableType(*obj);
     dest.m_invoker = src.m_invoker;
 }
@@ -215,13 +224,13 @@ template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::move(storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    //  m_callable = static_cast<void*>(align(reinterpret_cast<uint64_t>(m_storage), alignof(CallableType)));
     dest.m_callable = allocate<CallableType>(dest.m_storage, Capacity);
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
     cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
 
+    // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above
     new (dest.m_callable) CallableType(std::move(*obj));
     dest.m_invoker = src.m_invoker;
     src.m_operations.destroy(src);
@@ -272,9 +281,10 @@ inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::i
                                                                                       Args&&... args) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
+    // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     // AXIVION Next Construct AutosarC++19_03-A5.3.2: callable is guaranteed not to be nullptr
     // when invoke is called (it is private and only used for type erasure)
-    // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
+    // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage) see justification above
     return (*static_cast<CallableType*>(callable))(std::forward<Args>(args)...);
 }
 
@@ -301,7 +311,6 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T>
 inline constexpr uint64_t storable_function<Capacity, signature<ReturnType, Args...>>::required_storage_size() noexcept
 {
-    // return StorageType::template allocation_size<T>();
     return sizeof(T) + alignof(T);
 }
 
@@ -309,7 +318,7 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T>
 inline constexpr bool storable_function<Capacity, signature<ReturnType, Args...>>::is_storable() noexcept
 {
-    return (required_storage_size<T>() <= StorageType::capacity()) && is_invocable_r<ReturnType, T, Args...>::value;
+    return (required_storage_size<T>() <= Capacity) && is_invocable_r<ReturnType, T, Args...>::value;
 }
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>

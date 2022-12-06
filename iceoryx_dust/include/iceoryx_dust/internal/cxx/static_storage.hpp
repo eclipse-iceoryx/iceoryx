@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_STATIC_STORAGE_HPP
-#define IOX_HOOFS_STATIC_STORAGE_HPP
+#ifndef IOX_DUST_STATIC_STORAGE_HPP
+#define IOX_DUST_STATIC_STORAGE_HPP
 
 #include <cstdint>
 #include <cstring>
@@ -109,5 +109,5 @@ class static_storage final
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/static_storage.inl"
-#endif // IOX_HOOFS_STATIC_STORAGE_HPP
+#include "iceoryx_dust/internal/cxx/static_storage.inl"
+#endif // IOX_DUST_STATIC_STORAGE_HPP

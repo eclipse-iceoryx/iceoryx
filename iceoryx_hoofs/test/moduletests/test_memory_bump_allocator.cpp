@@ -124,7 +124,7 @@ TEST_F(BumpAllocator_Test, allocateElementOfSizeZero)
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
     // hiccpp-vararg)
-    EXPECT_DEATH(sut.allocate(0, MEMORY_ALIGNMENT), ".*");
+    EXPECT_DEATH(IOX_DISCARD_RESULT(sut.allocate(0, MEMORY_ALIGNMENT)), ".*");
     // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
     // hiccpp-vararg)
 }

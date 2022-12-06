@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
 #include <iostream>
 #include <utility>
@@ -49,7 +48,6 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 class storable_function<Capacity, signature<ReturnType, Args...>> final
 {
   public:
-    using StorageType = static_storage<Capacity>;
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
