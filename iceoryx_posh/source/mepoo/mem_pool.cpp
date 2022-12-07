@@ -41,8 +41,8 @@ constexpr uint64_t MemPool::CHUNK_MEMORY_ALIGNMENT;
 
 MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
                  const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-                 BumpAllocator& managementAllocator,
-                 BumpAllocator& chunkMemoryAllocator) noexcept
+                 iox::BumpAllocator& managementAllocator,
+                 iox::BumpAllocator& chunkMemoryAllocator) noexcept
     : m_chunkSize(chunkSize)
     , m_numberOfChunks(numberOfChunks)
     , m_minFree(numberOfChunks)

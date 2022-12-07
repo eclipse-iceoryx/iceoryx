@@ -52,8 +52,8 @@ class MemPool
 
     MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
             const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-            BumpAllocator& managementAllocator,
-            BumpAllocator& chunkMemoryAllocator) noexcept;
+            iox::BumpAllocator& managementAllocator,
+            iox::BumpAllocator& chunkMemoryAllocator) noexcept;
 
     MemPool(const MemPool&) = delete;
     MemPool(MemPool&&) = delete;
