@@ -60,8 +60,8 @@ inline constexpr Duration Duration::zero() noexcept
     return Duration{0U, 0U};
 }
 
-template <typename T>
-inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value) noexcept
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+template <typename T> inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
@@ -160,17 +160,17 @@ inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
 {
 }
 
-inline constexpr Duration::Duration(const std::chrono::milliseconds& value) noexcept
+inline constexpr Duration::Duration(const std::chrono::milliseconds value) noexcept
     : Duration(Duration::fromMilliseconds(value.count()))
 {
 }
 
-inline constexpr Duration::Duration(const std::chrono::nanoseconds& value) noexcept
+inline constexpr Duration::Duration(const std::chrono::nanoseconds value) noexcept
     : Duration(Duration::fromNanoseconds(value.count()))
 {
 }
 
-inline Duration& Duration::operator=(const std::chrono::milliseconds& rhs) noexcept
+inline Duration& Duration::operator=(const std::chrono::milliseconds rhs) noexcept
 {
     *this = Duration(rhs);
     return *this;
@@ -253,36 +253,6 @@ inline constexpr struct timeval Duration::timeval() const noexcept
         return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
     }
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
-}
-
-inline constexpr bool Duration::operator==(const Duration& rhs) const noexcept
-{
-    return (m_seconds == rhs.m_seconds) && (m_nanoseconds == rhs.m_nanoseconds);
-}
-
-inline constexpr bool Duration::operator!=(const Duration& rhs) const noexcept
-{
-    return !(*this == rhs);
-}
-
-inline constexpr bool Duration::operator<(const Duration& rhs) const noexcept
-{
-    return (m_seconds < rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds < rhs.m_nanoseconds));
-}
-
-inline constexpr bool Duration::operator<=(const Duration& rhs) const noexcept
-{
-    return !(*this > rhs);
-}
-
-inline constexpr bool Duration::operator>(const Duration& rhs) const noexcept
-{
-    return (m_seconds > rhs.m_seconds) || ((m_seconds == rhs.m_seconds) && (m_nanoseconds > rhs.m_nanoseconds));
-}
-
-inline constexpr bool Duration::operator>=(const Duration& rhs) const noexcept
-{
-    return !(*this < rhs);
 }
 
 inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
@@ -478,36 +448,43 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 
 namespace duration_literals
 {
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept
 {
     return Duration::fromNanoseconds(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _us(unsigned long long int value) noexcept
 {
     return Duration::fromMicroseconds(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept
 {
     return Duration::fromMilliseconds(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _s(unsigned long long int value) noexcept
 {
     return Duration::fromSeconds(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _m(unsigned long long int value) noexcept
 {
     return Duration::fromMinutes(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _h(unsigned long long int value) noexcept
 {
     return Duration::fromHours(value);
 }
 
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _d(unsigned long long int value) noexcept
 {
     return Duration::fromDays(value);

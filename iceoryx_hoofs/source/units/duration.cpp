@@ -25,7 +25,7 @@ namespace iox
 {
 namespace units
 {
-struct timespec Duration::timespec(const TimeSpecReference& reference) const noexcept
+struct timespec Duration::timespec(const TimeSpecReference reference) const noexcept
 {
     using SEC_TYPE = decltype(std::declval<struct timespec>().tv_sec);
     using NSEC_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
