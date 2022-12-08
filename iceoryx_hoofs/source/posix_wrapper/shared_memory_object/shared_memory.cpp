@@ -143,7 +143,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
+            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
         }
     }
 
