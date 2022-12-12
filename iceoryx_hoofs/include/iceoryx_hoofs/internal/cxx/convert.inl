@@ -83,6 +83,11 @@ inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 template <uint64_t Capacity>
 inline bool convert::fromString(const char* v, string<Capacity>& dest) noexcept
 {
+    if (strlen(v) > Capacity)
+    {
+        return false;
+    }
+
     dest = string<Capacity>(TruncateToCapacity, v);
     return true;
 }
