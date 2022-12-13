@@ -470,7 +470,8 @@ TEST_F(vector_test, EmplacingElementInTheMiddleCallsDTor)
         EXPECT_THAT(customCTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS - 1U));
         EXPECT_TRUE(sut.emplace(EMPLACE_POSITION, 42U));
         EXPECT_THAT(customCTor, Eq(EXPECTED_NUMBER_OF_CTOR_CALLS));
-        EXPECT_THAT(moveAssignment, Eq(EMPLACE_POSITION - 1U));
+        EXPECT_THAT(moveCTor, Eq(1U));
+        EXPECT_THAT(moveAssignment, Eq(CAPACITY_OF_VECTOR - 1U - EMPLACE_POSITION - 1U));
         EXPECT_THAT(dTor, Eq(1U));
     }
     // Last element in the vector is moved and not constructed, hence #moveCTor + #customCTor = #dTor
