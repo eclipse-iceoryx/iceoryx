@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2022 by Apex AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,7 +51,10 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
                           << "'. Falling back to built-in config.";
             }
         }
-        m_customConfigFilePath = cmdLineArgs.configFilePath;
+        else
+        {
+            m_customConfigFilePath = cmdLineArgs.configFilePath;
+        }
     }
 }
 

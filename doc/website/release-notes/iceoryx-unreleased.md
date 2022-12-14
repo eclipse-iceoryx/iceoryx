@@ -60,6 +60,7 @@
 - CI uses outdated clang-format [\#1736](https://github.com/eclipse-iceoryx/iceoryx/issues/1736)
 - Avoid UB when accessing `iox::expected` [\#1750](https://github.com/eclipse-iceoryx/iceoryx/issues/1750)
 - Fix double move in `vector::emplace` [\#1823](https://github.com/eclipse-iceoryx/iceoryx/issues/1823)
+- Default roudi_config.toml path is not used [\#1826](https://github.com/eclipse-iceoryx/iceoryx/issues/1826)
 
 **Refactoring:**
 
