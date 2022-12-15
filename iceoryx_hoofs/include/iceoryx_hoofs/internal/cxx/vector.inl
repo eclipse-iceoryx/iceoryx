@@ -174,17 +174,18 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
 {
-    if ((m_size >= Capacity) || ((position >= Capacity) || (position > m_size)))
+    const auto sizeBeforeEmplace = m_size;
+    if ((m_size >= Capacity) || ((position >= Capacity) || (position > sizeBeforeEmplace)))
     {
         return false;
     }
 
-    if (position == m_size)
+    if (position == sizeBeforeEmplace)
     {
         return emplace_back(std::forward<Targs>(args)...);
     }
-    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(m_size - 1U))));
-    for (uint64_t i{m_size - 1U}; i > position; --i)
+    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
+    for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
     {
         at_unchecked(i) = std::move(at_unchecked(i - 1U));
     }
