@@ -19,6 +19,11 @@
 
 #include <iostream>
 
+#include <csetjmp>
+#include <csignal>
+#include <cstdio>
+#include <cstring>
+
 namespace iox
 {
 namespace testing
@@ -112,6 +117,16 @@ std::vector<std::string> TestingLogger::getLogMessages() noexcept
     return logger.m_loggerData->buffer;
 }
 
+std::jmp_buf sigsevJmpPoint;
+
+static void sigsegvHandler(int /*sig*/, siginfo_t*, void*)
+{
+    std::cout << "SIGSEGV\n" << std::flush;
+    dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
+
+    std::longjmp(&sigsevJmpPoint[0], 1);
+}
+
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
@@ -123,10 +138,16 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
         std::abort();
     });
 
-    /// @todo iox-#1755 register signal handler for sigterm to flush to logger;
-    /// there might be tests to register a handler itself and when this is
-    /// done at each start of the test only the tests who use their
-    /// own signal handler are affected and don't get an log output on termination
+    struct sigaction action
+    {
+    };
+    memset(&action, 0, sizeof(struct sigaction));
+    sigemptyset(&action.sa_mask);
+
+    action.sa_flags = SA_NODEFER;
+    action.sa_sigaction = sigsegvHandler;
+
+    sigaction(SIGSEGV, &action, nullptr);
 }
 
 void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
