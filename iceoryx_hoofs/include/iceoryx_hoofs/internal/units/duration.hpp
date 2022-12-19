@@ -211,6 +211,13 @@ class Duration
     // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr Duration operator+(const Duration& rhs) const noexcept;
 
+    /// @brief Creates Duration object by addition. On overflow duration
+    ///        saturates to Duration::max().
+    /// @param[in] rhs is the second summand
+    /// @return a new Duration object
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+    constexpr Duration& operator+=(const Duration& rhs) noexcept;
+
     /// @brief Creates Duration object by subtraction. On underflow duration
     ///        saturates to Duration::zero().
     /// @param[in] rhs is the subtrahend
@@ -218,6 +225,14 @@ class Duration
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     constexpr Duration operator-(const Duration& rhs) const noexcept;
+
+    /// @brief Creates Duration object by subtraction. On underflow duration
+    ///        saturates to Duration::zero().
+    /// @param[in] rhs is the subtrahend
+    /// @return a new Duration object
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+    constexpr Duration& operator-=(const Duration& rhs) noexcept;
 
     /// @brief Creates Duration object by multiplication.
     /// @tparam T is an arithmetic type for the multiplicator
