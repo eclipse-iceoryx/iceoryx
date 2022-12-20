@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iox/optional.hpp"
 
 #include <atomic>
 

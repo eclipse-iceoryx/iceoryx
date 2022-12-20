@@ -25,7 +25,7 @@ namespace posix
 void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
-        // String length limit is ensured through string
+        // String length limit is ensured through iox::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
         IOX_LOG(ERROR) << "This should never happen! " << r.getHumanReadableErrnum();
         cxx::Ensures(false && "internal logic error");

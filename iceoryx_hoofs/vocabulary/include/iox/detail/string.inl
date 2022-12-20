@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_INL
-#define IOX_HOOFS_CXX_STRING_INL
+#ifndef IOX_HOOFS_VOCABULARY_STRING_INL
+#define IOX_HOOFS_VOCABULARY_STRING_INL
 
 #include "iox/string.hpp"
 
@@ -672,4 +672,4 @@ inline IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs
 // AXIVION ENABLE Style AutosarC++19_03-A13.5.5
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_STRING_INL
+#endif // IOX_HOOFS_VOCABULARY_STRING_INL

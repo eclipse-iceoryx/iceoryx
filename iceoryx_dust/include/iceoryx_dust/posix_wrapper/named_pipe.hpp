@@ -23,6 +23,8 @@
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 
