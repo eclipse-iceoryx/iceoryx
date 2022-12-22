@@ -27,7 +27,7 @@ namespace test_cxx_functional_interface
 ///
 ///        The idea is to have a test setup which is so generic that a user
 ///        which would like to enrich its class with the functional interface
-///        has to write only a test factory in `test_cxx_functional_types.hpp`
+///        has to write only a test factory in 'test_cxx_functional_types.hpp'
 ///        for its specific type and then can add its type to the typelist and
 ///        the tests are generated for them.
 template <typename T>
