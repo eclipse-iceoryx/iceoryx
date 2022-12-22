@@ -88,14 +88,14 @@ struct PosixCallDetails
 ///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
 ///             .evaluate()
 ///             .and_then([](auto & result){
-///                 std::cout << result.value << std::endl; // return value of sem_timedwait
-///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
-///                 std::cout << result.getHumanReadableErrnum() << std::endl; // get string returned by strerror(errno)
+///                 IOX_LOG(INFO) << result.value; // return value of sem_timedwait
+///                 IOX_LOG(INFO) << result.errno; // errno which was set by sem_timedwait
+///                 IOX_LOG(INFO) << result.getHumanReadableErrnum(); // get string returned by strerror(errno)
 ///             })
 ///             .or_else([](auto & result){
-///                 std::cout << result.value << std::endl; // return value of sem_timedwait
-///                 std::cout << result.errno << std::endl; // errno which was set by sem_timedwait
-///                 std::cout << result.getHumanReadableErrnum() << std::endl; // get string returned by strerror(errno)
+///                 IOX_LOG(INFO) << result.value; // return value of sem_timedwait
+///                 IOX_LOG(INFO) << result.errno; // errno which was set by sem_timedwait
+///                 IOX_LOG(INFO) << result.getHumanReadableErrnum(); // get string returned by strerror(errno)
 ///             })
 ///
 ///        // when your posix call signals failure with one specific return value use

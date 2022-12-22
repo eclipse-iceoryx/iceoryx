@@ -28,7 +28,6 @@ class variant_Test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
         DoubleDelete::dtorCalls = 0;
         DoubleDelete::ctorCalls = 0;
         DTorTest::dtorWasCalled = false;
@@ -36,11 +35,6 @@ class variant_Test : public Test
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     class ComplexClass

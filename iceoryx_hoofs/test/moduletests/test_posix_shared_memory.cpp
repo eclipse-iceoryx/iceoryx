@@ -36,18 +36,12 @@ class SharedMemory_Test : public Test
   public:
     void SetUp() override
     {
-        testing::internal::CaptureStderr();
         auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
         ASSERT_FALSE(result.has_error());
     }
 
     void TearDown() override
     {
-        std::string output = testing::internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only

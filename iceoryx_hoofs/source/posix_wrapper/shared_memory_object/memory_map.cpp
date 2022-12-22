@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 
@@ -60,11 +61,11 @@ cxx::expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
     auto flags = std::cerr.flags();
-    std::cerr << "Unable to map memory with the following properties [ baseAddressHint = " << std::hex
-              << m_baseAddressHint << ", length = " << std::dec << m_length << ", fileDescriptor = " << m_fileDescriptor
-              << ", access mode = " << asStringLiteral(m_accessMode)
-              << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(flags)) << ", offset = " << std::hex
-              << m_offset << std::dec << " ]" << std::endl;
+    IOX_LOG(ERROR) << "Unable to map memory with the following properties [ baseAddressHint = "
+                   << iox::log::hex(m_baseAddressHint) << ", length = " << m_length
+                   << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
+                   << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
+                   << ", offset = " << iox::log::hex(m_offset) << " ]";
     std::cerr.setf(flags);
     return cxx::error<MemoryMapError>(MemoryMap::errnoToEnum(result.get_error().errnum));
 }
@@ -80,59 +81,58 @@ MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
     switch (errnum)
     {
     case EACCES:
-        std::cerr
+        IOX_LOG(ERROR)
             << "One or more of the following failures happened:\n"
             << "  1. The file descriptor belongs to a non-regular file.\n"
             << "  2. The file descriptor is not opened for reading.\n"
             << "  3. MAP_SHARED is requested and PROT_WRITE is set but the file descriptor is not opened for writing.\n"
-            << "  4. PROT_WRITE is set but the file descriptor is set to append-only." << std::endl;
+            << "  4. PROT_WRITE is set but the file descriptor is set to append-only.";
         return MemoryMapError::ACCESS_FAILED;
     case EAGAIN:
-        std::cerr << "Either too much memory has been locked or the file is already locked." << std::endl;
+        IOX_LOG(ERROR) << "Either too much memory has been locked or the file is already locked.";
         return MemoryMapError::UNABLE_TO_LOCK;
     case EBADF:
-        std::cerr << "Invalid file descriptor provided." << std::endl;
+        IOX_LOG(ERROR) << "Invalid file descriptor provided.";
         return MemoryMapError::INVALID_FILE_DESCRIPTOR;
     case EEXIST:
-        std::cerr << "The mapped range that is requested is overlapping with an already mapped memory range."
-                  << std::endl;
+        IOX_LOG(ERROR) << "The mapped range that is requested is overlapping with an already mapped memory range.";
         return MemoryMapError::MAP_OVERLAP;
     case EINVAL:
-        std::cerr << "One or more of the following failures happened:\n"
-                  << "  1. The address, length or the offset is not aligned on a page boundary.\n"
-                  << "  2. The provided length is 0.\n"
-                  << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing." << std::endl;
+        IOX_LOG(ERROR) << "One or more of the following failures happened:\n"
+                       << "  1. The address, length or the offset is not aligned on a page boundary.\n"
+                       << "  2. The provided length is 0.\n"
+                       << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing.";
         return MemoryMapError::INVALID_PARAMETERS;
     case ENFILE:
-        std::cerr << "System limit of maximum open files reached" << std::endl;
+        IOX_LOG(ERROR) << "System limit of maximum open files reached";
         return MemoryMapError::OPEN_FILES_SYSTEM_LIMIT_EXCEEDED;
     case ENODEV:
-        std::cerr << "Memory mappings are not supported by the underlying filesystem." << std::endl;
+        IOX_LOG(ERROR) << "Memory mappings are not supported by the underlying filesystem.";
         return MemoryMapError::FILESYSTEM_DOES_NOT_SUPPORT_MEMORY_MAPPING;
     case ENOMEM:
-        std::cerr << "One or more of the following failures happened:\n"
-                  << "  1. Not enough memory available.\n"
-                  << "  2. The maximum supported number of mappings is exceeded.\n"
-                  << "  3. Partial unmapping of an already mapped memory region dividing it into two parts.\n"
-                  << "  4. The processes maximum size of data segments is exceeded.\n"
-                  << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
-                     "and unsigned long. (only 32-bit architecture)"
-                  << std::endl;
+        IOX_LOG(ERROR)
+            << "One or more of the following failures happened:\n"
+            << "  1. Not enough memory available.\n"
+            << "  2. The maximum supported number of mappings is exceeded.\n"
+            << "  3. Partial unmapping of an already mapped memory region dividing it into two parts.\n"
+            << "  4. The processes maximum size of data segments is exceeded.\n"
+            << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
+               "and unsigned long. (only 32-bit architecture)";
         return MemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
     case EOVERFLOW:
-        std::cerr << "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)"
-                  << std::endl;
+        IOX_LOG(ERROR) << "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)";
         return MemoryMapError::OVERFLOWING_PARAMETERS;
     case EPERM:
-        std::cerr << "One or more of the following failures happened:\n"
-                  << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
-                  << "  2. The corresponding file is sealed." << std::endl;
+        IOX_LOG(ERROR)
+            << "One or more of the following failures happened:\n"
+            << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
+            << "  2. The corresponding file is sealed.";
         return MemoryMapError::PERMISSION_FAILURE;
     case ETXTBSY:
-        std::cerr << "The memory region was set up with MAP_DENYWRITE but write access was requested." << std::endl;
+        IOX_LOG(ERROR) << "The memory region was set up with MAP_DENYWRITE but write access was requested.";
         return MemoryMapError::NO_WRITE_PERMISSION;
     default:
-        std::cerr << "This should never happened. An unknown error occurred!\n";
+        IOX_LOG(ERROR) << "This should never happened. An unknown error occurred!\n";
         return MemoryMapError::UNKNOWN_ERROR;
     };
 }
@@ -148,7 +148,7 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
     {
         if (!destroy())
         {
-            std::cerr << "move assignment failed to unmap mapped memory" << std::endl;
+            IOX_LOG(ERROR) << "move assignment failed to unmap mapped memory";
         }
 
         m_baseAddress = rhs.m_baseAddress;
@@ -164,7 +164,7 @@ MemoryMap::~MemoryMap() noexcept
 {
     if (!destroy())
     {
-        std::cerr << "destructor failed to unmap mapped memory" << std::endl;
+        IOX_LOG(ERROR) << "destructor failed to unmap mapped memory";
     }
 }
 
@@ -189,8 +189,8 @@ bool MemoryMap::destroy() noexcept
         if (unmapResult.has_error())
         {
             errnoToEnum(unmapResult.get_error().errnum);
-            std::cerr << "unable to unmap mapped memory [ address = " << std::hex << m_baseAddress
-                      << ", size = " << std::dec << m_length << " ]" << std::endl;
+            IOX_LOG(ERROR) << "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
+                           << ", size = " << m_length << " ]";
             return false;
         }
     }

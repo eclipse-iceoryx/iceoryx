@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/test.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 using namespace ::testing;
@@ -46,7 +47,7 @@ struct Data
 
     void print() const
     {
-        std::cout << "data id " << id << " count " << count << std::endl;
+        IOX_LOG(INFO) << "data id " << id << " count " << count;
     }
 };
 
@@ -198,13 +199,13 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
         if (!isStrictlyMonotonous(filtered1) || !isStrictlyMonotonous(filtered2))
         {
-            std::cout << "id " << id << " not strictly monotonous" << std::endl;
+            IOX_LOG(INFO) << "id " << id << " not strictly monotonous";
             return false;
         }
 
         if (!isComplete(filtered1, filtered2, expectedFinalCount))
         {
-            std::cout << "id " << id << " incomplete" << std::endl;
+            IOX_LOG(INFO) << "id " << id << " incomplete";
             return false;
         }
     }
@@ -336,16 +337,10 @@ class LockFreeQueueStressTest : public ::testing::Test
 
     void SetUp()
     {
-        // internal::CaptureStdout();
     }
 
     void TearDown()
     {
-        if (Test::HasFailure())
-        {
-            // std::string output = internal::GetCapturedStdout();
-            // std::cout << output << std::endl;
-        }
     }
 
     using Queue = T;

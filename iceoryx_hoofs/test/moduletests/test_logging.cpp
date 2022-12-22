@@ -61,8 +61,11 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
         if (logEntryLogLevel.value <= loggerLogLevel)
         {
             ASSERT_THAT(iox::testing::TestingLogger::getNumberOfLogMessages(), Eq(1U));
-            auto logMessage = iox::testing::TestingLogger::getLogMessages().back();
-            EXPECT_THAT(logMessage.find(logEntryLogLevel.string), Ne(std::string::npos));
+            iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
+                logEntryLogLevel.value, [&](const auto& logMessages) {
+                    const auto& logMessage = logMessages.back();
+                    EXPECT_THAT(logMessage.find(logEntryLogLevel.string), Ne(std::string::npos));
+                });
         }
         else
         {

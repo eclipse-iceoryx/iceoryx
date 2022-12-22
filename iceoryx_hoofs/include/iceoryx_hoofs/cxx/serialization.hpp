@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace cxx
 ///             5:hello3:1236:123.01
 /// @code
 ///     auto serial = cxx::Serialization::create("fuu", 123, 12.12f, 'c');
-///     std::cout << serial.toString() << std::endl;
+///     IOX_LOG(INFO) << serial.toString();
 ///
 ///     std::string v1;
 ///     int v2;

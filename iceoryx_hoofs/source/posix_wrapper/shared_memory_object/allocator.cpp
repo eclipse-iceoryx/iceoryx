@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 
 #include <iostream>
@@ -59,9 +60,9 @@ void* Allocator::allocate(const uint64_t size, const uint64_t alignment) noexcep
     }
     else
     {
-        std::cerr << "Trying to allocate additional " << size << " bytes in the shared memory of capacity " << m_length
-                  << " when there are already " << alignedPosition << " aligned bytes in use." << std::endl;
-        std::cerr << "Only " << m_length - alignedPosition << " bytes left." << std::endl;
+        IOX_LOG(ERROR) << "Trying to allocate additional " << size << " bytes in the shared memory of capacity "
+                       << m_length << " when there are already " << alignedPosition << " aligned bytes in use.";
+        IOX_LOG(ERROR) << "Only " << m_length - alignedPosition << " bytes left.";
 
         cxx::Expects(false && "Not enough space left in shared memory");
     }

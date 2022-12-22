@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 #include <iostream>
 
@@ -33,8 +34,8 @@ void Require(
 {
     if (!condition)
     {
-        std::cerr << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
-                  << ")" << std::endl;
+        IOX_LOG(ERROR) << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":"
+                       << line << ")";
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }
@@ -50,8 +51,8 @@ void Require(const bool condition,
 {
     if (!condition)
     {
-        std::cerr << "Condition: " << conditionString << " in " << function << " is violated: " << msgString << ". ("
-                  << file << ":" << line << ")" << std::endl;
+        IOX_LOG(ERROR) << "Condition: " << conditionString << " in " << function << " is violated: " << msgString
+                       << ". (" << file << ":" << line << ")";
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }

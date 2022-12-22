@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "test.hpp"
 
 
@@ -154,7 +155,7 @@ int64_t iteratorTraitReturnDoubleValue(IterType iter)
 // reason: the warning is already addressed with the internal handling, which shall be tested here
 bool dummyFunc(bool whatever)
 {
-    std::cerr << "Never get here - ever " << whatever << std::endl;
+    IOX_LOG(ERROR) << "Never get here - ever " << whatever;
     return whatever;
 }
 } // namespace

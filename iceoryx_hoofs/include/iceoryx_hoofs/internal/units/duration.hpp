@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@
 #define IOX_HOOFS_UNITS_DURATION_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/time.hpp" // required for QNX
 
 #include <chrono>
@@ -69,9 +71,9 @@ constexpr Duration operator"" _d(unsigned long long int value) noexcept;
 ///   using namespace units::duration_literals;
 ///   auto someDays = 2 * 7_d + 5_ns;
 ///   auto someSeconds = 42_s + 500_ms;
-///   std::cout << someDays << std::endl;
-///   std::cout << someDays.nanoSeconds<uint64_t>() << " ns" << std::endl;
-///   std::cout << someSeconds.milliSeconds<int64_t>() << " ms" << std::endl;
+///   IOX_LOG(INFO) << someDays;
+///   IOX_LOG(INFO) << someDays.nanoSeconds<uint64_t>() << " ns";
+///   IOX_LOG(INFO) << someSeconds.milliSeconds<int64_t>() << " ms";
 /// @endcode
 class Duration
 {
@@ -295,6 +297,7 @@ class Duration
     friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
+    friend iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) noexcept;
 
     static constexpr uint32_t SECS_PER_MINUTE{60U};
     static constexpr uint32_t SECS_PER_HOUR{3600U};

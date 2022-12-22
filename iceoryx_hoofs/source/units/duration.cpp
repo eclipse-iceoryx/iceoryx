@@ -75,5 +75,11 @@ std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcep
     return stream;
 }
 
+iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) noexcept
+{
+    stream << t.m_seconds << "s " << t.m_nanoseconds << "ns";
+    return stream;
+}
+
 } // namespace units
 } // namespace iox

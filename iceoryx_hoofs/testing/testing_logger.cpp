@@ -82,11 +82,15 @@ uint64_t TestingLogger::getNumberOfLogMessages() noexcept
     return logger.m_loggerData->buffer.size();
 }
 
-std::vector<std::string> TestingLogger::getLogMessages() noexcept
+void TestingLogger::checkLogMessageIfLogLevelIsSupported(
+    iox::log::LogLevel logLevel, const std::function<void(const std::vector<std::string>&)>& check)
 {
-    auto& logger = dynamic_cast<TestingLogger&>(log::Logger::get());
-    return logger.m_loggerData->buffer;
+    if (doesLoggerSupportLogLevel(logLevel))
+    {
+        check(getLogMessages());
+    }
 }
+
 
 void TestingLogger::flush() noexcept
 {
@@ -100,6 +104,12 @@ void TestingLogger::flush() noexcept
     }
 
     Base::assumeFlushed();
+}
+
+std::vector<std::string> TestingLogger::getLogMessages() noexcept
+{
+    auto& logger = dynamic_cast<TestingLogger&>(log::Logger::get());
+    return logger.m_loggerData->buffer;
 }
 
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)

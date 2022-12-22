@@ -3311,7 +3311,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(0U); }, "Out of bounds access!");
+    EXPECT_DEATH({ this->testSubject.at(0U); }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
@@ -3321,7 +3321,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
     constexpr auto STRINGCAP = MyString().capacity();
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, "Out of bounds access!");
+    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNonEmptyStringViaAtReturnsCorrectCharacter)
@@ -3356,7 +3356,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
     const string<STRINGCAP> sut;
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(0U); }, "Out of bounds access!");
+    EXPECT_DEATH({ sut.at(0U); }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
@@ -3367,7 +3367,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
     const string<STRINGCAP> sut;
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(STRINGCAP); }, "Out of bounds access");
+    EXPECT_DEATH({ sut.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstAtReturnsCorrectCharacter)
@@ -3397,7 +3397,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFail
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[0U]; }, "Out of bounds access!");
+    EXPECT_DEATH({ this->testSubject[0U]; }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
@@ -3407,7 +3407,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
     constexpr auto STRINGCAP = MyString().capacity();
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, "Out of bounds access!");
+    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
@@ -3442,7 +3442,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperato
     const string<STRINGCAP> sut;
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[0U]; }, "Out of bounds access!");
+    EXPECT_DEATH({ sut[0U]; }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
@@ -3453,7 +3453,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorF
     const string<STRINGCAP> sut;
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[STRINGCAP]; }, "Out of bounds access!");
+    EXPECT_DEATH({ sut[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)

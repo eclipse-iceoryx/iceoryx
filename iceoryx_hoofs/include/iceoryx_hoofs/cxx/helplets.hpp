@@ -203,7 +203,7 @@ constexpr size_t maxSize() noexcept
 /// @brief Get the capacity of a C array at compile time
 /// @code
 /// constexpr uint32_t FOO[42]{};
-/// std::cout << arrayCapacity(FOO) << std::endl; // will print 42
+/// IOX_LOG(INFO) << arrayCapacity(FOO); // will print 42
 /// @endcode
 /// @tparam T the type of the array filled out by the compiler.
 /// @tparam CapacityValue the capacity of the array filled out by the compiler.

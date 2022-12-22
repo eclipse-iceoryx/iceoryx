@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,24 +41,17 @@ class PosixAccessRights_test : public Test
             .failureReturnValue(-1)
             .evaluate()
             .or_else([](auto& r) {
-                std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
+                IOX_LOG(ERROR) << "system call failed with error: " << r.getHumanReadableErrnum();
                 std::terminate();
             });
-
-        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
         if (std::remove(TestFileName.c_str()) != 0)
         {
-            std::cerr << "Failed to remove temporary file '" << TestFileName
-                      << "'. You'll have to remove it by yourself.";
+            IOX_LOG(ERROR) << "Failed to remove temporary file '" << TestFileName
+                           << "'. You'll have to remove it by yourself.";
         }
     }
 

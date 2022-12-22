@@ -364,8 +364,6 @@ class list
     void setPrevIdx(const size_type idx, const size_type prevIdx) noexcept;
     void setNextIdx(const size_type idx, const size_type nextIdx) noexcept;
 
-    static void errorMessage(const char* source, const char* msg) noexcept;
-
     //***************************************
     //    members
     //***************************************

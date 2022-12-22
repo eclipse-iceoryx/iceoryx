@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
@@ -107,7 +108,7 @@ UnixDomainSocket::~UnixDomainSocket() noexcept
 {
     if (destroy().has_error())
     {
-        std::cerr << "unable to cleanup unix domain socket \"" << m_name << "\" in the destructor" << std::endl;
+        IOX_LOG(ERROR) << "unable to cleanup unix domain socket \"" << m_name << "\" in the destructor";
     }
 }
 
@@ -117,8 +118,8 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
     {
         if (destroy().has_error())
         {
-            std::cerr << "Unable to cleanup unix domain socket \"" << m_name
-                      << "\" in the move constructor/move assingment operator" << std::endl;
+            IOX_LOG(ERROR) << "Unable to cleanup unix domain socket \"" << m_name
+                           << "\" in the move constructor/move assingment operator";
         }
 
         CreationPattern_t::operator=(std::move(other));
@@ -223,7 +224,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& ms
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
-        std::cerr << "sending on server side not supported for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "sending on server side not supported for unix domain socket \"" << m_name << "\"";
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
@@ -264,7 +265,7 @@ UnixDomainSocket::timedReceive(const units::Duration& timeout) const noexcept
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
-        std::cerr << "receiving on client side not supported for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "receiving on client side not supported for unix domain socket \"" << m_name << "\"";
         return cxx::error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
@@ -340,8 +341,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
             return cxx::success<>();
         }
         closeFileDescriptor().or_else([](auto) {
-            std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
-                      << std::endl;
+            IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(bindCall.get_error().errnum));
@@ -359,8 +359,7 @@ cxx::expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
     if (connectCall.has_error())
     {
         closeFileDescriptor().or_else([](auto) {
-            std::cerr << "Unable to close socket file descriptor in error related cleanup during initialization."
-                      << std::endl;
+            IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
         return cxx::error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
@@ -374,82 +373,82 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     {
     case EACCES:
     {
-        std::cerr << "permission to create unix domain socket denied \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "permission to create unix domain socket denied \"" << m_name << "\"";
         return IpcChannelError::ACCESS_DENIED;
     }
     case EAFNOSUPPORT:
     {
-        std::cerr << "address family not supported for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "address family not supported for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EINVAL:
     {
-        std::cerr << "provided invalid arguments for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "provided invalid arguments for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EMFILE:
     {
-        std::cerr << "process limit reached for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "process limit reached for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::PROCESS_LIMIT;
     }
     case ENFILE:
     {
-        std::cerr << "system limit reached for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "system limit reached for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::SYSTEM_LIMIT;
     }
     case ENOBUFS:
     {
-        std::cerr << "queue is full for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "queue is full for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::OUT_OF_MEMORY;
     }
     case ENOMEM:
     {
-        std::cerr << "out of memory for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "out of memory for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::OUT_OF_MEMORY;
     }
     case EPROTONOSUPPORT:
     {
-        std::cerr << "protocol type not supported for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "protocol type not supported for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EADDRINUSE:
     {
-        std::cerr << "unix domain socket already in use \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "unix domain socket already in use \"" << m_name << "\"";
         return IpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EBADF:
     {
-        std::cerr << "invalid file descriptor for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "invalid file descriptor for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case ENOTSOCK:
     {
-        std::cerr << "invalid unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "invalid unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case EADDRNOTAVAIL:
     {
-        std::cerr << "interface or address error for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "interface or address error for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EFAULT:
     {
-        std::cerr << "outside address space error for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "outside address space error for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ELOOP:
     {
-        std::cerr << "too many symbolic links for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "too many symbolic links for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENAMETOOLONG:
     {
-        std::cerr << "name too long for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "name too long for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOTDIR:
     {
-        std::cerr << "not a directory error for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "not a directory error for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOENT:
@@ -459,17 +458,17 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case EROFS:
     {
-        std::cerr << "read only error for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "read only error for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EIO:
     {
-        std::cerr << "I/O for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "I/O for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::I_O_ERROR;
     }
     case ENOPROTOOPT:
     {
-        std::cerr << "invalid option for unix domain socket \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "invalid option for unix domain socket \"" << m_name << "\"";
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case ECONNREFUSED:
@@ -479,7 +478,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     case ECONNRESET:
     {
-        std::cerr << "connection was reset by peer for \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "connection was reset by peer for \"" << m_name << "\"";
         return IpcChannelError::CONNECTION_RESET_BY_PEER;
     }
     case EWOULDBLOCK:
@@ -489,7 +488,7 @@ IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t er
     }
     default:
     {
-        std::cerr << "internal logic error in unix domain socket \"" << m_name << "\" occurred" << std::endl;
+        IOX_LOG(ERROR) << "internal logic error in unix domain socket \"" << m_name << "\" occurred";
         return IpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }

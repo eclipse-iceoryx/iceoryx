@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "test.hpp"
 
 namespace
@@ -77,7 +78,6 @@ TEST_F(Allocator_Test, allocateTooMuchSingleElement)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9deed5c0-19d8-4469-a5c3-f185d4d881f1");
     iox::posix::Allocator sut(memory, memorySize);
-    std::set_terminate([]() { std::cout << "", std::abort(); });
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
     // hiccpp-vararg)
@@ -94,8 +94,6 @@ TEST_F(Allocator_Test, allocateTooMuchMultipleElement)
     {
         sut.allocate(32, 1);
     }
-
-    std::set_terminate([]() { std::cout << "", std::abort(); });
 
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
@@ -143,8 +141,6 @@ TEST_F(Allocator_Test, allocateAfterFinalizeAllocation)
     AllocatorAccess sut(memory, memorySize);
     sut.allocate(5, MEMORY_ALIGNMENT);
     sut.finalizeAllocation();
-
-    std::set_terminate([]() { std::cout << "", std::abort(); });
 
     // @todo iox-#1613 remove EXPECT_DEATH
     // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,

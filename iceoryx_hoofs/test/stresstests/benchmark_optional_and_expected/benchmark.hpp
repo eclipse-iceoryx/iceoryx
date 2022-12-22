@@ -1,4 +1,5 @@
 // Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +53,7 @@ void PerformBenchmark(Return (&f)(), const char* functionName, const iox::units:
     keepRunning = false;
     t.join();
 
+    // Not using iceoryx logger due to width requirements
     std::cout << std::setw(16) << compiler << " [ " << duration << " ] " << std::setw(15) << numberOfCalls << " : "
               << functionName << std::endl;
 }

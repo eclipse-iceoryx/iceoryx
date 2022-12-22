@@ -34,12 +34,11 @@ namespace testing
 /// also be used to check for the occurrence on specific log messages, e.g. when a function is expected to log an error.
 /// @code
 /// callToFunctionWhichLogsAnError();
-/// if (iox::testing::TestingLogger::doesLoggerSupportLogLevel(iox::log::LogLevel::ERROR))
-/// {
-///     auto logMessages = iox::testing::TestingLogger::getLogMessages();
+/// iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(iox::log::LogLevel::ERROR, [](const auto&
+/// logMessages){
 ///     ASSERT_THAT(logMessages.size(), Eq(1U));
 ///     EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
-/// }
+/// });
 /// @endcode
 class TestingLogger : public log::TestingLoggerBase
 {
@@ -82,10 +81,10 @@ class TestingLogger : public log::TestingLoggerBase
     /// @note This can be used in tests which check for a specific log output
     static uint64_t getNumberOfLogMessages() noexcept;
 
-    /// @brief Access to the cached log messages
-    /// @return a vector of strings with all caches log messages
-    /// @note This can be used in tests which check for a specific log output
-    static std::vector<std::string> getLogMessages() noexcept;
+    /// @brief Runs the provided checker function for the collected log messages
+    /// @note This can be used in tests to verify the collected log messages
+    static void checkLogMessageIfLogLevelIsSupported(iox::log::LogLevel logLevel,
+                                                     const std::function<void(const std::vector<std::string>&)>& check);
 
     /// @brief Checks if the the LogLevel is above the minimal supported LogLevel compiled into the binary
     /// @param[in] logLevel is the log level to check if it is supported
@@ -100,6 +99,7 @@ class TestingLogger : public log::TestingLoggerBase
     TestingLogger() noexcept = default;
 
     void flush() noexcept override;
+    static std::vector<std::string> getLogMessages() noexcept;
 
     struct LoggerData
     {

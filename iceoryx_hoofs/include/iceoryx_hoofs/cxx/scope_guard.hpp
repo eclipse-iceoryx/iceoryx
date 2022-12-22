@@ -35,9 +35,9 @@ namespace cxx
 /// // I am doing stuff
 /// // goodbye
 /// void someFunc() {
-///     ScopeGuard myScopeGuard{[](){ std::cout << "hello world\n"; },
-///                 [](){ std::cout << "goodbye\n"; }};
-///     std::cout << "I am doing stuff\n";
+///     ScopeGuard myScopeGuard{[](){ IOX_LOG(INFO) << "hello world\n"; },
+///                 [](){ IOX_LOG(INFO) << "goodbye"; }};
+///     IOX_LOG(INFO) << "I am doing stuff";
 ///     // myScopeGuard goes out of scope here and the cleanupFunction is called in the
 ///     // destructor
 /// }

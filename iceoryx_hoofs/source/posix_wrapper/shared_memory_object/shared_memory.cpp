@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -43,25 +44,25 @@ cxx::string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMe
 cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 {
     auto printError = [this] {
-        std::cerr << "Unable to create shared memory with the following properties [ name = " << m_name
-                  << ", access mode = " << asStringLiteral(m_accessMode)
-                  << ", open mode = " << asStringLiteral(m_openMode)
-                  << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions))
-                  << ", sizeInBytes = " << m_size << " ]" << std::endl;
+        IOX_LOG(ERROR) << "Unable to create shared memory with the following properties [ name = " << m_name
+                       << ", access mode = " << asStringLiteral(m_accessMode)
+                       << ", open mode = " << asStringLiteral(m_openMode)
+                       << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions)).to_string()
+                       << ", sizeInBytes = " << m_size << " ]";
     };
 
 
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
     if (m_name.empty())
     {
-        std::cerr << "No shared memory name specified!" << std::endl;
+        IOX_LOG(ERROR) << "No shared memory name specified!";
         return cxx::error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
     }
 
     if (!cxx::isValidFileName(m_name))
     {
-        std::cerr << "Shared memory requires a valid file name (not path) as name and \"" << m_name
-                  << "\" is not a valid file name" << std::endl;
+        IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
+                       << "\" is not a valid file name";
         return cxx::error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
     }
 
@@ -130,16 +131,16 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto& r) {
-                    std::cerr << "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
-                              << " for SharedMemory \"" << m_name << "\"" << std::endl;
+                    IOX_LOG(ERROR) << "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
+                                   << " for SharedMemory \"" << m_name << "\"";
                 });
 
             posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto&) {
-                    std::cerr << "Unable to remove previously created SharedMemory \"" << m_name
-                              << "\". This may be a SharedMemory leak." << std::endl;
+                    IOX_LOG(ERROR) << "Unable to remove previously created SharedMemory \"" << m_name
+                                   << "\". This may be a SharedMemory leak.";
                 });
 
             return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
@@ -228,7 +229,7 @@ bool SharedMemory::unlink() noexcept
         auto unlinkResult = unlinkIfExist(m_name);
         if (unlinkResult.has_error() || !unlinkResult.value())
         {
-            std::cerr << "Unable to unlink SharedMemory (shm_unlink failed)." << std::endl;
+            IOX_LOG(ERROR) << "Unable to unlink SharedMemory (shm_unlink failed).";
             return false;
         }
         m_hasOwnership = false;
@@ -243,8 +244,8 @@ bool SharedMemory::close() noexcept
     if (m_handle != INVALID_HANDLE)
     {
         auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
-            std::cerr << "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum()
-                      << std::endl;
+            IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
+                           << r.getHumanReadableErrnum();
         });
 
         m_handle = INVALID_HANDLE;
@@ -258,45 +259,44 @@ SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) noexcept
     switch (errnum)
     {
     case EACCES:
-        std::cerr << "No permission to modify, truncate or access the shared memory!" << std::endl;
+        IOX_LOG(ERROR) << "No permission to modify, truncate or access the shared memory!";
         return SharedMemoryError::INSUFFICIENT_PERMISSIONS;
     case EPERM:
-        std::cerr << "Resizing a file beyond its current size is not supported by the filesystem!" << std::endl;
+        IOX_LOG(ERROR) << "Resizing a file beyond its current size is not supported by the filesystem!";
         return SharedMemoryError::NO_RESIZE_SUPPORT;
     case EFBIG:
-        std::cerr << "Requested Shared Memory is larger then the maximum file size." << std::endl;
+        IOX_LOG(ERROR) << "Requested Shared Memory is larger then the maximum file size.";
         return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EINVAL:
-        std::cerr << "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
-                     "belong to a regular file."
-                  << std::endl;
+        IOX_LOG(ERROR) << "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
+                          "belong to a regular file.";
         return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EBADF:
-        std::cerr << "Provided filedescriptor is not a valid filedescriptor." << std::endl;
+        IOX_LOG(ERROR) << "Provided filedescriptor is not a valid filedescriptor.";
         return SharedMemoryError::INVALID_FILEDESCRIPTOR;
     case EEXIST:
-        std::cerr << "A Shared Memory with the given name already exists." << std::endl;
+        IOX_LOG(ERROR) << "A Shared Memory with the given name already exists.";
         return SharedMemoryError::DOES_EXIST;
     case EISDIR:
-        std::cerr << "The requested Shared Memory file is a directory." << std::endl;
+        IOX_LOG(ERROR) << "The requested Shared Memory file is a directory.";
         return SharedMemoryError::PATH_IS_A_DIRECTORY;
     case ELOOP:
-        std::cerr << "Too many symbolic links encountered while traversing the path." << std::endl;
+        IOX_LOG(ERROR) << "Too many symbolic links encountered while traversing the path.";
         return SharedMemoryError::TOO_MANY_SYMBOLIC_LINKS;
     case EMFILE:
-        std::cerr << "Process limit of maximum open files reached." << std::endl;
+        IOX_LOG(ERROR) << "Process limit of maximum open files reached.";
         return SharedMemoryError::PROCESS_LIMIT_OF_OPEN_FILES_REACHED;
     case ENFILE:
-        std::cerr << "System limit of maximum open files reached." << std::endl;
+        IOX_LOG(ERROR) << "System limit of maximum open files reached.";
         return SharedMemoryError::SYSTEM_LIMIT_OF_OPEN_FILES_REACHED;
     case ENOENT:
-        std::cerr << "Shared Memory does not exist." << std::endl;
+        IOX_LOG(ERROR) << "Shared Memory does not exist.";
         return SharedMemoryError::DOES_NOT_EXIST;
     case ENOMEM:
-        std::cerr << "Not enough memory available to create shared memory." << std::endl;
+        IOX_LOG(ERROR) << "Not enough memory available to create shared memory.";
         return SharedMemoryError::NOT_ENOUGH_MEMORY_AVAILABLE;
     default:
-        std::cerr << "This should never happen! An unknown error occurred!" << std::endl;
+        IOX_LOG(ERROR) << "This should never happen! An unknown error occurred!";
         return SharedMemoryError::UNKNOWN_ERROR;
     }
 }

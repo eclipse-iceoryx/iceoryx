@@ -168,7 +168,7 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
     // NOLINTJUSTIFICATION Use after move is tested here
     // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
     // cppcoreguidelines-avoid-goto)
-    EXPECT_DEATH(sut1(), "Empty function_ref invoked");
+    EXPECT_DEATH(sut1(), ""); // ERROR: Empty function_ref invoked
     // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
     // cppcoreguidelines-avoid-goto)
 }

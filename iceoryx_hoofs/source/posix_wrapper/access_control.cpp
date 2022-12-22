@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <iostream>
@@ -30,7 +31,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
 {
     if (m_permissions.empty())
     {
-        std::cerr << "Error: No ACL entries defined." << std::endl;
+        IOX_LOG(ERROR) << "Error: No ACL entries defined.";
         return false;
     }
 
@@ -38,7 +39,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
 
     if (maybeWorkingACL.has_error())
     {
-        std::cerr << "Error: Creating ACL failed." << std::endl;
+        IOX_LOG(ERROR) << "Error: Creating ACL failed.";
         return false;
     }
 
@@ -64,7 +65,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
 
     if (aclCheckCall.has_error())
     {
-        std::cerr << "Error: Invalid ACL, cannot write to file." << std::endl;
+        IOX_LOG(ERROR) << "Error: Invalid ACL, cannot write to file.";
         return false;
     }
 
@@ -72,7 +73,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
     auto aclSetFdCall = posixCall(acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
     if (aclSetFdCall.has_error())
     {
-        std::cerr << "Error: Could not set file ACL." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not set file ACL.";
         return false;
     }
 
@@ -106,7 +107,7 @@ bool AccessController::addUserPermission(const Permission permission, const Posi
 {
     if (name.empty())
     {
-        std::cerr << "Error: specific users must have an explicit name." << std::endl;
+        IOX_LOG(ERROR) << "Error: specific users must have an explicit name.";
         return false;
     }
 
@@ -123,7 +124,7 @@ bool AccessController::addGroupPermission(const Permission permission, const Pos
 {
     if (name.empty())
     {
-        std::cerr << "Error: specific groups must have an explicit name." << std::endl;
+        IOX_LOG(ERROR) << "Error: specific groups must have an explicit name.";
         return false;
     }
 
@@ -142,7 +143,7 @@ bool AccessController::addPermissionEntry(const Category category,
 {
     if (m_permissions.size() >= m_permissions.capacity())
     {
-        std::cerr << "Error: Number of allowed permission entries exceeded." << std::endl;
+        IOX_LOG(ERROR) << "Error: Number of allowed permission entries exceeded.";
         return false;
     }
 
@@ -152,7 +153,7 @@ bool AccessController::addPermissionEntry(const Category category,
     {
         if (!posix::PosixUser::getUserName(id).has_value())
         {
-            std::cerr << "Error: No such user" << std::endl;
+            IOX_LOG(ERROR) << "Error: No such user";
             return false;
         }
 
@@ -163,7 +164,7 @@ bool AccessController::addPermissionEntry(const Category category,
     {
         if (!posix::PosixGroup::getGroupName(id).has_value())
         {
-            std::cerr << "Error: No such group" << std::endl;
+            IOX_LOG(ERROR) << "Error: No such group";
             return false;
         }
 
@@ -189,7 +190,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
     if (aclCreateEntryCall.has_error())
     {
-        std::cerr << "Error: Could not create new ACL entry." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not create new ACL entry.";
         return false;
     }
 
@@ -199,7 +200,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
     if (aclSetTagTypeCall.has_error())
     {
-        std::cerr << "Error: Could not add tag type to ACL entry." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not add tag type to ACL entry.";
         return false;
     }
 
@@ -213,7 +214,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
         if (aclSetQualifierCall.has_error())
         {
-            std::cerr << "Error: Could not set ACL qualifier of user " << entry.m_id << std::endl;
+            IOX_LOG(ERROR) << "Error: Could not set ACL qualifier of user " << entry.m_id;
             return false;
         }
 
@@ -226,7 +227,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
         if (aclSetQualifierCall.has_error())
         {
-            std::cerr << "Error: Could not set ACL qualifier of group " << entry.m_id << std::endl;
+            IOX_LOG(ERROR) << "Error: Could not set ACL qualifier of group " << entry.m_id;
             return false;
         }
         break;
@@ -243,7 +244,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
     if (aclGetPermsetCall.has_error())
     {
-        std::cerr << "Error: Could not obtain ACL permission set of new ACL entry." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not obtain ACL permission set of new ACL entry.";
         return false;
     }
 
@@ -282,7 +283,7 @@ bool AccessController::addAclPermission(acl_permset_t permset, acl_perm_t perm) 
 
     if (aclAddPermCall.has_error())
     {
-        std::cerr << "Error: Could not add permission to ACL permission set." << std::endl;
+        IOX_LOG(ERROR) << "Error: Could not add permission to ACL permission set.";
         return false;
     }
     return true;

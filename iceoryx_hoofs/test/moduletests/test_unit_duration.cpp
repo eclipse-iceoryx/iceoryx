@@ -17,6 +17,8 @@
 
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "test.hpp"
 #include <ctime>
 #include <iostream>
@@ -2131,7 +2133,7 @@ TEST(Duration_test, MultiplyDurationWithDoubleResultsInSaturationDueToNanosecond
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, StreamingOperator)
+TEST(Duration_test, StdStreamingOperator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "526d6cf3-b3df-44ce-8668-a0a170c94919");
     std::stringstream capture;
@@ -2154,6 +2156,37 @@ TEST(Duration_test, StreamingOperator)
 
     std::clog.rdbuf(clogBuffer);
 }
+
+TEST(Duration_test, LogStreamingOperator)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2ce98e19-17be-47fa-b5e7-f4d9dacd0855");
+
+    iox::testing::Logger_Mock loggerMock{};
+
+    {
+        IOX_LOGSTREAM_MOCK(loggerMock) << 0_s;
+    }
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("0s 0ns"));
+    loggerMock.logs.clear();
+
+    {
+        const auto lessThanOneSecond = 42_ns;
+        IOX_LOGSTREAM_MOCK(loggerMock) << lessThanOneSecond;
+    }
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("0s 42ns"));
+    loggerMock.logs.clear();
+
+    {
+        const auto moreThanOneSecond = 13_s + 73_ms + 37_us + 42_ns;
+        IOX_LOGSTREAM_MOCK(loggerMock) << moreThanOneSecond;
+    }
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("13s 73037042ns"));
+    loggerMock.logs.clear();
+}
+
 
 // END ARITHMETIC TESTS
 } // namespace
