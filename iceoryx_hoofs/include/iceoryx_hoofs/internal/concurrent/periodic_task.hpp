@@ -36,14 +36,14 @@ struct PeriodicTaskAutoStart_t
 };
 static constexpr PeriodicTaskAutoStart_t PeriodicTaskAutoStart;
 
-/// @brief This is a helper struct to make the manual start of the task with the `start` method obvious to the user
+/// @brief This is a helper struct to make the manual start of the task with the 'start' method obvious to the user
 struct PeriodicTaskManualStart_t
 {
 };
 static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
 
 /// @brief This class periodically executes a callable specified by the template parameter.
-///        This can be a struct with a `operator()()` overload, a `cxx::function_ref<void()>` or `std::fuction<void()>`.
+///        This can be a struct with a 'operator()()' overload, a 'cxx::function_ref<void()>' or 'std::fuction<void()>'.
 /// @code
 /// #include <iceoryx_hoofs/internal/concurrent/periodic_task.hpp>
 /// #include <iceoryx_hoofs/internal/units/duration.hpp>
@@ -65,10 +65,10 @@ class PeriodicTask
 {
   public:
     /// @brief Creates a periodic task. The specified callable is stored but not executed.
-    /// To run the task, `void start(const units::Duration interval)` must be called.
+    /// To run the task, 'void start(const units::Duration interval)' must be called.
     /// @tparam Args are variadic template parameter for which are forwarded to the underlying callable object
     /// @param[in] PeriodicTaskManualStart_t indicates that this ctor doesn't start the task; just pass
-    /// `PeriodicTaskManualStart` as argument
+    /// 'PeriodicTaskManualStart' as argument
     /// @param[in] taskName will be set as thread name
     /// @param[in] args are forwarded to the underlying callable object
     template <typename... Args>
@@ -80,7 +80,7 @@ class PeriodicTask
     /// and then periodically after the interval duration.
     /// @tparam Args are variadic template parameter for which are forwarded to the underlying callable object
     /// @param[in] PeriodicTaskAutoStart_t indicates that this ctor starts the task; just pass
-    /// `PeriodicTaskAutoStart` as argument
+    /// 'PeriodicTaskAutoStart' as argument
     /// @param[in] interval is the time the thread waits between two invocations of the callable
     /// @param[in] taskName will be set as thread name
     /// @param[in] args are forwarded to the underlying callable object
