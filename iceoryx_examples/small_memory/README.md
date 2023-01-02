@@ -74,3 +74,7 @@ To terminate the demo, just kill all the processes:
 ```
 killall -r iox
 ```
+
+## Expected Output
+
+[![asciicast](https://asciinema.org/a/muMteZdAL5Ho6HH1AnHRa4a0P.svg)](https://asciinema.org/a/muMteZdAL5Ho6HH1AnHRa4a0P)
