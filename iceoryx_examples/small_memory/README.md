@@ -77,4 +77,4 @@ killall -r iox
 
 ## Expected Output
 
-[![asciicast](https://asciinema.org/a/muMteZdAL5Ho6HH1AnHRa4a0P.svg)](https://asciinema.org/a/muMteZdAL5Ho6HH1AnHRa4a0P)
+[![asciicast](https://asciinema.org/a/KWK3IaXSYGqVvX2GG9zH2muaH.svg)](https://asciinema.org/a/KWK3IaXSYGqVvX2GG9zH2muaH)
