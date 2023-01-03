@@ -24,8 +24,10 @@
 
 namespace iox
 {
+// AXIVION Next Construct AutosarC++19_03-M2.10.1 : See declaration in header
 namespace log
 {
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See declaration in header
 inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
 {
     switch (value)
