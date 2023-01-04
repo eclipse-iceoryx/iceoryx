@@ -126,7 +126,7 @@ struct MutexAttributes
                 IOX_LOG(ERROR) << "The used mutex priority is not supported by the platform";
                 return cxx::error<MutexCreationError>(MutexCreationError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
             case EPERM:
-                IOX_LOG(ERROR) << "Unsufficient permissions to set mutex priorities";
+                IOX_LOG(ERROR) << "Insufficient permissions to set mutex priorities";
                 return cxx::error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
             default:
                 IOX_LOG(ERROR)
@@ -148,7 +148,7 @@ struct MutexAttributes
             switch (result.get_error().errnum)
             {
             case EPERM:
-                IOX_LOG(ERROR) << "Unsufficient permissions to set the mutex priority ceiling.";
+                IOX_LOG(ERROR) << "Insufficient permissions to set the mutex priority ceiling.";
                 return cxx::error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
             case ENOSYS:
                 IOX_LOG(ERROR) << "The platform does not support mutex priority ceiling.";
@@ -203,7 +203,7 @@ cxx::expected<MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
             IOX_LOG(ERROR) << "Not enough memory to initialize mutex.";
             return cxx::error<MutexCreationError>(MutexCreationError::INSUFFICIENT_MEMORY);
         case EPERM:
-            IOX_LOG(ERROR) << "Unsufficient permissions to create mutex.";
+            IOX_LOG(ERROR) << "Insufficient permissions to create mutex.";
             return cxx::error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
         default:
             IOX_LOG(ERROR)
