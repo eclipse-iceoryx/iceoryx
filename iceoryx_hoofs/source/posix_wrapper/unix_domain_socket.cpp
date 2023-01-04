@@ -119,7 +119,7 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
         if (destroy().has_error())
         {
             IOX_LOG(ERROR) << "Unable to cleanup unix domain socket \"" << m_name
-                           << "\" in the move constructor/move assingment operator";
+                           << "\" in the move constructor/move assignment operator";
         }
 
         CreationPattern_t::operator=(std::move(other));
