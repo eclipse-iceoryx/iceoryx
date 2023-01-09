@@ -69,7 +69,8 @@ result = iox::nullopt;
 ```
 
 For a complete list of available functions see
-[`optional.hpp`](../../../iceoryx_hoofs/include/iceoryx_hoofs/cxx/optional.hpp).
+[`optional.hpp`](../../../iceoryx_hoofs/vocabulary/include/iox/optional.hpp).
+
 
 ## Expected
 
@@ -120,7 +121,7 @@ result.and_then(handleValue).or_else(handleError);
 
 There are more convenience functions such as `value_or` which provides the value or an alternative specified by the
 user. These can be found in
-[`expected.hpp`](../../../iceoryx_hoofs/include/iceoryx_hoofs/cxx/expected.hpp).
+[`expected.hpp`](../../../iceoryx_hoofs/vocabulary/include/iox/expected.hpp).
 
 Note that when we move an `expected`, the origin contains a moved `T` or `E`, depending on the content before the move.
 This reflects the behavior of moving the content out of the `iox::expected` as in
