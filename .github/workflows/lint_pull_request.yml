@@ -47,7 +47,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .lycheecache
-          key: cache-lychee-${{ github.ref_name }}
+          key: cache-lychee-all-branches
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.5.4
