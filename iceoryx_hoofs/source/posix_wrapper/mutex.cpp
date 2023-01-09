@@ -421,7 +421,7 @@ cxx::expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
             return cxx::error<MutexTryLockError>(
                 MutexTryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
-            IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while try locking the mutex. "
+            IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while trying to lock the mutex. "
                               "This can indicate a either corrupted or non-POSIX compliant system.";
             return cxx::error<MutexTryLockError>(MutexTryLockError::UNKNOWN_ERROR);
         }
