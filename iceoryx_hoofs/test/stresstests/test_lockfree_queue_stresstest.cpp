@@ -137,7 +137,7 @@ std::list<Data> filter(std::list<Data>& list, uint64_t id)
     return filtered;
 }
 
-bool isStrictlyMonotonous(std::list<Data>& list)
+bool isStrictlyMonotonic(std::list<Data>& list)
 {
     auto iter = list.begin();
     if (iter == list.end())
@@ -197,9 +197,9 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
         auto filtered1 = filter(consumed1, id);
         auto filtered2 = filter(consumed2, id);
 
-        if (!isStrictlyMonotonous(filtered1) || !isStrictlyMonotonous(filtered2))
+        if (!isStrictlyMonotonic(filtered1) || !isStrictlyMonotonic(filtered2))
         {
-            IOX_LOG(INFO) << "id " << id << " not strictly monotonous";
+            IOX_LOG(INFO) << "id " << id << " not strictly monotonic";
             return false;
         }
 
