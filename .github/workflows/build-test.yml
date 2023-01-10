@@ -30,7 +30,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
-      - uses: egor-tensin/setup-gcc@v1
+      - uses: egor-tensin/setup-gcc@v1.3
         with:
           version: 8
           platform: x64
@@ -88,7 +88,7 @@ jobs:
     runs-on: ubuntu-20.04
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1
+      - uses: egor-tensin/setup-gcc@v1.3
         with:
           version: 11
           platform: x64
@@ -124,6 +124,7 @@ jobs:
     runs-on: ubuntu-18.04
     needs: pre-flight-check
     steps:
+      - uses: egor-tensin/setup-gcc@v1.3
       - uses: actions/checkout@v3
       - run: ./tools/ci/build-test-ubuntu-with-gcc54.sh
 

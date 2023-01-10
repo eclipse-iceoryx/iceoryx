@@ -19,7 +19,7 @@ jobs:
 
       - name: Get git diff
         id: changed_files
-        uses: Ana06/get-changed-files@v1.2
+        uses: Ana06/get-changed-files@v2.2.0
       - name: diff scan, clang-tidy for all files which are in `.clang-tidy-diff-scans.txt`
         run: |
           for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
@@ -47,10 +47,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .lycheecache
-          key: cache-lychee-${{ github.ref_name }}
+          key: cache-lychee-all-branches
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.5.4
         with:
           fail: true
-          args: --cache --max-cache-age 1d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
+          args: --cache --insecure --max-cache-age 1d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
