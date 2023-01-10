@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_WIN_PLATFORM_ATTRIBUTES_HPP
 #define IOX_HOOFS_WIN_PLATFORM_ATTRIBUTES_HPP
 
-
 #define IOX_NO_DISCARD [[nodiscard]]
 
 #define IOX_FALLTHROUGH [[fallthrough]]

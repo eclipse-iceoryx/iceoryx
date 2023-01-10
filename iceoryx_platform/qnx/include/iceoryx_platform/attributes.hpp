@@ -24,7 +24,6 @@
 /// @note
 //    [[fallthrough]] supported since gcc 7 (https://gcc.gnu.org/projects/cxx-status.html)
 ///   [[fallthrough]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
-///   activate keywords for gcc>=7 or clang>=4
 
 #if __cplusplus >= 201703L
 #define IOX_FALLTHROUGH [[fallthrough]]
@@ -32,12 +31,6 @@
 #define IOX_FALLTHROUGH
 #endif
 
-/// @brief IOX_MAYBE_UNUSED adds the [[gnu::unused]] or [[maybe_unused]] attribute when it is available for the current
-/// compiler.
-/// @note
-///   activate attribute for gcc or clang
-#if defined(__GNUC__) || defined(__clang__)
 #define IOX_MAYBE_UNUSED [[gnu::unused]]
-#endif
 
 #endif // IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP

@@ -17,7 +17,16 @@
 #ifndef IOX_HOOFS_LINUX_PLATFORM_ATTRIBUTES_HPP
 #define IOX_HOOFS_LINUX_PLATFORM_ATTRIBUTES_HPP
 
-#define IOX_NO_DISCARD
+/// @brief IOX_NO_DISCARD adds the [[nodiscard]] keyword if it is available for the current compiler.
+/// @note
+//    [[nodiscard]], [[gnu::warn_unused]] supported since gcc 4.8 (https://gcc.gnu.org/projects/cxx-status.html)
+///   [[nodiscard]], [[gnu::warn_unused]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
+
+#if __cplusplus >= 201703L
+#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
+#else
+#define IOX_NO_DISCARD [[gnu::warn_unused]]
+#endif
 
 /// @brief IOX_FALLTHROUGH adds the [[fallthrough]] keyword when it is available for the current compiler.
 /// @note
@@ -34,12 +43,9 @@
 #define IOX_FALLTHROUGH
 #endif
 
-/// @brief IOX_MAYBE_UNUSED adds the [[gnu::unused]] or [[maybe_unused]] attribute when it is available for the current
+/// @brief IOX_MAYBE_UNUSED adds the [[gnu::unused]] attribute when it is available for the current
 /// compiler.
 /// @note
-///   activate attribute for gcc or clang
-#if defined(__GNUC__) || defined(__clang__)
 #define IOX_MAYBE_UNUSED [[gnu::unused]]
-#endif
 
 #endif // IOX_HOOFS_LINUX_PLATFORM_ATTRIBUTES_HPP
