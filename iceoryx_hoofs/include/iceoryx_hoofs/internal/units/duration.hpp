@@ -188,18 +188,14 @@ class Duration
     // END CONSTRUCTORS AND ASSIGNMENT
 
     // BEGIN COMPARISON
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+    // AXIVION DISABLE STYLE AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     friend constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept;
+    // AXIVION ENABLE STYLE AutosarC++19_03-A8.4.7
     // END COMPARISON
 
     // BEGIN ARITHMETIC
@@ -308,7 +304,7 @@ class Duration
     // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int value) noexcept;
 
-    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+    // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
     template <typename T>
     friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
@@ -369,65 +365,9 @@ class Duration
 /// @param[in] rhs is the multiplicant
 /// @return a new Duration object
 /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
 constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
-
-/// @brief Equal to operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration equal to rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return (lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds == rhs.m_nanoseconds);
-}
-
-/// @brief Not equal to operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration not equal to rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return !(lhs == rhs);
-}
-
-/// @brief Less than operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is less than rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return (lhs.m_seconds < rhs.m_seconds)
-           || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds < rhs.m_nanoseconds));
-}
-
-/// @brief Greater than operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is greater than rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return (lhs.m_seconds > rhs.m_seconds)
-           || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds > rhs.m_nanoseconds));
-}
-
-/// @brief Less than or equal to operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is less than or equal to rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return !(lhs > rhs);
-}
-
-/// @brief Greater than or equal to operator
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is greater than or equal to rhs
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept
-{
-    return !(lhs < rhs);
-}
 
 /// @brief stream operator for the Duration class
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
