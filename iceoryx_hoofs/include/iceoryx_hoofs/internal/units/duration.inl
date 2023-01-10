@@ -482,30 +482,18 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 }
 
 
-/// @brief Equal to operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration equal to rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept
 {
     return (lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds == rhs.m_nanoseconds);
 }
 
-/// @brief Not equal to operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration not equal to rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-/// @brief Less than operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is less than rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept
 {
@@ -513,10 +501,6 @@ constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept
            || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds < rhs.m_nanoseconds));
 }
 
-/// @brief Greater than operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is greater than rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept
 {
@@ -524,20 +508,12 @@ constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept
            || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds > rhs.m_nanoseconds));
 }
 
-/// @brief Less than or equal to operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is less than or equal to rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept
 {
     return !(lhs > rhs);
 }
 
-/// @brief Greater than or equal to operator
-/// @param[in] lhs is the left hand side of the comparison
-/// @param[in] rhs is the right hand side of the comparison
-/// @return true if duration is greater than or equal to rhs
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept
 {
