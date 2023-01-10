@@ -23,18 +23,6 @@ namespace iox
 {
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
 // available for delegation
-namespace internal
-{
-template <typename... T>
-struct IsOptional : std::false_type
-{
-};
-template <typename T>
-struct IsOptional<iox::optional<T>> : std::true_type
-{
-};
-} // namespace internal
-
 template <typename T>
 inline success<T>::success(const T& t) noexcept
     : value(t)

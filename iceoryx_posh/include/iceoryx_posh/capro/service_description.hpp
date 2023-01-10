@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
+#include "iox/optional.hpp"
 #include "iox/string.hpp"
 
 #include <cstdint>

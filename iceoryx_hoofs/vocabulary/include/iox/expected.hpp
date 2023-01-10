@@ -27,13 +27,6 @@
 
 namespace iox
 {
-namespace internal
-{
-/// @brief Type trait which verifies whether the passed type T is of type optional
-template <typename...>
-struct IsOptional;
-} // namespace internal
-
 /// @brief helper struct to create an expected which is signalling success more easily
 /// @param T type which the success helper class should contain
 /// @code

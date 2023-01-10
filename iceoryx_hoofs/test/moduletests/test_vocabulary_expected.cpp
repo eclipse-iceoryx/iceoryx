@@ -546,7 +546,7 @@ TEST_F(expected_test, ExpectedWithValueConvertsToOptionalWithValue)
     ::testing::Test::RecordProperty("TEST_ID", "a877f9bd-5793-437f-8dee-a109aed9f647");
     constexpr int VALUE = 4711;
     expected<int, TestError> sut{success<int>(VALUE)};
-    iox::optional<int> value = sut.to_optional();
+    optional<int> value = sut.to_optional();
 
     ASSERT_THAT(value.has_value(), Eq(true));
     EXPECT_THAT(*value, Eq(VALUE));
@@ -556,7 +556,7 @@ TEST_F(expected_test, ExpectedWithErrorConvertsToOptionalWithoutValue)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe161275-8fa2-43c9-86e7-0a20d79eb44f");
     expected<int, TestError> sut{error<TestError>(TestError::ERROR1)};
-    iox::optional<int> value = sut.to_optional();
+    optional<int> value = sut.to_optional();
 
     ASSERT_THAT(value.has_value(), Eq(false));
 }
