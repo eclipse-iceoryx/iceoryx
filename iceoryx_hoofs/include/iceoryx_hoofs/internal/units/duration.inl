@@ -61,13 +61,15 @@ inline constexpr Duration Duration::zero() noexcept
     return Duration{0U, 0U};
 }
 
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined
+// literals is enforced by the standard
 template <typename T>
 inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
-    // AXIVION Next Construct AutosarC++19_03-A1.4.3 : Value is an arbitrary integer type, not necessarily unsigned
+    // AXIVION Next Construct AutosarC++19_03-A1.4.3 : Value is a templated an arbitrary integer
+    // type that is not necessarily unsigned
     if (value < 0)
     {
         return 0U;
@@ -82,7 +84,7 @@ inline constexpr Duration Duration::fromNanoseconds(const T value) noexcept
     auto clampedValue = positiveValueOrClampToZero(value);
     auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::NANOSECS_PER_SEC);
     auto nanoseconds = static_cast<Duration::Nanoseconds_t>(clampedValue % Duration::NANOSECS_PER_SEC);
-    return Duration{seconds, nanoseconds};
+    return createDuration(seconds, nanoseconds);
 }
 template <typename T>
 inline constexpr Duration Duration::fromMicroseconds(const T value) noexcept
@@ -91,7 +93,7 @@ inline constexpr Duration Duration::fromMicroseconds(const T value) noexcept
     const auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::MICROSECS_PER_SEC);
     const auto nanoseconds = static_cast<Duration::Nanoseconds_t>((clampedValue % Duration::MICROSECS_PER_SEC)
                                                                   * Duration::NANOSECS_PER_MICROSEC);
-    return Duration{seconds, nanoseconds};
+    return createDuration(seconds, nanoseconds);
 }
 template <typename T>
 inline constexpr Duration Duration::fromMilliseconds(const T value) noexcept
@@ -100,7 +102,7 @@ inline constexpr Duration Duration::fromMilliseconds(const T value) noexcept
     const auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::MILLISECS_PER_SEC);
     const auto nanoseconds = static_cast<Duration::Nanoseconds_t>((clampedValue % Duration::MILLISECS_PER_SEC)
                                                                   * Duration::NANOSECS_PER_MILLISEC);
-    return Duration{seconds, nanoseconds};
+    return createDuration(seconds, nanoseconds);
 }
 template <typename T>
 inline constexpr Duration Duration::fromSeconds(const T value) noexcept
@@ -108,8 +110,9 @@ inline constexpr Duration Duration::fromSeconds(const T value) noexcept
     const auto clampedValue = positiveValueOrClampToZero(value);
     constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
 
-    // AXIVION Next Construct AutosarC++19_03-A0.1.1 : Not dead code as it is platform dependent
-    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive. Platform dependent.
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9,
+    // FaultDetection-DeadBranches : False positive, whether this is a dead branch is platforms
+    // dependent.
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
         return Duration::max();
@@ -265,9 +268,7 @@ inline constexpr struct timeval Duration::timeval() const noexcept
     {
         return {std::numeric_limits<SEC_TYPE>::max(), MICROSECS_PER_SEC - 1U};
     }
-    // AXIVION Next Construct AutosarC++19_03-A5.0.9 : Protected by static assertion
-    // AXIVION Next Construct AutosarC++19_03-M5.0.8 : Protected by static assertion
-    // AXIVION Next Construct AutosarC++19_03-M5.0.9 : Protected by static assertion
+    // AXIVION Next Construct AutosarC++19_03-M5.0.8, AutosarC++19_03-M5.0.9 : Protected by static assertion
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
@@ -282,7 +283,7 @@ inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcep
         nanoseconds -= NANOSECS_PER_SEC;
     }
 
-    const Duration sum{seconds, nanoseconds};
+    const auto sum = createDuration(seconds, nanoseconds);
     if (sum < *this)
     {
         return Duration::max();
@@ -305,8 +306,7 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
         return Duration::zero();
     }
     Seconds_t seconds{m_seconds - rhs.m_seconds};
-    // AXIVION Next Construct AutosarC++19_03-M0.1.9 : Variable IS used
-    // AXIVION Next Construct AutosarC++19_03-A0.1.1 : Variable IS used
+    // AXIVION Next Construct AutosarC++19_03-M0.1.9, AutosarC++19_03-A0.1.1 : False positive, variable IS used
     Nanoseconds_t nanoseconds{0U};
     if (m_nanoseconds >= rhs.m_nanoseconds)
     {
@@ -317,7 +317,7 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
         nanoseconds = (NANOSECS_PER_SEC - rhs.m_nanoseconds) + m_nanoseconds;
         --seconds;
     }
-    return Duration{seconds, nanoseconds};
+    return createDuration(seconds, nanoseconds);
 }
 
 // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
@@ -479,6 +479,69 @@ template <typename T>
 inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 {
     return rhs * lhs;
+}
+
+
+/// @brief Equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return (lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds == rhs.m_nanoseconds);
+}
+
+/// @brief Not equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration not equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return !(lhs == rhs);
+}
+
+/// @brief Less than operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is less than rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return (lhs.m_seconds < rhs.m_seconds)
+           || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds < rhs.m_nanoseconds));
+}
+
+/// @brief Greater than operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is greater than rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return (lhs.m_seconds > rhs.m_seconds)
+           || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds > rhs.m_nanoseconds));
+}
+
+/// @brief Less than or equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is less than or equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return !(lhs > rhs);
+}
+
+/// @brief Greater than or equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is greater than or equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept
+{
+    return !(lhs < rhs);
 }
 
 namespace duration_literals
