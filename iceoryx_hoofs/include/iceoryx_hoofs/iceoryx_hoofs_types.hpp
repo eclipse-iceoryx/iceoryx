@@ -29,6 +29,8 @@ namespace cxx
 using byte_t = uint8_t;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M2.10.1 : log is a sensible namespace for a logger; furthermore it is in the
+// iox namespace and when used as function the compiler will complain
 namespace log
 {
 /// @brief This enum defines the log levels used for logging.
@@ -46,6 +48,8 @@ enum class LogLevel : uint8_t
 /// @brief converts LogLevel into a string literal
 /// @param[in] value the LogLevel to convert
 /// @return string literal of the LogLevel value
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : This function return a string literal
+// which corresponds to a const char *
 constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 
 } // namespace log
