@@ -289,20 +289,15 @@ class Duration
 
     // END CONVERSION
 
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+    // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _us(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _s(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _m(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _h(unsigned long long int value) noexcept;
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int value) noexcept;
+    // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
     // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
     template <typename T>
