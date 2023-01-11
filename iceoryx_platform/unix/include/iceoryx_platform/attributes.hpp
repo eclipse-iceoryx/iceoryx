@@ -21,6 +21,6 @@
 
 #define IOX_FALLTHROUGH [[fallthrough]]
 
-#define IOX_MAYBE_UNUSED [[gnu::unused]]
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
 
 #endif // IOX_HOOFS_UNIX_PLATFORM_ATTRIBUTES_HPP
