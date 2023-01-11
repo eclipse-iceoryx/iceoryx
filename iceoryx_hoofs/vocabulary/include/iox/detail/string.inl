@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,8 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INL
 #define IOX_HOOFS_VOCABULARY_STRING_INL
 
-#include "iox/string.hpp"
+#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
 {
@@ -132,20 +133,20 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     {
 // AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics, since
 // gcc 8 incorrectly warns here about out of bounds array access
-#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ == 3)
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
         std::memcpy(&(m_rawstring[0]), other, Capacity);
-#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ == 3)
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic pop
 #endif
         // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
 
         m_rawstring[Capacity] = '\0';
         m_rawstringSize = Capacity;
-        std::cerr << "Constructor truncates the last " << count - Capacity << " characters of " << other
-                  << ", because the char array length is larger than the capacity." << std::endl;
+        IOX_LOG(WARN) << "Constructor truncates the last " << count - Capacity << " characters of " << other
+                      << ", because the char array length is larger than the capacity.";
     }
     else
     {
@@ -176,9 +177,8 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
 
     if (rhs[m_rawstringSize] != '\0')
     {
-        std::cerr << "iox::string: Assignment of array which is not zero-terminated! Last value of array "
-                     "overwritten with 0!"
-                  << std::endl;
+        IOX_LOG(WARN) << "iox::cxx::string: Assignment of array which is not zero-terminated! Last value of array "
+                         "overwritten with 0!";
     }
     return *this;
 }
@@ -213,8 +213,8 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
     const uint64_t strSize{strnlen(str, Capacity + 1U)};
     if (Capacity < strSize)
     {
-        std::cerr << "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity ("
-                  << Capacity << ") of the fixed string." << std::endl;
+        IOX_LOG(DEBUG) << "Assignment failed. The given cstring is larger (" << strSize << ") than the capacity ("
+                       << Capacity << ") of the fixed string.";
         return false;
     }
     std::memcpy(&(m_rawstring[0]), str, strSize);
@@ -229,8 +229,7 @@ inline bool string<Capacity>::unsafe_assign(const std::string& str) noexcept
     uint64_t strSize{str.size()};
     if (Capacity < strSize)
     {
-        std::cerr << "Assignment failed. The given std::string is larger than the capacity of the fixed string."
-                  << std::endl;
+        IOX_LOG(DEBUG) << "Assignment failed. The given std::string is larger than the capacity of the fixed string.";
         return false;
     }
     std::memcpy(&(m_rawstring[0]), str.c_str(), strSize);
@@ -396,7 +395,7 @@ inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const 
 
     if (tSize > clampedTSize)
     {
-        std::cerr << "Appending failed because the sum of sizes exceeds this' capacity." << std::endl;
+        IOX_LOG(DEBUG) << "Appending failed because the sum of sizes exceeds this' capacity.";
         return false;
     }
 
@@ -420,8 +419,8 @@ inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
     if (tSize > clampedTSize)
     {
-        std::cerr << "The last " << (tSize - Capacity) + m_rawstringSize << " characters of " << tData
-                  << " are truncated, because the length is larger than the capacity." << std::endl;
+        IOX_LOG(WARN) << "The last " << (tSize - Capacity) + m_rawstringSize << " characters of " << tData
+                      << " are truncated, because the length is larger than the capacity.";
     }
 
     m_rawstringSize += clampedTSize;
@@ -436,7 +435,8 @@ inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char cst
 {
     if (m_rawstringSize == Capacity)
     {
-        std::cerr << "Appending of " << cstr << " failed because this' capacity would be exceeded." << std::endl;
+        IOX_LOG(WARN) << "Appending of " << static_cast<unsigned char>(cstr)
+                      << " failed because this' capacity would be exceeded.";
         return *this;
     }
     m_rawstring[m_rawstringSize] = cstr;
