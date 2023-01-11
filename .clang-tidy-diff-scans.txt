@@ -40,8 +40,7 @@
 ./iceoryx_hoofs/container/include/iox/**/*
 ./iceoryx_hoofs/test/moduletests/test_container_*
 
-./iceoryx_hoofs/vocabulary/include/iox/**/*
-./iceoryx_hoofs/vocabulary/source/*
+./iceoryx_hoofs/vocabulary/**/*
 ./iceoryx_hoofs/test/moduletests/test_vocabulary_*
 
 # IMPORTANT:

@@ -14,9 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/detail/string_type_traits.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 namespace iox
+{
+namespace cxx
 {
 /// NOLINTJUSTIFICATION See definitions in header file.
 /// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -34,4 +36,5 @@ constexpr const char TypeInfo<float>::NAME[];
 constexpr const char TypeInfo<double>::NAME[];
 constexpr const char TypeInfo<long double>::NAME[];
 /// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+} // namespace cxx
 } // namespace iox
