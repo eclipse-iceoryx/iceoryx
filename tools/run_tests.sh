@@ -70,7 +70,6 @@ for arg in "$@"; do
         TEST_SCOPE="no_timing_test"
         ;;
     "tsan-only")
-        CONTINUE_ON_ERROR=true
         TEST_SCOPE="no_timing_test"
         ;;
     "continue-on-error")

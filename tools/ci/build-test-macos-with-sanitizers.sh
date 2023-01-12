@@ -51,7 +51,7 @@ cd ./build
 if [ "$SANITIZER" == "asan" ]; then
     tools/run_tests.sh asan-only
 elif [ "$SANITIZER" == "tsan" ]; then
-    tools/run_tests.sh tsan-only
+    tools/run_tests.sh tsan-only continue-on-error
 else
     tools/run_tests.sh all
 fi
