@@ -31,10 +31,11 @@ enum class BumpAllocatorError
     REQUESTED_ZERO_SIZED_MEMORY
 };
 
+/// @brief A bump allocator for the memory provided in the ctor arguments
 class BumpAllocator
 {
   public:
-    /// @brief A bump allocator for the memory provided in the ctor arguments
+    /// @brief c'tor
     /// @param[in] startAddress of the memory this allocator manages
     /// @param[in] length of the memory this allocator manages
     BumpAllocator(void* const startAddress, const uint64_t length) noexcept;

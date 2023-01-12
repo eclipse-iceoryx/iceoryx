@@ -47,12 +47,12 @@ cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
 
-    cxx::byte_t* l_returnValue = nullptr;
+    cxx::byte_t* allocation = nullptr;
 
     if (m_length >= alignedPosition + size)
     {
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) low-level memory management
-        l_returnValue = m_startAddress + alignedPosition;
+        allocation = m_startAddress + alignedPosition;
         m_currentPosition = alignedPosition + size;
     }
     else
@@ -63,7 +63,7 @@ cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t 
         return cxx::error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
     }
 
-    return cxx::success<void*>(l_returnValue);
+    return cxx::success<void*>(allocation);
 }
 
 void BumpAllocator::deallocate() noexcept

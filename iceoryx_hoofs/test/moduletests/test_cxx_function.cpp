@@ -258,8 +258,8 @@ TEST_F(function_test, FunctionStateIsIndependentOfSource)
 
     // NOLINTNEXTLINE(hicpp-no-malloc, cppcoreguidelines-no-malloc) low-level memory management for testing purpose
     void* memory = malloc(MEMORY_SIZE);
-    iox::BumpAllocator storage(memory, MEMORY_SIZE);
-    auto allocationResult = storage.allocate(sizeof(Functor), alignof(Functor));
+    iox::BumpAllocator allocator(memory, MEMORY_SIZE);
+    auto allocationResult = allocator.allocate(sizeof(Functor), alignof(Functor));
     ASSERT_FALSE(allocationResult.has_error());
 
     auto* p = static_cast<Functor*>(allocationResult.value());
@@ -556,7 +556,7 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
     Arg arg(initial);
 
     auto lambda = [](Arg&& a) { return a.value + 1; };
-    iox::cxx::function<int32_t(Arg &&), 128> sut(lambda);
+    iox::cxx::function<int32_t(Arg&&), 128> sut(lambda);
 
     auto result = sut(std::move(arg));
 

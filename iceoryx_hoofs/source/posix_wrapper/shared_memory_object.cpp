@@ -176,8 +176,7 @@ cxx::expected<void*, SharedMemoryAllocationError> SharedMemoryObject::allocate(c
     }
     if (m_allocationFinalized)
     {
-        IOX_LOG(WARN) << "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory "
-                         "chunks anymore.";
+        IOX_LOG(WARN) << "allocate() call after finalizeAllocation()! Could not acquire shared memory chunk.";
         return cxx::error<SharedMemoryAllocationError>(
             SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION);
     }
