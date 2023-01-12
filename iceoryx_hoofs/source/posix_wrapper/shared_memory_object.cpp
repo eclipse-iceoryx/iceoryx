@@ -166,15 +166,29 @@ SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
 {
 }
 
-void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment) noexcept
+cxx::expected<void*, SharedMemoryAllocationError> SharedMemoryObject::allocate(const uint64_t size,
+                                                                               const uint64_t alignment) noexcept
 {
-    cxx::ExpectsWithMsg(
-        !m_allocationFinalized,
-        "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory chunks anymore");
+    if (size == 0)
+    {
+        IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
+        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::REQUESTED_ZERO_SIZED_MEMORY);
+    }
+    if (m_allocationFinalized)
+    {
+        IOX_LOG(WARN) << "allocate() call after finalizeAllocation()! You are not allowed to acquire shared memory "
+                         "chunks anymore.";
+        return cxx::error<SharedMemoryAllocationError>(
+            SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION);
+    }
 
     auto allocationResult = m_allocator.allocate(size, alignment);
-    cxx::ExpectsWithMsg(!allocationResult.has_error(), "Not enough space left in shared memory");
-    return allocationResult.value();
+    if (allocationResult.has_error())
+    {
+        IOX_LOG(WARN) << "Not enough space left in shared memory.";
+        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::NOT_ENOUGH_MEMORY);
+    }
+    return cxx::success<void*>(allocationResult.value());
 }
 
 void SharedMemoryObject::finalizeAllocation() noexcept

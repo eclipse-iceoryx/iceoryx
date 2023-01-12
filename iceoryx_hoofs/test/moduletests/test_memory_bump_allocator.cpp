@@ -121,12 +121,9 @@ TEST_F(BumpAllocator_Test, allocateElementOfSizeZero)
     ::testing::Test::RecordProperty("TEST_ID", "17caa50c-94bf-4a1d-a1ec-dfda563caa0b");
     iox::BumpAllocator sut(memory, memorySize);
 
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTBEGIN(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg)
-    EXPECT_DEATH(IOX_DISCARD_RESULT(sut.allocate(0, MEMORY_ALIGNMENT)), ".*");
-    // NOLINTEND(hicpp-avoid-goto, cppcoreguidelines-avoid-goto, cert-err33-c, cppcoreguidelines-pro-type-vararg,
-    // hiccpp-vararg)
+    auto allocationResult = sut.allocate(0, MEMORY_ALIGNMENT);
+    ASSERT_TRUE(allocationResult.has_error());
+    EXPECT_THAT(allocationResult.get_error(), Eq(iox::BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY));
 }
 
 TEST_F(BumpAllocator_Test, allocateAfterDeallocateWorks)

@@ -34,7 +34,11 @@ BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) no
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
-    cxx::ExpectsWithMsg(size > 0, "Cannot allocate memory of size 0");
+    if (size == 0)
+    {
+        IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
+        return cxx::error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
+    }
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;

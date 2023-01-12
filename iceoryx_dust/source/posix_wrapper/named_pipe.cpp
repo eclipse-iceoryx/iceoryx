@@ -107,7 +107,15 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    m_data = static_cast<NamedPipeData*>(m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData)));
+    auto allocationResult = m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
+    if (allocationResult.has_error())
+    {
+        std::cerr << "Unable to allocate for named pipe \"" << name << "\"" << std::endl;
+        m_isInitialized = false;
+        m_errorValue = IpcChannelError::MEMORY_ALLOCATION_FAILED;
+        return;
+    }
+    m_data = static_cast<NamedPipeData*>(allocationResult.value());
 
     m_isInitialized = true;
     if (m_sharedMemory->hasOwnership())

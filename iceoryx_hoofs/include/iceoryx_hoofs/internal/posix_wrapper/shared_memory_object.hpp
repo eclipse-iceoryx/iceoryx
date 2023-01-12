@@ -40,6 +40,14 @@ enum class SharedMemoryObjectError
     INTERNAL_LOGIC_FAILURE,
 };
 
+enum class SharedMemoryAllocationError
+{
+    REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION,
+    NOT_ENOUGH_MEMORY,
+    REQUESTED_ZERO_SIZED_MEMORY
+
+};
+
 class SharedMemoryObjectBuilder;
 
 /// @brief Creates a shared memory segment and maps it into the process space.
@@ -60,10 +68,10 @@ class SharedMemoryObject
     ///        alignment
     /// @param[in] size the size of the memory inside the shared memory
     /// @param[in] alignment the alignment of the memory
-    /// @return pointer to a memory address with the requested size and alignment.
-    ///         if finalizeAllocation was called before or not enough memory is available
-    ///         allocate will call the errorHandler via cxx::Expects
-    void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    /// @return an expected containing a pointer to a memory address with the requested size and alignment on success,
+    /// an expected containing SharedMemoryAllocationError if finalizeAllocation was called before or not enough memory
+    /// is available
+    cxx::expected<void*, SharedMemoryAllocationError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief After this call the user cannot allocate memory inside the SharedMemoryObject
     ///        anymore. This ensures that memory is only allocated in the startup phase.

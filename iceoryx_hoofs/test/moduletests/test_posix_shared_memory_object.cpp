@@ -89,7 +89,9 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
-    int* test = static_cast<int*>(sut->allocate(sizeof(int), 1));
+    auto result = sut->allocate(sizeof(int), 1);
+    ASSERT_THAT(result.has_error(), Eq(false));
+    int* test = static_cast<int*>(result.value());
     ASSERT_THAT(test, Ne(nullptr));
     *test = 123;
     EXPECT_THAT(*test, Eq(123));
@@ -107,8 +109,9 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
-    void* test = sut->allocate(8, 1);
-    ASSERT_THAT(test, Ne(nullptr));
+    auto result = sut->allocate(8, 1);
+    ASSERT_THAT(result.has_error(), Eq(false));
+    ASSERT_THAT(result.value(), Ne(nullptr));
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
@@ -126,8 +129,9 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
 
     for (uint64_t i = 0; i < 8; ++i)
     {
-        void* test = sut->allocate(1, 1);
-        ASSERT_THAT(test, Ne(nullptr));
+        auto result = sut->allocate(1, 1);
+        ASSERT_THAT(result.has_error(), Eq(false));
+        ASSERT_THAT(result.value(), Ne(nullptr));
     }
 }
 
@@ -146,7 +150,9 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    PerformDeathTest([&] { sut->allocate(cxx::align(memorySize, MEMORY_ALIGNMENT) + 1, 1); });
+    auto result = sut->allocate(cxx::align(memorySize, MEMORY_ALIGNMENT) + 1, 1);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::NOT_ENOUGH_MEMORY));
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
@@ -165,11 +171,14 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 
     for (uint64_t i = 0; i < cxx::align(memorySize, MEMORY_ALIGNMENT); ++i)
     {
-        void* test = sut->allocate(1, 1);
-        ASSERT_THAT(test, Ne(nullptr));
+        auto result = sut->allocate(1, 1);
+        ASSERT_THAT(result.has_error(), Eq(false));
+        ASSERT_THAT(result.value(), Ne(nullptr));
     }
 
-    PerformDeathTest([&] { sut->allocate(1, 1); });
+    auto result = sut->allocate(1, 1);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::NOT_ENOUGH_MEMORY));
 }
 
 TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
@@ -185,7 +194,29 @@ TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
     sut->finalizeAllocation();
-    PerformDeathTest([&] { sut->allocate(2, 1); });
+
+    auto result = sut->allocate(2, 1);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(),
+                Eq(posix::SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION));
+}
+
+TEST_F(SharedMemoryObject_Test, AllocateFailsWithZeroSize)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cf7f6692-1b64-4926-8326-0628ec483231");
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(cxx::perms::owner_all)
+                   .create();
+
+    ASSERT_THAT(sut.has_error(), Eq(false));
+
+    auto result = sut->allocate(0, 1);
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::REQUESTED_ZERO_SIZED_MEMORY));
 }
 
 TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
@@ -203,9 +234,14 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
 
     ASSERT_THAT(shmMemory.has_error(), Eq(false));
 
-    int* test = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
+    auto result = shmMemory->allocate(sizeof(int), 1);
+    ASSERT_THAT(result.has_error(), Eq(false));
+    int* test = static_cast<int*>(result.value());
     *test = 4557;
-    int* test2 = static_cast<int*>(shmMemory->allocate(sizeof(int), 1));
+
+    result = shmMemory->allocate(sizeof(int), 1);
+    ASSERT_THAT(result.has_error(), Eq(false));
+    int* test2 = static_cast<int*>(result.value());
     *test2 = 8912;
 
 
@@ -217,8 +253,13 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
                    .permissions(cxx::perms::owner_all)
                    .create();
 
-    int* sutValue1 = static_cast<int*>(sut->allocate(sizeof(int), 1));
-    int* sutValue2 = static_cast<int*>(sut->allocate(sizeof(int), 1));
+    result = sut->allocate(sizeof(int), 1);
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    int* sutValue1 = static_cast<int*>(result.value());
+
+    result = sut->allocate(sizeof(int), 1);
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    int* sutValue2 = static_cast<int*>(result.value());
 
     EXPECT_THAT(*sutValue1, Eq(4557));
     EXPECT_THAT(*sutValue2, Eq(8912));

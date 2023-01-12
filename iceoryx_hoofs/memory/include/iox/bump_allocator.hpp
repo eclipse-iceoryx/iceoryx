@@ -27,7 +27,8 @@ namespace iox
 
 enum class BumpAllocatorError
 {
-    OUT_OF_MEMORY
+    OUT_OF_MEMORY,
+    REQUESTED_ZERO_SIZED_MEMORY
 };
 
 class BumpAllocator
@@ -47,8 +48,8 @@ class BumpAllocator
     /// @brief allocates on the memory supplied with the ctor
     /// @param[in] size of the memory to allocate, must be greater than 0
     /// @param[in] alignment of the memory to allocate
-    /// @return returns an expected containing a pointer to the allocated memory if memory is available, otherwise
-    /// BumpAllocatorError::OUT_OF_MEMORY
+    /// @return returns an expected containing a pointer to the memory if allocation was successful, otherwise
+    /// BumpAllocatorError
     cxx::expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief mark the memory as unused
@@ -57,7 +58,7 @@ class BumpAllocator
   private:
     cxx::byte_t* m_startAddress{nullptr};
     uint64_t m_length{0U};
-    uint64_t m_currentPosition = 0U;
+    uint64_t m_currentPosition{0U};
 };
 } // namespace iox
 
