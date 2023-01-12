@@ -34,14 +34,14 @@ namespace iox
 {
 namespace posix
 {
-cxx::string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
+string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory::Name_t& name) noexcept
 {
-    cxx::string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
-    nameWithLeadingSlash.append(cxx::TruncateToCapacity, name);
+    string<SharedMemory::Name_t::capacity() + 1> nameWithLeadingSlash = "/";
+    nameWithLeadingSlash.append(TruncateToCapacity, name);
     return nameWithLeadingSlash;
 }
 
-cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
+expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 {
     auto printError = [this] {
         IOX_LOG(ERROR) << "Unable to create shared memory with the following properties [ name = " << m_name
@@ -56,14 +56,14 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
     if (m_name.empty())
     {
         IOX_LOG(ERROR) << "No shared memory name specified!";
-        return cxx::error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
+        return error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
     }
 
     if (!cxx::isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
                        << "\" is not a valid file name";
-        return cxx::error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
+        return error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
     }
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
@@ -106,12 +106,12 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                 {
                     constexpr bool HAS_NO_OWNERSHIP = false;
                     sharedMemoryFileHandle = result->value;
-                    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
+                    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
                 }
             }
 
             printError();
-            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
         }
         sharedMemoryFileHandle = result->value;
     }
@@ -143,11 +143,11 @@ cxx::expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noe
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return cxx::error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
+            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
         }
     }
 
-    return cxx::success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
 SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
@@ -205,7 +205,7 @@ bool SharedMemory::hasOwnership() const noexcept
     return m_hasOwnership;
 }
 
-cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
+expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name) noexcept
 {
     auto nameWithLeadingSlash = addLeadingSlash(name);
 
@@ -216,10 +216,10 @@ cxx::expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t&
 
     if (!result.has_error())
     {
-        return cxx::success<bool>(result->errnum != ENOENT);
+        return success<bool>(result->errnum != ENOENT);
     }
 
-    return cxx::error<SharedMemoryError>(errnoToEnum(result.get_error().errnum));
+    return error<SharedMemoryError>(errnoToEnum(result.get_error().errnum));
 }
 
 bool SharedMemory::unlink() noexcept

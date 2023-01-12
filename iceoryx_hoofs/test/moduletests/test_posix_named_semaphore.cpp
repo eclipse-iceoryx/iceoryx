@@ -23,6 +23,7 @@ namespace
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
+using namespace iox;
 
 class NamedSemaphoreTest : public Test
 {
@@ -82,7 +83,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreDoesNotOverrideInitialValue)
                      .has_error());
 
     {
-        iox::cxx::optional<NamedSemaphore> sut2;
+        iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
                          .openMode(OpenMode::OPEN_EXISTING)
@@ -107,7 +108,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
                      .has_error());
 
     {
-        iox::cxx::optional<NamedSemaphore> sut2;
+        iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
         EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
         ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
@@ -115,7 +116,7 @@ TEST_F(NamedSemaphoreTest, OpenExistingSemaphoreWorksWithoutDestroyingItInTheDto
 
     // if the dtor of sut2 unlinks the semaphore we should be unable to open it again
     {
-        iox::cxx::optional<NamedSemaphore> sut2;
+        iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
         EXPECT_TRUE(setSemaphoreToZeroAndVerifyValue(*sut2, INITIAL_VALUE));
         ASSERT_TRUE(setSemaphoreValueTo(*sut2, INITIAL_VALUE));
@@ -147,7 +148,7 @@ TEST_F(NamedSemaphoreTest, ExclusiveCreateFailsWhenSemaphoreAlreadyExists)
                      .create(sut)
                      .has_error());
 
-    iox::cxx::optional<NamedSemaphore> sut2;
+    iox::optional<NamedSemaphore> sut2;
     auto result = NamedSemaphoreBuilder()
                       .name(sutName)
                       .openMode(OpenMode::EXCLUSIVE_CREATE)
@@ -182,7 +183,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
                      .has_error());
 
     {
-        iox::cxx::optional<NamedSemaphore> sut2;
+        iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
                          .initialValue(0U)
@@ -196,7 +197,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingIt
 
     // if the dtor of sut2 unlinks the semaphore we should be unable to open it again
     {
-        iox::cxx::optional<NamedSemaphore> sut2;
+        iox::optional<NamedSemaphore> sut2;
         ASSERT_FALSE(NamedSemaphoreBuilder()
                          .name(sutName)
                          .initialValue(0U)
@@ -244,7 +245,7 @@ TEST_F(NamedSemaphoreTest, WhenOwningSemaphoreIsClosedBeforeOpenedSemaphoreTheOp
                      .create(sut)
                      .has_error());
 
-    iox::cxx::optional<NamedSemaphore> sut2;
+    iox::optional<NamedSemaphore> sut2;
     ASSERT_FALSE(NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).create(sut2).has_error());
 
     sut.reset();
@@ -268,7 +269,7 @@ TEST_F(NamedSemaphoreTest, PurgeAndCreateCreatesNewSemaphore)
                      .create(sut)
                      .has_error());
 
-    iox::cxx::optional<NamedSemaphore> sut2;
+    iox::optional<NamedSemaphore> sut2;
     constexpr uint32_t INITIAL_VALUE = 97U;
     ASSERT_FALSE(NamedSemaphoreBuilder()
                      .name(sutName)

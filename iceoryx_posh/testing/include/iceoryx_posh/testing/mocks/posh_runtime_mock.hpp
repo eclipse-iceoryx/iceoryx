@@ -89,11 +89,11 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
 
   private:
     PoshRuntimeMock(const iox::RuntimeName_t& name)
-        : iox::runtime::PoshRuntime(iox::cxx::optional<const iox::RuntimeName_t*>({&name}))
+        : iox::runtime::PoshRuntime(iox::optional<const iox::RuntimeName_t*>({&name}))
     {
     }
 
-    static PoshRuntime& mockRuntimeFactory(iox::cxx::optional<const iox::RuntimeName_t*> name) noexcept
+    static PoshRuntime& mockRuntimeFactory(iox::optional<const iox::RuntimeName_t*> name) noexcept
     {
         auto& runtime = mockRuntime();
         iox::cxx::Expects(!name.has_value() && "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
@@ -102,9 +102,9 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         return *runtime.value();
     }
 
-    static iox::cxx::optional<PoshRuntimeMock*>& mockRuntime()
+    static iox::optional<PoshRuntimeMock*>& mockRuntime()
     {
-        static iox::cxx::optional<PoshRuntimeMock*> runtime = iox::cxx::nullopt;
+        static iox::optional<PoshRuntimeMock*> runtime = iox::nullopt;
         return runtime;
     }
 };

@@ -93,7 +93,7 @@ using RequestConsumerType = Request<const DummyData>;
 class MockRequestInterface : public RpcInterface<RequestProducerType, ClientSendError>
 {
   public:
-    iox::cxx::expected<ClientSendError> send(RequestProducerType&& request) noexcept override
+    iox::expected<ClientSendError> send(RequestProducerType&& request) noexcept override
     {
         auto req = std::move(request); // this step is necessary since the mock method doesn't execute the move
         return mockSend(std::move(req));
@@ -103,7 +103,7 @@ class MockRequestInterface : public RpcInterface<RequestProducerType, ClientSend
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
-    MOCK_METHOD(iox::cxx::expected<ClientSendError>, mockSend, (RequestProducerType &&), (noexcept));
+    MOCK_METHOD(iox::expected<ClientSendError>, mockSend, (RequestProducerType &&), (noexcept));
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif
@@ -138,7 +138,7 @@ using ResponseConsumerType = Response<const DummyData>;
 class MockResponseInterface : public RpcInterface<ResponseProducerType, ServerSendError>
 {
   public:
-    iox::cxx::expected<ServerSendError> send(ResponseProducerType&& response) noexcept override
+    iox::expected<ServerSendError> send(ResponseProducerType&& response) noexcept override
     {
         auto res = std::move(response); // this step is necessary since the mock method doesn't execute the move
         return mockSend(std::move(res));
@@ -148,7 +148,7 @@ class MockResponseInterface : public RpcInterface<ResponseProducerType, ServerSe
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
-    MOCK_METHOD(iox::cxx::expected<ServerSendError>, mockSend, (ResponseProducerType &&), (noexcept));
+    MOCK_METHOD(iox::expected<ServerSendError>, mockSend, (ResponseProducerType &&), (noexcept));
 #ifdef __clang__
 #pragma GCC diagnostic pop
 #endif

@@ -179,23 +179,22 @@ bool ResizeableLockFreeQueue<ElementType, MaxCapacity>::tryGetUsedIndex(BufferIn
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-iox::cxx::optional<ElementType>
-ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(const ElementType& value) noexcept
+iox::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
+iox::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t MaxCapacity>
 template <typename T>
-iox::cxx::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::pushImpl(T&& value) noexcept
+iox::optional<ElementType> ResizeableLockFreeQueue<ElementType, MaxCapacity>::pushImpl(T&& value) noexcept
 {
-    cxx::optional<ElementType> evictedValue;
+    optional<ElementType> evictedValue;
 
     BufferIndex index{0};
 

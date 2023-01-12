@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 #define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iox/string.hpp"
 
 #include <thread>
 
@@ -125,7 +125,7 @@ class PeriodicTask
     T m_callable;
     posix::ThreadName_t m_taskName;
     units::Duration m_interval{units::Duration::fromMilliseconds(0U)};
-    cxx::optional<posix::UnnamedSemaphore> m_stop;
+    optional<posix::UnnamedSemaphore> m_stop;
     std::thread m_taskExecutor;
 };
 

@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_SETTINGS_HPP
 #define IOX_POSH_MEPOO_CHUNK_SETTINGS_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
 
 #include <cstdint>
 
@@ -43,7 +43,7 @@ class ChunkSettings
     /// @param[in] userPayloadAlignment is the alignment of the user-payload
     /// @param[in] userHeaderSize is the size of the user-header
     /// @param[in] userHeaderAlignment is the alignment for the user-header
-    static cxx::expected<ChunkSettings, ChunkSettings::Error>
+    static expected<ChunkSettings, ChunkSettings::Error>
     create(const uint32_t userPayloadSize,
            const uint32_t userPayloadAlignment = iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
            const uint32_t userHeaderSize = iox::CHUNK_NO_USER_HEADER_SIZE,

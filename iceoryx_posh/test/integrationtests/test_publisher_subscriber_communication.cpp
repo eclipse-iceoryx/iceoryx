@@ -17,10 +17,7 @@
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
 #include "iceoryx_hoofs/cxx/list.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/stack.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
-#include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
@@ -28,6 +25,9 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
+#include "iox/variant.hpp"
 
 #include "test.hpp"
 
@@ -341,9 +341,9 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_lis
                          EXPECT_THAT(sample->someNumber, Eq(123));
                          ASSERT_THAT(sample->complexType.size(), Eq(2U));
                          auto begin = sample->complexType.begin();
-                         EXPECT_THAT(*begin, Eq(cxx::string<5>("hello")));
+                         EXPECT_THAT(*begin, Eq(string<5>("hello")));
                          ++begin;
-                         EXPECT_THAT(*begin, Eq(cxx::string<5>("world")));
+                         EXPECT_THAT(*begin, Eq(string<5>("world")));
                      })
                      .has_error());
 }
@@ -405,11 +405,11 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
                          EXPECT_THAT(sample->someNumber, Eq(41231));
                          ASSERT_THAT(sample->complexType.size(), Eq(3U));
                          auto begin = sample->complexType.begin();
-                         EXPECT_THAT(*begin, Eq(cxx::optional<int32_t>(155)));
+                         EXPECT_THAT(*begin, Eq(optional<int32_t>(155)));
                          ++begin;
                          EXPECT_THAT(*begin, Eq(nullopt));
                          ++begin;
-                         EXPECT_THAT(*begin, Eq(cxx::optional<int32_t>(177)));
+                         EXPECT_THAT(*begin, Eq(optional<int32_t>(177)));
                      })
                      .has_error());
 }
@@ -682,7 +682,7 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     // verify blocking subscriber
     auto sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
-    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
+    EXPECT_THAT(**sample, Eq(string<128>("hypnotoads real name is Salsabarh Slimekirkdingle")));
     t1.join(); // join needs to be before the load to ensure the wasSampleDelivered store happens before the
                // read
     EXPECT_TRUE(wasSampleDelivered.load());
@@ -690,22 +690,22 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     EXPECT_FALSE(subscriberBlocking->hasMissedData()); // we don't loose samples here
     sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
-    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad wants a cookie")));
+    EXPECT_THAT(**sample, Eq(string<128>("hypnotoad wants a cookie")));
 
     sample = subscriberBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
-    EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
+    EXPECT_THAT(**sample, Eq(string<128>("chucky is the only one who can ride the hypnotoad")));
     EXPECT_THAT(subscriberBlocking->take().has_error(), Eq(true));
 
     // verify non blocking subscriber
     EXPECT_TRUE(subscriberNonBlocking->hasMissedData()); // we do loose samples here
     sample = subscriberNonBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
-    EXPECT_THAT(**sample, Eq(cxx::string<128>("hypnotoad has a sister named hypnoodle")));
+    EXPECT_THAT(**sample, Eq(string<128>("hypnotoad has a sister named hypnoodle")));
 
     sample = subscriberNonBlocking->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
-    EXPECT_THAT(**sample, Eq(cxx::string<128>("chucky is the only one who can ride the hypnotoad")));
+    EXPECT_THAT(**sample, Eq(string<128>("chucky is the only one who can ride the hypnotoad")));
     EXPECT_THAT(subscriberNonBlocking->take().has_error(), Eq(true));
 }
 

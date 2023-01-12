@@ -59,9 +59,9 @@ class ServiceDiscovery
     /// @param[in] event event string to search for, a nullopt corresponds to a wildcard
     /// @param[in] callableForEach callable to apply to all matching services
     /// @param[in] pattern messaging pattern of the service to search
-    void findService(const cxx::optional<capro::IdString_t>& service,
-                     const cxx::optional<capro::IdString_t>& instance,
-                     const cxx::optional<capro::IdString_t>& event,
+    void findService(const optional<capro::IdString_t>& service,
+                     const optional<capro::IdString_t>& instance,
+                     const optional<capro::IdString_t>& event,
                      const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
                      const popo::MessagingPattern pattern) noexcept;
 

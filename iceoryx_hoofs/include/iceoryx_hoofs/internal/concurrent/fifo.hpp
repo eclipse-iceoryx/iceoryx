@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CONCURRENT_FIFO_HPP
 #define IOX_HOOFS_CONCURRENT_FIFO_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <atomic>
@@ -39,7 +39,7 @@ class FiFo
     /// @brief returns the oldest value from the fifo and removes it
     /// @return if the fifo was not empty the optional contains the value,
     ///         otherwise it contains a nullopt
-    cxx::optional<ValueType> pop() noexcept;
+    optional<ValueType> pop() noexcept;
 
     /// @brief returns true when the fifo is empty, otherwise false
     bool empty() const noexcept;

@@ -150,7 +150,7 @@ ServiceDescription::operator cxx::Serialization() const noexcept
                                       interface);
 }
 
-cxx::expected<ServiceDescription, cxx::Serialization::Error>
+expected<ServiceDescription, cxx::Serialization::Error>
 ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
 {
     ServiceDescription deserializedObject;
@@ -173,13 +173,13 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
         || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
     {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     deserializedObject.m_scope = static_cast<Scope>(scope);
     deserializedObject.m_interfaceSource = static_cast<Interfaces>(interfaceSource);
 
-    return cxx::success<ServiceDescription>(deserializedObject);
+    return success<ServiceDescription>(deserializedObject);
 }
 
 const IdString_t& ServiceDescription::getServiceIDString() const noexcept

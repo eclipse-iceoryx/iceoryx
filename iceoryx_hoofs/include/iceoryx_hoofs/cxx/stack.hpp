@@ -17,7 +17,7 @@
 #define IOX_HOOFS_CXX_STACK_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
@@ -44,8 +44,8 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     ~stack() noexcept;
 
     /// @brief returns the last pushed element when the stack contains elements
-    ///         otherwise a cxx::nullopt
-    cxx::optional<T> pop() noexcept;
+    ///         otherwise a nullopt
+    optional<T> pop() noexcept;
 
     /// @brief pushed an element into the stack by forwarding all arguments
     ///        to the constructor of T

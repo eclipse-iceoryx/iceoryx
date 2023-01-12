@@ -27,7 +27,7 @@ SubscriberPortMultiProducer::SubscriberPortMultiProducer(
 {
 }
 
-cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessage() noexcept
+optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessage() noexcept
 {
     // get subscribe request from user side
     const auto currentSubscribeRequest = getMembers()->m_subscribeRequested.load(std::memory_order_relaxed);
@@ -42,7 +42,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessa
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if (!currentSubscribeRequest && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
     {
@@ -51,16 +51,16 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::tryGetCaProMessa
         capro::CaproMessage caproMessage(capro::CaproMessageType::UNSUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else
     {
         // nothing to change
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 
-cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMessageAndGetPossibleResponse(
+optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMessageAndGetPossibleResponse(
     const capro::CaproMessage& caProMessage) noexcept
 {
     const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
@@ -72,26 +72,26 @@ cxx::optional<capro::CaproMessage> SubscriberPortMultiProducer::dispatchCaProMes
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if ((capro::CaproMessageType::OFFER == caProMessage.m_type)
              && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
     {
         // No state change
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else if ((capro::CaproMessageType::ACK == caProMessage.m_type)
              || (capro::CaproMessageType::NACK == caProMessage.m_type)
              || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))
     {
         // we ignore all these messages for multi-producer
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else
     {
         // but others should not be received here
         errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 

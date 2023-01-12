@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/optional.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -99,8 +99,8 @@ class CounterService
     //! [members]
     iox::popo::Subscriber<CounterTopic> m_subscriberLeft;
     iox::popo::Subscriber<CounterTopic> m_subscriberRight;
-    iox::cxx::optional<CounterTopic> m_leftCache;
-    iox::cxx::optional<CounterTopic> m_rightCache;
+    iox::optional<CounterTopic> m_leftCache;
+    iox::optional<CounterTopic> m_rightCache;
     iox::popo::Listener m_listener;
     //! [members]
 };

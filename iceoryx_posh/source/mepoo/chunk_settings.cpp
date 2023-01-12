@@ -35,10 +35,10 @@ ChunkSettings::ChunkSettings(const uint32_t userPayloadSize,
 {
 }
 
-cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t userPayloadSize,
-                                                                         const uint32_t userPayloadAlignment,
-                                                                         const uint32_t userHeaderSize,
-                                                                         const uint32_t userHeaderAlignment) noexcept
+expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32_t userPayloadSize,
+                                                                    const uint32_t userPayloadAlignment,
+                                                                    const uint32_t userHeaderSize,
+                                                                    const uint32_t userHeaderAlignment) noexcept
 {
     // since alignas accepts 0, we also do but we adjust it to 1 in case there are some division or modulo operations
     // with the alignment later on
@@ -47,20 +47,19 @@ cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const u
 
     if (!cxx::isPowerOfTwo(adjustedUserPayloadAlignment) || !cxx::isPowerOfTwo(adjustedUserHeaderAlignment))
     {
-        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
+        return error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
     }
 
     if (adjustedUserHeaderAlignment > alignof(ChunkHeader))
     {
         // for ease of calculation, the alignment of the user-header is restricted to not exceed the alignment of the
         // ChunkHeader
-        return cxx::error<ChunkSettings::Error>(
-            ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
+        return error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
     }
 
     if (userHeaderSize % adjustedUserHeaderAlignment != 0U)
     {
-        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
+        return error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
     uint64_t requiredChunkSize =
@@ -68,14 +67,14 @@ cxx::expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const u
 
     if (requiredChunkSize > std::numeric_limits<uint32_t>::max())
     {
-        return cxx::error<ChunkSettings::Error>(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
+        return error<ChunkSettings::Error>(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
     }
 
-    return cxx::success<ChunkSettings>(ChunkSettings{userPayloadSize,
-                                                     adjustedUserPayloadAlignment,
-                                                     userHeaderSize,
-                                                     adjustedUserHeaderAlignment,
-                                                     static_cast<uint32_t>(requiredChunkSize)});
+    return success<ChunkSettings>(ChunkSettings{userPayloadSize,
+                                                adjustedUserPayloadAlignment,
+                                                userHeaderSize,
+                                                adjustedUserHeaderAlignment,
+                                                static_cast<uint32_t>(requiredChunkSize)});
 }
 uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSize,
                                                    const uint32_t userPayloadAlignment,

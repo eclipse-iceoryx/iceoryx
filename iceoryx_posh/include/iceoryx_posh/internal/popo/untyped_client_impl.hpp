@@ -48,7 +48,7 @@ class UntypedClientImpl : public BaseClientT
     /// @return A pointer to the payload of a chunk of memory with the requested size or
     ///         an AllocationError if no chunk could be loaned.
     /// @note An AllocationError occurs if no chunk is available in the shared memory.
-    cxx::expected<void*, AllocationError> loan(const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept;
+    expected<void*, AllocationError> loan(const uint32_t payloadSize, const uint32_t payloadAlignment) noexcept;
 
     /// @brief Releases the ownership of the request chunk provided by the payload pointer.
     /// @param requestPayload pointer to the payload of the chunk to be released
@@ -60,13 +60,13 @@ class UntypedClientImpl : public BaseClientT
     /// @brief Sends the provided memory chunk as request to the server.
     /// @param requestPayload Pointer to the payload of the allocated shared memory chunk.
     /// @return Error if sending was not successful
-    cxx::expected<ClientSendError> send(void* const requestPayload) noexcept;
+    expected<ClientSendError> send(void* const requestPayload) noexcept;
 
     /// @brief Take the response chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.
     /// @details No automatic cleanup of the associated chunk is performed
     ///          and must be manually done by calling `releaseResponse`
-    cxx::expected<const void*, ChunkReceiveResult> take() noexcept;
+    expected<const void*, ChunkReceiveResult> take() noexcept;
 
     /// @brief Releases the ownership of the response chunk provided by the payload pointer.
     /// @param responsePayload pointer to the payload of the chunk to be released

@@ -14,16 +14,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_INL
-#define IOX_HOOFS_CXX_STRING_INL
+#ifndef IOX_HOOFS_VOCABULARY_STRING_INL
+#define IOX_HOOFS_VOCABULARY_STRING_INL
 
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
-namespace cxx
-{
-
 template <uint64_t Capacity>
 inline string<Capacity>::string(const string& other) noexcept
 {
@@ -179,7 +176,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
 
     if (rhs[m_rawstringSize] != '\0')
     {
-        std::cerr << "iox::cxx::string: Assignment of array which is not zero-terminated! Last value of array "
+        std::cerr << "iox::string: Assignment of array which is not zero-terminated! Last value of array "
                      "overwritten with 0!"
                   << std::endl;
     }
@@ -583,7 +580,7 @@ inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 template <uint64_t Capacity>
 inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
 {
-    ExpectsWithMsg((pos < size()), "Out of bounds access!");
+    cxx::ExpectsWithMsg((pos < size()), "Out of bounds access!");
     return m_rawstring[pos];
 }
 
@@ -673,7 +670,6 @@ inline IsStringOrCharArrayOrChar<T, bool> operator>=(const string<Capacity>& lhs
     return (lhs.compare(rhs) >= 0);
 }
 // AXIVION ENABLE Style AutosarC++19_03-A13.5.5
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_STRING_INL
+#endif // IOX_HOOFS_VOCABULARY_STRING_INL

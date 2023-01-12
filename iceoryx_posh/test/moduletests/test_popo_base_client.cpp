@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/popo/base_client.hpp"
 #include "iceoryx_posh/internal/popo/client_impl.hpp"
 #include "iceoryx_posh/internal/popo/untyped_client_impl.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
+#include "iox/optional.hpp"
 #include "mocks/client_mock.hpp"
 #include "mocks/trigger_handle_mock.hpp"
 

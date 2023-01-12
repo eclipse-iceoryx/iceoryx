@@ -17,9 +17,7 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
@@ -27,6 +25,8 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -100,11 +100,11 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// to omit a user-header
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const UniquePortId originId,
-                                                                    const uint32_t userPayloadSize,
-                                                                    const uint32_t userPayloadAlignment,
-                                                                    const uint32_t userHeaderSize,
-                                                                    const uint32_t userHeaderAlignment) noexcept;
+    expected<mepoo::ChunkHeader*, AllocationError> tryAllocate(const UniquePortId originId,
+                                                               const uint32_t userPayloadSize,
+                                                               const uint32_t userPayloadAlignment,
+                                                               const uint32_t userHeaderSize,
+                                                               const uint32_t userHeaderAlignment) noexcept;
 
     /// @brief Release an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -133,7 +133,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
+    optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
 
     /// @brief Release all the chunks that are currently held. Caution: Only call this if the user process is no more
     /// running E.g. This cleans up chunks that were held by a user process that died unexpectetly, for avoiding lost

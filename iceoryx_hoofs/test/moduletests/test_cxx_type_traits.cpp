@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 
@@ -174,8 +174,8 @@ TEST(TypeTraitsTest, IsFunctionPointerResolvesToFalse)
 TEST(TypeTraitsTest, TypeInfo_StringTypeTranslatesCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e20e6698-3c0c-4b28-a8bb-f5c5dd05a107");
-    EXPECT_THAT(TypeInfo<iox::cxx::string<1>>::NAME, StrEq("string"));
-    EXPECT_THAT(TypeInfo<iox::cxx::string<123>>::NAME, StrEq("string"));
+    EXPECT_THAT(TypeInfo<iox::string<1>>::NAME, StrEq("string"));
+    EXPECT_THAT(TypeInfo<iox::string<123>>::NAME, StrEq("string"));
 }
 
 TEST(TypeTraitsTest, TypeInfo_int8_tTranslatesCorrectly)
@@ -264,7 +264,7 @@ TEST(TypeTraitsTest, NonCharArraysAreIdentifiedCorrectly)
     /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     EXPECT_FALSE(is_char_array<int[10]>::value);
-    EXPECT_FALSE(is_char_array<iox::cxx::string<11>>::value);
+    EXPECT_FALSE(is_char_array<iox::string<11>>::value);
     EXPECT_FALSE(is_char_array<char>::value);
 }
 
@@ -277,26 +277,5 @@ TEST(TypeTraitsTest, CharArraysAreIdentifiedCorrectly)
     EXPECT_TRUE(is_char_array<char[1]>::value);
     EXPECT_TRUE(is_char_array<char[10]>::value);
     /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-}
-
-TEST(TypeTraitsTest, NonCxxStringsAreIdentifiedCorrectly)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
-
-    EXPECT_FALSE(is_cxx_string<int>::value);
-    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
-    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<int[10]>::value);
-    EXPECT_FALSE(is_cxx_string<char[11]>::value);
-    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<char>::value);
-}
-
-TEST(TypeTraitsTest, CxxStringsAreIdentifiedCorrectly)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
-
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<1>>::value);
-    EXPECT_TRUE(is_cxx_string<iox::cxx::string<10>>::value);
 }
 } // namespace

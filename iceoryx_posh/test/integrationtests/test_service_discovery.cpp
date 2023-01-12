@@ -38,6 +38,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox;
 using namespace iox::runtime;
 using namespace iox::cxx;
 using namespace iox::popo;

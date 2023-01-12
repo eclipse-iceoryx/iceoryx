@@ -37,7 +37,7 @@ class InterfacePort : public BasePort
 
     /// @brief get an optional CaPro message for the interface port to process
     /// @return CaPro message, empty optional if no new messages
-    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
+    optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message to this interface port
     /// @param[in] caProMessage

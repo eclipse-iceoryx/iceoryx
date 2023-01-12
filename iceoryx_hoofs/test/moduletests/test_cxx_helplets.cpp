@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 #include <array>
@@ -60,6 +60,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox;
 using namespace iox::cxx::internal;
 
 namespace
@@ -346,7 +347,7 @@ TEST(Helplets_test_isValidFileName, ValidLetterCombinationsAreValid)
             auto& s = combinations[index];
             s.append(1, static_cast<char>(i));
 
-            EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(TruncateToCapacity, s)));
+            EXPECT_TRUE(isValidFileName(string<FILE_PATH_LENGTH>(iox::TruncateToCapacity, s)));
         }
     }
 }
@@ -375,9 +376,9 @@ TEST(Helplets_test_isValidFileName, WhenOneInvalidCharacterIsContainedFileNameIs
         std::string invalidCharacterEnd = validName1 + validName2;
         invalidCharacterEnd.append(1, static_cast<char>(i));
 
-        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(TruncateToCapacity, invalidCharacterFront);
-        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(TruncateToCapacity, invalidCharacterMiddle);
-        string<FILE_PATH_LENGTH> invalidCharacterEndTest(TruncateToCapacity, invalidCharacterEnd);
+        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(iox::TruncateToCapacity, invalidCharacterFront);
+        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(iox::TruncateToCapacity, invalidCharacterMiddle);
+        string<FILE_PATH_LENGTH> invalidCharacterEndTest(iox::TruncateToCapacity, invalidCharacterEnd);
 
         EXPECT_FALSE(isValidFileName(invalidCharacterFrontTest));
         EXPECT_FALSE(isValidFileName(invalidCharacterMiddleTest));
@@ -530,9 +531,9 @@ TEST(Helplets_test_isValidPathToFile_isValidPathToDirectory_isValidPathEntry,
         invalidCharacterEnd.resize(invalidCharacterEnd.size() + 1);
         invalidCharacterEnd[invalidCharacterEnd.size() - 1] = static_cast<char>(i);
 
-        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(TruncateToCapacity, invalidCharacterFront);
-        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(TruncateToCapacity, invalidCharacterMiddle);
-        string<FILE_PATH_LENGTH> invalidCharacterEndTest(TruncateToCapacity, invalidCharacterEnd);
+        string<FILE_PATH_LENGTH> invalidCharacterFrontTest(iox::TruncateToCapacity, invalidCharacterFront);
+        string<FILE_PATH_LENGTH> invalidCharacterMiddleTest(iox::TruncateToCapacity, invalidCharacterMiddle);
+        string<FILE_PATH_LENGTH> invalidCharacterEndTest(iox::TruncateToCapacity, invalidCharacterEnd);
 
         EXPECT_FALSE(isValidPathToFile(invalidCharacterFrontTest));
         EXPECT_FALSE(isValidPathToFile(invalidCharacterMiddleTest));

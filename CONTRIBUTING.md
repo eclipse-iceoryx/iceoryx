@@ -113,7 +113,7 @@ codebase follows these rules, things are work in progress.
     [section](CONTRIBUTING.md#external-dependencies) below
 7) **Always use `iox::log::Logger`**, instead of `printf()`
 8) **Always use `iox::ErrorHandler` or `iox::cxx::Expects`/`iox::cxx::Ensures`**, when an error occurs that cannot or
-    shall not be propagated via an `iox::cxx::expected`
+    shall not be propagated via an `iox::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 
 See [error-handling.md](./doc/design/error-handling.md) for additional
@@ -130,9 +130,9 @@ For formatting and linting rules on Bazel files see the [installation guide for 
 * Class members start with `m_`: `m_myMember`
   * Public members of structs and classes do not have the `m_` prefix
 * Namespaces in `lower_snake_case` : `my_namespace`
-* Aliases have a `_t` postfix : `using FooString_t = iox::cxx::string<100>;`
-* Objects created from a method returning a `cxx::optional<Foo>` shall be named `maybeFoo`
-* Objects created from a method returning a `cxx::expected<Foo, FooError>` shall
+* Aliases have a `_t` postfix : `using FooString_t = iox::string<100>;`
+* Objects created from a method returning a `iox::optional<Foo>` shall be named `maybeFoo`
+* Objects created from a method returning a `iox::expected<Foo, FooError>` shall
 contain the name `result` e.g. `getChunkResult` for the method `getChunk()`
 
 ### clang-tidy suppressions

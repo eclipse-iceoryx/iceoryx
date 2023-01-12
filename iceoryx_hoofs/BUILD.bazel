@@ -31,9 +31,10 @@ cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
         "source/**/*.cpp",
+        "vocabulary/source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [
@@ -41,6 +42,7 @@ cc_library(
         "include/",
         "legacy/include/",
         "memory/include/",
+        "vocabulary/include/",
     ],
     linkopts = select({
         "//iceoryx_platform:linux-clang": [

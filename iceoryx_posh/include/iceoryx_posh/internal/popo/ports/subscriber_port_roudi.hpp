@@ -18,11 +18,11 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_ROUDI_HPP_
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -51,12 +51,12 @@ class SubscriberPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that requests changes to the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
-    virtual cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept = 0;
+    virtual optional<capro::CaproMessage> tryGetCaProMessage() noexcept = 0;
 
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    virtual cxx::optional<capro::CaproMessage>
+    virtual optional<capro::CaproMessage>
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept = 0;
 
     /// @brief cleanup the subscriber and release all the chunks it currently holds

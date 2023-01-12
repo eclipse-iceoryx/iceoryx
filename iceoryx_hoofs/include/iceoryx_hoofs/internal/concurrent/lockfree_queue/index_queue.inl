@@ -280,36 +280,36 @@ bool IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t minSize,
 }
 
 template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
+optional<ValueType> IndexQueue<Capacity, ValueType>::pop() noexcept
 {
     ValueType value;
     if (pop(value))
     {
         return value;
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
+optional<ValueType> IndexQueue<Capacity, ValueType>::popIfFull() noexcept
 {
     ValueType value;
     if (popIfFull(value))
     {
         return value;
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <uint64_t Capacity, typename ValueType>
-cxx::optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
+optional<ValueType> IndexQueue<Capacity, ValueType>::popIfSizeIsAtLeast(const uint64_t size) noexcept
 {
     ValueType value;
     if (popIfSizeIsAtLeast(size, value))
     {
         return value;
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <uint64_t Capacity, typename ValueType>

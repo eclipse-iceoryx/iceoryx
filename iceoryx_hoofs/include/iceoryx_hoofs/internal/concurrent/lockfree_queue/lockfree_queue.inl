@@ -19,7 +19,7 @@
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_LOCKFREE_QUEUE_INL
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <utility>
 
@@ -76,9 +76,9 @@ bool LockFreeQueue<ElementType, Capacity>::tryPush(ElementType&& value) noexcept
 
 template <typename ElementType, uint64_t Capacity>
 template <typename T>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
+iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& value) noexcept
 {
-    cxx::optional<ElementType> evictedValue;
+    optional<ElementType> evictedValue;
 
     uint64_t index{0};
 
@@ -113,25 +113,25 @@ iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
+iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(const ElementType& value) noexcept
 {
     return pushImpl(std::forward<const ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
+iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::push(ElementType&& value) noexcept
 {
     return pushImpl(std::forward<ElementType>(value));
 }
 
 template <typename ElementType, uint64_t Capacity>
-iox::cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
+iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pop() noexcept
 {
     uint64_t index{0};
 
     if (!m_usedIndices.pop(index))
     {
-        return cxx::nullopt; // detected empty queue
+        return nullopt; // detected empty queue
     }
 
     auto result = readBufferAt(index);
@@ -154,13 +154,13 @@ uint64_t LockFreeQueue<ElementType, Capacity>::size() const noexcept
 }
 
 template <typename ElementType, uint64_t Capacity>
-cxx::optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
+optional<ElementType> LockFreeQueue<ElementType, Capacity>::readBufferAt(const uint64_t& index) noexcept
 {
     // also used for buffer synchronization
     m_size.fetch_sub(1U, std::memory_order_acquire);
 
     auto& element = m_buffer[index];
-    cxx::optional<ElementType> result(std::move(element));
+    optional<ElementType> result(std::move(element));
     element.~ElementType();
     return result;
 }

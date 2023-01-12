@@ -35,16 +35,15 @@ inline PublisherImpl<T, H, BasePublisherType>::PublisherImpl(const capro::Servic
 
 template <typename T, typename H, typename BasePublisherType>
 template <typename... Args>
-inline cxx::expected<Sample<T, H>, AllocationError>
-PublisherImpl<T, H, BasePublisherType>::loan(Args&&... args) noexcept
+inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loan(Args&&... args) noexcept
 {
     return std::move(loanSample().and_then([&](auto& sample) { new (sample.get()) T(std::forward<Args>(args)...); }));
 }
 
 template <typename T, typename H, typename BasePublisherType>
 template <typename Callable, typename... ArgTypes>
-inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c,
-                                                                                              ArgTypes... args) noexcept
+inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c,
+                                                                                         ArgTypes... args) noexcept
 {
     static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
@@ -59,7 +58,7 @@ inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::pu
 }
 
 template <typename T, typename H, typename BasePublisherType>
-inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
+inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
         *sample.get() = val; // Copy assignment of value into sample's memory allocation.
@@ -68,18 +67,18 @@ inline cxx::expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::pu
 }
 
 template <typename T, typename H, typename BasePublisherType>
-inline cxx::expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loanSample() noexcept
+inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisherType>::loanSample() noexcept
 {
     static constexpr uint32_t USER_HEADER_SIZE{std::is_same<H, mepoo::NoUserHeader>::value ? 0U : sizeof(H)};
 
     auto result = port().tryAllocateChunk(sizeof(T), alignof(T), USER_HEADER_SIZE, alignof(H));
     if (result.has_error())
     {
-        return cxx::error<AllocationError>(result.get_error());
+        return error<AllocationError>(result.get_error());
     }
     else
     {
-        return cxx::success<Sample<T, H>>(convertChunkHeaderToSample(result.value()));
+        return success<Sample<T, H>>(convertChunkHeaderToSample(result.value()));
     }
 }
 

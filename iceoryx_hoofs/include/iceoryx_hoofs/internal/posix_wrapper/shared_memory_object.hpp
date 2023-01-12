@@ -18,12 +18,12 @@
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -126,13 +126,13 @@ class SharedMemoryObjectBuilder
     ///        memory to the provided address. Since it is a hint, this mapping can
     ///        fail. The .getBaseAddress() method of the SharedMemoryObject returns
     ///        the actual mapped base address.
-    IOX_BUILDER_PARAMETER(cxx::optional<const void*>, baseAddressHint, cxx::nullopt)
+    IOX_BUILDER_PARAMETER(optional<const void*>, baseAddressHint, nullopt)
 
     /// @brief Defines the access permissions of the shared memory
     IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
 
   public:
-    cxx::expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
+    expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
 };
 } // namespace posix
 } // namespace iox

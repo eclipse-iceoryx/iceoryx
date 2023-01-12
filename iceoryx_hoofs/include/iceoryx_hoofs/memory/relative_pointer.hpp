@@ -135,8 +135,8 @@ class RelativePointer final
     /// @brief Tries to registers a memory segment at ptr with size to a new id
     /// @param[in] ptr Starting address of the segment to be registered
     /// @param[in] size Is the size of the segment, defaults to size 0 if argument is not provided
-    /// @return segment_id to which the pointer was registered, wrapped in an cxx::optional
-    static cxx::optional<segment_id_underlying_t> registerPtr(ptr_t const ptr, const uint64_t size = 0U) noexcept;
+    /// @return segment_id to which the pointer was registered, wrapped in an optional
+    static optional<segment_id_underlying_t> registerPtr(ptr_t const ptr, const uint64_t size = 0U) noexcept;
 
     /// @brief Tries to register a memory segment with a given size starting at ptr to a given id
     /// @param[in] id Is the id of the segment

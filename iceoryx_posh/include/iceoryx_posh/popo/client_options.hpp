@@ -52,7 +52,7 @@ struct ClientOptions
     /// @brief serialization of the ClientOptions
     cxx::Serialization serialize() const noexcept;
     /// @brief deserialization of the ClientOptions
-    static cxx::expected<ClientOptions, cxx::Serialization::Error>
+    static expected<ClientOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
 
     /// @brief comparison operator

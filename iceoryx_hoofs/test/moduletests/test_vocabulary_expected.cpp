@@ -15,12 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
 using namespace ::iox::cxx;
+using namespace ::iox;
 
 namespace
 {

@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MOCKS_SERVER_MOCK_HPP
 #define IOX_POSH_MOCKS_SERVER_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/internal/popo/base_server.hpp"
+#include "iox/expected.hpp"
 #include "mocks/base_port_mock.hpp"
 
 #include "test.hpp"
@@ -50,7 +50,7 @@ class MockServerPortUser : public MockBasePort
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
 #endif
-    MOCK_METHOD((iox::cxx::expected<const iox::popo::RequestHeader*, iox::popo::ServerRequestResult>),
+    MOCK_METHOD((iox::expected<const iox::popo::RequestHeader*, iox::popo::ServerRequestResult>),
                 getRequest,
                 (),
                 (noexcept));
@@ -58,12 +58,12 @@ class MockServerPortUser : public MockBasePort
     MOCK_METHOD(void, releaseQueuedRequests, (), (noexcept));
     MOCK_METHOD(bool, hasNewRequests, (), (const, noexcept));
     MOCK_METHOD(bool, hasLostRequestsSinceLastCall, (), (noexcept));
-    MOCK_METHOD((iox::cxx::expected<iox::popo::ResponseHeader*, iox::popo::AllocationError>),
+    MOCK_METHOD((iox::expected<iox::popo::ResponseHeader*, iox::popo::AllocationError>),
                 allocateResponse,
                 (const iox::popo::RequestHeader* const, const uint32_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseResponse, (const iox::popo::ResponseHeader* const), (noexcept));
-    MOCK_METHOD(iox::cxx::expected<iox::popo::ServerSendError>,
+    MOCK_METHOD(iox::expected<iox::popo::ServerSendError>,
                 sendResponse,
                 (iox::popo::ResponseHeader* const),
                 (noexcept));

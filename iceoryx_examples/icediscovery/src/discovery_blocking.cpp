@@ -68,9 +68,9 @@ void Discovery::unblockWait()
 //! [unblock wait]
 
 //! [findService]
-ServiceContainer Discovery::findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
-                                        const iox::cxx::optional<iox::capro::IdString_t>& instance,
-                                        const iox::cxx::optional<iox::capro::IdString_t>& event)
+ServiceContainer Discovery::findService(const iox::optional<iox::capro::IdString_t>& service,
+                                        const iox::optional<iox::capro::IdString_t>& instance,
+                                        const iox::optional<iox::capro::IdString_t>& event)
 {
     ServiceContainer result;
     auto filter = [&](const iox::capro::ServiceDescription& s) { result.emplace_back(s); };

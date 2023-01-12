@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 #include "iox/unique_ptr.hpp"
 
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
@@ -138,7 +138,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
     ::testing::Test::RecordProperty("TEST_ID", "5e3c00e1-bd7c-49bf-adaf-f0d83cd4ab99");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::cxx::success<const iox::mepoo::ChunkHeader*>(
+        .WillOnce(Return(ByMove(iox::success<const iox::mepoo::ChunkHeader*>(
             const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
@@ -153,7 +153,7 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     ::testing::Test::RecordProperty("TEST_ID", "ff175cb2-ad97-4ba9-ab32-cd73618b0b8b");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::cxx::error<iox::popo::ChunkReceiveResult>(
+        .WillOnce(Return(ByMove(iox::error<iox::popo::ChunkReceiveResult>(
             iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
     auto result = sut.takeChunk();

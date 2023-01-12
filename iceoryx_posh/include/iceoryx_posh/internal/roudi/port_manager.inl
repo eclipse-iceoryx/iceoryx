@@ -24,7 +24,7 @@ namespace iox
 namespace roudi
 {
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
-inline cxx::optional<RuntimeName_t>
+inline optional<RuntimeName_t>
 PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept
 {
     // check if the publisher is already in the list
@@ -38,18 +38,17 @@ PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& ser
                 destroyPublisherPort(publisherPortData);
                 continue;
             }
-            return cxx::make_optional<RuntimeName_t>(publisherPortData->m_runtimeName);
+            return make_optional<RuntimeName_t>(publisherPortData->m_runtimeName);
         }
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>*>
-inline cxx::optional<RuntimeName_t>
-PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription&) noexcept
+inline optional<RuntimeName_t> PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription&) noexcept
 {
     // Duplicates are allowed when using n:m policy
-    return cxx::nullopt;
+    return nullopt;
 }
 
 } // namespace roudi

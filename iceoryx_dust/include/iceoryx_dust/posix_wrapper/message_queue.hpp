@@ -17,13 +17,13 @@
 #ifndef IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
 #define IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mqueue.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -67,27 +67,27 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     ~MessageQueue() noexcept;
 
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+    static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
-    cxx::expected<IpcChannelError> send(const std::string& msg) const noexcept;
+    expected<IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @todo iox-#1693 zero copy receive with receive(cxx::string&); cxx::string would be the buffer for mq_receive
 
     /// @brief receive message from queue using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
-    cxx::expected<std::string, IpcChannelError> receive() const noexcept;
+    expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message from queue for a given timeout duration using std::string. Only defined
     /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief try to send a message to the queue for a given timeout duration using std::string
-    cxx::expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
-    static cxx::expected<bool, IpcChannelError> isOutdated() noexcept;
+    static expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
     MessageQueue(const IpcChannelName_t& name,
@@ -95,16 +95,14 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
                  const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                  const uint64_t maxMsgNumber = 10U) noexcept;
 
-    cxx::expected<mqd_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
+    expected<mqd_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
 
-    cxx::expected<IpcChannelError> close() noexcept;
-    cxx::expected<IpcChannelError> unlink() noexcept;
-    cxx::error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
-    static cxx::error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name,
-                                                             const int32_t errnum) noexcept;
-    static cxx::expected<IpcChannelName_t, IpcChannelError>
-    sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
-    cxx::expected<IpcChannelError> destroy() noexcept;
+    expected<IpcChannelError> close() noexcept;
+    expected<IpcChannelError> unlink() noexcept;
+    error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
+    static error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
+    static expected<IpcChannelName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
+    expected<IpcChannelError> destroy() noexcept;
 
   private:
     IpcChannelName_t m_name;

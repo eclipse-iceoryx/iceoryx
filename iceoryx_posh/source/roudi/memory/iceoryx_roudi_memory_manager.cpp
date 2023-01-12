@@ -32,7 +32,7 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
     });
 }
 
-cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept
+expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept
 {
     auto result = m_memoryManager.createAndAnnounceMemory();
     auto portPool = m_portPoolBlock.portPool();
@@ -43,7 +43,7 @@ cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnou
     return result;
 }
 
-cxx::expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory() noexcept
+expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory() noexcept
 {
     return m_memoryManager.destroyMemory();
 }
@@ -53,17 +53,17 @@ const PosixShmMemoryProvider* IceOryxRouDiMemoryManager::mgmtMemoryProvider() co
     return &m_defaultMemory.m_managementShm;
 }
 
-cxx::optional<PortPool*> IceOryxRouDiMemoryManager::portPool() noexcept
+optional<PortPool*> IceOryxRouDiMemoryManager::portPool() noexcept
 {
-    return (m_portPool.has_value()) ? cxx::make_optional<PortPool*>(&*m_portPool) : cxx::nullopt_t();
+    return (m_portPool.has_value()) ? make_optional<PortPool*>(&*m_portPool) : nullopt_t();
 }
 
-cxx::optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::introspectionMemoryManager() const noexcept
+optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::introspectionMemoryManager() const noexcept
 {
     return m_defaultMemory.m_introspectionMemPoolBlock.memoryManager();
 }
 
-cxx::optional<mepoo::SegmentManager<>*> IceOryxRouDiMemoryManager::segmentManager() const noexcept
+optional<mepoo::SegmentManager<>*> IceOryxRouDiMemoryManager::segmentManager() const noexcept
 {
     return m_defaultMemory.m_segmentManagerBlock.segmentManager();
 }

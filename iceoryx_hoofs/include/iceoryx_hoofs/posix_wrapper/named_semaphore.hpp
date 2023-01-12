@@ -16,14 +16,14 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -34,7 +34,7 @@ class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
 {
   public:
     static constexpr uint64_t LENGTH_OF_SEMAPHORE_SLASH_PREFIX = 1U;
-    using Name_t = cxx::string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH - LENGTH_OF_SEMAPHORE_SLASH_PREFIX>;
+    using Name_t = string<platform::IOX_MAX_SEMAPHORE_NAME_LENGTH - LENGTH_OF_SEMAPHORE_SLASH_PREFIX>;
 
     NamedSemaphore(const NamedSemaphore&) noexcept = delete;
     NamedSemaphore(NamedSemaphore&&) noexcept = delete;
@@ -44,7 +44,7 @@ class NamedSemaphore final : public internal::SemaphoreInterface<NamedSemaphore>
 
   private:
     friend class NamedSemaphoreBuilder;
-    friend class iox::cxx::optional<NamedSemaphore>;
+    friend class iox::optional<NamedSemaphore>;
     friend class internal::SemaphoreInterface<NamedSemaphore>;
 
     NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool hasOwnership) noexcept;
@@ -75,7 +75,7 @@ class NamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
-    cxx::expected<SemaphoreError> create(cxx::optional<NamedSemaphore>& uninitializedSemaphore) const noexcept;
+    expected<SemaphoreError> create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix
 } // namespace iox

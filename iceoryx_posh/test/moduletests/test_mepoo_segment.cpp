@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iox/expected.hpp"
 #include "test.hpp"
 
 
@@ -119,14 +119,14 @@ class MePooSegment_test : public Test
 
         IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
-        IOX_BUILDER_PARAMETER(iox::cxx::optional<const void*>, baseAddressHint, iox::cxx::nullopt)
+        IOX_BUILDER_PARAMETER(iox::optional<const void*>, baseAddressHint, iox::nullopt)
 
         IOX_BUILDER_PARAMETER(iox::cxx::perms, permissions, iox::cxx::perms::none)
 
       public:
-        iox::cxx::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
+        iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
         {
-            return iox::cxx::success<SharedMemoryObject_MOCK>(
+            return iox::success<SharedMemoryObject_MOCK>(
                 SharedMemoryObject_MOCK(m_name,
                                         m_memorySizeInBytes,
                                         m_accessMode,

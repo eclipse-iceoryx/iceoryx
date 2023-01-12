@@ -65,7 +65,7 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
     iox::roudi::ConfigFilePathString_t m_configFilePath;
     void CreateTmpTomlFile(std::shared_ptr<cpptoml::table> toml)
     {
-        m_configFilePath.append(iox::cxx::TruncateToCapacity, "generated_gateway_config.toml");
+        m_configFilePath.append(iox::TruncateToCapacity, "generated_gateway_config.toml");
         std::fstream fs(m_configFilePath, std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {
@@ -416,7 +416,7 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     ::testing::Test::RecordProperty("TEST_ID", "46f32eaf-b4d5-4ae1-b57e-aa23fcfcd2d5");
     const auto parseErrorInputFile = GetParam();
 
-    m_configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);
+    m_configFilePath.append(iox::TruncateToCapacity, parseErrorInputFile.second);
 
     auto result = iox::config::TomlGatewayConfigParser::parse(m_configFilePath);
 

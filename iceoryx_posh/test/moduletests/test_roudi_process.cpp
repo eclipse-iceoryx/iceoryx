@@ -15,13 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/process.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 namespace
@@ -94,7 +94,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4d5c133-bf93-45a4-aa4f-9c3c2a50f91a");
     iox::runtime::IpcMessage data{""};
-    iox::cxx::optional<iox::PoshError> sendViaIpcChannelStatusFail;
+    iox::optional<iox::PoshError> sendViaIpcChannelStatusFail;
 
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&sendViaIpcChannelStatusFail](const iox::PoshError error, const iox::ErrorLevel errorLevel) {

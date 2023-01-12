@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_RPC_INTERFACE_HPP
 #define IOX_POSH_RPC_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -35,7 +35,7 @@ class RpcInterface
     /// @brief Sends the given Request<T> or Response<T> via the type which implements this interface
     /// @param[in] rpcData is the actual Request<T> or Response<T> instance
     /// @return Error if sending was not successful
-    virtual cxx::expected<SendErrorEnum> send(RpcType&& rpcData) noexcept = 0;
+    virtual expected<SendErrorEnum> send(RpcType&& rpcData) noexcept = 0;
 
   protected:
     RpcInterface() = default;

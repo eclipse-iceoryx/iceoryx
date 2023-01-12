@@ -94,7 +94,7 @@ class MemoryMapBuilder
     /// @brief creates a valid MemoryMap object. If the construction failed the expected
     ///        contains an enum value describing the error.
     /// @return expected containing MemoryMap on success otherwise MemoryMapError
-    cxx::expected<MemoryMap, MemoryMapError> create() noexcept;
+    expected<MemoryMap, MemoryMapError> create() noexcept;
 };
 
 /// @brief C++ abstraction of mmap and munmap. When a MemoryMap object is

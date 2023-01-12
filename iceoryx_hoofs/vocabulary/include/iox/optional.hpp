@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_OPTIONAL_HPP
-#define IOX_HOOFS_CXX_OPTIONAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
+#define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
@@ -25,8 +25,6 @@
 #include <utility>
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief Helper struct which is used to signal an empty optional.
 ///         It is equivalent to no value.
@@ -51,14 +49,14 @@ constexpr in_place_t in_place{};
 ///         factory functions which can fail.
 ///
 /// @code
-///     #include "iceoryx_hoofs/cxx/optional.hpp"
+///     #include "iox/optional.hpp"
 ///
-///     cxx::optional<void*> SomeFactory() {
+///     optional<void*> SomeFactory() {
 ///         void *memory = malloc(1234);
 ///         if ( memory == nullptr )
-///             return cxx::nullopt_t();
+///             return nullopt_t();
 ///         else
-///             return cxx::make_optional<void*>(memory);
+///             return make_optional<void*>(memory);
 ///     }
 ///
 ///     int main() {
@@ -70,7 +68,7 @@ constexpr in_place_t in_place{};
 ///     }
 /// @endcode
 template <typename T>
-class optional final : public FunctionalInterface<optional<T>, T, void>
+class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
 {
   public:
     using type = T;
@@ -224,7 +222,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     //   void initHandle(void * ptr) {
     //     Handle * handle = static_cast<Handle>(ptr);
     //   }
-    //   void doStuff(cxx::optional<Handle> & handle) {
+    //   void doStuff(optional<Handle> & handle) {
     //     // uses optional<Handle> instead of handle, if the bool is the second parameter such
     //     // mistakes can be introduced quickly in low level c abstraction classes
     //     initHandle(&handle);
@@ -235,7 +233,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
         // is wrapped inside the optional
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-        byte_t data[sizeof(T)];
+        cxx::byte_t data[sizeof(T)];
     };
     element_t m_data;
 
@@ -255,14 +253,14 @@ template <typename OptionalBaseType, typename... Targs>
 optional<OptionalBaseType> make_optional(Targs&&... args) noexcept;
 
 /// @brief Compare two optionals for equality.
-/// @param[in] lhs cxx::optional
+/// @param[in] lhs optional
 /// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the contained values are equal or both have no value, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 
 /// @brief Compare two optionals for inequality.
-/// @param[in] lhs cxx::optional
+/// @param[in] lhs optional
 /// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the contained values are not equal, otherwise false
 template <typename T>
@@ -270,28 +268,28 @@ bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept;
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs empty optional, cxx::nullopt_t
+/// @param[in] lhs empty optional, nullopt_t
 /// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the rhs is not set, otherwise false
 template <typename T>
 bool operator==(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for equality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs optional which should be compared to cxx::nullopt_t
+/// @param[in] lhs optional which should be compared to nullopt_t
 /// @param[in] rhs empty optional
 /// @return true if the lhs is not set, otherwise false
 template <typename T>
 bool operator==(const optional<T>& lhs, const nullopt_t) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs empty optional, cxx::nullopt_t
+/// @param[in] lhs empty optional, nullopt_t
 /// @param[in] rhs optional to which lhs should be compared to
 /// @return true if the optional is set, otherwise false
 template <typename T>
 bool operator!=(const nullopt_t, const optional<T>& rhs) noexcept;
 
 /// @brief Comparison for inequality with nullopt_t for easier unset optional comparison
-/// @param[in] lhs optional which should be compared to cxx::nullopt_t
+/// @param[in] lhs optional which should be compared to nullopt_t
 /// @param[in] rhs empty optional
 /// @return true if the optional is set, otherwise false
 template <typename T>
@@ -307,9 +305,8 @@ struct is_optional<optional<T>> : std::true_type
 {
 };
 // AXIVION ENABLE STYLE AutosarC++19_03-A13.5.5
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/optional.inl"
+#include "iox/detail/optional.inl"
 
-#endif // IOX_HOOFS_CXX_OPTIONAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_OPTIONAL_HPP

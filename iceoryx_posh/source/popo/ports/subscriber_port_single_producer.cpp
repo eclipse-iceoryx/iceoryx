@@ -27,7 +27,7 @@ SubscriberPortSingleProducer::SubscriberPortSingleProducer(
 {
 }
 
-cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::tryGetCaProMessage() noexcept
+optional<capro::CaproMessage> SubscriberPortSingleProducer::tryGetCaProMessage() noexcept
 {
     // get subscribe request from user side
     const auto currentSubscribeRequest = getMembers()->m_subscribeRequested.load(std::memory_order_relaxed);
@@ -42,7 +42,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::tryGetCaProMess
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if (!currentSubscribeRequest && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
     {
@@ -51,21 +51,21 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::tryGetCaProMess
         capro::CaproMessage caproMessage(capro::CaproMessageType::UNSUB, BasePort::getMembers()->m_serviceDescription);
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if (!currentSubscribeRequest && (SubscribeState::WAIT_FOR_OFFER == currentSubscriptionState))
     {
         getMembers()->m_subscriptionState.store(SubscribeState::NOT_SUBSCRIBED, std::memory_order_relaxed);
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else
     {
         // nothing to change
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 
-cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMessageAndGetPossibleResponse(
+optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMessageAndGetPossibleResponse(
     const capro::CaproMessage& caProMessage) noexcept
 {
     const auto currentSubscriptionState = getMembers()->m_subscriptionState.load(std::memory_order_relaxed);
@@ -79,14 +79,14 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
         caproMessage.m_chunkQueueData = static_cast<void*>(&getMembers()->m_chunkReceiverData);
         caproMessage.m_historyCapacity = getMembers()->m_options.historyRequest;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if ((capro::CaproMessageType::STOP_OFFER == caProMessage.m_type)
              && (SubscribeState::SUBSCRIBED == currentSubscriptionState))
     {
         getMembers()->m_subscriptionState.store(SubscribeState::WAIT_FOR_OFFER, std::memory_order_relaxed);
 
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else if (capro::CaproMessageType::ACK == caProMessage.m_type)
     {
@@ -103,7 +103,7 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
             errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
         }
 
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else if (capro::CaproMessageType::NACK == caProMessage.m_type)
     {
@@ -120,19 +120,19 @@ cxx::optional<capro::CaproMessage> SubscriberPortSingleProducer::dispatchCaProMe
             errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::MODERATE);
         }
 
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else if (((capro::CaproMessageType::OFFER == caProMessage.m_type)
               || (capro::CaproMessageType::STOP_OFFER == caProMessage.m_type))
              && (SubscribeState::NOT_SUBSCRIBED == currentSubscriptionState))
     {
         // No state change
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else
     {
         errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 

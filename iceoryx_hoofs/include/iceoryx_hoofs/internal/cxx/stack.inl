@@ -139,11 +139,11 @@ inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noe
 }
 
 template <typename T, uint64_t Capacity>
-inline cxx::optional<T> stack<T, Capacity>::pop() noexcept
+inline optional<T> stack<T, Capacity>::pop() noexcept
 {
     if (m_size == 0U)
     {
-        return cxx::nullopt;
+        return nullopt;
     }
 
     // AXIVION Next Construct AutosarC++19_03-A5.2.4 : low level memory management with access to the topmost element on

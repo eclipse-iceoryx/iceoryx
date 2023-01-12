@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 #define IOX_HOOFS_LOCKFREE_QUEUE_INDEX_QUEUE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/cyclic_index.hpp"
+#include "iox/optional.hpp"
 
 #include <atomic>
 #include <type_traits>
@@ -87,17 +87,17 @@ class IndexQueue
 
     /// @brief pop an index from the queue in FIFO order if the queue not empty
     /// @return index if the queue was is empty, nullopt oterwise
-    cxx::optional<ValueType> pop() noexcept;
+    optional<ValueType> pop() noexcept;
 
     /// @brief pop an index from the queue in FIFO order if the queue is full
     /// @return index if the queue was full, nullopt otherwise
-    cxx::optional<ValueType> popIfFull() noexcept;
+    optional<ValueType> popIfFull() noexcept;
 
     /// @brief pop an index from the queue in FIFO order if the queue contains
     ///        at least  a specified number number of elements
     /// @param size the number of elements needed to successfully perform the pop
     /// @return index if the queue contains size elements, nullopt otherwise
-    cxx::optional<ValueType> popIfSizeIsAtLeast(uint64_t size) noexcept;
+    optional<ValueType> popIfSizeIsAtLeast(uint64_t size) noexcept;
 
   private:
     template <typename ElementType, uint64_t Cap>

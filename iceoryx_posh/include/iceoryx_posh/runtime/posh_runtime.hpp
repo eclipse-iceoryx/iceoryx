@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -33,6 +32,7 @@
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iox/optional.hpp"
 
 #include <atomic>
 
@@ -160,12 +160,12 @@ class PoshRuntime
 
   protected:
     friend class roudi::RuntimeTestInterface;
-    using factory_t = PoshRuntime& (*)(cxx::optional<const RuntimeName_t*>);
+    using factory_t = PoshRuntime& (*)(optional<const RuntimeName_t*>);
 
     // Protected constructor for derived classes
-    PoshRuntime(cxx::optional<const RuntimeName_t*> name) noexcept;
+    PoshRuntime(optional<const RuntimeName_t*> name) noexcept;
 
-    static PoshRuntime& defaultRuntimeFactory(cxx::optional<const RuntimeName_t*> name) noexcept;
+    static PoshRuntime& defaultRuntimeFactory(optional<const RuntimeName_t*> name) noexcept;
 
     /// @brief gets current runtime factory. If the runtime factory is not yet initialized it is set to
     /// defaultRuntimeFactory.
@@ -183,10 +183,10 @@ class PoshRuntime
     /// @param[in] name optional containing the name used for registering with the RouDi daemon
     ///
     /// @return active runtime
-    static PoshRuntime& getInstance(cxx::optional<const RuntimeName_t*> name) noexcept;
+    static PoshRuntime& getInstance(optional<const RuntimeName_t*> name) noexcept;
 
     /// @brief checks the given application name for certain constraints like length or if is empty
-    const RuntimeName_t& verifyInstanceName(cxx::optional<const RuntimeName_t*> name) noexcept;
+    const RuntimeName_t& verifyInstanceName(optional<const RuntimeName_t*> name) noexcept;
 
     const RuntimeName_t m_appName;
     std::atomic<bool> m_shutdownRequested{false};

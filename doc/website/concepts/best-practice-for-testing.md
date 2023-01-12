@@ -68,7 +68,7 @@ In general, the tests should be written in a fashion to not crash the applicatio
 It must be assumed that the implementation is broken and only a successful test run can prove otherwise.
 The `sut` (system under test) might return a `nullptr` instead of the expected valid pointer, so `nullptr` check has to be done with an `ASSERT_*` to gracefully abort the current test.
 Just using an `EXPECT_*` for the check is not sufficient since the potential `nullptr` will be dereferenced later on and will crash the application.
-The same applies to other potential dangerous operations, like accessing the value of a `cxx::optional` or `cxx::expected` or an out of bounds access of a `cxx::vector`.
+The same applies to other potential dangerous operations, like accessing the value of a `iox::optional` or `iox::expected` or an out of bounds access of a `iox::vector`.
 
 Last but not least, apply the **DRY** principle (don't repeat yourself) and use typed and parameterized tests to check multiple implementations and variations without repeating much code.
 
@@ -289,7 +289,7 @@ TEST_F(MyTest, TestName)
 - name the test object `sut` to make clear which object is tested
 - don't use magic numbers
 - instantiate objects on the stack or use smart pointers for large objects and avoid manual memory management with new/delete
-- use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `cxx::optional` with a `nullopt`
+- use `ASSERT_*` before doing a potential dangerous action which might crash the test application, like accessing a `nullptr` or a `iox::optional` with a `iox::nullopt`
 - use mocks to reduce the complexity of the test arrangement
 - apply the **DRY** principle by using typed and parameterized tests
 - wrap the tests in an anonymous namespace

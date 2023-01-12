@@ -17,14 +17,14 @@
 #ifndef IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -56,11 +56,10 @@ class PublisherPortUser : public BasePort
     /// to omit a user-header
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    cxx::expected<mepoo::ChunkHeader*, AllocationError>
-    tryAllocateChunk(const uint32_t userPayloadSize,
-                     const uint32_t userPayloadAlignment,
-                     const uint32_t userHeaderSize = 0U,
-                     const uint32_t userHeaderAlignment = 1U) noexcept;
+    expected<mepoo::ChunkHeader*, AllocationError> tryAllocateChunk(const uint32_t userPayloadSize,
+                                                                    const uint32_t userPayloadAlignment,
+                                                                    const uint32_t userHeaderSize = 0U,
+                                                                    const uint32_t userHeaderAlignment = 1U) noexcept;
 
     /// @brief Free an allocated chunk without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
@@ -72,7 +71,7 @@ class PublisherPortUser : public BasePort
 
     /// @brief Returns the last sent chunk if there is one
     /// @return pointer to the ChunkHeader of the last sent Chunk if there is one, empty optional if not
-    cxx::optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
+    optional<const mepoo::ChunkHeader*> tryGetPreviousChunk() const noexcept;
 
     /// @brief offer this publiher port in the system
     void offer() noexcept;

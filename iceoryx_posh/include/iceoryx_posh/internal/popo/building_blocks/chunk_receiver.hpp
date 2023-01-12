@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -76,7 +76,7 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
     /// disappears
     /// @return New chunk header, ChunkReceiveResult on error
     /// or if there are no new chunks in the underlying queue
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGet() noexcept;
+    expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGet() noexcept;
 
     /// @brief Release a chunk that was obtained with get
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

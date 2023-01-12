@@ -19,7 +19,7 @@
 
 // NOLINTJUSTIFICATION iox-#1036 will be replaced by builder pattern
 // NOLINTBEGIN
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace DesignPattern
 {
@@ -99,7 +99,7 @@ class Creation
 {
   public:
     using CreationPattern_t = Creation<DerivedClass, ErrorType>;
-    using result_t = iox::cxx::expected<DerivedClass, ErrorType>;
+    using result_t = iox::expected<DerivedClass, ErrorType>;
     using errorType_t = ErrorType;
 
     /// @brief factory method which guarantees that either a working object is produced
@@ -125,7 +125,7 @@ class Creation
     /// @return returns an expected which either contains the object in a valid
     ///         constructed state or an error value stating why the construction failed.
     template <typename... Targs>
-    static iox::cxx::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept;
+    static iox::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept;
 
     Creation() noexcept = default;
     Creation(Creation&& rhs) noexcept;

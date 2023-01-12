@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include "benchmark.hpp"
 
@@ -51,7 +51,7 @@ uint64_t simpleReturn()
     return returnValue;
 }
 
-iox::cxx::optional<uint64_t> simpleReturnOptional()
+iox::optional<uint64_t> simpleReturnOptional()
 {
     uint64_t returnValue = globalCounter + 1;
     return returnValue;
@@ -84,14 +84,14 @@ void popFromFiFo()
     }
 }
 
-iox::cxx::optional<uint64_t> popFromFiFoOptionalImpl()
+iox::optional<uint64_t> popFromFiFoOptionalImpl()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
     {
-        return iox::cxx::nullopt;
+        return iox::nullopt;
     }
 
     return mod;
@@ -130,17 +130,17 @@ void complexErrorValue()
     }
 }
 
-iox::cxx::expected<uint64_t, uint64_t> complexErrorValueExpectedImpl()
+iox::expected<uint64_t, uint64_t> complexErrorValueExpectedImpl()
 {
     ++globalCounter;
     uint64_t mod = globalCounter % 8;
 
     if (mod >= 4)
     {
-        return iox::cxx::error<uint64_t>(mod);
+        return iox::error<uint64_t>(mod);
     }
 
-    return iox::cxx::success<uint64_t>(mod);
+    return iox::success<uint64_t>(mod);
 }
 
 void complexErrorValueExpected()
@@ -168,13 +168,13 @@ bool largeObjectPopPlainImpl(T& value)
 }
 
 template <typename T>
-iox::cxx::optional<T> largeObjectPopOptionalImpl()
+iox::optional<T> largeObjectPopOptionalImpl()
 {
     ++globalCounter;
 
     if (globalCounter % 3 == 0)
     {
-        return iox::cxx::nullopt;
+        return iox::nullopt;
     }
 
     T returnValue;
@@ -184,19 +184,19 @@ iox::cxx::optional<T> largeObjectPopOptionalImpl()
 }
 
 template <typename T>
-iox::cxx::expected<T, uint64_t> largeObjectPopExpectedImpl()
+iox::expected<T, uint64_t> largeObjectPopExpectedImpl()
 {
     ++globalCounter;
 
     if (globalCounter % 3 == 0)
     {
-        return iox::cxx::error<uint64_t>(globalCounter);
+        return iox::error<uint64_t>(globalCounter);
     }
 
     T returnValue;
     returnValue.value = globalCounter;
 
-    return iox::cxx::success<T>(returnValue);
+    return iox::success<T>(returnValue);
 }
 
 template <typename T>

@@ -87,7 +87,7 @@ As optimization, the `lastKnownQueueIndex` will be used to do a fast lookup and 
 ```cpp
 class ChunkDistributor {
     ...
-    cxx::expected<Error> deliverToQueue(cxx::UniqueId uniqueQueueId, uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk);
+    iox::expected<Error> deliverToQueue(cxx::UniqueId uniqueQueueId, uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk);
     ...
 };
 ```

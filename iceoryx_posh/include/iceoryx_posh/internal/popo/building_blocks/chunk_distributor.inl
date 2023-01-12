@@ -45,7 +45,7 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::expected<ChunkDistributorError>
+inline expected<ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
                                                         const uint64_t requestedHistory) noexcept
 {
@@ -82,7 +82,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
                 pushToQueue(queueToAdd, getMembers()->m_history[i].cloneToSharedChunk());
             }
 
-            return cxx::success<void>();
+            return success<void>();
         }
         else
         {
@@ -90,15 +90,15 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
             // adding the queue was not possible
             errorHandler(PoshError::POPO__CHUNK_DISTRIBUTOR_OVERFLOW_OF_QUEUE_CONTAINER, ErrorLevel::MODERATE);
 
-            return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
+            return error<ChunkDistributorError>(ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW);
         }
     }
 
-    return cxx::success<void>();
+    return success<void>();
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(
+inline expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(
     cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -111,11 +111,11 @@ inline cxx::expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDat
         // AXIVION Next Construct AutosarC++19_03-A0.1.2 : we don't use iter any longer so return value can be ignored
         getMembers()->m_queues.erase(iter);
 
-        return cxx::success<void>();
+        return success<void>();
     }
     else
     {
-        return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
+        return error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
     }
 }
 
@@ -226,7 +226,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(cxx::not_nul
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::expected<ChunkDistributorError>
+inline expected<ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId uniqueQueueId,
                                                            const uint32_t lastKnownQueueIndex,
                                                            mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept
@@ -240,7 +240,7 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId u
 
         if (!queueIndex.has_value())
         {
-            return cxx::error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
+            return error<ChunkDistributorError>(ChunkDistributorError::QUEUE_NOT_IN_CONTAINER);
         }
 
         auto& queue = getMembers()->m_queues[queueIndex.value()];
@@ -263,11 +263,11 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId u
         }
     } while (retry);
 
-    return cxx::success<>();
+    return success<>();
 }
 
 template <typename ChunkDistributorDataType>
-inline cxx::optional<uint32_t>
+inline optional<uint32_t>
 ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const cxx::UniqueId uniqueQueueId,
                                                           const uint32_t lastKnownQueueIndex) const noexcept
 {
@@ -289,7 +289,7 @@ ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const cxx::UniqueId un
         }
         ++index;
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 template <typename ChunkDistributorDataType>

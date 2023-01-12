@@ -21,7 +21,7 @@
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -55,8 +55,8 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
     uint64_t alignment() const noexcept override;
 
     /// @brief This function enables the access to the MemoryManager for the MemPools
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<mepoo::MemoryManager*> memoryManager() const noexcept;
+    /// @return an optional pointer to the underlying type, nullopt_t if value is not initialized
+    optional<mepoo::MemoryManager*> memoryManager() const noexcept;
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable

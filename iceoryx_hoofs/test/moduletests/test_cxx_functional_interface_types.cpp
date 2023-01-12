@@ -90,12 +90,12 @@ void OptionalFactory::configureNextTestCase() noexcept
 
 OptionalFactory::Type OptionalFactory::createValidObject() noexcept
 {
-    return OptionalFactory::Type(iox::cxx::in_place, usedTestValue);
+    return OptionalFactory::Type(iox::in_place, usedTestValue);
 }
 
 OptionalFactory::Type OptionalFactory::createInvalidObject() noexcept
 {
-    return iox::cxx::nullopt;
+    return iox::nullopt;
 }
 ///////////////////////
 /// END OptionalFactory
@@ -124,12 +124,12 @@ void ExpectedValueErrorFactory::configureNextTestCase() noexcept
 
 ExpectedValueErrorFactory::Type ExpectedValueErrorFactory::createValidObject() noexcept
 {
-    return iox::cxx::success<uint64_t>(usedTestValue);
+    return iox::success<uint64_t>(usedTestValue);
 }
 
 ExpectedValueErrorFactory::Type ExpectedValueErrorFactory::createInvalidObject() noexcept
 {
-    return iox::cxx::error<uint64_t>(usedErrorValue);
+    return iox::error<uint64_t>(usedErrorValue);
 }
 //////////////////////////////////
 /// END ExpectedValueErrorFactory
@@ -153,12 +153,12 @@ void ExpectedErrorFactory::configureNextTestCase() noexcept
 
 ExpectedErrorFactory::Type ExpectedErrorFactory::createValidObject() noexcept
 {
-    return iox::cxx::success<>();
+    return iox::success<>();
 }
 
 ExpectedErrorFactory::Type ExpectedErrorFactory::createInvalidObject() noexcept
 {
-    return iox::cxx::error<uint64_t>(usedErrorValue);
+    return iox::error<uint64_t>(usedErrorValue);
 }
 ////////////////////////////
 /// END ExpectedErrorFactory

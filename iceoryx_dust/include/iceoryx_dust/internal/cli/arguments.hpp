@@ -19,8 +19,8 @@
 #include "iceoryx_dust/cli/types.hpp"
 #include "iceoryx_dust/internal/cli/option.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -50,7 +50,7 @@ class Arguments
     /// @return the contained value if the value is present and convertable, otherwise an Error which describes the
     /// error
     template <typename T>
-    cxx::expected<T, Error> get(const OptionName_t& optionName) const noexcept;
+    expected<T, Error> get(const OptionName_t& optionName) const noexcept;
 
     /// @brief returns true if the specified switch was set, otherwise false
     /// @param[in] switchName either one letter for the shortOption or the whole longOption
@@ -61,7 +61,7 @@ class Arguments
 
   private:
     template <typename T>
-    cxx::expected<T, Error> convertFromString(const Argument_t& value) const noexcept;
+    expected<T, Error> convertFromString(const Argument_t& value) const noexcept;
     friend class CommandLineParser;
 
 

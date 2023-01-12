@@ -16,9 +16,9 @@
 
 #include "iceoryx_binding_c/internal/c2cpp_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iox/optional.hpp"
 
 using namespace iox;
 using namespace iox::runtime;
@@ -56,20 +56,20 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
     iox::cxx::Expects(serviceContainer != nullptr);
     iox::cxx::Expects(missedServices != nullptr);
 
-    cxx::optional<capro::IdString_t> maybeService;
+    optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(TruncateToCapacity, service);
     }
-    cxx::optional<capro::IdString_t> maybeInstance;
+    optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(TruncateToCapacity, instance);
     }
-    cxx::optional<capro::IdString_t> maybeEvent;
+    optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(TruncateToCapacity, event);
     }
 
     uint64_t currentSize = 0U;
@@ -99,20 +99,20 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(callable != nullptr);
 
-    cxx::optional<capro::IdString_t> maybeService;
+    optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(TruncateToCapacity, service);
     }
-    cxx::optional<capro::IdString_t> maybeInstance;
+    optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(TruncateToCapacity, instance);
     }
-    cxx::optional<capro::IdString_t> maybeEvent;
+    optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(TruncateToCapacity, event);
     }
 
     auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s)); };
@@ -131,20 +131,20 @@ void iox_service_discovery_find_service_apply_callable_with_context_data(
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(callable != nullptr);
 
-    cxx::optional<capro::IdString_t> maybeService;
+    optional<capro::IdString_t> maybeService;
     if (service != nullptr)
     {
-        maybeService.emplace(cxx::TruncateToCapacity, service);
+        maybeService.emplace(TruncateToCapacity, service);
     }
-    cxx::optional<capro::IdString_t> maybeInstance;
+    optional<capro::IdString_t> maybeInstance;
     if (instance != nullptr)
     {
-        maybeInstance.emplace(cxx::TruncateToCapacity, instance);
+        maybeInstance.emplace(TruncateToCapacity, instance);
     }
-    cxx::optional<capro::IdString_t> maybeEvent;
+    optional<capro::IdString_t> maybeEvent;
     if (event != nullptr)
     {
-        maybeEvent.emplace(cxx::TruncateToCapacity, event);
+        maybeEvent.emplace(TruncateToCapacity, event);
     }
 
     auto filter = [&](const capro::ServiceDescription& s) { callable(TranslateServiceDescription(s), contextData); };

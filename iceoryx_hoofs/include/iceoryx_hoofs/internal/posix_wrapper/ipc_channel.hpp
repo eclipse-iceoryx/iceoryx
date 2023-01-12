@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 
 
 namespace iox
@@ -31,7 +31,7 @@ constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
 constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
 #endif
 
-using IpcChannelName_t = cxx::string<MAX_IPC_CHANNEL_NAME_LENGTH>;
+using IpcChannelName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
 namespace posix
 {
 enum class IpcChannelError : uint8_t

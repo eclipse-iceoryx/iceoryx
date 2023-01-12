@@ -38,7 +38,7 @@ ServerPortUser::MemberType_t* ServerPortUser::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequest() noexcept
+expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequest() noexcept
 {
     auto getChunkResult = m_chunkReceiver.tryGet();
 
@@ -46,13 +46,13 @@ cxx::expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequ
     {
         if (!isOffered())
         {
-            return cxx::error<ServerRequestResult>(ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
+            return error<ServerRequestResult>(ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
         }
-        /// @todo iox-#1012 use cxx::error<E2>::from(E1); once available
-        return cxx::error<ServerRequestResult>(cxx::into<ServerRequestResult>(getChunkResult.get_error()));
+        /// @todo iox-#1012 use error<E2>::from(E1); once available
+        return error<ServerRequestResult>(cxx::into<ServerRequestResult>(getChunkResult.get_error()));
     }
 
-    return cxx::success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));
+    return success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));
 }
 
 void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
@@ -83,14 +83,14 @@ bool ServerPortUser::hasLostRequestsSinceLastCall() noexcept
     return m_chunkReceiver.hasLostChunks();
 }
 
-cxx::expected<ResponseHeader*, AllocationError>
+expected<ResponseHeader*, AllocationError>
 ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
                                  const uint32_t userPayloadSize,
                                  const uint32_t userPayloadAlignment) noexcept
 {
     if (requestHeader == nullptr)
     {
-        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER);
+        return error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER);
     }
 
     auto allocateResult = m_chunkSender.tryAllocate(
@@ -98,7 +98,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 
     if (allocateResult.has_error())
     {
-        return cxx::error<AllocationError>(allocateResult.get_error());
+        return error<AllocationError>(allocateResult.get_error());
     }
 
     auto* responseHeader =
@@ -106,7 +106,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
                                                                   requestHeader->m_lastKnownClientQueueIndex,
                                                                   requestHeader->getSequenceId());
 
-    return cxx::success<ResponseHeader*>(responseHeader);
+    return success<ResponseHeader*>(responseHeader);
 }
 
 void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept
@@ -122,13 +122,13 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
 }
 
-cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
+expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
     if (responseHeader == nullptr)
     {
         LogFatal() << "Provided ResponseHeader is a nullptr";
         errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
-        return cxx::error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
+        return error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
     }
 
     const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -136,7 +136,7 @@ cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* cons
     {
         releaseResponse(responseHeader);
         LogWarn() << "Try to send response without having offered!";
-        return cxx::error<ServerSendError>(ServerSendError::NOT_OFFERED);
+        return error<ServerSendError>(ServerSendError::NOT_OFFERED);
     }
 
     bool responseSent{false};
@@ -151,10 +151,10 @@ cxx::expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* cons
     if (!responseSent)
     {
         LogWarn() << "Could not deliver to client! Client not available anymore!";
-        return cxx::error<ServerSendError>(ServerSendError::CLIENT_NOT_AVAILABLE);
+        return error<ServerSendError>(ServerSendError::CLIENT_NOT_AVAILABLE);
     }
 
-    return cxx::success<void>();
+    return success<void>();
 }
 
 void ServerPortUser::offer() noexcept

@@ -309,9 +309,9 @@ class PortIntrospection
     void send() noexcept;
 
   protected:
-    cxx::optional<PublisherPort> m_publisherPort;
-    cxx::optional<PublisherPort> m_publisherPortThroughput;
-    cxx::optional<PublisherPort> m_publisherPortSubscriberPortsData;
+    optional<PublisherPort> m_publisherPort;
+    optional<PublisherPort> m_publisherPortThroughput;
+    optional<PublisherPort> m_publisherPortSubscriberPortsData;
 
   private:
     PortData m_portData;

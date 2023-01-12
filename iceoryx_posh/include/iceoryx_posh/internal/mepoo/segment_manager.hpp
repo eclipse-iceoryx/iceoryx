@@ -17,8 +17,6 @@
 #ifndef IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
@@ -27,6 +25,8 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -80,7 +80,7 @@ class SegmentManager
 
     struct SegmentUserInformation
     {
-        cxx::optional<std::reference_wrapper<MemoryManager>> m_memoryManager;
+        optional<std::reference_wrapper<MemoryManager>> m_memoryManager;
         uint64_t m_segmentID;
     };
 

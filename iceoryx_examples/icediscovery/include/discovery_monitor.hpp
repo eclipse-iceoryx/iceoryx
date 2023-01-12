@@ -20,7 +20,7 @@
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <vector>
 
@@ -52,9 +52,9 @@ class Discovery
 
     /// @brief get all services matching a findService query
     /// @note invokes findService of the native iceoryx ServiceDiscovery API
-    ServiceContainer findService(const iox::cxx::optional<iox::capro::IdString_t>& service,
-                                 const iox::cxx::optional<iox::capro::IdString_t>& instance,
-                                 const iox::cxx::optional<iox::capro::IdString_t>& event);
+    ServiceContainer findService(const iox::optional<iox::capro::IdString_t>& service,
+                                 const iox::optional<iox::capro::IdString_t>& instance,
+                                 const iox::optional<iox::capro::IdString_t>& event);
 
   private:
     using callback_t = iox::cxx::function<void(Discovery&)>;
@@ -64,7 +64,7 @@ class Discovery
 
     /// @note currently only one callback can be active (and there is no need to have more
     /// as we only have one event at the ServiceDiscovery to attach to - SERVICE_REGISTRY_CHANGED)
-    iox::cxx::optional<callback_t> m_callback;
+    iox::optional<callback_t> m_callback;
 
     static void invokeCallback(ServiceDiscovery* discovery, Discovery* self);
 };

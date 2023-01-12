@@ -25,7 +25,7 @@
 
 using namespace iox::popo;
 using namespace iox::capro;
-using namespace iox::capro;
+using namespace iox;
 using namespace iox::cxx;
 
 extern "C" {
@@ -110,7 +110,7 @@ class iox_client_test : public Test
     iox::mepoo::MemoryManager memoryManager;
     iox::mepoo::MePooConfig memoryConfig;
 
-    iox::cxx::optional<ClientPortData> sutPort;
+    iox::optional<ClientPortData> sutPort;
     iox_client_storage_t sutStorage;
 
     ServerChunkQueueData_t serverChunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,

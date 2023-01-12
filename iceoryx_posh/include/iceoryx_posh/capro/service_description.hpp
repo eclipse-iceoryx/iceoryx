@@ -18,10 +18,12 @@
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
 #include "iceoryx_hoofs/cxx/serialization.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 #include <initializer_list>
@@ -31,7 +33,7 @@ namespace iox
 namespace capro
 {
 /// @brief Used to search for any string
-using Wildcard_t = iox::cxx::nullopt_t;
+using Wildcard_t = iox::nullopt_t;
 constexpr Wildcard_t Wildcard;
 
 static constexpr int32_t MAX_NUMBER_OF_CHARS = 64;
@@ -124,8 +126,8 @@ class ServiceDescription
 
     /// @brief de-serialization of a ServiceDescription.
     /// @param[in] serialized, Serialization object from which the ServiceDescription shall be created
-    /// @return cxx::expected that either has a ServiceDescription or cxx::Serialization::Error stored inside
-    static cxx::expected<ServiceDescription, cxx::Serialization::Error>
+    /// @return expected that either has a ServiceDescription or cxx::Serialization::Error stored inside
+    static expected<ServiceDescription, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel

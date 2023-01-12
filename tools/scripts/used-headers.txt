@@ -22,6 +22,7 @@ sys/time.h
 sys/types.h
 sys/un.h
 sys/wait.h
+type_traits
 unistd.h
 # iceoryx_posh / iceoryx_hoofs headers
 algorithm

@@ -15,15 +15,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_INL
-#define IOX_HOOFS_CXX_VARIANT_INL
+#ifndef IOX_HOOFS_VOCABULARY_VARIANT_INL
+#define IOX_HOOFS_VOCABULARY_VARIANT_INL
 
-#include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/variant.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <typename... Types>
 // AXIVION Next Construct AutosarC++19_03-A12.1.5: constructor delegation is not feasible here due to lack of sufficient common initialization
@@ -311,7 +309,6 @@ inline constexpr bool operator!=(const variant<Types...>& lhs, const variant<Typ
 {
     return !(lhs == rhs);
 }
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_VARIANT_INL
+#endif // IOX_HOOFS_VOCABULARY_VARIANT_INL

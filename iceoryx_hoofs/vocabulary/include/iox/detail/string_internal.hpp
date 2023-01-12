@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STRING_INTERNAL_HPP
-#define IOX_HOOFS_CXX_STRING_INTERNAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
+#define IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 
@@ -24,8 +24,6 @@
 #include <string>
 
 namespace iox
-{
-namespace cxx
 {
 // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Basic numerical type of char shall be used
 // AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1: C-style arrays are used to acquire size of c
@@ -41,7 +39,7 @@ template <uint64_t N>
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 using charArray = char[N];
 
-/// @brief struct to get capacity of iox::cxx::string/char array/char
+/// @brief struct to get capacity of iox::string/char array/char
 /// @note capa is a dummy value for any type other than cxx::string and char
 template <typename T>
 struct GetCapa
@@ -69,7 +67,7 @@ struct GetCapa<char>
     static constexpr uint64_t capa{1U};
 };
 
-/// @brief struct to get size of iox::cxx::string/std::string/char array/char
+/// @brief struct to get size of iox::string/std::string/char array/char
 template <typename T>
 struct GetSize;
 
@@ -157,7 +155,7 @@ struct GetData<char>
     }
 };
 
-/// @brief struct to get the sum of the capacities of iox::cxx::strings/char arrays/chars
+/// @brief struct to get the sum of the capacities of iox::strings/char arrays/chars
 template <typename... Targs>
 struct SumCapa;
 
@@ -175,6 +173,5 @@ struct SumCapa<T, Targs...>
 } // namespace internal
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 // AXIVION ENABLE STYLE AutosarC++19_03-A18.1.1
-} // namespace cxx
 } // namespace iox
-#endif // IOX_HOOFS_CXX_STRING_INTERNAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP

@@ -17,13 +17,13 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 #define IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -55,9 +55,9 @@ class CmdLineParser
     /// @param[in] argc forwarding of command line arguments
     /// @param[in] argv forwarding of command line arguments
     /// @param[in] cmdLineParsingMode selects to parse a single option or all options
-    /// @param[out] Result wrapped in an cxx::expected, either the parsed arguments as CmdLineArgs_t struct or
+    /// @param[out] Result wrapped in an expected, either the parsed arguments as CmdLineArgs_t struct or
     /// CmdLineParserResult
-    virtual cxx::expected<CmdLineArgs_t, CmdLineParserResult>
+    virtual expected<CmdLineArgs_t, CmdLineParserResult>
     parse(int argc,
           char* argv[],
           const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
@@ -67,7 +67,7 @@ class CmdLineParser
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::OFF};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    cxx::optional<uint16_t> m_uniqueRouDiId;
+    optional<uint16_t> m_uniqueRouDiId;
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 };
 

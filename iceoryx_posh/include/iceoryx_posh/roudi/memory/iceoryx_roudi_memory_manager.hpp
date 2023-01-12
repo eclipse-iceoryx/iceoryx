@@ -45,16 +45,16 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    cxx::expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept override;
+    expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept override;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept override;
+    expected<RouDiMemoryManagerError> destroyMemory() noexcept override;
 
     const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept override;
-    cxx::optional<PortPool*> portPool() noexcept override;
-    cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept override;
-    cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept override;
+    optional<PortPool*> portPool() noexcept override;
+    optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept override;
+    optional<mepoo::SegmentManager<>*> segmentManager() const noexcept override;
 
   private:
     // in order to prevent a second RouDi to cleanup the memory resources of a running RouDi, this resources are
@@ -80,7 +80,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
             .value());
 
     PortPoolMemoryBlock m_portPoolBlock;
-    cxx::optional<PortPool> m_portPool;
+    optional<PortPool> m_portPool;
     DefaultRouDiMemory m_defaultMemory;
     RouDiMemoryManager m_memoryManager;
 };

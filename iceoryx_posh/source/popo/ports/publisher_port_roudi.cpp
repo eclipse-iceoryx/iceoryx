@@ -42,7 +42,7 @@ PublisherPortRouDi::MemberType_t* PublisherPortRouDi::getMembers() noexcept
     return reinterpret_cast<MemberType_t*>(BasePort::getMembers());
 }
 
-cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noexcept
+optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noexcept
 {
     // get offer state request from user side
     const auto offeringRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -59,7 +59,7 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
         caproMessage.m_historyCapacity = historyCapacity;
         caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else if ((!offeringRequested) && isOffered)
     {
@@ -71,16 +71,16 @@ cxx::optional<capro::CaproMessage> PublisherPortRouDi::tryGetCaProMessage() noex
         capro::CaproMessage caproMessage(capro::CaproMessageType::STOP_OFFER, this->getCaProServiceDescription());
         caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
 
-        return cxx::make_optional<capro::CaproMessage>(caproMessage);
+        return make_optional<capro::CaproMessage>(caproMessage);
     }
     else
     {
         // nothing to change
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 
-cxx::optional<capro::CaproMessage>
+optional<capro::CaproMessage>
 PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage(
@@ -113,7 +113,7 @@ PublisherPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::Capr
         }
     }
 
-    return cxx::make_optional<capro::CaproMessage>(responseMessage);
+    return make_optional<capro::CaproMessage>(responseMessage);
 }
 
 void PublisherPortRouDi::releaseAllChunks() noexcept

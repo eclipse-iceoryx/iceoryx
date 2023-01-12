@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -134,7 +134,7 @@ class smart_lock_test : public Test
 
     Watchdog m_watchdog{iox::units::Duration::fromSeconds(60U)};
     using SutType_t = smart_lock<SmartLockTester>;
-    optional<SutType_t> m_sut;
+    iox::optional<SutType_t> m_sut;
     std::atomic<uint64_t> m_numberOfThreadWaiter{0U};
 };
 constexpr uint64_t NUMBER_OF_RUNS_PER_THREAD = 100000U;

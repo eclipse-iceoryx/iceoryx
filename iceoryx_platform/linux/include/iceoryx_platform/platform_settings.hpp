@@ -18,6 +18,7 @@
 
 #include <cstdint>
 #include <linux/limits.h>
+#include <type_traits>
 
 namespace iox
 {

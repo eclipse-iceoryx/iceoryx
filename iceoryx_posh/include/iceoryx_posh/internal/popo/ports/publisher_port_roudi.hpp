@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_POPO_PORTS_PUBLISHER_PORT_ROUDI_HPP
 #define IOX_POSH_POPO_PORTS_PUBLISHER_PORT_ROUDI_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -51,12 +51,12 @@ class PublisherPortRouDi : public BasePort
 
     /// @brief get an optional CaPro message that changes the offer state of the publisher
     /// @return CaPro message with the new offer state, empty optional if no state change
-    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
+    optional<capro::CaproMessage> tryGetCaProMessage() noexcept;
 
     /// @brief dispatch a CaPro message to the publisher for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept;
 
     /// @brief cleanup the publisher and release all the chunks it currently holds

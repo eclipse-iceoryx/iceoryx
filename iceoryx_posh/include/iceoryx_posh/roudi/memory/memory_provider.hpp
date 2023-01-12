@@ -19,10 +19,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -84,12 +84,12 @@ class MemoryProvider
     /// @param [in] memoryBlock is a pointer to a user defined MemoryBlock
     /// @return an MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED error if no further memory blocks can be added,
     /// otherwise success
-    cxx::expected<MemoryProviderError> addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept;
+    expected<MemoryProviderError> addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept;
 
     /// @brief With this call the memory requested by the MemoryBlocks need to be created. The function should be called
     /// from a MemoryManager which handles one or more MemoryProvider
     /// @return an MemoryProviderError if memory allocation was not successful, otherwise success
-    cxx::expected<MemoryProviderError> create() noexcept;
+    expected<MemoryProviderError> create() noexcept;
 
     /// @brief This function announces the availability of the memory to the MemoryBlocks. The function should be called
     /// from a MemoryManager which handles one or more MemoryProvider
@@ -99,12 +99,12 @@ class MemoryProvider
     /// requested to handle this appropriately, e.g. call the destructor of the underlying type. The
     /// function should be called from a MemoryManager which handles one or more MemoryProvider
     /// @return an error if memory destruction was not successful, otherwise success
-    cxx::expected<MemoryProviderError> destroy() noexcept;
+    expected<MemoryProviderError> destroy() noexcept;
 
     /// @brief This function provides the base address of the created memory
     /// @return an optional pointer to the base address of the created memory if the memory is available, otherwise a
-    /// cxx::nullopt_t
-    cxx::optional<void*> baseAddress() const noexcept;
+    /// nullopt_t
+    optional<void*> baseAddress() const noexcept;
 
     /// @brief This function provides the size of the created memory
     /// @return the size of the created memory
@@ -112,8 +112,8 @@ class MemoryProvider
 
     /// @brief This function provides the segment id of the relocatable memory segment which is owned by the
     /// MemoryProvider.
-    /// @return an optional segment id for the created memory if the memory is available, otherwise cxx::nullopt_t
-    cxx::optional<uint64_t> segmentId() const noexcept;
+    /// @return an optional segment id for the created memory if the memory is available, otherwise nullopt_t
+    optional<uint64_t> segmentId() const noexcept;
 
     /// @brief This function can be used to check if the requested memory is already available
     /// @return true if the requested memory is available, false otherwise
@@ -131,13 +131,13 @@ class MemoryProvider
     /// @param [in] alignment the required alignment for the memory
     /// @return the pointer of the begin of the created memory or a MemoryProviderError if the memory could not be
     /// created
-    virtual cxx::expected<void*, MemoryProviderError> createMemory(const uint64_t size,
-                                                                   const uint64_t alignment) noexcept = 0;
+    virtual expected<void*, MemoryProviderError> createMemory(const uint64_t size,
+                                                              const uint64_t alignment) noexcept = 0;
 
     /// @brief This function needs to be implemented to free the actual memory, e.g. in case of POSIX SHM, shm_unlink
     /// and munmap would need to be called in the implementation of this function
     /// @return a MemoryProviderError if the destruction failed, otherwise success
-    virtual cxx::expected<MemoryProviderError> destroyMemory() noexcept = 0;
+    virtual expected<MemoryProviderError> destroyMemory() noexcept = 0;
 
     static const char* getErrorString(const MemoryProviderError error) noexcept;
 

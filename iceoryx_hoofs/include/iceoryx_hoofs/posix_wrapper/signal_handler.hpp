@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SIGNAL_HANDLER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_platform/signal.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -68,8 +68,8 @@ class SignalGuard
     SignalGuard& operator=(const SignalGuard& rhs) = delete;
     SignalGuard& operator=(SignalGuard&& rhs) = delete;
 
-    friend cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal,
-                                                                              const SignalHandlerCallback_t) noexcept;
+    friend expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal,
+                                                                         const SignalHandlerCallback_t) noexcept;
 
   private:
     void restorePreviousAction() noexcept;
@@ -91,8 +91,8 @@ class SignalGuard
 /// @param[in] callback the callback which should be called when the signal is raised.
 /// @return SignalGuard on success - when it goes out of scope the previous signal action is restored. On error
 ///         SignalGuardError is returned which describes the error.
-cxx::expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
-                                                                   const SignalHandlerCallback_t callback) noexcept;
+expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signal,
+                                                              const SignalHandlerCallback_t callback) noexcept;
 } // namespace posix
 } // namespace iox
 #endif

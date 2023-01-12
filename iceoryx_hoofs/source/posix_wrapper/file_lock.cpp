@@ -34,18 +34,18 @@ namespace posix
 /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
-cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
+expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
     if (!cxx::isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.";
-        return cxx::error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+        return error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
 
     if (!cxx::isValidPathToDirectory(m_path))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
-        return cxx::error<FileLockError>(FileLockError::INVALID_PATH);
+        return error<FileLockError>(FileLockError::INVALID_PATH);
     }
 
     FileLock::FilePath_t fileLockPath = m_path;
@@ -66,8 +66,7 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (openCall.has_error())
     {
-        return cxx::error<FileLockError>(
-            FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
+        return error<FileLockError>(FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
     }
 
     auto fileDescriptor = openCall.value().value;
@@ -85,11 +84,10 @@ cxx::expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
         });
 
         //  possible errors in iox_close() are masked and we inform the user about the actual error
-        return cxx::error<FileLockError>(
-            FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
+        return error<FileLockError>(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
     }
 
-    return cxx::success<FileLock>(FileLock(fileDescriptor, fileLockPath));
+    return success<FileLock>(FileLock(fileDescriptor, fileLockPath));
 }
 
 FileLock::FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept
@@ -130,7 +128,7 @@ FileLock::~FileLock() noexcept
     }
 }
 
-cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
+expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 {
     if (m_fd != INVALID_FD)
     {
@@ -159,10 +157,10 @@ cxx::expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 
         if (cleanupFailed)
         {
-            return cxx::error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
+            return error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
         }
     }
-    return cxx::success<>();
+    return success<>();
 }
 
 void FileLock::invalidate() noexcept

@@ -65,19 +65,19 @@ struct NotificationCallback
 
 ///@brief the struct describes a callback which can be attached to a WaitSet or a Listener
 template <typename OriginType>
-struct NotificationCallback<OriginType, internal::NoType_t>
+struct NotificationCallback<OriginType, popo::internal::NoType_t>
 {
     using Ref_t = void (&)(OriginType* const);
     using Ptr_t = void (*)(OriginType* const);
 
     Ptr_t m_callback = nullptr;
-    internal::NoType_t* m_contextData = nullptr;
+    popo::internal::NoType_t* m_contextData = nullptr;
 };
 
 /// @brief creates an NotificationCallback
 /// @param[in] callback reference to a callback with the signature void(OriginType*)
 /// @return the callback stored inside of an NotificationCallback
-template <typename OriginType, typename ContextDataType = internal::NoType_t>
+template <typename OriginType, typename ContextDataType = popo::internal::NoType_t>
 NotificationCallback<OriginType, ContextDataType>
 createNotificationCallback(void (&callback)(OriginType* const)) noexcept;
 

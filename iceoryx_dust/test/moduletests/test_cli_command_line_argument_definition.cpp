@@ -28,6 +28,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox;
 
 /// This test is only some kind of compilation test to verify that the
 /// command line parser macros are working and connecting everything together correctly

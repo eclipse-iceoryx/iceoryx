@@ -39,7 +39,7 @@ inline void UntypedPublisherImpl<BasePublisherType>::publish(void* const userPay
 }
 
 template <typename BasePublisherType>
-inline cxx::expected<void*, AllocationError>
+inline expected<void*, AllocationError>
 UntypedPublisherImpl<BasePublisherType>::loan(const uint32_t userPayloadSize,
                                               const uint32_t userPayloadAlignment,
                                               const uint32_t userHeaderSize,
@@ -48,11 +48,11 @@ UntypedPublisherImpl<BasePublisherType>::loan(const uint32_t userPayloadSize,
     auto result = port().tryAllocateChunk(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (result.has_error())
     {
-        return cxx::error<AllocationError>(result.get_error());
+        return error<AllocationError>(result.get_error());
     }
     else
     {
-        return cxx::success<void*>(result.value()->userPayload());
+        return success<void*>(result.value()->userPayload());
     }
 }
 

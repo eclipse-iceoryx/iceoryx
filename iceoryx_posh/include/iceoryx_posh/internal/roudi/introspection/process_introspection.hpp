@@ -90,7 +90,7 @@ class ProcessIntrospection
     void setSendInterval(const units::Duration interval) noexcept;
 
   protected:
-    cxx::optional<PublisherPort> m_publisherPort;
+    optional<PublisherPort> m_publisherPort;
     void send() noexcept;
 
   private:

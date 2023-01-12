@@ -18,8 +18,6 @@
 #ifndef IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
 #define IOX_POSH_MOCKS_SUBSCRIBER_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -27,6 +25,8 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include "test.hpp"
 
@@ -51,7 +51,7 @@ class MockSubscriberPortUser
     MOCK_METHOD0(subscribe, void());
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(getSubscriptionState, iox::SubscribeState());
-    MOCK_METHOD0(tryGetChunk, iox::cxx::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
+    MOCK_METHOD0(tryGetChunk, iox::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD1(releaseChunk, void(const void* const));
     MOCK_METHOD0(releaseQueuedChunks, void());
     MOCK_CONST_METHOD0(hasNewChunks, bool());
@@ -78,7 +78,7 @@ class MockBaseSubscriber
     MOCK_METHOD0(unsubscribe, void());
     MOCK_CONST_METHOD0(hasData, bool());
     MOCK_METHOD0(hasMissedData, bool());
-    MOCK_METHOD0(takeChunk, iox::cxx::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
+    MOCK_METHOD0(takeChunk, iox::expected<const iox::mepoo::ChunkHeader*, iox::popo::ChunkReceiveResult>());
     MOCK_METHOD0(releaseQueuedData, void());
     MOCK_METHOD1(invalidateTrigger, bool(const uint64_t));
     MOCK_METHOD1(disableEvent, void(const iox::popo::SubscriberEvent));

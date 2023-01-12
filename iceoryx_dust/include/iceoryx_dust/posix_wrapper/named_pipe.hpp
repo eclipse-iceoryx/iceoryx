@@ -17,13 +17,15 @@
 #define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
@@ -49,7 +51,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char NAMED_PIPE_PREFIX[] = "iox_np_";
 
-    using Message_t = cxx::string<MAX_MESSAGE_SIZE>;
+    using Message_t = string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
 
     NamedPipe(const NamedPipe&) = delete;
@@ -66,37 +68,37 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
     /// @brief removes a named pipe artifact from the system
     /// @return true if the artifact was removed, false when no artifact was found and
     ///         IpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
-    static cxx::expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+    static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
     /// @return on failure an error which describes the failure
-    cxx::expected<IpcChannelError> trySend(const std::string& message) const noexcept;
+    expected<IpcChannelError> trySend(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @return success when message was sent otherwise an error which describes the failure
-    cxx::expected<IpcChannelError> send(const std::string& message) const noexcept;
+    expected<IpcChannelError> send(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe.
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
-    cxx::expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
+    expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
 
     /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    cxx::expected<std::string, IpcChannelError> tryReceive() const noexcept;
+    expected<std::string, IpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
     ///        received
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    cxx::expected<std::string, IpcChannelError> receive() const noexcept;
+    expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief receives a message via the named pipe.
     /// @param[in] timeout the timeout on how long this method should retry to receive a message
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    cxx::expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
     friend class DesignPattern::Creation<NamedPipe, IpcChannelError>;
@@ -117,10 +119,10 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
     /// @brief destroys an initialized named pipe.
     /// @return is always successful
-    cxx::expected<IpcChannelError> destroy() noexcept;
+    expected<IpcChannelError> destroy() noexcept;
 
   private:
-    cxx::optional<SharedMemoryObject> m_sharedMemory;
+    optional<SharedMemoryObject> m_sharedMemory;
 
     class NamedPipeData
     {
@@ -148,8 +150,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        cxx::optional<UnnamedSemaphore> m_sendSemaphore;
-        cxx::optional<UnnamedSemaphore> m_receiveSemaphore;
+        optional<UnnamedSemaphore> m_sendSemaphore;
+        optional<UnnamedSemaphore> m_receiveSemaphore;
     };
 
 

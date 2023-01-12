@@ -18,11 +18,11 @@
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/string.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
@@ -58,15 +58,14 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
     }
 }
 
-iox::cxx::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
-TomlRouDiConfigFileProvider::parse() noexcept
+iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRouDiConfigFileProvider::parse() noexcept
 {
     // Early exit in case no config file path was provided
     if (m_customConfigFilePath.empty())
     {
         iox::RouDiConfig_t defaultConfig;
         defaultConfig.setDefaults();
-        return iox::cxx::success<iox::RouDiConfig_t>(defaultConfig);
+        return iox::success<iox::RouDiConfig_t>(defaultConfig);
     }
     auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
 
@@ -82,32 +81,31 @@ TomlRouDiConfigFileProvider::parse() noexcept
         LogWarn() << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
                   << parserException.what();
 
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(parserError);
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(parserError);
     }
 
     auto general = parsedFile->get_table("general");
     if (!general)
     {
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(
             iox::roudi::RouDiConfigFileParseError::NO_GENERAL_SECTION);
     }
     auto configFileVersion = general->get_as<uint32_t>("version");
     if (!configFileVersion || *configFileVersion != 1)
     {
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(
             iox::roudi::RouDiConfigFileParseError::INVALID_CONFIG_FILE_VERSION);
     }
 
     auto segments = parsedFile->get_table_array("segment");
     if (!segments)
     {
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
-            iox::roudi::RouDiConfigFileParseError::NO_SEGMENTS);
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(iox::roudi::RouDiConfigFileParseError::NO_SEGMENTS);
     }
 
     if (segments->get().size() > iox::MAX_SHM_SEGMENTS)
     {
-        return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(
             iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED);
     }
 
@@ -120,13 +118,13 @@ TomlRouDiConfigFileProvider::parse() noexcept
         auto mempools = segment->get_table_array("mempool");
         if (!mempools)
         {
-            return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+            return iox::error<iox::roudi::RouDiConfigFileParseError>(
                 iox::roudi::RouDiConfigFileParseError::SEGMENT_WITHOUT_MEMPOOL);
         }
 
         if (mempools->get().size() > iox::MAX_NUMBER_OF_MEMPOOLS)
         {
-            return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+            return iox::error<iox::roudi::RouDiConfigFileParseError>(
                 iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED);
         }
 
@@ -136,23 +134,23 @@ TomlRouDiConfigFileProvider::parse() noexcept
             auto chunkCount = mempool->get_as<uint32_t>("count");
             if (!chunkSize)
             {
-                return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+                return iox::error<iox::roudi::RouDiConfigFileParseError>(
                     iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_SIZE);
             }
             if (!chunkCount)
             {
-                return iox::cxx::error<iox::roudi::RouDiConfigFileParseError>(
+                return iox::error<iox::roudi::RouDiConfigFileParseError>(
                     iox::roudi::RouDiConfigFileParseError::MEMPOOL_WITHOUT_CHUNK_COUNT);
             }
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, reader),
-             iox::posix::PosixGroup::groupName_t(iox::cxx::TruncateToCapacity, writer),
+            {iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, reader),
+             iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, writer),
              mempoolConfig});
     }
 
-    return iox::cxx::success<iox::RouDiConfig_t>(parsedConfig);
+    return iox::success<iox::RouDiConfig_t>(parsedConfig);
 }
 } // namespace config
 } // namespace iox

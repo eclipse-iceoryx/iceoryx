@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/pthread.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -74,7 +74,7 @@ enum class MutexTryLock
 ///     #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 ///
 ///     int main() {
-///         cxx::optional<iox::posix::Mutex> myMutex;
+///         optional<iox::posix::Mutex> myMutex;
 ///         iox::posix::MutexBuilder().isInterProcessCapable(true)
 ///                                   .mutexType(MutexType::RECURSIVE)
 ///                                   .priorityInheritance(MutexPriorityInheritance::NONE)
@@ -116,18 +116,18 @@ class mutex
 
     /// @brief Locks the mutex.
     /// @return When it fails it returns an enum describing the error.
-    cxx::expected<MutexLockError> lock() noexcept;
+    expected<MutexLockError> lock() noexcept;
 
     /// @brief  Unlocks the mutex.
     /// @return When it fails it returns an enum describing the error.
-    cxx::expected<MutexUnlockError> unlock() noexcept;
+    expected<MutexUnlockError> unlock() noexcept;
 
     /// @brief Tries to lock the mutex.
     /// @return If the lock was acquired MutexTryLock::LOCK_SUCCEEDED will be returned otherwise
     ///         MutexTryLock::FAILED_TO_ACQUIRE_LOCK.
     ///         If the lock is of MutexType::RECURSIVE the lock will also succeed.
     ///         On failure it returns an enum describing the failure.
-    cxx::expected<MutexTryLock, MutexTryLockError> try_lock() noexcept;
+    expected<MutexTryLock, MutexTryLockError> try_lock() noexcept;
 
     /// @brief When a mutex owning thread/process with MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED dies then the
     ///        next instance which would like to acquire the lock will get an
@@ -141,7 +141,7 @@ class mutex
 
   private:
     friend class MutexBuilder;
-    friend class cxx::optional<mutex>;
+    friend class optional<mutex>;
 
     pthread_mutex_t m_handle = PTHREAD_MUTEX_INITIALIZER;
     bool m_isDestructable = true;
@@ -210,7 +210,7 @@ class MutexBuilder
     IOX_BUILDER_PARAMETER(MutexPriorityInheritance, priorityInheritance, MutexPriorityInheritance::NONE)
 
     /// @brief Defines the maximum priority to which a thread which owns the thread can be promoted
-    IOX_BUILDER_PARAMETER(cxx::optional<int32_t>, priorityCeiling, cxx::nullopt)
+    IOX_BUILDER_PARAMETER(optional<int32_t>, priorityCeiling, nullopt)
 
     /// @brief Defines how a locked mutex behaves when the mutex owning thread terminates,
     ///        default: MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED
@@ -222,7 +222,7 @@ class MutexBuilder
     /// @brief Initializes a provided uninitialized mutex
     /// @param[in] uninitializedMutex the uninitialized mutex which should be initialized
     /// @return On failure MutexError which explains the error
-    cxx::expected<MutexCreationError> create(cxx::optional<mutex>& uninitializedMutex) noexcept;
+    expected<MutexCreationError> create(optional<mutex>& uninitializedMutex) noexcept;
 };
 } // namespace posix
 } // namespace iox

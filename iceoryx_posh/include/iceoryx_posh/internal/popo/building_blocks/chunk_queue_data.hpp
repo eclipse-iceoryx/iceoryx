@@ -47,7 +47,7 @@ struct ChunkQueueData : public LockingPolicy
     std::atomic_bool m_queueHasLostChunks{false};
 
     memory::RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
-    cxx::optional<uint64_t> m_conditionVariableNotificationIndex;
+    optional<uint64_t> m_conditionVariableNotificationIndex;
     const QueueFullPolicy m_queueFullPolicy;
 };
 

@@ -47,7 +47,7 @@ class SharedMemory_Test : public Test
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only
     static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
-    static iox::cxx::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
+    static iox::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
     createSut(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
     {
         return iox::posix::SharedMemoryBuilder()

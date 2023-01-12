@@ -127,7 +127,7 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
 
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    PosixUser::userName_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
+    PosixUser::userName_t currentUserName(iox::TruncateToCapacity, name->pwd.pw_name);
 
     entryAdded = m_accessController.addUserPermission(AccessController::Permission::READWRITE, currentUserName);
     EXPECT_TRUE(entryAdded);
@@ -255,7 +255,7 @@ TEST_F(AccessController_test, addNameInWrongPlace)
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
-    PosixUser::userName_t currentUserName(iox::cxx::TruncateToCapacity, name->pwd.pw_name);
+    PosixUser::userName_t currentUserName(iox::TruncateToCapacity, name->pwd.pw_name);
 
     m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
     m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);

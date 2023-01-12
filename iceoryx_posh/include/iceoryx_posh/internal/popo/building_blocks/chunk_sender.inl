@@ -96,7 +96,7 @@ inline typename ChunkSender<ChunkSenderDataType>::MemberType_t* ChunkSender<Chun
 }
 
 template <typename ChunkSenderDataType>
-inline cxx::expected<mepoo::ChunkHeader*, AllocationError>
+inline expected<mepoo::ChunkHeader*, AllocationError>
 ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
                                               const uint32_t userPayloadSize,
                                               const uint32_t userPayloadAlignment,
@@ -111,7 +111,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return cxx::error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
+        return error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
@@ -130,11 +130,11 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             lastChunkChunkHeader->~ChunkHeader();
             new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             lastChunkChunkHeader->setOriginId(originId);
-            return cxx::success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
+            return success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
         }
         else
         {
-            return cxx::error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+            return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -152,19 +152,19 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             {
                 // END of critical section
                 chunk.getChunkHeader()->setOriginId(originId);
-                return cxx::success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
+                return success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
             }
             else
             {
                 // release the allocated chunk
                 chunk = nullptr;
-                return cxx::error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+                return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
             }
         }
         else
         {
-            /// @todo iox-#1012 use cxx::error<E2>::from(E1); once available
-            return cxx::error<AllocationError>(cxx::into<AllocationError>(getChunkResult.get_error()));
+            /// @todo iox-#1012 use error<E2>::from(E1); once available
+            return error<AllocationError>(cxx::into<AllocationError>(getChunkResult.get_error()));
         }
     }
 }
@@ -235,7 +235,7 @@ inline void ChunkSender<ChunkSenderDataType>::pushToHistory(mepoo::ChunkHeader* 
 }
 
 template <typename ChunkSenderDataType>
-inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>::tryGetPreviousChunk() const noexcept
+inline optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>::tryGetPreviousChunk() const noexcept
 {
     if (!getMembers()->m_lastChunkUnmanaged.isLogicalNullptr())
     {
@@ -243,7 +243,7 @@ inline cxx::optional<const mepoo::ChunkHeader*> ChunkSender<ChunkSenderDataType>
     }
     else
     {
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
 }
 

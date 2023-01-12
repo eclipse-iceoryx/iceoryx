@@ -18,7 +18,7 @@
 #define IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -57,8 +57,8 @@ class MemoryBlock
 
     /// @brief This function provides the pointer to the requested memory.
     /// @return an optional pointer to a memory block with the requested size and alignment if the memory is available,
-    /// otherwise a cxx::nullopt_t
-    cxx::optional<void*> memory() const noexcept;
+    /// otherwise a nullopt_t
+    optional<void*> memory() const noexcept;
 
   protected:
     /// @brief The MemoryProvider calls this either when MemoryProvider::destroy is called or in its destructor.

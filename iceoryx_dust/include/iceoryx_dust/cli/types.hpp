@@ -17,8 +17,8 @@
 #ifndef IOX_DUST_CLI_TYPES_HPP
 #define IOX_DUST_CLI_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 
@@ -44,10 +44,10 @@ static constexpr uint64_t MAX_TYPE_NAME_LENGTH = 16;
 static constexpr char NO_SHORT_OPTION = '\0';
 static constexpr uint64_t MAX_NUMBER_OF_ARGUMENTS = 16;
 
-using OptionName_t = cxx::string<MAX_OPTION_NAME_LENGTH>;
-using OptionDescription_t = cxx::string<MAX_OPTION_DESCRIPTION_LENGTH>;
-using Argument_t = cxx::string<MAX_OPTION_ARGUMENT_LENGTH>;
-using TypeName_t = cxx::string<MAX_TYPE_NAME_LENGTH>;
+using OptionName_t = string<MAX_OPTION_NAME_LENGTH>;
+using OptionDescription_t = string<MAX_OPTION_DESCRIPTION_LENGTH>;
+using Argument_t = string<MAX_OPTION_ARGUMENT_LENGTH>;
+using TypeName_t = string<MAX_TYPE_NAME_LENGTH>;
 
 } // namespace cli
 } // namespace iox

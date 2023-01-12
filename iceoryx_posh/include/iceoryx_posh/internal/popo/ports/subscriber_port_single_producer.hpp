@@ -17,9 +17,9 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_SINGLE_PRODUCER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_SINGLE_PRODUCER_HPP_
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_roudi.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -43,12 +43,12 @@ class SubscriberPortSingleProducer : public SubscriberPortRouDi
 
     /// @brief get an optional CaPro message that changes the subscription state of the subscriber
     /// @return CaPro message with new subscription requet, empty optional if no state change
-    cxx::optional<capro::CaproMessage> tryGetCaProMessage() noexcept override;
+    optional<capro::CaproMessage> tryGetCaProMessage() noexcept override;
 
     /// @brief dispatch a CaPro message to the subscriber for processing
     /// @param[in] caProMessage to process
     /// @return CaPro message with an immediate response the provided CaPro message, empty optional if no response
-    cxx::optional<capro::CaproMessage>
+    optional<capro::CaproMessage>
     dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept override;
 };
 

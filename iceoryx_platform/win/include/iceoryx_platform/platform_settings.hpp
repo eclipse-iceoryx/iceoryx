@@ -17,6 +17,7 @@
 #define IOX_HOOFS_WIN_PLATFORM_PLATFORM_SETTINGS_HPP
 
 #include <cstdint>
+#include <type_traits>
 
 namespace iox
 {

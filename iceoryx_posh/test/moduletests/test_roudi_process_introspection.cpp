@@ -32,7 +32,7 @@ class ProcessIntrospectionAccess : public iox::roudi::ProcessIntrospection<MockP
   public:
     using iox::roudi::ProcessIntrospection<MockPublisherPortUser>::send;
 
-    iox::cxx::optional<MockPublisherPortUser>& getPublisherPort()
+    iox::optional<MockPublisherPortUser>& getPublisherPort()
     {
         return this->m_publisherPort;
     }
@@ -68,7 +68,7 @@ class ProcessIntrospection_test : public Test
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& sut)
     {
         EXPECT_CALL(sut.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-            .WillOnce(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+            .WillOnce(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
                 m_chunk.get()->chunkHeader())));
 
         bool chunkWasSent = false;
@@ -167,9 +167,8 @@ TEST_F(ProcessIntrospection_test, thread)
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-            .WillRepeatedly(
-                Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-                    m_chunk.get()->chunkHeader())));
+            .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+                m_chunk.get()->chunkHeader())));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), hasSubscribers()).WillRepeatedly(Return(true));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), offer()).Times(1);
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));

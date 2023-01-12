@@ -18,10 +18,7 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
@@ -30,6 +27,9 @@
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <atomic>
 #include <thread>
@@ -112,8 +112,8 @@ class GatewayGeneric : public gateway_t
     /// addressed with a service description repository feature.
     ///
     template <typename IceoryxPubSubOptions>
-    cxx::expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
-                                                      const IceoryxPubSubOptions& options) noexcept;
+    expected<channel_t, GatewayError> addChannel(const capro::ServiceDescription& service,
+                                                 const IceoryxPubSubOptions& options) noexcept;
 
     ///
     /// @brief findChannel Searches for a channel for the given service in the internally stored collection and returns
@@ -121,7 +121,7 @@ class GatewayGeneric : public gateway_t
     /// @param service The service to find a channel for.
     /// @return An optional containining the matching channel if one exists, otherwise an empty optional.
     ///
-    cxx::optional<channel_t> findChannel(const capro::ServiceDescription& service) const noexcept;
+    optional<channel_t> findChannel(const capro::ServiceDescription& service) const noexcept;
 
     ///
     /// @brief forEachChannel Executs the given function for each channel in the internally stored collection.
@@ -135,7 +135,7 @@ class GatewayGeneric : public gateway_t
     /// @param service The service whose channels hiould be discarded.
     /// @return an empty expected on success, otherwise an error
     ///
-    cxx::expected<GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
+    expected<GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
 
   private:
     ConcurrentChannelVector m_channels;

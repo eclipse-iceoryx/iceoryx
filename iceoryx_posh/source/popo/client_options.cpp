@@ -30,7 +30,7 @@ cxx::Serialization ClientOptions::serialize() const noexcept
                                       static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(serverTooSlowPolicy));
 }
 
-cxx::expected<ClientOptions, cxx::Serialization::Error>
+expected<ClientOptions, cxx::Serialization::Error>
 ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
 {
     using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
@@ -50,12 +50,12 @@ ClientOptions::deserialize(const cxx::Serialization& serialized) noexcept
         || responseQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA)
         || serverTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     clientOptions.responseQueueFullPolicy = static_cast<QueueFullPolicy>(responseQueueFullPolicy);
     clientOptions.serverTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(serverTooSlowPolicy);
-    return cxx::success<ClientOptions>(clientOptions);
+    return success<ClientOptions>(clientOptions);
 }
 
 bool ClientOptions::operator==(const ClientOptions& rhs) const noexcept

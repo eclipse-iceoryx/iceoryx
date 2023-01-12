@@ -8,19 +8,19 @@
 
 - Add `command_line.hpp` which contains a macro builder to parse command line arguments quickly and safely [#1067](https://github.com/eclipse-iceoryx/iceoryx/issues/1067)
 - optional inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
-- Add clear method for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
-- Add at method and operator[] for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Add clear method for `iox::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Add at method and operator[] for `iox::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - expected inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add CI check of used headers against a list [\#1252](https://github.com/eclipse-iceoryx/iceoryx/issues/1252)
-- Add insert method for `iox::cxx::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
-- Extend compare method of `iox::cxx::string` to compare additionally with std::string and char array [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
-- Add compare method for `iox::cxx::string` and chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Add insert method for `iox::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Extend compare method of `iox::string` to compare additionally with std::string and char array [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Add compare method for `iox::string` and chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Refactor semaphore [\#751](https://github.com/eclipse-iceoryx/iceoryx/issues/751)
     - Introduce `UnnamedSemaphore`
     - Introduce `NamedSemaphore`
     - Remove old `Semaphore`
-- Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::cxx::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
-- Extend `unsafe_append` and `append` methods of `iox::cxx::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
+- Extend `unsafe_append` and `append` methods of `iox::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
 - Use builder pattern in FileLock [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
     - Add the ability to adjust path and file permissions of the file lock
@@ -80,9 +80,9 @@
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Replace `MethodCallback` with `cxx::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
-- Remove implicit conversion from `cxx::expected` to `cxx::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
+- Remove implicit conversion from `iox::expected` to `iox::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
-- `SignalHandler` returns an `expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
+- `SignalHandler` returns an `iox::expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove the unused `PosixRights` struct [\#1556](https://github.com/eclipse-iceoryx/iceoryx/issues/1556)
 - Move quality level 2 classes to new package `iceoryx_dust` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
 - Remove unused classes from `iceoryx_hoofs` [\#590](https://github.com/eclipse-iceoryx/iceoryx/issues/590)
@@ -98,7 +98,7 @@
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
-- `ReleativePointer::registerPtr` returns `cxx::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
+- `ReleativePointer::registerPtr` returns `iox::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Rename `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - Prevent building GoogleTest when `GTest_DIR` is defined [\#1758](https://github.com/eclipse-iceoryx/iceoryx/issues/1758)
@@ -156,7 +156,7 @@
     // after
     #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 
-    iox::cxx::optional<iox::posix::UnnamedSemaphore> semaphore;
+    iox::optional<iox::posix::UnnamedSemaphore> semaphore;
     auto result = iox::posix::UnnamedSemaphoreBuilder()
                     .initialValue(0U)
                     .isInterProcessCapable(true)
@@ -176,7 +176,7 @@
     // after
     #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
 
-    iox::cxx::optional<iox::posix::NamedSemaphore> semaphore;
+    iox::optional<iox::posix::NamedSemaphore> semaphore;
     auto result = iox::posix::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
                     .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
@@ -209,8 +209,8 @@
    via a pointer to `FunctionalInterface`
 
    ```cpp
-   iox::cxx::FunctionalInterface<iox::cxx::optional<MyClass>, MyClass, void>* soSmart =
-       new iox::cxx::optional<MyClass>{};
+   iox::cxx::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
+       new iox::optional<MyClass>{};
 
    delete soSmart; // <- not possible anymore
    ```
@@ -271,14 +271,14 @@
     bool isCorrect = isValidPathToFile("/path/to/file");
     ```
 
-11. Remove implicit conversion from `cxx::expected` to `cxx::optional`
+11. Remove implicit conversion from `iox::expected` to `iox::optional`
 
     ```cpp
     // before
-    cxx::optional<int> myLama = someExpected;
+    iox::optional<int> myLama = someExpected;
 
     // after
-    cxx::optional<int> myLama = someExpected.to_optional();
+    iox::optional<int> myLama = someExpected.to_optional();
     ```
 
 12. Replace implicit conversion of `units::Duration` to `timeval` by a conversion method
@@ -396,7 +396,7 @@
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```
 
-20. `ReleativePointer::registerPtr` returns `cxx::optional`
+20. `ReleativePointer::registerPtr` returns `iox::optional`
 
     ```cpp
     // before
@@ -481,21 +481,21 @@
 
 
     // after
-    cxx::unique_ptr<int> myPtr(ptrToInt, someDeleter);
-    cxx::optional<cxx::unique_ptr<int>> emptyPtr(cxx::nullopt); // if unique_ptr shall be nullable use cxx::optional
+    iox::unique_ptr<int> myPtr(ptrToInt, someDeleter);
+    iox::optional<cxx::unique_ptr<int>> emptyPtr(nullopt); // if unique_ptr shall be nullable use optional
 
     // no more null check required since it is no longer nullable
     std::cout << *myPtr << std::endl;
 
     myPtr = std::move(uniquePtrToAnotherInt); // deleter(myPtr) is called before move
-    cxx::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
+    iox::unique_ptr<int>::release(std::move(myPtr)); // release consumes myPtr
     ```
 
     Compilers like ``gcc-12>`` and `clang>14` as well as static code analysis tools like `clang-tidy`
     will warn the user with a used after move warning when one accesses a moved object. Accessing
     a moved `unique_ptr` is well defined and behaves like dereferencing a `nullptr`.
 
-25. `mutex` must be always stored inside an `cxx::optional` and must use the builder pattern for
+25. `mutex` must be always stored inside an `iox::optional` and must use the builder pattern for
     construction
 
     ```cpp
@@ -505,7 +505,7 @@
     myMutex.lock();
 
     // after
-    cxx::optional<mutex> myMutex;
+    iox::optional<mutex> myMutex;
     iox::posix::MutexBuilder()
         .mutexType(iox::posix::MutexType::RECURSIVE)
         .create(myMutex);
@@ -535,7 +535,7 @@
 
     // after
     cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
-    cxx::optional<cxx::function<void()>> emptyPtr(cxx::nullopt); // if function shall be nullable use cxx::optional
+    iox::optional<cxx::function<void()>> emptyPtr(nullopt); // if function shall be nullable use optional
 
     // no more null check required since it is no longer nullable
     helloFunc();

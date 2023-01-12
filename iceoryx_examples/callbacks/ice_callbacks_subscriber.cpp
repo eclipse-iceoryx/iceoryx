@@ -15,11 +15,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/optional.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -28,8 +28,8 @@
 
 constexpr char APP_NAME[] = "iox-cpp-callbacks-subscriber";
 
-iox::cxx::optional<CounterTopic> leftCache;
-iox::cxx::optional<CounterTopic> rightCache;
+iox::optional<CounterTopic> leftCache;
+iox::optional<CounterTopic> rightCache;
 
 //! [heartbeat callback]
 void heartbeatCallback(iox::popo::UserTrigger*)

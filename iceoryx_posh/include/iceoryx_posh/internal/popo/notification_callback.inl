@@ -45,7 +45,7 @@ template <typename OriginType, typename ContextDataType>
 inline NotificationCallback<OriginType, ContextDataType>
 createNotificationCallback(void (&callback)(OriginType* const)) noexcept
 {
-    return NotificationCallback<OriginType, internal::NoType_t>{&callback};
+    return NotificationCallback<OriginType, popo::internal::NoType_t>{&callback};
 }
 
 template <typename OriginType, typename ContextDataType>

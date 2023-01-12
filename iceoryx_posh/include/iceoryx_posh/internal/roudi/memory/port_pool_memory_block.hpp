@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
 #define IOX_POSH_ROUDI_MEMORY_PORT_POOL_MEMORY_BLOCK_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -50,8 +50,8 @@ class PortPoolMemoryBlock : public MemoryBlock
     uint64_t alignment() const noexcept override;
 
     /// @brief This function enables the access to the PortPool
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<PortPoolData*> portPool() const noexcept;
+    /// @return an optional pointer to the underlying type, nullopt_t if value is not initialized
+    optional<PortPoolData*> portPool() const noexcept;
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable

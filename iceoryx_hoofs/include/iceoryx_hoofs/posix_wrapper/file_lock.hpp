@@ -16,11 +16,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/file.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -71,14 +71,14 @@ class FileLock
     /// @brief A file name without any containing slash (path separator). Can be used by the user
     ///        and the LOCK_FILE_SUFFIX will be appended later.
     ///        For instance "myLock" (without .lock)
-    using FileName_t = cxx::string<FILENAME_LENGTH>;
+    using FileName_t = string<FILENAME_LENGTH>;
     /// @brief The full path to the file, including the file
     ///        For instance "/path/to/myLock.lock"
-    using FilePath_t = cxx::string<platform::IOX_MAX_PATH_LENGTH>;
+    using FilePath_t = string<platform::IOX_MAX_PATH_LENGTH>;
     /// @brief The directory to the file
     ///        For instance "/path/to/"
-    using PathName_t = cxx::string<platform::IOX_MAX_PATH_LENGTH - PATH_SEPARATOR_LENGTH
-                                   - (FILENAME_LENGTH + LOCK_FILE_SUFFIX_LENGTH)>;
+    using PathName_t =
+        string<platform::IOX_MAX_PATH_LENGTH - PATH_SEPARATOR_LENGTH - (FILENAME_LENGTH + LOCK_FILE_SUFFIX_LENGTH)>;
 
     FileLock(const FileLock&) = delete;
     FileLock& operator=(const FileLock&) = delete;
@@ -106,7 +106,7 @@ class FileLock
     void invalidate() noexcept;
 
     static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
-    cxx::expected<FileLockError> closeFileDescriptor() noexcept;
+    expected<FileLockError> closeFileDescriptor() noexcept;
 };
 
 class FileLockBuilder
@@ -126,7 +126,7 @@ class FileLockBuilder
   public:
     /// @brief Creates a file lock
     /// @return a valid file lock or an FileLockError describing the error
-    cxx::expected<FileLock, FileLockError> create() noexcept;
+    expected<FileLock, FileLockError> create() noexcept;
 };
 } // namespace posix
 } // namespace iox

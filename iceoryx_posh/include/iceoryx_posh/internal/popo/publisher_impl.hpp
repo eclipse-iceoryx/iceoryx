@@ -53,7 +53,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @details The loaned sample is automatically released when it goes out of scope.
     ///
     template <typename... Args>
-    cxx::expected<Sample<T, H>, AllocationError> loan(Args&&... args) noexcept;
+    expected<Sample<T, H>, AllocationError> loan(Args&&... args) noexcept;
 
     ///
     /// @brief publish Publishes the given sample and then releases its loan.
@@ -66,7 +66,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @param val Value to copy.
     /// @return Error if unable to allocate memory to loan.
     ///
-    cxx::expected<AllocationError> publishCopyOf(const T& val) noexcept;
+    expected<AllocationError> publishCopyOf(const T& val) noexcept;
     ///
     /// @brief publishResultOf Loan a sample from memory, execute the provided callable to write to it, then publish it.
     /// @param c Callable with the signature void(T*, ArgTypes...) that write's it's result to T*.
@@ -74,7 +74,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @return Error if unable to allocate memory to loan.
     ///
     template <typename Callable, typename... ArgTypes>
-    cxx::expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+    expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
   protected:
     using BasePublisherType::port;
@@ -82,7 +82,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
   private:
     Sample<T, H> convertChunkHeaderToSample(mepoo::ChunkHeader* const header) noexcept;
 
-    cxx::expected<Sample<T, H>, AllocationError> loanSample() noexcept;
+    expected<Sample<T, H>, AllocationError> loanSample() noexcept;
 };
 
 } // namespace popo

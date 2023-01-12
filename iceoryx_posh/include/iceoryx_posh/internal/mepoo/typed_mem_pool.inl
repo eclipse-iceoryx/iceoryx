@@ -36,19 +36,19 @@ inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> nu
 }
 
 template <typename T>
-inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acquireChunkManagementPointer() noexcept
+inline expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acquireChunkManagementPointer() noexcept
 {
     ChunkHeader* chunkHeader = static_cast<ChunkHeader*>(m_memPool.getChunk());
     if (chunkHeader == nullptr)
     {
-        return cxx::error<TypedMemPoolError>(TypedMemPoolError::OutOfChunks);
+        return error<TypedMemPoolError>(TypedMemPoolError::OutOfChunks);
     }
 
     ChunkManagement* chunkManagement = static_cast<ChunkManagement*>(m_chunkManagementPool.getChunk());
     if (chunkManagement == nullptr)
     {
         errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_HAS_INCONSISTENT_STATE);
-        return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
+        return error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
     auto chunkSettingsResult = mepoo::ChunkSettings::create(sizeof(T), alignof(T));
@@ -58,17 +58,17 @@ inline cxx::expected<ChunkManagement*, TypedMemPoolError> TypedMemPool<T>::acqui
     new (chunkHeader) ChunkHeader(m_memPool.getChunkSize(), chunkSettings);
     new (chunkManagement) ChunkManagement(chunkHeader, &m_memPool, &m_chunkManagementPool);
 
-    return cxx::success<ChunkManagement*>(chunkManagement);
+    return success<ChunkManagement*>(chunkManagement);
 }
 
 template <typename T>
 template <typename... Targs>
-inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObject(Targs&&... args) noexcept
+inline expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObject(Targs&&... args) noexcept
 {
     auto chunkManagement = acquireChunkManagementPointer();
     if (chunkManagement.has_error())
     {
-        return cxx::error<TypedMemPoolError>(chunkManagement.get_error());
+        return error<TypedMemPoolError>(chunkManagement.get_error());
     }
 
     auto newObject = SharedPointer<T>::create(SharedChunk(*chunkManagement), std::forward<Targs>(args)...);
@@ -76,28 +76,28 @@ inline cxx::expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::creat
     if (newObject.has_error())
     {
         errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
-        return cxx::error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
+        return error<TypedMemPoolError>(TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    return cxx::success<SharedPointer<T>>(newObject.value());
+    return success<SharedPointer<T>>(newObject.value());
 }
 
 template <typename T>
 template <typename ErrorType, typename... Targs>
-inline cxx::expected<SharedPointer<T>, cxx::variant<TypedMemPoolError, ErrorType>>
+inline expected<SharedPointer<T>, variant<TypedMemPoolError, ErrorType>>
 TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
 {
-    using errorType_t = cxx::variant<TypedMemPoolError, ErrorType>;
+    using errorType_t = variant<TypedMemPoolError, ErrorType>;
     auto chunkManagement = acquireChunkManagementPointer();
     if (chunkManagement.has_error())
     {
-        return cxx::error<errorType_t>(cxx::in_place_index<0>(), chunkManagement.get_error());
+        return error<errorType_t>(in_place_index<0>(), chunkManagement.get_error());
     }
 
     auto newObject = T::create(std::forward<Targs>(args)...);
     if (newObject.has_error())
     {
-        return cxx::error<errorType_t>(cxx::in_place_index<1>(), newObject.get_error());
+        return error<errorType_t>(in_place_index<1>(), newObject.get_error());
     }
 
     auto sharedPointer = SharedPointer<T>::create(SharedChunk(*chunkManagement), std::move(*newObject));
@@ -105,10 +105,10 @@ TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
     if (sharedPointer.has_error())
     {
         errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
-        return cxx::error<errorType_t>(cxx::in_place_index<0>(), TypedMemPoolError::FatalErrorReachedInconsistentState);
+        return error<errorType_t>(in_place_index<0>(), TypedMemPoolError::FatalErrorReachedInconsistentState);
     }
 
-    return cxx::success<SharedPointer<T>>(sharedPointer.value());
+    return success<SharedPointer<T>>(sharedPointer.value());
 }
 
 template <typename T>

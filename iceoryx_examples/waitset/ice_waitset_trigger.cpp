@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/popo/enum_trigger_type.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/optional.hpp"
 
 #include <iostream>
 #include <thread>
@@ -219,12 +219,11 @@ class MyTriggerClass
         {
         case MyTriggerClassStates::HAS_PERFORMED_ACTION:
             return iox::popo::WaitSetIsConditionSatisfiedCallback(
-                iox::cxx::in_place, *this, &MyTriggerClass::hasPerformedAction);
+                iox::in_place, *this, &MyTriggerClass::hasPerformedAction);
         case MyTriggerClassStates::IS_ACTIVATED:
-            return iox::popo::WaitSetIsConditionSatisfiedCallback(
-                iox::cxx::in_place, *this, &MyTriggerClass::isActivated);
+            return iox::popo::WaitSetIsConditionSatisfiedCallback(iox::in_place, *this, &MyTriggerClass::isActivated);
         }
-        return iox::cxx::nullopt;
+        return iox::nullopt;
     }
     //! [condition satisfied]
 
@@ -237,8 +236,8 @@ class MyTriggerClass
     iox::popo::TriggerHandle m_activateTrigger;
 };
 
-iox::cxx::optional<iox::popo::WaitSet<>> waitset;
-iox::cxx::optional<MyTriggerClass> triggerClass;
+iox::optional<iox::popo::WaitSet<>> waitset;
+iox::optional<MyTriggerClass> triggerClass;
 
 constexpr uint64_t ACTIVATE_ID = 0U;
 constexpr uint64_t ACTION_ID = 1U;

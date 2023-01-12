@@ -10,7 +10,7 @@ package "iceoryx instance e.g. electronic control unit" {
     component "User App" {
         component DiscoveryInfoA <<object>> {
             artifact DiscoveryInfoNoteA [
-            +findService() : cxx::expected<InstanceContainer, FindServiceError>
+            +findService() : iox::expected<InstanceContainer, FindServiceError>
             -m_subscriber : Subscriber<ServiceRegistryTopic>
             -m_lastServiceRegistry : ServiceRegistryTopic
             ]
@@ -24,7 +24,7 @@ package "iceoryx instance e.g. electronic control unit" {
     component "DDS Gateway" {
         component DiscoveryInfoB <<object>> {
             artifact DiscoveryInfoNoteB [
-            +findService() : cxx::expected<InstanceContainer, FindServiceError>            
+            +findService() : iox::expected<InstanceContainer, FindServiceError>
             -m_subscriber : Subscriber<ServiceRegistryTopic>
             -m_lastServiceRegistry : ServiceRegistryTopic
             ]

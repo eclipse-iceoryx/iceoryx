@@ -302,7 +302,7 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
             GTEST_FAIL() << "Expected ClientPortData but got PortPoolError: " << static_cast<uint8_t>(error);
         });
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard =
         iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([&](const auto error, const auto errorLevel) {
             EXPECT_THAT(error, Eq(iox::PoshError::POSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE));
@@ -342,7 +342,7 @@ TEST_F(PortManager_test,
 
     publisherPortDataResult.value()->m_toBeDestroyed = true;
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&](const auto error, const auto) { detectedError.emplace(error); });
 
@@ -595,10 +595,10 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeInterfaceData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+        m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
 
         auto interfacePort = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+            iox::capro::Interfaces::INTERNAL, iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
         EXPECT_NE(interfacePort, nullptr);
     }
 }
@@ -654,10 +654,10 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeConditionVariableData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+        m_portManager->deletePortsOfProcess(iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
 
-        auto conditionVariableResult = m_portManager->acquireConditionVariableData(
-            iox::RuntimeName_t(iox::cxx::TruncateToCapacity, newProcessName));
+        auto conditionVariableResult =
+            m_portManager->acquireConditionVariableData(iox::RuntimeName_t(iox::TruncateToCapacity, newProcessName));
         EXPECT_FALSE(conditionVariableResult.has_error());
     }
 }
@@ -723,8 +723,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     // delete one and add one NodeData should be possible now
     unsigned int i = 0U;
-    iox::RuntimeName_t newProcessName(iox::cxx::TruncateToCapacity, runtimeName + iox::cxx::convert::toString(i));
-    iox::NodeName_t newNodeName(iox::cxx::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
+    iox::RuntimeName_t newProcessName(iox::TruncateToCapacity, runtimeName + iox::cxx::convert::toString(i));
+    iox::NodeName_t newNodeName(iox::TruncateToCapacity, nodeName + iox::cxx::convert::toString(i));
     // this is done because there is no removeNodeData method in the PortManager class
     m_portManager->deletePortsOfProcess(newProcessName);
 
@@ -765,7 +765,7 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
         auto servideDescription = getUniqueSD();
-        auto publisherRuntimeName = iox::RuntimeName_t(iox::cxx::TruncateToCapacity, "pub_" + std::to_string(i));
+        auto publisherRuntimeName = iox::RuntimeName_t(iox::TruncateToCapacity, "pub_" + std::to_string(i));
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(servideDescription,
                                                                                publisherOptions,
                                                                                publisherRuntimeName,

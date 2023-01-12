@@ -18,14 +18,14 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -65,7 +65,7 @@ class SubscriberPortUser : public BasePort
     /// the queue is returned (FiFo queue)
     /// @return New chunk header, ChunkReceiveResult on error
     /// or if there are no new chunks in the underlying queue
-    cxx::expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGetChunk() noexcept;
+    expected<const mepoo::ChunkHeader*, ChunkReceiveResult> tryGetChunk() noexcept;
 
     /// @brief Release a chunk that was obtained with tryGetChunk
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release

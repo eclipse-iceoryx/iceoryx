@@ -15,13 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/string.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 template <typename T>
 class stringTyped_test : public Test
@@ -2677,7 +2677,7 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
     const string<RESULT_CAPACITY> testCxxString(TruncateToCapacity, expectedString.substr(1).c_str(), 6U);
     const std::string testStdString = expectedString.substr(1);
 
-    // append iox::cxx::string
+    // append iox::string
     sut.append(TruncateToCapacity, testCxxString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
@@ -3687,5 +3687,26 @@ TEST(String10, InsertCxxStringAtPositionGreaterStringSizeFails)
     ASSERT_FALSE(sut.insert(sut.size() + 1U, string_to_insert, 1));
     EXPECT_THAT(sut.size(), Eq(expectedString.size()));
     EXPECT_THAT(sut, Eq(expectedString));
+}
+
+TEST(stringTyped_test, NonCxxStringsAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
+
+    EXPECT_FALSE(is_cxx_string<int>::value);
+    /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
+    /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    EXPECT_FALSE(is_cxx_string<int[10]>::value);
+    EXPECT_FALSE(is_cxx_string<char[11]>::value);
+    /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+    EXPECT_FALSE(is_cxx_string<char>::value);
+}
+
+TEST(stringTyped_test, CxxStringsAreIdentifiedCorrectly)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
+
+    EXPECT_TRUE(is_cxx_string<iox::string<1>>::value);
+    EXPECT_TRUE(is_cxx_string<iox::string<10>>::value);
 }
 } // namespace

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iox/optional.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -114,7 +114,7 @@ class Mepoo_IntegrationTest : public Test
                const configType defaultconf = configType::DEFAULT)
     {
         auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
-        m_roudiEnv = iox::cxx::optional<RouDiEnvironment>(config);
+        m_roudiEnv = iox::optional<RouDiEnvironment>(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
 
@@ -132,7 +132,7 @@ class Mepoo_IntegrationTest : public Test
                         const configType defaultconf = configType::DEFAULT)
     {
         auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
-        m_roudiEnv = iox::cxx::optional<RouDiEnvironment>(config);
+        m_roudiEnv = iox::optional<RouDiEnvironment>(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
     }
@@ -280,7 +280,7 @@ class Mepoo_IntegrationTest : public Test
 
     template <uint32_t size>
     bool sendReceiveSample(const uint32_t& times,
-                           iox::cxx::optional<iox::popo::AllocationError> expectedAllocationError = iox::cxx::nullopt)
+                           iox::optional<iox::popo::AllocationError> expectedAllocationError = iox::nullopt)
     {
         using Topic = MemPoolTestTopic<size>;
         constexpr auto TOPIC_SIZE = sizeof(Topic);
@@ -356,10 +356,10 @@ class Mepoo_IntegrationTest : public Test
 
     MePooConfig memconf;
 
-    iox::cxx::optional<iox::popo::PublisherPortUser> publisherPort;
-    iox::cxx::optional<iox::popo::SubscriberPortUser> subscriberPort;
+    iox::optional<iox::popo::PublisherPortUser> publisherPort;
+    iox::optional<iox::popo::SubscriberPortUser> subscriberPort;
 
-    iox::cxx::optional<RouDiEnvironment> m_roudiEnv;
+    iox::optional<RouDiEnvironment> m_roudiEnv;
 };
 
 constexpr uint32_t Mepoo_IntegrationTest::DEFAULT_NUMBER_OF_CHUNKS;
@@ -410,7 +410,7 @@ TEST_F(Mepoo_IntegrationTest, WrongSampleSize)
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
     constexpr uint32_t SAMPLE_SIZE = 2048U;
     constexpr uint32_t REPETITION = 1U;
-    iox::cxx::optional<iox::PoshError> receivedError;
+    iox::optional<iox::PoshError> receivedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&receivedError](const iox::PoshError error, const iox::ErrorLevel) { receivedError.emplace(error); });
 
@@ -428,7 +428,7 @@ TEST_F(Mepoo_IntegrationTest, SampleOverflow)
     SetUp(memPoolTestContainer, testMempoolConfig, configType::CUSTOM);
     constexpr uint32_t SAMPLE_SIZE_1 = 200U;
     constexpr uint32_t REPETITION = 1U;
-    iox::cxx::optional<iox::PoshError> receivedError;
+    iox::optional<iox::PoshError> receivedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&receivedError](const iox::PoshError error, const iox::ErrorLevel) { receivedError.emplace(error); });
 

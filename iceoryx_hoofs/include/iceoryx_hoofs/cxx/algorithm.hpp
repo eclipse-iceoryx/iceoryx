@@ -118,7 +118,7 @@ doesContainValue(const T value, const T firstValueListEntry, const ValueList... 
 
 /// @brief Merging two sorted containers so that the result is a sorted container
 ///        where every element is contained only once
-/// @tparam Container container type which has to support emplace_back() and size()
+/// @tparam[in] Container container type which has to support emplace_back() and size()
 /// @param[in] v1 the first sorted input container
 /// @param[in] v2 the second sorted input container
 /// @return sorted container which contains the elements of v1 and v2 and where every element is unique

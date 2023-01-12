@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_CONFIG_FILE_PROVIDER_HPP
 #define IOX_POSH_ROUDI_ROUDI_CONFIG_FILE_PROVIDER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -64,8 +64,8 @@ class RouDiConfigFileProvider
   public:
     /// @brief interface to parse a config file which needs to be implemented for a custom parser
     /// @param[in] configFilePath to the custom RouDi config file
-    /// @return a cxx::expected with either the parsed RouDiConfig_t if the parsing was successful or a parsing error
-    virtual cxx::expected<RouDiConfig_t, RouDiConfigFileParseError> parse() noexcept = 0;
+    /// @return a expected with either the parsed RouDiConfig_t if the parsing was successful or a parsing error
+    virtual expected<RouDiConfig_t, RouDiConfigFileParseError> parse() noexcept = 0;
 
   protected:
     ConfigFilePathString_t m_customConfigFilePath;

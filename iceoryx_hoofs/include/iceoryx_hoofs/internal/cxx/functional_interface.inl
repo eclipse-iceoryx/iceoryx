@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CXX_FUNCTIONAL_INTERFACE_INL
 
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iox/detail/string_type_traits.hpp"
 
 namespace iox
 {
@@ -33,7 +34,7 @@ template <typename StringType>
 inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 {
     static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
-                  "Only char arrays and iox::cxx::strings are allowed as message type.");
+                  "Only char arrays and iox::strings are allowed as message type.");
 
     const auto& derivedThis{*static_cast<const Derived*>(this)};
 
@@ -49,7 +50,7 @@ template <typename StringType>
 inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) & noexcept
 {
     static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
-                  "Only char arrays and iox::cxx::strings are allowed as message type.");
+                  "Only char arrays and iox::strings are allowed as message type.");
 
     auto& derivedThis{*static_cast<Derived*>(this)};
 

@@ -31,7 +31,7 @@ OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription
     std::move(*this).addOption({{'h', IS_SWITCH, {"help"}, {""}}, {"Display help."}, OptionType::SWITCH, {""}});
 }
 
-cxx::optional<OptionWithDetails> OptionDefinition::getOption(const OptionName_t& name) const noexcept
+optional<OptionWithDetails> OptionDefinition::getOption(const OptionName_t& name) const noexcept
 {
     for (const auto& r : m_availableOptions)
     {
@@ -40,7 +40,7 @@ cxx::optional<OptionWithDetails> OptionDefinition::getOption(const OptionName_t&
             return r;
         }
     }
-    return cxx::nullopt;
+    return nullopt;
 }
 
 OptionDefinition& OptionDefinition::addOption(const OptionWithDetails& option) noexcept

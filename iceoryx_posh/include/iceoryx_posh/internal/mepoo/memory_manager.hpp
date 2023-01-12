@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
+#include "iox/expected.hpp"
 
 #include <cstdint>
 #include <limits>
@@ -67,7 +68,7 @@ class MemoryManager
     /// @brief Obtains a chunk from the mempools
     /// @param[in] chunkSettings for the requested chunk
     /// @return a SharedChunk if successful, otherwise a MemoryManager::Error
-    cxx::expected<SharedChunk, Error> getChunk(const ChunkSettings& chunkSettings) noexcept;
+    expected<SharedChunk, Error> getChunk(const ChunkSettings& chunkSettings) noexcept;
 
     uint32_t getNumberOfMemPools() const noexcept;
 

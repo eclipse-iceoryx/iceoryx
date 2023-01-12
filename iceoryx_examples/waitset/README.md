@@ -159,7 +159,7 @@ which wakes up the blocking `waitset->wait()` whenever Ctrl+C is pressed.
 <!--[geoffrey][iceoryx_examples/waitset/ice_waitset_basic.cpp][sig handler]-->
 ```cpp
 std::atomic_bool keepRunning{true};
-iox::cxx::optional<iox::popo::WaitSet<>> waitset;
+iox::optional<iox::popo::WaitSet<>> waitset;
 
 static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
@@ -175,7 +175,7 @@ In the beginning we create the WaitSet. It is important to construct it only aft
 
 Afterwards we register our signal handler which will unblock the WaitSet. Finally we attach the subscriber to the WaitSet stating that we want to be notified when it has data (indicated by `iox::popo::SubscriberState::HAS_DATA`).
 
-It is good practice to handle potential failure while attaching, otherwise warnings will emerge since the return value `cxx::expected` is marked to require handling.
+It is good practice to handle potential failure while attaching, otherwise warnings will emerge since the return value `expected` is marked to require handling.
 In our case no errors should occur since the WaitSet can accomodate the two triggers we want to attach.
 
 <!--[geoffrey][iceoryx_examples/waitset/ice_waitset_basic.cpp][create waitset]-->
@@ -349,7 +349,7 @@ for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 }
 ```
 
-`attachEvent` is returning a `cxx::expected` which informs us if attaching the event
+`attachEvent` is returning a `expected` which informs us if attaching the event
 succeeded. In the `.or_else([&](auto){/*...*/})` part we perform the error handling
 whenever `attachEvent` fails.
 

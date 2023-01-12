@@ -57,7 +57,7 @@ class Response : public SmartChunk<RpcInterface<Response<T>, ServerSendError>,
     /// release ownership to it.
     /// @details Only available for server (non-const type T)
     template <typename S = T, typename = ForServerOnly<S, T>>
-    cxx::expected<ServerSendError> send() noexcept;
+    expected<ServerSendError> send() noexcept;
 
     /// @brief Retrieve the response-header of the underlying memory chunk loaned to the sample.
     /// @return The response-header of the underlying memory chunk.

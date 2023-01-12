@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_HPP
-#define IOX_HOOFS_CXX_VARIANT_HPP
+#ifndef IOX_HOOFS_VOCABULARY_VARIANT_HPP
+#define IOX_HOOFS_VOCABULARY_VARIANT_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/cxx/variant_internal.hpp"
+#include "iox/detail/variant_internal.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -29,13 +29,11 @@
 
 namespace iox
 {
-namespace cxx
-{
 /// @brief helper struct to perform an emplacement at a predefined index
 ///        in the constructor of a variant
 /// @tparam[in] N index where to perform the placement new
 /// @code
-///     cxx::variant<int, float, int> someVariant(cxx::in_place_index<2>(), 42);
+///     variant<int, float, int> someVariant(in_place_index<2>(), 42);
 /// @endcode
 template <uint64_t N>
 struct in_place_index
@@ -47,7 +45,7 @@ struct in_place_index
 ///        in the constructor of a variant
 /// @tparam[in] T type which should be created
 /// @code
-///     cxx::variant<int, float, double> someVariant(cxx::in_place_type<float>(), 123.456f);
+///     variant<int, float, double> someVariant(in_place_type<float>(), 123.456f);
 /// @endcode
 template <typename T>
 struct in_place_type
@@ -57,12 +55,12 @@ struct in_place_type
 
 /// @brief value which an invalid variant index occupies
 /// @code
-///     cxx::variant<int, float> someVariant;
+///     variant<int, float> someVariant;
 ///
 ///     // every unset variant has an invalid variant in the beginning
 ///     if ( someVariant.index() == INVALID_VARIANT_INDEX ) ...
 ///
-///     cxx::variant<int, float> someVariant2(cxx::in_place_type<int>, 12);
+///     variant<int, float> someVariant2(in_place_type<int>, 12);
 ///
 ///     // variant with setted value therefore the index is not invalid
 ///     if ( someVariant.index() != INVALID_VARIANT_INDEX ) ...
@@ -75,10 +73,10 @@ static constexpr uint64_t INVALID_VARIANT_INDEX{std::numeric_limits<uint64_t>::m
 /// @param Types... variadic list of types which the variant should be able to store
 ///
 /// @code
-///     #include "iceoryx_hoofs/cxx/variant.hpp"
+///     #include "iox/variant.hpp"
 ///     #include <iostream>
 ///
-///     cxx::variant<int, float, double> someVariant;
+///     variant<int, float, double> someVariant;
 ///
 ///     // ... do stuff
 ///
@@ -207,7 +205,7 @@ class variant final
     ///             pointer, if it does contain no type at all or a different type it returns
     ///             nullptr.
     /// @code
-    ///     cxx::variant<int, float> someVariant(cxx::in_place_type<int>(), 12);
+    ///     variant<int, float> someVariant(in_place_type<int>(), 12);
     ///     int * someNumber = someVariant.template get_at_index<0>();
     /// @endcode
     template <uint64_t TypeIndex>
@@ -219,7 +217,7 @@ class variant final
     ///             pointer, if it does contain no type at all or a different type it returns
     ///             nullptr.
     /// @code
-    ///     cxx::variant<int, float> someVariant(cxx::in_place_type<int>(), 12);
+    ///     variant<int, float> someVariant(in_place_type<int>(), 12);
     ///     int * someNumber = someVariant.template get_at_index<0>();
     /// @endcode
     template <uint64_t TypeIndex>
@@ -306,9 +304,8 @@ constexpr bool operator==(const variant<Types...>& lhs, const variant<Types...>&
 template <typename... Types>
 constexpr bool operator!=(const variant<Types...>& lhs, const variant<Types...>& rhs) noexcept;
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/variant.inl"
+#include "iox/detail/variant.inl"
 
-#endif // IOX_HOOFS_CXX_VARIANT_HPP
+#endif // IOX_HOOFS_VOCABULARY_VARIANT_HPP

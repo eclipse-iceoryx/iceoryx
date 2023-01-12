@@ -26,24 +26,24 @@ namespace posix
 {
 namespace internal
 {
-cxx::error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
+error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EINVAL:
         IOX_LOG(ERROR) << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-        return cxx::error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
+        return error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
     case EOVERFLOW:
         IOX_LOG(ERROR) << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
-        return cxx::error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
     case EINTR:
         IOX_LOG(ERROR) << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
-        return cxx::error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
+        return error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
     default:
         IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
         break;
     }
-    return cxx::error<SemaphoreError>(SemaphoreError::UNDEFINED);
+    return error<SemaphoreError>(SemaphoreError::UNDEFINED);
 }
 
 template <typename SemaphoreChild>
@@ -53,7 +53,7 @@ iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 }
 
 template <typename SemaphoreChild>
-cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
+expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
 {
     auto result = posixCall(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
 
@@ -62,11 +62,11 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcep
         return createErrorFromErrno(result.get_error().errnum);
     }
 
-    return cxx::success<>();
+    return success<>();
 }
 
 template <typename SemaphoreChild>
-cxx::expected<SemaphoreWaitState, SemaphoreError>
+expected<SemaphoreWaitState, SemaphoreError>
 SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) noexcept
 {
     const timespec timeoutAsTimespec = timeout.timespec(units::TimeSpecReference::Epoch);
@@ -80,12 +80,12 @@ SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) no
         return createErrorFromErrno(result.get_error().errnum);
     }
 
-    return cxx::success<SemaphoreWaitState>((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT
-                                                                                 : SemaphoreWaitState::NO_TIMEOUT);
+    return success<SemaphoreWaitState>((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT
+                                                                            : SemaphoreWaitState::NO_TIMEOUT);
 }
 
 template <typename SemaphoreChild>
-cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
+expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
 {
     auto result = posixCall(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
@@ -94,11 +94,11 @@ cxx::expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait(
         return createErrorFromErrno(result.get_error().errnum);
     }
 
-    return cxx::success<bool>(result.value().errnum != EAGAIN);
+    return success<bool>(result.value().errnum != EAGAIN);
 }
 
 template <typename SemaphoreChild>
-cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
+expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
 {
     auto result = posixCall(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
 
@@ -107,7 +107,7 @@ cxx::expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcep
         return createErrorFromErrno(result.get_error().errnum);
     }
 
-    return cxx::success<>();
+    return success<>();
 }
 
 template class SemaphoreInterface<UnnamedSemaphore>;

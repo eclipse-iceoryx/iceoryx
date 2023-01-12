@@ -842,7 +842,7 @@ void PortManager::destroySubscriberPort(SubscriberPortType::MemberType_t* const 
     m_portPool->removeSubscriberPort(subscriberPortData);
 }
 
-cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
                                       const popo::PublisherOptions& publisherOptions,
                                       const RuntimeName_t& runtimeName,
@@ -857,7 +857,7 @@ PortManager::acquirePublisherPortData(const capro::ServiceDescription& service,
         });
 }
 
-cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
 PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescription& service,
                                                       const popo::PublisherOptions& publisherOptions,
                                                       const RuntimeName_t& runtimeName,
@@ -873,7 +873,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
             }))
     {
         errorHandler(PoshError::POSH__PORT_MANAGER_PUBLISHERPORT_NOT_UNIQUE, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
+        return error<PortPoolError>(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS);
     }
 
     if (runtimeName == RuntimeName_t{IPC_CHANNEL_ROUDI_NAME})
@@ -883,7 +883,7 @@ PortManager::acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescri
     else if (isInternal(service))
     {
         errorHandler(PoshError::POSH__PORT_MANAGER_INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN, ErrorLevel::MODERATE);
-        return cxx::error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN);
+        return error<PortPoolError>(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN);
     }
 
     // we can create a new port
@@ -935,7 +935,7 @@ PublisherPortRouDiType::MemberType_t* PortManager::acquireInternalPublisherPortD
         .value();
 }
 
-cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
+expected<SubscriberPortType::MemberType_t*, PortPoolError>
 PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
                                        const popo::SubscriberOptions& subscriberOptions,
                                        const RuntimeName_t& runtimeName,
@@ -959,7 +959,7 @@ PortManager::acquireSubscriberPortData(const capro::ServiceDescription& service,
     return maybeSubscriberPortData;
 }
 
-cxx::expected<popo::ClientPortData*, PortPoolError>
+expected<popo::ClientPortData*, PortPoolError>
 PortManager::acquireClientPortData(const capro::ServiceDescription& service,
                                    const popo::ClientOptions& clientOptions,
                                    const RuntimeName_t& runtimeName,
@@ -978,7 +978,7 @@ PortManager::acquireClientPortData(const capro::ServiceDescription& service,
         });
 }
 
-cxx::expected<popo::ServerPortData*, PortPoolError>
+expected<popo::ServerPortData*, PortPoolError>
 PortManager::acquireServerPortData(const capro::ServiceDescription& service,
                                    const popo::ServerOptions& serverOptions,
                                    const RuntimeName_t& runtimeName,
@@ -1001,7 +1001,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
                       << serverPortData->m_runtimeName << "' with service '"
                       << service.operator cxx::Serialization().toString() << "'.";
             errorHandler(PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE, ErrorLevel::MODERATE);
-            return cxx::error<PortPoolError>(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS);
+            return error<PortPoolError>(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS);
         }
     }
 
@@ -1017,7 +1017,7 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
         });
 }
 
-/// @todo iox-#518 return a cxx::expected
+/// @todo iox-#518 return a expected
 popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces interface,
                                                                const RuntimeName_t& runtimeName,
                                                                const NodeName_t& /*node*/) noexcept
@@ -1092,13 +1092,13 @@ void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescriptio
     publishServiceRegistry();
 }
 
-cxx::expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
-                                                                              const NodeName_t& nodeName) noexcept
+expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                         const NodeName_t& nodeName) noexcept
 {
     return m_portPool->addNodeData(runtimeName, nodeName, 0);
 }
 
-cxx::expected<popo::ConditionVariableData*, PortPoolError>
+expected<popo::ConditionVariableData*, PortPoolError>
 PortManager::acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept
 {
     return m_portPool->addConditionVariableData(runtimeName);

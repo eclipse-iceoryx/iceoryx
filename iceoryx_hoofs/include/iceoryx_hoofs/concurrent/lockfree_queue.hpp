@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 #define IOX_HOOFS_CONCURRENT_LOCKFREE_QUEUE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/internal/concurrent/lockfree_queue/index_queue.hpp"
+#include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <atomic>
@@ -71,19 +71,19 @@ class LockFreeQueue
     /// @param value to be inserted is copied into the queue
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> push(const ElementType& value) noexcept;
+    iox::optional<ElementType> push(const ElementType& value) noexcept;
 
     /// @brief inserts value in FIFO order, always succeeds by removing the oldest value
     /// when the queue is detected to be full (overflow)
     /// @param value to be inserted is moved into the queue if possible
     /// @return removed value if an overflow occured, empty optional otherwise
     /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> push(ElementType&& value) noexcept;
+    iox::optional<ElementType> push(ElementType&& value) noexcept;
 
     /// @brief tries to remove value in FIFO order
     /// @return value if removal was successful, empty optional otherwise
     /// @note threadsafe, lockfree
-    iox::cxx::optional<ElementType> pop() noexcept;
+    iox::optional<ElementType> pop() noexcept;
 
     /// @brief check whether the queue is empty
     /// @return true iff the queue is empty
@@ -121,9 +121,9 @@ class LockFreeQueue
 
     // needed to avoid code duplication (via universal reference type deduction)
     template <typename T>
-    iox::cxx::optional<ElementType> pushImpl(T&& value) noexcept;
+    iox::optional<ElementType> pushImpl(T&& value) noexcept;
 
-    cxx::optional<ElementType> readBufferAt(const uint64_t& index) noexcept;
+    optional<ElementType> readBufferAt(const uint64_t& index) noexcept;
 };
 } // namespace concurrent
 } // namespace iox

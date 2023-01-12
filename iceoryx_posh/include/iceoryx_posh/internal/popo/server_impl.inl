@@ -37,12 +37,12 @@ inline ServerImpl<Req, Res, BaseServerT>::~ServerImpl() noexcept
 }
 
 template <typename Req, typename Res, typename BaseServerT>
-cxx::expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServerT>::take() noexcept
+expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServerT>::take() noexcept
 {
     auto result = port().getRequest();
     if (result.has_error())
     {
-        return cxx::error<ServerRequestResult>(result.get_error());
+        return error<ServerRequestResult>(result.get_error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -50,18 +50,18 @@ cxx::expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, Base
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return cxx::success<Request<const Req>>(Request<const Req>{std::move(request)});
+    return success<Request<const Req>>(Request<const Req>{std::move(request)});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
-cxx::expected<Response<Res>, AllocationError>
+expected<Response<Res>, AllocationError>
 ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& request) noexcept
 {
     const auto* requestHeader = &request.getRequestHeader();
     auto result = port().allocateResponse(requestHeader, sizeof(Res), alignof(Res));
     if (result.has_error())
     {
-        return cxx::error<AllocationError>(result.get_error());
+        return error<AllocationError>(result.get_error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
@@ -69,20 +69,20 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return cxx::success<Response<Res>>(Response<Res>{std::move(response), *this});
+    return success<Response<Res>>(Response<Res>{std::move(response), *this});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
 template <typename... Args>
-cxx::expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>::loan(const Request<const Req>& request,
-                                                                                      Args&&... args) noexcept
+expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>::loan(const Request<const Req>& request,
+                                                                                 Args&&... args) noexcept
 {
     return std::move(loanUninitialized(request).and_then(
         [&](auto& response) { new (response.get()) Res(std::forward<Args>(args)...); }));
 }
 
 template <typename Req, typename Res, typename BaseServerT>
-cxx::expected<ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
+expected<ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
 {
     // take the ownership of the chunk from the Response to transfer it to `sendResponse`
     auto payload = response.release();

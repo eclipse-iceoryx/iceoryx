@@ -25,7 +25,7 @@ namespace posix
 void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
-        // String length limit is ensured through cxx::string
+        // String length limit is ensured through iox::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
         IOX_LOG(ERROR) << "This should never happen! " << r.getHumanReadableErrnum();
         cxx::Ensures(false && "internal logic error");
@@ -48,11 +48,11 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
             cxx::Ensures(false && "internal logic error");
         });
 
-    return ThreadName_t(cxx::TruncateToCapacity, &tempName[0]);
+    return ThreadName_t(TruncateToCapacity, &tempName[0]);
 }
 
-cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitializedThread,
-                                                 const Thread::callable_t& callable) noexcept
+expected<ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThread,
+                                            const Thread::callable_t& callable) noexcept
 {
     uninitializedThread.emplace(m_name, callable);
 
@@ -67,10 +67,10 @@ cxx::expected<ThreadError> ThreadBuilder::create(cxx::optional<Thread>& uninitia
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
-        return cxx::error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
+        return error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
-    return cxx::success<>();
+    return success<>();
 }
 
 Thread::Thread(const ThreadName_t& name, const callable_t& callable) noexcept

@@ -91,7 +91,7 @@ TEST_F(MemoryManager_test, AddingMempoolNotInTheIncreasingOrderReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_256, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -111,7 +111,7 @@ TEST_F(MemoryManager_test, WrongCallOfConfigureMemoryManagerReturnsError)
     mempoolconf.addMemPool({CHUNK_SIZE_32, CHUNK_COUNT});
     mempoolconf.addMemPool({CHUNK_SIZE_64, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -157,7 +157,7 @@ TEST_F(MemoryManager_test, GetNumberOfMemPoolsMethodReturnsTheNumberOfMemPools)
 TEST_F(MemoryManager_test, GetChunkMethodWithNoMemPoolInMemConfigReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dff31ea2-8ae0-4786-8c97-633af59c287d");
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -189,7 +189,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWithChunkSizeGreaterThanAvailableChunkS
     mempoolconf.addMemPool({CHUNK_SIZE_128, CHUNK_COUNT});
     sut->configureMemoryManager(mempoolconf, *allocator, *allocator);
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -223,7 +223,7 @@ TEST_F(MemoryManager_test, GetChunkMethodWhenNoFreeChunksInMemPoolConfigReturnsE
     auto& chunkSettings = chunkSettingsResult.value();
     auto chunkStore = getChunksFromSut(CHUNK_COUNT, chunkSettings);
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);

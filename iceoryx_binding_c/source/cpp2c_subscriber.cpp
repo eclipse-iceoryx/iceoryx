@@ -80,10 +80,10 @@ cpp2c_Subscriber::getCallbackForIsStateConditionSatisfied(const SubscriberState 
     switch (subscriberState)
     {
     case SubscriberState::HAS_DATA:
-        return iox::popo::WaitSetIsConditionSatisfiedCallback(iox::cxx::in_place, *this, &cpp2c_Subscriber::hasSamples);
+        return iox::popo::WaitSetIsConditionSatisfiedCallback(iox::in_place, *this, &cpp2c_Subscriber::hasSamples);
     }
 
-    return iox::cxx::nullopt;
+    return iox::nullopt;
 }
 
 void cpp2c_Subscriber::invalidateTrigger(const uint64_t uniqueTriggerId) noexcept

@@ -59,7 +59,7 @@ TEST_F(Sample_test, PublishingAlreadyPublishedSampleCallsErrorHandler)
 
     sutProducer.publish();
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -76,7 +76,7 @@ TEST_F(Sample_test, PublishingMovedSampleCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4c3a9a19-0581-4e47-aed7-f55892bef7fa");
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const auto errorLevel) {
             detectedError.emplace(error);

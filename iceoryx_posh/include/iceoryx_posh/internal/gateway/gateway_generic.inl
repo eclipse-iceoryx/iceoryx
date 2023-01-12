@@ -77,23 +77,23 @@ inline GatewayGeneric<channel_t, gateway_t>::GatewayGeneric(capro::Interfaces in
 
 template <typename channel_t, typename gateway_t>
 template <typename IceoryxPubSubOptions>
-inline cxx::expected<channel_t, GatewayError>
+inline expected<channel_t, GatewayError>
 GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription& service,
                                                  const IceoryxPubSubOptions& options) noexcept
 {
     // Filter out wildcard services
-    if (service.getServiceIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*")
-        || service.getInstanceIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*")
-        || service.getEventIDString() == capro::IdString_t(cxx::TruncateToCapacity, "*"))
+    if (service.getServiceIDString() == capro::IdString_t(TruncateToCapacity, "*")
+        || service.getInstanceIDString() == capro::IdString_t(TruncateToCapacity, "*")
+        || service.getEventIDString() == capro::IdString_t(TruncateToCapacity, "*"))
     {
-        return cxx::error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
+        return error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }
 
     // Return existing channel if one for the service already exists, otherwise create a new one
     auto existingChannel = findChannel(service);
     if (existingChannel.has_value())
     {
-        return cxx::success<channel_t>(existingChannel.value());
+        return success<channel_t>(existingChannel.value());
     }
     else
     {
@@ -105,19 +105,19 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
                                         options);
         if (result.has_error())
         {
-            return cxx::error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
+            return error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
         else
         {
             auto channel = result.value();
             m_channels->push_back(channel);
-            return cxx::success<channel_t>(channel);
+            return success<channel_t>(channel);
         }
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline cxx::optional<channel_t>
+inline optional<channel_t>
 GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescription& service) const noexcept
 {
     auto guardedVector = this->m_channels.getScopeGuard();
@@ -126,11 +126,11 @@ GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescr
     });
     if (channel == guardedVector->end())
     {
-        return cxx::nullopt_t();
+        return nullopt_t();
     }
     else
     {
-        return cxx::make_optional<channel_t>(*channel);
+        return make_optional<channel_t>(*channel);
     }
 }
 
@@ -146,7 +146,7 @@ GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<voi
 }
 
 template <typename channel_t, typename gateway_t>
-inline cxx::expected<GatewayError>
+inline expected<GatewayError>
 GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.getScopeGuard();
@@ -156,11 +156,11 @@ GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescrip
     if (channel != guardedVector->end())
     {
         guardedVector->erase(channel);
-        return cxx::success<void>();
+        return success<void>();
     }
     else
     {
-        return cxx::error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
+        return error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
     }
 }
 

@@ -18,10 +18,10 @@
 #ifndef IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 #define IOX_POSH_MOCKS_PUBLISHER_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/internal/popo/base_publisher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iox/expected.hpp"
 
 #include "test.hpp"
 
@@ -54,11 +54,11 @@ class MockPublisherPortUser
     }
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD4(tryAllocateChunk,
-                 iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(
+                 iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>(
                      const uint32_t, const uint32_t, const uint32_t, const uint32_t));
     MOCK_METHOD1(releaseChunk, void(iox::mepoo::ChunkHeader* const));
     MOCK_METHOD1(sendChunk, void(iox::mepoo::ChunkHeader* const));
-    MOCK_METHOD0(tryGetPreviousChunk, iox::cxx::optional<iox::mepoo::ChunkHeader*>());
+    MOCK_METHOD0(tryGetPreviousChunk, iox::optional<iox::mepoo::ChunkHeader*>());
     MOCK_METHOD0(offer, void());
     MOCK_METHOD0(stopOffer, void());
     MOCK_CONST_METHOD0(isOffered, bool());

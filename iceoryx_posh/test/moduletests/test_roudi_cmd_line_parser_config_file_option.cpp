@@ -18,8 +18,8 @@
 #if !defined(_WIN32)
 #include "test.hpp"
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
+#include "iox/string.hpp"
 
 #include <memory>
 

@@ -16,13 +16,13 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
 #define IOX_POSH_ROUDI_MEMORY_ROUDI_MEMORY_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -48,16 +48,16 @@ class RouDiMemoryInterface
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    virtual cxx::expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
+    virtual expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    virtual cxx::expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
+    virtual expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
 
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
-    virtual cxx::optional<PortPool*> portPool() noexcept = 0;
-    virtual cxx::optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
-    virtual cxx::optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
+    virtual optional<PortPool*> portPool() noexcept = 0;
+    virtual optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
+    virtual optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
 };
 } // namespace roudi
 } // namespace iox

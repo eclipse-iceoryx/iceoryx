@@ -17,16 +17,16 @@
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/variant.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/variant.hpp"
 
 #include <algorithm>
 
@@ -54,9 +54,9 @@ class TypedMemPool
     TypedMemPool& operator=(TypedMemPool&&) = delete;
 
     template <typename... Targs>
-    cxx::expected<SharedPointer<T>, TypedMemPoolError> createObject(Targs&&... args) noexcept;
+    expected<SharedPointer<T>, TypedMemPoolError> createObject(Targs&&... args) noexcept;
     template <typename ErrorType, typename... Targs>
-    cxx::expected<SharedPointer<T>, cxx::variant<TypedMemPoolError, ErrorType>>
+    expected<SharedPointer<T>, variant<TypedMemPoolError, ErrorType>>
     createObjectWithCreationPattern(Targs&&... args) noexcept;
     uint32_t getChunkCount() const noexcept;
     uint32_t getUsedChunks() const noexcept;
@@ -67,7 +67,7 @@ class TypedMemPool
 
   private:
     static uint64_t requiredChunkSize() noexcept;
-    cxx::expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
+    expected<ChunkManagement*, TypedMemPoolError> acquireChunkManagementPointer() noexcept;
 
   private:
     MemPool m_memPool;

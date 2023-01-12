@@ -71,7 +71,7 @@ TEST_F(MemPool_test, MempoolCtorWhenChunkSizeIsNotAMultipleOfAlignmentReturnErro
     iox::posix::Allocator allocator{memory, 100U};
     constexpr uint32_t NOT_ALLIGNED_CHUNKED_SIZE{33U};
 
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);
@@ -175,7 +175,7 @@ TEST_F(MemPool_test, FreeChunkMethodWhenSameChunkIsTriedToFreeTwiceReturnsError)
     constexpr uint32_t INDEX{0U};
     chunks.push_back(reinterpret_cast<uint8_t*>(sut.getChunk()));
     sut.freeChunk(chunks[INDEX]);
-    iox::cxx::optional<iox::PoshError> detectedError;
+    iox::optional<iox::PoshError> detectedError;
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>(
         [&detectedError](const iox::PoshError error, const iox::ErrorLevel errorLevel) {
             detectedError.emplace(error);

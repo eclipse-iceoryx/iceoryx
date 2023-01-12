@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PORT_MANAGER_HPP
 #define IOX_POSH_ROUDI_PORT_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
@@ -43,6 +42,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iox/optional.hpp"
 
 #include <mutex>
 
@@ -65,7 +65,7 @@ class PortManager
 
     void doDiscovery() noexcept;
 
-    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     acquirePublisherPortData(const capro::ServiceDescription& service,
                              const popo::PublisherOptions& publisherOptions,
                              const RuntimeName_t& runtimeName,
@@ -77,7 +77,7 @@ class PortManager
                                      const popo::PublisherOptions& publisherOptions,
                                      mepoo::MemoryManager* const payloadDataSegmentMemoryManager) noexcept;
 
-    cxx::expected<SubscriberPortType::MemberType_t*, PortPoolError>
+    expected<SubscriberPortType::MemberType_t*, PortPoolError>
     acquireSubscriberPortData(const capro::ServiceDescription& service,
                               const popo::SubscriberOptions& subscriberOptions,
                               const RuntimeName_t& runtimeName,
@@ -90,7 +90,7 @@ class PortManager
     /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
     /// @param[in] portConfigInfo for the new client port
     /// @return on success a pointer to a ClientPortData; on error a PortPoolError
-    cxx::expected<popo::ClientPortData*, PortPoolError>
+    expected<popo::ClientPortData*, PortPoolError>
     acquireClientPortData(const capro::ServiceDescription& service,
                           const popo::ClientOptions& clientOptions,
                           const RuntimeName_t& runtimeName,
@@ -104,7 +104,7 @@ class PortManager
     /// @param[in] payloadDataSegmentMemoryManager to acquire chunks for the requests
     /// @param[in] portConfigInfo for the new server port
     /// @return on success a pointer to a ServerPortData; on error a PortPoolError
-    cxx::expected<popo::ServerPortData*, PortPoolError>
+    expected<popo::ServerPortData*, PortPoolError>
     acquireServerPortData(const capro::ServiceDescription& service,
                           const popo::ServerOptions& serverOptions,
                           const RuntimeName_t& runtimeName,
@@ -115,10 +115,10 @@ class PortManager
                                                       const RuntimeName_t& runtimeName,
                                                       const NodeName_t& nodeName = {""}) noexcept;
 
-    cxx::expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& runtimeName,
-                                                                     const NodeName_t& nodeName) noexcept;
+    expected<runtime::NodeData*, PortPoolError> acquireNodeData(const RuntimeName_t& runtimeName,
+                                                                const NodeName_t& nodeName) noexcept;
 
-    cxx::expected<popo::ConditionVariableData*, PortPoolError>
+    expected<popo::ConditionVariableData*, PortPoolError>
     acquireConditionVariableData(const RuntimeName_t& runtimeName) noexcept;
 
     /// @brief Used to unblock potential locks in the shutdown phase of a process
@@ -190,10 +190,10 @@ class PortManager
     void removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>* = nullptr>
-    cxx::optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept;
+    optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
-    cxx::optional<RuntimeName_t>
+    optional<RuntimeName_t>
     doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept;
 
     bool isInternal(const capro::ServiceDescription& service) const noexcept;
@@ -208,11 +208,11 @@ class PortManager
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
     cxx::vector<capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> m_internalServices;
-    cxx::optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
+    optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
 
     // some ports for the service registry requires special handling
     // as we cannot send registry information if it was not created yet
-    cxx::expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
+    expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     acquirePublisherPortDataWithoutDiscovery(const capro::ServiceDescription& service,
                                              const popo::PublisherOptions& publisherOptions,
                                              const RuntimeName_t& runtimeName,

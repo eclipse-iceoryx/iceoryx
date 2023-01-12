@@ -31,7 +31,7 @@ cxx::Serialization SubscriberOptions::serialize() const noexcept
                                       requiresPublisherHistorySupport);
 }
 
-cxx::expected<SubscriberOptions, cxx::Serialization::Error>
+expected<SubscriberOptions, cxx::Serialization::Error>
 SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
 {
     using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
@@ -49,11 +49,11 @@ SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful
         || queueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA))
     {
-        return cxx::error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     subscriberOptions.queueFullPolicy = static_cast<QueueFullPolicy>(queueFullPolicy);
-    return cxx::success<SubscriberOptions>(subscriberOptions);
+    return success<SubscriberOptions>(subscriberOptions);
 }
 } // namespace popo
 } // namespace iox

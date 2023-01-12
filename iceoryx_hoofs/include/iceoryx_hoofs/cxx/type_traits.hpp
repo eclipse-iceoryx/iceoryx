@@ -26,6 +26,8 @@
 
 namespace iox
 {
+template <uint64_t Capacity>
+class string;
 namespace cxx
 {
 ///
@@ -127,9 +129,6 @@ struct is_function_pointer<ReturnType (*)(ArgTypes...)> : std::true_type
 {
 };
 
-template <uint64_t Capacity>
-class string;
-
 /// @brief struct to check whether an argument is a char array
 template <typename T>
 struct is_char_array : std::false_type
@@ -144,21 +143,9 @@ struct is_char_array<char[N]> : std::true_type
 {
 };
 
-/// @brief struct to check whether an argument is a cxx string
-template <typename T>
-struct is_cxx_string : std::false_type
-{
-};
-
-template <uint64_t N>
-struct is_cxx_string<::iox::cxx::string<N>> : std::true_type
-{
-};
-
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;
-
 
 //////////////////
 /// BEGIN TypeInfo
@@ -173,7 +160,7 @@ using void_t = void;
 template <typename T>
 struct TypeInfo
 {
-    static_assert(always_false_v<T>, "unknown type");
+    static_assert(cxx::always_false_v<T>, "unknown type");
     static constexpr const char NAME[] = "unknown type";
 };
 template <typename T>
@@ -257,16 +244,13 @@ struct TypeInfo<long double>
     static constexpr const char NAME[] = "long double";
 };
 
-template <uint64_t>
-class string;
-
 template <uint64_t N>
-struct TypeInfo<iox::cxx::string<N>>
+struct TypeInfo<iox::string<N>>
 {
     static constexpr const char NAME[] = "string";
 };
 template <uint64_t N>
-constexpr const char TypeInfo<iox::cxx::string<N>>::NAME[];
+constexpr const char TypeInfo<iox::string<N>>::NAME[];
 /// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 //////////////////
 /// END TypeInfo

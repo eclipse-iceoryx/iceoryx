@@ -16,12 +16,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/pthread.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 
 #include <atomic>
 
@@ -31,7 +31,7 @@ namespace posix
 {
 constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 
-using ThreadName_t = cxx::string<MAX_THREAD_NAME_LENGTH>;
+using ThreadName_t = string<MAX_THREAD_NAME_LENGTH>;
 
 /// @todo iox-#1365 remove free functions
 void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept;
@@ -70,11 +70,11 @@ class Thread
     ~Thread() noexcept;
 
     /// @brief Returns the name of the thread
-    /// @return An iox::cxx::string containing the name of the thread
+    /// @return An iox::string containing the name of the thread
     ThreadName_t getName() const noexcept;
 
     friend class ThreadBuilder;
-    friend class cxx::optional<Thread>;
+    friend class optional<Thread>;
 
   private:
     Thread(const ThreadName_t& name, const callable_t& callable) noexcept;
@@ -96,11 +96,10 @@ class ThreadBuilder
 
   public:
     /// @brief Creates a thread
-    /// @param[in] uninitializedThread is an iox::cxx::optional where the thread is stored
+    /// @param[in] uninitializedThread is an iox::optional where the thread is stored
     /// @param[in] callable is the callable that is invoked by the thread
     /// @return an error describing the failure or success
-    cxx::expected<ThreadError> create(cxx::optional<Thread>& uninitializedThread,
-                                      const Thread::callable_t& callable) noexcept;
+    expected<ThreadError> create(optional<Thread>& uninitializedThread, const Thread::callable_t& callable) noexcept;
 };
 
 } // namespace posix

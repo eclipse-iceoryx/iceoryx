@@ -64,8 +64,8 @@ TEST_F(UntypedClient_test, LoanCallsUnderlyingPortWithSuccessResult)
 
     constexpr uint64_t PAYLOAD_SIZE{8U};
     constexpr uint64_t PAYLOAD_ALIGNMENT{32U};
-    const iox::cxx::expected<RequestHeader*, AllocationError> allocateRequestResult =
-        iox::cxx::success<RequestHeader*>{requestMock.userHeader()};
+    const iox::expected<RequestHeader*, AllocationError> allocateRequestResult =
+        iox::success<RequestHeader*>{requestMock.userHeader()};
 
     EXPECT_CALL(sut.mockPort, allocateRequest(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT)).WillOnce(Return(allocateRequestResult));
 
@@ -81,8 +81,8 @@ TEST_F(UntypedClient_test, LoanCallsUnderlyingPortWithErrorResult)
     constexpr uint64_t PAYLOAD_SIZE{8U};
     constexpr uint64_t PAYLOAD_ALIGNMENT{32U};
     constexpr AllocationError ALLOCATION_ERROR{AllocationError::RUNNING_OUT_OF_CHUNKS};
-    const iox::cxx::expected<RequestHeader*, AllocationError> allocateRequestResult =
-        iox::cxx::error<AllocationError>{ALLOCATION_ERROR};
+    const iox::expected<RequestHeader*, AllocationError> allocateRequestResult =
+        iox::error<AllocationError>{ALLOCATION_ERROR};
 
     EXPECT_CALL(sut.mockPort, allocateRequest(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT)).WillOnce(Return(allocateRequestResult));
 
@@ -113,7 +113,7 @@ TEST_F(UntypedClient_test, SendWithValidPayloadPointerCallsUnderlyingPort)
 {
     ::testing::Test::RecordProperty("TEST_ID", "74d86b31-24a8-409e-8b85-7b9ec1c7ad3d");
 
-    EXPECT_CALL(sut.mockPort, sendRequest(requestMock.userHeader())).WillOnce(Return(iox::cxx::success<void>()));
+    EXPECT_CALL(sut.mockPort, sendRequest(requestMock.userHeader())).WillOnce(Return(iox::success<void>()));
 
     sut.send(requestMock.sample())
         .and_then([&]() { GTEST_SUCCEED() << "Request successfully sent"; })
@@ -135,8 +135,8 @@ TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ca260e9-89bb-48aa-8504-0375e35eef9f");
 
-    const iox::cxx::expected<const ResponseHeader*, ChunkReceiveResult> getResponseResult =
-        iox::cxx::success<const ResponseHeader*>{responseMock.userHeader()};
+    const iox::expected<const ResponseHeader*, ChunkReceiveResult> getResponseResult =
+        iox::success<const ResponseHeader*>{responseMock.userHeader()};
 
     EXPECT_CALL(sut.mockPort, getResponse()).WillOnce(Return(getResponseResult));
 
@@ -150,8 +150,8 @@ TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithErrorResult)
     ::testing::Test::RecordProperty("TEST_ID", "ff524011-3a79-4960-9379-571e2eb87b16");
 
     constexpr ChunkReceiveResult CHUNK_RECEIVE_RESULT{ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL};
-    const iox::cxx::expected<const ResponseHeader*, ChunkReceiveResult> getResponseResult =
-        iox::cxx::error<ChunkReceiveResult>{CHUNK_RECEIVE_RESULT};
+    const iox::expected<const ResponseHeader*, ChunkReceiveResult> getResponseResult =
+        iox::error<ChunkReceiveResult>{CHUNK_RECEIVE_RESULT};
 
     EXPECT_CALL(sut.mockPort, getResponse()).WillOnce(Return(getResponseResult));
 

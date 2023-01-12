@@ -49,7 +49,7 @@ ConsumerTooSlowPolicy ServerPortRouDi::getClientTooSlowPolicy() const noexcept
     return getMembers()->m_chunkSenderData.m_consumerTooSlowPolicy;
 }
 
-cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcept
+optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcept
 {
     // get offer state request from user side
     const auto offeringRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -76,10 +76,10 @@ cxx::optional<capro::CaproMessage> ServerPortRouDi::tryGetCaProMessage() noexcep
     }
 
     // nothing to change
-    return cxx::nullopt;
+    return nullopt;
 }
 
-cxx::optional<capro::CaproMessage>
+optional<capro::CaproMessage>
 ServerPortRouDi::dispatchCaProMessageAndGetPossibleResponse(const capro::CaproMessage& caProMessage) noexcept
 {
     const auto isOffered = getMembers()->m_offered.load(std::memory_order_relaxed);
@@ -96,7 +96,7 @@ void ServerPortRouDi::handleCaProProtocolViolation(const capro::CaproMessageType
     errorHandler(PoshError::POPO__CAPRO_PROTOCOL_ERROR, ErrorLevel::SEVERE);
 }
 
-cxx::optional<capro::CaproMessage>
+optional<capro::CaproMessage>
 ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& caProMessage) noexcept
 {
     capro::CaproMessage responseMessage{capro::CaproMessageType::NACK, this->getCaProServiceDescription()};
@@ -137,10 +137,10 @@ ServerPortRouDi::handleCaProMessageForStateOffered(const capro::CaproMessage& ca
     }
 
     handleCaProProtocolViolation(caProMessage.m_type);
-    return cxx::nullopt;
+    return nullopt;
 }
 
-cxx::optional<capro::CaproMessage>
+optional<capro::CaproMessage>
 ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage& caProMessage) noexcept
 {
     switch (caProMessage.m_type)
@@ -160,7 +160,7 @@ ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage&
     }
 
     handleCaProProtocolViolation(caProMessage.m_type);
-    return cxx::nullopt;
+    return nullopt;
 }
 
 void ServerPortRouDi::releaseAllChunks() noexcept

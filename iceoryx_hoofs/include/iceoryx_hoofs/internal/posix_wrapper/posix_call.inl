@@ -58,21 +58,20 @@ inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionN
 /// of "strerror_r", the posix compliant one which returns an int and stores the message in the buffer
 /// and a gnu version which returns a pointer to the message and sometimes stores the message
 /// in the buffer
-inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode IOX_MAYBE_UNUSED,
-                                                                      char* const buffer)
+inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode IOX_MAYBE_UNUSED,
+                                                                 char* const buffer)
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, buffer);
+    return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity, buffer);
 }
 
-inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg,
-                                                                      char* const buffer IOX_MAYBE_UNUSED)
+inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg, char* const buffer IOX_MAYBE_UNUSED)
 {
-    return cxx::string<POSIX_CALL_ERROR_STRING_SIZE>(cxx::TruncateToCapacity, msg);
+    return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity, msg);
 }
 } // namespace internal
 
 template <typename T>
-inline cxx::string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
+inline string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
 {
     /// NOLINTJUSTIFICATION needed by POSIX function which is wrapped here
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -180,12 +179,12 @@ PosixCallEvaluator<ReturnType>::suppressErrorMessagesForErrnos(const SilentErrno
 }
 
 template <typename ReturnType>
-inline cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
+inline expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>>
 PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {
     if (m_details.hasSuccess || m_details.hasIgnoredErrno)
     {
-        return iox::cxx::success<PosixCallResult<ReturnType>>(m_details.result);
+        return iox::success<PosixCallResult<ReturnType>>(m_details.result);
     }
 
     if (!m_details.hasSilentErrno)
@@ -195,7 +194,7 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
                        << m_details.result.getHumanReadableErrnum();
     }
 
-    return iox::cxx::error<PosixCallResult<ReturnType>>(m_details.result);
+    return iox::error<PosixCallResult<ReturnType>>(m_details.result);
 }
 
 } // namespace posix

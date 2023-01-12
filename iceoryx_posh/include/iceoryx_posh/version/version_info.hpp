@@ -19,10 +19,10 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/serialization.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 
@@ -80,7 +80,7 @@ class VersionInfo
 
   protected:
     static constexpr uint64_t SERIALIZATION_STRING_SIZE = 100;
-    using SerializationString_t = cxx::string<SERIALIZATION_STRING_SIZE>;
+    using SerializationString_t = string<SERIALIZATION_STRING_SIZE>;
 
     static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
     static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");

@@ -178,7 +178,7 @@ while (stackCopy.size() > 0U)
 }
 ```
 
-Please note that `pop` returns a `iox::cxx::optional` which contains the last pushed element or a `nullopt` if the stack is
+Please note that `pop` returns a `iox::optional` which contains the last pushed element or a `nullopt` if the stack is
 empty. Here, we don't have to check whether the `optional` contains a value since the loop ensures that we only pop elements
 when the stack contains some.
 

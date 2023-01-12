@@ -36,8 +36,8 @@ using namespace iox::posix;
 using namespace iox::units::duration_literals;
 using namespace iox::units;
 
-using sendCall_t = std::function<cxx::expected<IpcChannelError>(const std::string&)>;
-using receiveCall_t = std::function<cxx::expected<std::string, IpcChannelError>()>;
+using sendCall_t = std::function<expected<IpcChannelError>(const std::string&)>;
+using receiveCall_t = std::function<expected<std::string, IpcChannelError>()>;
 
 // NOLINTJUSTIFICATION used only for test purposes
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -149,7 +149,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
          i < UnixDomainSocket::LONGEST_VALID_NAME - strlen(&platform::IOX_UDS_SOCKET_PATH_PREFIX[0]) + 1;
          ++i)
     {
-        longSocketName.append(cxx::TruncateToCapacity, "o");
+        longSocketName.append(TruncateToCapacity, "o");
     }
     auto ret = UnixDomainSocket::unlinkIfExists(longSocketName);
     ASSERT_TRUE(ret.has_error());
@@ -160,7 +160,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "292879cd-89b5-4ebe-8459-f71d13a7befe");
     UnixDomainSocket::UdsName_t socketFileName = platform::IOX_UDS_SOCKET_PATH_PREFIX;
-    socketFileName.append(cxx::TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
+    socketFileName.append(TruncateToCapacity, "iceoryx-hoofs-moduletest.socket");
     ASSERT_TRUE(createTestSocket(socketFileName));
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, socketFileName);
     EXPECT_FALSE(ret.has_error());
@@ -171,7 +171,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessfu
     ::testing::Test::RecordProperty("TEST_ID", "33019857-7a2c-4aed-92b1-4218332a254c");
     UnixDomainSocket::UdsName_t socketFileName = "iceoryx-hoofs-moduletest.socket";
     UnixDomainSocket::UdsName_t socketFileNameWithPrefix = platform::IOX_UDS_SOCKET_PATH_PREFIX;
-    socketFileNameWithPrefix.append(cxx::TruncateToCapacity, socketFileName);
+    socketFileNameWithPrefix.append(TruncateToCapacity, socketFileName);
     ASSERT_TRUE(createTestSocket(socketFileNameWithPrefix));
     auto ret = UnixDomainSocket::unlinkIfExists(socketFileName);
     EXPECT_FALSE(ret.has_error());
@@ -181,7 +181,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessfu
 // and the client can only send
 void sendOnServerLeadsToError(const sendCall_t& send)
 {
-    cxx::string<10> message{"Foo"};
+    string<10> message{"Foo"};
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));

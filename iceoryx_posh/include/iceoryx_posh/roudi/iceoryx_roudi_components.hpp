@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 #define IOX_POSH_ROUDI_ICEORYX_ROUDI_COMPONENTS_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {

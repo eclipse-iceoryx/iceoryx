@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -35,6 +35,7 @@ using namespace ::testing;
 
 using namespace iox::popo;
 using namespace iox::cxx;
+using namespace iox;
 using namespace iox::units::duration_literals;
 
 class WaitSetTest : public iox::popo::WaitSet<>
@@ -141,27 +142,27 @@ class WaitSet_test : public Test
 
         iox::popo::WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied() const noexcept
         {
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState1 state) const noexcept
         {
             m_simpleState1TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         iox::popo::WaitSetIsConditionSatisfiedCallback
         getCallbackForIsStateConditionSatisfied(SimpleState2 state) const noexcept
         {
             m_simpleState2TriggerCallback = state;
-            return (m_isEventBased) ? iox::cxx::nullopt
+            return (m_isEventBased) ? iox::nullopt
                                     : iox::popo::WaitSetIsConditionSatisfiedCallback(
-                                        iox::cxx::in_place, *this, &SimpleEventClass::hasTriggered);
+                                        iox::in_place, *this, &SimpleEventClass::hasTriggered);
         }
 
         bool hasTriggered() const

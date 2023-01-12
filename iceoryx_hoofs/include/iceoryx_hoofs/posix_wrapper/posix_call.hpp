@@ -18,8 +18,8 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/expected.hpp"
+#include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
@@ -44,7 +44,7 @@ struct PosixCallResult
 
     /// @brief returns the result of std::strerror(errnum) which acquires a
     ///        human readable error string
-    cxx::string<POSIX_CALL_ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
+    string<POSIX_CALL_ERROR_STRING_SIZE> getHumanReadableErrnum() const noexcept;
 
     /// @brief the return value of the posix function call
     T value{};
@@ -137,7 +137,7 @@ class IOX_NO_DISCARD PosixCallEvaluator
     /// @brief evaluate the result of a posix call
     /// @return returns an expected which contains in both cases a PosixCallResult<ReturnType> with the return value
     /// (.value) and the errno value (.errnum) of the function call
-    cxx::expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>> evaluate() const&& noexcept;
+    expected<PosixCallResult<ReturnType>, PosixCallResult<ReturnType>> evaluate() const&& noexcept;
 
   private:
     template <typename>

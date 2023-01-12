@@ -19,10 +19,10 @@
 #define IOX_POSH_GW_CHANNEL_HPP
 
 #include "iceoryx_dust/cxx/objectpool.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include <memory>
 
@@ -74,8 +74,8 @@ class Channel
     /// @return A copy of the created channel, if successful.
     ///
     template <typename IceoryxPubSubOptions>
-    static cxx::expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
-                                                       const IceoryxPubSubOptions& options) noexcept;
+    static expected<Channel, ChannelError> create(const capro::ServiceDescription& service,
+                                                  const IceoryxPubSubOptions& options) noexcept;
 
     capro::ServiceDescription getServiceDescription() const noexcept;
     IceoryxTerminalPtr getIceoryxTerminal() const noexcept;

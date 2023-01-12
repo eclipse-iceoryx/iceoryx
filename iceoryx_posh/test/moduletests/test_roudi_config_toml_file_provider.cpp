@@ -83,7 +83,7 @@ TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
     ::testing::Test::RecordProperty("TEST_ID", "a49e2732-df35-4e4d-b312-bb8b9b9fef52");
     const auto parseErrorInputFile = GetParam();
 
-    m_cmdLineArgs.configFilePath.append(iox::cxx::TruncateToCapacity, parseErrorInputFile.second);
+    m_cmdLineArgs.configFilePath.append(iox::TruncateToCapacity, parseErrorInputFile.second);
 
     iox::config::TomlRouDiConfigFileProvider sut(m_cmdLineArgs);
 

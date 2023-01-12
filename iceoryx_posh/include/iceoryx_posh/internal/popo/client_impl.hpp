@@ -57,24 +57,24 @@ class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, Client
     /// loan.
     /// @details The loaned Request is automatically released when it goes out of scope.
     template <typename... Args>
-    cxx::expected<Request<Req>, AllocationError> loan(Args&&... args) noexcept;
+    expected<Request<Req>, AllocationError> loan(Args&&... args) noexcept;
 
     /// @brief Sends the given Request and then releases its loan.
     /// @param request to send.
     /// @return Error if sending was not successful
-    cxx::expected<ClientSendError> send(Request<Req>&& request) noexcept override;
+    expected<ClientSendError> send(Request<Req>&& request) noexcept override;
 
     /// @brief Take the Response from the top of the receive queue.
     /// @return Either a Response or a ChunkReceiveResult.
     /// @details The Response takes care of the cleanup. Don't store the raw pointer to the content of the Response, but
     /// always the whole Response.
-    cxx::expected<Response<const Res>, ChunkReceiveResult> take() noexcept;
+    expected<Response<const Res>, ChunkReceiveResult> take() noexcept;
 
   protected:
     using BaseClientT::port;
 
   private:
-    cxx::expected<Request<Req>, AllocationError> loanUninitialized() noexcept;
+    expected<Request<Req>, AllocationError> loanUninitialized() noexcept;
 };
 } // namespace popo
 } // namespace iox

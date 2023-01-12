@@ -44,7 +44,7 @@ OptionName_t OptionManager::getLookupName(const char shortName, const OptionName
 {
     if (shortName == NO_SHORT_OPTION)
     {
-        return OptionName_t{cxx::TruncateToCapacity, &shortName, 1};
+        return OptionName_t{TruncateToCapacity, &shortName, 1};
     }
 
     return name;

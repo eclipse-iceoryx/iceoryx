@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -32,7 +32,7 @@ namespace config
 class StubbedTomlGatewayConfigParser : public TomlGatewayConfigParser
 {
   public:
-    static cxx::expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
+    static expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
     {
         return TomlGatewayConfigParser::validate(parsedToml);
     }

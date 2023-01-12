@@ -29,7 +29,7 @@
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
 std::atomic_bool keepRunning = {true};
-iox::cxx::optional<iox::popo::WaitSet<>> waitset;
+iox::optional<iox::popo::WaitSet<>> waitset;
 
 //! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData

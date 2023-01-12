@@ -65,8 +65,8 @@ class Mutex_test : public Test
     }
 
     std::atomic_bool doWaitForThread{true};
-    iox::cxx::optional<iox::posix::mutex> sutNonRecursive;
-    iox::cxx::optional<iox::posix::mutex> sutRecursive;
+    iox::optional<iox::posix::mutex> sutNonRecursive;
+    iox::optional<iox::posix::mutex> sutRecursive;
     iox::units::Duration watchdogTimeout = 5_s;
     Watchdog deadlockWatchdog{watchdogTimeout};
 };
@@ -175,7 +175,7 @@ TEST_F(Mutex_test, LockedMutexBlocksRecursiveMutex)
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "feb07935-674d-4ebc-abaa-66664751719a");
-    iox::cxx::optional<iox::posix::mutex> sut;
+    iox::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
     EXPECT_FALSE(sut->lock().has_error());
@@ -190,7 +190,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockItTwice)
 {
     ::testing::Test::RecordProperty("TEST_ID", "062e411e-a5d3-4759-9faf-db6f4129d395");
-    iox::cxx::optional<iox::posix::mutex> sut;
+    iox::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
     EXPECT_FALSE(sut->lock().has_error());
@@ -204,7 +204,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockIt
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnlock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4dcea981-2259-48c6-bf27-7839ad9013b4");
-    iox::cxx::optional<iox::posix::mutex> sut;
+    iox::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(
         iox::posix::MutexBuilder().mutexType(iox::posix::MutexType::WITH_DEADLOCK_DETECTION).create(sut).has_error());
     EXPECT_FALSE(sut->lock().has_error());
@@ -226,7 +226,7 @@ TEST_F(Mutex_test,
 #if defined(QNX) || defined(__QNX) || defined(__QNX__) || defined(QNX__)
     GTEST_SKIP() << "iox-#1683 QNX supports robust mutex not like the posix standard describes them.";
 #endif
-    iox::cxx::optional<iox::posix::mutex> sut;
+    iox::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(iox::posix::MutexBuilder()
                      .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::RELEASE_WHEN_LOCKED)
                      .create(sut)
@@ -250,7 +250,7 @@ TEST_F(Mutex_test, MutexWithStallWhenLockedBehaviorDoesntUnlockMutexWhenThreadTe
 #if defined(QNX) || defined(__QNX) || defined(__QNX__) || defined(QNX__)
     GTEST_SKIP() << "iox-#1683 QNX supports robust mutex not like the posix standard describes them.";
 #endif
-    iox::cxx::optional<iox::posix::mutex> sut;
+    iox::optional<iox::posix::mutex> sut;
     ASSERT_FALSE(iox::posix::MutexBuilder()
                      .threadTerminationBehavior(iox::posix::MutexThreadTerminationBehavior::STALL_WHEN_LOCKED)
                      .create(sut)

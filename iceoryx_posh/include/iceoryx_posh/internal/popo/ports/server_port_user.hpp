@@ -17,9 +17,7 @@
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
@@ -27,6 +25,8 @@
 #include "iceoryx_posh/internal/popo/ports/server_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -111,9 +111,9 @@ class ServerPortUser : public BasePort
 
     /// @brief Tries to get the next request from the queue. If there is a new one, the ChunkHeader of the oldest
     /// request in the queue is returned (FiFo queue)
-    /// @return cxx::expected that has a new RequestHeader if there are new requests in the underlying queue,
+    /// @return expected that has a new RequestHeader if there are new requests in the underlying queue,
     /// ServerRequestResult on error
-    cxx::expected<const RequestHeader*, ServerRequestResult> getRequest() noexcept;
+    expected<const RequestHeader*, ServerRequestResult> getRequest() noexcept;
 
     /// @brief Release a request that was obtained with getRequest
     /// @param[in] chunkHeader, pointer to the ChunkHeader to release
@@ -137,9 +137,9 @@ class ServerPortUser : public BasePort
     /// @param[in] userPayloadAlignment, alignment of the user user-paylaod without additional headers
     /// @return on success pointer to a ChunkHeader which can be used to access the chunk-header, user-header and
     /// user-payload fields, error if not
-    cxx::expected<ResponseHeader*, AllocationError> allocateResponse(const RequestHeader* const requestHeader,
-                                                                     const uint32_t userPayloadSize,
-                                                                     const uint32_t userPayloadAlignment) noexcept;
+    expected<ResponseHeader*, AllocationError> allocateResponse(const RequestHeader* const requestHeader,
+                                                                const uint32_t userPayloadSize,
+                                                                const uint32_t userPayloadAlignment) noexcept;
 
     /// @brief Releases an allocated response without sending it
     /// @param[in] chunkHeader, pointer to the ChunkHeader to free
@@ -148,7 +148,7 @@ class ServerPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     /// @return ServerSendError if sending was not successful
-    cxx::expected<ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
+    expected<ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
     void offer() noexcept;

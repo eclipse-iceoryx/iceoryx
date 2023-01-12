@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 
 #include <cstdint>
@@ -58,8 +58,8 @@ class ServiceRegistry
 
     /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
-    /// @return ServiceRegistryError, error wrapped in cxx::expected
-    cxx::expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
+    /// @return ServiceRegistryError, error wrapped in expected
+    expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given publisher service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -68,8 +68,8 @@ class ServiceRegistry
 
     /// @brief Adds a given server service description to registry
     /// @param[in] serviceDescription, service to be added
-    /// @return ServiceRegistryError, error wrapped in cxx::expected
-    cxx::expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
+    /// @return ServiceRegistryError, error wrapped in expected
+    expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given server service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -82,13 +82,13 @@ class ServiceRegistry
     void purge(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Searches for given service description in registry
-    /// @param[in] service, string or wildcard (= iox::cxx::nullopt) to search for
-    /// @param[in] instance, string or wildcard (= iox::cxx::nullopt) to search for
-    /// @param[in] event, string or wildcard (= iox::cxx::nullopt) to search for
+    /// @param[in] service, string or wildcard (= iox::nullopt) to search for
+    /// @param[in] instance, string or wildcard (= iox::nullopt) to search for
+    /// @param[in] event, string or wildcard (= iox::nullopt) to search for
     /// @param[in] callable, callable to apply to each matching entry
-    void find(const cxx::optional<capro::IdString_t>& service,
-              const cxx::optional<capro::IdString_t>& instance,
-              const cxx::optional<capro::IdString_t>& event,
+    void find(const optional<capro::IdString_t>& service,
+              const optional<capro::IdString_t>& instance,
+              const optional<capro::IdString_t>& event,
               cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     /// @brief Applys a callable to all entries
@@ -97,7 +97,7 @@ class ServiceRegistry
     void forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
   private:
-    using Entry_t = cxx::optional<ServiceDescriptionEntry>;
+    using Entry_t = optional<ServiceDescriptionEntry>;
     using ServiceDescriptionContainer_t = cxx::vector<Entry_t, CAPACITY>;
 
     static constexpr uint32_t NO_INDEX = CAPACITY;
@@ -113,8 +113,8 @@ class ServiceRegistry
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
 
-    cxx::expected<Error> add(const capro::ServiceDescription& serviceDescription,
-                             ReferenceCounter_t ServiceDescriptionEntry::*count);
+    expected<Error> add(const capro::ServiceDescription& serviceDescription,
+                        ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
 
 } // namespace roudi

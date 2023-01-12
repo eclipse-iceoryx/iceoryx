@@ -18,10 +18,10 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_hoofs/cxx/scoped_static.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -36,10 +36,10 @@ uint8_t IceOryxRouDiApp::run() noexcept
 {
     if (m_run)
     {
-        static cxx::optional<IceOryxRouDiComponents> m_rouDiComponents;
+        static optional<IceOryxRouDiComponents> m_rouDiComponents;
         auto componentsScopeGuard = cxx::makeScopedStatic(m_rouDiComponents, m_config);
 
-        static cxx::optional<RouDi> roudi;
+        static optional<RouDi> roudi;
         auto roudiScopeGuard =
             cxx::makeScopedStatic(roudi,
                                   m_rouDiComponents.value().rouDiMemoryManager,

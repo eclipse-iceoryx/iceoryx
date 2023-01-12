@@ -50,12 +50,14 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/legacy/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/container/include
+                                ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 legacy/include/
                                 memory/include/
                                 container/include/
+                                vocabulary/include/
     FILES
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp

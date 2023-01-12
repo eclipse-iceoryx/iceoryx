@@ -18,7 +18,6 @@
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 
@@ -97,7 +97,7 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
 // Waitset
 namespace popo
 {
-using WaitSetIsConditionSatisfiedCallback = cxx::optional<cxx::function<bool()>>;
+using WaitSetIsConditionSatisfiedCallback = optional<cxx::function<bool()>>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
 
@@ -194,17 +194,17 @@ struct DefaultChunkQueueConfig
     static constexpr uint64_t MAX_QUEUE_CAPACITY = MAX_SUBSCRIBER_QUEUE_CAPACITY;
 };
 
-// alias for cxx::string
-using RuntimeName_t = cxx::string<MAX_RUNTIME_NAME_LENGTH>;
+// alias for string
+using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using NodeName_t = cxx::string<100>;
+using NodeName_t = string<100>;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using ShmName_t = cxx::string<128>;
+using ShmName_t = string<128>;
 
 namespace capro
 {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using IdString_t = cxx::string<100>;
+using IdString_t = string<100>;
 } // namespace capro
 
 /// @todo iox-#539 Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake
@@ -212,7 +212,7 @@ using IdString_t = cxx::string<100>;
 namespace roudi
 {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using ConfigFilePathString_t = cxx::string<1024>;
+using ConfigFilePathString_t = string<1024>;
 
 constexpr const char ROUDI_LOCK_NAME[] = "iox-unique-roudi";
 constexpr const char IPC_CHANNEL_ROUDI_NAME[] = "roudi";
@@ -267,9 +267,9 @@ constexpr units::Duration PROCESS_KEEP_ALIVE_TIMEOUT = 5 * PROCESS_KEEP_ALIVE_IN
 namespace version
 {
 static const uint64_t COMMIT_ID_STRING_SIZE = 12U;
-using CommitIdString_t = cxx::string<COMMIT_ID_STRING_SIZE>;
+using CommitIdString_t = string<COMMIT_ID_STRING_SIZE>;
 static const uint64_t BUILD_DATE_STRING_SIZE = 36U;
-using BuildDateString_t = cxx::string<BUILD_DATE_STRING_SIZE>;
+using BuildDateString_t = string<BUILD_DATE_STRING_SIZE>;
 } // namespace version
 
 } // namespace iox

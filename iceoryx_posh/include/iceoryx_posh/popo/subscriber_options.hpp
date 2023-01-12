@@ -54,7 +54,7 @@ struct SubscriberOptions
     /// @brief serialization of the SubscriberOptions
     cxx::Serialization serialize() const noexcept;
     /// @brief deserialization of the SubscriberOptions
-    static cxx::expected<SubscriberOptions, cxx::Serialization::Error>
+    static expected<SubscriberOptions, cxx::Serialization::Error>
     deserialize(const cxx::Serialization& serialized) noexcept;
 };
 

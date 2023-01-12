@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CXX_CONVERT_HPP
 #define IOX_HOOFS_CXX_CONVERT_HPP
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/string.hpp"
 
 #include <climits>
 #include <cmath>

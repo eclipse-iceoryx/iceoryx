@@ -17,12 +17,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
+#include "iox/string.hpp"
 
 #include <cstdint>
 
@@ -59,7 +59,7 @@ class SharedMemory
   public:
     static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
     static constexpr int INVALID_HANDLE = -1;
-    using Name_t = cxx::string<NAME_SIZE>;
+    using Name_t = string<NAME_SIZE>;
 
     SharedMemory(const SharedMemory&) = delete;
     SharedMemory& operator=(const SharedMemory&) = delete;
@@ -81,7 +81,7 @@ class SharedMemory
     /// @param[in] name name of the shared memory
     /// @return true if the shared memory was removed, false if the shared memory did not exist and
     ///         SharedMemoryError when the underlying shm_unlink call failed.
-    static cxx::expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
+    static expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
     friend class SharedMemoryBuilder;
 
@@ -124,7 +124,7 @@ class SharedMemoryBuilder
     /// @brief creates a valid SharedMemory object. If the construction failed the expected
     ///        contains an enum value describing the error.
     /// @return expected containing SharedMemory on success otherwise SharedMemoryError
-    cxx::expected<SharedMemory, SharedMemoryError> create() noexcept;
+    expected<SharedMemory, SharedMemoryError> create() noexcept;
 };
 
 } // namespace posix

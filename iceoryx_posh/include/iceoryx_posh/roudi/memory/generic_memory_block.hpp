@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 
-#include "iceoryx_hoofs/cxx/optional.hpp"
+#include "iox/optional.hpp"
 
 #include <cstdint>
 
@@ -53,13 +53,13 @@ class GenericMemoryBlock final : public MemoryBlock
     /// @brief A new element is constructed by forwarding the arguments to the constructor of T. If the MemoryBlock has
     /// a value then the destructor of T is called.
     /// @param [in] args are perfectly forwarded to the constructor of T to perform a placement new
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if memory was not yet available
+    /// @return an optional pointer to the underlying type, nullopt_t if memory was not yet available
     template <typename... Targs>
-    cxx::optional<T*> emplace(Targs&&... args) noexcept;
+    optional<T*> emplace(Targs&&... args) noexcept;
 
     /// @brief This function enables the access to the underlying type
-    /// @return an optional pointer to the underlying type, cxx::nullopt_t if value is not initialized
-    cxx::optional<T*> value() const noexcept;
+    /// @return an optional pointer to the underlying type, nullopt_t if value is not initialized
+    optional<T*> value() const noexcept;
 
   protected:
     /// @copydoc MemoryBlock::destroy

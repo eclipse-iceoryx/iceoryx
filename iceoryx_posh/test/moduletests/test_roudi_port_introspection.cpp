@@ -40,11 +40,11 @@ class PortIntrospectionAccess : public iox::roudi::PortIntrospection<PublisherPo
     {
         iox::roudi::PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData();
     }
-    iox::cxx::optional<PublisherPort>& getPublisherPort()
+    iox::optional<PublisherPort>& getPublisherPort()
     {
         return this->m_publisherPort;
     }
-    iox::cxx::optional<PublisherPort>& getPublisherPortThroughput()
+    iox::optional<PublisherPort>& getPublisherPortThroughput()
     {
         return this->m_publisherPortThroughput;
     }
@@ -171,7 +171,7 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
     bool chunkWasSent = false;
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillOnce(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+        .WillOnce(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))
@@ -236,7 +236,7 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
     bool chunkWasSent = false;
@@ -368,7 +368,7 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::cxx::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
+        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
             chunk.get()->chunkHeader())));
 
     bool chunkWasSent = false;

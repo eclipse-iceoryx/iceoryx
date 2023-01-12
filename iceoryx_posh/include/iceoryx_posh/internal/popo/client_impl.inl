@@ -37,12 +37,12 @@ ClientImpl<Req, Res, BaseClientT>::~ClientImpl() noexcept
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanUninitialized() noexcept
+expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanUninitialized() noexcept
 {
     auto result = port().allocateRequest(sizeof(Req), alignof(Req));
     if (result.has_error())
     {
-        return cxx::error<AllocationError>(result.get_error());
+        return error<AllocationError>(result.get_error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -50,19 +50,19 @@ cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return cxx::success<Request<Req>>(Request<Req>{std::move(request), *this});
+    return success<Request<Req>>(Request<Req>{std::move(request), *this});
 }
 
 template <typename Req, typename Res, typename BaseClientT>
 template <typename... Args>
-cxx::expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loan(Args&&... args) noexcept
+expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loan(Args&&... args) noexcept
 {
     return std::move(
         loanUninitialized().and_then([&](auto& request) { new (request.get()) Req(std::forward<Args>(args)...); }));
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-cxx::expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
+expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
     // take the ownership of the chunk from the Request to transfer it to `sendRequest`
     auto payload = request.release();
@@ -71,12 +71,12 @@ cxx::expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<R
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-cxx::expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClientT>::take() noexcept
+expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClientT>::take() noexcept
 {
     auto result = port().getResponse();
     if (result.has_error())
     {
-        return cxx::error<ChunkReceiveResult>(result.get_error());
+        return error<ChunkReceiveResult>(result.get_error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
@@ -84,7 +84,7 @@ cxx::expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, Base
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return cxx::success<Response<const Res>>(Response<const Res>{std::move(response)});
+    return success<Response<const Res>>(Response<const Res>{std::move(response)});
 }
 
 } // namespace popo

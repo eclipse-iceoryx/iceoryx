@@ -26,6 +26,7 @@ namespace
 using namespace ::testing;
 using namespace iox::posix;
 using namespace iox::cxx;
+using namespace iox;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 

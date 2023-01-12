@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
-#define IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
+#ifndef IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
+#define IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 
@@ -24,8 +24,6 @@
 #include <utility>
 
 namespace iox
-{
-namespace cxx
 {
 template <uint64_t N>
 struct in_place_index;
@@ -181,7 +179,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            ExpectsWithMsg(false, "Could not call destructor for variant element");
+            cxx::ExpectsWithMsg(false, "Could not call destructor for variant element");
         }
     }
 
@@ -193,7 +191,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            ExpectsWithMsg(false, "Could not call move assignment for variant element");
+            cxx::ExpectsWithMsg(false, "Could not call move assignment for variant element");
         }
     }
 
@@ -205,7 +203,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            ExpectsWithMsg(false, "Could not call move constructor for variant element");
+            cxx::ExpectsWithMsg(false, "Could not call move constructor for variant element");
         }
     }
 
@@ -217,7 +215,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            ExpectsWithMsg(false, "Could not call copy assignment for variant element");
+            cxx::ExpectsWithMsg(false, "Could not call copy assignment for variant element");
         }
     }
 
@@ -229,7 +227,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            ExpectsWithMsg(false, "Could not call copy constructor for variant element");
+            cxx::ExpectsWithMsg(false, "Could not call copy constructor for variant element");
         }
     }
 
@@ -239,7 +237,7 @@ struct call_at_index<N, T>
         {
             return *reinterpret_cast<const T*>(lhs) == *reinterpret_cast<const T*>(rhs);
         }
-        ExpectsWithMsg(false, "Could not call equality operator for variant element");
+        cxx::ExpectsWithMsg(false, "Could not call equality operator for variant element");
         return false;
     }
 };
@@ -251,7 +249,6 @@ struct call_at_index<N, T>
 // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.8
 
 } // namespace internal
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_VARIANT_INTERNAL_HPP
+#endif // IOX_HOOFS_VOCABULARY_VARIANT_INTERNAL_HPP

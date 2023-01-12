@@ -50,7 +50,7 @@ void GenericMemoryBlock<T>::destroy() noexcept
 
 template <typename T>
 template <typename... Targs>
-cxx::optional<T*> GenericMemoryBlock<T>::emplace(Targs&&... args) noexcept
+optional<T*> GenericMemoryBlock<T>::emplace(Targs&&... args) noexcept
 {
     destroy();
 
@@ -64,9 +64,9 @@ cxx::optional<T*> GenericMemoryBlock<T>::emplace(Targs&&... args) noexcept
 }
 
 template <typename T>
-cxx::optional<T*> GenericMemoryBlock<T>::value() const noexcept
+optional<T*> GenericMemoryBlock<T>::value() const noexcept
 {
-    return m_value ? cxx::make_optional<T*>(m_value) : cxx::nullopt_t();
+    return m_value ? make_optional<T*>(m_value) : nullopt_t();
 }
 
 } // namespace roudi

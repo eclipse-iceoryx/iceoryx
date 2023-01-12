@@ -272,7 +272,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
     // set current timestamp again (already done in Process's constructor
     m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
-    m_processIntrospection->addProcess(static_cast<int>(pid), RuntimeName_t(cxx::TruncateToCapacity, name.c_str()));
+    m_processIntrospection->addProcess(static_cast<int>(pid), RuntimeName_t(TruncateToCapacity, name.c_str()));
 
     LogDebug() << "Registered new application " << name;
     return true;
@@ -377,8 +377,8 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
 
                     process->sendViaIpcChannel(sendBuffer);
-                    m_processIntrospection->addNode(RuntimeName_t(cxx::TruncateToCapacity, runtimeName.c_str()),
-                                                    NodeName_t(cxx::TruncateToCapacity, nodeName.c_str()));
+                    m_processIntrospection->addNode(RuntimeName_t(TruncateToCapacity, runtimeName.c_str()),
+                                                    NodeName_t(TruncateToCapacity, nodeName.c_str()));
                     LogDebug() << "Created new node " << nodeName << " for process " << runtimeName;
                 })
                 .or_else([&](PortPoolError error) {
@@ -681,17 +681,17 @@ ProcessManager::addIntrospectionPublisherPort(const capro::ServiceDescription& s
     return m_portManager.acquireInternalPublisherPortData(service, options, m_introspectionMemoryManager);
 }
 
-cxx::optional<Process*> ProcessManager::findProcess(const RuntimeName_t& name) noexcept
+optional<Process*> ProcessManager::findProcess(const RuntimeName_t& name) noexcept
 {
     for (auto& process : m_processList)
     {
         if (process.getName() == name)
         {
-            return cxx::make_optional<Process*>(&process);
+            return make_optional<Process*>(&process);
         }
     }
 
-    return cxx::nullopt;
+    return nullopt;
 }
 
 void ProcessManager::monitorProcesses() noexcept

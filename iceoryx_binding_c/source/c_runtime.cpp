@@ -37,7 +37,7 @@ void iox_runtime_init(const char* const name)
         std::terminate();
     }
 
-    PoshRuntime::initRuntime(RuntimeName_t(iox::cxx::TruncateToCapacity, name));
+    PoshRuntime::initRuntime(RuntimeName_t(iox::TruncateToCapacity, name));
 }
 
 uint64_t iox_runtime_get_instance_name(char* const name, const uint64_t nameLength)

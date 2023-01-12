@@ -10,7 +10,7 @@ e.g. at startup the IPC channel can become a bottleneck.
 
 #### Runtime
 
-* `cxx::expected<InstanceContainer, FindServiceError> PoshRuntime::findService(capro::ServiceDescription)`
+* `iox::expected<InstanceContainer, FindServiceError> PoshRuntime::findService(capro::ServiceDescription)`
   * Sends message over IPC channel
 
 #### RouDi

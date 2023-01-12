@@ -85,7 +85,7 @@ class OptionDefinition
     friend std::ostream& operator<<(std::ostream&, const OptionWithDetails&) noexcept;
 
     OptionDefinition& addOption(const OptionWithDetails& option) noexcept;
-    cxx::optional<OptionWithDetails> getOption(const OptionName_t& name) const noexcept;
+    optional<OptionWithDetails> getOption(const OptionName_t& name) const noexcept;
 
   private:
     OptionDescription_t m_programDescription;
