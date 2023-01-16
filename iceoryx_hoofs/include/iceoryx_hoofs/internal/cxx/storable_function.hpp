@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -193,6 +193,9 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     // m_invoker is initialized with this function and has to work with functors as well
     // (functors may change due to invocation)
     static ReturnType invokeFreeFunction(void* callable, Args&&... args) noexcept;
+
+    template <typename T>
+    static constexpr void* safeAlign(byte_t* startAddress);
 };
 
 /// @brief swap two storable functions

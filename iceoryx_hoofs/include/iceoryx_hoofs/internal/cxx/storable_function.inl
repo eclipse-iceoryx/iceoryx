@@ -172,10 +172,11 @@ inline void swap(storable_function<Capacity, T>& f, storable_function<Capacity, 
     f.swap(g);
 }
 
-template <typename T, uint64_t Capacity>
-void* allocate(byte_t* startAddress)
+template <uint64_t Capacity, typename ReturnType, typename... Args>
+template <typename T>
+inline constexpr void* storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(byte_t* startAddress)
 {
-    static_assert(sizeof(T) + alignof(T) - 1 <= Capacity, "type does not fit into storage");
+    static_assert(is_storable<T>(), "type does not fit into storage");
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
     uint64_t alignment = alignof(T);
     uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignment);
@@ -188,7 +189,7 @@ template <typename Functor, typename>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
 {
     using StoredType = typename std::remove_reference<Functor>::type;
-    m_callable = allocate<StoredType, Capacity>(m_storage);
+    m_callable = safeAlign<StoredType>(m_storage);
 
     // erase the functor type and store as reference to the call in storage
     new (m_callable) StoredType(functor);
@@ -205,7 +206,7 @@ template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::copy(const storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    dest.m_callable = allocate<CallableType, Capacity>(dest.m_storage);
+    dest.m_callable = safeAlign<CallableType>(dest.m_storage);
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
@@ -223,7 +224,7 @@ template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::move(storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    dest.m_callable = allocate<CallableType, Capacity>(dest.m_storage);
+    dest.m_callable = safeAlign<CallableType>(dest.m_storage);
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);

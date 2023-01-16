@@ -49,7 +49,7 @@ class BumpAllocator
     /// @brief allocates on the memory supplied with the ctor
     /// @param[in] size of the memory to allocate, must be greater than 0
     /// @param[in] alignment of the memory to allocate
-    /// @return returns an expected containing a pointer to the memory if allocation was successful, otherwise
+    /// @return an expected containing a pointer to the memory if allocation was successful, otherwise
     /// BumpAllocatorError
     cxx::expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 

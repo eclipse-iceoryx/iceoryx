@@ -556,7 +556,7 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
     Arg arg(initial);
 
     auto lambda = [](Arg&& a) { return a.value + 1; };
-    iox::cxx::function<int32_t(Arg&&), 128> sut(lambda);
+    iox::cxx::function<int32_t(Arg &&), 128> sut(lambda);
 
     auto result = sut(std::move(arg));
 

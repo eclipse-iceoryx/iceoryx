@@ -110,7 +110,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     auto allocationResult = m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
     if (allocationResult.has_error())
     {
-        std::cerr << "Unable to allocate for named pipe \"" << name << "\"" << std::endl;
+        std::cerr << "Unable to allocate memory for named pipe \"" << name << "\"" << std::endl;
         m_isInitialized = false;
         m_errorValue = IpcChannelError::MEMORY_ALLOCATION_FAILED;
         return;
