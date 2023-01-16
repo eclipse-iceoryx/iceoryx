@@ -17,6 +17,7 @@
 
 // clang-format off
 
+#define IOX_ERROR(code) eh3::toError(code)
 
 /// @brief report error with some kind
 #define IOX_REPORT(error, kind) \
@@ -39,16 +40,19 @@
 /// @brief in debug mode report fatal error if expr evaluates to false
 /// @note for conditions that should not happen with correct use
 #ifdef DEBUG
-    #define IOX_DEBUG_ASSERT(expr, error) IOX_ASSERT(expr, error)
+    #define IOX_DEBUG_ASSERT(expr, error) IOX_REPORT_IF(!(expr), error, DEBUG_ASSERT_VIOLATION)
 #else
     // the proxy is not actually constructed (false branch)
-    #define IOX_DEBUG_ASSERT(expr, error) if(false) eh3::ErrorProxy<eh3::Fatal>()
+    #define IOX_DEBUG_ASSERT(expr, error) if(false) eh3::ErrorProxy<eh3::DebugAssertViolation>()
 #endif
 
+/// @todo NB: could actually throw if desired
 /// @brief calls panic handler and does not return
 #define IOX_PANIC do { eh3::panic(); } while(false)
 
-
+// TODO: do we want specific errors for this? This is rather
+// useless as it indicates a bug and shall terminate. Location should suffice.
+/// @brief calls panic handler if expr is false
 #define IOX_PRECOND(expr) IOX_REPORT_IF(!(expr), PreconditionError(), PRECONDITION_VIOLATION)
 
 // clang-format on

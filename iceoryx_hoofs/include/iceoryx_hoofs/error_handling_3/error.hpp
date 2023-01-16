@@ -7,7 +7,8 @@ namespace eh3
 using error_code_t = uint32_t;
 using module_id_t = uint32_t;
 
-
+// maybe not ideal to define it here
+// overload resolution shall detect and handle it
 class PreconditionError
 {
   public:

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "iceoryx_hoofs/error_handling_2/error_level.hpp"
 #include "iceoryx_hoofs/error_handling_3/error_logging.hpp"
 #include "iceoryx_hoofs/error_handling_3/location.hpp"
 
@@ -14,7 +13,7 @@ namespace eh3
 
 // class to later allow using state of the object if necessary
 // must be lightweight to construct
-template <typename Level>
+template <typename Kind>
 class ErrorProxy final
 {
   public:
@@ -23,13 +22,13 @@ class ErrorProxy final
     }
 
     template <class Error>
-    ErrorProxy(const SourceLocation& location, Level level, Error error)
+    ErrorProxy(const SourceLocation& location, Kind kind, Error error)
     {
         // use the logger
-        log(location, level, error);
+        log(location, kind, error);
 
         // report to other framework
-        report(location, level, error);
+        report(location, kind, error);
     }
 
     ~ErrorProxy()
@@ -38,7 +37,7 @@ class ErrorProxy final
         errorStream().flush();
         // defer the panic to be able to add functionality to the proxy
         // compile time
-        if (isFatal<Level>)
+        if (IsFatal<Kind>::value)
         {
             panic();
         }
@@ -65,9 +64,9 @@ class ErrorProxy final
 };
 
 // can we sensibly make this static?
-template <class Level, class Error>
-auto createProxy(const SourceLocation& location, Level level, const Error& error)
+template <class Kind, class Error>
+auto createProxy(const SourceLocation& location, Kind kind, const Error& error)
 {
-    return ErrorProxy<Level>(location, level, error);
+    return ErrorProxy<Kind>(location, kind, error);
 }
 } // namespace eh3

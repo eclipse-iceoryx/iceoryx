@@ -30,6 +30,12 @@ inline void report(const SourceLocation&, eh3::PreconditionViolation, const Erro
     std::cout << "TEST REPORT precondition violation" << std::endl;
 }
 
+template <class Error>
+inline void report(const SourceLocation&, eh3::DebugAssertViolation, const Error&)
+{
+    std::cout << "TEST REPORT debug assert violation" << std::endl;
+}
+
 inline void panic()
 {
     std::cout << "TEST PANIC" << std::endl;
