@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
 #define IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
 
-#define IOX_NO_DISCARD [[nodiscard, gnu::warn_unused]]
+#define IOX_NO_DISCARD [[nodiscard]]
 
 #define IOX_FALLTHROUGH [[fallthrough]]
 

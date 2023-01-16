@@ -17,13 +17,12 @@
 #ifndef IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP
 #define IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP
 
-/// @todo iox-#638
+/// @todo iox-#638 Are any of the below flags available with C++14 on QCC?
+#if __cplusplus >= 201703L
+#define IOX_NO_DISCARD [[nodiscard]]
+#else
 #define IOX_NO_DISCARD
-
-/// @brief IOX_FALLTHROUGH adds the [[fallthrough]] keyword when it is available for the current compiler.
-/// @note
-//    [[fallthrough]] supported since gcc 7 (https://gcc.gnu.org/projects/cxx-status.html)
-///   [[fallthrough]] supported since clang 3.9 (https://clang.llvm.org/cxx_status.html)
+#endif
 
 #if __cplusplus >= 201703L
 #define IOX_FALLTHROUGH [[fallthrough]]
@@ -31,6 +30,10 @@
 #define IOX_FALLTHROUGH
 #endif
 
+#if __cplusplus >= 201703L
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
+#else
 #define IOX_MAYBE_UNUSED [[gnu::unused]]
+#endif
 
 #endif // IOX_HOOFS_QNX_PLATFORM_ATTRIBUTES_HPP
