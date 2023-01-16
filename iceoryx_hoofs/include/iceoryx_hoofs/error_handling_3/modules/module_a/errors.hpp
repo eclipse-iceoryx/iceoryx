@@ -85,7 +85,7 @@ namespace eh3
 {
 
 // transform codes to error
-module_a::error::Error toError(module_a::error::ErrorCode code)
+inline module_a::error::Error toError(module_a::error::ErrorCode code)
 {
     return module_a::error::Error(code);
 }

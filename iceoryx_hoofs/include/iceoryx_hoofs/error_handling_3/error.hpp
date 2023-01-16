@@ -7,6 +7,34 @@ namespace eh3
 using error_code_t = uint32_t;
 using module_id_t = uint32_t;
 
+
+class PreconditionError
+{
+  public:
+    explicit PreconditionError()
+    {
+    }
+
+    static constexpr module_id_t module()
+    {
+        return 0;
+    }
+
+    error_code_t code() const
+    {
+        return PRECONDITION_VIOLATION_CODE;
+    }
+
+    // Contract: must return a pointer to data segment (no dynamic memory)
+    const char* name() const
+    {
+        return NAME;
+    }
+
+    static constexpr error_code_t PRECONDITION_VIOLATION_CODE = 0;
+    static constexpr const char* NAME = "PrecondnitionViolation";
+};
+
 // we expect an error to have
 // 1. error_code_t code()
 // 2. module_id_t module()
@@ -15,9 +43,9 @@ using module_id_t = uint32_t;
 // 0 is reserved
 constexpr module_id_t INVALID_MODULE = 0;
 
-// primary template is the identity, only for lvalues (change?)
+// primary template is the identity
 template <typename Error>
-auto& toError(Error& error)
+auto toError(Error&& error)
 {
     return error;
 }

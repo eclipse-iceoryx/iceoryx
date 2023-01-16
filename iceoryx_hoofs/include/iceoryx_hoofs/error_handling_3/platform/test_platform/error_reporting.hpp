@@ -1,9 +1,10 @@
 #pragma once
 
 #include "iceoryx_hoofs/error_handling_3/error.hpp"
+#include "iceoryx_hoofs/error_handling_3/error_kind.hpp"
 #include "iceoryx_hoofs/error_handling_3/location.hpp"
 
-#include "iceoryx_hoofs/error_handling_3/platform/error_level.hpp"
+#include "iceoryx_hoofs/error_handling_3/platform/error_kind.hpp"
 
 #include <iostream>
 
@@ -11,19 +12,25 @@ namespace eh3
 {
 // platform specific, static dispatch (optimized away)
 
-template <class Level, class Error>
-void report(const SourceLocation&, Level, const Error&)
+template <class Kind, class Error>
+inline void report(const SourceLocation&, Kind, const Error&)
 {
-    std::cout << "TEST REPORT level" << std::endl;
+    std::cout << "TEST REPORT non-fatal" << std::endl;
 }
 
 template <class Error>
-void report(const SourceLocation&, eh3::Fatal, const Error&)
+inline void report(const SourceLocation&, eh3::Fatal, const Error&)
 {
     std::cout << "TEST REPORT fatal" << std::endl;
 }
 
-void panic()
+template <class Error>
+inline void report(const SourceLocation&, eh3::PreconditionViolation, const Error&)
+{
+    std::cout << "TEST REPORT precondition violation" << std::endl;
+}
+
+inline void panic()
 {
     std::cout << "TEST PANIC" << std::endl;
 }

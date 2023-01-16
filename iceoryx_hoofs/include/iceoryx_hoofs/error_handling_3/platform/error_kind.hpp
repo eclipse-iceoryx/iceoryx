@@ -1,6 +1,6 @@
 #pragma once
 
-#include "iceoryx_hoofs/error_handling_3/basic_error_level.hpp"
+#include "iceoryx_hoofs/error_handling_3/error_kind.hpp"
 #include <type_traits>
 
 // ***

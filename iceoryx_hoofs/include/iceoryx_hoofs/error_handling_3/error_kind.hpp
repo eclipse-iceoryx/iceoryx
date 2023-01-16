@@ -8,13 +8,24 @@ namespace eh3
 using error_level_t = uint32_t;
 constexpr error_level_t FATAL_LEVEL{0};
 
-// can also be considered the category of an error
-
-// mandatory fatal level that always exists
+// mandatory fatal error category that always exists
 struct Fatal
 {
     static constexpr char const* name = "Fatal";
 
+    static constexpr error_level_t value = FATAL_LEVEL;
+
+    explicit operator error_level_t()
+    {
+        return value;
+    }
+};
+
+struct PreconditionViolation
+{
+    static constexpr char const* name = "PreconditionViolation";
+
+    // todo: separate level?
     static constexpr error_level_t value = FATAL_LEVEL;
 
     explicit operator error_level_t()
@@ -33,8 +44,8 @@ struct IsFatal<Fatal> : public std::true_type
 {
 };
 
-template <class Level>
-bool constexpr isFatal(Level)
+template <class Kind>
+bool constexpr isFatal(Kind)
 {
     return false;
 }
@@ -45,8 +56,8 @@ bool constexpr isFatal<Fatal>(Fatal)
     return true;
 }
 
-template <typename Level>
-bool constexpr requiresHandling(Level)
+template <typename Kind>
+bool constexpr requiresHandling(Kind)
 {
     return true;
 }
@@ -57,6 +68,15 @@ bool constexpr requiresHandling(Fatal)
     return true;
 }
 
+bool constexpr requiresHandling(PreconditionViolation)
+{
+    return true;
+}
+
+// shall indicate serious condition, unable to continue
 constexpr Fatal FATAL;
+
+// shall indicate a bug (contract breach by caller)
+constexpr PreconditionViolation PRECONDITION_VIOLATION;
 
 } // namespace eh3

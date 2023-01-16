@@ -81,9 +81,9 @@ TEST_F(ErrorHandling3_test, direct_proxy_use_works)
 TEST_F(ErrorHandling3_test, report_api_works)
 {
     auto err = module_a::error::OutOfBoundsError();
-    IOX_REPORT(FATAL, err);
-    IOX_REPORT(FATAL, CodeA::OutOfBounds);
-    IOX_REPORT(FATAL, CodeB::OutOfBounds);
+    IOX_REPORT(err, FATAL);
+    IOX_REPORT(CodeA::OutOfBounds, FATAL);
+    IOX_REPORT(CodeB::OutOfBounds, FATAL);
 }
 
 TEST_F(ErrorHandling3_test, fatal_api_works)
@@ -99,9 +99,9 @@ TEST_F(ErrorHandling3_test, report_if_api_error_case_works)
     auto err = module_a::error::OutOfBoundsError();
 
     int x = 0;
-    IOX_REPORT_IF(x == 0, FATAL, err);
-    IOX_REPORT_IF(x == 0, FATAL, CodeA::OutOfBounds);
-    IOX_REPORT_IF(x == 0, FATAL, CodeB ::OutOfBounds);
+    IOX_REPORT_IF(x == 0, err, FATAL);
+    IOX_REPORT_IF(x == 0, CodeA::OutOfBounds, FATAL);
+    IOX_REPORT_IF(x == 0, CodeB ::OutOfBounds, FATAL);
 }
 
 TEST_F(ErrorHandling3_test, report_if_api_nonerror_case_works)
@@ -109,9 +109,9 @@ TEST_F(ErrorHandling3_test, report_if_api_nonerror_case_works)
     auto err = module_a::error::OutOfBoundsError();
 
     int x = 1;
-    IOX_REPORT_IF(x == 0, FATAL, err);
-    IOX_REPORT_IF(x == 0, FATAL, CodeA::OutOfBounds);
-    IOX_REPORT_IF(x == 0, FATAL, CodeB ::OutOfBounds);
+    IOX_REPORT_IF(x == 0, err, FATAL);
+    IOX_REPORT_IF(x == 0, CodeA::OutOfBounds, FATAL);
+    IOX_REPORT_IF(x == 0, CodeB ::OutOfBounds, FATAL);
 }
 
 TEST_F(ErrorHandling3_test, assert_api_error_case_works)
@@ -165,13 +165,13 @@ TEST_F(ErrorHandling3_test, additional_messages_are_logged)
     errorStream().str(""); // clear, will use logger later
     // if it is intended to report the message, the error objects need to support that
     // this is purely for logging
-    IOX_REPORT(FATAL, CodeA::OutOfBounds) << "Hello " << 73;
+    IOX_REPORT(CodeA::OutOfBounds, FATAL) << "Hello " << 73;
     std::cout << errorStream().str();
 }
 
 TEST_F(ErrorHandling3_test, non_required_levels_are_not_reported)
 {
-    IOX_REPORT(WARNING, CodeA::OutOfBounds);
+    IOX_REPORT(CodeA::OutOfBounds, WARNING);
 }
 
 } // namespace
