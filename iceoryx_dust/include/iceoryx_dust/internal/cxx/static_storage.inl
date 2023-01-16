@@ -26,7 +26,7 @@ namespace cxx
 template <uint64_t Capacity, uint64_t Align>
 constexpr uint64_t static_storage<Capacity, Align>::align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept
 {
-    const auto r = align % requiredAlign;
+    const uint64_t r = align % requiredAlign;
 
     // If r != 0 we are not aligned with requiredAlign and need to add r to an align
     // aligned address to be aligned with requiredAlign.
