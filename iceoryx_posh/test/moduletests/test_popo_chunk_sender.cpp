@@ -158,6 +158,20 @@ TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSet)
     EXPECT_THAT((*maybeChunkHeader)->originId(), Eq(uniqueId));
 }
 
+TEST_F(ChunkSender_test, allocate_ChunkHasOriginIdSetWhenRecycleChunk)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fcf703e3-1b43-49cb-b6d3-55d09e064f93");
+    UniquePortId uniqueId;
+    auto maybeChunkHeader1 = m_chunkSender.tryAllocate(
+        uniqueId, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+
+    auto maybeChunkHeader2 = m_chunkSender.tryAllocate(
+        uniqueId, sizeof(DummySample), alignof(DummySample), USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
+
+    ASSERT_FALSE(maybeChunkHeader2.has_error());
+    EXPECT_THAT((*maybeChunkHeader2)->originId(), Eq(uniqueId));
+}
+
 TEST_F(ChunkSender_test, allocate_MultipleChunks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0be0972d-f7d4-4400-bbc9-31767aef2e2b");
