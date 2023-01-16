@@ -55,8 +55,8 @@ struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().g
 void print_expect_message(const char* message) noexcept;
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define
+// a destructor, hence the move operations are not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
@@ -74,8 +74,8 @@ struct Expect
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
-// not deleted.
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define
+// a destructor, hence the move operations are not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
@@ -118,7 +118,7 @@ struct ExpectWithValue
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
@@ -148,7 +148,7 @@ struct ValueOr
 };
 
 template <typename Derived, typename ValueType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
@@ -200,7 +200,7 @@ struct AndThenWithValue
 };
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
@@ -238,7 +238,7 @@ struct AndThen
 };
 
 template <typename Derived, typename ErrorType>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
@@ -290,7 +290,7 @@ struct OrElseWithValue
 };
 
 template <typename Derived>
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
@@ -336,7 +336,7 @@ template <typename Derived, typename ValueType, typename ErrorType>
 // with a default implementation. But they dont come with the downside of an explicit user-side
 // forward implementation.
 //
-// not required since a default'ed destructor does not define a destructor, hence the move operations are
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : not required since a default'ed destructor does not define a destructor, hence the move operations are
 // not deleted.
 // the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
 // explicitly calling the destructor of the base type.
