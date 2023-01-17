@@ -7,4 +7,6 @@
 **Bugfixes:**
 
 - Build error on certain versions of Windows/Visual Studio [\#1476](https://github.com/eclipse-iceoryx/iceoryx/issues/1476)
+- Fix FileLock leak when lock failed [\#1440](https://github.com/eclipse-iceoryx/iceoryx/issues/1440)
+- Fix INTERFACE_INCLUDE_DIRECTORIES in CMake [\#1481](https://github.com/eclipse-iceoryx/iceoryx/issues/1481)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
