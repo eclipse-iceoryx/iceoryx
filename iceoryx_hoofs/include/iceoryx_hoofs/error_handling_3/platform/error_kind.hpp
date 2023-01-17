@@ -39,7 +39,7 @@ struct Warning
     }
 };
 
-constexpr Error ERROR{};
+constexpr Error RUNTIME_ERROR{};
 constexpr Warning WARNING{};
 
 // exclude warnings from handling at compile time

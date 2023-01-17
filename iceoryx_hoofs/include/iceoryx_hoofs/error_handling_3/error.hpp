@@ -7,12 +7,18 @@ namespace eh3
 using error_code_t = uint32_t;
 using module_id_t = uint32_t;
 
-// maybe not ideal to define it here
-// overload resolution shall detect and handle it
-class PreconditionError
+// no need to reserve, we can distinguish violations from error
+// TODO: maybe enum
+constexpr error_code_t DEBUG_ASSERT_VIOLATION_CODE = 0;
+constexpr error_code_t PRECONDITION_VIOLATION_CODE = 1;
+
+
+// a complex hierarchy is not required yet, maybe move to a violation header
+class Violation
 {
   public:
-    explicit PreconditionError()
+    explicit Violation(error_code_t code)
+        : m_code(code)
     {
     }
 
@@ -23,7 +29,7 @@ class PreconditionError
 
     error_code_t code() const
     {
-        return PRECONDITION_VIOLATION_CODE;
+        return m_code;
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
@@ -32,8 +38,10 @@ class PreconditionError
         return NAME;
     }
 
-    static constexpr error_code_t PRECONDITION_VIOLATION_CODE = 0;
-    static constexpr const char* NAME = "PrecondnitionViolation";
+  public:
+    error_code_t m_code{DEBUG_ASSERT_VIOLATION_CODE};
+
+    static constexpr const char* NAME = "Violation";
 };
 
 // we expect an error to have

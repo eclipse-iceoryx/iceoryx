@@ -1,8 +1,9 @@
 // must be defined globally before first inclusion (actually from cmake, preferably)
 #include "iceoryx_hoofs/error_handling_3/platform/error_kind.hpp"
+#include "iceoryx_hoofs/error_handling_3/platform/test_platform/error_reporting.hpp"
 #include <gtest/gtest.h>
 #define TEST_PLATFORM // override the error handling for testing purposes
-#define DEBUG         // IOX_DEBUG_ASSERT is active
+#define DEBUG         // defensive checks (DEBUG_ASSERT, PRECOND) are active
 
 #include "test.hpp"
 #include <gtest/gtest-death-test.h>
@@ -28,11 +29,36 @@ using std::endl;
 using Error = module_a::error::Error;
 using Code = module_a::error::ErrorCode;
 
+struct AnotherError
+{
+    AnotherError(Error& error)
+        : m_error(error)
+    {
+    }
+
+    Error m_error;
+};
+
+#define IGNORE(expr) (void)(expr)
+
+#define ASSERT_NO_PANIC()                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        ASSERT_FALSE(eh3::hasPanicked());                                                                              \
+    } while (false)
+
+#define ASSERT_PANIC()                                                                                                 \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        ASSERT_TRUE(eh3::hasPanicked());                                                                               \
+    } while (false)
+
 class ErrorHandlingUseCase_test : public Test
 {
   public:
     void SetUp() override
     {
+        eh3::resetPanic();
     }
 
     void TearDown() override
@@ -45,7 +71,7 @@ class ErrorHandlingUseCase_test : public Test
 // panic if not satisfied
 int f1(int x)
 {
-    IOX_PRECOND(x > 0);
+    IOX_EXPECTS(x > 0);
     return x;
 }
 
@@ -56,6 +82,7 @@ int f1(int x)
 // 3. propagate error - different control flow
 // NB: optional, expected, result etc. are all possible
 // NB: we cannot throw here if we want to continue with the same control flow
+// Optional message in framework
 expected<int, Error> f2(int x)
 {
     // assume preconditions are OK
@@ -67,7 +94,7 @@ expected<int, Error> f2(int x)
         auto err = IOX_ERROR(Code::Unknown);
 
         // alternatively this could provide us the error as return
-        IOX_REPORT(err, ERROR);
+        IOX_REPORT(err, RUNTIME_ERROR);
 
         // expected is fairly inconvenient due to lack of conversions etc.
         // this can be fixed
@@ -82,17 +109,30 @@ expected<int, Error> f2(int x)
 // 1. report error
 // 2. propagate or handle error - different control flow
 // NB: we cannot throw here if we want to continue with the same control flow
-expected<int, Error> f3(int x)
+// TODO: general transform case (other error types)
+expected<int, AnotherError> f3(int x)
 {
     // assume preconditions are OK
 
     auto y = f2(x);
-
     if (y.has_error())
     {
-        IOX_REPORT(y.get_error(), ERROR);
+        // optional report
+        // TODO: overload for expected
+        auto err = y.get_error();
+        IOX_REPORT(err, RUNTIME_ERROR);
+
+        // transform error (transformation must exist)
+        return error<AnotherError>(AnotherError(err));
+        // cannot deduce argument as is
+        //   bad - return error(AnotherError(err));
     }
-    return y;
+
+    // verbose expected syntax
+    return success<int>(y.value());
+
+    // cannot deduce argument as is or at least ok(y.value());
+    //  return y.value();
 }
 
 // Use case: non-recoverable error occurs
@@ -109,6 +149,10 @@ int f4(int x)
 
     if (x <= 0)
     {
+        // IOX_REPORT(Code::OutOfMemory, FATAL);
+        //   or
+        //   NB: Simon prefers
+        //  Bob, IOX_REPORT_FATAL() noreturn
         IOX_FATAL(Code::OutOfMemory);
     }
 
@@ -119,13 +163,18 @@ int f4(int x)
 // Reaction
 // 1. if condition is not satisfied report fatal error
 // 2. panic - do not return
-// NB: syntactic sugar
-// NB: usable for postconditions, but we can think of having a separate category
 int f5(int x)
 {
     // preconditions are OK
 
-    IOX_ASSERT(x > 0, Code::OutOfMemory);
+    // Bob: IOX_ENSURE
+
+    IOX_REQUIRE(x > 0, Code::OutOfMemory);
+
+    // syntactic sugar for (arguably more clear)
+
+    // Bob: not needed
+    // IOX_REPORT_IF(!(x > 0), Code::OutOfMemory, FATAL);
 
     return x;
 }
@@ -137,11 +186,16 @@ int f5(int x)
 // 2. panic - do not return
 // NB: preconditions are a similar category and checks can be disabled for performance
 // NB: failure indicates a bug
+// TODO: do we want the debug and regular assert? at least the debug IMO
+//    do we want a version for postcodnitions, likely without a specific error as a postcondition
+//    violation is a bug
 int f6(int x)
 {
-    // preconditions are OK
+    // preconditions are OK but there is a problem (bug) in the function body
 
-    IOX_DEBUG_ASSERT(x > 0, Code::OutOfMemory);
+    // supposed to be used for postconditions or mid-function
+    // Matthias: prefer string message, rename ASSERT if not used elsewhere
+    IOX_DEBUG_ASSERT(x > 0);
 
     return x;
 }
@@ -156,24 +210,69 @@ int f7(int x)
 
     if (x <= 0)
     {
-        IOX_PANIC;
+        IOX_PANIC("panic!!!");
+        // or
+        IOX_PANIC();
     }
 
     return x;
 }
 
-TEST_F(ErrorHandlingUseCase_test, preconditionSatisfied)
+// Use case: recoverable error occurs during call of another function
+// Reaction but is deemed irecoverable later
+// 1. report error
+// 2. propagate or handle error - different control flow
+// NB: we cannot throw here if we want to continue with the same control flow
+// TODO: general transform case (other error types)
+int f8(int x)
 {
-    int in = 73;
-    auto out = f1(in);
-    EXPECT_EQ(in, out);
+    // assume preconditions are OK
+    auto y = f2(x);
+
+    /*
+        if (y.has_error())
+        {
+            // optional report
+            // TODO: overload for expected
+            IOX_FATAL(y.get_error());
+
+            // should not be reachable
+            return 0;
+        }
+    */
+    // or shorter
+    IOX_REQUIRE(!y.has_error(), y.get_error());
+    // would have to guarantee noreturn in case of failure
+    // could use continuations like or_else() but this could not directly return, only execute something
+
+    // return y.value();
+    return 0;
 }
 
-TEST_F(ErrorHandlingUseCase_test, preconditionViolated)
+// Use case: check for non-recoverable error conditions
+// Reaction
+// 1. if condition is not satisfied report fatal error
+// 2. panic - do not return
+// similar to f5 but explicitly generated error exists
+int f9(int x)
+{
+    // preconditions are OK
+
+    auto err = IOX_ERROR(Code::OutOfMemory);
+    IOX_REQUIRE(x > 0, err);
+
+    return x;
+}
+
+// ***Correct use (no bug) scenarios***
+
+TEST_F(ErrorHandlingUseCase_test, unconditionalPanic)
 {
     int in = 0;
-    auto out = f1(in);
-    EXPECT_EQ(in, out);
+    auto out = f7(in);
+    IGNORE(out);
+
+    ASSERT_PANIC();
 }
 
 TEST_F(ErrorHandlingUseCase_test, expectedSuccess)
@@ -181,6 +280,8 @@ TEST_F(ErrorHandlingUseCase_test, expectedSuccess)
     int in = 73;
     auto out = f2(in);
     ASSERT_TRUE(!out.has_error());
+    ASSERT_NO_PANIC();
+
     EXPECT_EQ(in, out.value());
 }
 
@@ -189,6 +290,8 @@ TEST_F(ErrorHandlingUseCase_test, expectedFailure)
     int in = 0;
     auto out = f2(in);
     EXPECT_TRUE(out.has_error());
+
+    ASSERT_NO_PANIC();
 }
 
 TEST_F(ErrorHandlingUseCase_test, internalCallFailure)
@@ -196,34 +299,74 @@ TEST_F(ErrorHandlingUseCase_test, internalCallFailure)
     int in = 0;
     auto out = f3(in);
     EXPECT_TRUE(out.has_error());
+
+    ASSERT_NO_PANIC();
 }
 
 TEST_F(ErrorHandlingUseCase_test, fatalError)
 {
     int in = 0;
     auto out = f4(in);
-    EXPECT_EQ(in, out);
+    IGNORE(out);
+
+    ASSERT_PANIC();
 }
 
-TEST_F(ErrorHandlingUseCase_test, assertFailure)
+TEST_F(ErrorHandlingUseCase_test, requireFailure)
 {
     int in = 0;
     auto out = f5(in);
+    IGNORE(out);
+
+    ASSERT_PANIC();
+}
+
+TEST_F(ErrorHandlingUseCase_test, internalCallFatalFailure)
+{
+    int in = 0;
+    auto out = f8(in);
+    IGNORE(out);
+
+    ASSERT_PANIC();
+}
+
+
+TEST_F(ErrorHandlingUseCase_test, requireFailure2)
+{
+    int in = 0;
+    auto out = f9(in);
+    IGNORE(out);
+
+    ASSERT_PANIC();
+}
+
+// *** Bug-checking/defensive scenarios***
+
+TEST_F(ErrorHandlingUseCase_test, preconditionSatisfied)
+{
+    int in = 73;
+    auto out = f1(in);
+    ASSERT_NO_PANIC();
+
     EXPECT_EQ(in, out);
+}
+
+TEST_F(ErrorHandlingUseCase_test, preconditionViolated)
+{
+    int in = 0;
+    auto out = f1(in);
+    IGNORE(out);
+
+    ASSERT_PANIC();
 }
 
 TEST_F(ErrorHandlingUseCase_test, debugAssertFailure)
 {
     int in = 0;
     auto out = f6(in);
-    EXPECT_EQ(in, out);
-}
+    IGNORE(out);
 
-TEST_F(ErrorHandlingUseCase_test, unconditionalPanic)
-{
-    int in = 0;
-    auto out = f7(in);
-    EXPECT_EQ(in, out);
+    ASSERT_PANIC();
 }
 
 } // namespace

@@ -119,9 +119,9 @@ TEST_F(ErrorHandling3_test, assert_api_error_case_works)
     auto err = module_a::error::OutOfBoundsError();
 
     int x = 1;
-    IOX_ASSERT(x == 0, err);
-    IOX_ASSERT(x == 0, CodeA::OutOfBounds);
-    IOX_ASSERT(x == 0, CodeB ::OutOfBounds);
+    IOX_REQUIRE(x == 0, err);
+    IOX_REQUIRE(x == 0, CodeA::OutOfBounds);
+    IOX_REQUIRE(x == 0, CodeB ::OutOfBounds);
 }
 
 TEST_F(ErrorHandling3_test, assert_api_nonerror_case_works)
@@ -129,11 +129,12 @@ TEST_F(ErrorHandling3_test, assert_api_nonerror_case_works)
     auto err = module_a::error::OutOfBoundsError();
 
     int x = 0;
-    IOX_ASSERT(x == 0, err);
-    IOX_ASSERT(x == 0, CodeA::OutOfBounds);
-    IOX_ASSERT(x == 0, CodeB ::OutOfBounds);
+    IOX_REQUIRE(x == 0, err);
+    IOX_REQUIRE(x == 0, CodeA::OutOfBounds);
+    IOX_REQUIRE(x == 0, CodeB ::OutOfBounds);
 }
 
+#if 0
 TEST_F(ErrorHandling3_test, debug_assert_api_error_case_works)
 {
     auto err = module_a::error::OutOfBoundsError();
@@ -153,11 +154,12 @@ TEST_F(ErrorHandling3_test, debug_assert_api_nonerror_case_works)
     IOX_DEBUG_ASSERT(x == 0, CodeA::OutOfBounds);
     IOX_DEBUG_ASSERT(x == 0, CodeB ::OutOfBounds);
 }
+#endif
 
 TEST_F(ErrorHandling3_test, panic_api_works)
 {
     // do we want function syntax?
-    IOX_PANIC;
+    IOX_PANIC();
 }
 
 TEST_F(ErrorHandling3_test, additional_messages_are_logged)

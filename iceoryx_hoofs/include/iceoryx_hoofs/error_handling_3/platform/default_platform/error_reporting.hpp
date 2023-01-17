@@ -6,6 +6,7 @@
 #include "iceoryx_hoofs/error_handling_3/platform/error_kind.hpp"
 
 #include <iostream>
+#include <atomic>
 
 namespace eh3
 {
@@ -35,9 +36,16 @@ inline void report(const SourceLocation&, eh3::DebugAssertViolation, const Error
     std::cout << "REPORT debug assert violation" << std::endl;
 }
 
-inline void panic()
-{
+[[noreturn]] inline void panic()
+{   
     std::cout << "PANIC" << std::endl;
+    std::terminate();
+}
+
+[[noreturn]] inline void panic(const char* msg)
+{
+    std::cout << "PANIC " << msg << std::endl;
+    std::terminate();
 }
 
 } // namespace eh
