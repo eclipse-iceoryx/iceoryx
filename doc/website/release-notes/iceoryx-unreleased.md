@@ -8,7 +8,7 @@
 
 **Bugfixes:**
 
-* Foo Bar #000
+- Foo Bar [\#000](https://github.com/eclipse-iceoryx/iceoryx/issues/000)
 
 **Refactoring:**
 
