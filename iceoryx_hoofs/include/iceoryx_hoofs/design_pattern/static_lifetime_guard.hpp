@@ -33,9 +33,7 @@ namespace design_pattern
 /// of the instance at least until G is destroyed
 /// @tparam T the type of the instance to be guarded
 ///
-/// @note all public functions except setCount are thread-safe
-/// @attention setCount is only supposed to be used while no guards are created
-/// concurrently
+/// @note all public functions are thread-safe
 ///
 /// @code
 /// // instance will be destroyed after guard
@@ -70,19 +68,6 @@ class StaticLifetimeGuard
     template <typename... Args>
     static T& instance(Args&&... args) noexcept;
 
-    /// @brief Set the instance life time count.
-    /// @param count value to be set
-    /// @return previous count value
-    /// @note This can be used to additionally extend or shorten the instance lifetime,
-    /// This has to be done carefully, to ensure destruction or prevent early destruction.
-    /// It is useful for testing purposes.
-    /// @attention setCount is only supposed to be used while no guards are created
-    /// concurrently as it will influence the guard mechanism.
-    /// The instance is destroyed once the counter reaches zero upon destruction of a guard,
-    /// i.e. changing the counter may lead to the instance never being destroyed
-    /// or being destroyed before the last guard.
-    static uint64_t setCount(uint64_t count);
-
     /// @brief Get the current count value.
     /// @return current count value
     static uint64_t count();
@@ -103,6 +88,21 @@ class StaticLifetimeGuard
     // NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
 
     static void destroy();
+
+  protected:
+    /// @brief Set the instance life time count.
+    /// @param count value to be set
+    /// @return previous count value
+    /// @note This can be used to additionally extend or shorten the instance lifetime,
+    /// This has to be done carefully, to ensure destruction or prevent early destruction.
+    /// It is useful for testing purposes.
+    /// @note Only to be used for testing.
+    /// @attention setCount is only supposed to be used while no guards are created
+    /// concurrently as it will influence the guard mechanism.
+    /// The instance is destroyed once the counter reaches zero upon destruction of a guard,
+    /// i.e. changing the counter may lead to the instance never being destroyed
+    /// or being destroyed before the last guard.
+    static uint64_t setCount(uint64_t count);
 };
 
 // NOLINTJUSTIFICATION these static variables are private and mutability is required

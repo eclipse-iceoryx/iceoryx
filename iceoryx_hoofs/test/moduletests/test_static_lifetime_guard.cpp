@@ -53,7 +53,17 @@ uint32_t Foo::ctorCalled{0};
 uint32_t Foo::dtorCalled{0};
 uint32_t Foo::instancesCreated{0};
 
+// to access StaticLifetimeGuard count for testing only
+// note that this is fine, we access the right function and static variable defined in the base class
+template <typename T>
+class StaticLifetimeGuardAccessor : public iox::design_pattern::StaticLifetimeGuard<T>
+{
+  public:
+    using iox::design_pattern::StaticLifetimeGuard<T>::setCount;
+};
+
 using Guard = iox::design_pattern::StaticLifetimeGuard<Foo>;
+using CountAccessor = StaticLifetimeGuardAccessor<Foo>;
 
 // the first call to instance() creates a static instance,
 // g_instance is guarded once implicitly
@@ -85,15 +95,16 @@ TEST_F(StaticLifetimeGuard_test, staticInitializationSucceeded)
     EXPECT_EQ(Foo::dtorCalled, 0);
 }
 
+// setCount is not part of the public interface but still useful to check whether it works
 TEST_F(StaticLifetimeGuard_test, setCountWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1db790f9-d49e-44b2-b7e9-af50dd6a7d67");
 
-    auto oldCount = Guard::setCount(73);
+    auto oldCount = CountAccessor::setCount(73);
     EXPECT_EQ(Guard::count(), 73);
     EXPECT_EQ(oldCount, 1);
 
-    Guard::setCount(oldCount);
+    CountAccessor::setCount(oldCount);
     EXPECT_EQ(Guard::count(), oldCount);
 }
 
@@ -182,7 +193,7 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
         // count is expected to be 2,
         // we ignore the guard of g_instance by setting it to 1,
         // hence when guard is destroyed the instance will be destroyed as well
-        auto oldCount = Guard::setCount(1);
+        auto oldCount = CountAccessor::setCount(1);
         EXPECT_EQ(oldCount, 2);
 
         EXPECT_EQ(Foo::ctorCalled, 0);
@@ -202,7 +213,7 @@ TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
     if (Guard::count() > 0)
     {
         Guard guard;
-        Guard::setCount(1);
+        CountAccessor::setCount(1);
         // now the instance will be destroyed once the guard is destroyed
     }
 

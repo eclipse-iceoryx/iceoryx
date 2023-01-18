@@ -17,8 +17,9 @@ that also inherits from `I`
 To achieve this, we define another support class `StaticLifeTimeGuard` that solves the singleton lifetime problem.
 This class can be used on its own and is based on the nifty counter reference counting.
 
-The handler itself may not be thread-safe and multiple threads can concurrently use it. 
-If thread-safety of the instances is desired, the classes implementing `I` must be thread-safe.
+While obtaining the instance is thread-safe, the instance managed by the handler may not be
+thread-safe. If thread-safety of the instances is desired, the classes implementing `I`
+must be thread-safe.
 
 ## StaticLifetimeGuard
 
