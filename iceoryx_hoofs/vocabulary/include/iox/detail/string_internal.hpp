@@ -104,7 +104,7 @@ struct GetSize<std::string>
 template <>
 struct GetSize<char>
 {
-    static uint64_t call(char c IOX_MAYBE_UNUSED) noexcept
+    static uint64_t call(char) noexcept
     {
         return 1U;
     }
