@@ -26,8 +26,6 @@
 #include "iceoryx_hoofs/internal/cxx/newtype/protected_constructor.hpp"
 #include "iceoryx_hoofs/internal/cxx/newtype/sortable.hpp"
 
-#include <type_traits>
-
 namespace iox
 {
 namespace cxx
