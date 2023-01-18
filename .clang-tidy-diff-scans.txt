@@ -51,6 +51,9 @@
 ./iceoryx_hoofs/vocabulary/**/*
 ./iceoryx_hoofs/test/moduletests/test_vocabulary_*
 
+./iceoryx_hoofs/design/**/*
+./iceoryx_hoofs/test/moduletests/test_design_*
+
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
 #    directories only at the top of this file

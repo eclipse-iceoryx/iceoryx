@@ -14,14 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_INL
-#define IOX_HOOFS_CXX_NEWTYPE_INL
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_INL
+#define IOX_HOOFS_DESIGN_NEWTYPE_INL
 
-#include "iceoryx_hoofs/cxx/newtype.hpp"
+#include "iox/newtype.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <typename T, template <typename> class... Policies>
 // AXIVION Next Construct AutosarC++19_03-A12.6.1 : m_value is initialized by the default constructor of T; the code
@@ -118,7 +116,6 @@ inline NewType<T, Policies...>::operator T() const noexcept
     return m_value;
 }
 
-} // namespace cxx
 } // namespace iox
 
 #endif

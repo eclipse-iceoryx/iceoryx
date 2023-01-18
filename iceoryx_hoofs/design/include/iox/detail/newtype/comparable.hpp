@@ -14,13 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_SORTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_SORTABLE_HPP
-#include "iceoryx_hoofs/internal/cxx/newtype/internal.hpp"
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_COMPARABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_COMPARABLE_HPP
+#include "internal.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -31,35 +29,23 @@ template <typename T>
 // is a marker struct that adds only the described property to the new type. Adding copy/move operations would
 // contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
-struct Sortable
+struct Comparable
 {
-    friend bool operator<=(const T& lhs, const T& rhs) noexcept
+    friend bool operator==(const T& lhs, const T& rhs) noexcept
     {
-        return internal::newTypeAccessor(lhs) <= internal::newTypeAccessor(rhs);
+        return internal::newTypeAccessor(lhs) == internal::newTypeAccessor(rhs);
     }
 
-    friend bool operator<(const T& lhs, const T& rhs) noexcept
+    friend bool operator!=(const T& lhs, const T& rhs) noexcept
     {
-        return internal::newTypeAccessor(lhs) < internal::newTypeAccessor(rhs);
-    }
-
-    friend bool operator>(const T& lhs, const T& rhs) noexcept
-    {
-        return internal::newTypeAccessor(lhs) > internal::newTypeAccessor(rhs);
-    }
-
-    friend bool operator>=(const T& lhs, const T& rhs) noexcept
-    {
-        return internal::newTypeAccessor(lhs) >= internal::newTypeAccessor(rhs);
+        return !(lhs == rhs);
     }
 
   protected:
-    ~Sortable() = default;
+    ~Comparable() = default;
 };
 
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
-
 
 #endif

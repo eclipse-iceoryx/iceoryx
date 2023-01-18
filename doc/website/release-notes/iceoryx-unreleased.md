@@ -229,12 +229,12 @@
 7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
 
    ```cpp
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
 
-   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+   iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
 
    delete soSmart; // <- not possible anymore
    ```
@@ -244,17 +244,17 @@
    ```cpp
    // before
    // for the compiler Foo and Bar are the same type
-   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
-   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Foo = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
+   using Bar = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
 
    // after
    // compile time error when Foo and Bar are mixed up
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
    // or with the IOX_NEW_TYPE macro
-   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
+   IOX_NEW_TYPE(Bar, uint64_t, iox::newtype::ConstructByValueCopy);
    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.

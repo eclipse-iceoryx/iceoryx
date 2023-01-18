@@ -14,29 +14,49 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
+#include "internal.hpp"
 
 namespace iox
 {
-namespace cxx
-{
 namespace newtype
 {
-template <typename>
+template <typename T>
 // AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
 // destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
 // prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
 // is a marker struct that adds only the described property to the new type. Adding copy/move operations would
 // contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
-struct ProtectedConstructByValueCopy
+struct Sortable
 {
+    friend bool operator<=(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) <= internal::newTypeAccessor(rhs);
+    }
+
+    friend bool operator<(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) < internal::newTypeAccessor(rhs);
+    }
+
+    friend bool operator>(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) > internal::newTypeAccessor(rhs);
+    }
+
+    friend bool operator>=(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) >= internal::newTypeAccessor(rhs);
+    }
+
   protected:
-    ~ProtectedConstructByValueCopy() = default;
+    ~Sortable() = default;
 };
+
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
+
 
 #endif

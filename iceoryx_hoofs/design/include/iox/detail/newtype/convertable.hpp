@@ -14,12 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_CONVERTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_CONVERTABLE_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_CONVERTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_CONVERTABLE_HPP
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -37,7 +35,6 @@ struct Convertable
 };
 
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
 
 #endif
