@@ -105,18 +105,6 @@ class StaticLifetimeGuard
     static uint64_t setCount(uint64_t count);
 };
 
-// NOLINTJUSTIFICATION these static variables are private and mutability is required
-// NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
-template <typename T>
-typename StaticLifetimeGuard<T>::storage_t StaticLifetimeGuard<T>::s_storage;
-template <typename T>
-std::atomic<uint64_t> StaticLifetimeGuard<T>::s_count{0};
-template <typename T>
-std::atomic<uint32_t> StaticLifetimeGuard<T>::s_instanceState{UNINITIALIZED};
-template <typename T>
-T* StaticLifetimeGuard<T>::s_instance{nullptr};
-// NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
-
 } // namespace design_pattern
 } // namespace iox
 

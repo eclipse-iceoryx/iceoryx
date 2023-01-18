@@ -19,21 +19,36 @@
 
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 
+#include <atomic>
+#include <thread>
+
 namespace iox
 {
 namespace design_pattern
 {
 
+// NOLINTJUSTIFICATION these static variables are private and mutability is required
+// NOLINTBEGIN (cppcoreguidelines-avoid-non-const-global-variables)
+template <typename T>
+typename StaticLifetimeGuard<T>::storage_t StaticLifetimeGuard<T>::s_storage;
+template <typename T>
+std::atomic<uint64_t> StaticLifetimeGuard<T>::s_count{0};
+template <typename T>
+std::atomic<uint32_t> StaticLifetimeGuard<T>::s_instanceState{UNINITIALIZED};
+template <typename T>
+T* StaticLifetimeGuard<T>::s_instance{nullptr};
+// NOLINTEND (cppcoreguidelines-avoid-non-const-global-variables)
+
 template <typename T>
 StaticLifetimeGuard<T>::StaticLifetimeGuard() noexcept
 {
-    ++s_count;
+    s_count.fetch_add(1, std::memory_order_relaxed);
 }
 
 template <typename T>
 StaticLifetimeGuard<T>::StaticLifetimeGuard(const StaticLifetimeGuard&) noexcept
 {
-    ++s_count;
+    s_count.fetch_add(1, std::memory_order_relaxed);
 }
 
 template <typename T>
@@ -41,13 +56,13 @@ StaticLifetimeGuard<T>::StaticLifetimeGuard(StaticLifetimeGuard&&) noexcept
 {
     // we have to increment the counter here as well as it is only
     // decremented in the dtor (which was not yet called for the moved object)
-    ++s_count;
+    s_count.fetch_add(1, std::memory_order_relaxed);
 }
 
 template <typename T>
 StaticLifetimeGuard<T>::~StaticLifetimeGuard() noexcept
 {
-    if (s_count.fetch_sub(1) == 1)
+    if (s_count.fetch_sub(1, std::memory_order_relaxed) == 1)
     {
         destroy();
     }
@@ -82,6 +97,7 @@ T& StaticLifetimeGuard<T>::instance(Args&&... args) noexcept
     while (s_instanceState.load(std::memory_order_acquire) != INITALIZED)
     {
         // wait, guaranteed to complete with fair scheduling
+        std::this_thread::yield();
     }
     // guaranteed to be non-null after initialization
     return *s_instance;
@@ -90,7 +106,7 @@ T& StaticLifetimeGuard<T>::instance(Args&&... args) noexcept
 template <typename T>
 uint64_t StaticLifetimeGuard<T>::setCount(uint64_t count)
 {
-    return s_count.exchange(count);
+    return s_count.exchange(count, std::memory_order_relaxed);
 }
 
 template <typename T>
@@ -106,7 +122,7 @@ void StaticLifetimeGuard<T>::destroy()
     {
         s_instance->~T();
         s_instance = nullptr;
-        s_instanceState = 0;
+        s_instanceState = UNINITIALIZED;
     }
 }
 
