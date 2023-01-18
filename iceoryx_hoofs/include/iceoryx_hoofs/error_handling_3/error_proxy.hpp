@@ -1,5 +1,6 @@
 #pragma once
 
+#include "iceoryx_hoofs/error_handling_3/error_kind.hpp"
 #include "iceoryx_hoofs/error_handling_3/error_logging.hpp"
 #include "iceoryx_hoofs/error_handling_3/location.hpp"
 
@@ -24,8 +25,8 @@ class ErrorProxy final
     template <class Error>
     ErrorProxy(const SourceLocation& location, Kind kind, Error error)
     {
-        // use the logger
-        log(location, kind, error);
+        // use the logger (problematic if we want to allow expected as we expect something)
+        // log(location, kind, error);
 
         // report to other framework
         report(location, kind, error);

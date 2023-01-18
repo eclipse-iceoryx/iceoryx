@@ -120,7 +120,8 @@ expected<int, AnotherError> f3(int x)
         // optional report
         // TODO: overload for expected
         auto err = y.get_error();
-        IOX_REPORT(err, RUNTIME_ERROR);
+        // IOX_REPORT(err, RUNTIME_ERROR);
+        IOX_REPORT(y, RUNTIME_ERROR);
 
         // transform error (transformation must exist)
         return error<AnotherError>(AnotherError(err));
