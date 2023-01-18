@@ -25,6 +25,7 @@
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/un.hpp"
 #include "iox/optional.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp" // isValidFileName
 
 namespace iox
 {

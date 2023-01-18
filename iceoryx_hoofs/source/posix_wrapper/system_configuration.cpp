@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 

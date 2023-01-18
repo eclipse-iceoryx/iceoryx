@@ -17,6 +17,8 @@
 
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
 
+#include <cassert>
+
 namespace iox
 {
 // NOLINTNEXTLINE(cert-err58-cpp) ErrorHander only used in tests

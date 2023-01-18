@@ -24,6 +24,7 @@
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iceoryx_hoofs/cxx/helplets.hpp" // isValidFileName
 
 namespace iox
 {

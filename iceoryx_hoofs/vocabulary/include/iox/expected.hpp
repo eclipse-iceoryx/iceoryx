@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/functional_interface.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
 
