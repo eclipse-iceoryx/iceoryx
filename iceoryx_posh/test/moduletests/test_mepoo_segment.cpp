@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -24,6 +23,7 @@
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "test.hpp"
 
@@ -71,7 +71,7 @@ class MePooSegment_test : public Test
             remove("/tmp/roudi_segment_test");
         }
 
-        iox::posix::Allocator& getAllocator()
+        iox::BumpAllocator& getBumpAllocator()
         {
             return *allocator;
         }
@@ -104,7 +104,7 @@ class MePooSegment_test : public Test
         void* m_baseAddressHint{nullptr};
         static constexpr int MEM_SIZE = 100000;
         char memory[MEM_SIZE];
-        std::shared_ptr<iox::posix::Allocator> allocator{new iox::posix::Allocator(memory, MEM_SIZE)};
+        std::shared_ptr<iox::BumpAllocator> allocator{new iox::BumpAllocator(memory, MEM_SIZE)};
         int filehandle;
         static createFct createVerificator;
     };
@@ -145,7 +145,7 @@ class MePooSegment_test : public Test
 
     static constexpr uint64_t RawMemorySize{20000};
     uint8_t m_rawMemory[RawMemorySize];
-    iox::posix::Allocator m_managementAllocator{iox::posix::Allocator(m_rawMemory, RawMemorySize)};
+    iox::BumpAllocator m_managementAllocator{iox::BumpAllocator(m_rawMemory, RawMemorySize)};
 
     MePooConfig mepooConfig = setupMepooConfig();
 

@@ -16,3 +16,4 @@ grouped together in categories or namespace, depending on where or how they are 
 |`SignalWatcher`        | Batteries included signal handling with polling and optional blocking wait for `SIGINT` and `SIGTERM`.                  |
 |`NamedPipe`            | Shared memory based ipc channel. Mainly a `UnixDomainSocket` replacement on Windows.                                    |
 |`relocatable_ptr`      |                                                                                                                         |
+|`static_storage`       | Untyped aligned static storage.                                                                                         |

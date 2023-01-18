@@ -41,18 +41,23 @@ constexpr uint64_t MemPool::CHUNK_MEMORY_ALIGNMENT;
 
 MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
                  const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-                 posix::Allocator& managementAllocator,
-                 posix::Allocator& chunkMemoryAllocator) noexcept
+                 iox::BumpAllocator& managementAllocator,
+                 iox::BumpAllocator& chunkMemoryAllocator) noexcept
     : m_chunkSize(chunkSize)
     , m_numberOfChunks(numberOfChunks)
     , m_minFree(numberOfChunks)
 {
     if (isMultipleOfAlignment(chunkSize))
     {
-        m_rawMemory = static_cast<uint8_t*>(chunkMemoryAllocator.allocate(
-            static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize, CHUNK_MEMORY_ALIGNMENT));
-        auto memoryLoFFLi =
+        auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
+                                                              CHUNK_MEMORY_ALIGNMENT);
+        cxx::Expects(!allocationResult.has_error());
+        m_rawMemory = static_cast<uint8_t*>(allocationResult.value());
+
+        allocationResult =
             managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
+        cxx::Expects(!allocationResult.has_error());
+        auto* memoryLoFFLi = allocationResult.value();
         m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
     }
     else

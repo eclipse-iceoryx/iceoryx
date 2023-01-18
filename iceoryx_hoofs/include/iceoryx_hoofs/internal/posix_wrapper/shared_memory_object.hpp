@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/design_pattern/builder.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -38,6 +38,14 @@ enum class SharedMemoryObjectError
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
     INTERNAL_LOGIC_FAILURE,
+};
+
+enum class SharedMemoryAllocationError
+{
+    REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION,
+    NOT_ENOUGH_MEMORY,
+    REQUESTED_ZERO_SIZED_MEMORY
+
 };
 
 class SharedMemoryObjectBuilder;
@@ -60,17 +68,17 @@ class SharedMemoryObject
     ///        alignment
     /// @param[in] size the size of the memory inside the shared memory
     /// @param[in] alignment the alignment of the memory
-    /// @return pointer to a memory address with the requested size and alignment.
-    ///         if finalizeAllocation was called before or not enough memory is available
-    ///         allocate will call the errorHandler via cxx::Expects
-    void* allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    /// @return an expected containing a pointer to a memory address with the requested size and alignment on success,
+    /// an expected containing SharedMemoryAllocationError if finalizeAllocation was called before or not enough memory
+    /// is available
+    cxx::expected<void*, SharedMemoryAllocationError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief After this call the user cannot allocate memory inside the SharedMemoryObject
     ///        anymore. This ensures that memory is only allocated in the startup phase.
     void finalizeAllocation() noexcept;
 
     /// @brief Returns the reference to the underlying allocator
-    Allocator& getAllocator() noexcept;
+    BumpAllocator& getBumpAllocator() noexcept;
 
     /// @brief Returns start- or base-address of the shared memory.
     const void* getBaseAddress() const noexcept;
@@ -94,7 +102,7 @@ class SharedMemoryObject
   private:
     SharedMemoryObject(SharedMemory&& sharedMemory,
                        MemoryMap&& memoryMap,
-                       Allocator&& allocator,
+                       BumpAllocator&& allocator,
                        const uint64_t memorySizeInBytes) noexcept;
 
   private:
@@ -102,7 +110,8 @@ class SharedMemoryObject
 
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
-    Allocator m_allocator;
+    BumpAllocator m_allocator;
+    bool m_allocationFinalized{false};
 };
 
 class SharedMemoryObjectBuilder

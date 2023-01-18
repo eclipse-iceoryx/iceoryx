@@ -16,9 +16,9 @@
 
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
 
 #include "test.hpp"
 
@@ -38,7 +38,7 @@ class UsedChunkList_test : public Test
         MePooConfig mempoolconf;
         mempoolconf.addMemPool({CHUNK_SIZE, NUM_CHUNKS_IN_POOL});
 
-        iox::posix::Allocator memoryAllocator{m_memory.get(), MEMORY_SIZE};
+        iox::BumpAllocator memoryAllocator{m_memory.get(), MEMORY_SIZE};
         memoryManager.configureMemoryManager(mempoolconf, memoryAllocator, memoryAllocator);
     };
 

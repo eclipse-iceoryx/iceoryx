@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 namespace
@@ -58,7 +58,7 @@ class SharedChunk_Test : public Test
     static constexpr uint32_t USER_PAYLOAD_SIZE{64U};
 
     char memory[4096U];
-    iox::posix::Allocator allocator{memory, 4096U};
+    iox::BumpAllocator allocator{memory, 4096U};
     MemPool mempool{sizeof(ChunkHeader) + USER_PAYLOAD_SIZE, NUMBER_OF_CHUNKS, allocator, allocator};
     MemPool chunkMgmtPool{CHUNK_SIZE, NUMBER_OF_CHUNKS, allocator, allocator};
     void* memoryChunk{mempool.getChunk()};

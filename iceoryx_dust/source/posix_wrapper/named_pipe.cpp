@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -107,7 +107,15 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    m_data = static_cast<NamedPipeData*>(m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData)));
+    auto allocationResult = m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
+    if (allocationResult.has_error())
+    {
+        std::cerr << "Unable to allocate memory for named pipe \"" << name << "\"" << std::endl;
+        m_isInitialized = false;
+        m_errorValue = IpcChannelError::MEMORY_ALLOCATION_FAILED;
+        return;
+    }
+    m_data = static_cast<NamedPipeData*>(allocationResult.value());
 
     m_isInitialized = true;
     if (m_sharedMemory->hasOwnership())

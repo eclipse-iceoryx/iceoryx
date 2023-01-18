@@ -32,8 +32,8 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`RelativePointer`                   |          | Pointer which can be stored in shared memory                                                                                                                                                                             |
 |`ScopeGuard`                        |          | This is an abstraction of the C++ RAII idiom. Sometimes you have constructs where you would like to perform a certain task on creation and then again when they are getting out of scope, this is where `ScopeGuard` comes in. It is like a `std::lock_guard` or a `std::shared_ptr` but more generic. |
 |`scoped_static`                     |          | Helper function to limit lifetime of static or global variables to a scope                                                                                                                                               |
-|`static_storage`                    | i        | Untyped aligned static storage.                                                                                                                                                                                          |
 |`shared_memory_object/Allocator`    | i        | Helper class for the `SharedMemoryObject`.                                                                                                                                                                               |
+|`BumpAllocator`                     | i        | Implementation of a bump allocator                                                                                                                                                                                       |
 
 ### Container (container)
 

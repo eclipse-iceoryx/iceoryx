@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
@@ -24,6 +23,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
+#include "iox/bump_allocator.hpp"
 #include "test.hpp"
 
 
@@ -37,7 +37,7 @@ class MePooSegmentMock
 {
   public:
     MePooSegmentMock(const MePooConfig& mempoolConfig IOX_MAYBE_UNUSED,
-                     Allocator& managementAllocator IOX_MAYBE_UNUSED,
+                     iox::BumpAllocator& managementAllocator IOX_MAYBE_UNUSED,
                      const PosixGroup& readerGroup IOX_MAYBE_UNUSED,
                      const PosixGroup& writerGroup IOX_MAYBE_UNUSED,
                      const MemoryInfo& memoryInfo IOX_MAYBE_UNUSED) noexcept
@@ -92,7 +92,7 @@ class SegmentManager_test : public Test
 
     static constexpr size_t MEM_SIZE{20000};
     char memory[MEM_SIZE];
-    iox::posix::Allocator allocator{memory, MEM_SIZE};
+    iox::BumpAllocator allocator{memory, MEM_SIZE};
     MePooConfig mepooConfig = getMempoolConfig();
     SegmentConfig segmentConfig = getSegmentConfig();
 

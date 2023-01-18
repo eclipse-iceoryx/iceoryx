@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021, 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ enum class IpcChannelError : uint8_t
     INVALID_FILE_DESCRIPTOR,
     I_O_ERROR,
     CONNECTION_RESET_BY_PEER,
+    MEMORY_ALLOCATION_FAILED,
     UNDEFINED
 };
 

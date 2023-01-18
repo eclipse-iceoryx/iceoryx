@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
+#include "iceoryx_dust/internal/cxx/static_storage.hpp"
 #include "test.hpp"
 
 #include <iostream>
@@ -245,6 +245,5 @@ TEST(static_storage_test, AllocationSizeReturnsMoreThanSizeIfTypeIsNotAlignedWit
     constexpr auto size = static_storage<17, storageAlign>::allocation_size<Data>();
     EXPECT_EQ(size, sizeof(Data) + typeAlign - storageAlign);
 }
-
 
 } // namespace

@@ -39,8 +39,8 @@ void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
     }
 }
 
-void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
-                               posix::Allocator& chunkMemoryAllocator,
+void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
+                               BumpAllocator& chunkMemoryAllocator,
                                const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
                                const cxx::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept
 {
@@ -67,7 +67,7 @@ void MemoryManager::addMemPool(posix::Allocator& managementAllocator,
     m_totalNumberOfChunks += numberOfChunks;
 }
 
-void MemoryManager::generateChunkManagementPool(posix::Allocator& managementAllocator) noexcept
+void MemoryManager::generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept
 {
     m_denyAddMemPool = true;
     uint32_t chunkSize = sizeof(ChunkManagement);
@@ -133,8 +133,8 @@ uint64_t MemoryManager::requiredFullMemorySize(const MePooConfig& mePooConfig) n
 }
 
 void MemoryManager::configureMemoryManager(const MePooConfig& mePooConfig,
-                                           posix::Allocator& managementAllocator,
-                                           posix::Allocator& chunkMemoryAllocator) noexcept
+                                           BumpAllocator& managementAllocator,
+                                           BumpAllocator& chunkMemoryAllocator) noexcept
 {
     for (auto entry : mePooConfig.m_mempoolConfig)
     {

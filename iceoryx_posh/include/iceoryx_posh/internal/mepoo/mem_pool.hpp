@@ -19,9 +19,9 @@
 
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/bump_allocator.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -52,8 +52,8 @@ class MemPool
 
     MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
             const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-            posix::Allocator& managementAllocator,
-            posix::Allocator& chunkMemoryAllocator) noexcept;
+            iox::BumpAllocator& managementAllocator,
+            iox::BumpAllocator& chunkMemoryAllocator) noexcept;
 
     MemPool(const MemPool&) = delete;
     MemPool(MemPool&&) = delete;

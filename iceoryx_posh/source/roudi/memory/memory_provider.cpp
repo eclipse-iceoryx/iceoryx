@@ -17,11 +17,11 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iox/bump_allocator.hpp"
 
 namespace iox
 {
@@ -94,11 +94,16 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
     LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
                << m_segmentId;
 
-    iox::posix::Allocator allocator(m_memory, m_size);
+    iox::BumpAllocator allocator(m_memory, m_size);
 
     for (auto* memoryBlock : m_memoryBlocks)
     {
-        memoryBlock->m_memory = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
+        auto allocationResult = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
+        if (allocationResult.has_error())
+        {
+            return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
+        }
+        memoryBlock->m_memory = allocationResult.value();
     }
 
     return success<void>();

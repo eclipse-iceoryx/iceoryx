@@ -28,8 +28,8 @@ namespace mepoo
 {
 template <typename T>
 inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
-                                     posix::Allocator& managementAllocator,
-                                     posix::Allocator& chunkMemoryAllocator) noexcept
+                                     BumpAllocator& managementAllocator,
+                                     BumpAllocator& chunkMemoryAllocator) noexcept
     : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)
     , m_chunkManagementPool(sizeof(ChunkManagement), numberOfChunks, managementAllocator, managementAllocator)
 {

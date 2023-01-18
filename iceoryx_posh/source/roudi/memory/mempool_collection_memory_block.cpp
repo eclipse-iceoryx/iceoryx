@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
+#include "iox/bump_allocator.hpp"
 
 namespace iox
 {
@@ -51,8 +51,10 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
 
 void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
 {
-    posix::Allocator allocator(memory, size());
-    auto memoryManager = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
+    BumpAllocator allocator(memory, size());
+    auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
+    cxx::Expects(!allocationResult.has_error());
+    auto* memoryManager = allocationResult.value();
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 
     m_memoryManager->configureMemoryManager(m_memPoolConfig, allocator, allocator);

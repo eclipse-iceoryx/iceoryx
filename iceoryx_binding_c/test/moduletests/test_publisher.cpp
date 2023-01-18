@@ -106,7 +106,7 @@ class iox_pub_test : public Test
     ChunkQueueData_t m_chunkQueueData{iox::popo::QueueFullPolicy::DISCARD_OLDEST_DATA,
                                       iox::cxx::VariantQueueTypes::SoFi_SingleProducerSingleConsumer};
 
-    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 

@@ -204,7 +204,7 @@ class ChunkBuildingBlocks_IntegrationTest : public Test
     std::atomic<bool> m_forwarderRun{true};
 
     // Memory objects
-    Allocator m_memoryAllocator{g_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};
     MePooConfig m_mempoolConfig;
     MemoryManager m_memoryManager;
 

@@ -198,7 +198,7 @@ class iox_listener_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 128U;
     static constexpr uint64_t MEMORY_SIZE = 1024U * 1024U * 100U;
     uint8_t m_memory[MEMORY_SIZE];
-    Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MePooConfig m_mempoolconf;
     MemoryManager m_memoryManager;
 

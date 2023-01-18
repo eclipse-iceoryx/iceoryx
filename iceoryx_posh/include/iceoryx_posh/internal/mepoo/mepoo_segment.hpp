@@ -19,11 +19,11 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/allocator.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
 
 namespace iox
 {
@@ -34,7 +34,7 @@ class MePooSegment
 {
   public:
     MePooSegment(const MePooConfig& mempoolConfig,
-                 posix::Allocator& managementAllocator,
+                 BumpAllocator& managementAllocator,
                  const posix::PosixGroup& readerGroup,
                  const posix::PosixGroup& writerGroup,
                  const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo()) noexcept;

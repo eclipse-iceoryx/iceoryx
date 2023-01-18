@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
-    Allocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
+    BumpAllocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
     if (sharedMemory->hasOwnership())
     {
@@ -157,7 +157,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
 
 SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
                                        MemoryMap&& memoryMap,
-                                       Allocator&& allocator,
+                                       BumpAllocator&& allocator,
                                        const uint64_t memorySizeInBytes) noexcept
     : m_memorySizeInBytes(memorySizeInBytes)
     , m_sharedMemory(std::move(sharedMemory))
@@ -166,17 +166,36 @@ SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
 {
 }
 
-void* SharedMemoryObject::allocate(const uint64_t size, const uint64_t alignment) noexcept
+cxx::expected<void*, SharedMemoryAllocationError> SharedMemoryObject::allocate(const uint64_t size,
+                                                                               const uint64_t alignment) noexcept
 {
-    return m_allocator.allocate(size, alignment);
+    if (size == 0)
+    {
+        IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
+        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::REQUESTED_ZERO_SIZED_MEMORY);
+    }
+    if (m_allocationFinalized)
+    {
+        IOX_LOG(WARN) << "allocate() call after finalizeAllocation()! Could not acquire shared memory chunk.";
+        return cxx::error<SharedMemoryAllocationError>(
+            SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION);
+    }
+
+    auto allocationResult = m_allocator.allocate(size, alignment);
+    if (allocationResult.has_error())
+    {
+        IOX_LOG(WARN) << "Not enough space left in shared memory.";
+        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::NOT_ENOUGH_MEMORY);
+    }
+    return cxx::success<void*>(allocationResult.value());
 }
 
 void SharedMemoryObject::finalizeAllocation() noexcept
 {
-    m_allocator.finalizeAllocation();
+    m_allocationFinalized = true;
 }
 
-Allocator& SharedMemoryObject::getAllocator() noexcept
+BumpAllocator& SharedMemoryObject::getBumpAllocator() noexcept
 {
     return m_allocator;
 }

@@ -185,7 +185,7 @@ class ServerPort_test : public Test
     static constexpr uint32_t CHUNK_SIZE = 128U;
     static constexpr size_t MEMORY_SIZE = 1024U * 1024U;
     uint8_t m_memory[MEMORY_SIZE];
-    iox::posix::Allocator m_memoryAllocator{m_memory, MEMORY_SIZE};
+    iox::BumpAllocator m_memoryAllocator{m_memory, MEMORY_SIZE};
     MemoryManager m_memoryManager;
 
     ServiceDescription m_serviceDescription{"hyp", "no", "toad"};

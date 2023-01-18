@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_STATIC_STORAGE_HPP
-#define IOX_HOOFS_STATIC_STORAGE_HPP
+#ifndef IOX_DUST_STATIC_STORAGE_HPP
+#define IOX_DUST_STATIC_STORAGE_HPP
 
 #include <cstdint>
 #include <cstring>
@@ -98,7 +98,7 @@ class static_storage final
     static constexpr uint64_t allocation_size() noexcept;
 
   private:
-    /// @NOLINTJUSTIFICATION @todo iox-#1732 will be refactored with BumpAllocator
+    /// AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the static_storage
     /// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     alignas(Align) uint8_t m_bytes[Capacity];
     void* m_ptr{nullptr};
@@ -109,5 +109,5 @@ class static_storage final
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/static_storage.inl"
-#endif // IOX_HOOFS_STATIC_STORAGE_HPP
+#include "iceoryx_dust/internal/cxx/static_storage.inl"
+#endif // IOX_DUST_STATIC_STORAGE_HPP

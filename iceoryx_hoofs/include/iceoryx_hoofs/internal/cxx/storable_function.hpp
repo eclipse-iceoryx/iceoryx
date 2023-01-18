@@ -1,4 +1,4 @@
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 #define IOX_HOOFS_STORABLE_FUNCTION_HPP
 
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
+#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <iostream>
 #include <utility>
@@ -48,7 +48,6 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 class storable_function<Capacity, signature<ReturnType, Args...>> final
 {
   public:
-    using StorageType = static_storage<Capacity>;
     using signature_t = signature<ReturnType, Args...>;
 
     /// @brief construct from functor (including lambdas)
@@ -155,7 +154,9 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
   private:
     operations m_operations; // operations depending on type-erased callable (copy, move, destroy)
 
-    StorageType m_storage;                              // storage for the callable
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the storable_function
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    byte_t m_storage[Capacity];                         // storage for the callable
     void* m_callable{nullptr};                          // pointer to stored type-erased callable
     ReturnType (*m_invoker)(void*, Args&&...){nullptr}; // indirection to invoke the stored callable,
                                                         // nullptr if no callable is stored
@@ -192,6 +193,9 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     // m_invoker is initialized with this function and has to work with functors as well
     // (functors may change due to invocation)
     static ReturnType invokeFreeFunction(void* callable, Args&&... args) noexcept;
+
+    template <typename T>
+    static constexpr void* safeAlign(byte_t* startAddress);
 };
 
 /// @brief swap two storable functions

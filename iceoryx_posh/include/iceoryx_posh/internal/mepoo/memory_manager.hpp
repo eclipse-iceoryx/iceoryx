@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 
 #include <cstdint>
@@ -62,8 +63,8 @@ class MemoryManager
     ~MemoryManager() noexcept = default;
 
     void configureMemoryManager(const MePooConfig& mePooConfig,
-                                posix::Allocator& managementAllocator,
-                                posix::Allocator& chunkMemoryAllocator) noexcept;
+                                BumpAllocator& managementAllocator,
+                                BumpAllocator& chunkMemoryAllocator) noexcept;
 
     /// @brief Obtains a chunk from the mempools
     /// @param[in] chunkSettings for the requested chunk
@@ -82,11 +83,11 @@ class MemoryManager
     static uint32_t sizeWithChunkHeaderStruct(const MaxChunkPayloadSize_t size) noexcept;
 
     void printMemPoolVector(log::LogStream& log) const noexcept;
-    void addMemPool(posix::Allocator& managementAllocator,
-                    posix::Allocator& chunkMemoryAllocator,
+    void addMemPool(BumpAllocator& managementAllocator,
+                    BumpAllocator& chunkMemoryAllocator,
                     const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
                     const cxx::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept;
-    void generateChunkManagementPool(posix::Allocator& managementAllocator) noexcept;
+    void generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept;
 
   private:
     bool m_denyAddMemPool{false};

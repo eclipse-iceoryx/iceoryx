@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_FUNCTION_HPP
 #define IOX_HOOFS_FUNCTION_HPP
 
-#include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 #include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
 
 namespace iox
