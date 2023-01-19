@@ -20,6 +20,7 @@
 set -e
 
 COMPILER=${1:-gcc}
+SANITIZER=${2:-asan}
 
 msg() {
     printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
@@ -34,17 +35,25 @@ sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev
 msg "creating local test users and groups for testing access control"
 sudo ./tools/scripts/add_test_users.sh
 
+if [ "$SANITIZER" != "asan" ] && [ "$SANITIZER" != "tsan" ]; then
+    msg "Invalid sanitizer."
+    exit 1
+fi
 
 msg "building sources"
 if [ "$COMPILER" == "gcc" ]; then
-    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all debug sanitize test-add-user out-of-tree
+    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all debug $SANITIZER test-add-user out-of-tree
 fi
 
 if [ "$COMPILER" == "clang" ]; then
-    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all clang debug sanitize test-add-user out-of-tree
+    ./tools/iceoryx_build_test.sh clean build-strict build-shared build-all clang debug $SANITIZER test-add-user out-of-tree
 fi
 
 msg "running all tests"
 cd ./build
-./tools/run_tests.sh all
+if [ "$SANITIZER" == "tsan" ]; then
+    ./tools/run_tests.sh all continue-on-error
+else
+    ./tools/run_tests.sh all
+fi
 cd -

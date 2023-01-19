@@ -23,6 +23,7 @@ BASE_DIR=$PWD
 TEST_SCOPE="all"
 CONTINUE_ON_ERROR=false
 ASAN_ONLY=false
+test_failed=0
 
 set_sanitizer_options() {
     # This script runs from build folder
@@ -45,10 +46,13 @@ set_sanitizer_options() {
     export LSAN_OPTIONS
     UBSAN_OPTIONS=print_stacktrace=1
     export UBSAN_OPTIONS
+    TSAN_OPTIONS=suppressions=$BASE_DIR/sanitizer_blacklist/tsan_runtime.txt
+    export TSAN_OPTIONS
 
     echo "ASAN_OPTIONS : $ASAN_OPTIONS"
     echo "LSAN_OPTIONS : $LSAN_OPTIONS"
     echo "UBSAN_OPTIONS : $UBSAN_OPTIONS"
+    echo "TSAN_OPTIONS : $TSAN_OPTIONS"
 
     if [[ ! -f $(which llvm-symbolizer) ]]
     then
@@ -63,6 +67,9 @@ for arg in "$@"; do
         ;;
     "asan-only")
         ASAN_ONLY=true
+        TEST_SCOPE="no_timing_test"
+        ;;
+    "tsan-only")
         TEST_SCOPE="no_timing_test"
         ;;
     "continue-on-error")
@@ -82,6 +89,7 @@ for arg in "$@"; do
         echo "      only-timing-tests           Runs only timing tests"
         echo "      continue-on-error           Continue execution upon error"
         echo "      asan-only                   Execute Adress-Sanitizer only"
+        echo "      tsan-only                   Execute Thread-Sanitizer only"
         echo ""
         exit 1
         ;;
@@ -111,6 +119,17 @@ fi
 
 set_sanitizer_options
 
+make_c() {
+    make $1 || test_failed=1
+    if [ "$test_failed" == "1" ]; then
+        echo "------->>>>> Test: $1 failed!!!!"
+        if [ "$CONTINUE_ON_ERROR" != "true" ]; then
+            echo "Exiting immediately (CONTINUE_ON_ERROR=false)"
+            exit 1
+        fi
+    fi
+}
+
 execute_test() {
     local test_scope=$1
 
@@ -119,30 +138,32 @@ execute_test() {
 
     case $test_scope in
     "all")
-        make all_tests
-        make timing_module_tests
-        make timing_integration_tests
+        make_c all_tests
+        make_c timing_module_tests
+        make_c timing_integration_tests
         ;;
     "no_timing_test")
-        make all_tests
+        make_c all_tests
         ;;
     "unit")
-        make module_tests
+        make_c module_tests
         ;;
     "unit-timing")
-        make timing_module_tests
+        make_c timing_module_tests
         ;;
     "integration")
-        make integration_tests
+        make_c integration_tests
         ;;
     "timingtest")
-        make timing_module_tests
-        make timing_integration_tests
+        make_c timing_module_tests
+        make_c timing_integration_tests
         ;;
     *)
         echo "Wrong scope $test_scope!"
         ;;
     esac
+
+    return $((test_failed))
 }
 
 execute_test "$TEST_SCOPE"

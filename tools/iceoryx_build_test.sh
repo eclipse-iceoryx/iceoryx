@@ -41,7 +41,8 @@ TEST_SCOPE="all" #possible values for test scope: 'all', 'unit', 'integration'
 RUN_TEST=false
 BINDING_C_FLAG="ON"
 ONE_TO_MANY_ONLY_FLAG="OFF"
-SANITIZE_FLAG="OFF"
+ADDRESS_SANITIZER_FLAG="OFF"
+THREAD_SANITIZER_FLAG="OFF"
 ROUDI_ENV_FLAG="OFF"
 TEST_ADD_USER="OFF"
 OUT_OF_TREE_FLAG="OFF"
@@ -161,10 +162,17 @@ while (( "$#" )); do
         TOML_FLAG="OFF"
         shift 1
         ;;
-    "sanitize")
-        echo " [i] Build with sanitizers"
+    "asan")
+        echo " [i] Build with address sanitizer"
         BUILD_TYPE="Debug"
-        SANITIZE_FLAG="ON"
+        ADDRESS_SANITIZER_FLAG="ON"
+        BUILD_SHARED="OFF"
+        shift 1
+        ;;
+    "tsan")
+        echo " [i] Build with thread sanitizer"
+        BUILD_TYPE="Debug"
+        THREAD_SANITIZER_FLAG="ON"
         BUILD_SHARED="OFF"
         shift 1
         ;;
@@ -211,7 +219,8 @@ while (( "$#" )); do
         echo "    one-to-many-only      Restrict to 1:n communication only"
         echo "    out-of-tree           Out-of-tree build for CI"
         echo "    package               Create a debian package from clean build in build_package"
-        echo "    sanitize              Build with sanitizers"
+        echo "    asan                  Build with address sanitizer"
+        echo "    tsan                  Build with thread sanitizer"
         echo "    release               Build with -O3"
         echo "    relwithdebinfo        Build with -O2 -DNDEBUG"
         echo "    test                  Build and run all tests in all iceoryx components"
@@ -284,7 +293,8 @@ if [ "$NO_BUILD" == false ]; then
           -DBINDING_C=$BINDING_C_FLAG \
           -DONE_TO_MANY_ONLY=$ONE_TO_MANY_ONLY_FLAG \
           -DBUILD_SHARED_LIBS=$BUILD_SHARED \
-          -DSANITIZE=$SANITIZE_FLAG \
+          -DADDRESS_SANITIZER=$ADDRESS_SANITIZER_FLAG \
+          -DTHREAD_SANITIZER=$THREAD_SANITIZER_FLAG \
           -DTEST_WITH_ADDITIONAL_USER=$TEST_ADD_USER $TOOLCHAIN_FILE \
           -DCMAKE_CXX_FLAGS=$CMAKE_CXX_FLAGS \
           "$WORKSPACE"/iceoryx_meta

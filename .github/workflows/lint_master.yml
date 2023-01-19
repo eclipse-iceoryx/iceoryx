@@ -22,3 +22,15 @@ jobs:
           PIPELINE_ID="$(./tools/axivion/trigger_pipeline.py)"
           ./tools/axivion/wait_for_pipeline.py "${PIPELINE_ID}"
 
+  build-test-ubuntu-with-thread-sanitizer-clang-latest:
+    # prevent stuck jobs consuming runners for 3 hours
+    timeout-minutes: 180
+    runs-on: ubuntu-latest
+    needs: pre-flight-check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
+      - name: Run Thread Sanitizer
+        run: ./tools/ci/build-test-ubuntu-with-sanitizers.sh clang tsan

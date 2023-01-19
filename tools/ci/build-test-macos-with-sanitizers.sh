@@ -19,9 +19,16 @@
 
 set -e
 
+SANITIZER=${1:-asan}
+
 msg() {
     printf "\033[1;32m%s: %s\033[0m\n" ${FUNCNAME[1]} "$1"
 }
+
+if [ "$SANITIZER" != "asan" && "$SANITIZER" != "tsan" ]; then
+    msg "Invalid sanitizer."
+    exit 1
+fi
 
 WORKSPACE=$(git rev-parse --show-toplevel)
 cd ${WORKSPACE}
@@ -37,9 +44,15 @@ cd "${WORKSPACE}"
 msg "building sources"
 export LDFLAGS="-L/usr/local/opt/ncurses/lib"
 export CFLAGS="-I/usr/local/opt/ncurses/include"
-./tools/iceoryx_build_test.sh build-strict build-all sanitize
+./tools/iceoryx_build_test.sh build-strict build-all $SANITIZER
 
 msg "running tests (excluding timing_tests)"
 cd ./build
-tools/run_tests.sh asan-only
+if [ "$SANITIZER" == "asan" ]; then
+    tools/run_tests.sh asan-only
+elif [ "$SANITIZER" == "tsan" ]; then
+    tools/run_tests.sh tsan-only continue-on-error
+else
+    tools/run_tests.sh all
+fi
 cd -

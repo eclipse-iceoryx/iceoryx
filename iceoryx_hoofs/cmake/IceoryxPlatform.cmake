@@ -49,6 +49,25 @@ function(iox_create_asan_runtime_blacklist BLACKLIST_FILE_PATH)
     endif()
 endfunction()
 
+function(iox_create_tsan_runtime_blacklist BLACKLIST_FILE_PATH)
+    # (https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions)
+    # The suppression types are:
+    # race              suppresses data races and use-after-free reports
+    # race_top          same as race, but matched only against the top stack frame
+    # thread            suppresses reports related to threads (leaks)
+    # mutex             suppresses reports related to mutexes (destruction of a locked mutex)
+    # signal            suppresses reports related to signal handlers (handler calls malloc())
+    # deadlock          suppresses lock inversion reports
+    # called_from_lib   suppresses all interceptors in a particular library
+    if(NOT EXISTS ${BLACKLIST_FILE_PATH})
+        file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_hoofs/cmake/IceoryxPlatform.cmake\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "mutex:*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "race:*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "deadlock:*\n")
+        file(APPEND ${BLACKLIST_FILE_PATH} "# End of file\n")
+    endif()
+endfunction()
+
 function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
     # Suppress known memory leaks (https://github.com/google/sanitizers/wiki/AddressSanitizerLeakSanitizer)
     # Below function/files contains memory leaks!
@@ -68,7 +87,11 @@ function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
     endif()
 endfunction()
 
-if(SANITIZE)
+if(ADDRESS_SANITIZER OR THREAD_SANITIZER)
+    if(ADDRESS_SANITIZER AND THREAD_SANITIZER)
+        message( FATAL_ERROR "You can not run asan (address sanitizer) and tsan (thread sanitizer) together. Deselect one of them!" )
+    endif()
+
     if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_BLACKLIST_FILE ${CMAKE_BINARY_DIR}/sanitizer_blacklist/sanitizer_compile_time.txt)
         iox_create_asan_compile_time_blacklist(${ICEORYX_SANITIZER_BLACKLIST_FILE})
@@ -81,6 +104,7 @@ if(SANITIZE)
 
     iox_create_asan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/asan_runtime.txt)
     iox_create_lsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/lsan_runtime.txt)
+    iox_create_tsan_runtime_blacklist(${CMAKE_BINARY_DIR}/sanitizer_blacklist/tsan_runtime.txt)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
         set(ICEORYX_SANITIZER_COMMON_FLAGS -fno-omit-frame-pointer -fno-optimize-sibling-calls)
@@ -96,14 +120,22 @@ if(SANITIZE)
         # -fno-sanitize-recover=... print a verbose error report and exit the program
         set(ICEORYX_UB_SANITIZER_FLAGS -fsanitize=undefined -fno-sanitize-recover=undefined)
 
-        # Combine different sanitizer flags to define overall sanitization
-        set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_ADDRESS_SANITIZER_FLAGS} ${ICEORYX_UB_SANITIZER_FLAGS} CACHE INTERNAL "")
+        # ThreadSanitizer
+        set(ICEORYX_THREAD_SANITIZER_FLAGS -fsanitize=thread)
 
+        # Combine different sanitizer flags to define overall sanitization
+        if(ADDRESS_SANITIZER)
+            set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_ADDRESS_SANITIZER_FLAGS} ${ICEORYX_UB_SANITIZER_FLAGS} CACHE INTERNAL "")
+        elseif(THREAD_SANITIZER)
+            set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_THREAD_SANITIZER_FLAGS} CACHE INTERNAL "")
+        endif()
+        
         # unset local variables , to avoid polluting global space
         unset(ICEORYX_SANITIZER_BLACKLIST)
         unset(ICEORYX_SANITIZER_COMMON_FLAGS)
         unset(ICEORYX_ADDRESS_SANITIZER_FLAGS)
         unset(ICEORYX_UB_SANITIZER_FLAGS)
+        unset(ICEORYX_THREAD_SANITIZER_FLAGS)
     else()
         message( FATAL_ERROR "You need to run sanitize with gcc/clang compiler." )
     endif()
