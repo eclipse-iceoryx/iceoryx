@@ -40,6 +40,7 @@ template <typename T, uint64_t Capacity>
 class vector final
 {
   public:
+    using value_type = T;
     using iterator = T*;
     using const_iterator = const T*;
 
