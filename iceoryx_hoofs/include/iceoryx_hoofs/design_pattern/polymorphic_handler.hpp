@@ -78,7 +78,7 @@ class PolymorphicHandler
 
     /// @brief set the current singleton instance
     /// @param handlerGuard a guard to the handler instance to be set
-    /// @return pointer to the previous instance or nullptr if the handler could not be replaced
+    /// @return true if handler was set, false otherwise
     /// @note the handler cannot be replaced if it was finalized
     /// @note using a guard in the interface prevents the handler to be destroyed while it is used,
     ///       passing the guard by value is necessary (it has no state anyway)
@@ -86,11 +86,12 @@ class PolymorphicHandler
     /// This is still correct concurrent behavior in the sense that it maps
     /// to a sequential execution where the handler is set before finalization.
     template <typename Handler>
-    static Interface* set(StaticLifetimeGuard<Handler> handlerGuard) noexcept;
+    static bool set(StaticLifetimeGuard<Handler> handlerGuard) noexcept;
 
     /// @brief reset the current singleton instance to the default instance
-    /// @return pointer to the previous instance
-    static Interface* reset() noexcept;
+    /// @return true if handler was reset to default, false otherwise
+    /// @note the handler cannot be reset if it was finalized
+    static bool reset() noexcept;
 
     /// @brief finalizes the instance, afterwards Hooks::onSetAfterFinalize
     ///        will be called during the remaining program lifetime
@@ -115,7 +116,7 @@ class PolymorphicHandler
 
     static Interface* getCurrentSync() noexcept;
 
-    static Interface* setHandler(Interface& handler) noexcept;
+    static bool setHandler(Interface& handler) noexcept;
 
     // should a defaultHandler be created, the guard prevents its destruction
     StaticLifetimeGuard<Default> m_defaultGuard;

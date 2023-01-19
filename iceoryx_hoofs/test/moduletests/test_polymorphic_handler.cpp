@@ -100,26 +100,25 @@ class PolymorphicHandler_test : public Test
 TEST_F(PolymorphicHandler_test, handlerIsInitializedWithDefault)
 {
     ::testing::Test::RecordProperty("TEST_ID", "41bb4a5e-a916-4a6d-80c4-fed3a3d8d78b");
-    auto& handler = Handler::get();
-
-    EXPECT_EQ(handler.id(), DEFAULT_ID);
+    EXPECT_EQ(Handler::get().id(), DEFAULT_ID);
 }
 
 TEST_F(PolymorphicHandler_test, settingAlternateWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b2f0cfe-f13c-4fa0-aa93-5ddd4f0904d1");
-    auto* prevHandler = Handler::set(alternateGuard);
+    EXPECT_EQ(Handler::get().id(), DEFAULT_ID);
+
+    bool ret = Handler::set(alternateGuard);
     auto& handler = Handler::get();
 
     EXPECT_EQ(handler.id(), ALTERNATE_ID);
-
-    ASSERT_NE(prevHandler, nullptr);
-    EXPECT_EQ(prevHandler->id(), DEFAULT_ID);
+    EXPECT_TRUE(ret);
 }
 
 TEST_F(PolymorphicHandler_test, alternatePointsToExternalMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "85ce0e51-a1fe-490c-9012-7d539512ed38");
+    EXPECT_EQ(Handler::get().id(), DEFAULT_ID);
     Handler::set(alternateGuard);
 
     auto& handler = Handler::get();
@@ -131,27 +130,18 @@ TEST_F(PolymorphicHandler_test, alternatePointsToExternalMemory)
 TEST_F(PolymorphicHandler_test, explicitlySettingToDefaultWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32e4d808-c848-4bf9-b878-e163ca825539");
+    EXPECT_EQ(Handler::get().id(), DEFAULT_ID);
     Handler::set(alternateGuard);
-    auto* prevHandler = Handler::set(defaultGuard);
+
+    bool ret = Handler::set(defaultGuard);
 
     auto& handler = Handler::get();
     auto* ptr = static_cast<Interface*>(&defaultHandler);
 
     EXPECT_EQ(&handler, ptr);
-    ASSERT_NE(prevHandler, nullptr);
-    EXPECT_EQ(prevHandler->id(), ALTERNATE_ID);
+    EXPECT_TRUE(ret);
 }
 
-TEST_F(PolymorphicHandler_test, returnValueOfSetPointsToPreviousInstance)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "96447d94-ea27-4d51-8959-12e7752728ae");
-    auto& expectedHandler = Handler::get();
-
-    auto* prevHandler = Handler::set(alternateGuard);
-
-    ASSERT_NE(prevHandler, nullptr);
-    EXPECT_EQ(&expectedHandler, prevHandler);
-}
 
 TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
 {
@@ -161,8 +151,9 @@ TEST_F(PolymorphicHandler_test, resetToDefaultWorks)
     EXPECT_EQ(prevHandler.id(), ALTERNATE_ID);
 
     // note that we have to use reset to set it back to the internal default
-    Handler::reset();
+    bool ret = Handler::reset();
 
+    EXPECT_TRUE(ret);
     auto& handler = Handler::get();
     EXPECT_EQ(handler.id(), DEFAULT_ID);
 }
@@ -176,11 +167,11 @@ TEST_F(PolymorphicHandler_test, setToCurrentHandlerWorks)
 
     // set to alternateHandler again
     // while this is a useless operation, we cannot forbid it via interface
-    auto* prevHandler = Handler::set(alternateGuard);
+    bool ret = Handler::set(alternateGuard);
     auto& handler = Handler::get();
 
-    EXPECT_EQ(&handler, prevHandler);
-    EXPECT_EQ(prevHandler, &alternateHandler);
+    EXPECT_TRUE(ret);
+    EXPECT_EQ(&handler, &alternateHandler);
 }
 
 TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
@@ -244,8 +235,8 @@ TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
     EXPECT_EQ(defaultHandler.value, 0);
     EXPECT_EQ(alternateHandler.value, 0);
 
-    auto* prevHandler = Handler::set(defaultGuard);
-    EXPECT_EQ(prevHandler, nullptr);
+    bool ret = Handler::set(defaultGuard);
+    EXPECT_FALSE(ret);
 
     // does the hook set the values to the corresponding arguments?
     EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
@@ -271,8 +262,9 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
     EXPECT_EQ(defaultHandler.value, 0);
     EXPECT_EQ(alternateHandler.value, 0);
 
-    Handler::reset();
+    bool ret = Handler::reset();
 
+    EXPECT_FALSE(ret);
     // does the hook set the values to the corresponding arguments?
     EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
     EXPECT_EQ(alternateHandler.value, ALTERNATE_ID);

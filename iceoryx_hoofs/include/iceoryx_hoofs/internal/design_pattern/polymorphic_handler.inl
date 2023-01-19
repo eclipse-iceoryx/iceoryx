@@ -85,16 +85,17 @@ Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 
 template <typename Interface, typename Default, typename Hooks>
 template <typename Handler>
-Interface* PolymorphicHandler<Interface, Default, Hooks>::set(StaticLifetimeGuard<Handler> handlerGuard) noexcept
+bool PolymorphicHandler<Interface, Default, Hooks>::set(StaticLifetimeGuard<Handler> handlerGuard) noexcept
 {
-    static_assert(std::is_base_of<Interface, Handler>::value, "Handler must inherit from Interface");
+    static_assert(std::is_base_of<Interface, Handler>::value,
+                  "Handler must inherit from Interface or be of type Interface");
     static StaticLifetimeGuard<Handler> guard(handlerGuard);
     // we now have protected the handler instance and it will exist long enough
     return setHandler(StaticLifetimeGuard<Handler>::instance());
 }
 
 template <typename Interface, typename Default, typename Hooks>
-Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& handler) noexcept
+bool PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& handler) noexcept
 {
     auto& s = self();
     // m_current is now guaranteed to be set
@@ -108,20 +109,19 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& 
         // this is ensured for the default handler by m_defaultGuard
         // (the primary guard that is constructed with the instance alone is not sufficient)
         Hooks::onSetAfterFinalize(*getCurrentSync(), handler);
-        return nullptr;
+        return false;
     }
 
     // Note that if finalization takes effect here, setHandler will still change the handler
     // This is still correct concurrent behavior in the sense that it maps
     // to a sequential execution where the handler is set before finalization.
 
-    auto prev = s.m_current.exchange(&handler, std::memory_order_acq_rel);
-
-    return prev;
+    s.m_current.exchange(&handler, std::memory_order_acq_rel);
+    return true;
 }
 
 template <typename Interface, typename Default, typename Hooks>
-Interface* PolymorphicHandler<Interface, Default, Hooks>::reset() noexcept
+bool PolymorphicHandler<Interface, Default, Hooks>::reset() noexcept
 {
     return setHandler(getDefault());
 }
