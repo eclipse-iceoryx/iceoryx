@@ -52,7 +52,7 @@ class UnixDomainSocket
     /// @brief default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by
     /// using the
     /// move constructor.
-    UnixDomainSocket() noexcept;
+    UnixDomainSocket() noexcept = default;
 
     UnixDomainSocket(const UnixDomainSocket& other) = delete;
     UnixDomainSocket(UnixDomainSocket&& other) noexcept;
@@ -129,7 +129,7 @@ class UnixDomainSocket
     static constexpr int32_t INVALID_FD = -1;
 
     bool m_isInitialized{false};
-    IpcChannelError m_errorValue;
+    IpcChannelError m_errorValue{IpcChannelError::NOT_INITIALIZED};
 
     UdsName_t m_name;
     IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;

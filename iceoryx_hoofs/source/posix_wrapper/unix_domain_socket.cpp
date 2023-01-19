@@ -34,12 +34,6 @@ namespace posix
 constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
 constexpr uint64_t UnixDomainSocket::NULL_TERMINATOR_SIZE;
 
-UnixDomainSocket::UnixDomainSocket() noexcept
-{
-    this->m_isInitialized = false;
-    this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
-}
-
 UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 {
     *this = std::move(other);
