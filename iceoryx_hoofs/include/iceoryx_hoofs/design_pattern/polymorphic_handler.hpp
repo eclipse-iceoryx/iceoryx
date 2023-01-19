@@ -69,11 +69,11 @@ class PolymorphicHandler
     friend class StaticLifetimeGuard<Self>;
 
   public:
-    /// @brief set the current singleton instance
+    /// @brief obtain the current singleton instance
     /// @return the current instance
     /// @note we cannot be sure to use the current handler unless we call get,
     /// i.e. a reference obtained from get may reference a previous handler
-    /// (that is still functional but inactive)
+    /// (that is still functional)
     static Interface& get() noexcept;
 
     /// @brief set the current singleton instance
@@ -82,6 +82,9 @@ class PolymorphicHandler
     /// @note the handler cannot be replaced if it was finalized
     /// @note using a guard in the interface prevents the handler to be destroyed while it is used,
     ///       passing the guard by value is necessary (it has no state anyway)
+    /// @note If finalization takes effect here, setHandler will still change the handler
+    /// This is still correct concurrent behavior in the sense that it maps
+    /// to a sequential execution where the handler is set before finalization.
     template <typename Handler>
     static Interface* set(StaticLifetimeGuard<Handler> handlerGuard) noexcept;
 
@@ -102,20 +105,22 @@ class PolymorphicHandler
     static StaticLifetimeGuard<Self> guard() noexcept;
 
   private:
-    // should a defaultHandler be created, this delays its destruction
-    StaticLifetimeGuard<Default> m_defaultGuard;
-    std::atomic_bool m_isFinal{false};
-    std::atomic<Interface*> m_current;
-
     PolymorphicHandler() noexcept;
 
-    static PolymorphicHandler& instance() noexcept;
+    static PolymorphicHandler& self() noexcept;
 
     static Default& getDefault() noexcept;
 
-    static Interface* getCurrent() noexcept;
+    static Interface* getCurrentRelaxed() noexcept;
+
+    static Interface* getCurrentSync() noexcept;
 
     static Interface* setHandler(Interface& handler) noexcept;
+
+    // should a defaultHandler be created, the guard prevents its destruction
+    StaticLifetimeGuard<Default> m_defaultGuard;
+    std::atomic_bool m_isFinal{false};
+    std::atomic<Interface*> m_current{nullptr};
 };
 
 } // namespace design_pattern

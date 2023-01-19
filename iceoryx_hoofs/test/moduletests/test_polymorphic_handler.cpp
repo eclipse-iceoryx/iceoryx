@@ -18,7 +18,10 @@
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 
 #include "test.hpp"
+#include <atomic>
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 namespace
 {
@@ -178,6 +181,48 @@ TEST_F(PolymorphicHandler_test, setToCurrentHandlerWorks)
 
     EXPECT_EQ(&handler, prevHandler);
     EXPECT_EQ(prevHandler, &alternateHandler);
+}
+
+TEST_F(PolymorphicHandler_test, defaultHandlerIsVisibleInAllThreads)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "caa1e507-7cc1-4233-8c9c-5c4e56be9fb3");
+
+    Handler::set(defaultGuard);
+
+    std::atomic<uint32_t> count{0};
+
+    auto checkHandler = [&]() {
+        auto& h = Handler::get();
+
+        if (h.id() == DEFAULT_ID)
+        {
+            ++count;
+        }
+    };
+
+    constexpr uint32_t NUM_THREADS{2}; // including main thread
+
+    std::thread t(checkHandler);
+    t.join();
+
+    checkHandler();
+
+    EXPECT_EQ(count, NUM_THREADS);
+}
+
+TEST_F(PolymorphicHandler_test, handlerChangePropagatesBetweenThreads)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f0a8e941-e064-4889-a6db-425b35a3b7b0");
+
+    Handler::set(defaultGuard);
+    EXPECT_EQ(Handler::get().id(), DEFAULT_ID);
+
+    std::thread t([]() { Handler::set(alternateGuard); });
+
+    t.join();
+
+    // the handler should now be visible in the main thread
+    EXPECT_EQ(Handler::get().id(), ALTERNATE_ID);
 }
 
 TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)

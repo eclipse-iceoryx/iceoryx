@@ -25,15 +25,15 @@ using namespace ::testing;
 
 // allows to create different types for independent tests
 template <uint64_t N>
-struct Foo
+struct Fou
 {
-    Foo()
+    Fou()
         : id(++instancesCreated)
     {
         ++ctorCalled;
     }
 
-    ~Foo()
+    ~Fou()
     {
         ++dtorCalled;
     }
@@ -55,16 +55,16 @@ constexpr uint32_t FIRST_INSTANCE_ID{1};
 constexpr uint32_t SECOND_INSTANCE_ID{2};
 
 template <uint64_t N>
-uint32_t Foo<N>::ctorCalled{0};
+uint32_t Fou<N>::ctorCalled{0};
 
 template <uint64_t N>
-uint32_t Foo<N>::dtorCalled{0};
+uint32_t Fou<N>::dtorCalled{0};
 
 template <uint64_t N>
-uint32_t Foo<N>::instancesCreated{0};
+uint32_t Fou<N>::instancesCreated{0};
 
 template <uint64_t N>
-using TestGuard = iox::design_pattern::StaticLifetimeGuard<Foo<N>>;
+using TestGuard = iox::design_pattern::StaticLifetimeGuard<Fou<N>>;
 
 // create a bundle of types and functions that are relevant for the tests,
 // since we need a different static type for each test
@@ -75,7 +75,7 @@ struct TestTypes : public TestGuard<N>
     // NB: using the base class methods would admit to argue that we test another type,
     // hence we use this alias of the Guard
     using Guard = TestGuard<N>;
-    using Foo = Foo<N>;
+    using Foo = Fou<N>;
 
     using TestGuard<N>::setCount;
 

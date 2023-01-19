@@ -64,10 +64,10 @@ template <typename Interface, typename Default, typename Hooks>
 Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) false positive, thread_local
-    thread_local Interface* localHandler = getCurrent(); // initialized once per thread on first call
+    thread_local Interface* localHandler = getCurrentSync(); // initialized once per thread on first call
 
-    // weak load, required since it could be set in another thread concurrently
-    auto* currentHandler = instance().m_current.load(std::memory_order_relaxed);
+    // required since it could be set in another thread concurrently
+    auto* currentHandler = getCurrentRelaxed();
 
     // is the known localHandler outdated?
     // NB: this is a variation of double checked locking but with atomics:
@@ -75,7 +75,7 @@ Interface& PolymorphicHandler<Interface, Default, Hooks>::get() noexcept
     if (localHandler != currentHandler)
     {
         // stronger sync of memory
-        localHandler = getCurrent();
+        localHandler = getCurrentSync();
         // note that it may concurrently change again but we do not loop to check as there is no
         // point in such a lock-free code (it may also change while returning)
     }
@@ -96,19 +96,26 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::set(StaticLifetimeGuar
 template <typename Interface, typename Default, typename Hooks>
 Interface* PolymorphicHandler<Interface, Default, Hooks>::setHandler(Interface& handler) noexcept
 {
-    auto& ins = instance();
+    auto& s = self();
     // m_current is now guaranteed to be set
 
-    if (ins.m_isFinal.load(std::memory_order_acquire))
+    // ensure we cannot miss that it was set to true concurrently
+    // OK, since it will never change back from true to false
+    bool exp{true};
+    if (s.m_isFinal.compare_exchange_strong(exp, true, std::memory_order_relaxed))
     {
         // it must be ensured that the handlers still exist and are thread-safe,
         // this is ensured for the default handler by m_defaultGuard
         // (the primary guard that is constructed with the instance alone is not sufficient)
-        Hooks::onSetAfterFinalize(*getCurrent(), handler);
+        Hooks::onSetAfterFinalize(*getCurrentSync(), handler);
         return nullptr;
     }
 
-    auto prev = ins.m_current.exchange(&handler, std::memory_order_acq_rel);
+    // Note that if finalization takes effect here, setHandler will still change the handler
+    // This is still correct concurrent behavior in the sense that it maps
+    // to a sequential execution where the handler is set before finalization.
+
+    auto prev = s.m_current.exchange(&handler, std::memory_order_acq_rel);
 
     return prev;
 }
@@ -122,7 +129,7 @@ Interface* PolymorphicHandler<Interface, Default, Hooks>::reset() noexcept
 template <typename Interface, typename Default, typename Hooks>
 void PolymorphicHandler<Interface, Default, Hooks>::finalize() noexcept
 {
-    instance().m_isFinal.store(true, std::memory_order_release);
+    self().m_isFinal.store(true, std::memory_order_relaxed);
 }
 
 template <typename Interface, typename Default, typename Hooks>
@@ -132,22 +139,33 @@ PolymorphicHandler<Interface, Default, Hooks>::PolymorphicHandler() noexcept
 }
 
 template <typename Interface, typename Default, typename Hooks>
-PolymorphicHandler<Interface, Default, Hooks>& PolymorphicHandler<Interface, Default, Hooks>::instance() noexcept
+PolymorphicHandler<Interface, Default, Hooks>& PolymorphicHandler<Interface, Default, Hooks>::self() noexcept
 {
-    return StaticLifetimeGuard<Self>::instance();
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) singleton pattern
+    static auto& ins = StaticLifetimeGuard<Self>::instance();
+    return ins;
 }
 
 template <typename Interface, typename Default, typename Hooks>
 Default& PolymorphicHandler<Interface, Default, Hooks>::getDefault() noexcept
 {
-    return StaticLifetimeGuard<Default>::instance();
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) singleton pattern
+    static auto& ins = StaticLifetimeGuard<Default>::instance();
+    return ins;
 }
 
 template <typename Interface, typename Default, typename Hooks>
-Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrent() noexcept
+Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrentRelaxed() noexcept
+{
+    // only load the pointer atomically
+    return self().m_current.load(std::memory_order_relaxed);
+}
+
+template <typename Interface, typename Default, typename Hooks>
+Interface* PolymorphicHandler<Interface, Default, Hooks>::getCurrentSync() noexcept
 {
     // must be strong enough to sync memory of the object pointed to
-    return instance().m_current.load(std::memory_order_acquire);
+    return self().m_current.load(std::memory_order_acquire);
 }
 
 template <typename Interface, typename Default, typename Hooks>
