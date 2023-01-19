@@ -46,7 +46,6 @@ enum class WaitSetError : uint8_t
     ALREADY_ATTACHED,
 };
 
-
 /// @brief Logical disjunction of a certain number of Triggers
 ///
 /// The WaitSet stores Triggers and allows the user to wait till one or more of those Triggers are triggered. It works
