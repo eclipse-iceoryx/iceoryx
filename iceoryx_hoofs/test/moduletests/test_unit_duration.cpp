@@ -1659,7 +1659,7 @@ TEST(Duration_test, AddAssignSecondsToDurationResultsInSecondsAdditionToLHS)
 
     sut += otherDuration;
 
-    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+    EXPECT_EQ(sut, EXPECTED_DURATION);
 }
 
 TEST(Duration_test, AddAssignNanosecondsToDurationResultsInNanosecondsAdditionToLHS)
@@ -1888,7 +1888,7 @@ TEST(Duration_test, SubtractAssignDurationPastZeroNanosecondsResultsInDecremente
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
 
-TEST(Duration_test, SubtractAssignDurationPastZeroResultsInZero)
+TEST(Duration_test, SubtractAssignLargerDurationResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb2bace9-751c-48bd-82eb-2e5679512503");
 

@@ -61,10 +61,8 @@ inline constexpr Duration Duration::zero() noexcept
     return Duration{0U, 0U};
 }
 
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined
-// literals is enforced by the standard
 template <typename T>
-inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(const T value) noexcept
+inline constexpr uint64_t Duration::positiveValueOrClampToZero(const T value) noexcept
 {
     static_assert(std::numeric_limits<T>::is_integer, "only integer types are supported");
 
@@ -75,7 +73,7 @@ inline constexpr unsigned long long int Duration::positiveValueOrClampToZero(con
         return 0U;
     }
 
-    return static_cast<unsigned long long int>(value);
+    return static_cast<uint64_t>(value);
 }
 
 template <typename T>
@@ -110,9 +108,7 @@ inline constexpr Duration Duration::fromSeconds(const T value) noexcept
     const auto clampedValue = positiveValueOrClampToZero(value);
     constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
 
-    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9,
-    // FaultDetection-DeadBranches : False positive, whether this is a dead branch is platforms
-    // dependent.
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9: False positive, platform-dependent
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
         return Duration::max();

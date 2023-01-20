@@ -334,8 +334,7 @@ class Duration
 
   private:
     template <typename T>
-    // AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
-    static constexpr unsigned long long int positiveValueOrClampToZero(const T value) noexcept;
+    static constexpr uint64_t positiveValueOrClampToZero(const T value) noexcept;
 
     template <typename T>
     constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
