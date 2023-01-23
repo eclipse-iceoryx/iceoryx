@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021-2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 } // namespace cxx
 } // namespace iox
 
+// AXIVION Next Construct AutosarC++19_03-A16.0.1 : Aliasing of fully qualified templated function.
+//                                                  Improves readability. No risks apparent.
 // NOLINTJUSTIFICATION cannot be implemented with a function, required as inline code
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @brief if a function has a return value which you do not want to use then you can wrap the function with that macro.
