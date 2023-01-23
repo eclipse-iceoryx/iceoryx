@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -81,8 +82,8 @@ class PortIntrospection_test : public Test
 
     bool comparePortData(const iox::roudi::SubscriberPortData& a, const iox::roudi::SubscriberPortData& b)
     {
-        auto nameA = std::string(a.m_name);
-        auto nameB = std::string(b.m_name);
+        auto nameA = iox::cxx::into<std::string>(a.m_name);
+        auto nameB = iox::cxx::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {
@@ -110,8 +111,8 @@ class PortIntrospection_test : public Test
 
     bool comparePortData(const iox::roudi::PublisherPortData& a, const iox::roudi::PublisherPortData& b)
     {
-        auto nameA = std::string(a.m_name);
-        auto nameB = std::string(b.m_name);
+        auto nameA = iox::cxx::into<std::string>(a.m_name);
+        auto nameB = iox::cxx::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {

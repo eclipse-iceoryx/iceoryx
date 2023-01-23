@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
@@ -172,9 +173,9 @@ void RouDi::processRuntimeMessages() noexcept
         if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            std::string runtimeName = message.getElementAtIndex(1);
+            RuntimeName_t runtimeName{cxx::into<RuntimeName_t>(message.getElementAtIndex(1))};
 
-            processMessage(message, cmd, RuntimeName_t(TruncateToCapacity, runtimeName));
+            processMessage(message, cmd, runtimeName);
         }
     }
 }
@@ -388,10 +389,10 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::Interfaces interface =
-                StringToCaProInterface(capro::IdString_t(TruncateToCapacity, message.getElementAtIndex(2)));
+                StringToCaProInterface(cxx::into<capro::IdString_t>(message.getElementAtIndex(2)));
 
             m_prcMgr->addInterfaceForProcess(
-                runtimeName, interface, NodeName_t(TruncateToCapacity, message.getElementAtIndex(3)));
+                runtimeName, interface, cxx::into<NodeName_t>(message.getElementAtIndex(3)));
         }
         break;
     }

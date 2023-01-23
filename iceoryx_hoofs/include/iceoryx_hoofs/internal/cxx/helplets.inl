@@ -170,17 +170,25 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
     return false;
 }
 
-template <typename F, typename T>
-inline constexpr T from(const F) noexcept
+template <typename SourceType, typename DestinationType>
+inline constexpr DestinationType from(const SourceType value)
 {
-    static_assert(always_false_v<F> && always_false_v<T>, "Conversion for the specified types is not implemented!\
-    Please specialize 'template <typename F, typename T> constexpr T from(const F) noexcept'!");
+    return FromImpl<SourceType, DestinationType>::fromImpl(value);
 }
 
-template <typename T, typename F>
-inline constexpr T into(const F value) noexcept
+
+template <typename SourceType, typename DestinationType>
+inline DestinationType FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&)
 {
-    return from<F, T>(value);
+    static_assert(always_false_v<SourceType> && always_false_v<DestinationType>,
+                  "Conversion for the specified types is not implemented!\
+    Please specialize 'template <typename SourceType, typename DestinationType> constexpr DestinationType FromImpl::fromImpl(const SourceType&) noexcept'!");
+}
+
+template <typename DestinationType, typename SourceType>
+inline constexpr DestinationType into(const SourceType value)
+{
+    return from<SourceType, DestinationType>(value);
 }
 } // namespace cxx
 } // namespace iox

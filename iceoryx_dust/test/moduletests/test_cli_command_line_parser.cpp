@@ -14,6 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
@@ -90,15 +91,15 @@ void FailureTest(const std::vector<std::string>& options,
         OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
         for (const auto& o : optionsToRegister)
         {
-            optionSet.addOptional(o[0], OptionName_t(TruncateToCapacity, o), "", "int", "0");
+            optionSet.addOptional(o[0], iox::cxx::into<OptionName_t>(o), "", "int", "0");
         }
         for (const auto& s : switchesToRegister)
         {
-            optionSet.addSwitch(s[0], OptionName_t{TruncateToCapacity, s}, "");
+            optionSet.addSwitch(s[0], iox::cxx::into<OptionName_t>(s), "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addRequired(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
+            optionSet.addRequired(r[0], iox::cxx::into<OptionName_t>(r), "", "int");
         }
 
         IOX_DISCARD_RESULT(parseCommandLineArguments(optionSet, args.argc, args.argv, 1U));
@@ -893,15 +894,15 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         for (const auto& o : optionsToRegister)
         {
             optionSet.addOptional(
-                o[0], OptionName_t(TruncateToCapacity, o), "", "int", CommandLineParser_test::defaultValue);
+                o[0], iox::cxx::into<OptionName_t>(o), "", "int", CommandLineParser_test::defaultValue);
         }
         for (const auto& s : switchesToRegister)
         {
-            optionSet.addSwitch(s[0], OptionName_t{TruncateToCapacity, s}, "");
+            optionSet.addSwitch(s[0], iox::cxx::into<OptionName_t>(s), "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addRequired(r[0], OptionName_t(TruncateToCapacity, r), "", "int");
+            optionSet.addRequired(r[0], iox::cxx::into<OptionName_t>(r), "", "int");
         }
 
         {

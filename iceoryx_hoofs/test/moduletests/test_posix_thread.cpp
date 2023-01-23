@@ -81,7 +81,7 @@ TEST_F(Thread_test, SetAndGetWithEmptyThreadNameIsWorking)
 
     auto getResult = sut->getName();
 
-    EXPECT_THAT(getResult, StrEq(emptyString));
+    EXPECT_THAT(getResult, Eq(emptyString));
 }
 
 TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
@@ -96,7 +96,7 @@ TEST_F(Thread_test, SetAndGetWithThreadNameCapacityIsWorking)
 
     auto getResult = sut->getName();
 
-    EXPECT_THAT(getResult, StrEq(stringEqualToThreadNameCapacitiy));
+    EXPECT_THAT(getResult.c_str(), StrEq(stringEqualToThreadNameCapacitiy.c_str()));
 }
 
 TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
@@ -110,6 +110,6 @@ TEST_F(Thread_test, SetAndGetSmallStringIsWorking)
 
     auto getResult = sut->getName();
 
-    EXPECT_THAT(getResult, StrEq(stringShorterThanThreadNameCapacitiy));
+    EXPECT_THAT(getResult.c_str(), StrEq(stringShorterThanThreadNameCapacitiy.c_str()));
 }
 } // namespace

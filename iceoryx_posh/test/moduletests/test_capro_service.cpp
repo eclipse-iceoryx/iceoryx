@@ -249,9 +249,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsT
     ::testing::Test::RecordProperty("TEST_ID", "707156f8-8145-4710-b6ac-3e94dbac7237");
     ServiceDescription serviceDescription1 = ServiceDescription();
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq(""));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq(""));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq(""));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(IdString_t()));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), Eq(IdString_t()));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(IdString_t()));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesTheScopeToWorldWide)
@@ -280,9 +280,9 @@ TEST_F(ServiceDescription_test, ServiceDescriptionStringCtorCreatesServiceDescri
 
     ServiceDescription serviceDescription1 = ServiceDescription(testService, testInstance, testEvent, testHash);
 
-    EXPECT_THAT(serviceDescription1.getServiceIDString(), StrEq("1"));
-    EXPECT_THAT(serviceDescription1.getInstanceIDString(), StrEq("2"));
-    EXPECT_THAT(serviceDescription1.getEventIDString(), StrEq("3"));
+    EXPECT_THAT(serviceDescription1.getServiceIDString(), Eq(IdString_t("1")));
+    EXPECT_THAT(serviceDescription1.getInstanceIDString(), Eq(IdString_t("2")));
+    EXPECT_THAT(serviceDescription1.getEventIDString(), Eq(IdString_t("3")));
     EXPECT_EQ(uint32_t(12), serviceDescription1.getClassHash()[0]);
     EXPECT_EQ(uint32_t(23), serviceDescription1.getClassHash()[1]);
     EXPECT_EQ(uint32_t(34), serviceDescription1.getClassHash()[2]);

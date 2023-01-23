@@ -18,6 +18,7 @@
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
@@ -112,8 +113,8 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
     iox::RouDiConfig_t parsedConfig;
     for (auto segment : *segments)
     {
-        auto writer = segment->get_as<std::string>("writer").value_or(groupOfCurrentProcess);
-        auto reader = segment->get_as<std::string>("reader").value_or(groupOfCurrentProcess);
+        auto writer = segment->get_as<std::string>("writer").value_or(cxx::into<std::string>(groupOfCurrentProcess));
+        auto reader = segment->get_as<std::string>("reader").value_or(cxx::into<std::string>(groupOfCurrentProcess));
         iox::mepoo::MePooConfig mempoolConfig;
         auto mempools = segment->get_table_array("mempool");
         if (!mempools)
@@ -145,8 +146,8 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, reader),
-             iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, writer),
+            {iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, reader.c_str(), reader.size()),
+             iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, writer.c_str(), writer.size()),
              mempoolConfig});
     }
 

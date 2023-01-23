@@ -299,8 +299,8 @@ bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
 template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
-/// @brief Converts a value of type F to a corresponding value of type T. This function needs to be specialized by the
-/// user for the types to be converted.
+/// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This function needs to
+/// be specialized by the user for the types to be converted.
 /// @code
 /// enum class LowLevel
 /// {
@@ -335,25 +335,32 @@ bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 /// } // namespace cxx
 /// } // namespace iox
 /// @endcode
-/// @tparam F is the 'from' type
-/// @tparam T is the 'to' type
-/// @param[in] value of type F to convert to T
-/// @return converted value of F to corresponding value of T
-template <typename F, typename T>
-constexpr T from(const F value) noexcept;
+/// @tparam SourceType is the 'from' type
+/// @tparam DestinationType is the 'to' type
+/// @param[in] value of type SourceType to convert to DestinationType
+/// @return converted value of SourceType to corresponding value of DestinationType
+template <typename SourceType, typename DestinationType>
+constexpr DestinationType from(const SourceType value);
 
-/// @brief Converts a value of type F to a corresponding value of type T. This is a convenience function which is
-/// automatically available when 'from' is implemented. This function shall therefore not be specialized but always the
-/// 'from' function.
+// Using a struct as impl, as free functions do not support partially specialized templates
+template <typename SourceType, typename DestinationType>
+struct FromImpl
+{
+    static DestinationType fromImpl(const SourceType& value);
+};
+
+/// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
+/// function which is automatically available when `from` is implemented. This function shall therefore not be
+/// specialized but always the `from` function.
 /// @code
 /// Bar b = iox::cxx::into<Bar>(Foo::ENUM_VALUE);
 /// @endcode
-/// @tparam T is the 'to' type
-/// @tparam F is the 'from' type
-/// @param[in] value of type F to convert to T
-/// @return converted value of F to corresponding value of T
-template <typename T, typename F>
-constexpr T into(const F value) noexcept;
+/// @tparam DestinationType is the 'to' type
+/// @tparam SourceType is the 'from' type
+/// @param[in] value of type SourceType to convert to DestinationType
+/// @return converted value of SourceType to corresponding value of DestinationType
+template <typename DestinationType, typename SourceType>
+constexpr DestinationType into(const SourceType value);
 } // namespace cxx
 } // namespace iox
 

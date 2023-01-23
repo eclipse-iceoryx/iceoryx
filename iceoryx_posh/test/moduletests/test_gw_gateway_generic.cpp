@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
@@ -146,12 +147,11 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result =
-            sut->addChannel(iox::capro::ServiceDescription(
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i))),
-                            StubbedIceoryxTerminal::Options());
+        auto result = sut->addChannel(
+            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
@@ -167,12 +167,11 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     // ===== Test
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
-        auto result =
-            sut->addChannel(iox::capro::ServiceDescription(
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i)),
-                                iox::capro::IdString_t(iox::TruncateToCapacity, iox::cxx::convert::toString(i))),
-                            StubbedIceoryxTerminal::Options());
+        auto result = sut->addChannel(
+            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 

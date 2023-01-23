@@ -181,7 +181,7 @@ TEST_F(UnixDomainSocket_test, UnlinkExistingSocketWithPathPrefixLeadsIsSuccessfu
 // and the client can only send
 void sendOnServerLeadsToError(const sendCall_t& send)
 {
-    string<10> message{"Foo"};
+    std::string message{"Foo"};
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));

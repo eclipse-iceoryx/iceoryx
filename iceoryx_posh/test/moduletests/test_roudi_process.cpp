@@ -66,7 +66,7 @@ TEST_F(Process_test, getName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2f3df1d-0aa9-480e-8c2e-dd76960a7717");
     Process roudiproc(processname, pid, user, isMonitored, sessionId);
-    EXPECT_THAT(roudiproc.getName(), Eq(std::string(processname)));
+    EXPECT_THAT(roudiproc.getName(), Eq(processname));
 }
 
 TEST_F(Process_test, isMonitored)
