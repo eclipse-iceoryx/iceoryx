@@ -32,6 +32,7 @@
 - Add equality and inequality operators for `iox::variant` and `iox::expected` [\#1751](https://github.com/eclipse-iceoryx/iceoryx/issues/1751)
 - Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 - Implement BumpAllocator [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
+- Expand cmake configuration options to enable reducing shared memory consumption. [\#1803](https://github.com/eclipse-iceoryx/iceoryx/issues/1803)
 
 **Bugfixes:**
 

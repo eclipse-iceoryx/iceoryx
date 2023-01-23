@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -409,4 +410,21 @@ TEST_F(convert_test, fromString_MinMaxUNSIGNED_Int)
     source = "-1";
     EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
 }
+
+TEST_F(convert_test, fromString_cxxString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dbf015bb-5f51-47e1-9d0e-0525f65e7803");
+    std::string source = "hello";
+    iox::cxx::string<8> destination;
+    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
+    source = "";
+    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
+    source = "12345678";
+    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(true));
+    source = "123456789";
+    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
+    source = "this_is_a_very_long_string";
+    EXPECT_THAT(iox::cxx::convert::fromString(source.c_str(), destination), Eq(false));
+}
+
 } // namespace

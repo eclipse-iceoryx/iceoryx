@@ -1,4 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,6 +47,21 @@ constexpr uint64_t IOX_MAX_PUBLISHER_HISTORY = static_cast<uint32_t>(@IOX_MAX_PU
 constexpr uint32_t IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY =
     static_cast<uint32_t>(@IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY@);
  constexpr uint32_t IOX_MAX_NUMBER_OF_NOTIFIERS = static_cast<uint32_t>(@IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS@);
+ constexpr uint32_t IOX_MAX_PROCESS_NUMBER = static_cast<uint32_t>(@IOX_MAX_PROCESS_NUMBER@);
+ constexpr uint32_t IOX_MAX_NODE_NUMBER = static_cast<uint32_t>(@IOX_MAX_NODE_NUMBER@);
+ constexpr uint32_t IOX_MAX_NODE_PER_PROCESS = static_cast<uint32_t>(@IOX_MAX_NODE_PER_PROCESS@);
+ constexpr uint32_t IOX_MAX_SHM_SEGMENTS = static_cast<uint32_t>(@IOX_MAX_SHM_SEGMENTS@);
+ constexpr uint32_t IOX_MAX_NUMBER_OF_MEMPOOLS = static_cast<uint32_t>(@IOX_MAX_NUMBER_OF_MEMPOOLS@);
+ constexpr uint32_t IOX_MAX_NUMBER_OF_CONDITION_VARIABLES =
+     static_cast<uint32_t>(@IOX_MAX_NUMBER_OF_CONDITION_VARIABLES@);
+ constexpr uint32_t IOX_MAX_NODE_NAME_LENGTH = static_cast<uint32_t>(@IOX_MAX_NODE_NAME_LENGTH@);
+ constexpr uint32_t IOX_MAX_ID_STRING_LENGTH = static_cast<uint32_t>(@IOX_MAX_ID_STRING_LENGTH@);
+ constexpr uint32_t IOX_MAX_RUNTIME_NAME_LENGTH = static_cast<uint32_t>(@IOX_MAX_RUNTIME_NAME_LENGTH@);
+ constexpr uint32_t IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY =
+     static_cast<uint32_t>(@IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY@);
+ constexpr uint32_t IOX_MAX_RESPONSE_QUEUE_CAPACITY = static_cast<uint32_t>(@IOX_MAX_RESPONSE_QUEUE_CAPACITY@);
+ constexpr uint32_t IOX_MAX_REQUEST_QUEUE_CAPACITY = static_cast<uint32_t>(@IOX_MAX_REQUEST_QUEUE_CAPACITY@);
+ constexpr uint32_t IOX_MAX_CLIENTS_PER_SERVER = static_cast<uint32_t>(@IOX_MAX_CLIENTS_PER_SERVER@);
 // clang-format on
 } // namespace build
 } // namespace iox

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,20 +87,20 @@ constexpr uint32_t MAX_GATEWAY_SERVICES = 2 * MAX_CHANNEL_NUMBER;
 // Client
 constexpr uint32_t MAX_CLIENTS = build::IOX_MAX_SUBSCRIBERS;
 constexpr uint32_t MAX_REQUESTS_ALLOCATED_SIMULTANEOUSLY = 4U;
-constexpr uint32_t MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY = 16U;
-constexpr uint32_t MAX_RESPONSE_QUEUE_CAPACITY = 16U;
+constexpr uint32_t MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY = build::IOX_MAX_RESPONSES_PROCESSED_SIMULTANEOUSLY;
+constexpr uint32_t MAX_RESPONSE_QUEUE_CAPACITY = build::IOX_MAX_RESPONSE_QUEUE_CAPACITY;
 // Server
 constexpr uint32_t MAX_SERVERS = build::IOX_MAX_PUBLISHERS;
-constexpr uint32_t MAX_CLIENTS_PER_SERVER = 256U;
+constexpr uint32_t MAX_CLIENTS_PER_SERVER = build::IOX_MAX_CLIENTS_PER_SERVER;
 constexpr uint32_t MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY = 4U;
 constexpr uint32_t MAX_RESPONSES_ALLOCATED_SIMULTANEOUSLY = MAX_REQUESTS_PROCESSED_SIMULTANEOUSLY;
-constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = 1024;
+constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = build::IOX_MAX_REQUEST_QUEUE_CAPACITY;
 // Waitset
 namespace popo
 {
 using WaitSetIsConditionSatisfiedCallback = optional<cxx::function<bool()>>;
 }
-constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = 1024U;
+constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = build::IOX_MAX_NUMBER_OF_CONDITION_VARIABLES;
 
 constexpr uint32_t MAX_NUMBER_OF_NOTIFIERS = build::IOX_MAX_NUMBER_OF_NOTIFIERS;
 /// @note Waitset and Listener share both the max available notifiers, if one of them is running out of of notifiers
@@ -109,8 +110,8 @@ constexpr uint32_t MAX_NUMBER_OF_EVENTS_PER_LISTENER = MAX_NUMBER_OF_NOTIFIERS;
 //--------- Communication Resources End---------------------
 
 // Memory
-constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = 32U;
-constexpr uint32_t MAX_SHM_SEGMENTS = 100U;
+constexpr uint32_t MAX_NUMBER_OF_MEMPOOLS = build::IOX_MAX_NUMBER_OF_MEMPOOLS;
+constexpr uint32_t MAX_SHM_SEGMENTS = build::IOX_MAX_SHM_SEGMENTS;
 
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_PROVIDER = 8U;
 constexpr uint32_t MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER = 64U;
@@ -127,7 +128,7 @@ constexpr uint32_t APP_MESSAGE_SIZE = 512U;
 
 
 // Processes
-constexpr uint32_t MAX_PROCESS_NUMBER = 300U;
+constexpr uint32_t MAX_PROCESS_NUMBER = build::IOX_MAX_PROCESS_NUMBER;
 
 // Service Discovery
 constexpr uint32_t SERVICE_REGISTRY_CAPACITY = MAX_PUBLISHERS + MAX_SERVERS;
@@ -138,12 +139,13 @@ constexpr const char SERVICE_DISCOVERY_INSTANCE_NAME[] = "RouDi_ID";
 constexpr const char SERVICE_DISCOVERY_EVENT_NAME[] = "ServiceRegistry";
 
 // Nodes
-constexpr uint32_t MAX_NODE_NUMBER = 1000U;
-constexpr uint32_t MAX_NODE_PER_PROCESS = 50U;
+constexpr uint32_t MAX_NODE_NUMBER = build::IOX_MAX_NODE_NUMBER;
+constexpr uint32_t MAX_NODE_PER_PROCESS = build::IOX_MAX_NODE_PER_PROCESS;
 
-constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = MAX_IPC_CHANNEL_NAME_LENGTH;
+constexpr uint32_t MAX_RUNTIME_NAME_LENGTH = build::IOX_MAX_RUNTIME_NAME_LENGTH;
 
-
+static_assert(MAX_RUNTIME_NAME_LENGTH <= MAX_IPC_CHANNEL_NAME_LENGTH,
+              "Invalid configuration of maximum runtime name length");
 static_assert(MAX_PROCESS_NUMBER * MAX_NODE_PER_PROCESS > MAX_NODE_NUMBER, "Invalid configuration for nodes");
 
 enum class SubscribeState : uint32_t
@@ -196,15 +198,13 @@ struct DefaultChunkQueueConfig
 
 // alias for string
 using RuntimeName_t = string<MAX_RUNTIME_NAME_LENGTH>;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using NodeName_t = string<100>;
+using NodeName_t = string<build::IOX_MAX_NODE_NAME_LENGTH>;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
 using ShmName_t = string<128>;
 
 namespace capro
 {
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-magic-numbers)
-using IdString_t = string<100>;
+using IdString_t = string<build::IOX_MAX_ID_STRING_LENGTH>;
 } // namespace capro
 
 /// @todo iox-#539 Move everything in this namespace to iceoryx_roudi_types.hpp once we move RouDi to a separate CMake
