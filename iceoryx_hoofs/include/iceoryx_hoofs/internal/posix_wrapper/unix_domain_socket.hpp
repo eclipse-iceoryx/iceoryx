@@ -17,7 +17,6 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -32,7 +31,7 @@ namespace iox
 namespace posix
 {
 /// @brief Wrapper class for unix domain socket
-class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcChannelError>
+class UnixDomainSocket
 {
   public:
     struct NoPathPrefix_t
@@ -47,13 +46,13 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     using UdsName_t = string<LONGEST_VALID_NAME>;
     using Message_t = string<MAX_MESSAGE_SIZE>;
 
-    /// @brief for calling private constructor in create method
-    friend class DesignPattern::Creation<UnixDomainSocket, IpcChannelError>;
+    using result_t = expected<UnixDomainSocket, IpcChannelError>;
+    using errorType_t = IpcChannelError;
 
     /// @brief default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by
     /// using the
     /// move constructor.
-    UnixDomainSocket() noexcept;
+    UnixDomainSocket() noexcept = default;
 
     UnixDomainSocket(const UnixDomainSocket& other) = delete;
     UnixDomainSocket(UnixDomainSocket&& other) noexcept;
@@ -61,6 +60,18 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     UnixDomainSocket& operator=(UnixDomainSocket&& other) noexcept;
 
     ~UnixDomainSocket() noexcept;
+
+    /// @brief factory method which guarantees that either a working object is produced
+    ///         or an error value describing the error during construction
+    /// @tparam Targs the argument types which will be forwarded to the ctor
+    /// @param[in] args the argument values which will be forwarded to the ctor
+    /// @return returns an expected which either contains the object in a valid
+    ///         constructed state or an error value stating why the construction failed.
+    template <typename... Targs>
+    static expected<UnixDomainSocket, IpcChannelError> create(Targs&&... args) noexcept;
+
+    /// @brief returns true if the object was constructed successfully, otherwise false
+    bool isInitialized() const noexcept;
 
     /// @brief unlink the provided unix domain socket
     /// @param name of the unix domain socket to unlink
@@ -117,12 +128,29 @@ class UnixDomainSocket : public DesignPattern::Creation<UnixDomainSocket, IpcCha
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
+    bool m_isInitialized{false};
+    IpcChannelError m_errorValue{IpcChannelError::NOT_INITIALIZED};
+
     UdsName_t m_name;
     IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
     int32_t m_sockfd{INVALID_FD};
     sockaddr_un m_sockAddr{};
     size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
+
+
+template <typename... Targs>
+expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(Targs&&... args) noexcept
+{
+    UnixDomainSocket newObject{std::forward<Targs>(args)...};
+    if (!newObject.m_isInitialized)
+    {
+        return iox::error<IpcChannelError>(newObject.m_errorValue);
+    }
+
+    return iox::success<UnixDomainSocket>(std::move(newObject));
+}
+
 } // namespace posix
 } // namespace iox
 

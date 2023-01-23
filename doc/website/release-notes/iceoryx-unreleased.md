@@ -814,7 +814,22 @@
 
     ```
 
-42. Move `static_storage` from `iceoryx_hoofs` to `iceoryx_dust`
+42. Move multiple classes from `iceoryx_hoofs` to `iceoryx_dust`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/forward_list.hpp"
+
+    #include "iceoryx_dust/cxx/forward_list.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/design_pattern/creation.hpp"
+
+    // after
+    #include "iceoryx_dust/design/creation.hpp"
+    ```
 
     ```cpp
     // before
@@ -824,3 +839,50 @@
     #include "iceoryx_dust/internal/cxx/static_storage.hpp"
     ```
 
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/file_reader.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/objectpool/objectpool.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/objectpool.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
+
+    // after
+    #include "iceoryx_dust/relocatable_pointer/relocatable_ptr.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/posix_wrapper/internal/message_queue.hpp"
+
+    // after
+    #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
+
+    // after
+    #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
+
+    // after
+    #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+    ```

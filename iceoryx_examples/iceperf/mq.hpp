@@ -19,7 +19,6 @@
 
 #include "base.hpp"
 
-#include "iceoryx_hoofs/design_pattern/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"

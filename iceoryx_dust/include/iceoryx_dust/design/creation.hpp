@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
-#define IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
+#ifndef IOX_DUST_DESIGN_CREATION_HPP
+#define IOX_DUST_DESIGN_CREATION_HPP
 
 // NOLINTJUSTIFICATION iox-#1036 will be replaced by builder pattern
 // NOLINTBEGIN
@@ -144,7 +144,7 @@ class Creation
 
 } // namespace DesignPattern
 
-#include "iceoryx_hoofs/internal/design_pattern/creation.inl"
+#include "iceoryx_dust/internal/design/creation.inl"
 // NOLINTEND
 
-#endif // IOX_HOOFS_DESIGN_PATTERN_CREATION_HPP
+#endif // IOX_DUST_DESIGN_CREATION_HPP

@@ -34,12 +34,6 @@ namespace posix
 constexpr uint64_t UnixDomainSocket::MAX_MESSAGE_SIZE;
 constexpr uint64_t UnixDomainSocket::NULL_TERMINATOR_SIZE;
 
-UnixDomainSocket::UnixDomainSocket() noexcept
-{
-    this->m_isInitialized = false;
-    this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
-}
-
 UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 {
     *this = std::move(other);
@@ -122,22 +116,24 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
                            << "\" in the move constructor/move assignment operator";
         }
 
-        CreationPattern_t::operator=(std::move(other));
-
-        // @todo iox-#1036
-        // NOLINTJUSTIFICATION will be fixed with refactoring in #1036
-        // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
+        m_isInitialized = other.m_isInitialized;
+        m_errorValue = other.m_errorValue;
         m_name = std::move(other.m_name);
         m_channelSide = other.m_channelSide;
         m_sockfd = other.m_sockfd;
         m_sockAddr = other.m_sockAddr;
         m_maxMessageSize = other.m_maxMessageSize;
-        // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved)
 
+        other.m_isInitialized = false;
         other.m_sockfd = INVALID_FD;
     }
 
     return *this;
+}
+
+bool UnixDomainSocket::isInitialized() const noexcept
+{
+    return m_isInitialized;
 }
 
 expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept

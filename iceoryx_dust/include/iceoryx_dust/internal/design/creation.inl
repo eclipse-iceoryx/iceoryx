@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_DESIGN_PATTERN_CREATION_INL
-#define IOX_HOOFS_DESIGN_PATTERN_CREATION_INL
+#ifndef IOX_DUST_DESIGN_CREATION_INL
+#define IOX_DUST_DESIGN_CREATION_INL
+
 namespace DesignPattern
 {
 template <typename DerivedClass, typename ErrorType>
@@ -81,4 +82,5 @@ inline iox::expected<ErrorType> Creation<DerivedClass, ErrorType>::placementCrea
 
 
 } // namespace DesignPattern
-#endif
+
+#endif // IOX_DUST_DESIGN_CREATION_INL
