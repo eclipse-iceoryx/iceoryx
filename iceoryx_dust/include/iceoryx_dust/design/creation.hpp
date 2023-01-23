@@ -147,4 +147,4 @@ class Creation
 #include "iceoryx_dust/internal/design/creation.inl"
 // NOLINTEND
 
-#endif // IOX_HOOFS_DESIGN_CREATION_HPP
+#endif // IOX_DUST_DESIGN_CREATION_HPP
