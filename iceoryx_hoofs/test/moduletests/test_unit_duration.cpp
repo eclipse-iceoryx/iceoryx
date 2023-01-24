@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -1649,6 +1649,68 @@ TEST(Duration_test, AddDurationResultsInSaturationFromSeconds)
     EXPECT_THAT(sut2, Eq(DurationAccessor::max()));
 }
 
+TEST(Duration_test, AddAssignSecondsToDurationResultsInSecondsAdditionToLHS)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c223f8b3-d396-4c45-8c2d-b6b7d7b7f57a");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(3U, 0U);
+    auto sut = createDuration(2U, 0U);
+    auto otherDuration = createDuration(1U, 0U);
+
+    sut += otherDuration;
+
+    EXPECT_EQ(sut, EXPECTED_DURATION);
+}
+
+TEST(Duration_test, AddAssignNanosecondsToDurationResultsInNanosecondsAdditionToLHS)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a0cd4bcf-59f5-4d84-88e6-0d11d34142a1");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, 100U);
+    auto sut = createDuration(0U, 50U);
+    auto otherDuration = createDuration(0U, 50U);
+
+    sut += otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, AddAssignDurationPastNanosecondBoundaryResultsInSecondIncrementToLHS)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "97ec3b19-31c9-41bb-8a1f-442cfdf5ed66");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(1U, 5U);
+    auto sut = createDuration(0U, NANOSECS_PER_SECOND - 5);
+    auto otherDuration = createDuration(0U, 10U);
+
+    sut += otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+
+TEST(Duration_test, AddAssignDurationResultsInSaturationFromSeconds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "940e6a59-9b1c-4928-8fe1-af290beebb5d");
+    auto sut = createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max() - 1U, NANOSECS_PER_SECOND - 1U);
+    auto otherDuration = createDuration(2U, 0U);
+
+    sut += otherDuration;
+
+    EXPECT_THAT(sut, Eq(DurationAccessor::max()));
+}
+
+TEST(Duration_test, AddAssignDurationResultsInSaturationFromNanoseconds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c8d972a8-cbb1-41e8-bf72-8d05963f95f7");
+    auto sut = createDuration(std::numeric_limits<DurationAccessor::Seconds_t>::max(), NANOSECS_PER_SECOND - 2U);
+    auto otherDuration = createDuration(0U, 2U);
+
+    sut += otherDuration;
+
+    EXPECT_THAT(sut, Eq(DurationAccessor::max()));
+}
+
 TEST(Duration_test, SubtractDurationDoesNotChangeOriginalObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c61d7d6e-4164-4c00-b264-7ed62ad22748");
@@ -1786,6 +1848,59 @@ TEST(Duration_test, SubtractDurationWithSecondsAndNanosecondsCausingReductionOfS
 
     EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
 }
+
+TEST(Duration_test, SubtractAssignSecondsFromDurationResultsInSecondSubtractractionToLHS)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ab917854-0a97-4529-b408-c51c30b9375f");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(1U, 0U);
+    auto sut = createDuration(2U, 0U);
+    auto otherDuration = createDuration(1U, 0U);
+
+    sut -= otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubtractAssignNanosecondsFromDurationResultsInNanosecondSubtractractionToLHS)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b6051fe8-37d5-4225-b1ea-5038b56889ce");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, 50U);
+    auto sut = createDuration(0U, 100U);
+    auto otherDuration = createDuration(0U, 50U);
+
+    sut -= otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubtractAssignDurationPastZeroNanosecondsResultsInDecrementedSeconds)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cba9f397-9f25-4e88-9608-0d51eb1e4ccc");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, NANOSECS_PER_SECOND - 2);
+    auto sut = createDuration(1U, 0U);
+    auto otherDuration = createDuration(0U, 2U);
+
+    sut -= otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
+TEST(Duration_test, SubtractAssignLargerDurationResultsInZero)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "eb2bace9-751c-48bd-82eb-2e5679512503");
+
+    constexpr Duration EXPECTED_DURATION = createDuration(0U, 0U);
+    auto sut = createDuration(1U, 0U);
+    auto otherDuration = createDuration(2U, 0U);
+
+    sut -= otherDuration;
+
+    EXPECT_THAT(sut, Eq(EXPECTED_DURATION));
+}
+
 
 TEST(Duration_test, MultiplyDurationDoesNotChangeOriginalObject)
 {

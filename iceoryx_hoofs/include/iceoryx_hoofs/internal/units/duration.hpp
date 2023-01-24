@@ -43,24 +43,31 @@ class Duration;
 namespace duration_literals
 {
 /// @brief Constructs a new Duration object from nanoseconds
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _ns(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from microseconds
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _us(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from milliseconds
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _ms(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from seconds
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _s(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from minutes
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _m(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from hours
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _h(unsigned long long int value) noexcept;
 
 /// @brief Constructs a new Duration object from days
+// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 constexpr Duration operator"" _d(unsigned long long int value) noexcept;
 } // namespace duration_literals
 
@@ -148,67 +155,47 @@ class Duration
 
     /// @brief Construct a Duration object from timeval
     /// @param[in] value as timeval
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr explicit Duration(const struct timeval& value) noexcept;
 
     /// @brief Construct a Duration object from timespec
     /// @param[in] value as timespec
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr explicit Duration(const struct timespec& value) noexcept;
 
     /// @brief Construct a Duration object from itimerspec
     /// @param[in] value as itimerspec
     /// @note only it_interval from the itimerspec is used
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr explicit Duration(const struct itimerspec& value) noexcept;
 
     /// @brief Construct a Duration object from std::chrono::milliseconds
     /// @param[in] value as milliseconds
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    constexpr explicit Duration(const std::chrono::milliseconds& value) noexcept;
+    constexpr explicit Duration(const std::chrono::milliseconds value) noexcept;
 
     /// @brief Construct a Duration object from std::chrono::nanoseconds
     /// @param[in] value as nanoseconds
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    constexpr explicit Duration(const std::chrono::nanoseconds& value) noexcept;
+    constexpr explicit Duration(const std::chrono::nanoseconds value) noexcept;
 
     /// @brief Assigns a std::chrono::milliseconds to an duration object
     /// @param[in] rhs is the right hand side of the assignment
     /// @return a reference to the Duration object with the assigned millisecond value
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    Duration& operator=(const std::chrono::milliseconds& rhs) noexcept;
+    Duration& operator=(const std::chrono::milliseconds rhs) noexcept;
 
     // END CONSTRUCTORS AND ASSIGNMENT
 
     // BEGIN COMPARISON
-
-    /// @brief Equal to operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration equal to rhs
-    constexpr bool operator==(const Duration& rhs) const noexcept;
-
-    /// @brief Not equal to operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration not equal to rhs
-    constexpr bool operator!=(const Duration& rhs) const noexcept;
-
-    /// @brief Less than operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration is less than rhs
-    constexpr bool operator<(const Duration& rhs) const noexcept;
-
-    /// @brief Less than or equal to operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration is less than or equal to rhs
-    constexpr bool operator<=(const Duration& rhs) const noexcept;
-
-    /// @brief Greater than operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration is greater than rhs
-    constexpr bool operator>(const Duration& rhs) const noexcept;
-
-    /// @brief Greater than or equal to operator
-    /// @param[in] rhs is the right hand side of the comparison
-    /// @return true if duration is greater than or equal to rhs
-    constexpr bool operator>=(const Duration& rhs) const noexcept;
-
+    // AXIVION DISABLE STYLE AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+    friend constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept;
+    friend constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept;
+    friend constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept;
+    friend constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept;
+    friend constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept;
+    friend constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept;
+    // AXIVION ENABLE STYLE AutosarC++19_03-A8.4.7
     // END COMPARISON
 
     // BEGIN ARITHMETIC
@@ -217,14 +204,31 @@ class Duration
     ///        saturates to Duration::max().
     /// @param[in] rhs is the second summand
     /// @return a new Duration object
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr Duration operator+(const Duration& rhs) const noexcept;
+
+    /// @brief Creates Duration object by addition. On overflow duration
+    ///        saturates to Duration::max().
+    /// @param[in] rhs is the second summand
+    /// @return a new Duration object
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+    constexpr Duration& operator+=(const Duration& rhs) noexcept;
 
     /// @brief Creates Duration object by subtraction. On underflow duration
     ///        saturates to Duration::zero().
     /// @param[in] rhs is the subtrahend
     /// @return a new Duration object
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
     constexpr Duration operator-(const Duration& rhs) const noexcept;
+
+    /// @brief Creates Duration object by subtraction. On underflow duration
+    ///        saturates to Duration::zero().
+    /// @param[in] rhs is the subtrahend
+    /// @return a new Duration object
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+    constexpr Duration& operator-=(const Duration& rhs) noexcept;
 
     /// @brief Creates Duration object by multiplication.
     /// @tparam T is an arithmetic type for the multiplicator
@@ -276,7 +280,7 @@ class Duration
     constexpr uint64_t toDays() const noexcept;
 
     /// @brief converts duration in a timespec c struct
-    struct timespec timespec(const TimeSpecReference& reference = TimeSpecReference::None) const noexcept;
+    struct timespec timespec(const TimeSpecReference reference = TimeSpecReference::None) const noexcept;
 
     /// @brief converts duration in a timeval c struct
     ///     timeval::tv_sec = seconds since the Epoch (01.01.1970)
@@ -285,6 +289,7 @@ class Duration
 
     // END CONVERSION
 
+    // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
     friend constexpr Duration duration_literals::operator"" _ns(unsigned long long int value) noexcept;
     friend constexpr Duration duration_literals::operator"" _us(unsigned long long int value) noexcept;
     friend constexpr Duration duration_literals::operator"" _ms(unsigned long long int value) noexcept;
@@ -292,10 +297,13 @@ class Duration
     friend constexpr Duration duration_literals::operator"" _m(unsigned long long int value) noexcept;
     friend constexpr Duration duration_literals::operator"" _h(unsigned long long int value) noexcept;
     friend constexpr Duration duration_literals::operator"" _d(unsigned long long int value) noexcept;
+    // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
+    // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
     template <typename T>
     friend constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
+    // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     friend std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
     friend iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) noexcept;
 
@@ -326,7 +334,7 @@ class Duration
 
   private:
     template <typename T>
-    static constexpr unsigned long long int positiveValueOrClampToZero(const T value) noexcept;
+    static constexpr uint64_t positiveValueOrClampToZero(const T value) noexcept;
 
     template <typename T>
     constexpr Duration fromFloatingPointSeconds(const T floatingPointSeconds) const noexcept;
@@ -351,11 +359,55 @@ class Duration
 /// @param[in] rhs is the multiplicant
 /// @return a new Duration object
 /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
 constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
 /// @brief stream operator for the Duration class
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
 std::ostream& operator<<(std::ostream& stream, const Duration& t) noexcept;
+
+/// @brief Equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept;
+
+/// @brief Not equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration not equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept;
+
+/// @brief Less than operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is less than rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept;
+
+/// @brief Greater than operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is greater than rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept;
+
+/// @brief Less than or equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is less than or equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept;
+
+/// @brief Greater than or equal to operator
+/// @param[in] lhs is the left hand side of the comparison
+/// @param[in] rhs is the right hand side of the comparison
+/// @return true if duration is greater than or equal to rhs
+// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept;
 
 } // namespace units
 } // namespace iox
