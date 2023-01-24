@@ -184,6 +184,12 @@ WaitSet<Capacity>::attachState(T& stateOrigin,
                 stateOrigin,
                 TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId),
                 stateType);
+
+            auto& trigger = m_triggerArray[uniqueId];
+            if (trigger->isStateConditionSatisfied())
+            {
+                ConditionNotifier(*m_conditionVariableDataPtr, uniqueId).notify();
+            }
         });
 }
 
@@ -210,6 +216,12 @@ inline cxx::expected<WaitSetError> WaitSet<Capacity>::attachState(
         .and_then([&](auto& uniqueId) {
             NotificationAttorney::enableState(
                 stateOrigin, TriggerHandle(*m_conditionVariableDataPtr, {*this, &WaitSet::removeTrigger}, uniqueId));
+
+            auto& trigger = m_triggerArray[uniqueId];
+            if (trigger->isStateConditionSatisfied())
+            {
+                ConditionNotifier(*m_conditionVariableDataPtr, uniqueId).notify();
+            }
         });
 }
 
