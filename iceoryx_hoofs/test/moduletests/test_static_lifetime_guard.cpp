@@ -14,10 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 
+#include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test.hpp"
-#include <iostream>
+
+#include <chrono>
+#include <thread>
 
 namespace
 {
@@ -49,6 +53,16 @@ struct Fou
     static uint32_t instancesCreated;
 
     uint32_t id;
+};
+
+// delay is only needed for multithreaded test
+template <uint64_t N>
+struct DelayedFou : public Fou<N>
+{
+    explicit DelayedFou(std::chrono::nanoseconds delay)
+    {
+        std::this_thread::sleep_for(delay);
+    }
 };
 
 constexpr uint32_t FIRST_INSTANCE_ID{1};
@@ -103,7 +117,7 @@ struct TestTypes : public TestGuard<N>
 // shorten the initialization via macro, needed due to __LINE__
 #define INIT_TEST using T = TestTypes<__LINE__>
 
-// each test uses its own type for maximum separation, so we d not need to reset anything
+// each test uses its own type for maximum separation, so we do not need to reset anything
 class StaticLifetimeGuard_test : public Test
 {
   public:
@@ -266,7 +280,7 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
         // we ignore the guard of testInstance() by setting it to 1,
         // hence when guard is destroyed the instance will be destroyed as well
         auto oldCount = T::setCount(1);
-        EXPECT_EQ(oldCount, 2);
+        ASSERT_EQ(oldCount, 2);
 
         EXPECT_EQ(T::Foo::ctorCalled, 0);
         EXPECT_EQ(T::Foo::dtorCalled, 0);
@@ -313,6 +327,47 @@ TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
     EXPECT_EQ(T::Guard::count(), 0);
     EXPECT_EQ(T::Foo::ctorCalled, 1);
     EXPECT_EQ(T::Foo::dtorCalled, 1);
+}
+
+// note that this test cannot guarantee concurrent correctness due to thread scheduling
+// being unpredictable
+TEST_F(StaticLifetimeGuard_test, instanceCtorIsConcurrentlyCalledExactlyOnce)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2b7e60e5-159d-4bcf-adc8-21f5a23d2f27");
+    using Instance = DelayedFou<1>;
+    using Sut = iox::design_pattern::StaticLifetimeGuard<Instance>;
+    constexpr uint32_t NUM_THREADS = 8;
+
+    EXPECT_EQ(Instance::ctorCalled, 0);
+
+    // wait at the barrier to ensure threads were started and increase the
+    // concurrent execution probability (but cannot guarantee concurrent execution)
+    Barrier barrier(NUM_THREADS);
+    auto createInstance = [&barrier]() {
+        barrier.notify();
+        barrier.wait();
+        // all threads have notfied (but may pass wait in any order ...)
+
+        // cannot wait too long otherwise we slow down the tests too much,
+        // cannot be optimized away, as it has has side effects (counting)
+        Sut::instance(std::chrono::milliseconds(1));
+    };
+
+    iox::cxx::vector<std::thread, NUM_THREADS> threads;
+
+    for (uint32_t i = 0; i < NUM_THREADS; ++i)
+    {
+        threads.emplace_back(createInstance);
+    }
+
+    // each join can only return once each thread arrived at the barrier and
+    // called Sut::instance()
+    for (auto& t : threads)
+    {
+        t.join();
+    }
+
+    EXPECT_EQ(Instance::ctorCalled, 1);
 }
 
 } // namespace
