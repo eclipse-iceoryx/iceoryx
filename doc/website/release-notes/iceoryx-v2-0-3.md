@@ -10,3 +10,4 @@
 - Fix FileLock leak when lock failed [\#1440](https://github.com/eclipse-iceoryx/iceoryx/issues/1440)
 - Fix INTERFACE_INCLUDE_DIRECTORIES in CMake [\#1481](https://github.com/eclipse-iceoryx/iceoryx/issues/1481)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
+- `WaitSet::wait` returns if data was send before `WaitSet::attachState(.., State::HAS_{DATA, REQUEST, RESPONSE})` [\#1855](https://github.com/eclipse-iceoryx/iceoryx/issues/1855)
