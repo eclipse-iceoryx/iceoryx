@@ -1558,4 +1558,41 @@ TEST_F(WaitSet_test, WaitSetReturnsIfStateTriggeredBeforeAttachingWithEventId)
     EXPECT_TRUE(triggerVector[0U]->doesOriginateFrom(&m_simpleEvents[0U]));
 }
 
+TEST_F(WaitSet_test, WaitSetReturnsAgainIfStateTriggeredBeforeAttachingWithEventType)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c86d2592-e8e5-4acc-b468-0a82be82fe7c");
+    m_simpleEvents[0U].m_autoResetTrigger = false;
+    m_simpleEvents[0U].trigger();
+
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0U], SimpleState1::STATE1).has_error());
+
+    auto triggerVector1 = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+    ASSERT_THAT(triggerVector1.size(), Eq(1U));
+    EXPECT_TRUE(triggerVector1[0U]->doesOriginateFrom(&m_simpleEvents[0U]));
+
+    // Waiting for another time should lead to the same result
+    auto triggerVector2 = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+    ASSERT_THAT(triggerVector2.size(), Eq(1U));
+    EXPECT_TRUE(triggerVector2[0U]->doesOriginateFrom(&m_simpleEvents[0U]));
+}
+
+TEST_F(WaitSet_test, WaitSetReturnsAgainIfStateTriggeredBeforeAttachingWithEventId)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b07c9e09-f497-4bfa-9403-633d15363f5e");
+    m_simpleEvents[0U].m_autoResetTrigger = false;
+    m_simpleEvents[0U].trigger();
+
+    ASSERT_FALSE(m_sut->attachState(m_simpleEvents[0U], 0U).has_error());
+
+    auto triggerVector1 = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+    ASSERT_THAT(triggerVector1.size(), Eq(1U));
+    EXPECT_TRUE(triggerVector1[0U]->doesOriginateFrom(&m_simpleEvents[0U]));
+
+    // Waiting for another time should lead to the same result
+    auto triggerVector2 = m_sut->timedWait(iox::units::Duration::fromSeconds(1337));
+    ASSERT_THAT(triggerVector2.size(), Eq(1U));
+    EXPECT_TRUE(triggerVector2[0U]->doesOriginateFrom(&m_simpleEvents[0U]));
+}
+
+
 } // namespace
