@@ -7,6 +7,8 @@
 // *** IMPLEMENTED BY PLATFORM
 // ***
 
+namespace iox
+{
 namespace err
 {
 
@@ -50,3 +52,4 @@ bool constexpr requiresHandling<Warning>(Warning)
 }
 
 } // namespace err
+} // namespace iox

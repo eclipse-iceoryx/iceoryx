@@ -6,14 +6,14 @@
 
 #include "iceoryx_hoofs/error_reporting/error.hpp"
 
-namespace module_a
+namespace module_b
 {
 
 namespace error
 {
 
-using error_code_t = err::error_code_t;
-using module_id_t = err::module_id_t;
+using error_code_t = iox::err::error_code_t;
+using module_id_t = iox::err::module_id_t;
 
 enum class ErrorCode : error_code_t
 {
@@ -50,7 +50,7 @@ class Error
         return errorNames[(error_code_t)m_code];
     }
 
-    static constexpr err::module_id_t MODULE_ID = 73;
+    static constexpr module_id_t MODULE_ID = 42;
 
   protected:
     ErrorCode m_code;
@@ -79,15 +79,18 @@ class OutOfBoundsError : public Error
 
 } // namespace error
 
-} // namespace module_a
+} // namespace module_b
 
+namespace iox
+{
 namespace err
 {
 
 // transform codes to error
-inline module_a::error::Error toError(module_a::error::ErrorCode code)
+inline module_b::error::Error toError(module_b::error::ErrorCode code)
 {
-    return module_a::error::Error(code);
+    return module_b::error::Error(code);
 }
 
 } // namespace err
+} // namespace iox

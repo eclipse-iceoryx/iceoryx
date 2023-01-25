@@ -14,6 +14,8 @@
 #include <atomic>
 #include <iostream>
 
+namespace iox
+{
 namespace err
 {
 /// @todo abstract as a clean singleton in in a PolymorphicHandler once available
@@ -93,26 +95,27 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, err::Fatal, const Error& error)
+inline void report(const SourceLocation& location, iox::err::Fatal, const Error& error)
 {
     std::cout << "TEST REPORT fatal" << std::endl;
     reportOrPanic(location, error);
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, err::PreconditionViolation, const Error& error)
+inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error)
 {
     std::cout << "TEST REPORT precondition violation" << std::endl;
     reportOrPanic(location, error);
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, err::DebugAssertViolation, const Error& error)
+inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error)
 {
     std::cout << "TEST REPORT debug assert violation" << std::endl;
     reportOrPanic(location, error);
 }
 
 } // namespace err
+} // namespace iox
 
 #endif

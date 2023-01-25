@@ -8,6 +8,8 @@
 #include <atomic>
 #include <iostream>
 
+namespace iox
+{
 namespace err
 {
 // platform specific, static dispatch (optimized away)
@@ -19,19 +21,19 @@ inline void report(const SourceLocation&, Kind, const Error&)
 }
 
 template <class Error>
-inline void report(const SourceLocation&, err::Fatal, const Error&)
+inline void report(const SourceLocation&, iox::err::Fatal, const Error&)
 {
     std::cout << "REPORT fatal" << std::endl;
 }
 
 template <class Error>
-inline void report(const SourceLocation&, err::PreconditionViolation, const Error&)
+inline void report(const SourceLocation&, iox::err::PreconditionViolation, const Error&)
 {
     std::cout << "REPORT precondition violation" << std::endl;
 }
 
 template <class Error>
-inline void report(const SourceLocation&, err::DebugAssertViolation, const Error&)
+inline void report(const SourceLocation&, iox::err::DebugAssertViolation, const Error&)
 {
     std::cout << "REPORT debug assert violation" << std::endl;
 }
@@ -49,3 +51,4 @@ inline void report(const SourceLocation&, err::DebugAssertViolation, const Error
 }
 
 } // namespace err
+} // namespace iox

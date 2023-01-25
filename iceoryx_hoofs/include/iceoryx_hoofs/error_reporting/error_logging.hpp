@@ -7,6 +7,8 @@
 #include <iostream>
 #include <sstream>
 
+namespace iox
+{
 namespace err
 {
 
@@ -46,3 +48,4 @@ void log(const SourceLocation& location, Level level, error_code_t code, module_
 }
 
 } // namespace err
+} // namespace iox

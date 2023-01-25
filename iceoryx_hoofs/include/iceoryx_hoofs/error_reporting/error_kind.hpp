@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <type_traits>
 
+namespace iox
+{
 namespace err
 {
 using error_level_t = uint32_t;
@@ -124,3 +126,4 @@ constexpr PreconditionViolation PRECONDITION_VIOLATION;
 constexpr DebugAssertViolation DEBUG_ASSERT_VIOLATION;
 
 } // namespace err
+} // namespace iox

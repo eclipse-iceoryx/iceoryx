@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+namespace iox
+{
 namespace err
 {
 using error_code_t = uint32_t;
@@ -83,3 +85,4 @@ bool operator!=(const E1& a, const E2& b)
 */
 
 } // namespace err
+} // namespace iox

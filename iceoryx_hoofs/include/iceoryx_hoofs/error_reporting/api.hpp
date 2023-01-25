@@ -17,7 +17,7 @@
 
 // clang-format off
 
-#define IOX_ERROR(code) err::toError(code)
+#define IOX_ERROR(code) iox::err::toError(code)
 
 /// @todo these macro constructions have (at the top level) no type safe signature
 // but should actually be type safe (thoug very generic),
@@ -28,8 +28,8 @@
 /// @param error error object (or code)
 /// @param kind kind of error
 #define IOX_REPORT(error, kind) \
-    if(requiresHandling(err::kind)) \
-        err::createProxy(CURRENT_SOURCE_LOCATION, err::kind, err::toError(error))
+    if(requiresHandling(iox::err::kind)) \
+        iox::err::createProxy(CURRENT_SOURCE_LOCATION, iox::err::kind, iox::err::toError(error))
 
 /// @brief report fatal error
 /// @param error error object (or code)
@@ -41,9 +41,9 @@
 /// @param error error object (or code)
 /// @param kind kind of error
 #define IOX_REPORT_IF(expr, error, kind) \
-    if(requiresHandling(err::kind)) \
+    if(requiresHandling(iox::err::kind)) \
         if(expr) \
-             err::createProxy(CURRENT_SOURCE_LOCATION, err::kind, err::toError(error))
+             iox::err::createProxy(CURRENT_SOURCE_LOCATION, iox::err::kind, iox::err::toError(error))
 
 /// @brief report fatal error if expr evaluates to false
 /// @note for conditions that may actually happen during correct use
@@ -57,23 +57,23 @@
 /// @param error error object (or code)
 #ifdef DEBUG
     #define IOX_DEBUG_ASSERT(expr) IOX_REPORT_IF(!(expr), \
-      Violation(err::DEBUG_ASSERT_VIOLATION_CODE), DEBUG_ASSERT_VIOLATION)
+      Violation(iox::err::DEBUG_ASSERT_VIOLATION_CODE), DEBUG_ASSERT_VIOLATION)
 #else
     // the proxy is not actually constructed (false branch)
-    #define IOX_DEBUG_ASSERT(expr) if(false) err::ErrorProxy<err::DebugAssertViolation>()
+    #define IOX_DEBUG_ASSERT(expr) if(false) iox::err::ErrorProxy<iox::err::DebugAssertViolation>()
 #endif
 
 /// @brief calls panic handler and does not return
 /// @param msg optional message string literal
 /// @note could actually throw if desired without breaking control flow asssumptions
-#define IOX_PANIC(...) do { err::panic(__VA_ARGS__); } while(false)
+#define IOX_PANIC(...) do { iox::err::panic(__VA_ARGS__); } while(false)
 
 // TODO: do we want specific errors for this? This is rather
 // useless as it indicates a bug and shall terminate. Location should suffice.
 /// @brief calls panic handler if expr is false
 /// @param expr boolean expression that must hold upon entry of the function it appears in
 #ifdef DEBUG
-    #define IOX_EXPECTS(expr) IOX_REPORT_IF(!(expr), Violation(err::PRECONDITION_VIOLATION_CODE), PRECONDITION_VIOLATION)
+    #define IOX_EXPECTS(expr) IOX_REPORT_IF(!(expr), Violation(iox::err::PRECONDITION_VIOLATION_CODE), PRECONDITION_VIOLATION)
 #else
     #define IOX_EXPECTS(expr)
 #endif

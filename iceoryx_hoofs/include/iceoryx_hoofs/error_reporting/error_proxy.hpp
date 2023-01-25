@@ -9,6 +9,8 @@
 #include <iostream>
 #include <type_traits>
 
+namespace iox
+{
 namespace err
 {
 
@@ -71,3 +73,4 @@ auto createProxy(const SourceLocation& location, Kind kind, const Error& error)
     return ErrorProxy<Kind>(location, kind, error);
 }
 } // namespace err
+} // namespace iox

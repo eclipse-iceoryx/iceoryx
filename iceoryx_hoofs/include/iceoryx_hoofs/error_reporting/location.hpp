@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+namespace iox
+{
 namespace err
 {
 struct SourceLocation
@@ -12,8 +14,9 @@ struct SourceLocation
 };
 
 } // namespace err
+} // namespace iox
 
 // clang-format off
 #define CURRENT_SOURCE_LOCATION \
-    err::SourceLocation{ __FILE__, __LINE__, __func__}
+    iox::err::SourceLocation{ __FILE__, __LINE__, __func__}
 // clang-format on

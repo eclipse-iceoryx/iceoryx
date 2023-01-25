@@ -11,7 +11,7 @@
 #include "iceoryx_hoofs/error_reporting/api.hpp"
 
 // some dummy modules under test
-#include "iceoryx_hoofs/error_reporting/modules/module_a/errors.hpp"
+#include "error_reporting_modules/module_a/errors.hpp"
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
 #include "iceoryx_hoofs/cxx/optional.hpp"
@@ -21,7 +21,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace err;
+using namespace iox::err;
 using namespace iox::cxx;
 using std::cout;
 using std::endl;
@@ -44,13 +44,13 @@ struct AnotherError
 #define ASSERT_NO_PANIC()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
-        ASSERT_FALSE(err::hasPanicked());                                                                              \
+        ASSERT_FALSE(hasPanicked());                                                                                   \
     } while (false)
 
 #define ASSERT_PANIC()                                                                                                 \
     do                                                                                                                 \
     {                                                                                                                  \
-        ASSERT_TRUE(err::hasPanicked());                                                                               \
+        ASSERT_TRUE(hasPanicked());                                                                                    \
     } while (false)
 
 class ErrorHandlingUseCase_test : public Test
@@ -58,7 +58,7 @@ class ErrorHandlingUseCase_test : public Test
   public:
     void SetUp() override
     {
-        err::resetPanic();
+        resetPanic();
     }
 
     void TearDown() override
@@ -91,14 +91,14 @@ expected<int, Error> f2(int x)
     if (x <= 0)
     {
         // create recoverable error
-        auto err = IOX_ERROR(Code::Unknown);
+        auto e = IOX_ERROR(Code::Unknown);
 
         // alternatively this could provide us the error as return
-        IOX_REPORT(err, RUNTIME_ERROR);
+        IOX_REPORT(e, RUNTIME_ERROR);
 
         // expected is fairly inconvenient due to lack of conversions etc.
         // this can be fixed
-        return error<Error>(err);
+        return error<Error>(e);
     }
 
     return success<int>(x);
@@ -119,14 +119,14 @@ expected<int, AnotherError> f3(int x)
     {
         // optional report
         // TODO: overload for expected
-        auto err = y.get_error();
-        // IOX_REPORT(err, RUNTIME_ERROR);
+        auto e = y.get_error();
+        // IOX_REPORT(, RUNTIME_ERROR);
         IOX_REPORT(y, RUNTIME_ERROR);
 
         // transform error (transformation must exist)
-        return error<AnotherError>(AnotherError(err));
+        return error<AnotherError>(AnotherError(e));
         // cannot deduce argument as is
-        //   bad - return error(AnotherError(err));
+        //   bad - return error(AnotherError(e));
     }
 
     // verbose expected syntax
@@ -259,8 +259,8 @@ int f9(int x)
 {
     // preconditions are OK
 
-    auto err = IOX_ERROR(Code::OutOfMemory);
-    IOX_REQUIRE(x > 0, err);
+    auto e = IOX_ERROR(Code::OutOfMemory);
+    IOX_REQUIRE(x > 0, e);
 
     return x;
 }
