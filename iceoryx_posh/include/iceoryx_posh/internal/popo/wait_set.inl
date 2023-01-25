@@ -17,6 +17,8 @@
 #ifndef IOX_POSH_POPO_WAIT_SET_INL
 #define IOX_POSH_POPO_WAIT_SET_INL
 
+#include "iceoryx_posh/popo/wait_set.hpp"
+
 namespace iox
 {
 namespace popo
