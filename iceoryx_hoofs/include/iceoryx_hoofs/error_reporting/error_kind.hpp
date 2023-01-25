@@ -116,13 +116,13 @@ bool constexpr requiresHandling(DebugAssertViolation)
     return true;
 }
 
-// shall indicate serious condition, unable to continue
+// indicates serious condition, unable to continue
 constexpr Fatal FATAL;
 
-// shall indicate a bug (contract breach by caller)
+// indicates a bug (contract breach by caller)
 constexpr PreconditionViolation PRECONDITION_VIOLATION;
 
-// shall indicate a bug (contract breach by callee)
+// indicates a bug (contract breach by callee)
 constexpr DebugAssertViolation DEBUG_ASSERT_VIOLATION;
 
 } // namespace err

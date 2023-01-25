@@ -20,9 +20,7 @@ template <typename Kind>
 class ErrorProxy final
 {
   public:
-    ErrorProxy()
-    {
-    }
+    ErrorProxy() = default;
 
     template <class Error>
     ErrorProxy(const SourceLocation& location, Kind kind, Error error)
@@ -66,11 +64,11 @@ class ErrorProxy final
   private:
 };
 
-// can we sensibly make this static?
 template <class Kind, class Error>
 auto createProxy(const SourceLocation& location, Kind kind, const Error& error)
 {
     return ErrorProxy<Kind>(location, kind, error);
 }
+
 } // namespace err
 } // namespace iox
