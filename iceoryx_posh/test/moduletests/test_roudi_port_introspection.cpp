@@ -82,8 +82,8 @@ class PortIntrospection_test : public Test
 
     bool comparePortData(const iox::roudi::SubscriberPortData& a, const iox::roudi::SubscriberPortData& b)
     {
-        auto nameA = iox::cxx::into<std::string>(a.m_name);
-        auto nameB = iox::cxx::into<std::string>(b.m_name);
+        auto nameA = iox::into<std::string>(a.m_name);
+        auto nameB = iox::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {
@@ -111,8 +111,8 @@ class PortIntrospection_test : public Test
 
     bool comparePortData(const iox::roudi::PublisherPortData& a, const iox::roudi::PublisherPortData& b)
     {
-        auto nameA = iox::cxx::into<std::string>(a.m_name);
-        auto nameB = iox::cxx::into<std::string>(b.m_name);
+        auto nameA = iox::into<std::string>(a.m_name);
+        auto nameB = iox::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {

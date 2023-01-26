@@ -22,7 +22,6 @@
 
 #include <cstring>
 #include <iostream>
-#include <type_traits>
 
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
@@ -149,69 +148,6 @@ bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
 /// @param[in] name the string which may contain a path separator at the end
 template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
-
-/// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This function needs to
-/// be specialized by the user for the types to be converted.
-/// @code
-/// enum class LowLevel
-/// {
-///     FileDescriptorInvalid,
-///     FileDescriptorCorrupt,
-///     Timeout
-/// };
-///
-/// enum class HighLevel
-/// {
-///     FileDescriptorError,
-///     Timeout
-/// };
-///
-/// namespace iox
-/// {
-/// namespace cxx
-/// {
-/// template <>
-/// constexpr HighLevel from<LowLevel, HighLevel>(LowLevel e) noexcept
-/// {
-///     switch (e)
-///     {
-///     case LowLevel::FileDescriptorCorrupt:
-///         return HighLevel::FileDescriptorError;
-///     case LowLevel::FileDescriptorInvalid:
-///         return HighLevel::FileDescriptorError;
-///     case LowLevel::Timeout:
-///         return HighLevel::Timeout;
-///     }
-/// }
-/// } // namespace cxx
-/// } // namespace iox
-/// @endcode
-/// @tparam SourceType is the 'from' type
-/// @tparam DestinationType is the 'to' type
-/// @param[in] value of type SourceType to convert to DestinationType
-/// @return converted value of SourceType to corresponding value of DestinationType
-template <typename SourceType, typename DestinationType>
-constexpr DestinationType from(const SourceType value);
-
-// Using a struct as impl, as free functions do not support partially specialized templates
-template <typename SourceType, typename DestinationType>
-struct FromImpl
-{
-    static DestinationType fromImpl(const SourceType& value);
-};
-
-/// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
-/// function which is automatically available when `from` is implemented. This function shall therefore not be
-/// specialized but always the `from` function.
-/// @code
-/// Bar b = iox::cxx::into<Bar>(Foo::ENUM_VALUE);
-/// @endcode
-/// @tparam DestinationType is the 'to' type
-/// @tparam SourceType is the 'from' type
-/// @param[in] value of type SourceType to convert to DestinationType
-/// @return converted value of SourceType to corresponding value of DestinationType
-template <typename DestinationType, typename SourceType>
-constexpr DestinationType into(const SourceType value);
 } // namespace cxx
 } // namespace iox
 

@@ -23,6 +23,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox;
 
 
 template <typename T>

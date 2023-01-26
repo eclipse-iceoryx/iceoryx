@@ -51,6 +51,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
+                                ${PROJECT_SOURCE_DIR}/utility/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -58,6 +59,7 @@ iox_add_library(
                                 memory/include/
                                 container/include/
                                 vocabulary/include/
+                                utility/include/
     FILES
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp

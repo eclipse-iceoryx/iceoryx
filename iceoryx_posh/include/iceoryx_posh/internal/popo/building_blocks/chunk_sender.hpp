@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/expected.hpp"
+#include "iox/into.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -43,12 +43,9 @@ enum class AllocationError
 };
 } // namespace popo
 
-namespace cxx
-{
 template <>
 constexpr popo::AllocationError
 from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error);
-} // namespace cxx
 
 namespace popo
 {

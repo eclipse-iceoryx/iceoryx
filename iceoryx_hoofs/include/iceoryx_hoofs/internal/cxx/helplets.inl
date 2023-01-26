@@ -169,27 +169,6 @@ inline bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcep
     }
     return false;
 }
-
-template <typename SourceType, typename DestinationType>
-inline constexpr DestinationType from(const SourceType value)
-{
-    return FromImpl<SourceType, DestinationType>::fromImpl(value);
-}
-
-
-template <typename SourceType, typename DestinationType>
-inline DestinationType FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&)
-{
-    static_assert(always_false_v<SourceType> && always_false_v<DestinationType>,
-                  "Conversion for the specified types is not implemented!\
-    Please specialize 'template <typename SourceType, typename DestinationType> constexpr DestinationType FromImpl::fromImpl(const SourceType&) noexcept'!");
-}
-
-template <typename DestinationType, typename SourceType>
-inline constexpr DestinationType into(const SourceType value)
-{
-    return from<SourceType, DestinationType>(value);
-}
 } // namespace cxx
 } // namespace iox
 

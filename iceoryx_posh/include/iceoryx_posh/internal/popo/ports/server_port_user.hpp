@@ -58,12 +58,9 @@ inline std::ostream& operator<<(std::ostream& stream, ServerRequestResult value)
 inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult value) noexcept;
 } // namespace popo
 
-namespace cxx
-{
 template <>
 constexpr popo::ServerRequestResult
 from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value);
-} // namespace cxx
 
 namespace popo
 {

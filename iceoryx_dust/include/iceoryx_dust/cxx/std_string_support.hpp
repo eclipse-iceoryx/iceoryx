@@ -16,14 +16,12 @@
 #ifndef IOX_DUST_STD_STRING_SUPPORT_HPP
 #define IOX_DUST_STD_STRING_SUPPORT_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
+#include "iox/into.hpp"
+#include "iox/string.hpp"
 
 #include <string>
 
 namespace iox
-{
-namespace cxx
 {
 template <uint64_t N>
 struct FromImpl<string<N>, std::string>
@@ -36,7 +34,6 @@ struct FromImpl<std::string, string<N>>
 {
     static string<N> fromImpl(const std::string& value) noexcept;
 };
-} // namespace cxx
 } // namespace iox
 
 #include "iceoryx_dust/internal/cxx/std_string_support.inl"

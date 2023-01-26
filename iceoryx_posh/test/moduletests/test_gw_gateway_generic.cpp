@@ -148,9 +148,9 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
@@ -168,9 +168,9 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
+                                           iox::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }

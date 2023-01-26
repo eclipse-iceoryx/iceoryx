@@ -173,7 +173,7 @@ void RouDi::processRuntimeMessages() noexcept
         if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            RuntimeName_t runtimeName{cxx::into<RuntimeName_t>(message.getElementAtIndex(1))};
+            RuntimeName_t runtimeName{into<RuntimeName_t>(message.getElementAtIndex(1))};
 
             processMessage(message, cmd, runtimeName);
         }
@@ -389,10 +389,10 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             capro::Interfaces interface =
-                StringToCaProInterface(cxx::into<capro::IdString_t>(message.getElementAtIndex(2)));
+                StringToCaProInterface(into<capro::IdString_t>(message.getElementAtIndex(2)));
 
             m_prcMgr->addInterfaceForProcess(
-                runtimeName, interface, cxx::into<NodeName_t>(message.getElementAtIndex(3)));
+                runtimeName, interface, into<NodeName_t>(message.getElementAtIndex(3)));
         }
         break;
     }

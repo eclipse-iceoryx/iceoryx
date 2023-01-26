@@ -906,7 +906,7 @@
 
     std::string myStdString("foo");
     // std::string to iox::string
-    iox::string<3> myIoxString = iox::cxx::into<iox::string<3>>(myStdString);
+    iox::string<3> myIoxString = iox::into<iox::string<3>>(myStdString);
     // iox::string to std::string
-    std::string myConvertedIoxString = iox::cxx::into<std::string>(myIoxString);
+    std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
     ```
