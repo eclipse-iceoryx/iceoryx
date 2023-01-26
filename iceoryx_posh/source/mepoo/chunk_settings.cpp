@@ -45,7 +45,7 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32
     uint32_t adjustedUserPayloadAlignment = userPayloadAlignment == 0U ? 1U : userPayloadAlignment;
     uint32_t adjustedUserHeaderAlignment = userHeaderAlignment == 0U ? 1U : userHeaderAlignment;
 
-    if (!cxx::isPowerOfTwo(adjustedUserPayloadAlignment) || !cxx::isPowerOfTwo(adjustedUserHeaderAlignment))
+    if (!algorithm::isPowerOfTwo(adjustedUserPayloadAlignment) || !algorithm::isPowerOfTwo(adjustedUserHeaderAlignment))
     {
         return error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
     }
