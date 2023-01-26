@@ -73,9 +73,11 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 
 | class                 | internal | description                                                                                                                                                                                                                                |
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. |                                           |
-|`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                     |
-|`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                            |
+|`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time.      |
+|`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                          |
+|`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                                 |
+|`into`                 | i        |                                                                                                                                                                                                                                            |
+|`pageSize`             | i        |                                                                                                                                                                                                                                            |
 
 ### Primitives (primitives)
 
