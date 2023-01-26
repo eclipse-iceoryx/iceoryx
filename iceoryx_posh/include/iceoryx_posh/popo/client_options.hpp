@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 
 #include <cstdint>
 

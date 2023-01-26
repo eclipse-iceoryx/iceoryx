@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iox/variant.hpp"
 

@@ -21,7 +21,7 @@
 #include "iox/expected.hpp"
 #include "port_queue_policies.hpp"
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 
 #include <cstdint>
 

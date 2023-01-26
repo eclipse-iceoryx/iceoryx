@@ -15,8 +15,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_CONVERT_HPP
-#define IOX_HOOFS_CXX_CONVERT_HPP
+#ifndef IOX_DUST_CXX_CONVERT_HPP
+#define IOX_DUST_CXX_CONVERT_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/string.hpp"
@@ -105,6 +105,6 @@ class convert
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/convert.inl"
+#include "iceoryx_dust/internal/cxx/convert.inl"
 
-#endif // IOX_HOOFS_CXX_CONVERT_HPP
+#endif // IOX_DUST_CXX_CONVERT_HPP

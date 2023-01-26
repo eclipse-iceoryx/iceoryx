@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
