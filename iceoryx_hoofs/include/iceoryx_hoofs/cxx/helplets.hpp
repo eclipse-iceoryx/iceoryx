@@ -24,7 +24,6 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
-#include <limits>
 #include <type_traits>
 
 #include "iceoryx_platform/platform_correction.hpp"
@@ -39,30 +38,6 @@ namespace cxx
 {
 namespace internal
 {
-/// @brief struct to find the best fitting unsigned integer type
-template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
-struct BestFittingTypeImpl
-{
-    using Type_t = uint64_t;
-};
-
-template <>
-struct BestFittingTypeImpl<false, false, false>
-{
-    using Type_t = uint8_t;
-};
-
-template <>
-struct BestFittingTypeImpl<true, false, false>
-{
-    using Type_t = uint16_t;
-};
-
-template <>
-struct BestFittingTypeImpl<true, true, false>
-{
-    using Type_t = uint32_t;
-};
 // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Not used as an integer but as actual character.
 constexpr char ASCII_A{'a'};
 constexpr char ASCII_Z{'z'};
@@ -216,22 +191,6 @@ static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityVal
 {
     return CapacityValue;
 }
-
-/// @brief get the best fitting unsigned integer type for a given value at compile time
-template <uint64_t Value>
-struct BestFittingType
-{
-/// ignore the warnings because we need the comparisons to find the best fitting type
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wtype-limits"
-    using Type_t = typename internal::BestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
-                                                          (Value > std::numeric_limits<uint16_t>::max()),
-                                                          (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
-#pragma GCC diagnostic pop
-};
-
-template <uint64_t Value>
-using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 
 /// @brief Returns info whether called on a 32-bit system
 /// @return True if called on 32-bit, false if not 32-bit system

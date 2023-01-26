@@ -155,66 +155,6 @@ TEST_F(Helplets_test, ArrayCapacityReturnsCorrectValues)
     EXPECT_EQ(iox::cxx::arrayCapacity(SUT), CAPACITY);
 }
 
-TEST_F(Helplets_test, BestFittingTypeUsesUint8WhenValueSmaller256)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6704aaf9-c0a4-495c-8128-15c126cbcd9b");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<123U>, uint8_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint8WhenValueEqualTo255)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "10bbca50-95a7-436b-ab54-43b37cc7048f");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<255U>, uint8_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueEqualTo256)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "d67306ff-c0cc-4769-9160-ef14e9f482dc");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<256U>, uint16_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueBetween256And65535)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "ff50f669-d9d3-454f-9994-a4dd3a19029d");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<8172U>, uint16_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint16WhenValueEqualTo65535)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "b71d99b4-bd4e-46d6-8b22-6e796b611824");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<65535U>, uint16_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueEqualTo65536)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "fe53df8e-a797-4547-8503-0ff5850ab22e");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<65536U>, uint32_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueBetween2p16And2p32)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f07b1301-faf1-4945-aab0-a7af0ac967d7");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<81721U>, uint32_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueEqualTo4294967295)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f63335ef-c29f-49f0-bd77-ea9a548ef9fa");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<4294967295U>, uint32_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint64WhenValueEqualTo4294967296)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "23f6ff5c-4cad-440c-839f-bd6cde5fa5d4");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<4294967296U>, uint64_t>::value));
-}
-
-TEST_F(Helplets_test, BestFittingTypeUsesUint32WhenValueGreater2p32)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8fddfb4c-0efb-4b21-9b15-8f49af779f84");
-    EXPECT_TRUE((std::is_same<BestFittingType_t<42949672961U>, uint64_t>::value));
-}
-
 template <class T>
 class Helplets_test_isPowerOfTwo : public Helplets_test
 {

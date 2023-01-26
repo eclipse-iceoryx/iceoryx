@@ -18,9 +18,10 @@
 #define IOX_HOOFS_CXX_ALGORITHM_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <cstdint>
-#include <type_traits>
+#include <limits>
 
 namespace iox
 {
@@ -115,6 +116,49 @@ inline constexpr bool doesContainValue(const T) noexcept;
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
+
+namespace internal
+{
+/// @brief struct to find the best fitting unsigned integer type
+template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
+struct BestFittingTypeImpl
+{
+    using Type_t = uint64_t;
+};
+
+template <>
+struct BestFittingTypeImpl<false, false, false>
+{
+    using Type_t = uint8_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, false, false>
+{
+    using Type_t = uint16_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, true, false>
+{
+    using Type_t = uint32_t;
+};
+} // namespace internal
+/// @brief get the best fitting unsigned integer type for a given value at compile time
+template <uint64_t Value>
+struct BestFittingType
+{
+/// ignore the warnings because we need the comparisons to find the best fitting type
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+    using Type_t = typename internal::BestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
+                                                          (Value > std::numeric_limits<uint16_t>::max()),
+                                                          (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
+#pragma GCC diagnostic pop
+};
+
+template <uint64_t Value>
+using BestFittingType_t = typename BestFittingType<Value>::Type_t;
 } // namespace algorithm
 } // namespace iox
 
