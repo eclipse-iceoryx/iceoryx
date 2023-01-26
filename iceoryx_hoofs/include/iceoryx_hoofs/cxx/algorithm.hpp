@@ -18,6 +18,7 @@
 #define IOX_HOOFS_CXX_ALGORITHM_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <cstdint>
@@ -159,6 +160,56 @@ struct BestFittingType
 
 template <uint64_t Value>
 using BestFittingType_t = typename BestFittingType<Value>::Type_t;
+
+template <typename T, T Minimum>
+struct greater_or_equal
+{
+  public:
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but which never can be less
+    // than Minimum. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    greater_or_equal(T t) noexcept
+        : m_value(t)
+    {
+        cxx::Expects(t >= Minimum);
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
+    // which never can be less than Minimum. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    constexpr operator T() const noexcept
+    {
+        return m_value;
+    }
+
+  private:
+    T m_value;
+};
+
+template <typename T, T Minimum, T Maximum>
+struct range
+{
+  public:
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but with values only in
+    // range [Minimum, Maximum] Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    range(T t) noexcept
+        : m_value(t)
+    {
+        cxx::Expects((t >= Minimum) && (t <= Maximum));
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but
+    // with values only in range [Minimum, Maximum]. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    constexpr operator T() const noexcept
+    {
+        return m_value;
+    }
+
+  private:
+    T m_value;
+};
 } // namespace algorithm
 } // namespace iox
 

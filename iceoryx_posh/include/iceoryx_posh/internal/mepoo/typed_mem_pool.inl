@@ -27,7 +27,7 @@ namespace iox
 namespace mepoo
 {
 template <typename T>
-inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+inline TypedMemPool<T>::TypedMemPool(const algorithm::greater_or_equal<uint32_t, 1> numberOfChunks,
                                      BumpAllocator& managementAllocator,
                                      BumpAllocator& chunkMemoryAllocator) noexcept
     : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)

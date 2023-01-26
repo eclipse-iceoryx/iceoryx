@@ -50,8 +50,8 @@ class MemPool
     using freeList_t = concurrent::LoFFLi;
     static constexpr uint64_t CHUNK_MEMORY_ALIGNMENT = 8U; // default alignment for 64 bit
 
-    MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
-            const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+    MemPool(const algorithm::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
+            const algorithm::greater_or_equal<uint32_t, 1> numberOfChunks,
             iox::BumpAllocator& managementAllocator,
             iox::BumpAllocator& chunkMemoryAllocator) noexcept;
 

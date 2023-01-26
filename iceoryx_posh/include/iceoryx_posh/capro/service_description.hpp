@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp" // range
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
@@ -87,8 +87,8 @@ class ServiceDescription
     {
         ClassHash() noexcept;
         ClassHash(const std::initializer_list<uint32_t>& values) noexcept;
-        uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept;
-        const uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept;
+        uint32_t& operator[](iox::algorithm::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept;
+        const uint32_t& operator[](iox::algorithm::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept;
         bool operator==(const ClassHash& rhs) const noexcept;
         bool operator!=(const ClassHash& rhs) const noexcept;
 

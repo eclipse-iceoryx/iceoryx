@@ -77,56 +77,6 @@ struct not_null
     T m_value;
 };
 
-template <typename T, T Minimum>
-struct greater_or_equal
-{
-  public:
-    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but which never can be less
-    // than Minimum. Adding explicit would defeat the purpose.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    greater_or_equal(T t) noexcept
-        : m_value(t)
-    {
-        Expects(t >= Minimum);
-    }
-
-    // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
-    // which never can be less than Minimum. Adding explicit would defeat the purpose.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    constexpr operator T() const noexcept
-    {
-        return m_value;
-    }
-
-  private:
-    T m_value;
-};
-
-template <typename T, T Minimum, T Maximum>
-struct range
-{
-  public:
-    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but with values only in
-    // range [Minimum, Maximum] Adding explicit would defeat the purpose.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    range(T t) noexcept
-        : m_value(t)
-    {
-        Expects((t >= Minimum) && (t <= Maximum));
-    }
-
-    // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but
-    // with values only in range [Minimum, Maximum]. Adding explicit would defeat the purpose.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    constexpr operator T() const noexcept
-    {
-        return m_value;
-    }
-
-  private:
-    T m_value;
-};
-
 /// @note value + alignment - 1 must not exceed the maximum value for type T
 /// @note alignment must be a power of two
 template <typename T>
