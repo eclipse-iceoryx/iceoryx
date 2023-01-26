@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_PUBLISHER_OPTIONS_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
 #include "port_queue_policies.hpp"
 
 #include "iceoryx_hoofs/cxx/serialization.hpp"
