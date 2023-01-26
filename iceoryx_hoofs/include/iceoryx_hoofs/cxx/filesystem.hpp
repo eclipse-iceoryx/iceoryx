@@ -16,6 +16,8 @@
 #ifndef IOX_HOOFS_CXX_FILESYSTEM_HPP
 #define IOX_HOOFS_CXX_FILESYSTEM_HPP
 
+#include "iox/string.hpp"
+
 #include <cstdint>
 #include <type_traits>
 
@@ -23,6 +25,72 @@ namespace iox
 {
 namespace cxx
 {
+namespace internal
+{
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1: Not used as an integer but as actual character.
+constexpr char ASCII_A{'a'};
+constexpr char ASCII_Z{'z'};
+constexpr char ASCII_CAPITAL_A{'A'};
+constexpr char ASCII_CAPITAL_Z{'Z'};
+constexpr char ASCII_0{'0'};
+constexpr char ASCII_9{'9'};
+constexpr char ASCII_MINUS{'-'};
+constexpr char ASCII_DOT{'.'};
+constexpr char ASCII_COLON{':'};
+constexpr char ASCII_UNDERSCORE{'_'};
+} // namespace internal
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
+
+enum class RelativePathComponents : std::uint32_t
+{
+    REJECT,
+    ACCEPT
+};
+
+/// @brief checks if the given string is a valid path entry. A path entry is the string between
+///        two path separators.
+/// @note A valid path entry for iceoryx must be platform independent and also supported
+///       by various file systems. The file systems we intend to support are
+///         * linux: ext3, ext4, btrfs
+///         * windows: ntfs, exfat, fat
+///         * freebsd: ufs, ffs
+///         * apple: apfs
+///         * qnx: etfs
+///         * android: ext3, ext4, fat
+///
+///       Sometimes it is also possible that a certain file character is supported by the filesystem
+///       itself but not by the platforms SDK. One example are files which end with a dot like "myFile."
+///       which are supported by ntfs but not by the Windows SDK.
+/// @param[in] name the path entry in question
+/// @param[in] relativePathComponents are relative path components are allowed for this path entry
+/// @return true if it is valid, otherwise false
+template <uint64_t StringCapacity>
+bool isValidPathEntry(const string<StringCapacity>& name, const RelativePathComponents relativePathComponents) noexcept;
+
+/// @brief checks if the given string is a valid filename. It must fulfill the
+///        requirements of a valid path entry (see, isValidPathEntry) and is not allowed
+///        to contain relative path components
+/// @param[in] name the string to verify
+/// @return true if the string is a filename, otherwise false
+template <uint64_t StringCapacity>
+bool isValidFileName(const string<StringCapacity>& name) noexcept;
+
+/// @brief verifies if the given string is a valid path to a file
+/// @param[in] name the string to verify
+/// @return true if the string is a path to a file, otherwise false
+template <uint64_t StringCapacity>
+bool isValidPathToFile(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name is a valid path, otherwise false
+/// @param[in] name the string to verify
+template <uint64_t StringCapacity>
+bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
+
+/// @brief returns true if the provided name ends with a path separator, otherwise false
+/// @param[in] name the string which may contain a path separator at the end
+template <uint64_t StringCapacity>
+bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
+
 /// @brief this enum class implements the filesystem perms feature of C++17. The
 ///        API is identical to the C++17 one so that the class can be removed
 ///        as soon as iceoryx switches to C++17.

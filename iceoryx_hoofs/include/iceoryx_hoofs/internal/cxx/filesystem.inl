@@ -22,6 +22,154 @@ namespace iox
 {
 namespace cxx
 {
+template <uint64_t StringCapacity>
+inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
+                             const RelativePathComponents relativePathComponents) noexcept
+{
+    const iox::string<StringCapacity> currentDirectory{"."};
+    const iox::string<StringCapacity> parentDirectory{".."};
+
+    if ((name == currentDirectory) || (name == parentDirectory))
+    {
+        return relativePathComponents == RelativePathComponents::ACCEPT;
+    }
+
+    const auto nameSize = name.size();
+
+    for (uint64_t i{0}; i < nameSize; ++i)
+    {
+        // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
+        const char c{name[i]};
+
+        const bool isSmallLetter{(internal::ASCII_A <= c) && (c <= internal::ASCII_Z)};
+        const bool isCapitalLetter{(internal::ASCII_CAPITAL_A <= c) && (c <= internal::ASCII_CAPITAL_Z)};
+        const bool isNumber{(internal::ASCII_0 <= c) && (c <= internal::ASCII_9)};
+        const bool isSpecialCharacter{((c == internal::ASCII_MINUS) || (c == internal::ASCII_DOT))
+                                      || ((c == internal::ASCII_COLON) || (c == internal::ASCII_UNDERSCORE))};
+
+        if ((!isSmallLetter && !isCapitalLetter) && (!isNumber && !isSpecialCharacter))
+        {
+            return false;
+        }
+    }
+
+    if (nameSize == 0)
+    {
+        return true;
+    }
+
+    // dot at the end is invalid to be compatible with windows api
+    return !(name[nameSize - 1] == '.');
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidFileName(const iox::string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    // check if the file contains only valid characters
+    return isValidPathEntry(name, RelativePathComponents::REJECT);
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidPathToFile(const iox::string<StringCapacity>& name) noexcept
+{
+    if (doesEndWithPathSeparator(name))
+    {
+        return false;
+    }
+
+    iox::string<StringCapacity> filePart{name};
+    iox::string<StringCapacity> pathPart;
+
+    name.find_last_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(TruncateToCapacity,
+                                                                           &platform::IOX_PATH_SEPARATORS[0],
+                                                                           platform::IOX_NUMBER_OF_PATH_SEPARATORS))
+        .and_then([&](auto position) {
+            name.substr(position + 1).and_then([&filePart](auto& s) { filePart = s; });
+            name.substr(0, position).and_then([&pathPart](auto& s) { pathPart = s; });
+        });
+
+    return (pathPart.empty() || isValidPathToDirectory(pathPart)) && isValidFileName(filePart);
+}
+
+template <uint64_t StringCapacity>
+inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+
+    auto temp = name;
+
+    const iox::string<StringCapacity> currentDirectory{"."};
+    const iox::string<StringCapacity> parentDirectory{".."};
+
+    while (!temp.empty())
+    {
+        auto separatorPosition = temp.find_first_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
+            TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
+
+        // multiple slashes are explicitly allowed. the following paths
+        // are equivalent:
+        // /some/fuu/bar
+        // //some///fuu////bar
+        if (separatorPosition && (*separatorPosition == 0))
+        {
+            temp.substr(*separatorPosition + 1).and_then([&temp](auto& s) { temp = s; });
+            continue;
+        }
+
+        // verify if the entry between two path separators is a valid directory
+        // name, e.g. either it has the relative component . or .. or conforms
+        // with a valid file name
+        if (separatorPosition)
+        {
+            auto filenameToVerify = temp.substr(0, *separatorPosition);
+            bool isValidDirectory{
+                (isValidFileName(*filenameToVerify))
+                || ((*filenameToVerify == currentDirectory) || (*filenameToVerify == parentDirectory))};
+            if (!isValidDirectory)
+            {
+                return false;
+            }
+
+            temp.substr(*separatorPosition + 1).and_then([&temp](auto& s) { temp = s; });
+        }
+        // we reached the last entry, if its a valid file name the path is valid
+        else
+        {
+            return isValidPathEntry(temp, RelativePathComponents::ACCEPT);
+        }
+    }
+
+    return true;
+}
+
+template <uint64_t StringCapacity>
+inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) noexcept
+{
+    if (name.empty())
+    {
+        return false;
+    }
+    // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
+    char lastCharacter{name[name.size() - 1U]};
+
+    for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
+    {
+        if (lastCharacter == separator)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 constexpr perms operator|(const perms lhs, const perms rhs) noexcept
 {
     using T = std::underlying_type<perms>::type;
