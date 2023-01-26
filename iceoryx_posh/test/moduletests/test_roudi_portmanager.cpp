@@ -597,8 +597,8 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
         // this is done because there is no removeInterfaceData method in the PortManager class
         m_portManager->deletePortsOfProcess(iox::into<iox::RuntimeName_t>(newProcessName));
 
-        auto interfacePort = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::into<iox::RuntimeName_t>(newProcessName));
+        auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,
+                                                                     iox::into<iox::RuntimeName_t>(newProcessName));
         EXPECT_NE(interfacePort, nullptr);
     }
 }

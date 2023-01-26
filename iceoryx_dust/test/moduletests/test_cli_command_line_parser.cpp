@@ -893,8 +893,7 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         OptionDefinition optionSet("");
         for (const auto& o : optionsToRegister)
         {
-            optionSet.addOptional(
-                o[0], iox::into<OptionName_t>(o), "", "int", CommandLineParser_test::defaultValue);
+            optionSet.addOptional(o[0], iox::into<OptionName_t>(o), "", "int", CommandLineParser_test::defaultValue);
         }
         for (const auto& s : switchesToRegister)
         {

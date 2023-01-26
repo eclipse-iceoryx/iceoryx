@@ -103,8 +103,8 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
         // the user has the option to further partition the chunk-payload with
         // a user-header and therefore reduce the user-payload size
         memorySize += align(static_cast<uint64_t>(mempoolConfig.m_chunkCount)
-                                     * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size),
-                                 MemPool::CHUNK_MEMORY_ALIGNMENT);
+                                * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size),
+                            MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
     return memorySize;
 }
@@ -116,13 +116,12 @@ uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooCon
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
-        memorySize += align(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount),
-                                 MemPool::CHUNK_MEMORY_ALIGNMENT);
+        memorySize +=
+            align(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount), MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
 
     memorySize += align(sumOfAllChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
-    memorySize +=
-        align(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    memorySize += align(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks), MemPool::CHUNK_MEMORY_ALIGNMENT);
 
     return memorySize;
 }

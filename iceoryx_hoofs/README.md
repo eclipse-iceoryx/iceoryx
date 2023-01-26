@@ -69,13 +69,11 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`function`             |          | A stack-based `std::function` replacement based on `storable_function`                                                                                                                                                                 |
 |`function_ref`         |          | C++11 implementation of the next-gen C++ feature `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
 
-### Utility (utility?)
+### Utility (utility)
 
 | class                 | internal | description                                                                                                                                                                                                                                |
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
-|`convert`              |          | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
-|`serialization`        |          | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format).                                                       |
+|`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. |                                           |
 |`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                     |
 |`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                            |
 

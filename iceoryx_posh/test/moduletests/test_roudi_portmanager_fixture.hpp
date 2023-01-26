@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -145,8 +145,8 @@ class PortManager_test : public Test
         for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto interfacePort = m_portManager->acquireInterfacePortData(
-                iox::capro::Interfaces::INTERNAL, iox::into<iox::RuntimeName_t>(newProcessName));
+            auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,
+                                                                         iox::into<iox::RuntimeName_t>(newProcessName));
             ASSERT_NE(interfacePort, nullptr);
             if (f)
             {
@@ -162,8 +162,7 @@ class PortManager_test : public Test
         for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto condVar =
-                m_portManager->acquireConditionVariableData(iox::into<iox::RuntimeName_t>(newProcessName));
+            auto condVar = m_portManager->acquireConditionVariableData(iox::into<iox::RuntimeName_t>(newProcessName));
             ASSERT_FALSE(condVar.has_error());
             if (f)
             {

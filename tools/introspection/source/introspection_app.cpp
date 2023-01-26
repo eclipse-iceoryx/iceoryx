@@ -394,16 +394,15 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             needsLineBreak = false;
             wprintw(pad,
                     " %s |",
-                    printEntry(serviceWidth, iox::into<std::string>(publisherPort.portData->m_caproServiceID))
-                        .c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(instanceWidth, iox::into<std::string>(publisherPort.portData->m_caproInstanceID))
-                        .c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(eventWidth, iox::into<std::string>(publisherPort.portData->m_caproEventMethodID))
-                        .c_str());
+                    printEntry(serviceWidth, iox::into<std::string>(publisherPort.portData->m_caproServiceID)).c_str());
+            wprintw(
+                pad,
+                " %s |",
+                printEntry(instanceWidth, iox::into<std::string>(publisherPort.portData->m_caproInstanceID)).c_str());
+            wprintw(
+                pad,
+                " %s |",
+                printEntry(eventWidth, iox::into<std::string>(publisherPort.portData->m_caproEventMethodID)).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(runtimeNameWidth, iox::into<std::string>(publisherPort.portData->m_name)).c_str());
@@ -476,24 +475,20 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         do
         {
             needsLineBreak = false;
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(serviceWidth, iox::into<std::string>(subscriber.portData->m_caproServiceID)).c_str());
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(instanceWidth, iox::into<std::string>(subscriber.portData->m_caproInstanceID)).c_str());
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(eventWidth, iox::into<std::string>(subscriber.portData->m_caproEventMethodID)).c_str());
+            wprintw(pad,
+                    " %s |",
+                    printEntry(serviceWidth, iox::into<std::string>(subscriber.portData->m_caproServiceID)).c_str());
+            wprintw(pad,
+                    " %s |",
+                    printEntry(instanceWidth, iox::into<std::string>(subscriber.portData->m_caproInstanceID)).c_str());
+            wprintw(pad,
+                    " %s |",
+                    printEntry(eventWidth, iox::into<std::string>(subscriber.portData->m_caproEventMethodID)).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(runtimeNameWidth, iox::into<std::string>(subscriber.portData->m_name)).c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(nodeNameWidth, iox::into<std::string>(subscriber.portData->m_node)).c_str());
+            wprintw(
+                pad, " %s |", printEntry(nodeNameWidth, iox::into<std::string>(subscriber.portData->m_node)).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,

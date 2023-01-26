@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
@@ -302,12 +302,11 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
         std::string instance = "instance" + cxx::convert::toString(i);
         RuntimeName_t applicationName = iox::into<RuntimeName_t>("AppName" + cxx::convert::toString(i));
 
-        ASSERT_FALSE(
-            sut.addPublisherPort({iox::into<IdString_t>(service), iox::into<IdString_t>(instance), "foo"},
-                                 &m_memoryManager,
-                                 applicationName,
-                                 m_publisherOptions)
-                .has_error());
+        ASSERT_FALSE(sut.addPublisherPort({iox::into<IdString_t>(service), iox::into<IdString_t>(instance), "foo"},
+                                          &m_memoryManager,
+                                          applicationName,
+                                          m_publisherOptions)
+                         .has_error());
     }
 
     auto publisherPortDataList = sut.getPublisherPortDataList();

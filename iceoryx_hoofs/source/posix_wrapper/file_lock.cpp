@@ -22,7 +22,6 @@
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/unistd.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp" // isValidFileName
 
 #include "iceoryx_platform/platform_correction.hpp"
 

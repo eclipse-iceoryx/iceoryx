@@ -53,8 +53,7 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const noexce
     mempoolConfig.m_mempoolConfig.push_back(
         {align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT),
-         CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
         {align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
          CHUNK_COUNT});

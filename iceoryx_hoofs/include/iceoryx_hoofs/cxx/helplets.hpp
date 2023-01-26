@@ -20,17 +20,11 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iox/string.hpp"
 
-#include <cstring>
-#include <iostream>
-
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 
 namespace iox
 {
-template <uint64_t Capacity>
-class string;
-struct TruncateToCapacity_t;
 namespace cxx
 {
 template <typename T, typename = typename std::enable_if<std::is_pointer<T>::value, void>::type>

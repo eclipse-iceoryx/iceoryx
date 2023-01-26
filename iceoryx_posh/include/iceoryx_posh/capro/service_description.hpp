@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_dust/cxx/serialization.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"

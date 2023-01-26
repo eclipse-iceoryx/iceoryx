@@ -386,6 +386,22 @@ std::string convertToString(const T val)
 }
 
 template <>
+std::string convertToString<float>(const float val)
+{
+    std::stringstream ss;
+    ss << val;
+    return ss.str();
+}
+
+template <>
+std::string convertToString<double>(const double val)
+{
+    std::stringstream ss;
+    ss << val;
+    return ss.str();
+}
+
+template <>
 std::string convertToString<bool>(const bool val)
 {
     return std::string(val ? "true" : "false");
