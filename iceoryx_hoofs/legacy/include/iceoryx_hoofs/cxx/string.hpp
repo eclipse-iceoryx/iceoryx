@@ -40,7 +40,7 @@ using iox::IsCxxStringOrCharArrayOrChar;
 using iox::IsStringOrCharArray;
 /// @deprecated use `iox::IsStringOrCharArrayOrChar` instead of `iox::cxx::IsStringOrCharArrayOrChar`
 using iox::IsStringOrCharArrayOrChar;
-/// @deprecated use `iox::string` instead of `iox::cxx::string`
+/// @deprecated use `iox::string` instead of `iox::string`
 using iox::string;
 /// @deprecated use `iox::TruncateToCapacity` instead of `iox::cxx::TruncateToCapacity`
 using iox::TruncateToCapacity;

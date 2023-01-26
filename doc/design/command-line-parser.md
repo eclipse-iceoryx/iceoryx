@@ -133,7 +133,7 @@ A follow up pull request will address this issue.
 The structure will look like the following (taken from proof of concept):
 ```cpp
 struct Command {
-    cxx::string command;
+    iox::string command;
     cxx::function<void(int, char**)> call;
 };
 
