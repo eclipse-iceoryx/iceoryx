@@ -70,8 +70,8 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
 
         // just in case the memory block doesn't calculate its size as multiple of the alignment
         // this shouldn't be necessary, but also doesn't harm
-        auto size = cxx::align(memoryBlock->size(), alignment);
-        totalSize = cxx::align(totalSize, alignment) + size;
+        auto size = align(memoryBlock->size(), alignment);
+        totalSize = align(totalSize, alignment) + size;
     }
 
     auto memoryResult = createMemory(totalSize, maxAlignment);

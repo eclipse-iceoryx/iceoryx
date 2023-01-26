@@ -24,6 +24,7 @@ namespace
 using namespace ::testing;
 using namespace iox::algorithm;
 using namespace iox::cxx;
+using namespace iox;
 
 class algorithm_test : public Test
 {

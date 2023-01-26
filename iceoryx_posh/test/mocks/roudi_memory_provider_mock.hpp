@@ -46,7 +46,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-        dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
+        dummyMemory = static_cast<uint8_t*>(iox::alignedAlloc(alignment, size));
         return iox::success<void*>(dummyMemory);
     }
 #ifdef __clang__
@@ -65,7 +65,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             destroyMemoryMock();
         }
 
-        iox::cxx::alignedFree(dummyMemory);
+        iox::alignedFree(dummyMemory);
         dummyMemory = nullptr;
 
         return iox::success<void>();

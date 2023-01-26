@@ -39,7 +39,7 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
     const uint64_t memoryManagerSize = sizeof(mepoo::MemoryManager);
-    return cxx::align(memoryManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    return align(memoryManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 

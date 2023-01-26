@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iox/memory.hpp"
+
+#include <cstdlib>
 
 namespace iox
-{
-namespace cxx
 {
 void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
 {
@@ -27,7 +27,7 @@ void* alignedAlloc(const uint64_t alignment, const uint64_t size) noexcept
     // memory is already aligned and we have to do nothing
     // low-level memory management, no other approach then to use malloc to acquire heap memory
     // NOLINTNEXTLINE(cppcoreguidelines-owning-memory,cppcoreguidelines-pro-type-reinterpret-cast,hicpp-no-malloc,cppcoreguidelines-no-malloc)
-    auto memory = reinterpret_cast<uint64_t>(malloc(size + alignment + sizeof(void*) - 1));
+    auto memory = reinterpret_cast<uint64_t>(std::malloc(size + alignment + sizeof(void*) - 1));
     if (memory == 0)
     {
         return nullptr;
@@ -53,8 +53,7 @@ void alignedFree(void* const memory) noexcept
         // NOLINTNEXTLINE(cppcoreguidelines-owning-memory, cppcoreguidelines-no-malloc,
         // cppcoreguidelines-pro-bounds-pointer-arithmetic)
         // NOLINTNEXTLINE
-        free(reinterpret_cast<void**>(memory)[-1]);
+        std::free(reinterpret_cast<void**>(memory)[-1]);
     }
 }
-} // namespace cxx
 } // namespace iox

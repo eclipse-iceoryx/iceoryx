@@ -45,7 +45,7 @@ template <typename T>
 class TypedMemPool
 {
   public:
-    TypedMemPool(const algorithm::greater_or_equal<uint32_t, 1> numberOfChunks,
+    TypedMemPool(const greater_or_equal<uint32_t, 1> numberOfChunks,
                  BumpAllocator& managementAllocator,
                  BumpAllocator& chunkMemoryAllocator) noexcept;
 

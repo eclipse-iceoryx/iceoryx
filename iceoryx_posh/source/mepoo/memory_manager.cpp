@@ -41,8 +41,8 @@ void MemoryManager::printMemPoolVector(log::LogStream& log) const noexcept
 
 void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
                                BumpAllocator& chunkMemoryAllocator,
-                               const algorithm::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
-                               const algorithm::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept
+                               const greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
+                               const greater_or_equal<uint32_t, 1> numberOfChunks) noexcept
 {
     uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(chunkPayloadSize));
     if (m_denyAddMemPool)
@@ -102,7 +102,7 @@ uint64_t MemoryManager::requiredChunkMemorySize(const MePooConfig& mePooConfig) 
         // and the the chunk-payload size is taken into account;
         // the user has the option to further partition the chunk-payload with
         // a user-header and therefore reduce the user-payload size
-        memorySize += cxx::align(static_cast<uint64_t>(mempoolConfig.m_chunkCount)
+        memorySize += align(static_cast<uint64_t>(mempoolConfig.m_chunkCount)
                                      * MemoryManager::sizeWithChunkHeaderStruct(mempoolConfig.m_size),
                                  MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
@@ -116,13 +116,13 @@ uint64_t MemoryManager::requiredManagementMemorySize(const MePooConfig& mePooCon
     for (const auto& mempool : mePooConfig.m_mempoolConfig)
     {
         sumOfAllChunks += mempool.m_chunkCount;
-        memorySize += cxx::align(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount),
+        memorySize += align(MemPool::freeList_t::requiredIndexMemorySize(mempool.m_chunkCount),
                                  MemPool::CHUNK_MEMORY_ALIGNMENT);
     }
 
-    memorySize += cxx::align(sumOfAllChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    memorySize += align(sumOfAllChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
     memorySize +=
-        cxx::align(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks), MemPool::CHUNK_MEMORY_ALIGNMENT);
+        align(MemPool::freeList_t::requiredIndexMemorySize(sumOfAllChunks), MemPool::CHUNK_MEMORY_ALIGNMENT);
 
     return memorySize;
 }

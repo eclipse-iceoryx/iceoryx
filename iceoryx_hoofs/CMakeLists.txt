@@ -64,7 +64,6 @@ iox_add_library(
         source/cxx/deadline_timer.cpp
         source/cxx/filesystem.cpp
         source/cxx/functional_interface.cpp
-        source/cxx/helplets.cpp
         source/cxx/requires.cpp
         source/cxx/type_traits.cpp
         source/cxx/unique_id.cpp
@@ -91,6 +90,7 @@ iox_add_library(
         source/memory/relative_pointer_data.cpp
         source/units/duration.cpp
         memory/source/bump_allocator.cpp
+        memory/source/memory.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

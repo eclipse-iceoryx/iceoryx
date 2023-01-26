@@ -36,7 +36,7 @@ MemPoolSegmentManagerMemoryBlock::~MemPoolSegmentManagerMemoryBlock() noexcept
 uint64_t MemPoolSegmentManagerMemoryBlock::size() const noexcept
 {
     const uint64_t segmentManagerSize = sizeof(mepoo::SegmentManager<>);
-    return cxx::align(segmentManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    return align(segmentManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::SegmentManager<>::requiredManagementMemorySize(m_segmentConfig);
 }
 

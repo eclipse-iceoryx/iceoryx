@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iox/memory.hpp"
 #include "test.hpp"
 
 namespace
@@ -137,7 +137,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    auto result = sut->allocate(cxx::align(memorySize, MEMORY_ALIGNMENT) + 1, 1);
+    auto result = sut->allocate(align(memorySize, MEMORY_ALIGNMENT) + 1, 1);
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::NOT_ENOUGH_MEMORY));
 }
@@ -156,7 +156,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
 
     ASSERT_THAT(sut.has_error(), Eq(false));
 
-    for (uint64_t i = 0; i < cxx::align(memorySize, MEMORY_ALIGNMENT); ++i)
+    for (uint64_t i = 0; i < align(memorySize, MEMORY_ALIGNMENT); ++i)
     {
         auto result = sut->allocate(1, 1);
         ASSERT_THAT(result.has_error(), Eq(false));

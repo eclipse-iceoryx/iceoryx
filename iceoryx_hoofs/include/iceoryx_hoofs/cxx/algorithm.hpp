@@ -117,6 +117,7 @@ inline constexpr bool doesContainValue(const T) noexcept;
 template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
+} // namespace algorithm
 
 namespace internal
 {
@@ -219,7 +220,6 @@ constexpr bool isPowerOfTwo(const T n) noexcept
     static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
     return n && ((n & (n - 1U)) == 0U);
 }
-} // namespace algorithm
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/cxx/algorithm.inl"
