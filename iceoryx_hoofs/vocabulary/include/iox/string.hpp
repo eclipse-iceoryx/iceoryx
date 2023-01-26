@@ -210,9 +210,9 @@ class string final
     ///     }
     /// @endcode
     template <uint64_t N>
-    // avoid-c-arrays: cxx::string wraps char array
+    // avoid-c-arrays: iox::string wraps char array
     // explicit-conversions: we want to assign string literals to the string, like string<10> str = "abc"; this is safe
-    // because cxx::string wraps char array
+    // because iox::string wraps char array
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
     string(const char (&other)[N]) noexcept;
 
@@ -280,7 +280,7 @@ class string final
     ///     }
     /// @endcode
     template <uint64_t N>
-    // We want to assign string literals to the cxx::string, like myString = "abc";
+    // We want to assign string literals to the iox::string, like myString = "abc";
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& operator=(const char (&rhs)[N]) noexcept;
 
@@ -316,7 +316,7 @@ class string final
     ///     }
     /// @endcode
     template <uint64_t N>
-    // We want to assign string literals to the cxx::string, like myString.assign("abc");
+    // We want to assign string literals to the iox::string, like myString.assign("abc");
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     string& assign(const char (&str)[N]) noexcept;
 
@@ -329,7 +329,7 @@ class string final
     /// @return true if the assignment succeeds, otherwise false
     bool unsafe_assign(const char* const str) noexcept;
 
-    /// @brief compares self and an iox::cxx::string, std::string or char array
+    /// @brief compares self and an iox::string, std::string or char array
     ///
     /// @param [in] other is the string to compare with self
     ///
@@ -421,7 +421,7 @@ class string final
     /// string to be inserted.
     ///
     /// @param [in] pos position at which the string shall be inserted
-    /// @param [in] str the cxx::string or char array to be inserted
+    /// @param [in] str the iox::string or char array to be inserted
     /// @param [in] count number of characters to be inserted
     ///
     /// @return true if the insertion was successful, otherwise false
@@ -451,7 +451,7 @@ class string final
     /// @brief finds the first occurence of the given character sequence; returns the position of the first character of
     /// the found substring, returns iox::nullopt if no substring is found or if pos is greater than this' size
     ///
-    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a iox::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character of the found substring, iox::nullopt if
@@ -463,7 +463,7 @@ class string final
     /// and returns its position; returns iox::nullopt if no character is found or if pos is greater than this'
     /// size
     ///
-    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a iox::string, string literal or std::string
     /// @param [in] pos is the position at which to start the search
     ///
     /// @return an optional containing the position of the first character equal to one of the characters of the given
@@ -474,7 +474,7 @@ class string final
     /// @brief finds the last occurence of a character equal to one of the characters of the given character sequence
     /// and returns its position; returns iox::nullopt if no character is found
     ///
-    /// @param [in] str is the character sequence to search for; must be a cxx::string, string literal or std::string
+    /// @param [in] str is the character sequence to search for; must be a iox::string, string literal or std::string
     /// @param [in] pos is the position at which to finish the search
     ///
     /// @return an optional containing the position of the last character equal to one of the characters of the given

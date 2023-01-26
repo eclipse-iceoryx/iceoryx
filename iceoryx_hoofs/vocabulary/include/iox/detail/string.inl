@@ -97,7 +97,7 @@ inline string<Capacity>& string<Capacity>::operator=(string<N>&& rhs) noexcept
 template <uint64_t Capacity>
 template <uint64_t N>
 // AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) iox::string wraps char array
 inline string<Capacity>::string(const char (&other)[N]) noexcept
 {
     *this = other;
@@ -151,7 +151,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 template <uint64_t Capacity>
 template <uint64_t N>
 // AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) iox::string wraps char array
 inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexcept
 {
     static_assert(N <= (Capacity + 1U),
@@ -169,7 +169,7 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
 
     if (rhs[m_rawstringSize] != '\0')
     {
-        IOX_LOG(WARN) << "iox::cxx::string: Assignment of array which is not zero-terminated! Last value of array "
+        IOX_LOG(WARN) << "iox::string: Assignment of array which is not zero-terminated! Last value of array "
                          "overwritten with 0!";
     }
     return *this;
@@ -188,7 +188,7 @@ inline string<Capacity>& string<Capacity>::assign(const string<N>& str) noexcept
 template <uint64_t Capacity>
 template <uint64_t N>
 // AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-array type usage is intentional
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) cxx::string wraps char array
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) iox::string wraps char array
 inline string<Capacity>& string<Capacity>::assign(const char (&str)[N]) noexcept
 {
     *this = str;
@@ -329,7 +329,7 @@ template <typename T>
 inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
     static_assert(cxx::always_false_v<string<Capacity>>,
-                  "operator += is not supported by cxx::string, please use append or unsafe_append instead");
+                  "operator += is not supported by iox::string, please use append or unsafe_append instead");
     return *this;
 }
 

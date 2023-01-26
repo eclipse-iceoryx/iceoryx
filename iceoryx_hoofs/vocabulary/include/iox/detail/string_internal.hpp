@@ -40,7 +40,7 @@ template <uint64_t N>
 using charArray = char[N];
 
 /// @brief struct to get capacity of iox::string/char array/char
-/// @note capa is a dummy value for any type other than cxx::string and char
+/// @note capa is a dummy value for any type other than iox::string and char
 template <typename T>
 struct GetCapa
 {
@@ -125,7 +125,7 @@ struct GetData<string<N>>
 
 template <uint64_t N>
 // provides uniform and safe access (in combination with GetCapa and GetSize) to string like constructs like
-// cxx::string, std::string, string literal, char
+// iox::string, std::string, string literal, char
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetData<char[N]>
 {

@@ -51,6 +51,6 @@ CheckOptions:
 #   example:
 #     bad:
 #       constexpr uint64_t STRING_CAPACITY = 100U;
-#       cxx::string<STRING_CAPACITY> myString; // the 100 is already part of the type name so why not allow it
+#       iox::string<STRING_CAPACITY> myString; // the 100 is already part of the type name so why not allow it
 #     good:
-#       cxx::string<100> myString; // this leads to a warning but we want it
+#       iox::string<100> myString; // this leads to a warning but we want it

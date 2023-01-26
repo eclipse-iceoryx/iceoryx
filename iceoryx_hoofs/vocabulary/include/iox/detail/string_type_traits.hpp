@@ -25,7 +25,7 @@ namespace iox
 template <uint64_t Capacity>
 class string;
 
-/// @brief struct to check whether an argument is a cxx::string
+/// @brief struct to check whether an argument is a iox::string
 template <typename T>
 struct is_cxx_string : std::false_type
 {
