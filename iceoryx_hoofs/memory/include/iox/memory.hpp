@@ -27,7 +27,7 @@ namespace iox
 /// @note value + alignment - 1 must not exceed the maximum value for type T
 /// @note alignment must be a power of two
 template <typename T>
-// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3: The function is in the iox::cxx namespace which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3: The function is in the 'iox' namespace which prevents easy misuse
 T align(const T value, const T alignment) noexcept
 {
     return (value + (alignment - 1)) & (-alignment);

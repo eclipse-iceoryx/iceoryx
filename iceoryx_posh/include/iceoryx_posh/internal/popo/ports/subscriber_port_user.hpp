@@ -18,7 +18,6 @@
 #ifndef IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 #define IOX_POPO_SUBSCRIBER_PORT_USER_HPP_
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"

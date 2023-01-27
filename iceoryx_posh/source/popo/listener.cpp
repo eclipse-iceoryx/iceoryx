@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {

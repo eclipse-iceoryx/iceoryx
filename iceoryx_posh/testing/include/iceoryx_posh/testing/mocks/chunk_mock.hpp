@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 #define IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 

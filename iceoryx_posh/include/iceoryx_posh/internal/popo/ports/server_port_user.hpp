@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
 #include "iox/expected.hpp"
+#include "iox/into.hpp"
 #include "iox/optional.hpp"
 
 namespace iox

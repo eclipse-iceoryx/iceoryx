@@ -77,7 +77,6 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                          |
 |`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                                 |
 |`into`                 | i        |                                                                                                                                                                                                                                            |
-|`pageSize`             | i        |                                                                                                                                                                                                                                            |
 
 ### Primitives (primitives)
 

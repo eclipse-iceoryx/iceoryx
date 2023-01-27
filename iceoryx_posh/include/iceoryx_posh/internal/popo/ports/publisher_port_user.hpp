@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_PUBLISHER_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"

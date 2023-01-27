@@ -20,9 +20,6 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iox/string.hpp"
 
-#include "iceoryx_platform/platform_correction.hpp"
-#include "iceoryx_platform/platform_settings.hpp"
-
 namespace iox
 {
 namespace cxx
