@@ -35,7 +35,7 @@ cc_library(
         "source/**/*.hpp",
         "memory/source/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["utility/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [
@@ -43,6 +43,7 @@ cc_library(
         "include/",
         "legacy/include/",
         "memory/include/",
+        "utility/include/",
         "vocabulary/include/",
     ],
     linkopts = select({

@@ -19,7 +19,6 @@
 #include "iox/string.hpp"
 #include "test.hpp"
 
-#include <array>
 #include <type_traits>
 
 namespace

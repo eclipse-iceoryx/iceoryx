@@ -19,6 +19,8 @@
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "test.hpp"
 
+#include <array>
+
 namespace
 {
 using namespace ::testing;
