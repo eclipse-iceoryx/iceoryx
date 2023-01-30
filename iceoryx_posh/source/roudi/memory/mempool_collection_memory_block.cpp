@@ -49,7 +49,7 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
     return algorithm::maxVal(memoryManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
-void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
+void MemPoolCollectionMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));

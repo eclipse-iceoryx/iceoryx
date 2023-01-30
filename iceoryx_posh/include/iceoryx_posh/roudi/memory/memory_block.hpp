@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 #define IOX_POSH_ROUDI_MEMORY_MEMORY_BLOCK_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -68,7 +68,7 @@ class MemoryBlock
     /// @brief This function is called once the memory is available and is therefore the earliest possibility to use the
     /// memory.
     /// @param [in] memory pointer to a valid memory block, the same one that the memory() member function would return
-    virtual void onMemoryAvailable(cxx::not_null<void*> memory) noexcept;
+    virtual void onMemoryAvailable(not_null<void*> memory) noexcept;
 
   private:
     void* m_memory{nullptr};

@@ -421,7 +421,7 @@
     std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
     ```
 
-17. Replace `strlen2` with more generic `arrayCapacity`
+17. Replace `strlen2` with more generic `iox::size`
 
     ```cpp
     constexpr const char LITERAL1[] {"FOO"};
@@ -433,9 +433,9 @@
     std::cout << iox::cxx::strlen2(LITERAL2) << std::endl; // prints 19
 
     // after
-    std::cout << arrayCapacity(LITERAL1) << std::endl; // prints 4
-    std::cout << arrayCapacity(LITERAL2) << std::endl; // prints 20
-    std::cout << arrayCapacity(ARRAY) << std::endl;    // prints 42
+    std::cout << iox::size(LITERAL1) << std::endl; // prints 4
+    std::cout << iox::size(LITERAL2) << std::endl; // prints 20
+    std::cout << iox::size(ARRAY) << std::endl;    // prints 42
     ```
 
 18. Rename `cxx::GenericRAII` to `cxx::ScopeGuard`

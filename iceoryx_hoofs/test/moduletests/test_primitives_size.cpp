@@ -15,17 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iox/string.hpp"
+#include "iox/size.hpp"
 #include "test.hpp"
-
-#include <type_traits>
 
 namespace
 {
 using namespace ::testing;
 
-class Helplets_test : public Test
+class Size_test : public Test
 {
   public:
     void SetUp() override
@@ -37,7 +34,7 @@ class Helplets_test : public Test
     }
 };
 
-TEST_F(Helplets_test, ArrayCapacityReturnsCorrectValues)
+TEST_F(Size_test, ArrayCapacityReturnsCorrectValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8392b2ba-04ef-45e6-8b47-4c0c90d98f61");
     constexpr uint64_t CAPACITY{42};
@@ -45,7 +42,7 @@ TEST_F(Helplets_test, ArrayCapacityReturnsCorrectValues)
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     constexpr uint32_t SUT[CAPACITY]{};
 
-    EXPECT_EQ(iox::cxx::arrayCapacity(SUT), CAPACITY);
+    EXPECT_EQ(iox::size(SUT), CAPACITY);
 }
 
 } // namespace

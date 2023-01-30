@@ -26,6 +26,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/expected.hpp"
 #include "iox/into.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -78,7 +79,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     using MemberType_t = ChunkSenderDataType;
     using Base_t = ChunkDistributor<typename ChunkSenderDataType::ChunkDistributorData_t>;
 
-    explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
+    explicit ChunkSender(not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;

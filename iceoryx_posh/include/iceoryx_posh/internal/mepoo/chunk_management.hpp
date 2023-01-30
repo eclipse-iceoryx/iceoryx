@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
+#include "iox/not_null.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -36,9 +36,9 @@ struct ChunkManagement
     using referenceCounterBase_t = uint64_t;
     using referenceCounter_t = std::atomic<referenceCounterBase_t>;
 
-    ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
-                    const cxx::not_null<MemPool*> mempool,
-                    const cxx::not_null<MemPool*> chunkManagementPool) noexcept;
+    ChunkManagement(const not_null<base_t*> chunkHeader,
+                    const not_null<MemPool*> mempool,
+                    const not_null<MemPool*> chunkManagementPool) noexcept;
 
     iox::memory::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};

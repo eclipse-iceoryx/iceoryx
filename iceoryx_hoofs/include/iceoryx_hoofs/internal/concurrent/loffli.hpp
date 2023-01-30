@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 #define IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
+#include "iox/not_null.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -80,7 +80,7 @@ class LoFFLi
     /// Initializes the lock-free free-list
     /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()
     /// @param [in] capacity is the number of elements of the free-list; must be the same used at requiredMemorySize()
-    void init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
+    void init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
 
     /// Pop a value from the free-list
     /// @param [out] index for an element to use

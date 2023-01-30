@@ -75,7 +75,7 @@ inline log::LogStream& operator<<(log::LogStream& stream, AllocationError value)
 }
 
 template <typename ChunkSenderDataType>
-inline ChunkSender<ChunkSenderDataType>::ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
+inline ChunkSender<ChunkSenderDataType>::ChunkSender(not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
     : Base_t(static_cast<typename ChunkSenderDataType::ChunkDistributorData_t* const>(chunkSenderDataPtr))
 {
 }

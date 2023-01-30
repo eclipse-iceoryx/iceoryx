@@ -24,6 +24,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iox/expected.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -40,7 +41,7 @@ class SubscriberPortUser : public BasePort
   public:
     using MemberType_t = SubscriberPortData;
 
-    explicit SubscriberPortUser(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept;
+    explicit SubscriberPortUser(not_null<MemberType_t* const> subscriberPortDataPtr) noexcept;
 
     SubscriberPortUser(const SubscriberPortUser& other) = delete;
     SubscriberPortUser& operator=(const SubscriberPortUser&) = delete;

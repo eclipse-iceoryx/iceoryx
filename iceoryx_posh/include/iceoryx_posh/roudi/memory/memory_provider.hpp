@@ -19,9 +19,9 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/expected.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -84,7 +84,7 @@ class MemoryProvider
     /// @param [in] memoryBlock is a pointer to a user defined MemoryBlock
     /// @return an MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED error if no further memory blocks can be added,
     /// otherwise success
-    expected<MemoryProviderError> addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept;
+    expected<MemoryProviderError> addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept;
 
     /// @brief With this call the memory requested by the MemoryBlocks need to be created. The function should be called
     /// from a MemoryManager which handles one or more MemoryProvider

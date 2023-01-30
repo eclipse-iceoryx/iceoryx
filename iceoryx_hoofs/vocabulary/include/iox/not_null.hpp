@@ -14,15 +14,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_HELPLETS_HPP
-#define IOX_HOOFS_CXX_HELPLETS_HPP
+#ifndef IOX_HOOFS_VOCABULARY_NOT_NULL_HPP
+#define IOX_HOOFS_VOCABULARY_NOT_NULL_HPP
 
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iox/string.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <typename T, typename = typename std::enable_if<std::is_pointer<T>::value, void>::type>
 struct not_null
@@ -34,7 +32,7 @@ struct not_null
     not_null(T t) noexcept
         : m_value(t)
     {
-        Expects(t != nullptr);
+        cxx::Expects(t != nullptr);
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this should behave like a pointer which never can be nullptr,
@@ -48,25 +46,5 @@ struct not_null
   private:
     T m_value;
 };
-
-/// @brief Get the capacity of a C array at compile time
-/// @code
-/// constexpr uint32_t FOO[42]{};
-/// IOX_LOG(INFO) << arrayCapacity(FOO); // will print 42
-/// @endcode
-/// @tparam T the type of the array filled out by the compiler.
-/// @tparam CapacityValue the capacity of the array filled out by the compiler.
-/// @param[in] The actual content of the array is not of interest. Its just the capacity of the array that matters.
-/// @return Returns the capacity of the array at compile time.
-template <typename T, uint64_t CapacityValue>
-// AXIVION Next Construct AutosarC++19_03-A18.1.1:returning capacity of C array at compile time is safe, no
-// possibility of out of bounds access
-// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityValue]) noexcept
-{
-    return CapacityValue;
-}
-} // namespace cxx
 } // namespace iox
-
-#endif // IOX_HOOFS_CXX_HELPLETS_HPP
+#endif // IOX_HOOFS_VOCABULARY_NOT_NULL_HPP

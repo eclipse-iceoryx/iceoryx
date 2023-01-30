@@ -46,7 +46,7 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
     return algorithm::maxVal(segmentManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
-void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
+void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));

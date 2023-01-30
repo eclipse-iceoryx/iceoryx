@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iox/not_null.hpp"
 
 namespace iox
 {
@@ -31,7 +32,7 @@ namespace popo
 template <uint32_t MaxChunksAllocatedSimultaneously, typename ChunkDistributorDataType>
 struct ChunkSenderData : public ChunkDistributorDataType
 {
-    explicit ChunkSenderData(cxx::not_null<mepoo::MemoryManager* const> memoryManager,
+    explicit ChunkSenderData(not_null<mepoo::MemoryManager* const> memoryManager,
                              const ConsumerTooSlowPolicy consumerTooSlowPolicy,
                              const uint64_t historyCapacity = 0U,
                              const mepoo::MemoryInfo& memoryInfo = mepoo::MemoryInfo()) noexcept;

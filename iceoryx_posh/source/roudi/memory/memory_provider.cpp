@@ -32,7 +32,7 @@ MemoryProvider::~MemoryProvider() noexcept
     // destroy has to be called manually from outside, since it calls a pure virtual function
 }
 
-expected<MemoryProviderError> MemoryProvider::addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept
+expected<MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept
 {
     if (isAvailable())
     {

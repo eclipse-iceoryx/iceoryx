@@ -23,6 +23,7 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/expected.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -38,7 +39,7 @@ class PublisherPortUser : public BasePort
   public:
     using MemberType_t = PublisherPortData;
 
-    explicit PublisherPortUser(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
+    explicit PublisherPortUser(not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
 
     PublisherPortUser(const PublisherPortUser& other) = delete;
     PublisherPortUser& operator=(const PublisherPortUser&) = delete;

@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/mepoo/segment_config.hpp"
 
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -56,7 +57,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable
     /// @note This will create the SegmentManager at the location `memory` points to
-    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
+    void onMemoryAvailable(not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the SegmentManager
