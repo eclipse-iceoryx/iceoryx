@@ -306,7 +306,7 @@ TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
         EXPECT_EQ(instance.id, FIRST_INSTANCE_ID);
     }
 
-    // first instance destroyed (should usually only happen at the the program
+    // first instance destroyed (should usually only happen at the the program end
     // during static destruction)
 
     T::Foo::reset();

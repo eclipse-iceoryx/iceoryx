@@ -29,8 +29,15 @@ namespace design_pattern
 /// existing StaticLifetimeGuard prevents the destruction of
 /// the instance.
 /// 1. instance() creates a static guard itself and hence has static lifetime
-/// 2. any static StaticLifetimeGuard G created before that prolongs the lifetime
+/// 2. Any static StaticLifetimeGuard G created before that prolongs the lifetime
 /// of the instance at least until G is destroyed
+/// 3. The instance is lazily constructed, i.e. only when first used.
+/// Hence there can be guards without any instance existing.
+/// These guards still protect the instance from destruction if it is ever constructed.
+/// 4. If and once the instance is constructed, it will be destructed only after main exits (static
+/// destruction time).
+/// Existing guards used variables must be used to control destruction order
+/// of static variables if a specific order is required.
 /// @tparam T the type of the instance to be guarded
 ///
 /// @note all public functions are thread-safe

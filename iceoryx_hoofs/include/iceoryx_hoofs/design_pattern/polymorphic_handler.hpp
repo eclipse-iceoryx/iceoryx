@@ -63,7 +63,7 @@ struct DefaultHooks
 template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>
 class PolymorphicHandler
 {
-    static_assert(std::is_base_of<Interface, Default>::value, "Default must inherit from Interface");
+    static_assert(std::is_base_of<Interface, Default>::value, "Interface must be a base class of Default");
 
     using Self = PolymorphicHandler<Interface, Default, Hooks>;
     friend class StaticLifetimeGuard<Self>;

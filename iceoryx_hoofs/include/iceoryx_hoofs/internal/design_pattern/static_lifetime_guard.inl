@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 
+#include <atomic>
 #include <thread>
 
 namespace iox
@@ -71,6 +72,7 @@ template <typename T>
 template <typename... Args>
 T& StaticLifetimeGuard<T>::instance(Args&&... args) noexcept
 {
+    // primary guard
     static StaticLifetimeGuard<T> guard;
 
     // we determine wether this call has to initialize the instance
@@ -117,11 +119,38 @@ uint64_t StaticLifetimeGuard<T>::count()
 template <typename T>
 void StaticLifetimeGuard<T>::destroy()
 {
+    // instance either exists, i.e. instance() was called and returned
+    // or is being called for the first time and has already set the instance
+    // 1) was called is no problem, because this means the primary guard must have
+    //    gone out of scope at program end as otherwise destroy would not be called
+    // 2) is called for first time and has not yet returned
+    // - the state is INITIALIZED or INITIALIZING
+    // - s_count is > 0 due to the primary guard
+    // - s_count went up after it went to zero due to the guard that triggered this destroy
+    //
+    // NB: instance can be called for the first time in a destructor
+    // of a static object that is destroyed after main;
+    // unusual but OK if guards are used correctly to control the destruction order of all statics
     if (s_instance)
     {
-        s_instance->~T();
-        s_instance = nullptr;
-        s_instanceState = UNINITIALIZED;
+        // there is an instance, so there MUST be a primary guard (that may have
+        // triggered this destroy)
+        //
+        // check the counter again, if it is zero the primary guard and all others that existed
+        // are already destroyed or being destroyed (one of them triggered this destroy)
+        uint64_t exp{0};
+        // destroy is a rare operation and the memory order is intentional to ensure
+        // memory synchronization of s_instance and limit reordering.
+        if (s_count.compare_exchange_strong(exp, 0, std::memory_order_acq_rel))
+        {
+            // s_count is 0, so we know the primary guard was destroyed before this OR
+            // has triggered this destroy
+            // this will only happen at program end when the primary guard goes out of scope
+            s_instance->~T();
+            s_instance = nullptr;
+            // NB: reinitialization is normally only possible at program end (static destruction)
+            s_instanceState = UNINITIALIZED;
+        }
     }
 }
 
