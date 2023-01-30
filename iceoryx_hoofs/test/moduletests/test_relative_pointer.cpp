@@ -536,4 +536,13 @@ TYPED_TEST(RelativePointer_test, DefaultConstructedRelativePtrIsNull)
     EXPECT_FALSE(rp2);
 }
 
+TYPED_TEST(RelativePointer_test, NullPointerIdAndOffsetAreAccessible)
+{
+    auto nullPtrId = RelativePointer<TypeParam>::NULL_POINTER_ID;
+    auto nullPtrOffset = RelativePointer<TypeParam>::NULL_POINTER_OFFSET;
+
+    EXPECT_EQ(nullPtrId, 18446744073709551615U);
+    EXPECT_EQ(nullPtrOffset, 18446744073709551615U);
+}
+
 } // namespace
