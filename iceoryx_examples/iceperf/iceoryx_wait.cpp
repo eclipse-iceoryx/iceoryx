@@ -15,21 +15,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx.hpp"
+#include "iceoryx_wait.hpp"
 
-#include <chrono>
-#include <thread>
+//#include <chrono>
+//#include <thread>
 
-Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
-    : Iceoryx(publisherName, subscriberName, "C++-API")
+IceoryxWait::IceoryxWait(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept
+    : Iceoryx(publisherName, subscriberName, "C++-Wait-API")
 {
 }
-Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName, const iox::capro::IdString_t& eventName) noexcept
-    : m_publisher({"IcePerf", publisherName, eventName}, iox::popo::PublisherOptions{1U})
-    , m_subscriber({"IcePerf", subscriberName, eventName}, iox::popo::SubscriberOptions{1U, 1U})
-{
-}
-
+/*
 void Iceoryx::initLeader() noexcept
 {
     init();
@@ -39,10 +34,11 @@ void Iceoryx::initFollower() noexcept
 {
     init();
 }
-
-void Iceoryx::init() noexcept
+*/
+void IceoryxWait::init() noexcept
 {
-    std::cout << "Waiting for: subscription" << std::flush;
+    Iceoryx::init();
+/*    std::cout << "Waiting for: subscription" << std::flush;
     while (m_subscriber.getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -54,8 +50,13 @@ void Iceoryx::init() noexcept
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
     std::cout << " [ success ]" << std::endl;
+*/
+    waitset.attachState(m_subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+        std::cerr << "failed to attach subscriber" << std::endl;
+        std::exit(EXIT_FAILURE);
+    });
 }
-
+/*
 void Iceoryx::shutdown() noexcept
 {
     m_subscriber.unsubscribe();
@@ -82,20 +83,24 @@ void Iceoryx::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag run
         m_publisher.publish(userPayload);
     });
 }
-
-PerfTopic Iceoryx::receivePerfTopic() noexcept
+*/
+PerfTopic IceoryxWait::receivePerfTopic() noexcept
 {
     bool hasReceivedSample{false};
     PerfTopic receivedSample;
 
-    do
+    auto notificationVector = waitset.wait();
+    for (auto& notification : notificationVector)
     {
-        m_subscriber.take().and_then([&](const void* data) {
-            receivedSample = *(static_cast<const PerfTopic*>(data));
-            hasReceivedSample = true;
-            m_subscriber.release(data);
-        });
-    } while (!hasReceivedSample);
+        if (notification->doesOriginateFrom(&m_subscriber))
+        {
+            m_subscriber.take().and_then([&](const void* data) {
+                receivedSample = *(static_cast<const PerfTopic*>(data));
+                hasReceivedSample = true;
+                m_subscriber.release(data);
+            });
+        }
+    }
 
     return receivedSample;
 }

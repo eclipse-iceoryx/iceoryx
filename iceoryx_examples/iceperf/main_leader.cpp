@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
             std::cout << "-t, --technology <TYPE>           Selects the type of technology to benchmark" << std::endl;
             std::cout << "                                  <TYPE> {all," << std::endl;
             std::cout << "                                          iceoryx-cpp-api," << std::endl;
+            std::cout << "                                          iceoryx-cpp-waitset-api," << std::endl;
             std::cout << "                                          iceoryx-c-api," << std::endl;
             std::cout << "                                          posix-message-queue," << std::endl;
             std::cout << "                                          unix-domain-sockets}" << std::endl;
@@ -89,6 +90,10 @@ int main(int argc, char* argv[])
             else if (strcmp(optarg, "iceoryx-cpp-api") == 0)
             {
                 settings.technology = Technology::ICEORYX_CPP_API;
+            }
+            else if (strcmp(optarg, "iceoryx-cpp-waitset-api") == 0)
+            {
+                settings.technology = Technology::ICEORYX_CPP_WAIT_API;
             }
             else if (strcmp(optarg, "iceoryx-c-api") == 0)
             {

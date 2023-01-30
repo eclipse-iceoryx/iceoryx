@@ -1,4 +1,5 @@
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,31 +14,21 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_EXAMPLES_ICEPERF_ICEORYX_WAIT_HPP
+#define IOX_EXAMPLES_ICEPERF_ICEORYX_WAIT_HPP
 
-#ifndef IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
-#define IOX_EXAMPLES_ICEPERF_EXAMPLE_COMMON_HPP
+#include "iceoryx.hpp"
 
-enum class Benchmark
+class IceoryxWait : public Iceoryx
 {
-    ALL,
-    LATENCY,
-    THROUGHPUT
+  public:
+    IceoryxWait(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName) noexcept;
+
+  private:
+    void init() noexcept override;
+    PerfTopic receivePerfTopic() noexcept override;
+
+    iox::popo::WaitSet<> waitset;
 };
 
-enum class Technology
-{
-    ALL,
-    ICEORYX_CPP_API,
-    ICEORYX_CPP_WAIT_API,
-    ICEORYX_C_API,
-    POSIX_MESSAGE_QUEUE,
-    UNIX_DOMAIN_SOCKET
-};
-
-enum class RunFlag
-{
-    STOP,
-    RUN
-};
-
-#endif
+#endif // IOX_EXAMPLES_ICEPERF_ICEORYX_WAIT_HPP
