@@ -241,6 +241,10 @@ TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
     // does the hook set the values to the corresponding arguments?
     EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
     EXPECT_EQ(alternateHandler.value, ALTERNATE_ID);
+
+    // handler should be unchanged
+    auto& handler = Handler::get();
+    EXPECT_EQ(&handler, &alternateHandler);
 }
 
 TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
@@ -268,6 +272,10 @@ TEST_F(PolymorphicHandler_test, resetAfterFinalizeCallsHook)
     // does the hook set the values to the corresponding arguments?
     EXPECT_EQ(defaultHandler.value, DEFAULT_ID);
     EXPECT_EQ(alternateHandler.value, ALTERNATE_ID);
+
+    // handler should be unchanged
+    auto& handler = Handler::get();
+    EXPECT_EQ(&handler, &alternateHandler);
 }
 
 TEST_F(PolymorphicHandler_test, obtainingGuardWorks)

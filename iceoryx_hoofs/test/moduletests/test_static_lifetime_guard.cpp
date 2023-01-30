@@ -115,7 +115,7 @@ struct TestTypes : public TestGuard<N>
 // each test must use a different N, __LINE__ is unique and portable,
 // __COUNTER__ is not portable
 // shorten the initialization via macro, needed due to __LINE__
-#define INIT_TEST using T = TestTypes<__LINE__>
+#define UNIQUE_TYPE TestTypes<__LINE__>
 
 // each test uses its own type for maximum separation, so we do not need to reset anything
 class StaticLifetimeGuard_test : public Test
@@ -133,7 +133,7 @@ class StaticLifetimeGuard_test : public Test
 TEST_F(StaticLifetimeGuard_test, countIsZeroIfNoInstanceExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0bf772c8-97c7-4cdb-80a1-e1b6a1a4fdc6");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
 
     EXPECT_EQ(T::Guard::count(), 0);
     EXPECT_EQ(T::Foo::ctorCalled, 0);
@@ -143,7 +143,7 @@ TEST_F(StaticLifetimeGuard_test, countIsZeroIfNoInstanceExists)
 TEST_F(StaticLifetimeGuard_test, guardDoesNotImplyInstanceConstructionIfInstanceIsNotCreated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0db1455e-1b1f-4498-af3c-5e2d7e92180b");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
 
     {
         T::Guard g;
@@ -158,7 +158,7 @@ TEST_F(StaticLifetimeGuard_test, guardDoesNotImplyInstanceConstructionIfInstance
 TEST_F(StaticLifetimeGuard_test, staticInitializationSucceeded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d38b436b-f079-43fe-9d33-23d18cd08ffc");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
 
     // testInstance() was constructed and the instance still exists
     EXPECT_EQ(T::instance().id, FIRST_INSTANCE_ID);
@@ -171,7 +171,7 @@ TEST_F(StaticLifetimeGuard_test, staticInitializationSucceeded)
 TEST_F(StaticLifetimeGuard_test, setCountWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1db790f9-d49e-44b2-b7e9-af50dd6a7d67");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
 
     T::Guard guard;
     auto oldCount = T::setCount(73);
@@ -182,7 +182,7 @@ TEST_F(StaticLifetimeGuard_test, setCountWorks)
 TEST_F(StaticLifetimeGuard_test, guardPreventsDestruction)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a8c5953-f2d7-4539-89ba-b4686bbb6319");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     EXPECT_EQ(T::instance().id, FIRST_INSTANCE_ID);
@@ -195,7 +195,7 @@ TEST_F(StaticLifetimeGuard_test, guardPreventsDestruction)
         EXPECT_EQ(T::Foo::dtorCalled, 0);
 
         // still the same instance as testInstance()
-        EXPECT_EQ(instance.id, 1);
+        EXPECT_EQ(instance.id, FIRST_INSTANCE_ID);
         EXPECT_EQ(&instance, &T::instance());
     }
 
@@ -208,7 +208,7 @@ TEST_F(StaticLifetimeGuard_test, guardPreventsDestruction)
 TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6ab6396d-7c63-4626-92ed-c7f3ea67bbf1");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     EXPECT_EQ(T::instance().id, FIRST_INSTANCE_ID);
@@ -230,7 +230,7 @@ TEST_F(StaticLifetimeGuard_test, copyIncreasesLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, moveIncreasesLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32a2fdbf-cb02-408c-99a3-373aa66b2764");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     T::Guard guard;
@@ -250,7 +250,7 @@ TEST_F(StaticLifetimeGuard_test, moveIncreasesLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, assignmentDoesNotChangeLifetimeCount)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1c04ac75-d47a-44da-b8dc-6f567a53d3fc");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     T::Guard guard1;
@@ -269,7 +269,7 @@ TEST_F(StaticLifetimeGuard_test, assignmentDoesNotChangeLifetimeCount)
 TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8b5a22a9-87bc-434b-9d07-9f3c20a6944e");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     {
@@ -295,7 +295,7 @@ TEST_F(StaticLifetimeGuard_test, destructionAtZeroCountWorks)
 TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0077e73d-ddf5-47e7-a7c6-93819f376175");
-    INIT_TEST;
+    using T = UNIQUE_TYPE;
     T::initInstance();
 
     {
