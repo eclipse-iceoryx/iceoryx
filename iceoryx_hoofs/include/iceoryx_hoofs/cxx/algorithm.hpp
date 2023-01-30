@@ -150,13 +150,11 @@ struct BestFittingTypeImpl<true, true, false>
 template <uint64_t Value>
 struct BestFittingType
 {
-/// ignore the warnings because we need the comparisons to find the best fitting type
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wtype-limits"
-    using Type_t = typename internal::BestFittingTypeImpl<(Value > std::numeric_limits<uint8_t>::max()),
-                                                          (Value > std::numeric_limits<uint16_t>::max()),
-                                                          (Value > std::numeric_limits<uint32_t>::max())>::Type_t;
-#pragma GCC diagnostic pop
+    using Type_t =
+        typename internal::BestFittingTypeImpl<(Value > static_cast<uint64_t>(std::numeric_limits<uint8_t>::max())),
+                                               (Value > static_cast<uint64_t>(std::numeric_limits<uint16_t>::max())),
+                                               (Value
+                                                > static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()))>::Type_t;
 };
 
 template <uint64_t Value>

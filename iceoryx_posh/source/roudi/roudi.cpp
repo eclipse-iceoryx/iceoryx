@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -49,7 +50,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    if (cxx::isCompiledOn32BitSystem())
+    if (internal::isCompiledOn32BitSystem())
     {
         LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }

@@ -49,7 +49,7 @@ PosixShmMemoryProvider::~PosixShmMemoryProvider() noexcept
 expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const uint64_t size,
                                                                           const uint64_t alignment) noexcept
 {
-    if (alignment > posix::pageSize())
+    if (alignment > internal::pageSize())
     {
         return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }

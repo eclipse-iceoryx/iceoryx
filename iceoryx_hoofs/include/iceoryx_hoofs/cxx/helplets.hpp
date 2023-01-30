@@ -66,13 +66,6 @@ static constexpr uint64_t arrayCapacity(T const (&/*notInterested*/)[CapacityVal
 {
     return CapacityValue;
 }
-
-/// @brief Returns info whether called on a 32-bit system
-/// @return True if called on 32-bit, false if not 32-bit system
-constexpr bool isCompiledOn32BitSystem() noexcept
-{
-    return INTPTR_MAX == INT32_MAX;
-}
 } // namespace cxx
 } // namespace iox
 

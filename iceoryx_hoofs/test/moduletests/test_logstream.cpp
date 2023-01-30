@@ -23,6 +23,8 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <sstream>
+#include <string>
 
 namespace
 {
