@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -128,6 +129,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             auto chunkSize = lastChunkChunkHeader->chunkSize();
             lastChunkChunkHeader->~ChunkHeader();
             new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
+            lastChunkChunkHeader->setOriginId(originId);
             return cxx::success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
         }
         else

@@ -183,7 +183,7 @@ void ProcessManager::evaluateKillError(const Process& process,
     {
         LogWarn() << "Process ID " << process.getPid() << " named '" << process.getName()
                   << "' could not be killed with"
-                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: ’"
+                  << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM") << " for unknown reason: '"
                   << errorString << "'";
         errorHandler(Error::kPOSH__ROUDI_PROCESS_SHUTDOWN_FAILED, nullptr, ErrorLevel::SEVERE);
     }

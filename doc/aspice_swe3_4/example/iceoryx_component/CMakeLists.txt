@@ -21,6 +21,8 @@ find_package(iceoryx_hoofs REQUIRED)
 
 include(IceoryxPlatform)
 
+set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
+
 #
 ########## lib ##########
 #
@@ -84,7 +86,7 @@ target_include_directories(${PROJECT_PREFIX}_moduletests PRIVATE . source/exampl
 # TODO: fix conversion warnings
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
 target_link_libraries(${PROJECT_PREFIX}_moduletests ${TEST_LINK_LIBS})
-set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES 
+set_target_properties(${PROJECT_PREFIX}_moduletests PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_STANDARD ${ICEORYX_CXX_STANDARD}
     POSITION_INDEPENDENT_CODE ON

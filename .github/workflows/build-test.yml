@@ -7,7 +7,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master, release* ]
+    branches: [ master, release*, integration* ]
 
 jobs:
   pre-flight-check:
@@ -35,19 +35,22 @@ jobs:
     # prevent stuck jobs consuming macos runners for 6 hours
     timeout-minutes: 60
     needs: pre-flight-check
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
     - uses: actions/checkout@v2
       with:
         ref: 'master'
     - name: Unix (FreeBSD) test
       id: Test
-      uses: vmactions/freebsd-vm@v0.1.6
+      uses: vmactions/freebsd-vm@v0
       with:
         usesh: true
-        mem: 2048
+        copyback: false
+        mem: 4096
         prepare: pkg install -y cmake git ncurses bash wget bison
-        run: ./tools/ci/build-test-freebsd.sh
+        run: |
+         git config --global --add safe.directory /Users/runner/work/iceoryx/iceoryx
+         ./tools/ci/build-test-freebsd.sh
 
   build-test-windows:
     runs-on: windows-2019
