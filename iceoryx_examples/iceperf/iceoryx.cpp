@@ -24,7 +24,9 @@ Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::
     : Iceoryx(publisherName, subscriberName, "C++-API")
 {
 }
-Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName, const iox::capro::IdString_t& subscriberName, const iox::capro::IdString_t& eventName) noexcept
+Iceoryx::Iceoryx(const iox::capro::IdString_t& publisherName,
+                 const iox::capro::IdString_t& subscriberName,
+                 const iox::capro::IdString_t& eventName) noexcept
     : m_publisher({"IcePerf", publisherName, eventName}, iox::popo::PublisherOptions{1U})
     , m_subscriber({"IcePerf", subscriberName, eventName}, iox::popo::SubscriberOptions{1U, 1U})
 {

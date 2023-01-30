@@ -18,11 +18,11 @@
 #include "iceperf_leader.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
-#include "iceoryx_wait.hpp"
 #include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_wait.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"
@@ -54,7 +54,12 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     ipcTechnology.initLeader();
 
     std::vector<std::tuple<uint32_t, iox::units::Duration>> latencyMeasurements;
-    const std::vector<uint32_t> payloadSizes{16, 32, 64, 128, 256, 512,
+    const std::vector<uint32_t> payloadSizes{16,
+                                             32,
+                                             64,
+                                             128,
+                                             256,
+                                             512,
                                              1 * IcePerfBase::ONE_KILOBYTE,
                                              2 * IcePerfBase::ONE_KILOBYTE,
                                              4 * IcePerfBase::ONE_KILOBYTE,
