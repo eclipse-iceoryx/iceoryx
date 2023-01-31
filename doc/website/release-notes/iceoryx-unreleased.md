@@ -77,7 +77,7 @@
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
   - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
-  - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+  - Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 - Uninteresting mock function calls in tests [\#1341](https://github.com/eclipse-iceoryx/iceoryx/issues/1341)
 - `cxx::unique_ptr` owns deleter, remove all deleter classes [\#1143](https://github.com/eclipse-iceoryx/iceoryx/issues/1143)
 - Remove `iox::posix::Timer` [\#337](https://github.com/eclipse-iceoryx/iceoryx/issues/337)
@@ -146,14 +146,14 @@
                             .create();
     ```
 
-2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+2. Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 
     ```cpp
     // before
     #include "iceoryx_hoofs/cxx/helplets.hpp"
 
     // after
-    #include "iceoryx_hoofs/design_pattern/builder.hpp"
+    #include "iox/builder.hpp"
     ```
 
 3. `UnnamedSemaphore` replaces `Semaphore` with `CreateUnnamed*` option

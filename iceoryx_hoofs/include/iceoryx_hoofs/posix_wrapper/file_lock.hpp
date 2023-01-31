@@ -17,8 +17,8 @@
 #define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/file.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/string.hpp"
 

@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/pthread.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 
