@@ -68,6 +68,16 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
 
+    bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
+                         || m_openMode == OpenMode::OPEN_OR_CREATE);
+
+    if (hasOwnership && (m_accessMode == AccessMode::READ_ONLY))
+    {
+        std::cerr << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
+                  << "Initializing a new file requires write access" << std::endl;
+        return error<SharedMemoryError>(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
+    }
+
     // the mask will be applied to the permissions, therefore we need to set it to 0
     int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
@@ -97,27 +107,24 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
             // ownership and we just try to open it
             if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
             {
+                hasOwnership = false;
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
                                                  convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
                                                  static_cast<mode_t>(m_filePermissions))
                              .failureReturnValue(SharedMemory::INVALID_HANDLE)
                              .evaluate();
-                if (!result.has_error())
-                {
-                    constexpr bool HAS_NO_OWNERSHIP = false;
-                    sharedMemoryFileHandle = result->value;
-                    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
-                }
             }
 
-            printError();
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+            // Check again, as the if-block above may have changed `result`
+            if (result.has_error())
+            {
+                printError();
+                return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+            }
         }
         sharedMemoryFileHandle = result->value;
     }
 
-    const bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
-                               || m_openMode == OpenMode::OPEN_OR_CREATE);
     if (hasOwnership)
     {
         auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
@@ -143,7 +150,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
+            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
         }
     }
 

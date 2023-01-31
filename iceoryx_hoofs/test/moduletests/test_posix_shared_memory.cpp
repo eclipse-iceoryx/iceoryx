@@ -250,5 +250,19 @@ TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
     ASSERT_TRUE(sut.has_error());
 }
 
+TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "80684160-b243-4ca1-b285-118d2ef36108");
+    auto sut = iox::posix::SharedMemoryBuilder()
+                   .name("readOnlyShmMem")
+                   .size(100)
+                   .accessMode(iox::posix::AccessMode::READ_ONLY)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .create();
+
+    ASSERT_TRUE(sut.has_error());
+    ASSERT_THAT(sut.get_error(), Eq(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
+}
+
 
 } // namespace
