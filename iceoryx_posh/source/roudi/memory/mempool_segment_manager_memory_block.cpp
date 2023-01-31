@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 
 #include "iox/bump_allocator.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {

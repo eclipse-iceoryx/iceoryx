@@ -23,6 +23,7 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/into.hpp"
 #include "iox/string.hpp"
 
 #include <cpptoml.h>

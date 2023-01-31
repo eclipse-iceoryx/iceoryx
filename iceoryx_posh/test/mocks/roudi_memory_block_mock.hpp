@@ -20,6 +20,7 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iox/not_null.hpp"
 
 class MemoryBlockMock final : public iox::roudi::MemoryBlock
 {

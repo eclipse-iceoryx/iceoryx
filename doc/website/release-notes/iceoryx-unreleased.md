@@ -318,7 +318,7 @@
     }
     ```
 
-14. Remove various functions from helplets
+14. Moved or removed various functions from helplets
 
     ```cpp
     // before
@@ -433,6 +433,7 @@
     std::cout << iox::cxx::strlen2(LITERAL2) << std::endl; // prints 19
 
     // after
+    #include "iox/size.hpp"
     std::cout << iox::size(LITERAL1) << std::endl; // prints 4
     std::cout << iox::size(LITERAL2) << std::endl; // prints 20
     std::cout << iox::size(ARRAY) << std::endl;    // prints 42

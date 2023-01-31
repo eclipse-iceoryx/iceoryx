@@ -21,6 +21,7 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {

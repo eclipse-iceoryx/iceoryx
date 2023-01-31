@@ -20,8 +20,8 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
-
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
+#include "iox/memory.hpp"
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <malloc.h>
