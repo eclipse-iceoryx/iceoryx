@@ -24,8 +24,6 @@
 
 namespace iox
 {
-namespace cxx
-{
 /// @brief This offers the deadline timer functionality. It has user convenient methods to reset the timer [by default
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
@@ -71,8 +69,6 @@ class DeadlineTimer
     iox::units::Duration m_timeToWait;
     iox::units::Duration m_endTime;
 };
-
-} // namespace cxx
 } // namespace iox
 
 

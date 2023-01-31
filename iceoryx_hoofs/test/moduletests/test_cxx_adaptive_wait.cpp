@@ -22,7 +22,7 @@ using namespace ::testing;
 #include <atomic>
 #include <thread>
 
-using namespace iox::cxx::internal;
+using namespace iox::internal;
 
 namespace
 {

@@ -30,7 +30,7 @@ using namespace ::testing;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
-using Timer = iox::cxx::DeadlineTimer;
+using Timer = iox::DeadlineTimer;
 
 class DeadlineTimer_test : public Test
 {

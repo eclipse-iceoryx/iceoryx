@@ -169,7 +169,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
     }
 
     // busy waiting until every queue is served
-    cxx::internal::adaptive_wait adaptiveWait;
+    iox::internal::adaptive_wait adaptiveWait;
     while (!remainingQueues.empty())
     {
         adaptiveWait.wait();

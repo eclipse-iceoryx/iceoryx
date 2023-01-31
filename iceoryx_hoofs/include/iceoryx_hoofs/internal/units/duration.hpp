@@ -24,7 +24,7 @@
 
 #include <chrono>
 #include <cmath>
-#include <iostream>
+//#include <iostream>
 #include <numeric>
 
 namespace iox

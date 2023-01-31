@@ -389,7 +389,7 @@ bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept
         return true;
     }
 
-    cxx::DeadlineTimer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
+    DeadlineTimer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
 
     while (!deadlineTimer.hasExpired())
     {

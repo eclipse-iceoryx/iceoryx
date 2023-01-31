@@ -19,8 +19,6 @@
 
 namespace iox
 {
-namespace cxx
-{
 DeadlineTimer::DeadlineTimer(const iox::units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_endTime(getCurrentMonotonicTime() + timeToWait)
@@ -57,7 +55,4 @@ iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
 {
     return iox::units::Duration{std::chrono::steady_clock::now().time_since_epoch()};
 }
-
-
-} // namespace cxx
 } // namespace iox
