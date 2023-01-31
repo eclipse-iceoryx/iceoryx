@@ -998,3 +998,25 @@
     // iox::string to std::string
     std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
     ```
+
+44. Move and rename `DeadlineTimer`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+    iox::cxx::DeadlineTimer myTimer;
+
+    // after
+    #include "iox/deadline_timer.hpp"
+    iox::deadline_timer myTimer;
+    ```
+
+45. Changed include path of `iox::units::Duration`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/units/duration.hpp"
+
+    // after
+    #include "iox/duration.hpp"
+    ```
