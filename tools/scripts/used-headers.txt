@@ -46,7 +46,6 @@ map
 memory
 mutex
 new
-numeric
 process.h
 regex
 sstream

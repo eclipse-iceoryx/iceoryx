@@ -24,7 +24,8 @@
 
 SCOPE=${1:-list}
 COMPONENTS=(iceoryx_hoofs iceoryx_posh)
-SOURCE_DIR=(source include)
+POSH_SOURCE_DIR=(source include)
+HOOFS_SOURCE_DIR=(source include posix memory time vocabulary container)
 WORKSPACE=$(git rev-parse --show-toplevel)
 QNX_PLATFORM_DIR=$WORKSPACE/iceoryx_platform/qnx/
 USELIST=$WORKSPACE/tools/scripts/used-headers.txt
@@ -32,9 +33,16 @@ CURRENTLY_USED_HEADERS=$(mktemp)
 GET_HEADER_NAME="\<\K[^<>]+(?=>)" # Matches the content between angle brackets
 
 for COMPONENT in ${COMPONENTS[@]}; do
-    for DIR in ${SOURCE_DIR[@]}; do
+if [[ "$COMPONENT" == "iceoryx_posh" ]]; then
+    for DIR in ${POSH_SOURCE_DIR[@]}; do
         GREP_PATH_HOOFS_POSH="${GREP_PATH_HOOFS_POSH} ${WORKSPACE}/${COMPONENT}/$DIR"
     done
+fi
+if [[ "$COMPONENT" == "iceoryx_hoofs" ]]; then
+    for DIR in ${HOOFS_SOURCE_DIR[@]}; do
+        GREP_PATH_HOOFS_POSH="${GREP_PATH_HOOFS_POSH} ${WORKSPACE}/${COMPONENT}/$DIR"
+    done
+fi
 done
 
 echo "# QNX platform / libc headers" | tee -a $CURRENTLY_USED_HEADERS
