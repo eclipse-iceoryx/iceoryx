@@ -25,7 +25,7 @@
 class Barrier
 {
   public:
-    Barrier(uint32_t requiredCount = 0)
+    explicit Barrier(uint32_t requiredCount = 0)
         : m_requiredCount(requiredCount)
     {
     }
