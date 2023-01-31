@@ -42,7 +42,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
         return;
     }
 
-    DeadlineTimer timer(roudiWaitingTimeout);
+    deadline_timer timer(roudiWaitingTimeout);
 
     enum class RegState
     {
@@ -181,7 +181,7 @@ size_t IpcRuntimeInterface::getShmTopicSize() noexcept
     return m_shmTopicSize;
 }
 
-void IpcRuntimeInterface::waitForRoudi(DeadlineTimer& timer) noexcept
+void IpcRuntimeInterface::waitForRoudi(deadline_timer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;

@@ -19,29 +19,29 @@
 
 namespace iox
 {
-DeadlineTimer::DeadlineTimer(const iox::units::Duration timeToWait) noexcept
+deadline_timer::deadline_timer(const iox::units::Duration timeToWait) noexcept
     : m_timeToWait(timeToWait)
     , m_endTime(getCurrentMonotonicTime() + timeToWait)
 {
 }
 
-bool DeadlineTimer::hasExpired() const noexcept
+bool deadline_timer::hasExpired() const noexcept
 {
     return getCurrentMonotonicTime() >= m_endTime;
 }
 
-void DeadlineTimer::reset() noexcept
+void deadline_timer::reset() noexcept
 {
     m_endTime = getCurrentMonotonicTime() + m_timeToWait;
 }
 
-void DeadlineTimer::reset(const iox::units::Duration timeToWait) noexcept
+void deadline_timer::reset(const iox::units::Duration timeToWait) noexcept
 {
     m_timeToWait = timeToWait;
     reset();
 }
 
-iox::units::Duration DeadlineTimer::remainingTime() const noexcept
+iox::units::Duration deadline_timer::remainingTime() const noexcept
 {
     const iox::units::Duration currentTime{getCurrentMonotonicTime()};
     if (m_endTime > currentTime)
@@ -51,7 +51,7 @@ iox::units::Duration DeadlineTimer::remainingTime() const noexcept
     return iox::units::Duration(std::chrono::milliseconds(0));
 }
 
-iox::units::Duration DeadlineTimer::getCurrentMonotonicTime() noexcept
+iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
     return iox::units::Duration{std::chrono::steady_clock::now().time_since_epoch()};
 }

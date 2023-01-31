@@ -28,7 +28,7 @@ namespace iox
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
 /// @code
-///     iox::cxx::DeadlineTimer deadlineTimer(1000_ms);
+///     iox::cxx::deadline_timer deadlineTimer(1000_ms);
 ///
 ///     // to check if the timer is active
 ///     if( deadlineTimer.hasExpired()){
@@ -38,12 +38,12 @@ namespace iox
 ///     deadlineTimer.reset();
 ///
 /// @endcode
-class DeadlineTimer
+class deadline_timer
 {
   public:
     /// @brief Constructor
     /// @param[in] timeToWait duration until the timer expires
-    explicit DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
+    explicit deadline_timer(const iox::units::Duration timeToWait) noexcept;
 
     /// @brief Checks if the timer has expired compared to its absolute end time
     /// @return false if the timer is still active and true if it is expired
