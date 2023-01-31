@@ -38,7 +38,7 @@ struct DefaultHooks
     /// @brief called if the polymorphic handler is set or reset after finalize
     /// @param currentInstance the current instance of the handler singleton
     /// @param newInstance the instance of the handler singleton to be set
-    /// @note calls terminate and does not return
+    /// @note calls abort and does not return
     [[noreturn]] static void onSetAfterFinalize(Interface& currentInstance, Interface& newInstance) noexcept;
 };
 
@@ -59,7 +59,7 @@ struct DefaultHooks
 /// It must be ensured that they are destroyed before the PolymorphicHandler.
 /// @note Hooks must implement
 /// static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
-/// @note DefaultHooks call terminate if the handler is set or reset after finalize
+/// @note DefaultHooks call abort if the handler is set or reset after finalize
 template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>
 class PolymorphicHandler
 {

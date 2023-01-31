@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 #include <atomic>
-#include <exception>
+#include <cstdlib>
 #include <type_traits>
 
 namespace iox
@@ -36,7 +36,7 @@ template <typename Interface>
 {
     // we should not use an error handling construct (e.g. some IOX_ASSERT) here for dependency reasons
     // we could in principle do nothing by default as well, but the misuse failure should have visible consequences
-    std::terminate();
+    std::abort();
 }
 
 } // namespace detail
