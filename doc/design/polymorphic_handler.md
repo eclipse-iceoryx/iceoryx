@@ -11,10 +11,10 @@ that also inherits from `I`
    variables
 1. Obtaining the current handler must be thread-safe
 1. It must be possible to finalize the handler, i.e. prohibit any changes after it is finalized.
-1. Any attempt to change the handler after it is finalized, shall call an function that has access
+1. Any attempt to change the handler after it is finalized, shall call a function that has access
    to the current and new handler (for e.g. logging).
 
-To achieve this, we define another support class `StaticLifeTimeGuard` that solves the singleton lifetime problem.
+To achieve this, we define another support class `StaticLifetimeGuard` that solves the singleton lifetime problem.
 This class can be used on its own and is based on the nifty counter reference counting.
 
 While obtaining the instance is thread-safe, the instance managed by the handler may not be
@@ -172,7 +172,15 @@ StaticLifetimeGuard<OtherHandler> guard;
 
 // set the handler to the instance guarded by guard,
 // this will create another guard to ensure the lifetime
-Handler::set(guard);
+bool success = Handler::set(guard);
+if(!success)
+{
+    // set may only fail after finalize
+    //
+    // do something in this case
+    // ...
+    // even if set was not successful, get() will return the previous handler
+}
 
 // OtherHandler instance exists now,
 // any other thread will eventually use the new handler
@@ -226,7 +234,7 @@ Otherwise it will obtain the new handler with a stronger memory synchronization 
 
 Note that the current handler can change any time but there is no problem as all handlers remain
 usbale during the entire program lifetime. Due to this, there are no issues like the ABA problem,
-the worst thing that can happen is working with a outdated handler.
+the worst thing that can happen is working with an outdated handler.
 
 This does not require blocking and only relies on fairly cheap atomic operations.
 Without using a mutex while using the handler, it is impossible that

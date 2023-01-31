@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 #include <atomic>
+#include <exception>
 #include <type_traits>
 
 namespace iox
@@ -31,7 +32,7 @@ namespace detail
 {
 
 template <typename Interface>
-void DefaultHooks<Interface>::onSetAfterFinalize(Interface&, Interface&) noexcept
+[[noreturn]] void DefaultHooks<Interface>::onSetAfterFinalize(Interface&, Interface&) noexcept
 {
     // we should not use an error handling construct (e.g. some IOX_ASSERT) here for dependency reasons
     // we could in principle do nothing by default as well, but the misuse failure should have visible consequences

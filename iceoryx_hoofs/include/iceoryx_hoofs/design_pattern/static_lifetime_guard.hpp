@@ -35,9 +35,9 @@ namespace design_pattern
 /// Hence there can be guards without any instance existing.
 /// These guards still protect the instance from destruction if it is ever constructed.
 /// 4. If and once the instance is constructed, it will be destructed only after main exits (static
-/// destruction time).
-/// Existing guards used variables must be used to control destruction order
-/// of static variables if a specific order is required.
+/// destruction).
+/// 5. Guards can be used in static variables to control destruction order of static (singleton)
+/// instances if a specific order of destruction is required.
 /// @tparam T the type of the instance to be guarded
 ///
 /// @note all public functions are thread-safe

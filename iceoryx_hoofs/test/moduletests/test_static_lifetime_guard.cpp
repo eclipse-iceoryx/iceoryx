@@ -306,7 +306,7 @@ TEST_F(StaticLifetimeGuard_test, constructionAfterDestructionWorks)
         EXPECT_EQ(instance.id, FIRST_INSTANCE_ID);
     }
 
-    // first instance destroyed (should usually only happen at the the program end
+    // first instance destroyed (should usually only happen at the end of the program
     // during static destruction)
 
     T::Foo::reset();
@@ -349,7 +349,7 @@ TEST_F(StaticLifetimeGuard_test, instanceCtorIsConcurrentlyCalledExactlyOnce)
         // all threads have notfied (but may pass wait in any order ...)
 
         // cannot wait too long otherwise we slow down the tests too much,
-        // cannot be optimized away, as it has has side effects (counting)
+        // cannot be optimized away, as it has side effects (counting)
         Sut::instance(std::chrono::milliseconds(1));
     };
 

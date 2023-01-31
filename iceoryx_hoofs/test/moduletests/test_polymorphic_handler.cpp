@@ -223,7 +223,7 @@ TEST_F(PolymorphicHandler_test, settingAfterFinalizeCallsHook)
     // we always finalize it to be alternateHandler
     Handler::set(alternateGuard);
 
-    // reset the handler value to non-zero and check later whether they are set to non-zero as expecteded
+    // reset the handler value to zero and check later whether they are set to non-zero as expected
     defaultHandler.reset();
     alternateHandler.reset();
 

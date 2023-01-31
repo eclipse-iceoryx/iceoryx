@@ -18,7 +18,6 @@
 #define IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_HPP
 
 #include <atomic>
-#include <iostream>
 #include <type_traits>
 
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
@@ -39,7 +38,8 @@ struct DefaultHooks
     /// @brief called if the polymorphic handler is set or reset after finalize
     /// @param currentInstance the current instance of the handler singleton
     /// @param newInstance the instance of the handler singleton to be set
-    static void onSetAfterFinalize(Interface& currentInstance, Interface& newInstance) noexcept;
+    /// @note calls terminate and does not return
+    [[noreturn]] static void onSetAfterFinalize(Interface& currentInstance, Interface& newInstance) noexcept;
 };
 
 } // namespace detail
@@ -53,13 +53,13 @@ struct DefaultHooks
 /// attempting to set or reset the handler after finalize was called.
 ///
 /// @note In the special case where Default equals Interface, no polymorphism is required.
-/// It is then possible to e.g. switch between multiple instances of Default type.
 /// @note The lifetime of external non-default instances must exceed the lifetime of the PolymorphicHandler.
 /// @note The PolymorphicHandler is guaranteed to provide a valid handler during the whole program lifetime (static).
 /// It is hence not advisable to have other static variables depend on the PolymorphicHandler.
 /// It must be ensured that they are destroyed before the PolymorphicHandler.
 /// @note Hooks must implement
 /// static void onSetAfterFinalize(Interface& /*currentInstance*/, Interface& /*newInstance*/).
+/// @note DefaultHooks call terminate if the handler is set or reset after finalize
 template <typename Interface, typename Default, typename Hooks = detail::DefaultHooks<Interface>>
 class PolymorphicHandler
 {

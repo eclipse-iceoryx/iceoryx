@@ -72,8 +72,7 @@ template <typename T>
 template <typename... Args>
 T& StaticLifetimeGuard<T>::instance(Args&&... args) noexcept
 {
-    // primary guard
-    static StaticLifetimeGuard<T> guard;
+    static StaticLifetimeGuard<T> primaryGuard;
 
     // we determine wether this call has to initialize the instance
     // via CAS (without mutex!)
