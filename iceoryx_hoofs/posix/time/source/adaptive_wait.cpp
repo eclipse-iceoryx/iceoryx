@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
+#include "iox/detail/adaptive_wait.hpp"
 
 #include <thread>
 
 namespace iox
 {
-namespace internal
+namespace detail
 {
 constexpr std::chrono::microseconds adaptive_wait::INITIAL_WAITING_TIME;
 constexpr std::chrono::milliseconds adaptive_wait::FINAL_WAITING_TIME;
@@ -52,5 +52,5 @@ void adaptive_wait::wait_loop(const cxx::function_ref<bool()>& continueToWait) n
         wait();
     }
 }
-} // namespace internal
+} // namespace detail
 } // namespace iox

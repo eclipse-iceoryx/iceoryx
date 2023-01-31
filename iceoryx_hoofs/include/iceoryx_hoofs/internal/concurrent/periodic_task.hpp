@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 #define IOX_HOOFS_CONCURRENT_PERIODIC_TASK_HPP
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
+#include "iox/duration.hpp"
 #include "iox/string.hpp"
 
 #include <thread>
@@ -46,7 +46,7 @@ static constexpr PeriodicTaskManualStart_t PeriodicTaskManualStart;
 ///        This can be a struct with a 'operator()()' overload, a 'cxx::function_ref<void()>' or 'std::fuction<void()>'.
 /// @code
 /// #include <iceoryx_hoofs/internal/concurrent/periodic_task.hpp>
-/// #include <iceoryx_hoofs/internal/units/duration.hpp>
+/// #include <iox/duration.hpp>
 /// #include <iostream>
 ///
 /// int main()

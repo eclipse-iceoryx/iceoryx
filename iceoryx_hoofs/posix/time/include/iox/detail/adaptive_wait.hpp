@@ -14,17 +14,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
-#define IOX_HOOFS_CXX_ADAPTIVE_WAIT_HPP
+#ifndef IOX_HOOFS_TIME_ADAPTIVE_WAIT_HPP
+#define IOX_HOOFS_TIME_ADAPTIVE_WAIT_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iox/duration.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
-namespace internal
+namespace detail
 {
 /// @brief Building block to implement a busy waiting loop efficiently. It
 ///        pursues a strategy where in the beginning the behavior is like a
@@ -102,7 +102,7 @@ class adaptive_wait
   private:
     uint64_t m_yieldCount = 0U;
 };
-} // namespace internal
+} // namespace detail
 } // namespace iox
 
-#endif
+#endif // IOX_HOOFS_TIME_ADAPTIVE_WAIT_HPP

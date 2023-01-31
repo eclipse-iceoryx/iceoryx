@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iox/duration.hpp"
 
 #include <atomic>
 #include <chrono>

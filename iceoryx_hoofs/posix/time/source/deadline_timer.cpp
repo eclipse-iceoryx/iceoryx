@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+#include "iox/deadline_timer.hpp"
 
 namespace iox
 {

@@ -17,11 +17,11 @@
 
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/duration.hpp"
 #include "iox/into.hpp"
 
 #include <chrono>

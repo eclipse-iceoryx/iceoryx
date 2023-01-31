@@ -19,12 +19,12 @@
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/un.hpp"
+#include "iox/duration.hpp"
 #include "iox/optional.hpp"
 
 namespace iox

@@ -13,11 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_DEADLINETIMER_HPP
-#define IOX_HOOFS_CXX_DEADLINETIMER_HPP
+#ifndef IOX_HOOFS_TIME_DEADLINE_TIMER_HPP
+#define IOX_HOOFS_TIME_DEADLINE_TIMER_HPP
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/signal.hpp"
+#include "iox/duration.hpp"
 
 #include <chrono>
 #include <cstdint>
@@ -72,4 +72,4 @@ class deadline_timer
 } // namespace iox
 
 
-#endif // IOX_HOOFS_CXX_DEADLINETIMER_HPP
+#endif // IOX_HOOFS_TIME_DEADLINE_TIMER_HPP

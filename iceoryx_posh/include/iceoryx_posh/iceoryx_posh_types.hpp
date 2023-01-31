@@ -22,10 +22,10 @@
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iox/duration.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
