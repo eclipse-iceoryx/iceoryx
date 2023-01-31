@@ -14,12 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iox/functional_interface.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 namespace internal
 {
@@ -31,5 +29,4 @@ void print_expect_message(const char* message) noexcept
     IOX_LOG(FATAL) << message;
 }
 } // namespace internal
-} // namespace cxx
 } // namespace iox

@@ -220,7 +220,7 @@
    via a pointer to `FunctionalInterface`
 
    ```cpp
-   iox::cxx::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
+   iox::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
        new iox::optional<MyClass>{};
 
    delete soSmart; // <- not possible anymore

@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test_cxx_functional_interface_common.hpp"
+#include "test_design_functional_interface_common.hpp"
 
-namespace test_cxx_functional_interface
+namespace test_design_functional_interface
 {
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters) only for testing purposes
 GenericValueError::GenericValueError(const value_t value, const error_t error) noexcept
@@ -95,4 +95,4 @@ GenericPlain::operator bool() const noexcept
 }
 
 
-} // namespace test_cxx_functional_interface
+} // namespace test_design_functional_interface
