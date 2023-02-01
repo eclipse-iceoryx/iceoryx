@@ -17,7 +17,7 @@
 set_global(VAR ICEORYX_CXX_STANDARD         VALUE 14)
 set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "Linux")
 
-set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
+set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion -Wsign-compare)
 set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     set_global(VAR ICEORYX_CXX_WARNINGS     VALUE ${ICEORYX_CXX_WARNINGS} -Wuseless-cast)
