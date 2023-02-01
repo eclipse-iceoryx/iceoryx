@@ -17,14 +17,14 @@
 #ifndef IOX_HOOFS_DESIGN_NEWTYPE_HPP
 #define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
-#include "detail/newtype/assignment.hpp"
-#include "detail/newtype/comparable.hpp"
-#include "detail/newtype/constructor.hpp"
-#include "detail/newtype/convertable.hpp"
-#include "detail/newtype/internal.hpp"
-#include "detail/newtype/protected_constructor.hpp"
-#include "detail/newtype/sortable.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/detail/newtype/assignment.hpp"
+#include "iox/detail/newtype/comparable.hpp"
+#include "iox/detail/newtype/constructor.hpp"
+#include "iox/detail/newtype/convertable.hpp"
+#include "iox/detail/newtype/internal.hpp"
+#include "iox/detail/newtype/protected_constructor.hpp"
+#include "iox/detail/newtype/sortable.hpp"
 
 namespace iox
 {

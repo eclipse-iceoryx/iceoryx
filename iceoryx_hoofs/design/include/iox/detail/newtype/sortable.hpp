@@ -16,7 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 #ifndef IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
 #define IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
-#include "internal.hpp"
+
+#include "iox/detail/newtype/internal.hpp"
 
 namespace iox
 {

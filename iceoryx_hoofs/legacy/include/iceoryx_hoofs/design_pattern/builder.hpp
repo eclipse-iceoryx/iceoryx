@@ -18,7 +18,6 @@
 #define IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
 
 #include "iox/builder.hpp"
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/builder.hpp' instead")]]
+/// @deprecated please include 'iox/builder.hpp' instead of 'iceoryx_hoofs/design_pattern/builder.hpp'
 
 #endif
