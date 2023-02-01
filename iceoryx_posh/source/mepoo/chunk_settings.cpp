@@ -15,8 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -45,7 +46,7 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32
     uint32_t adjustedUserPayloadAlignment = userPayloadAlignment == 0U ? 1U : userPayloadAlignment;
     uint32_t adjustedUserHeaderAlignment = userHeaderAlignment == 0U ? 1U : userHeaderAlignment;
 
-    if (!cxx::isPowerOfTwo(adjustedUserPayloadAlignment) || !cxx::isPowerOfTwo(adjustedUserHeaderAlignment))
+    if (!isPowerOfTwo(adjustedUserPayloadAlignment) || !isPowerOfTwo(adjustedUserHeaderAlignment))
     {
         return error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
     }
@@ -103,7 +104,7 @@ uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSiz
     constexpr uint64_t SIZE_OF_USER_PAYLOAD_OFFSET_T{sizeof(ChunkHeader::UserPayloadOffset_t)};
     constexpr uint64_t ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T{alignof(ChunkHeader::UserPayloadOffset_t)};
     uint64_t headerSize = sizeof(ChunkHeader) + userHeaderSize;
-    uint64_t preUserPayloadAlignmentOverhang = cxx::align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
+    uint64_t preUserPayloadAlignmentOverhang = align(headerSize, ALIGNMENT_OF_USER_PAYLOAD_OFFSET_T);
     uint64_t maxPadding = algorithm::maxVal(SIZE_OF_USER_PAYLOAD_OFFSET_T, static_cast<uint64_t>(userPayloadAlignment));
     uint64_t requiredChunkSize = preUserPayloadAlignmentOverhang + maxPadding + userPayloadSize;
 

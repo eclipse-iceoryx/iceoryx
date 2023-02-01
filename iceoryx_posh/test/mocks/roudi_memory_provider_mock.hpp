@@ -20,8 +20,8 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
-
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
+#include "iox/memory.hpp"
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <malloc.h>
@@ -46,7 +46,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-        dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
+        dummyMemory = static_cast<uint8_t*>(iox::alignedAlloc(alignment, size));
         return iox::success<void*>(dummyMemory);
     }
 #ifdef __clang__
@@ -65,7 +65,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             destroyMemoryMock();
         }
 
-        iox::cxx::alignedFree(dummyMemory);
+        iox::alignedFree(dummyMemory);
         dummyMemory = nullptr;
 
         return iox::success<void>();

@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {

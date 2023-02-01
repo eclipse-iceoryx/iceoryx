@@ -20,8 +20,6 @@
 
 namespace iox
 {
-namespace cxx
-{
 template <uint64_t N>
 inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value)
 {
@@ -33,7 +31,6 @@ inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& v
 {
     return string<N>(TruncateToCapacity, value.c_str(), value.size());
 }
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_DUST_STD_STRING_SUPPORT_INL

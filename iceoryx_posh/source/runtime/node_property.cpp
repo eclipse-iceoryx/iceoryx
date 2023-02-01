@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 
 namespace iox

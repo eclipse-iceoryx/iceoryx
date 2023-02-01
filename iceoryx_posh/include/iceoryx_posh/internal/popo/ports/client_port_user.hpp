@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"

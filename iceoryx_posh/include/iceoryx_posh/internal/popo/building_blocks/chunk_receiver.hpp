@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_RECEIVER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver_data.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/expected.hpp"
+#include "iox/not_null.hpp"
 
 namespace iox
 {
@@ -63,7 +63,7 @@ class ChunkReceiver : public ChunkQueuePopper<typename ChunkReceiverDataType::Ch
     using MemberType_t = ChunkReceiverDataType;
     using Base_t = ChunkQueuePopper<typename ChunkReceiverDataType::ChunkQueueData_t>;
 
-    explicit ChunkReceiver(cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
+    explicit ChunkReceiver(not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept;
 
     ChunkReceiver(const ChunkReceiver& other) = delete;
     ChunkReceiver& operator=(const ChunkReceiver&) = delete;

@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_VERSION_VERSION_INFO_HPP
 #define IOX_POSH_VERSION_VERSION_INFO_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/size.hpp"
 #include "iox/string.hpp"
 
 #include <cstdint>
@@ -85,7 +85,7 @@ class VersionInfo
     static_assert(COMMIT_ID_STRING_SIZE <= SERIALIZATION_STRING_SIZE, "CommitId needs to transfered completely.");
     static_assert(COMMIT_ID_STRING_SIZE <= BUILD_DATE_STRING_SIZE, "BuildDate needs to transfered completely.");
     static constexpr uint64_t NULL_TERMINATION_SIZE{1};
-    static_assert((cxx::arrayCapacity(ICEORYX_BUILDDATE) - NULL_TERMINATION_SIZE) < BUILD_DATE_STRING_SIZE,
+    static_assert((size(ICEORYX_BUILDDATE) - NULL_TERMINATION_SIZE) < BUILD_DATE_STRING_SIZE,
                   "COMMIT_BUILD_DATE_STRING_SIZE needs to be bigger.");
 
   protected:

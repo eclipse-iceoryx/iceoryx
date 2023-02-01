@@ -16,7 +16,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "test.hpp"
 
 

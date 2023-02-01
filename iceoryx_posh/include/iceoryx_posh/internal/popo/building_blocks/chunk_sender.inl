@@ -22,8 +22,7 @@
 
 namespace iox
 {
-namespace cxx
-{
+
 template <>
 constexpr popo::AllocationError
 from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error)
@@ -39,7 +38,6 @@ from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryMana
     }
     return popo::AllocationError::UNDEFINED_ERROR;
 }
-} // namespace cxx
 
 namespace popo
 {
@@ -77,7 +75,7 @@ inline log::LogStream& operator<<(log::LogStream& stream, AllocationError value)
 }
 
 template <typename ChunkSenderDataType>
-inline ChunkSender<ChunkSenderDataType>::ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
+inline ChunkSender<ChunkSenderDataType>::ChunkSender(not_null<MemberType_t* const> chunkSenderDataPtr) noexcept
     : Base_t(static_cast<typename ChunkSenderDataType::ChunkDistributorData_t* const>(chunkSenderDataPtr))
 {
 }
@@ -164,7 +162,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         else
         {
             /// @todo iox-#1012 use error<E2>::from(E1); once available
-            return error<AllocationError>(cxx::into<AllocationError>(getChunkResult.get_error()));
+            return error<AllocationError>(into<AllocationError>(getChunkResult.get_error()));
         }
     }
 }

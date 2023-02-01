@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
 namespace iox
@@ -60,7 +59,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
             uint64_t addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
             uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader);
             uint64_t alignedUserPayloadAddress =
-                iox::cxx::align(headerEndAddress, static_cast<uint64_t>(userPayloadAlignment));
+                iox::align(headerEndAddress, static_cast<uint64_t>(userPayloadAlignment));
             uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
             // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the
             // alignment must be a power of 2, the max alignment is about half of the max value the type can hold
@@ -84,10 +83,10 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         auto addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
         uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader) + userHeaderSize;
         uint64_t userPayloadOffsetAlignment = alignof(UserPayloadOffset_t);
-        uint64_t anticipatedBackOffsetAddress = iox::cxx::align(headerEndAddress, userPayloadOffsetAlignment);
+        uint64_t anticipatedBackOffsetAddress = iox::align(headerEndAddress, userPayloadOffsetAlignment);
         uint64_t unalignedUserPayloadAddress = anticipatedBackOffsetAddress + sizeof(UserPayloadOffset_t);
         uint64_t alignedUserPayloadAddress =
-            iox::cxx::align(unalignedUserPayloadAddress, static_cast<uint64_t>(userPayloadAlignment));
+            iox::align(unalignedUserPayloadAddress, static_cast<uint64_t>(userPayloadAlignment));
         uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
         // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the alignment
         // must be a power of 2, the max alignment is about half of the max value the type can hold

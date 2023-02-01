@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iox/not_null.hpp"
 
 #include <thread>
 
@@ -67,7 +67,7 @@ class ChunkDistributor
     using ChunkQueueData_t = typename ChunkDistributorDataType::ChunkQueueData_t;
     using ChunkQueuePusher_t = typename ChunkDistributorDataType::ChunkQueuePusher_t;
 
-    explicit ChunkDistributor(cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
+    explicit ChunkDistributor(not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
 
     ChunkDistributor(const ChunkDistributor& other) = delete;
     ChunkDistributor& operator=(const ChunkDistributor&) = delete;
@@ -81,13 +81,13 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+    expected<ChunkDistributorError> tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
                                                 const uint64_t requestedHistory = 0U) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    expected<ChunkDistributorError> tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
@@ -143,7 +143,7 @@ class ChunkDistributor
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    bool pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
+    bool pushToQueue(not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
   private:
     MemberType_t* m_chunkDistrubutorDataPtr{nullptr};

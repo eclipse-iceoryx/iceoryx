@@ -217,7 +217,7 @@ int32_t myAlgorithm(int32_t* ptr) {
 }
 ```
 
-Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``not_null`` incurs a runtime cost, which may be undesirable.
+Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``iox::not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``iox::not_null`` incurs a runtime cost, which may be undesirable.
 When Expects and Ensures are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
 
 ### `expected`

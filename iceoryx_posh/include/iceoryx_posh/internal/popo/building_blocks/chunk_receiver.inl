@@ -50,8 +50,7 @@ inline log::LogStream& operator<<(log::LogStream& stream, ChunkReceiveResult val
 }
 
 template <typename ChunkReceiverDataType>
-inline ChunkReceiver<ChunkReceiverDataType>::ChunkReceiver(
-    cxx::not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
+inline ChunkReceiver<ChunkReceiverDataType>::ChunkReceiver(not_null<MemberType_t* const> chunkReceiverDataPtr) noexcept
     : Base_t(static_cast<typename ChunkReceiverDataType::ChunkQueueData_t*>(chunkReceiverDataPtr))
 {
 }

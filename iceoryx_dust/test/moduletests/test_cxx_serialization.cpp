@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "test.hpp"
 
 namespace

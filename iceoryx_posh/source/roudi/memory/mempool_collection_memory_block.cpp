@@ -21,6 +21,7 @@
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -39,7 +40,7 @@ MemPoolCollectionMemoryBlock::~MemPoolCollectionMemoryBlock() noexcept
 uint64_t MemPoolCollectionMemoryBlock::size() const noexcept
 {
     const uint64_t memoryManagerSize = sizeof(mepoo::MemoryManager);
-    return cxx::align(memoryManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    return align(memoryManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::MemoryManager::requiredFullMemorySize(m_memPoolConfig);
 }
 
@@ -49,7 +50,7 @@ uint64_t MemPoolCollectionMemoryBlock::alignment() const noexcept
     return algorithm::maxVal(memoryManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
-void MemPoolCollectionMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
+void MemPoolCollectionMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));

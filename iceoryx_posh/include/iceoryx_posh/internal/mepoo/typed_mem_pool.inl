@@ -27,7 +27,7 @@ namespace iox
 namespace mepoo
 {
 template <typename T>
-inline TypedMemPool<T>::TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+inline TypedMemPool<T>::TypedMemPool(const greater_or_equal<uint32_t, 1> numberOfChunks,
                                      BumpAllocator& managementAllocator,
                                      BumpAllocator& chunkMemoryAllocator) noexcept
     : m_memPool(static_cast<uint32_t>(requiredChunkSize()), numberOfChunks, managementAllocator, chunkMemoryAllocator)
@@ -130,24 +130,24 @@ inline uint64_t TypedMemPool<T>::requiredChunkSize() noexcept
     // this is safe since we use correct values for size and alignment
     auto& chunkSettings = chunkSettingsResult.value();
 
-    return cxx::align(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    return align(static_cast<uint64_t>(chunkSettings.requiredChunkSize()), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredManagementMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
     uint64_t memorySizeForManagementPoolChunks =
-        cxx::align(f_numberOfChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
+        align(f_numberOfChunks * sizeof(ChunkManagement), MemPool::CHUNK_MEMORY_ALIGNMENT);
     uint64_t memorySizeForIndices = MemPool::freeList_t::requiredIndexMemorySize(f_numberOfChunks);
     uint64_t memorySizeForIndicesOfManangementAndDataMemPools =
-        2 * cxx::align(memorySizeForIndices, MemPool::CHUNK_MEMORY_ALIGNMENT);
+        2 * align(memorySizeForIndices, MemPool::CHUNK_MEMORY_ALIGNMENT);
     return memorySizeForManagementPoolChunks + memorySizeForIndicesOfManangementAndDataMemPools;
 }
 
 template <typename T>
 inline uint64_t TypedMemPool<T>::requiredChunkMemorySize(const uint64_t f_numberOfChunks) noexcept
 {
-    return cxx::align(f_numberOfChunks * requiredChunkSize(), MemPool::CHUNK_MEMORY_ALIGNMENT);
+    return align(f_numberOfChunks * requiredChunkSize(), MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
 template <typename T>

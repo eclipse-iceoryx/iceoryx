@@ -81,7 +81,7 @@ ConditionListener::NotificationVector_t ConditionListener::timedWait(const units
 
 ConditionListener::NotificationVector_t ConditionListener::waitImpl(const cxx::function_ref<bool()>& waitCall) noexcept
 {
-    using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
+    using Type_t = iox::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     NotificationVector_t activeNotifications;
 
     resetSemaphore();

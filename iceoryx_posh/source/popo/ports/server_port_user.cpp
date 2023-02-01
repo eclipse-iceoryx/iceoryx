@@ -49,7 +49,7 @@ expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequest()
             return error<ServerRequestResult>(ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
         }
         /// @todo iox-#1012 use error<E2>::from(E1); once available
-        return error<ServerRequestResult>(cxx::into<ServerRequestResult>(getChunkResult.get_error()));
+        return error<ServerRequestResult>(into<ServerRequestResult>(getChunkResult.get_error()));
     }
 
     return success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));

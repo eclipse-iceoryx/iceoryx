@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 #define IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
@@ -25,6 +25,7 @@
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
+#include "iox/memory.hpp"
 
 #include <cstdint>
 #include <limits>
@@ -45,7 +46,7 @@ struct MePooConfig;
 
 class MemoryManager
 {
-    using MaxChunkPayloadSize_t = cxx::range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
+    using MaxChunkPayloadSize_t = range<uint32_t, 1, std::numeric_limits<uint32_t>::max() - sizeof(ChunkHeader)>;
 
   public:
     enum class Error
@@ -85,8 +86,8 @@ class MemoryManager
     void printMemPoolVector(log::LogStream& log) const noexcept;
     void addMemPool(BumpAllocator& managementAllocator,
                     BumpAllocator& chunkMemoryAllocator,
-                    const cxx::greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
-                    const cxx::greater_or_equal<uint32_t, 1> numberOfChunks) noexcept;
+                    const greater_or_equal<uint32_t, MemPool::CHUNK_MEMORY_ALIGNMENT> chunkPayloadSize,
+                    const greater_or_equal<uint32_t, 1> numberOfChunks) noexcept;
     void generateChunkManagementPool(BumpAllocator& managementAllocator) noexcept;
 
   private:

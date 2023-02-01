@@ -20,6 +20,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
+#include "iox/memory.hpp"
 
 #include <cstdint>
 

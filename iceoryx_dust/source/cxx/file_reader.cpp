@@ -16,7 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
+
+#include "iceoryx_platform/platform_correction.hpp"
+#include "iceoryx_platform/platform_settings.hpp"
 
 #include <iostream>
 #include <string>

@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
@@ -50,7 +50,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    if (cxx::isCompiledOn32BitSystem())
+    if (internal::isCompiledOn32BitSystem())
     {
         LogWarn() << "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!";
     }
@@ -173,7 +173,7 @@ void RouDi::processRuntimeMessages() noexcept
         if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
-            RuntimeName_t runtimeName{cxx::into<RuntimeName_t>(message.getElementAtIndex(1))};
+            RuntimeName_t runtimeName{into<RuntimeName_t>(message.getElementAtIndex(1))};
 
             processMessage(message, cmd, runtimeName);
         }
@@ -388,11 +388,9 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            capro::Interfaces interface =
-                StringToCaProInterface(cxx::into<capro::IdString_t>(message.getElementAtIndex(2)));
+            capro::Interfaces interface = StringToCaProInterface(into<capro::IdString_t>(message.getElementAtIndex(2)));
 
-            m_prcMgr->addInterfaceForProcess(
-                runtimeName, interface, cxx::into<NodeName_t>(message.getElementAtIndex(3)));
+            m_prcMgr->addInterfaceForProcess(runtimeName, interface, into<NodeName_t>(message.getElementAtIndex(3)));
         }
         break;
     }

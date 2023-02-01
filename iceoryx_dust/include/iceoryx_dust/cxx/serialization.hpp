@@ -14,10 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_SERIALIZATION_HPP
-#define IOX_HOOFS_CXX_SERIALIZATION_HPP
+#ifndef IOX_DUST_CXX_SERIALIZATION_HPP
+#define IOX_DUST_CXX_SERIALIZATION_HPP
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -140,6 +140,6 @@ class Serialization
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/serialization.inl"
+#include "iceoryx_dust/internal/cxx/serialization.inl"
 
-#endif // IOX_HOOFS_CXX_SERIALIZATION_HPP
+#endif // IOX_DUST_CXX_SERIALIZATION_HPP

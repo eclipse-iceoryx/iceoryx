@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include <iomanip>
 
 namespace iox
@@ -41,13 +41,13 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
 }
 
 uint32_t&
-ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
+ServiceDescription::ClassHash::operator[](iox::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t& ServiceDescription::ClassHash::operator[](
-    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
+const uint32_t&
+ServiceDescription::ClassHash::operator[](iox::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
 {
     return data[index];
 }

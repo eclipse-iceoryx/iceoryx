@@ -22,9 +22,9 @@ namespace iox
 {
 namespace mepoo
 {
-ChunkManagement::ChunkManagement(const cxx::not_null<base_t*> chunkHeader,
-                                 const cxx::not_null<MemPool*> mempool,
-                                 const cxx::not_null<MemPool*> chunkManagementPool) noexcept
+ChunkManagement::ChunkManagement(const not_null<base_t*> chunkHeader,
+                                 const not_null<MemPool*> mempool,
+                                 const not_null<MemPool*> chunkManagementPool) noexcept
     : m_chunkHeader(chunkHeader)
     , m_mempool(mempool)
     , m_chunkManagementPool(chunkManagementPool)

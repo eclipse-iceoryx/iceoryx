@@ -318,14 +318,83 @@
     }
     ```
 
-14. Remove `forEach` from helplets
+14. Moved or removed various functions from helplets
 
     ```cpp
     // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
     iox::cxx::forEach(container, [&] (element) { /* do stuff with element */ });
 
     // after
     for (const auto& element: container) { /* do stuff with element */ }
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::greater_or_equal(..);
+    iox::cxx::range(..);
+    iox::cxx::BestFittingType(..);
+    iox::cxx::isPowerOfTwo(..);
+
+    // after
+    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    iox::greater_or_equal(..);
+    iox::range(..);
+    iox::BestFittingType(..);
+    iox::isPowerOfTwo(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::align(..);
+    iox::cxx::alignedAlloc(..);
+    iox::cxx::alignedFree(..);
+    iox::cxx::maxAlignment(..);
+    iox::cxx::maxSize(..);
+
+    // after
+    #include "iox/memory.hpp"
+    iox::align(..);
+    iox::alignedAlloc(..);
+    iox::alignedFree(..);
+    iox::maxAlignment(..);
+    iox::maxSize(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::isValidPathEntry(..);
+    iox::cxx::isValidFileName(..);
+    iox::cxx::isValidPathToFile(..);
+    iox::cxx::isValidPathToDirectory(..);
+    iox::cxx::doesEndWithPathSeparator(..);
+    
+    // after
+    #include "iceoryx_hoofs/cxx/filesystem.hpp"
+    iox::cxx::isValidPathEntry(..);
+    iox::cxx::isValidFileName(..);
+    iox::cxx::isValidPathToFile(..);
+    iox::cxx::isValidPathToDirectory(..);
+    iox::cxx::doesEndWithPathSeparator(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    template <>
+    constexpr DestType
+    iox::cxx::from<SourceType, DestType>(const SourceType value);
+    iox::cxx::into(..);
+
+    // after
+    #include "iox/into.hpp"
+    template <>
+    constexpr DestType
+    iox::from<SourceType, DestType>(const SourceType value);
+    iox::into(..);
     ```
 
 15. Remove `enumTypeAsUnderlyingType`
@@ -352,7 +421,7 @@
     std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
     ```
 
-17. Replace `strlen2` with more generic `arrayCapacity`
+17. Replace `strlen2` with more generic `iox::size`
 
     ```cpp
     constexpr const char LITERAL1[] {"FOO"};
@@ -364,9 +433,10 @@
     std::cout << iox::cxx::strlen2(LITERAL2) << std::endl; // prints 19
 
     // after
-    std::cout << arrayCapacity(LITERAL1) << std::endl; // prints 4
-    std::cout << arrayCapacity(LITERAL2) << std::endl; // prints 20
-    std::cout << arrayCapacity(ARRAY) << std::endl;    // prints 42
+    #include "iox/size.hpp"
+    std::cout << iox::size(LITERAL1) << std::endl; // prints 4
+    std::cout << iox::size(LITERAL2) << std::endl; // prints 20
+    std::cout << iox::size(ARRAY) << std::endl;    // prints 42
     ```
 
 18. Rename `cxx::GenericRAII` to `cxx::ScopeGuard`
@@ -890,6 +960,23 @@
 
     // after
     #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/serialization.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/serialization.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/convert.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/convert.hpp"
+    ```
 
 43. Move the conversions functions for `std::string` to `iceoryx_dust`:
 
@@ -906,7 +993,7 @@
 
     std::string myStdString("foo");
     // std::string to iox::string
-    iox::string<3> myIoxString = iox::cxx::into<iox::string<3>>(myStdString);
+    iox::string<3> myIoxString = iox::into<iox::string<3>>(myStdString);
     // iox::string to std::string
-    std::string myConvertedIoxString = iox::cxx::into<std::string>(myIoxString);
+    std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
     ```

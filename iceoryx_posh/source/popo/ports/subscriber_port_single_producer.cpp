@@ -21,8 +21,7 @@ namespace iox
 {
 namespace popo
 {
-SubscriberPortSingleProducer::SubscriberPortSingleProducer(
-    cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
+SubscriberPortSingleProducer::SubscriberPortSingleProducer(not_null<MemberType_t* const> subscriberPortDataPtr) noexcept
     : SubscriberPortRouDi(subscriberPortDataPtr)
 {
 }

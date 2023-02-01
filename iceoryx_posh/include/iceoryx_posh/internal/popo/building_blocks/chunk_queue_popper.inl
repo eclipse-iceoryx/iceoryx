@@ -25,8 +25,7 @@ namespace iox
 namespace popo
 {
 template <typename ChunkQueueDataType>
-inline ChunkQueuePopper<ChunkQueueDataType>::ChunkQueuePopper(
-    cxx::not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
+inline ChunkQueuePopper<ChunkQueueDataType>::ChunkQueuePopper(not_null<MemberType_t* const> chunkQueueDataPtr) noexcept
     : m_chunkQueueDataPtr(chunkQueueDataPtr)
 {
 }

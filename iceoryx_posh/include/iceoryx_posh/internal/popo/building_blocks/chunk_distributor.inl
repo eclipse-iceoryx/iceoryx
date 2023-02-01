@@ -25,7 +25,7 @@ namespace popo
 {
 template <typename ChunkDistributorDataType>
 inline ChunkDistributor<ChunkDistributorDataType>::ChunkDistributor(
-    cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept
+    not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept
     : m_chunkDistrubutorDataPtr(chunkDistrubutorDataPtr)
 {
 }
@@ -46,7 +46,7 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 
 template <typename ChunkDistributorDataType>
 inline expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
+ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
                                                         const uint64_t requestedHistory) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -98,8 +98,8 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(cxx::not_null<ChunkQueue
 }
 
 template <typename ChunkDistributorDataType>
-inline expected<ChunkDistributorError> ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(
-    cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept
+inline expected<ChunkDistributorError>
+ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
 
@@ -219,7 +219,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
 }
 
 template <typename ChunkDistributorDataType>
-inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue,
+inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(not_null<ChunkQueueData_t* const> queue,
                                                                     mepoo::SharedChunk chunk) noexcept
 {
     return ChunkQueuePusher_t(queue).push(chunk);

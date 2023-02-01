@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 
 #include <algorithm>
@@ -39,8 +38,8 @@ MemPoolInfo::MemPoolInfo(const uint32_t usedChunks,
 
 constexpr uint64_t MemPool::CHUNK_MEMORY_ALIGNMENT;
 
-MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
-                 const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
+                 const greater_or_equal<uint32_t, 1> numberOfChunks,
                  iox::BumpAllocator& managementAllocator,
                  iox::BumpAllocator& chunkMemoryAllocator) noexcept
     : m_chunkSize(chunkSize)

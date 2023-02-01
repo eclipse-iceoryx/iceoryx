@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/internal/units/duration.hpp"
 
 #include <atomic>
@@ -25,13 +24,11 @@
 #include <thread>
 
 #if defined(__clang__)
-std::string compiler =
-    "clang-" + iox::cxx::convert::toString(__clang_major__) + "." + iox::cxx::convert::toString(__clang_minor__);
+std::string compiler = "clang-" + std::to_string(__clang_major__) + "." + std::to_string(__clang_minor__);
 #elif defined(__GNUC__)
-std::string compiler =
-    "gcc-" + iox::cxx::convert::toString(__GNUC__) + "." + iox::cxx::convert::toString(__GNUC_MINOR__);
+std::string compiler = "gcc-" + std::to_string(__GNUC__) + "." + std::to_string(__GNUC_MINOR__);
 #elif defined(_MSC_VER)
-std::string compiler = "msvc-" + iox::cxx::convert::toString(_MSC_VER);
+std::string compiler = "msvc-" + std::to_string(_MSC_VER);
 #endif
 
 #define BENCHMARK(f, duration) PerformBenchmark(f, #f, duration)

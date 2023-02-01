@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/bump_allocator.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/memory.hpp"
 
 #include <iostream>
 
@@ -42,7 +42,7 @@ cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t 
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
-    uint64_t alignedPosition = cxx::align(currentAddress, static_cast<uint64_t>(alignment));
+    uint64_t alignedPosition = align(currentAddress, static_cast<uint64_t>(alignment));
 
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
     alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);

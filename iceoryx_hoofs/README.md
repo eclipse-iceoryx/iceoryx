@@ -47,6 +47,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 
 | class                 | internal | description                                                                                                                                                                                                                           |
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`not_null`             |          | Runtime check wrapper to make sure a pointer is not `nullptr`                                                                                                                                                                         |
 |`optional`             |          | C++11 implementation of the C++17 feature `std::optional`                                                                                                                                                                             |
 |`variant`              |          | C++11 implementation of the C++17 feature `std::variant`                                                                                                                                                                              |
 |`expected`             |          | Our base class used in error handling. Every function which can fail should return an expected. With this the user knows that this function can fail and that they have to do some kind of error handling. We got inspired by the [C++ expected proposal]( http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0323r7.html) and by the [rust error handling concept](https://doc.rust-lang.org/std/result/enum.Result.html). |
@@ -69,15 +70,13 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`function`             |          | A stack-based `std::function` replacement based on `storable_function`                                                                                                                                                                 |
 |`function_ref`         |          | C++11 implementation of the next-gen C++ feature `std::function_ref` see [function_ref proposal](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0792r2.html). It behaves like `std::function` but does not own the callable. |
 
-### Utility (utility?)
+### Utility (utility)
 
 | class                 | internal | description                                                                                                                                                                                                                                |
 |:---------------------:|:--------:|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`helplets`             |          | Implementations of [C++ Core Guideline](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) concepts like `not_null` are contained here. Additionally, we are providing some types to verify preconditions at compile time. Think of an int which has to be always greater 5, here we provide types like `greater_or_equal<int, 6>`.|
-|`convert`              |          | Converting a number into a string is easy, converting it back can be hard. You can use functions like `strtoll` but you still have to handle errors like under- and overflow, or converting invalid strings into number. Here we abstract all the error handling so that you can convert strings into numbers safely. |
-|`serialization`        |          | Implements a simple serialization concept for classes based on the idea presented here [ISOCPP serialization](https://isocpp.org/wiki/faq/serialization#serialize-text-format).                                                       |
-|`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                     |
-|`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                            |
+|`system_configuration` | i        | Collection of free functions which acquire system information like the page-size.                                                                                                                                                          |
+|`UniqueId`             | i        | Monotonic increasing IDs within a process.                                                                                                                                                                                                 |
+|`into`                 | i        |                                                                                                                                                                                                                                            |
 
 ### Primitives (primitives)
 
@@ -87,6 +86,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`types`                |          | Declares essential building block types like `byte_t`.                                                                                                                                                                                |
 |`attributes`           |          | C++17 and C++20 attributes are sometimes available through compiler extensions. The attribute macros defined in here (like `IOX_FALLTHROUGH`, `IOX_MAYBE_UNUSED` ... ) make sure that we are able to use them if the compiler supports it. |
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
+|`size`                 |          | Helper functions to determine the size in generic ways                                                                                                                                                                                |
 
 ### Buffer (buffer)
 

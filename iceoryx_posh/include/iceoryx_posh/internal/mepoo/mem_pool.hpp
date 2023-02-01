@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_MEPOO_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_MEM_POOL_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
@@ -50,8 +50,8 @@ class MemPool
     using freeList_t = concurrent::LoFFLi;
     static constexpr uint64_t CHUNK_MEMORY_ALIGNMENT = 8U; // default alignment for 64 bit
 
-    MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
-            const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+    MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
+            const greater_or_equal<uint32_t, 1> numberOfChunks,
             iox::BumpAllocator& managementAllocator,
             iox::BumpAllocator& chunkMemoryAllocator) noexcept;
 

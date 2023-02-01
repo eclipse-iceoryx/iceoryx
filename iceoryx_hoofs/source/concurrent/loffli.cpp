@@ -23,7 +23,7 @@ namespace iox
 {
 namespace concurrent
 {
-void LoFFLi::init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
+void LoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept
 {
     cxx::Expects(capacity > 0 && "A capacity of 0 is not supported!");
     constexpr uint32_t INTERNALLY_RESERVED_INDICES{1U};

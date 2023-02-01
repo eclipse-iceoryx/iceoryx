@@ -18,7 +18,7 @@
 #include "iceperf_leader.hpp"
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"

@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -32,7 +32,7 @@ MemoryProvider::~MemoryProvider() noexcept
     // destroy has to be called manually from outside, since it calls a pure virtual function
 }
 
-expected<MemoryProviderError> MemoryProvider::addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept
+expected<MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept
 {
     if (isAvailable())
     {
@@ -70,8 +70,8 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
 
         // just in case the memory block doesn't calculate its size as multiple of the alignment
         // this shouldn't be necessary, but also doesn't harm
-        auto size = cxx::align(memoryBlock->size(), alignment);
-        totalSize = cxx::align(totalSize, alignment) + size;
+        auto size = align(memoryBlock->size(), alignment);
+        totalSize = align(totalSize, alignment) + size;
     }
 
     auto memoryResult = createMemory(totalSize, maxAlignment);

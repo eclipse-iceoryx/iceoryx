@@ -18,9 +18,11 @@
 #define IOX_HOOFS_CXX_ALGORITHM_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 
 #include <cstdint>
-#include <type_traits>
+#include <limits>
 
 namespace iox
 {
@@ -116,6 +118,106 @@ template <typename T, typename... ValueList>
 inline constexpr bool
 doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
 } // namespace algorithm
+
+namespace internal
+{
+/// @brief struct to find the best fitting unsigned integer type
+template <bool GreaterUint8, bool GreaterUint16, bool GreaterUint32>
+struct BestFittingTypeImpl
+{
+    using Type_t = uint64_t;
+};
+
+template <>
+struct BestFittingTypeImpl<false, false, false>
+{
+    using Type_t = uint8_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, false, false>
+{
+    using Type_t = uint16_t;
+};
+
+template <>
+struct BestFittingTypeImpl<true, true, false>
+{
+    using Type_t = uint32_t;
+};
+} // namespace internal
+/// @brief get the best fitting unsigned integer type for a given value at compile time
+template <uint64_t Value>
+struct BestFittingType
+{
+    using Type_t =
+        typename internal::BestFittingTypeImpl<(Value > static_cast<uint64_t>(std::numeric_limits<uint8_t>::max())),
+                                               (Value > static_cast<uint64_t>(std::numeric_limits<uint16_t>::max())),
+                                               (Value
+                                                > static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()))>::Type_t;
+};
+
+template <uint64_t Value>
+using BestFittingType_t = typename BestFittingType<Value>::Type_t;
+
+template <typename T, T Minimum>
+struct greater_or_equal
+{
+  public:
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but which never can be less
+    // than Minimum. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    greater_or_equal(T t) noexcept
+        : m_value(t)
+    {
+        cxx::Expects(t >= Minimum);
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
+    // which never can be less than Minimum. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    constexpr operator T() const noexcept
+    {
+        return m_value;
+    }
+
+  private:
+    T m_value;
+};
+
+template <typename T, T Minimum, T Maximum>
+struct range
+{
+  public:
+    // AXIVION Next Construct AutosarC++19_03-A12.1.4: this class should behave like a T but with values only in
+    // range [Minimum, Maximum] Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    range(T t) noexcept
+        : m_value(t)
+    {
+        cxx::Expects((t >= Minimum) && (t <= Maximum));
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but
+    // with values only in range [Minimum, Maximum]. Adding explicit would defeat the purpose.
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    constexpr operator T() const noexcept
+    {
+        return m_value;
+    }
+
+  private:
+    T m_value;
+};
+
+/// @brief Checks if an unsigned integer is a power of two
+/// @return true if power of two, otherwise false
+template <typename T>
+constexpr bool isPowerOfTwo(const T n) noexcept
+{
+    static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
+    return n && ((n & (n - 1U)) == 0U);
+}
 } // namespace iox
 
 #include "iceoryx_hoofs/internal/cxx/algorithm.inl"

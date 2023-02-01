@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {

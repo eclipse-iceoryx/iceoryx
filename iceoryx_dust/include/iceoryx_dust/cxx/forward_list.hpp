@@ -18,7 +18,7 @@
 #ifndef IOX_DUST_CXX_FORWARD_LIST_HPP
 #define IOX_DUST_CXX_FORWARD_LIST_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>

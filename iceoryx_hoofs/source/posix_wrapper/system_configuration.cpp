@@ -17,19 +17,18 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
 {
-namespace posix
+namespace internal
 {
 uint64_t pageSize() noexcept
 {
     // sysconf fails when one provides an invalid name parameter. _SC_PAGESIZE
     // is a valid name parameter therefore it should never fail.
-    return static_cast<uint64_t>(posixCall(sysconf)(_SC_PAGESIZE)
+    return static_cast<uint64_t>(posix::posixCall(sysconf)(_SC_PAGESIZE)
                                      .failureReturnValue(-1)
                                      .evaluate()
                                      .or_else([](auto& r) {
@@ -39,5 +38,5 @@ uint64_t pageSize() noexcept
                                      .value()
                                      .value);
 }
-} // namespace posix
+} // namespace internal
 } // namespace iox

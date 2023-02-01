@@ -23,6 +23,7 @@
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/into.hpp"
 #include "iox/string.hpp"
 
 #include <cpptoml.h>
@@ -113,8 +114,8 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
     iox::RouDiConfig_t parsedConfig;
     for (auto segment : *segments)
     {
-        auto writer = segment->get_as<std::string>("writer").value_or(cxx::into<std::string>(groupOfCurrentProcess));
-        auto reader = segment->get_as<std::string>("reader").value_or(cxx::into<std::string>(groupOfCurrentProcess));
+        auto writer = segment->get_as<std::string>("writer").value_or(into<std::string>(groupOfCurrentProcess));
+        auto reader = segment->get_as<std::string>("reader").value_or(into<std::string>(groupOfCurrentProcess));
         iox::mepoo::MePooConfig mempoolConfig;
         auto mempools = segment->get_table_array("mempool");
         if (!mempools)

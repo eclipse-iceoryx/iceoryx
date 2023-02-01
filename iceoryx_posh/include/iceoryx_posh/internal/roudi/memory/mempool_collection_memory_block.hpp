@@ -21,6 +21,7 @@
 
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -61,7 +62,7 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable
     /// @note This will create the MemPools at the location `memory` points to
-    void onMemoryAvailable(cxx::not_null<void*> memory) noexcept override;
+    void onMemoryAvailable(not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy
     /// @note This will clean up the MemPools

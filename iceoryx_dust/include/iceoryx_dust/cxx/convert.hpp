@@ -15,8 +15,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_CONVERT_HPP
-#define IOX_HOOFS_CXX_CONVERT_HPP
+#ifndef IOX_DUST_CXX_CONVERT_HPP
+#define IOX_DUST_CXX_CONVERT_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/string.hpp"
@@ -45,7 +45,7 @@ namespace cxx
 ///     if ( cxx::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
 /// @todo iox-#260 Refactor 'convert' so that one can use 'into' to directly to convert numbers to strings:
-/// 'ClassExpectingAnIoxString(iox::cxx::into<iox::string<100>>(42)'
+/// 'ClassExpectingAnIoxString(iox::into<iox::string<100>>(42)'
 class convert
 {
   public:
@@ -105,6 +105,6 @@ class convert
 } // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/convert.inl"
+#include "iceoryx_dust/internal/cxx/convert.inl"
 
-#endif // IOX_HOOFS_CXX_CONVERT_HPP
+#endif // IOX_DUST_CXX_CONVERT_HPP

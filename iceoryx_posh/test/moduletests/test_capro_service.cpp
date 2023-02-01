@@ -17,8 +17,8 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iox/string.hpp"

@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_STORABLE_FUNCTION_INL
 #define IOX_HOOFS_STORABLE_FUNCTION_INL
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -179,7 +179,7 @@ inline constexpr void* storable_function<Capacity, signature<ReturnType, Args...
     static_assert(is_storable<T>(), "type does not fit into storage");
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
     uint64_t alignment = alignof(T);
-    uint64_t alignedPosition = cxx::align(reinterpret_cast<uint64_t>(startAddress), alignment);
+    uint64_t alignedPosition = align(reinterpret_cast<uint64_t>(startAddress), alignment);
     return reinterpret_cast<void*>(alignedPosition);
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
 }

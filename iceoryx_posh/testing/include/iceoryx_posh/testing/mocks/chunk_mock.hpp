@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 #define IOX_POSH_MOCKS_CHUNK_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/memory.hpp"
 
 #include <cstdlib>
 #include <cstring>
@@ -47,7 +47,7 @@ class ChunkMock
         auto& chunkSettings = chunkSettingsResult.value();
         auto chunkSize = chunkSettings.requiredChunkSize();
 
-        m_rawMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignof(iox::mepoo::ChunkHeader), chunkSize));
+        m_rawMemory = static_cast<uint8_t*>(iox::alignedAlloc(alignof(iox::mepoo::ChunkHeader), chunkSize));
         assert(m_rawMemory != nullptr && "Could not get aligned memory");
         memset(m_rawMemory, 0xFF, chunkSize);
 
@@ -63,7 +63,7 @@ class ChunkMock
         }
         if (m_rawMemory != nullptr)
         {
-            iox::cxx::alignedFree(m_rawMemory);
+            iox::alignedFree(m_rawMemory);
             m_rawMemory = nullptr;
         }
     }

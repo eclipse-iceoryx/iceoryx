@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
@@ -24,6 +23,8 @@
 #include <array>
 #include <cstdint>
 #include <limits>
+#include <sstream>
+#include <string>
 
 namespace
 {
@@ -71,7 +72,7 @@ TEST_F(IoxLogStream_test, UnnamedTemporaryLogStreamObject)
 
     LogStreamSut(loggerMock) << claim << answer << bang;
 
-    std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
+    std::string expected = claim + std::to_string(answer) + bang;
 
     ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.logs[0].message, StrEq(expected));
@@ -95,7 +96,7 @@ TEST_F(IoxLogStream_test, LocalLogStreamObject)
         EXPECT_THAT(loggerMock.logs[0].message, StrEq(""));
     }
 
-    std::string expected = claim + iox::cxx::convert::toString(answer) + bang;
+    std::string expected = claim + std::to_string(answer) + bang;
 
     ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
     EXPECT_THAT(loggerMock.logs.back().message, StrEq(expected));
@@ -383,7 +384,23 @@ constexpr Arithmetic IoxLogStreamArithmetic_test<Arithmetic>::ConstexprLogValueM
 template <typename T>
 std::string convertToString(const T val)
 {
-    return iox::cxx::convert::toString(val);
+    return std::to_string(val);
+}
+
+template <>
+std::string convertToString<float>(const float val)
+{
+    std::stringstream ss;
+    ss << val;
+    return ss.str();
+}
+
+template <>
+std::string convertToString<double>(const double val)
+{
+    std::stringstream ss;
+    ss << val;
+    return ss.str();
 }
 
 template <>
