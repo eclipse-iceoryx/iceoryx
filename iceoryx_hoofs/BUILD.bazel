@@ -41,13 +41,13 @@ cc_library(
     ],
     includes = [
         "container/include/",
+        "design/include",
         "include/",
         "legacy/include/",
         "memory/include/",
         "primitives/include/",
         "utility/include/",
         "vocabulary/include/",
-        "design/include",
     ],
     linkopts = select({
         "//iceoryx_platform:linux-clang": [
