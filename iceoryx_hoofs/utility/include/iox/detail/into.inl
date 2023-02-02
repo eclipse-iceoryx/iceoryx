@@ -23,22 +23,25 @@
 namespace iox
 {
 template <typename SourceType, typename DestinationType>
-inline constexpr DestinationType from(const SourceType value)
+inline constexpr typename detail::extract_into_type<DestinationType>::type_t from(const SourceType value)
 {
     return FromImpl<SourceType, DestinationType>::fromImpl(value);
 }
 
-
 template <typename SourceType, typename DestinationType>
-inline DestinationType FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&)
+inline auto FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&)
 {
-    static_assert(cxx::always_false_v<SourceType> && cxx::always_false_v<DestinationType>,
-                  "Conversion for the specified types is not implemented!\
-    Please specialize 'template <typename SourceType, typename DestinationType> constexpr DestinationType FromImpl::fromImpl(const SourceType&) noexcept'!");
+    static_assert(cxx::always_false_v<SourceType> && cxx::always_false_v<DestinationType>, "\n \
+        Conversion for the specified types is not implemented!\n \
+        Please specialize 'FromImpl::fromImpl'!\n \
+        -------------------------------------------------------------------------\n \
+        template <typename SourceType, typename DestinationType>\n \
+        constexpr DestinationType FromImpl::fromImpl(const SourceType&) noexcept;\n \
+        -------------------------------------------------------------------------");
 }
 
 template <typename DestinationType, typename SourceType>
-inline constexpr DestinationType into(const SourceType value)
+inline constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value)
 {
     return from<SourceType, DestinationType>(value);
 }

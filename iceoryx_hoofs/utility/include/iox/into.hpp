@@ -19,6 +19,27 @@
 
 namespace iox
 {
+
+template <typename D>
+struct lossy
+{
+};
+namespace detail
+{
+template <typename T>
+struct extract_into_type
+{
+    using type_t = T;
+};
+
+
+template <typename T>
+struct extract_into_type<lossy<T>>
+{
+    using type_t = T;
+};
+} // namespace detail
+
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This function needs to
 /// be specialized by the user for the types to be converted.
 /// @code
@@ -60,13 +81,14 @@ namespace iox
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename SourceType, typename DestinationType>
-constexpr DestinationType from(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t from(const SourceType value);
+
 
 // Using a struct as impl, as free functions do not support partially specialized templates
 template <typename SourceType, typename DestinationType>
 struct FromImpl
 {
-    static DestinationType fromImpl(const SourceType& value);
+    static auto fromImpl(const SourceType& value);
 };
 
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
@@ -80,7 +102,7 @@ struct FromImpl
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename DestinationType, typename SourceType>
-constexpr DestinationType into(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value);
 
 } // namespace iox
 
