@@ -31,6 +31,23 @@ inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& v
 {
     return string<N>(TruncateToCapacity, value.c_str(), value.size());
 }
+
+template <uint64_t N>
+inline optional<string<N>> FromImpl<std::string, optional<string<N>>>::fromImpl(const std::string& value) noexcept
+{
+    const auto stringLength = value.size();
+    if (stringLength <= N)
+    {
+        return string<N>(TruncateToCapacity, value.c_str(), stringLength);
+    }
+    return nullopt;
+}
+
+template <uint64_t N>
+inline string<N> FromImpl<std::string, lossy<string<N>>>::fromImpl(const std::string& value) noexcept
+{
+    return string<N>(TruncateToCapacity, value.c_str(), value.size());
+}
 } // namespace iox
 
 #endif // IOX_DUST_STD_STRING_SUPPORT_INL
