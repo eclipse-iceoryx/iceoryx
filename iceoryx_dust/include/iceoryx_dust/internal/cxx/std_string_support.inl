@@ -27,9 +27,16 @@ inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& v
 }
 
 template <uint64_t N>
-inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& value) noexcept
+inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string&) noexcept
 {
-    return string<N>(TruncateToCapacity, value.c_str(), value.size());
+    static_assert(cxx::always_false_v<std::string> && cxx::always_false_v<string<N>>, "\n \
+        The conversion from 'std::string' to 'iox::sring<N>' is potentially lossy!\n \
+        This happens when the size of source string exceeds the capacity of the destination string!\n \
+        Please use either: \n \
+          - 'iox::into<iox::optional<iox::string<N>>>' which returns a 'iox::optional<iox::string<N>>'\n \
+            with a 'nullopt' if the size of the source string exceeds the capacity of the destination string\n \
+          - 'iox::into<iox::lossy<iox::string<N>>>' which returns a 'iox::string<N>' and truncates the\n \
+            source string if its size exceeds the capacity of the destination string");
 }
 
 template <uint64_t N>

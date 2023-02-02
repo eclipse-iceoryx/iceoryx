@@ -369,7 +369,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     for (auto configuredService : config.m_configuredServices)
     {
         std::string stringentry = "validservice" + std::to_string(count);
-        auto convertedStringentry = iox::into<iox::capro::IdString_t>(stringentry);
+        auto convertedStringentry = iox::into<iox::lossy<iox::capro::IdString_t>>(stringentry);
         EXPECT_EQ(configuredService.m_serviceDescription.getServiceIDString(), convertedStringentry);
         EXPECT_EQ(configuredService.m_serviceDescription.getInstanceIDString(), convertedStringentry);
         EXPECT_EQ(configuredService.m_serviceDescription.getEventIDString(), convertedStringentry);

@@ -21,6 +21,9 @@
 
 namespace iox_test_roudi_portmanager
 {
+using iox::into;
+using iox::lossy;
+
 PublisherOptions createTestPubOptions()
 {
     return PublisherOptions{0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
@@ -596,10 +599,10 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeInterfaceData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::into<iox::RuntimeName_t>(newProcessName));
+        m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
         auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,
-                                                                     iox::into<iox::RuntimeName_t>(newProcessName));
+                                                                     into<lossy<iox::RuntimeName_t>>(newProcessName));
         EXPECT_NE(interfacePort, nullptr);
     }
 }
@@ -655,10 +658,10 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeConditionVariableData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::into<iox::RuntimeName_t>(newProcessName));
+        m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
         auto conditionVariableResult =
-            m_portManager->acquireConditionVariableData(iox::into<iox::RuntimeName_t>(newProcessName));
+            m_portManager->acquireConditionVariableData(into<lossy<iox::RuntimeName_t>>(newProcessName));
         EXPECT_FALSE(conditionVariableResult.has_error());
     }
 }
@@ -726,8 +729,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     // delete one and add one NodeData should be possible now
     unsigned int i = 0U;
-    iox::RuntimeName_t newProcessName = iox::into<RuntimeName_t>(runtimeName + iox::cxx::convert::toString(i));
-    iox::NodeName_t newNodeName = iox::into<RuntimeName_t>(nodeName + iox::cxx::convert::toString(i));
+    iox::RuntimeName_t newProcessName = into<lossy<RuntimeName_t>>(runtimeName + iox::cxx::convert::toString(i));
+    iox::NodeName_t newNodeName = into<lossy<RuntimeName_t>>(nodeName + iox::cxx::convert::toString(i));
     // this is done because there is no removeNodeData method in the PortManager class
     m_portManager->deletePortsOfProcess(newProcessName);
 
@@ -768,7 +771,7 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
         auto servideDescription = getUniqueSD();
-        auto publisherRuntimeName = iox::into<iox::RuntimeName_t>("pub_" + std::to_string(i));
+        auto publisherRuntimeName = into<lossy<iox::RuntimeName_t>>("pub_" + std::to_string(i));
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(servideDescription,
                                                                                publisherOptions,
                                                                                publisherRuntimeName,
