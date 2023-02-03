@@ -18,10 +18,10 @@
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
 #include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/optional.hpp"
 
