@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "test_cxx_functional_interface_types.hpp"
+#include "test_design_functional_interface_types.hpp"
 
-namespace test_cxx_functional_interface
+namespace test_design_functional_interface
 {
 //////////////////////////////////
 /// BEGIN GenericValueErrorFactory
@@ -165,4 +165,4 @@ ExpectedErrorFactory::Type ExpectedErrorFactory::createInvalidObject() noexcept
 ////////////////////////////
 
 
-} // namespace test_cxx_functional_interface
+} // namespace test_design_functional_interface

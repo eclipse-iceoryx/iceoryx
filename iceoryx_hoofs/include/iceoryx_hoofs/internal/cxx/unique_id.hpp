@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_UNIQUE_ID_HPP
 #define IOX_HOOFS_CXX_UNIQUE_ID_HPP
 
-#include "iceoryx_hoofs/cxx/newtype.hpp"
+#include "iox/newtype.hpp"
 
 #include <atomic>
 
@@ -28,15 +28,15 @@ namespace cxx
 /// @brief Unique IDs within a process starting with 1. Monotonic increasing IDs are
 /// created with each call to the constructor. The IDs are copy/move constructible/assignable,
 /// comparable, sortable and convertable to the underlying value type.
-class UniqueId : public cxx::NewType<uint64_t,
-                                     cxx::newtype::ProtectedConstructByValueCopy,
-                                     cxx::newtype::Comparable,
-                                     cxx::newtype::Sortable,
-                                     cxx::newtype::Convertable,
-                                     cxx::newtype::CopyConstructable,
-                                     cxx::newtype::MoveConstructable,
-                                     cxx::newtype::CopyAssignable,
-                                     cxx::newtype::MoveAssignable>
+class UniqueId : public NewType<uint64_t,
+                                newtype::ProtectedConstructByValueCopy,
+                                newtype::Comparable,
+                                newtype::Sortable,
+                                newtype::Convertable,
+                                newtype::CopyConstructable,
+                                newtype::MoveConstructable,
+                                newtype::CopyAssignable,
+                                newtype::MoveAssignable>
 {
   public:
     using ThisType::ThisType;

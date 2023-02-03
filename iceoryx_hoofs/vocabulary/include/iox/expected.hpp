@@ -18,7 +18,7 @@
 #define IOX_HOOFS_VOCABULARY_EXPECTED_HPP
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iox/functional_interface.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
 
@@ -133,7 +133,7 @@ class IOX_NO_DISCARD expected;
 ///     allHailHypnotoad->push_back(7);
 /// @endcode
 template <typename ErrorType>
-class IOX_NO_DISCARD expected<ErrorType> final : public cxx::FunctionalInterface<expected<ErrorType>, void, ErrorType>
+class IOX_NO_DISCARD expected<ErrorType> final : public FunctionalInterface<expected<ErrorType>, void, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the
@@ -260,7 +260,7 @@ class IOX_NO_DISCARD expected<ErrorType> final : public cxx::FunctionalInterface
 /// @param ErrorType type of the error which can be stored in the expected
 template <typename ValueType, typename ErrorType>
 class IOX_NO_DISCARD expected<ValueType, ErrorType> final
-    : public cxx::FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
+    : public FunctionalInterface<expected<ValueType, ErrorType>, ValueType, ErrorType>
 {
   public:
     /// @brief default ctor is deleted since you have to clearly state if the

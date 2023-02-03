@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_UNIQUE_PORT_ID_HPP
 
-#include "iceoryx_hoofs/cxx/newtype.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iox/newtype.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -38,15 +38,15 @@ constexpr InvalidPortId_t InvalidPortId = InvalidPortId_t();
 ///        subscriber pattern where samples are exchanged over network via a third party middleware.
 ///        The unique RouDi id must be set manually when RouDi is started and it must be ensured to be unique for a
 ///        given instance for this feature to be used to its full extend.
-class UniquePortId : public cxx::NewType<uint64_t,
-                                         cxx::newtype::ProtectedConstructByValueCopy,
-                                         cxx::newtype::Comparable,
-                                         cxx::newtype::Sortable,
-                                         cxx::newtype::Convertable,
-                                         cxx::newtype::CopyConstructable,
-                                         cxx::newtype::MoveConstructable,
-                                         cxx::newtype::CopyAssignable,
-                                         cxx::newtype::MoveAssignable>
+class UniquePortId : public NewType<uint64_t,
+                                    newtype::ProtectedConstructByValueCopy,
+                                    newtype::Comparable,
+                                    newtype::Sortable,
+                                    newtype::Convertable,
+                                    newtype::CopyConstructable,
+                                    newtype::MoveConstructable,
+                                    newtype::CopyAssignable,
+                                    newtype::MoveAssignable>
 {
   public:
     using ThisType::ThisType;

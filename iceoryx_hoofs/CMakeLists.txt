@@ -53,6 +53,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/primitives/include
+                                ${PROJECT_SOURCE_DIR}/design/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -62,12 +63,12 @@ iox_add_library(
                                 vocabulary/include/
                                 utility/include/
                                 primitives/include/
+                                design/include/
     FILES
         source/concurrent/loffli.cpp
         source/cxx/adaptive_wait.cpp
         source/cxx/deadline_timer.cpp
         source/cxx/filesystem.cpp
-        source/cxx/functional_interface.cpp
         source/cxx/requires.cpp
         source/cxx/type_traits.cpp
         source/cxx/unique_id.cpp
@@ -95,6 +96,7 @@ iox_add_library(
         source/units/duration.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
+        design/source/functional_interface.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

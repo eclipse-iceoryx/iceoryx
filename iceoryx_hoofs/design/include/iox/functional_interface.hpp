@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
-#define IOX_HOOFS_CXX_FUNCTIONAL_POLICY_HPP
+#ifndef IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
+#define IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
@@ -23,8 +23,6 @@
 #include <utility>
 
 namespace iox
-{
-namespace cxx
 {
 namespace internal
 {
@@ -434,9 +432,8 @@ struct FunctionalInterfaceImpl<Derived, void, ErrorType>
 template <typename Derived, typename ValueType, typename ErrorType>
 using FunctionalInterface = internal::FunctionalInterfaceImpl<Derived, ValueType, ErrorType>;
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/functional_interface.inl"
+#include "iox/detail/functional_interface.inl"
 
 #endif

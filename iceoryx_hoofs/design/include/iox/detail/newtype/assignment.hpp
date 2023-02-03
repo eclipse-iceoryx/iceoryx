@@ -14,12 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_ASSIGNMENT_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_ASSIGNMENT_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_ASSIGNMENT_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_ASSIGNMENT_HPP
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -76,7 +74,6 @@ struct AssignByValueMove
 };
 
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
 
 #endif

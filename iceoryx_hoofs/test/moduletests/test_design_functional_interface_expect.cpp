@@ -16,11 +16,11 @@
 //
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
-#include "test_cxx_functional_interface_types.hpp"
+#include "test_design_functional_interface_types.hpp"
 
 namespace
 {
-using namespace test_cxx_functional_interface;
+using namespace test_design_functional_interface;
 using namespace ::testing;
 
 // the macro is used as code generator to make the tests more readable. because of the
@@ -153,7 +153,7 @@ struct ExpectReturnsValueWhenValid<TYPE_HAS_VALUE_METHOD>
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
+    constexpr bool HAS_VALUE_METHOD = iox::internal::HasValueMethod<SutType>::value;                                   \
     /* NOLINTNEXTLINE(bugprone-macro-parentheses) prevents clang-tidy parsing failures */                              \
     TestName<HAS_VALUE_METHOD>::template performTest<typename TestFixture::TestFactoryType>([](auto& sut) {            \
         return (variationPoint)                                                                                        \

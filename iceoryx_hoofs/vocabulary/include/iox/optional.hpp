@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 #define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/functional_interface.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
@@ -68,7 +68,7 @@ constexpr in_place_t in_place{};
 ///     }
 /// @endcode
 template <typename T>
-class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
+class optional final : public FunctionalInterface<optional<T>, T, void>
 {
   public:
     using type = T;

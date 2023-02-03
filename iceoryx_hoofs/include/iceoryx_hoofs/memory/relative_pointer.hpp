@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 
-#include "iceoryx_hoofs/cxx/newtype.hpp"
 #include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
+#include "iox/newtype.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -29,12 +29,12 @@ namespace iox
 {
 namespace memory
 {
-struct segment_id_t : public cxx::NewType<uint64_t,
-                                          cxx::newtype::DefaultConstructable,
-                                          cxx::newtype::CopyConstructable,
-                                          cxx::newtype::Convertable,
-                                          cxx::newtype::ConstructByValueCopy,
-                                          cxx::newtype::MoveConstructable>
+struct segment_id_t : public NewType<uint64_t,
+                                     newtype::DefaultConstructable,
+                                     newtype::CopyConstructable,
+                                     newtype::Convertable,
+                                     newtype::ConstructByValueCopy,
+                                     newtype::MoveConstructable>
 {
     using ThisType::ThisType;
 };

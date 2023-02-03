@@ -13,11 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#include "test_cxx_functional_interface_types.hpp"
+#include "test_design_functional_interface_types.hpp"
 
 namespace
 {
-using namespace test_cxx_functional_interface;
+using namespace test_design_functional_interface;
 using namespace ::testing;
 
 // the macro is used as code generator to make the tests more readable. because of the
@@ -26,8 +26,8 @@ using namespace ::testing;
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    constexpr bool HAS_VALUE_METHOD = iox::cxx::internal::HasValueMethod<SutType>::value;                              \
-    constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
+    constexpr bool HAS_VALUE_METHOD = iox::internal::HasValueMethod<SutType>::value;                                   \
+    constexpr bool HAS_GET_ERROR_METHOD = iox::internal::HasGetErrorMethod<SutType>::value;                            \
     /* NOLINTNEXTLINE(bugprone-macro-parentheses) prevents clang-tidy parsing failures */                              \
     TestName<HAS_VALUE_METHOD, HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(     \
         [](auto& sut, auto andThenCallback, auto orElseCallback) {                                                     \

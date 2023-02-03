@@ -14,13 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_SORTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_SORTABLE_HPP
-#include "iceoryx_hoofs/internal/cxx/newtype/internal.hpp"
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
+
+#include "iox/detail/newtype/internal.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -58,7 +57,6 @@ struct Sortable
 };
 
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
 
 

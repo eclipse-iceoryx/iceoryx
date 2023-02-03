@@ -77,7 +77,7 @@
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
   - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
-  - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+  - Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 - Uninteresting mock function calls in tests [\#1341](https://github.com/eclipse-iceoryx/iceoryx/issues/1341)
 - `cxx::unique_ptr` owns deleter, remove all deleter classes [\#1143](https://github.com/eclipse-iceoryx/iceoryx/issues/1143)
 - Remove `iox::posix::Timer` [\#337](https://github.com/eclipse-iceoryx/iceoryx/issues/337)
@@ -146,14 +146,14 @@
                             .create();
     ```
 
-2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+2. Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 
     ```cpp
     // before
     #include "iceoryx_hoofs/cxx/helplets.hpp"
 
     // after
-    #include "iceoryx_hoofs/design_pattern/builder.hpp"
+    #include "iox/builder.hpp"
     ```
 
 3. `UnnamedSemaphore` replaces `Semaphore` with `CreateUnnamed*` option
@@ -220,7 +220,7 @@
    via a pointer to `FunctionalInterface`
 
    ```cpp
-   iox::cxx::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
+   iox::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
        new iox::optional<MyClass>{};
 
    delete soSmart; // <- not possible anymore
@@ -229,12 +229,12 @@
 7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
 
    ```cpp
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
 
-   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+   iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
 
    delete soSmart; // <- not possible anymore
    ```
@@ -244,17 +244,17 @@
    ```cpp
    // before
    // for the compiler Foo and Bar are the same type
-   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
-   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Foo = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
+   using Bar = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
 
    // after
    // compile time error when Foo and Bar are mixed up
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
    // or with the IOX_NEW_TYPE macro
-   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
+   IOX_NEW_TYPE(Bar, uint64_t, iox::newtype::ConstructByValueCopy);
    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.

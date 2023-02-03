@@ -14,13 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_COMPARABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_COMPARABLE_HPP
-#include "iceoryx_hoofs/internal/cxx/newtype/internal.hpp"
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_COMPARABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_COMPARABLE_HPP
+
+#include "iox/detail/newtype/internal.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -48,7 +47,6 @@ struct Comparable
 };
 
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
 
 #endif

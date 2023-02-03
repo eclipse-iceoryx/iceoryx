@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
-#define IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_TYPES_HPP
+#ifndef IOX_HOOFS_MODULETESTS_TEST_DESIGN_FUNCTIONAL_INTERFACE_TYPES_HPP
+#define IOX_HOOFS_MODULETESTS_TEST_DESIGN_FUNCTIONAL_INTERFACE_TYPES_HPP
 
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
-#include "test_cxx_functional_interface_common.hpp"
+#include "test_design_functional_interface_common.hpp"
 
-namespace test_cxx_functional_interface
+namespace test_design_functional_interface
 {
 struct GenericValueErrorFactory
 {
@@ -160,6 +160,6 @@ using FunctionalInterfaceImplementations = testing::Types<GenericValueErrorFacto
 
 TYPED_TEST_SUITE(FunctionalInterface_test, FunctionalInterfaceImplementations, );
 
-} // namespace test_cxx_functional_interface
+} // namespace test_design_functional_interface
 
 #endif

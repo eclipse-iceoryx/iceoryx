@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_COMMON_HPP
-#define IOX_HOOFS_MODULETESTS_TEST_CXX_FUNCTIONAL_INTERFACE_COMMON_HPP
+#ifndef IOX_HOOFS_MODULETESTS_TEST_DESIGN_FUNCTIONAL_INTERFACE_COMMON_HPP
+#define IOX_HOOFS_MODULETESTS_TEST_DESIGN_FUNCTIONAL_INTERFACE_COMMON_HPP
 
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
+#include "iox/functional_interface.hpp"
 #include "test.hpp"
 
-namespace test_cxx_functional_interface
+namespace test_design_functional_interface
 {
 /// @brief Every test file uses this as a common base and extends the TYPED_TEST
 ///        for a specific part of the functional interface.
@@ -52,7 +52,7 @@ class FunctionalInterface_test : public testing::Test
 
 /// @brief This types is used for testing the functional interface in the case
 ///        of a value and a get_error method
-struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueError, int, int>
+struct GenericValueError : public iox::FunctionalInterface<GenericValueError, int, int>
 {
     using value_t = int;
     using error_t = int;
@@ -80,7 +80,7 @@ struct GenericValueError : public iox::cxx::FunctionalInterface<GenericValueErro
 
 /// @brief This types is used for testing the functional interface in the case
 ///        that it is only nullable
-struct GenericPlain : public iox::cxx::FunctionalInterface<GenericPlain, void, void>
+struct GenericPlain : public iox::FunctionalInterface<GenericPlain, void, void>
 {
     static constexpr int VALID_VALUE = 5;
     static constexpr int INVALID_VALUE = 0;
@@ -92,6 +92,6 @@ struct GenericPlain : public iox::cxx::FunctionalInterface<GenericPlain, void, v
 };
 
 
-} // namespace test_cxx_functional_interface
+} // namespace test_design_functional_interface
 
 #endif

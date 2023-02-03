@@ -14,12 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_PROTECTED_CONSTRUCTOR_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_CONVERTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_CONVERTABLE_HPP
 
 namespace iox
-{
-namespace cxx
 {
 namespace newtype
 {
@@ -30,13 +28,13 @@ template <typename>
 // is a marker struct that adds only the described property to the new type. Adding copy/move operations would
 // contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
-struct ProtectedConstructByValueCopy
+struct Convertable
 {
   protected:
-    ~ProtectedConstructByValueCopy() = default;
+    ~Convertable() = default;
 };
+
 } // namespace newtype
-} // namespace cxx
 } // namespace iox
 
 #endif

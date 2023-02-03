@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,22 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#ifndef IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
+#define IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
 
-namespace iox
-{
-namespace cxx
-{
-namespace internal
-{
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See rational in header
-void print_expect_message(const char* message) noexcept
-{
-    // print_expect_message is only called from expect. expect allows only
-    // string or char arrays which are both correctly null terminated
-    IOX_LOG(FATAL) << message;
-}
-} // namespace internal
-} // namespace cxx
-} // namespace iox
+#include "iox/builder.hpp"
+#pragma message(                                                                                                       \
+    "Deprecated in 3.0, removed in 4.0, please include 'iox/builder.hpp' instead of 'iceoryx_hoofs/design_pattern/builder.hpp'")
+
+#endif

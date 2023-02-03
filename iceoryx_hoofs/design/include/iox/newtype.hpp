@@ -14,23 +14,19 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_NEWTYPE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/assignment.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/comparable.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/constructor.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/convertable.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/internal.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/protected_constructor.hpp"
-#include "iceoryx_hoofs/internal/cxx/newtype/sortable.hpp"
-
-#include <type_traits>
+#include "iox/detail/newtype/assignment.hpp"
+#include "iox/detail/newtype/comparable.hpp"
+#include "iox/detail/newtype/constructor.hpp"
+#include "iox/detail/newtype/convertable.hpp"
+#include "iox/detail/newtype/internal.hpp"
+#include "iox/detail/newtype/protected_constructor.hpp"
+#include "iox/detail/newtype/sortable.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief Implementation of the haskell NewType pattern:
 ///         https://wiki.haskell.org/Newtype
@@ -44,7 +40,7 @@ namespace cxx
 /// inherit from NewType and add your methods.
 /// For most generic usage, the IOX_NEW_TYPE macro can be used.
 /// @code
-///     #include <iceoryx_hoofs/cxx/newtype.hpp>
+///     #include "iox/newtype.hpp"
 ///
 ///     class Index : public NewType<int,
 ///                                     newtype::ConstructByValueCopy,
@@ -129,7 +125,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
     T m_value;
 };
 
-} // namespace cxx
 } // namespace iox
 
 /// @brief This macro helps to create types with the NewType class.
@@ -140,10 +135,10 @@ class NewType : public Policies<NewType<T, Policies...>>...
 /// @param[in] TypeName is the name of the new type to create
 /// @param[in] Type is the underlying type of the new type
 /// @param[in] ... is a variadic list of the policies applied to the new type,
-/// e.g. iox::cxx::newtype::ConstructByValueCopy
+/// e.g. iox::newtype::ConstructByValueCopy
 ///
 /// @code
-///     #include <iceoryx_hoofs/cxx/newtype.hpp>
+///     #include "iox/newtype.hpp"
 ///
 ///     IOX_NEW_TYPE(MyType,
 ///                  uint64_t,
@@ -157,7 +152,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 : macro is used to reduce boilerplate code for 'NewType'
 /// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
-    struct TypeName : public iox::cxx::NewType<Type, __VA_ARGS__>                                                      \
+    struct TypeName : public iox::NewType<Type, __VA_ARGS__>                                                           \
     {                                                                                                                  \
         using ThisType::ThisType;                                                                                      \
         using ThisType::operator=;                                                                                     \
@@ -169,6 +164,6 @@ class NewType : public Policies<NewType<T, Policies...>>...
         TypeName& operator=(TypeName&&) noexcept = default;                                                            \
     }
 
-#include "iceoryx_hoofs/internal/cxx/newtype.inl"
+#include "iox/detail/newtype.inl"
 
 #endif

@@ -14,18 +14,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_hoofs/testing/expect_no_death.hpp"
-#include "test_cxx_functional_interface_types.hpp"
+#include "test_design_functional_interface_types.hpp"
 
 namespace
 {
-using namespace test_cxx_functional_interface;
+using namespace test_design_functional_interface;
 using namespace ::testing;
 
 TYPED_TEST(FunctionalInterface_test, OrElseHasCorrectSignature)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ede81b23-cd69-45a4-86aa-b81baa8e281b");
     using Factory = typename TestFixture::TestFactoryType;
-    constexpr bool DOES_OR_ELSE_HAVE_A_VALUE = iox::cxx::internal::HasGetErrorMethod<typename Factory::Type>::value;
+    constexpr bool DOES_OR_ELSE_HAVE_A_VALUE = iox::internal::HasGetErrorMethod<typename Factory::Type>::value;
 
     EXPECT_THAT(DOES_OR_ELSE_HAVE_A_VALUE, Eq(Factory::EXPECT_OR_ELSE_WITH_VALUE));
 }
@@ -36,7 +36,7 @@ TYPED_TEST(FunctionalInterface_test, OrElseHasCorrectSignature)
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_TEST_FUNCTIONAL_INTERFACE(TestName, variationPoint)                                                        \
     using SutType = typename TestFixture::TestFactoryType::Type;                                                       \
-    constexpr bool HAS_GET_ERROR_METHOD = iox::cxx::internal::HasGetErrorMethod<SutType>::value;                       \
+    constexpr bool HAS_GET_ERROR_METHOD = iox::internal::HasGetErrorMethod<SutType>::value;                            \
     /* NOLINTNEXTLINE(bugprone-macro-parentheses) prevents clang-tidy parsing failures */                              \
     TestName<HAS_GET_ERROR_METHOD>::template performTest<typename TestFixture::TestFactoryType>(                       \
         [](auto& sut, auto callback) { (variationPoint).or_else(callback); })
