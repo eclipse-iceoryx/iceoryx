@@ -132,7 +132,7 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(optional<const RuntimeName_
         LogFatal() << "Cannot initialize runtime. Application name has not been specified!";
         errorHandler(PoshError::POSH__RUNTIME_NO_NAME_PROVIDED, ErrorLevel::FATAL);
     }
-    else if (!cxx::isValidFileName(**name))
+    else if (!isValidFileName(**name))
     {
         LogFatal() << "Cannot initialize runtime. The application name \"" << **name
                    << "\" is not a valid platform-independent file name.";

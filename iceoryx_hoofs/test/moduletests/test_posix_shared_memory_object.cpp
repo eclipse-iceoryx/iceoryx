@@ -72,7 +72,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
                    .memorySizeInBytes(16)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -92,7 +92,7 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -109,7 +109,7 @@ TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -132,7 +132,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
                    .memorySizeInBytes(memorySize)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -151,7 +151,7 @@ TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
                    .memorySizeInBytes(memorySize)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -176,7 +176,7 @@ TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -196,7 +196,7 @@ TEST_F(SharedMemoryObject_Test, AllocateFailsWithZeroSize)
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     ASSERT_THAT(sut.has_error(), Eq(false));
@@ -216,7 +216,7 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
                          .memorySizeInBytes(memorySize)
                          .accessMode(iox::posix::AccessMode::READ_WRITE)
                          .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                         .permissions(cxx::perms::owner_all)
+                         .permissions(perms::owner_all)
                          .create();
 
     ASSERT_THAT(shmMemory.has_error(), Eq(false));
@@ -237,7 +237,7 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
                    .memorySizeInBytes(memorySize)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
     result = sut->allocate(sizeof(int), 1);

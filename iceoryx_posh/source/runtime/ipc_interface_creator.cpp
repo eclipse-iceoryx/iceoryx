@@ -29,7 +29,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
     , m_fileLock(std::move(
           posix::FileLockBuilder()
               .name(runtimeName)
-              .permission(iox::cxx::perms::owner_read | iox::cxx::perms::owner_write)
+              .permission(iox::perms::owner_read | iox::perms::owner_write)
               .create()
               .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)

@@ -43,8 +43,7 @@ class FileLock_test : public Test
   public:
     void SetUp() override
     {
-        auto maybeFileLock =
-            iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::cxx::perms::owner_all).create();
+        auto maybeFileLock = iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::perms::owner_all).create();
         ASSERT_FALSE(maybeFileLock.has_error());
         m_sut.emplace(std::move(maybeFileLock.value()));
         ASSERT_TRUE(m_sut.has_value());
@@ -134,7 +133,7 @@ TEST_F(FileLock_test, MoveAssignTransfersLock)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cd9ee3d0-4f57-44e1-b01c-f892610e805a");
     auto movedSut = std::move(m_sut.value());
-    auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::cxx::perms::owner_all).create();
+    auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::perms::owner_all).create();
     ASSERT_TRUE(anotherLock.has_error());
     EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }

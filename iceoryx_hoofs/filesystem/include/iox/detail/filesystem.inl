@@ -13,14 +13,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_FILESYSTEM_INL
-#define IOX_HOOFS_CXX_FILESYSTEM_INL
+#ifndef IOX_HOOFS_FILESYSTEM_FILESYSTEM_INL
+#define IOX_HOOFS_FILESYSTEM_FILESYSTEM_INL
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <uint64_t StringCapacity>
 inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
@@ -220,7 +218,6 @@ constexpr perms operator^=(const perms lhs, const perms rhs) noexcept
 {
     return operator^(lhs, rhs);
 }
-} // namespace cxx
 } // namespace iox
 
 #endif

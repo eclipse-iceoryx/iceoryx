@@ -54,7 +54,7 @@ class SharedMemory_Test : public Test
             .name(name)
             .accessMode(iox::posix::AccessMode::READ_WRITE)
             .openMode(openMode)
-            .filePermissions(cxx::perms::owner_all)
+            .filePermissions(perms::owner_all)
             .size(128)
             .create();
     }

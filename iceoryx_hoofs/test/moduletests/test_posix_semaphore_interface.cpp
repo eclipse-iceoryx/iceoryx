@@ -94,7 +94,7 @@ struct NamedSemaphoreTest
             .initialValue(initialValue)
             .name("TestSemaphore")
             .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-            .permissions(iox::cxx::perms::owner_all)
+            .permissions(iox::perms::owner_all)
             .create(sut);
     }
 };

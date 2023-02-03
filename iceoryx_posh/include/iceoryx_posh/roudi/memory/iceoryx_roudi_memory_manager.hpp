@@ -62,7 +62,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     posix::FileLock fileLock = std::move(
         posix::FileLockBuilder()
             .name(ROUDI_LOCK_NAME)
-            .permission(iox::cxx::perms::owner_read | iox::cxx::perms::owner_write)
+            .permission(iox::perms::owner_read | iox::perms::owner_write)
             .create()
             .or_else([](auto& error) {
                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)

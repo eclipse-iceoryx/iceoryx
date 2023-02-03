@@ -52,7 +52,7 @@ class PosixShmMemoryProvider_Test : public Test
                     .memorySizeInBytes(8)
                     .accessMode(iox::posix::AccessMode::READ_ONLY)
                     .openMode(iox::posix::OpenMode::OPEN_EXISTING)
-                    .permissions(iox::cxx::perms::owner_all)
+                    .permissions(iox::perms::owner_all)
                     .create()
                     .has_error();
     }
