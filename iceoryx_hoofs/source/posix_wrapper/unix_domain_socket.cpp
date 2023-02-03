@@ -178,7 +178,14 @@ expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
         {
             if (IpcChannelSide::SERVER == m_channelSide)
             {
-                unlink(&(m_sockAddr.sun_path[0]));
+                auto unlinkCall = posixCall(unlink)(&(m_sockAddr.sun_path[0]))
+                                      .failureReturnValue(ERROR_CODE)
+                                      .ignoreErrnos(ENOENT)
+                                      .evaluate();
+                if (unlinkCall.has_error())
+                {
+                    return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+                }
             }
 
             m_sockfd = INVALID_FD;
