@@ -15,7 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 #include <algorithm>
@@ -25,6 +27,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 
 constexpr uint32_t Size{4};
 using LoFFLiTestSubjects = Types<iox::concurrent::LoFFLi>;
@@ -53,32 +56,38 @@ class LoFFLi_test : public Test
 TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab877f29-cab0-48ae-a2c0-054633b6415a");
+
     decltype(this->m_loffli) loFFLi;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(loFFLi.init(nullptr, 1), ".*");
+
+    EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { loFFLi.init(nullptr, 1); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb9c797b-22b4-4572-a7a2-eaf13574dbac");
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
+
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], 0), ".*");
+
+    EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { loFFLi.init(&memoryLoFFLi[0], 0); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
 {
     ::testing::Test::RecordProperty("TEST_ID", "14b4b82c-ae2b-4bd2-97cf-93fcea87f050");
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
+
+    // NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) needed to test LoFFLi::init
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1), ".*");
+
+    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); },
+                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
+                                          iox::ErrorLevel::FATAL);
+    // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 
 
