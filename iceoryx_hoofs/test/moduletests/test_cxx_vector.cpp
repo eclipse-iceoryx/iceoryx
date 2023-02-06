@@ -1512,7 +1512,9 @@ TEST_F(vector_test, EmplaceAtPositionAfterEndBeforeCapacityExceedsFails)
     sut.emplace_back(0U);
     sut.emplace_back(1U);
 
-    EXPECT_FALSE(sut.emplace(sut.size() + 1, 3U));
-    ASSERT_THAT(sut.size(), Eq(2U));
+    constexpr uint64_t EXPECTED_SIZE{2};
+    ASSERT_THAT(sut.size(), EXPECTED_SIZE);
+    EXPECT_FALSE(sut.emplace(EXPECTED_SIZE + 1, 3U));
+    ASSERT_THAT(sut.size(), EXPECTED_SIZE);
 }
 } // namespace
