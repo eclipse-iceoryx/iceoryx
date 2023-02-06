@@ -67,6 +67,7 @@
 - `WaitSet::wait` returns if data was send before `WaitSet::attachState(.., State::HAS_{DATA, REQUEST, RESPONSE})` [\#1855](https://github.com/eclipse-iceoryx/iceoryx/issues/1855)
 - Provide a better error message when attempting to create a shared memory in read-only mode
   [\#1821](https://github.com/eclipse-iceoryx/iceoryx/issues/1821)
+- Can not build iceoryx with gcc 9.4 [\#1871](https://github.com/eclipse-iceoryx/iceoryx/issues/1871)
 
 **Refactoring:**
 
