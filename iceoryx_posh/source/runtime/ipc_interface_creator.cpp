@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {

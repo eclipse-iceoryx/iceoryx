@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/vector.hpp"
 

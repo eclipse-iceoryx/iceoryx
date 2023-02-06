@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
+#include "iox/filesystem.hpp"
 
 #include <atomic>
 #include <cstdint>

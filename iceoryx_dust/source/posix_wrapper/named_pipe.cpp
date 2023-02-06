@@ -17,6 +17,7 @@
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iox/deadline_timer.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/into.hpp"
 
 #include <thread>

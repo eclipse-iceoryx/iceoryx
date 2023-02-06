@@ -24,6 +24,7 @@
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {

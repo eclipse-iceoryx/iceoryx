@@ -31,6 +31,7 @@ cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
         "design/source/*.cpp",
+        "filesystem/source/*.cpp",
         "memory/source/*.cpp",
         "posix/time/source/*.cpp",
         "source/**/*.cpp",
@@ -44,6 +45,7 @@ cc_library(
         "buffer/include/",
         "container/include/",
         "design/include",
+        "filesystem/include",
         "include/",
         "legacy/include/",
         "memory/include/",
