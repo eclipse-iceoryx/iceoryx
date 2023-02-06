@@ -65,49 +65,9 @@ if [[ -n "$noSpaceInSuppressions" ]]; then
     exit 1
 fi
 
-if [[ "$MODE" == "hook"* ]]; then
-    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
-    # List only added files
-    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
-    echo "Checking files with Clang-Tidy"
-    echo " "
-        if [ -z "$FILES" ]; then
-              echo "No modified files to check, skipping clang-tidy"
-        else
-            $CLANG_TIDY_CMD -p build $FILES
-        fi
-
-        if [ -z "$ADDED_FILES" ]; then
-            echo "No added files to check, skipping clang-tidy"
-        else
-            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
-        fi
-    exit
-elif [[ "$MODE" == "full"* ]]; then
-    DIRECTORY_TO_SCAN=$2
-
-    if [[ -n $DIRECTORY_TO_SCAN ]]
-    then
-        if ! test -d "$DIRECTORY_TO_SCAN"
-        then
-            echo "The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist"
-            exit 1
-        fi
-
-        echo "scanning all files in '${DIRECTORY_TO_SCAN}'"
-        $CLANG_TIDY_CMD -p build $(find $DIRECTORY_TO_SCAN -type f | grep -E $FILE_FILTER )
-        exit $?
-    else
-        FILES=$(git ls-files | grep -E "$FILE_FILTER")
-        echo "Checking all files with Clang-Tidy"
-        echo " "
-        echo $FILES
-        $CLANG_TIDY_CMD -p build $FILES
-        exit $?
-    fi
-elif [[ "$MODE" == "scan_list"* ]]; then
-    FILE_WITH_SCAN_LIST=$2
-    FILE_TO_SCAN=$3
+function scanWithFileList() {
+    FILE_WITH_SCAN_LIST=$1
+    FILE_TO_SCAN=$2
 
     if ! test -f "$FILE_WITH_SCAN_LIST"
     then
@@ -148,6 +108,65 @@ elif [[ "$MODE" == "scan_list"* ]]; then
         echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
         $CLANG_TIDY_CMD --warnings-as-errors=* -p build $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER})
     fi
+}
+
+if [[ "$MODE" == "hook"* ]]; then
+    if [[ $2 ]]; then
+        FILE_WITH_SCAN_LIST=$2
+        echo "has scan list"
+    fi
+
+    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
+    # List only added files
+    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
+    echo "Checking files with Clang-Tidy"
+    echo " "
+        if [ -z "$FILES" ]; then
+              echo "No modified files to check, skipping clang-tidy"
+        else
+            if [[ $FILE_WITH_SCAN_LIST ]]; then
+                for FILE_TO_SCAN in $FILES; do
+                    scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
+                done
+            else
+                $CLANG_TIDY_CMD -p build $FILES
+            fi
+        fi
+
+        if [ -z "$ADDED_FILES" ]; then
+            echo "No added files to check, skipping clang-tidy"
+        else
+            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
+        fi
+    exit
+elif [[ "$MODE" == "full"* ]]; then
+    DIRECTORY_TO_SCAN=$2
+
+    if [[ -n $DIRECTORY_TO_SCAN ]]
+    then
+        if ! test -d "$DIRECTORY_TO_SCAN"
+        then
+            echo "The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist"
+            exit 1
+        fi
+
+        echo "scanning all files in '${DIRECTORY_TO_SCAN}'"
+        $CLANG_TIDY_CMD -p build $(find $DIRECTORY_TO_SCAN -type f | grep -E $FILE_FILTER )
+        exit $?
+    else
+        FILES=$(git ls-files | grep -E "$FILE_FILTER")
+        echo "Checking all files with Clang-Tidy"
+        echo " "
+        echo $FILES
+        $CLANG_TIDY_CMD -p build $FILES
+        exit $?
+    fi
+elif [[ "$MODE" == "scan_list"* ]]; then
+    FILE_WITH_SCAN_LIST=$2
+    FILE_TO_SCAN=$3
+
+    scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
+
     exit $?
 else
     echo "Invalid mode: ${MODE}"

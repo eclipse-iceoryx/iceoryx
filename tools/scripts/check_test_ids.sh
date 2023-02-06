@@ -36,33 +36,32 @@ function numberOfTestIDs() {
 
 ## sanity check for number of tests and test IDs
 ## at first a quick check and then a slower check for the respective files
-numberOfTestCasesTotal=$(numberOfTestCases "iceoryx_*")
-numberOfFalsePositivesTotal=$(numberOfFalsePositives "iceoryx_*")
-numberOfTestCasesWithoutFalsePositivesTotal=$numberOfTestCasesTotal-$numberOfFalsePositivesTotal
-numberOfTestIDsTotal=$(numberOfTestIDs "iceoryx_*")
-if [[ "$numberOfTestCasesWithoutFalsePositivesTotal" -gt "$numberOfTestIDsTotal" ]]; then
+NUMBER_OF_TEST_CASES_TOTAL=$(numberOfTestCases "iceoryx_*")
+NUMBER_OF_FALSE_POSITIVES_TOTAL=$(numberOfFalsePositives "iceoryx_*")
+NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_TOTAL=$NUMBER_OF_TEST_CASES_TOTAL-$NUMBER_OF_FALSE_POSITIVES_TOTAL
+NUMBER_OF_TEST_IDS_TOTAL=$(numberOfTestIDs "iceoryx_*")
+if [[ "$NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_TOTAL" -gt "$NUMBER_OF_TEST_IDS_TOTAL" ]]; then
     echo -e "\e[1;31mThe number of test IDs do not match the number of test cases!\e[m"
-    echo "number of test cases: $numberOfTestCasesTotal"
-    echo "number of false positives: $numberOfFalsePositivesTotal"
-    echo "number of test IDs: $numberOfTestIDsTotal"
+    echo "number of test cases: $NUMBER_OF_TEST_CASES_TOTAL"
+    echo "number of false positives: $NUMBER_OF_FALSE_POSITIVES_TOTAL"
+    echo "number of test IDs: $NUMBER_OF_TEST_IDS_TOTAL"
     echo ""
     echo "trying to find files with missing IDs ..."
 
-    found=0
     # find file with missing IDs
-    for file in $(find iceoryx_* -iname "*.cpp")
+    for FILE in $(find iceoryx_* -iname "*.cpp")
     do
-        numberOfTestCasesInFile=$(numberOfTestCases $file)
-        numberOfFalsePositivesFile=$(numberOfFalsePositives $file)
-        numberOfTestCasesWithoutFalsePositivesFile=$numberOfTestCasesInFile-$numberOfFalsePositivesFile
-        numberOfTestIDsFile=$(numberOfTestIDs $file)
-        if [[ "$numberOfTestCasesWithoutFalsePositivesFile" -gt "$numberOfTestIDsFile" ]]; then
-            echo -e "\e[1;31mThe file \"$file\" is missing test IDs for some test cases!\e[m"
-            found=1
+        NUMBER_OF_TEST_CASES_IN_FILE=$(numberOfTestCases $FILE)
+        NUMBER_OF_FALSE_POSITIVES_IN_FILE=$(numberOfFalsePositives $FILE)
+        NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_IN_FILE=$NUMBER_OF_TEST_CASES_IN_FILE-$NUMBER_OF_FALSE_POSITIVES_IN_FILE
+        NUMBER_OF_TEST_IDS_IN_FILE=$(numberOfTestIDs $FILE)
+        if [[ "$NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_IN_FILE" -gt "$NUMBER_OF_TEST_IDS_IN_FILE" ]]; then
+            echo -e "\e[1;31mThe file \"$FILE\" is missing test IDs for some test cases!\e[m"
+            FOUND=1
         fi
     done
 
-    if [[ $found -gt 0 ]]; then
+    if [[ $FOUND ]]; then
         echo "... done"
     else
         echo "... not found"
@@ -72,9 +71,9 @@ fi
 
 
 ## unique test IDs
-notUniqueIds=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
-if [[ -n "$notUniqueIds" ]]; then
+NOT_UNIQUE_TEST_IDS=$(grep -hr "::testing::Test::RecordProperty" | sort | uniq -d)
+if [[ -n "$NOT_UNIQUE_TEST_IDS" ]]; then
     echo -e "\e[1;31mThe following test IDs are not unique!\e[m"
-    echo "$notUniqueIds"
+    echo "$NOT_UNIQUE_TEST_IDS"
     exit 1
 fi

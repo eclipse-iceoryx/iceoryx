@@ -24,7 +24,7 @@ repo_root_dir=$(git rev-parse --show-toplevel)
 
 cd "${repo_root_dir}" || exit
 
-if ! tools/scripts/clang_tidy_check.sh hook; then
+if ! tools/scripts/clang_tidy_check.sh hook "$repo_root_dir/.clang-tidy-diff-scans.txt"; then
     echo "Error while executing clang-tidy"
     exit 1
 fi
