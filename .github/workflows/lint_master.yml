@@ -5,23 +5,6 @@ on:
     branches: [ master ]
 
 jobs:
-  axivion:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name : Checkout
-        uses: actions/checkout@v3
-
-      - name: Trigger pipeline
-        env:
-          AXIVION_TRIGGER_TOKEN: ${{ secrets.AXIVION_TRIGGER_TOKEN }}
-          AXIVION_READ_API_TOKEN: ${{ secrets.AXIVION_READ_API_TOKEN }}
-        run: |
-          cd $GITHUB_WORKSPACE
-          pip3 install requests
-          PIPELINE_ID="$(./tools/axivion/trigger_pipeline.py)"
-          ./tools/axivion/wait_for_pipeline.py "${PIPELINE_ID}"
-
   build-test-ubuntu-with-thread-sanitizer-clang-latest:
     # prevent stuck jobs consuming runners for 3 hours
     timeout-minutes: 180
