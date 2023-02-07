@@ -40,46 +40,9 @@ namespace detail
 /// @param[in] onNonFatalFailurePath This function will be executed on the non-failure path if no failure was detected
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
-                        const std::function<void(const ErrorType, const iox::ErrorLevel)>& onFatalFailurePath,
-                        const std::function<void()>& onNonFatalFailurePath)
-{
-    std::atomic<bool> hasFatalFailure{false};
-    auto th = std::thread([&] {
-        constexpr int JMP_VALUE{1};
-        std::jmp_buf jmpBuffer;
-
-        optional<ErrorType> detectedError;
-        optional<iox::ErrorLevel> detectedErrorLevel;
-
-        auto errorHandlerGuard =
-            iox::ErrorHandlerMock::setTemporaryErrorHandler<ErrorType>([&](const auto error, const auto errorLevel) {
-                detectedError.emplace(error);
-                detectedErrorLevel.emplace(errorLevel);
-
-                // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
-                std::longjmp(&jmpBuffer[0], JMP_VALUE);
-            });
-
-        // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
-        if (setjmp(&jmpBuffer[0]) == JMP_VALUE)
-        {
-            hasFatalFailure = true;
-            // using value directly is save since this path is only executed if the error handler was called and the
-            // respective values were set
-            onFatalFailurePath(detectedError.value(), detectedErrorLevel.value());
-            return;
-        }
-
-        testFunction();
-
-        onNonFatalFailurePath();
-    });
-
-    th.join();
-
-    return hasFatalFailure.load(std::memory_order_relaxed);
-}
+bool IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
+                            const std::function<void(const ErrorType, const iox::ErrorLevel)>& onFatalFailurePath,
+                            const std::function<void()>& onNonFatalFailurePath);
 } // namespace detail
 
 /// @brief This function is used in cases a fatal failure is expected. The function only works in combination with the
@@ -95,16 +58,7 @@ bool FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
 /// @param[in] expectedError The error value which triggered the fatal failure
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const ErrorType expectedError)
-{
-    return detail::FATAL_FAILURE_TEST<ErrorType>(
-        testFunction,
-        [&](const auto error, const auto errorLevel) {
-            EXPECT_THAT(error, ::testing::Eq(expectedError));
-            EXPECT_THAT(errorLevel, ::testing::Eq(iox::ErrorLevel::FATAL));
-        },
-        [&] { GTEST_FAIL() << "Expected fatal failure but execution continued!"; });
-}
+bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const ErrorType expectedError);
 
 /// @brief This function is used in cases no fatal failure is expected but could potentially occur. The function only
 /// works in combination with the iceoryx error handler.
@@ -118,19 +72,12 @@ bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const E
 /// @param[in] testFunction This function will be executed as SUT and is not expected to call the error handler
 /// @return true if no fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool IOX_EXPECT_NO_FATAL_FAILURE(const std::function<void()>& testFunction)
-{
-    return !detail::FATAL_FAILURE_TEST<ErrorType>(
-        testFunction,
-        [&](const auto error, const auto errorLevel) {
-            GTEST_FAIL() << "Expected no fatal failure but execution failed! Error code: "
-                         << static_cast<uint64_t>(error) << "; Error level: " << static_cast<uint64_t>(errorLevel);
-        },
-        [&] {});
-    return false;
-}
+bool IOX_EXPECT_NO_FATAL_FAILURE(const std::function<void()>& testFunction);
 
 } // namespace testing
 } // namespace iox
+
+
+#include "iceoryx_hoofs/testing/fatal_failure.inl"
 
 #endif // IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
