@@ -67,11 +67,11 @@ In general unix platforms should work with iceoryx but we only test FreeBSD on o
 |Framework | Description |
 |---|---|
 | [ROS 2](https://github.com/ros2/rmw_iceoryx) | Eclipse iceoryx can be used inside the [Robot Operating System](https://www.ros.org/) with [rmw_iceoryx](https://github.com/ros2/rmw_iceoryx.git) |
-| [eCAL](https://github.com/continental/ecal) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
+| [Eclipse eCAL](https://eclipse-ecal.github.io/ecal/) | Open-source framework from [Continental AG](https://www.continental.com/) supporting pub/sub and various message protocols |
 | [RTA-VRTE](https://www.etas.com/en/products/rta-vrte.php) | [AUTOSAR Adaptive Platform](https://www.autosar.org/standards/adaptive-platform/) software framework for vehicle computer from [ETAS GmbH](https://www.etas.com) |
 | [Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds) | Performant and robust open-source DDS implementation maintained by [ZettaScale Technology](https://zettascale.tech/) |
-| [Apex.Middleware](https://www.apex.ai/apex-middleware) | Safe and certified middleware for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
-| [AVIN AUTOSAR Adaptive Platform](https://www.avinsystems.com/products/autosar_ap/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
+| [Apex.Ida from Apex.AI](https://www.apex.ai/apexida) | Safe and certified middleware for autonomous mobility systems from [Apex.AI](https://www.apex.ai/) |
+| [AVIN AGNOSAR Adaptive Platform](https://www.avinsystems.com/products/agnosar-adaptive-platform/) | AUTOSAR Adaptive Platform Product from AVIN Systems |
 
 ## Build and install
 
