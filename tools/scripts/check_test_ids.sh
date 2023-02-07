@@ -49,7 +49,7 @@ if [[ "$NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_TOTAL" -gt "$NUMBER_OF_TEST
     echo "trying to find files with missing IDs ..."
 
     # find file with missing IDs
-    for FILE in $(find iceoryx_* -iname "*.cpp")
+    while IFS= read -r -d '' FILE
     do
         NUMBER_OF_TEST_CASES_IN_FILE=$(numberOfTestCases $FILE)
         NUMBER_OF_FALSE_POSITIVES_IN_FILE=$(numberOfFalsePositives $FILE)
@@ -59,7 +59,7 @@ if [[ "$NUMBER_OF_TEST_CASES_WITHOUT_FALSE_POSITIVES_TOTAL" -gt "$NUMBER_OF_TEST
             echo -e "\e[1;31mThe file \"$FILE\" is missing test IDs for some test cases!\e[m"
             FOUND=1
         fi
-    done
+    done < <(find iceoryx_* -iname "*.cpp" -print0)
 
     if [[ $FOUND ]]; then
         echo "... done"

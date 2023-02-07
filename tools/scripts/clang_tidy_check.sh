@@ -75,13 +75,14 @@ function scanWithFileList() {
         exit 1
     fi
 
-    for LINE in $(cat $FILE_WITH_SCAN_LIST); do
+    while IFS= read -r LINE
+    do
         # add files until the comment section starts
         if [[ "$(echo $LINE | grep "#" | wc -l)" == "1" ]]; then
             break
         fi
         FILE_LIST="${FILE_LIST} $LINE"
-    done
+    done < "$FILE_WITH_SCAN_LIST"
 
     if [[ -n $FILE_TO_SCAN ]]
     then
@@ -106,14 +107,13 @@ function scanWithFileList() {
             exit 0
         fi
         echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER})
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build "$(find "${FILE_LIST}" -type f | grep -E ${FILE_FILTER})"
     fi
 }
 
 if [[ "$MODE" == "hook"* ]]; then
     if [[ $2 ]]; then
         FILE_WITH_SCAN_LIST=$2
-        echo "has scan list"
     fi
 
     FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
