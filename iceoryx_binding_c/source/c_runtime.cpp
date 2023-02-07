@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
 using namespace iox;
@@ -26,16 +27,9 @@ extern "C" {
 
 void iox_runtime_init(const char* const name)
 {
-    if (name == nullptr)
-    {
-        LogError() << "Runtime name is a nullptr!";
-        std::terminate();
-    }
-    else if (strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) > MAX_RUNTIME_NAME_LENGTH)
-    {
-        LogError() << "Runtime name has more than 100 characters!";
-        std::terminate();
-    }
+    iox::cxx::Expects(name != nullptr && "Runtime name is a nullptr!");
+    iox::cxx::Expects(strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) <= MAX_RUNTIME_NAME_LENGTH
+                      && "Runtime name has more than 100 characters!");
 
     PoshRuntime::initRuntime(RuntimeName_t(iox::TruncateToCapacity, name));
 }

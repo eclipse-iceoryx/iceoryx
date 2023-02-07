@@ -15,8 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_publisher.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -37,6 +39,7 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;
@@ -137,7 +140,8 @@ TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerm
     iox_pub_options_t options;
     iox_pub_storage_t storage;
 
-    EXPECT_DEATH({ iox_pub_init(&storage, "a", "b", "c", &options); }, ".*");
+    IOX_EXPECT_FATAL_FAILURE<iox::CBindingError>([&] { iox_pub_init(&storage, "a", "b", "c", &options); },
+                                                 iox::CBindingError::BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
 }
 
 TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
