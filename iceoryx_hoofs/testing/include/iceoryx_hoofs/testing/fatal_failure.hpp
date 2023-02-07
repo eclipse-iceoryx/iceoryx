@@ -84,6 +84,12 @@ bool FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
 
 /// @brief This function is used in cases a fatal failure is expected. The function only works in combination with the
 /// iceoryx error handler.
+/// @code
+/// TEST(MyTest, valueOnNulloptIsFatal) {
+///     iox::optional<bool> sut;
+///     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED));
+/// }
+/// @endcode
 /// @tparam[in] ErrorType The error type which is expected, e.g. 'iox::HoofsError'
 /// @param[in] testFunction This function will be executed as SUT and is not expected to call the error handler
 /// @param[in] expectedError The error value which triggered the fatal failure
@@ -102,6 +108,12 @@ bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const E
 
 /// @brief This function is used in cases no fatal failure is expected but could potentially occur. The function only
 /// works in combination with the iceoryx error handler.
+/// @code
+/// TEST(MyTest, valueIsNotFatal) {
+///     iox::optional<bool> sut{false};
+///     IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); });
+/// }
+/// @endcode
 /// @tparam[in] ErrorType The error type which is expected if the test fails, e.g. 'iox::HoofsError'
 /// @param[in] testFunction This function will be executed as SUT and is not expected to call the error handler
 /// @return true if no fatal failure occurs, false otherwise
@@ -111,8 +123,8 @@ bool IOX_EXPECT_NO_FATAL_FAILURE(const std::function<void()>& testFunction)
     return !detail::FATAL_FAILURE_TEST<ErrorType>(
         testFunction,
         [&](const auto error, const auto errorLevel) {
-            GTEST_FAIL() << "Expected no fatal failure but execution failed! Error code: " << error
-                         << "; Error level: " << errorLevel;
+            GTEST_FAIL() << "Expected no fatal failure but execution failed! Error code: "
+                         << static_cast<uint64_t>(error) << "; Error level: " << static_cast<uint64_t>(errorLevel);
         },
         [&] {});
     return false;
