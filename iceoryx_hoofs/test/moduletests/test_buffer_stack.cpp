@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/stack.hpp"
+#include "iox/stack.hpp"
 #include "test.hpp"
 
 #include <vector>
@@ -127,7 +127,7 @@ class stack_test : public Test
 {
   public:
     static constexpr uint32_t STACK_SIZE = 10U;
-    cxx::stack<TestClass, STACK_SIZE> m_sut;
+    stack<TestClass, STACK_SIZE> m_sut;
 
     void pushElements(const uint32_t numberOfElements)
     {
@@ -216,7 +216,7 @@ TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c496cb7-898b-4a65-a405-c42cbd7f0d7b");
     {
-        cxx::stack<TestClass, STACK_SIZE> sut;
+        stack<TestClass, STACK_SIZE> sut;
         sut.push();
         sut.push(1U, 2U, 3U);
         EXPECT_THAT(TestClass::dTor, Eq(0));
@@ -228,7 +228,7 @@ TEST_F(stack_test, StackDestroysElementsInReverseOrder)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb38b063-4921-46ae-bdf2-922f49a9ab41");
     {
-        cxx::stack<TestClass, STACK_SIZE> sut;
+        stack<TestClass, STACK_SIZE> sut;
         for (uint32_t i{0}; i < STACK_SIZE; ++i)
         {
             sut.push(i + 3, i + 1, i + 2);
@@ -248,7 +248,7 @@ TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
     constexpr uint32_t ELEMENT{13};
     m_sut.push(ELEMENT, ELEMENT, ELEMENT);
 
-    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    stack<TestClass, STACK_SIZE> testStack(m_sut);
     EXPECT_THAT(TestClass::copyCTor, Eq(1));
     ASSERT_THAT(testStack.size(), Eq(1));
     EXPECT_THAT(testStack.pop().value(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
@@ -257,7 +257,7 @@ TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
 TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08bfe7d9-233e-47cc-a7ca-5520eb6b99df");
-    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    stack<TestClass, STACK_SIZE> testStack(m_sut);
     EXPECT_THAT(TestClass::copyCTor, Eq(0));
     EXPECT_THAT(testStack.size(), Eq(0));
 }
@@ -267,7 +267,7 @@ TEST_F(stack_test, CopyConstructorWithFullStackWorks)
     ::testing::Test::RecordProperty("TEST_ID", "f5ff8a1c-8bd4-40a9-9b10-7e90f232d78a");
     pushElements(STACK_SIZE);
 
-    cxx::stack<TestClass, STACK_SIZE> testStack(m_sut);
+    stack<TestClass, STACK_SIZE> testStack(m_sut);
     EXPECT_THAT(TestClass::copyCTor, Eq(STACK_SIZE));
     EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
 
@@ -283,7 +283,7 @@ TEST_F(stack_test, CopyAssignmentWithEmptySourceWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b563f12-e565-49d8-ba62-7d9a2323afdb");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
 
     m_sut = testStack;
 
@@ -297,7 +297,7 @@ TEST_F(stack_test, CopyAssignmentWithEmptyDestinationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "81ea12ea-14ad-474c-bfd7-72433c780ceb");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
 
     testStack = m_sut;
 
@@ -318,7 +318,7 @@ TEST_F(stack_test, CopyAssignmentWithLargerDestinationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2f07ec25-fd62-414f-bb41-9284ce9f69b2");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
     testStack.push(9U, 11U, 13U);
     const auto srcSize = testStack.size();
 
@@ -335,7 +335,7 @@ TEST_F(stack_test, CopyAssignmentWithLargerSourceWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a001c09-abc2-4518-a47a-30d41aca3be4");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
     testStack.push(17U, 19U, 23U);
     const auto destSize = testStack.size();
 
@@ -358,7 +358,7 @@ TEST_F(stack_test, MoveConstructorWorksAndCallsTestClassMoveConstructor)
     ::testing::Test::RecordProperty("TEST_ID", "e3ad8e37-a95a-4f35-bee0-c83961c626a7");
     constexpr uint32_t ELEMENT{46};
     m_sut.push(ELEMENT, ELEMENT, ELEMENT);
-    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+    stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
 
     EXPECT_THAT(TestClass::moveCTor, Eq(1));
     ASSERT_THAT(testStack.size(), Eq(1));
@@ -369,7 +369,7 @@ TEST_F(stack_test, MoveConstructorWorksAndCallsTestClassMoveConstructor)
 TEST_F(stack_test, MoveConstructorWithEmptyStackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2cb3bfc8-ef86-4648-90e0-c0d4375834cc");
-    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+    stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
     EXPECT_THAT(TestClass::moveCTor, Eq(0));
     EXPECT_THAT(testStack.size(), Eq(0));
     EXPECT_THAT(m_sut.size(), Eq(0));
@@ -379,7 +379,7 @@ TEST_F(stack_test, MoveConstructorWithFullStackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08661d3d-89d7-4ada-ba78-757e92eeb8d4");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
+    stack<TestClass, STACK_SIZE> testStack(std::move(m_sut));
 
     EXPECT_THAT(TestClass::moveCTor, Eq(STACK_SIZE));
     EXPECT_THAT(testStack.size(), Eq(STACK_SIZE));
@@ -397,7 +397,7 @@ TEST_F(stack_test, MoveAssignmentWithEmptySourceWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a06a3f8e-a886-43e2-b119-adc66c2af799");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
 
     m_sut = std::move(testStack);
 
@@ -414,7 +414,7 @@ TEST_F(stack_test, MoveAssignmentWithEmptyDestinationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b67825b9-2053-453d-a2b7-5fe544f7b16d");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
 
     testStack = std::move(m_sut);
 
@@ -436,7 +436,7 @@ TEST_F(stack_test, MoveAssignmentWithLargerDestinationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "de0b02d2-762e-41e7-a179-bd3f57da5dc6");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
     testStack.push(9U, 11U, 13U);
     const auto srcSize = testStack.size();
 
@@ -456,7 +456,7 @@ TEST_F(stack_test, MoveAssignmentWithLargerSourceWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7ff5a53d-18f7-447d-8bc8-04d2f9e38caa");
     pushElements(STACK_SIZE);
-    cxx::stack<TestClass, STACK_SIZE> testStack;
+    stack<TestClass, STACK_SIZE> testStack;
     testStack.push(17U, 19U, 23U);
     const auto destSize = testStack.size();
 

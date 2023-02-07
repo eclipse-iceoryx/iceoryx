@@ -13,14 +13,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STACK_INL
-#define IOX_HOOFS_CXX_STACK_INL
+#ifndef IOX_HOOFS_BUFFER_STACK_INL
+#define IOX_HOOFS_BUFFER_STACK_INL
 
-#include "iceoryx_hoofs/cxx/stack.hpp"
+#include "iox/stack.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <typename T, uint64_t Capacity>
 inline stack<T, Capacity>& stack<T, Capacity>::copy(const stack& rhs) noexcept
@@ -196,7 +194,6 @@ inline constexpr uint64_t stack<T, Capacity>::capacity() noexcept
 }
 
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_STACK_INL
+#endif // IOX_HOOFS_BUFFER_STACK_INL
