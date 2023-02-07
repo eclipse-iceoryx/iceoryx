@@ -135,8 +135,7 @@ TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.tryAddQueue(nullptr); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.tryAddQueue(nullptr)); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
