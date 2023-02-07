@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 namespace

@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,32 +13,20 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_CXX_VECTOR_HPP
+#define IOX_HOOFS_CXX_VECTOR_HPP
 
-#ifndef IOX_POSH_GW_GATEWAY_CONFIG_HPP
-#define IOX_POSH_GW_GATEWAY_CONFIG_HPP
-
-#include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/vector.hpp"
 
 namespace iox
 {
-namespace config
+/// @todo iox-#1593 Deprecate include
+/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/vector.hpp' instead")]]
+namespace cxx
 {
-///
-/// @brief Generic configuration for gateways.
-///
-struct GatewayConfig
-{
-    struct ServiceEntry
-    {
-        capro::ServiceDescription m_serviceDescription;
-    };
-    iox::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices;
-
-    void setDefaults() noexcept;
-};
-} // namespace config
+/// @deprecated use `iox::vector` instead of `iox::cxx::vector`
+using iox::vector;
+} // namespace cxx
 } // namespace iox
 
-#endif // IOX_POSH_GW_GATEWAY_CONFIG_HPP
+#endif // IOX_HOOFS_CXX_VECTOR_HPP

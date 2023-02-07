@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -25,7 +25,6 @@
 
 using namespace ::testing;
 using namespace iox::concurrent;
-using namespace iox::cxx;
 
 namespace
 {
@@ -291,7 +290,7 @@ void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> 
 {
     test->m_sut.emplace(ForwardArgsToCTor, 0);
 
-    vector<std::thread, NUMBER_OF_THREADS> threads;
+    iox::vector<std::thread, NUMBER_OF_THREADS> threads;
     for (uint64_t i = 0U; i < NUMBER_OF_THREADS; ++i)
     {
         threads.emplace_back([&] {

@@ -104,7 +104,7 @@
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
-- Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
+- Change return type of `vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `iox::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Rename `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
@@ -594,7 +594,7 @@
     myMutex->lock();
     ```
 
-26. Change return type of `cxx::vector::erase` from iterator to bool
+26. Change return type of `vector::erase` from iterator to bool
 
     ```cpp
     // before

@@ -16,8 +16,8 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_CONFIG_HPP
 #define IOX_POSH_MEPOO_MEPOO_CONFIG_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -44,7 +44,7 @@ struct MePooConfig
         uint32_t m_chunkCount{0};
     };
 
-    using MePooConfigContainerType = cxx::vector<Entry, MAX_NUMBER_OF_MEMPOOLS>;
+    using MePooConfigContainerType = vector<Entry, MAX_NUMBER_OF_MEMPOOLS>;
     MePooConfigContainerType m_mempoolConfig;
 
     /// @brief Default constructor to set the configuration for memory pools

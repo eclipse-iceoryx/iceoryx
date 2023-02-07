@@ -48,7 +48,7 @@ class ConditionVariable_test : public Test
     ConditionVariableData m_condVarData{m_runtimeName};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
-    vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
+    iox::vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
 
     void SetUp() override
     {

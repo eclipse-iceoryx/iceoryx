@@ -192,7 +192,7 @@ class iox_listener_test : public Test
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("long_live_lord_buckethead");
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U];
-    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;
+    vector<iox_user_trigger_t, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1U> m_userTrigger;
 
     static constexpr uint32_t NUM_CHUNKS_IN_POOL = MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY + 2U;
     static constexpr uint32_t CHUNK_SIZE = 128U;
@@ -210,10 +210,9 @@ class iox_listener_test : public Test
         {"ServiceA", "InstanceA", "EventA"}, "der_wilde_bert", ServerOptions(), &m_memoryManager};
     ClientPortData clientPortData{
         {"ServiceA", "InstanceA", "EventA"}, "rudi_ruessel", ClientOptions(), &m_memoryManager};
-    cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
-    cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
-    cxx::vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1>
-        m_chunkPusher;
+    vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriberPortData;
+    vector<cpp2c_Subscriber, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_subscriber;
+    vector<ChunkQueuePusher<SubscriberPortData::ChunkQueueData_t>, MAX_NUMBER_OF_EVENTS_PER_LISTENER + 1> m_chunkPusher;
     static constexpr std::chrono::milliseconds TIMEOUT = std::chrono::milliseconds(100);
 };
 constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;

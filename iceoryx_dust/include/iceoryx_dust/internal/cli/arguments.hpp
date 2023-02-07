@@ -19,8 +19,8 @@
 #include "iceoryx_dust/cli/types.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/internal/cli/option.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/expected.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -67,7 +67,7 @@ class Arguments
 
   private:
     const char* m_binaryName;
-    cxx::vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
+    vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
 } // namespace internal
 } // namespace cli

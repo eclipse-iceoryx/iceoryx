@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VECTOR_HPP
-#define IOX_HOOFS_CXX_VECTOR_HPP
+#ifndef IOX_HOOFS_CONTAINER_VECTOR_HPP
+#define IOX_HOOFS_CONTAINER_VECTOR_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/attributes.hpp"
@@ -27,8 +27,6 @@
 #include <cstdint>
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief  C++11 compatible vector implementation. We needed to do some
 ///         adjustments in the API since we do not use exceptions and we require
@@ -235,9 +233,8 @@ constexpr bool operator==(const vector<T, CapacityLeft>& lhs, const vector<T, Ca
 // comparison of vectors with different capacity
 template <typename T, uint64_t CapacityLeft, uint64_t CapacityRight>
 constexpr bool operator!=(const vector<T, CapacityLeft>& lhs, const vector<T, CapacityRight>& rhs) noexcept;
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/vector.inl"
+#include "iox/detail/vector.inl"
 
-#endif // IOX_HOOFS_CXX_VECTOR_HPP
+#endif // IOX_HOOFS_CONTAINER_VECTOR_HPP

@@ -505,8 +505,8 @@ class ServiceDiscoveryFindService_test : public ServiceDiscoveryBase_test
     static constexpr uint32_t MAX_PUBLISHERS = iox::MAX_PUBLISHERS;
     static constexpr uint32_t MAX_SERVERS = iox::MAX_SERVERS;
 
-    iox::cxx::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
-    iox::cxx::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
+    iox::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
+    iox::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
 
     ReferenceDiscovery publisherDiscovery{MessagingPattern::PUB_SUB};
     ReferenceDiscovery serverDiscovery{MessagingPattern::REQ_RES};

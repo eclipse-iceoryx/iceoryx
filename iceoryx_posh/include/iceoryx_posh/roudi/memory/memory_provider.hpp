@@ -19,10 +19,10 @@
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/expected.hpp"
 #include "iox/not_null.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -146,7 +146,7 @@ class MemoryProvider
     uint64_t m_size{0};
     uint64_t m_segmentId{0};
     bool m_memoryAvailableAnnounced{false};
-    cxx::vector<MemoryBlock*, MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER> m_memoryBlocks;
+    vector<MemoryBlock*, MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER> m_memoryBlocks;
 };
 } // namespace roudi
 } // namespace iox

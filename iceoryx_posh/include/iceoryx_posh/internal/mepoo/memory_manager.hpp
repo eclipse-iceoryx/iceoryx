@@ -18,7 +18,6 @@
 #define IOX_POSH_MEPOO_MEMORY_MANAGER_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
@@ -26,6 +25,7 @@
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "iox/memory.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 #include <limits>
@@ -94,8 +94,8 @@ class MemoryManager
     bool m_denyAddMemPool{false};
     uint32_t m_totalNumberOfChunks{0};
 
-    cxx::vector<MemPool, MAX_NUMBER_OF_MEMPOOLS> m_memPoolVector;
-    cxx::vector<MemPool, 1> m_chunkManagementPool;
+    vector<MemPool, MAX_NUMBER_OF_MEMPOOLS> m_memPoolVector;
+    vector<MemPool, 1> m_chunkManagementPool;
 };
 
 /// @brief Converts the MemoryManager::Error to a string literal

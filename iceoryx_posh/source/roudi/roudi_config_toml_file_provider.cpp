@@ -19,12 +19,12 @@
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iox/into.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h

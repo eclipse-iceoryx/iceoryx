@@ -63,14 +63,13 @@ class PortPool
 
     virtual ~PortPool() noexcept = default;
 
-    cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
-    cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
-    cxx::vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;
-    cxx::vector<popo::ServerPortData*, MAX_SERVERS> getServerPortDataList() noexcept;
-    cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
-    cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
-    cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
-    getConditionVariableDataList() noexcept;
+    vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
+    vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
+    vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;
+    vector<popo::ServerPortData*, MAX_SERVERS> getServerPortDataList() noexcept;
+    vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
+    vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
+    vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES> getConditionVariableDataList() noexcept;
 
     expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,

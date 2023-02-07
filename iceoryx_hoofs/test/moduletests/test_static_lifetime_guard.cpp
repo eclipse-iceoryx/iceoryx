@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/vector.hpp"
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test.hpp"
@@ -353,7 +353,7 @@ TEST_F(StaticLifetimeGuard_test, instanceCtorIsConcurrentlyCalledExactlyOnce)
         Sut::instance(std::chrono::milliseconds(1));
     };
 
-    iox::cxx::vector<std::thread, NUM_THREADS> threads;
+    iox::vector<std::thread, NUM_THREADS> threads;
 
     for (uint32_t i = 0; i < NUM_THREADS; ++i)
     {

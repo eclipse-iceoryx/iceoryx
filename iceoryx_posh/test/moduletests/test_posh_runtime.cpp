@@ -382,7 +382,7 @@ TEST_F(PoshRuntime_test, GetMiddlewarePublisherWithForbiddenServiceDescriptionsF
             }
         });
 
-    iox::cxx::vector<iox::capro::ServiceDescription, iox::NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+    iox::vector<iox::capro::ServiceDescription, iox::NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
     const iox::capro::ServiceDescription serviceRegistry{
         iox::SERVICE_DISCOVERY_SERVICE_NAME, iox::SERVICE_DISCOVERY_INSTANCE_NAME, iox::SERVICE_DISCOVERY_EVENT_NAME};
 

@@ -763,7 +763,7 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa0cd25c-4e9d-476a-a8a6-d5c650fb9fff");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    iox::cxx::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
+    iox::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {

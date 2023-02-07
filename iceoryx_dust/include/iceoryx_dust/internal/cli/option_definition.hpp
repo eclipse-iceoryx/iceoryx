@@ -20,7 +20,7 @@
 #include "iceoryx_dust/cli/types.hpp"
 #include "iceoryx_dust/internal/cli/arguments.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 #include <cstdint>
 
 namespace iox
@@ -89,7 +89,7 @@ class OptionDefinition
 
   private:
     OptionDescription_t m_programDescription;
-    cxx::vector<OptionWithDetails, MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    vector<OptionWithDetails, MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
     cxx::function<void()> m_onFailureCallback;
 };
 
