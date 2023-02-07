@@ -3144,8 +3144,8 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { this->testSubject.at(0U); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(0U); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
@@ -3155,8 +3155,8 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { this->testSubject.at(STRINGCAP); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(STRINGCAP); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNonEmptyStringViaAtReturnsCorrectCharacter)
@@ -3191,8 +3191,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut.at(0U); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(0U); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
@@ -3203,8 +3202,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut.at(STRINGCAP); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(STRINGCAP); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstAtReturnsCorrectCharacter)
@@ -3233,8 +3231,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFail
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { this->testSubject[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
@@ -3244,8 +3241,8 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { this->testSubject[STRINGCAP]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[STRINGCAP]; },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
@@ -3280,8 +3277,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperato
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
@@ -3292,8 +3288,7 @@ TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorF
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut[STRINGCAP]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[STRINGCAP]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)

@@ -84,8 +84,7 @@ void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createInvalidObject();
     {
-        EXPECT_FATAL_FAILURE<iox::HoofsError>(
-            [&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+        IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
     }
 }
 

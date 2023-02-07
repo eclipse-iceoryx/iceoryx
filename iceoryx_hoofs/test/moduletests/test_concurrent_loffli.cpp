@@ -59,8 +59,8 @@ TYPED_TEST(LoFFLi_test, Misuse_NullptrMemory)
 
     decltype(this->m_loffli) loFFLi;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { loFFLi.init(nullptr, 1); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(nullptr, 1); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
@@ -71,8 +71,8 @@ TYPED_TEST(LoFFLi_test, Misuse_ZeroSize)
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { loFFLi.init(&memoryLoFFLi[0], 0); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], 0); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 
@@ -84,9 +84,8 @@ TYPED_TEST(LoFFLi_test, Misuse_SizeToLarge)
     uint32_t memoryLoFFLi[4];
     decltype(this->m_loffli) loFFLi;
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { loFFLi.init(&memoryLoFFLi[0], UINT32_MAX - 1); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
     // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 }
 

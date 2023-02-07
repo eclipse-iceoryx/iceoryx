@@ -267,7 +267,7 @@ TEST_F(list_test, FullWhenFilledWithMoreThanCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "585bb3d9-112c-4db8-af5e-e4c646723515");
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
             for (uint64_t i = 0U; i < sut.capacity(); ++i)
             {
@@ -277,8 +277,7 @@ TEST_F(list_test, FullWhenFilledWithMoreThanCapacityElements)
             EXPECT_THAT(sut.full(), Eq(true));
             sut.emplace_front();
         },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED,
-        iox::ErrorLevel::FATAL);
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
 {
@@ -725,8 +724,8 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
         }
         else
         {
-            EXPECT_FATAL_FAILURE<iox::HoofsError>(
-                [&] { sut1.emplace_back(cnt); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+            IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut1.emplace_back(cnt); },
+                                                      iox::HoofsError::EXPECTS_ENSURES_FAILED);
         }
         ++cnt;
     }
@@ -760,8 +759,8 @@ TEST_F(list_test, EmplaceWithWrongListIterator)
         ++cnt;
     }
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut11.emplace(iterOfSut2, cnt); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut11.emplace(iterOfSut2, cnt); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
@@ -1496,44 +1495,38 @@ TEST_F(list_test, IteratorComparisonOfDifferentLists)
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 
@@ -2316,8 +2309,7 @@ TEST_F(list_test, invalidIteratorErase)
     sut.erase(iter);
 
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut.erase(iter); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(iter); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorIncrement)
@@ -2333,8 +2325,7 @@ TEST_F(list_test, invalidIteratorIncrement)
     ++iter;
     sut.erase(iter);
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { ++iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { ++iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorDecrement)
@@ -2350,8 +2341,7 @@ TEST_F(list_test, invalidIteratorDecrement)
     ++iter;
     sut.erase(iter);
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { --iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { --iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorComparison)
@@ -2368,9 +2358,8 @@ TEST_F(list_test, invalidIteratorComparison)
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorComparisonUnequal)
@@ -2387,8 +2376,8 @@ TEST_F(list_test, invalidIteratorComparisonUnequal)
     auto iter2 = sut.erase(iter);
 
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { IOX_DISCARD_RESULT(iter2 != iter); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter2 != iter); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorDereferencing)
@@ -2404,8 +2393,8 @@ TEST_F(list_test, invalidIteratorDereferencing)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { IOX_DISCARD_RESULT((*iter).m_value); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).m_value); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorAddressOfOperator)
@@ -2421,10 +2410,8 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-
-    EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->m_value == 12U); },
-                                          iox::HoofsError::EXPECTS_ENSURES_FAILED,
-                                          iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->m_value == 12U); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, ListIsCopyableViaMemcpy)

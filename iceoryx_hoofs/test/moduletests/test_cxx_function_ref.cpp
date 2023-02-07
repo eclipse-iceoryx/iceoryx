@@ -171,8 +171,7 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
 
     // NOLINTJUSTIFICATION Use after move is tested here
     // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
-    EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { sut1(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED, iox::ErrorLevel::FATAL);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut1(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
     // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved)
 }
 

@@ -89,9 +89,7 @@ bool FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
 /// @param[in] expectedError The error value which triggered the fatal failure
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction,
-                          const ErrorType expectedError,
-                          const iox::ErrorLevel)
+bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const ErrorType expectedError)
 {
     return detail::FATAL_FAILURE_TEST<ErrorType>(
         testFunction,
