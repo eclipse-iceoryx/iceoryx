@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -220,6 +220,8 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : Object size limit is not relevant for
+    //                                                 containers stored in shared memory.
     UninitializedArray<T, Capacity> m_data{};
     uint64_t m_size{0U};
 };

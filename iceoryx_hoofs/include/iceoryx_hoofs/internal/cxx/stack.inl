@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -162,6 +162,8 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
     }
 
     // AXIVION Next Line AutosarC++19_03-A18.5.10 : every entry of m_data is aligned to alignof(T)
+    // AXIVION Next Line FaultDetection-IndirectAssignmentOverflow : False positive. Size at
+    //                                                               location guaranteed by T.
     new (&m_data[m_size++]) T(std::forward<Targs>(args)...);
     return true;
 }

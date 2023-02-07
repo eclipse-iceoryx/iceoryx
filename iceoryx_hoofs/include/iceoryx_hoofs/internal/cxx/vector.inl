@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,8 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     for (uint64_t i{0U}; i < m_size; ++i)
     {
         // AXIVION Next Line AutosarC++19_03-A18.5.2 : false positive, it is a placement new
+        // AXIVION Next Line FaultDetection-IndirectAssignmentOverflow : False positive. Size at
+        //                                                               location guaranteed by T.
         new (&at(i)) T();
     }
 }
@@ -87,6 +89,8 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
         // copy using copy assignment
         for (; i < minSize; ++i)
         {
+            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment.
+            //                                            Evaluation order is inconsequential.
             at(i) = rhs.at(i);
         }
 
@@ -116,6 +120,8 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
         // move using move assignment
         for (; i < minSize; ++i)
         {
+            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment.
+            //                                            Evaluation order is inconsequential.
             at(i) = std::move(rhs.at(i));
         }
 
@@ -164,6 +170,9 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
     if (m_size < Capacity)
     {
+        // AXIVION Next Construct FaultDetection-IndirectAssignmentOverflow : False positive. Size at
+        //                                                               location guaranteed by T
+        // AXIVION Next Construct AutosarC++19_03-A5.0.1 : Evaluation order is inconsequential.
         new (&at(m_size++)) T(std::forward<Targs>(args)...);
         return true;
     }
@@ -174,7 +183,7 @@ template <typename T, uint64_t Capacity>
 template <typename... Targs>
 inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... args) noexcept
 {
-    const auto sizeBeforeEmplace = m_size;
+    const uint64_t sizeBeforeEmplace = m_size;
     if ((m_size >= Capacity) || ((position >= Capacity) || (position > sizeBeforeEmplace)))
     {
         return false;
@@ -350,10 +359,13 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
 {
     if ((begin() <= position) && (position < end()))
     {
+        // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
         uint64_t index{static_cast<uint64_t>(position - begin())};
         size_t n{index};
         while ((n + 1U) < size())
         {
+            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment.
+            //                                            Evaluation order is inconsequential.
             at(n) = std::move(at(n + 1U));
             ++n;
         }
