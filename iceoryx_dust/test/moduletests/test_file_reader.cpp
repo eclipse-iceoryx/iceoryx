@@ -160,6 +160,7 @@ TEST_F(FileReader_test, errorTerminateMode)
     std::set_terminate([]() { std::cout << "", std::abort(); });
 
     // @todo iox-#1613 remove EXPECT_DEATH
+    // using IOX_EXPECT_FATAL_FAILURE currently causes issues with the leak sanitizer with this test
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
     EXPECT_DEATH(
         {
