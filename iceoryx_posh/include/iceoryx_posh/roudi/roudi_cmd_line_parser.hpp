@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 #define IOX_POSH_ROUDI_ROUDI_CMD_LINE_PARSER_HPP
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 

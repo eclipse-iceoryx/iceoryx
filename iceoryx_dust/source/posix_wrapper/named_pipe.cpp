@@ -16,7 +16,7 @@
 
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+#include "iox/deadline_timer.hpp"
 #include "iox/into.hpp"
 
 #include <thread>
@@ -389,7 +389,7 @@ bool NamedPipe::NamedPipeData::waitForInitialization() const noexcept
         return true;
     }
 
-    cxx::DeadlineTimer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
+    deadline_timer deadlineTimer(WAIT_FOR_INIT_TIMEOUT);
 
     while (!deadlineTimer.hasExpired())
     {

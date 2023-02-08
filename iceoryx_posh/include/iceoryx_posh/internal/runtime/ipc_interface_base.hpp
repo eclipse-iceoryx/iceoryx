@@ -18,8 +18,6 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -29,6 +27,8 @@
 #include "iceoryx_platform/unistd.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
+#include "iox/deadline_timer.hpp"
+#include "iox/duration.hpp"
 
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"

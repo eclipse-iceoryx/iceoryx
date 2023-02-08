@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iox/deadline_timer.hpp"
+#include "iox/duration.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -30,7 +30,7 @@ using namespace ::testing;
 using namespace iox::units;
 using namespace iox::units::duration_literals;
 
-using Timer = iox::cxx::DeadlineTimer;
+using Timer = iox::deadline_timer;
 
 class DeadlineTimer_test : public Test
 {

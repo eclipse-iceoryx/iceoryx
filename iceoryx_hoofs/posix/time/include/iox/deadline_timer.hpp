@@ -13,24 +13,22 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_DEADLINETIMER_HPP
-#define IOX_HOOFS_CXX_DEADLINETIMER_HPP
+#ifndef IOX_HOOFS_TIME_DEADLINE_TIMER_HPP
+#define IOX_HOOFS_TIME_DEADLINE_TIMER_HPP
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/signal.hpp"
+#include "iox/duration.hpp"
 
 #include <chrono>
 #include <cstdint>
 
 namespace iox
 {
-namespace cxx
-{
 /// @brief This offers the deadline timer functionality. It has user convenient methods to reset the timer [by default
 /// it uses the intialized duration], reset timer to a customized duration, check if the timer is active and user can
 /// also get to know about the remaining time before the timer goes off
 /// @code
-///     iox::cxx::DeadlineTimer deadlineTimer(1000_ms);
+///     iox::cxx::deadline_timer deadlineTimer(1000_ms);
 ///
 ///     // to check if the timer is active
 ///     if( deadlineTimer.hasExpired()){
@@ -40,12 +38,12 @@ namespace cxx
 ///     deadlineTimer.reset();
 ///
 /// @endcode
-class DeadlineTimer
+class deadline_timer
 {
   public:
     /// @brief Constructor
     /// @param[in] timeToWait duration until the timer expires
-    explicit DeadlineTimer(const iox::units::Duration timeToWait) noexcept;
+    explicit deadline_timer(const iox::units::Duration timeToWait) noexcept;
 
     /// @brief Checks if the timer has expired compared to its absolute end time
     /// @return false if the timer is still active and true if it is expired
@@ -71,9 +69,7 @@ class DeadlineTimer
     iox::units::Duration m_timeToWait;
     iox::units::Duration m_endTime;
 };
-
-} // namespace cxx
 } // namespace iox
 
 
-#endif // IOX_HOOFS_CXX_DEADLINETIMER_HPP
+#endif // IOX_HOOFS_TIME_DEADLINE_TIMER_HPP

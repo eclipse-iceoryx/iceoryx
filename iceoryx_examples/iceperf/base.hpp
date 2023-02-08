@@ -20,7 +20,7 @@
 #include "example_common.hpp"
 #include "topic_data.hpp"
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iox/duration.hpp"
 
 #include <chrono>
 #include <iostream>

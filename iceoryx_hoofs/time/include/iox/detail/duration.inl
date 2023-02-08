@@ -14,10 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_UNITS_DURATION_INL
-#define IOX_HOOFS_UNITS_DURATION_INL
+#ifndef IOX_HOOFS_TIME_UNITS_DURATION_INL
+#define IOX_HOOFS_TIME_UNITS_DURATION_INL
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iox/duration.hpp"
 
 namespace iox
 {
@@ -562,4 +562,4 @@ inline constexpr Duration operator"" _d(unsigned long long int value) noexcept
 } // namespace duration_literals
 } // namespace units
 } // namespace iox
-#endif // IOX_HOOFS_UNITS_DURATION_INL
+#endif // IOX_HOOFS_TIME_UNITS_DURATION_INL

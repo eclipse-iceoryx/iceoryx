@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/deadline_timer.hpp"
 
 #include <atomic>
 #include <thread>

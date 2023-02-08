@@ -169,7 +169,7 @@ setTimeout(5_ms); // 5 milliseconds
 | class               | internal | description                                                                                                                                 |
 |:-------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------|
 |`Duration`           | i        | Represents the unit time, is convertible to `timespec` and `timeval`. User defined literals are available for convenience and readability.  |
-|`DeadlineTimer`      |          | Polling based timer to check for an elapsed deadline.                                                                                       |
+|`deadline_timer      |          | Polling based timer to check for an elapsed deadline.                                                                                       |
 |`adaptive_wait`      | i        | Building block to realize busy waiting loops with low CPU load.                                                                             |
 
 <center>

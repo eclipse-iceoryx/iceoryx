@@ -73,7 +73,7 @@ class IpcRuntimeInterface
         TIMEOUT
     };
 
-    void waitForRoudi(cxx::DeadlineTimer& timer) noexcept;
+    void waitForRoudi(deadline_timer& timer) noexcept;
 
     RegAckResult waitForRegAck(const int64_t transmissionTimestamp) noexcept;
 

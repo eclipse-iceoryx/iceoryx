@@ -54,6 +54,8 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/primitives/include
                                 ${PROJECT_SOURCE_DIR}/design/include
+                                ${PROJECT_SOURCE_DIR}/time/include
+                                ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -64,10 +66,12 @@ iox_add_library(
                                 utility/include/
                                 primitives/include/
                                 design/include/
+                                time/include/
+                                posix/time/include/
     FILES
         source/concurrent/loffli.cpp
-        source/cxx/adaptive_wait.cpp
-        source/cxx/deadline_timer.cpp
+        posix/time/source/adaptive_wait.cpp
+        posix/time/source/deadline_timer.cpp
         source/cxx/filesystem.cpp
         source/cxx/requires.cpp
         source/cxx/type_traits.cpp

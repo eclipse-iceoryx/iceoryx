@@ -17,10 +17,10 @@
 
 #include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/duration.hpp"
 
 #include "test.hpp"
 

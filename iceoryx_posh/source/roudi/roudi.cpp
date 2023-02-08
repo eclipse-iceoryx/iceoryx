@@ -100,7 +100,7 @@ void RouDi::shutdown() noexcept
 
     if (m_killProcessesInDestructor)
     {
-        cxx::DeadlineTimer finalKillTimer(m_processKillDelay);
+        deadline_timer finalKillTimer(m_processKillDelay);
 
         m_prcMgr->requestShutdownOfAllProcesses();
 

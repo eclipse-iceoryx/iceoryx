@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_UNITS_DURATION_HPP
-#define IOX_HOOFS_UNITS_DURATION_HPP
+#ifndef IOX_HOOFS_TIME_UNITS_DURATION_HPP
+#define IOX_HOOFS_TIME_UNITS_DURATION_HPP
 
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
@@ -24,8 +24,6 @@
 
 #include <chrono>
 #include <cmath>
-#include <iostream>
-#include <numeric>
 
 namespace iox
 {
@@ -412,6 +410,6 @@ constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept;
 } // namespace units
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/units/duration.inl"
+#include "iox/detail/duration.inl"
 
-#endif // IOX_HOOFS_UNITS_DURATION_HPP
+#endif // IOX_HOOFS_TIME_UNITS_DURATION_HPP
