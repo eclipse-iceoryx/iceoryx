@@ -26,6 +26,14 @@ msg() {
 WORKSPACE=$(git rev-parse --show-toplevel)
 cd "${WORKSPACE}"
 
+sudo touch /etc/apt/sources.list.d/ubuntu_bionic.list
+
+sudo echo "\
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic main universe\
+" | sudo tee /etc/apt/sources.list.d/ubuntu_bionic.list;
+
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
+
 msg "installing build dependencies"
 sudo apt-get update && sudo apt-get install -y libacl1-dev libncurses5-dev gcc-5 g++-5
 

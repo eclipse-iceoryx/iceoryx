@@ -13,7 +13,7 @@ jobs:
   pre-flight-check:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install iceoryx dependencies and clang-tidy
@@ -62,7 +62,7 @@ jobs:
   build-test-windows:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: windows-2019
+    runs-on: windows-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
@@ -76,7 +76,7 @@ jobs:
     needs: pre-flight-check
     steps:
       - name: Setup ROS
-        uses: ros-tooling/setup-ros@v0.3
+        uses: ros-tooling/setup-ros@v0.5
         with:
           required-ros-distributions: foxy
       - uses: actions/checkout@v3
@@ -85,12 +85,12 @@ jobs:
   build-test-ubuntu-with-address-sanitizer-gcc-latest:
     # prevent stuck jobs consuming runners for 1 hour
     timeout-minutes: 60
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
       - uses: egor-tensin/setup-gcc@v1.3
         with:
-          version: 11
+          version: 12
           platform: x64
       - uses: actions/checkout@v3
       - name: Run Address Sanitizer
@@ -120,15 +120,14 @@ jobs:
         run: ./tools/ci/build-test-macos-with-sanitizers.sh asan
 
   # gcc 5.4 is compiler used in QNX 7.0
-  build-test-ubuntu-with-gcc54:
+  build-test-ubuntu-with-gcc5:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - uses: egor-tensin/setup-gcc@v1.3
       - uses: actions/checkout@v3
-      - run: ./tools/ci/build-test-ubuntu-with-gcc54.sh
+      - run: ./tools/ci/build-test-ubuntu-with-gcc5.sh
 
   # Bazel sanity check
   build-test-ubuntu-bazel:
@@ -143,7 +142,7 @@ jobs:
   coverage-and-docs:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
       - uses: actions/checkout@v3
