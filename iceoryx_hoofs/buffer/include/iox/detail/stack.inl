@@ -159,9 +159,8 @@ inline bool stack<T, Capacity>::push(Targs&&... args) noexcept
         return false;
     }
 
-    // AXIVION Next Line AutosarC++19_03-A18.5.10 : every entry of m_data is aligned to alignof(T)
-    // AXIVION Next Line FaultDetection-IndirectAssignmentOverflow : False positive. Size at
-    //                                                               location guaranteed by T.
+    // AXIVION Next Construct AutosarC++19_03-A18.5.10 : every entry of m_data is aligned to alignof(T)
+    // AXIVION Next Construct FaultDetection-IndirectAssignmentOverflow : Size guaranteed by T.
     new (&m_data[m_size++]) T(std::forward<Targs>(args)...);
     return true;
 }
