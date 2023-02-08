@@ -33,11 +33,11 @@ struct ZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
         cxx::byte_t data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory.
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity]{};
 };
@@ -50,11 +50,11 @@ struct NonZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
         cxx::byte_t data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity];
 };
@@ -66,6 +66,7 @@ struct NonZeroedBuffer
 /// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=NonZeroedBuffer,
 /// default) and an uninitialized array with all elements zeroed (=ZeroedBuffer)
 /// @note Out of bounds access leads to undefined behavior
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : type contains a single member that is a byte array whos size is defined by ElementType and Capacity
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NonZeroedBuffer>
 class UninitializedArray final
 {
@@ -111,6 +112,7 @@ class UninitializedArray final
     static constexpr uint64_t capacity() noexcept;
 
   private:
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size limit is not relevant for containers stored in shared memory
     Buffer<ElementType, Capacity> m_buffer;
 };
 
