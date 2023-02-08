@@ -17,8 +17,6 @@
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
 #include "iceoryx_hoofs/cxx/list.hpp"
-#include "iceoryx_hoofs/cxx/stack.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
@@ -26,8 +24,10 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "iox/optional.hpp"
+#include "iox/stack.hpp"
 #include "iox/string.hpp"
 #include "iox/variant.hpp"
+#include "iox/vector.hpp"
 
 #include "test.hpp"
 

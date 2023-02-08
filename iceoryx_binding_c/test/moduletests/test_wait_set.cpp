@@ -86,14 +86,14 @@ class iox_ws_test : public Test
     std::unique_ptr<PoshRuntimeMock> runtimeMock = PoshRuntimeMock::create("rudi_ruessel");
     const iox::capro::ServiceDescription TEST_SERVICE_DESCRIPTION{"a", "b", "c"};
     iox::popo::SubscriberOptions m_subscriberOptions{MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY, 0U};
-    cxx::vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
-    cxx::vector<cpp2c_Subscriber, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_subscriberVector;
+    vector<iox::popo::SubscriberPortData, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_portDataVector;
+    vector<cpp2c_Subscriber, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1U> m_subscriberVector;
 
     ConditionVariableData m_condVar{"Horscht"};
     WaitSetMock* m_sut = new WaitSetMock{m_condVar};
 
     iox_user_trigger_storage_t m_userTriggerStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1];
-    cxx::vector<iox_user_trigger_t, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1> m_userTrigger;
+    vector<iox_user_trigger_t, MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1> m_userTrigger;
 
     iox_notification_info_t m_eventInfoStorage[MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET];
     uint64_t m_missedElements = 0U;

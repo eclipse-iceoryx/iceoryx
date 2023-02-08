@@ -179,7 +179,7 @@ TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturn
 TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa7d6416-4183-4942-a323-01f78c1bb6c1");
-    iox::cxx::vector<ServiceDescription, CAPACITY> services;
+    iox::vector<ServiceDescription, CAPACITY> services;
 
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {
@@ -197,7 +197,7 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
-    iox::cxx::vector<ServiceDescription, CAPACITY> services;
+    iox::vector<ServiceDescription, CAPACITY> services;
 
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {

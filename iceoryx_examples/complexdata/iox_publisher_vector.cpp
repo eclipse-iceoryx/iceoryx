@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
@@ -29,7 +29,7 @@ int main()
 
     // initialize publisher
     //! [create publisher]
-    iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
+    iox::popo::Publisher<iox::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
     //! [create publisher]
 
     uint64_t ct = 0;

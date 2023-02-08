@@ -31,7 +31,7 @@ extern "C" {
 namespace
 {
 using namespace ::testing;
-using description_vector = cxx::vector<iox_service_description_t, MAX_FINDSERVICE_RESULT_SIZE>;
+using description_vector = vector<iox_service_description_t, MAX_FINDSERVICE_RESULT_SIZE>;
 
 class iox_service_discovery_test : public RouDi_GTest
 {

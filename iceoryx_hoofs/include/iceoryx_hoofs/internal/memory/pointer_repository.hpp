@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
 #define IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -104,7 +104,7 @@ class PointerRepository final
     /// this variable exists once per application using relative pointers,
     /// and each needs to initialize it via register calls above
 
-    iox::cxx::vector<Info, CAPACITY> m_info;
+    iox::vector<Info, CAPACITY> m_info;
     uint64_t m_maxRegistered{0U};
 
     bool addPointerIfIdIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;

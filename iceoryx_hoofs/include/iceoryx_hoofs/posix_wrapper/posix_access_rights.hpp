@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <string>
 
@@ -58,7 +58,7 @@ class PosixGroup
 class PosixUser
 {
   public:
-    using groupVector_t = cxx::vector<PosixGroup, MaxNumberOfGroups>;
+    using groupVector_t = vector<PosixGroup, MaxNumberOfGroups>;
 
     static constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
     using userName_t = string<MAX_USER_NAME_LENGTH>;

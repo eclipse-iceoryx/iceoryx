@@ -19,7 +19,6 @@
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
@@ -30,6 +29,7 @@
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <atomic>
 #include <thread>
@@ -57,7 +57,7 @@ enum class GatewayError : uint8_t
 template <typename channel_t, typename gateway_t = GatewayBase>
 class GatewayGeneric : public gateway_t
 {
-    using ChannelVector = cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
+    using ChannelVector = vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = concurrent::smart_lock<ChannelVector>;
 
   public:

@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <array>

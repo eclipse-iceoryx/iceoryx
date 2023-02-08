@@ -19,12 +19,12 @@
 
 #include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 #include <initializer_list>

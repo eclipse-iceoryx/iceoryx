@@ -14,16 +14,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_VECTOR_INL
-#define IOX_HOOFS_CXX_VECTOR_INL
+#ifndef IOX_HOOFS_CONTAINER_VECTOR_INL
+#define IOX_HOOFS_CONTAINER_VECTOR_INL
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 #include <iostream>
 
 namespace iox
-{
-namespace cxx
 {
 template <typename T, uint64_t Capacity>
 inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcept
@@ -429,6 +427,5 @@ inline bool constexpr operator!=(const vector<T, CapacityLeft>& lhs, const vecto
 {
     return !(lhs == rhs);
 }
-} // namespace cxx
 } // namespace iox
-#endif // IOX_HOOFS_CXX_VECTOR_INL
+#endif // IOX_HOOFS_CONTAINER_VECTOR_INL

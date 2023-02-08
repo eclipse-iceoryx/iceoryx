@@ -20,8 +20,6 @@
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/stack.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -32,6 +30,8 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/stack.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -57,7 +57,7 @@ class WaitSet
   public:
     static constexpr uint64_t CAPACITY = Capacity;
     using TriggerArray = optional<Trigger>[Capacity];
-    using NotificationInfoVector = cxx::vector<const NotificationInfo*, CAPACITY>;
+    using NotificationInfoVector = vector<const NotificationInfo*, CAPACITY>;
 
     WaitSet() noexcept;
     ~WaitSet() noexcept;
@@ -238,7 +238,7 @@ class WaitSet
     ConditionVariableData* m_conditionVariableDataPtr{nullptr};
     ConditionListener m_conditionListener;
 
-    cxx::stack<uint64_t, Capacity> m_indexRepository;
+    stack<uint64_t, Capacity> m_indexRepository;
     ConditionListener::NotificationVector_t m_activeNotifications;
 };
 

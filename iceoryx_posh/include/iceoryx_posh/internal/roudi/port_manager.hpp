@@ -207,7 +207,7 @@ class PortManager
     PortPool* m_portPool{nullptr};
     ServiceRegistry m_serviceRegistry;
     PortIntrospectionType m_portIntrospection;
-    cxx::vector<capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> m_internalServices;
+    vector<capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> m_internalServices;
     optional<PublisherPortRouDiType::MemberType_t*> m_serviceRegistryPublisherPortData;
 
     // some ports for the service registry requires special handling

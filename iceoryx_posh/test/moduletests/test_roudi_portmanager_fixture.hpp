@@ -74,7 +74,7 @@ class PortManager_test : public Test
 
     iox::RuntimeName_t m_runtimeName{"TestApp"};
 
-    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+    vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
     const capro::ServiceDescription serviceRegistry{
         SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
 

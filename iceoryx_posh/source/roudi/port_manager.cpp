@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -375,7 +375,7 @@ void PortManager::doDiscoveryForServerPort(popo::ServerPortRouDi& serverPort) no
 void PortManager::handleInterfaces() noexcept
 {
     // check if there are new interfaces that must get an initial offer information
-    cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> interfacePortsForInitialForwarding;
+    vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> interfacePortsForInitialForwarding;
 
 
     for (auto interfacePortData : m_portPool->getInterfacePortDataList())

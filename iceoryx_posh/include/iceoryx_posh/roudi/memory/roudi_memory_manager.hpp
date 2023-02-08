@@ -23,9 +23,9 @@
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -79,7 +79,7 @@ class RouDiMemoryManager
 
   private:
     mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
-    cxx::vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
+    vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
 };
 } // namespace roudi
 } // namespace iox

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -497,7 +497,7 @@ class WaitSet_test : public Test
 
     template <uint64_t NotificationInfoVectorCapacity, typename EventOrigin>
     static bool doesNotificationInfoVectorContain(
-        const iox::cxx::vector<const NotificationInfo*, NotificationInfoVectorCapacity>& eventInfoVector,
+        const iox::vector<const NotificationInfo*, NotificationInfoVectorCapacity>& eventInfoVector,
         const uint64_t eventId,
         const EventOrigin& origin)
     {
@@ -615,7 +615,7 @@ class WaitSet_test : public Test
 
     const iox::units::Duration m_timeToWait = 2_s;
     Watchdog m_watchdog{m_timeToWait};
-    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1>;
+    using eventVector_t = iox::vector<SimpleEventClass, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1};
 };
 std::vector<uint64_t> WaitSet_test::SimpleEventClass::m_invalidateTriggerId;
@@ -1164,7 +1164,7 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bf1a8c00-e9c9-43e1-813e-64fd12d4e055");
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
+    iox::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[i], 5U + i).has_error());

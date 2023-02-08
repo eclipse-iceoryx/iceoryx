@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <vector>
@@ -23,7 +23,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 class vector_test : public Test
 {
@@ -1352,7 +1352,7 @@ TEST_F(vector_test, SizeIncreaseWithResizeAndDefaultCTorWorks)
         }
         int m_a;
     };
-    iox::cxx::vector<DefaultCTor, 10U> sut;
+    vector<DefaultCTor, 10U> sut;
 
     EXPECT_TRUE(sut.resize(5U));
     ASSERT_THAT(sut.size(), Eq(5U));
@@ -1377,7 +1377,7 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndDefaultCTorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfd86fcc-c828-4b1b-ab9a-cff7e0f22164");
     constexpr uint64_t CAPACITY{10};
-    iox::cxx::vector<CTorTest, CAPACITY> sut;
+    vector<CTorTest, CAPACITY> sut;
     for (uint64_t i = 0U; i < CAPACITY; ++i)
     {
         sut.emplace_back(i);
@@ -1395,7 +1395,7 @@ TEST_F(vector_test, SizeDecreaseWithResizeAndTemplateValueWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6b2d81ce-1d46-47a6-bbb2-16f1c0ce46f3");
     constexpr uint64_t CAPACITY{10};
-    iox::cxx::vector<CTorTest, CAPACITY> sut;
+    vector<CTorTest, CAPACITY> sut;
     for (uint64_t i = 0U; i < CAPACITY; ++i)
     {
         sut.emplace_back(i + 10U);

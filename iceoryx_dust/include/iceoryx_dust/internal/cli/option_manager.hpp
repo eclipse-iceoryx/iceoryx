@@ -20,7 +20,7 @@
 #include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_dust/internal/cli/option_definition.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -28,7 +28,7 @@ namespace cli
 {
 namespace internal
 {
-using CmdAssignments_t = cxx::vector<cxx::function<void(Arguments&)>, MAX_NUMBER_OF_ARGUMENTS>;
+using CmdAssignments_t = vector<cxx::function<void(Arguments&)>, MAX_NUMBER_OF_ARGUMENTS>;
 
 /// @brief Manages command line options which were defined via the IOX_CLI_ macros in a
 ///        user defined struct.

@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_STACK_HPP
-#define IOX_HOOFS_CXX_STACK_HPP
+#ifndef IOX_HOOFS_BUFFER_STACK_HPP
+#define IOX_HOOFS_BUFFER_STACK_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iox/optional.hpp"
@@ -23,8 +23,6 @@
 #include <cstdint>
 
 namespace iox
-{
-namespace cxx
 {
 // AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
 // access
@@ -75,9 +73,8 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
     UninitializedArray<T, Capacity> m_data;
     uint64_t m_size{0U};
 };
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/stack.inl"
+#include "iox/detail/stack.inl"
 
 #endif

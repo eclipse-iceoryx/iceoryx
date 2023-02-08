@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 #include <atomic>
 
@@ -127,7 +127,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     std::atomic<uint64_t> m_capacity{MaxCapacity};
     // must be operator= otherwise it is undefined, see https://en.cppreference.com/w/cpp/atomic/ATOMIC_FLAG_INIT
     std::atomic_flag m_resizeInProgress = ATOMIC_FLAG_INIT;
-    iox::cxx::vector<BufferIndex, MaxCapacity> m_unusedIndices;
+    iox::vector<BufferIndex, MaxCapacity> m_unusedIndices;
 
     /// @brief      Increase the capacity by some value.
     /// @param[in]  toIncrease value by which the capacity is to be increased

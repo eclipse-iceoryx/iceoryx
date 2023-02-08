@@ -27,17 +27,17 @@ PortPool::PortPool(PortPoolData& portPoolData) noexcept
 {
 }
 
-cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::getInterfacePortDataList() noexcept
+vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> PortPool::getInterfacePortDataList() noexcept
 {
     return m_portPoolData->m_interfacePortMembers.content();
 }
 
-cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noexcept
+vector<runtime::NodeData*, MAX_NODE_NUMBER> PortPool::getNodeDataList() noexcept
 {
     return m_portPoolData->m_nodeMembers.content();
 }
 
-cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
+vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
 PortPool::getConditionVariableDataList() noexcept
 {
     return m_portPoolData->m_conditionVariableMembers.content();
@@ -108,12 +108,12 @@ void PortPool::removeConditionVariableData(const popo::ConditionVariableData* co
     m_portPoolData->m_conditionVariableMembers.erase(conditionVariableData);
 }
 
-cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::getPublisherPortDataList() noexcept
+vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> PortPool::getPublisherPortDataList() noexcept
 {
     return m_portPoolData->m_publisherPortMembers.content();
 }
 
-cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSubscriberPortDataList() noexcept
+vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> PortPool::getSubscriberPortDataList() noexcept
 {
     return m_portPoolData->m_subscriberPortMembers.content();
 }
@@ -162,12 +162,12 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
     }
 }
 
-cxx::vector<popo::ClientPortData*, MAX_CLIENTS> PortPool::getClientPortDataList() noexcept
+vector<popo::ClientPortData*, MAX_CLIENTS> PortPool::getClientPortDataList() noexcept
 {
     return m_portPoolData->m_clientPortMembers.content();
 }
 
-cxx::vector<popo::ServerPortData*, MAX_SERVERS> PortPool::getServerPortDataList() noexcept
+vector<popo::ServerPortData*, MAX_SERVERS> PortPool::getServerPortDataList() noexcept
 {
     return m_portPoolData->m_serverPortMembers.content();
 }

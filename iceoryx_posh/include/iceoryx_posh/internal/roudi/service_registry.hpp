@@ -18,11 +18,11 @@
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 
 #include <cstdint>
@@ -98,7 +98,7 @@ class ServiceRegistry
 
   private:
     using Entry_t = optional<ServiceDescriptionEntry>;
-    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, CAPACITY>;
+    using ServiceDescriptionContainer_t = vector<Entry_t, CAPACITY>;
 
     static constexpr uint32_t NO_INDEX = CAPACITY;
 

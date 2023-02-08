@@ -329,7 +329,7 @@ Everytime one of the subscribers is receiving a new sample it will trigger the _
 uint64_t sumOfAllSamples = 0U;
 
 // create subscribers and subscribe them to our service
-iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+iox::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
 for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
@@ -415,7 +415,7 @@ Now we create a vector of 4 subscribers.
 
 <!--[geoffrey][iceoryx_examples/waitset/ice_waitset_grouping.cpp][create subscribers]-->
 ```cpp
-iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+iox::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
 for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
 {
     subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
