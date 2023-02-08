@@ -1,5 +1,6 @@
 # QNX platform / libc headers
 arpa/inet.h
+climits
 cstdint
 dlfcn.h
 errno.h
