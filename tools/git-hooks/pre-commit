@@ -50,6 +50,18 @@ if ! tools/scripts/clang_format.sh hook; then
     exit 1
 fi
 
+## cmake-lint
+if ! tools/scripts/cmake-lint.sh hook; then
+    echo "Error while executing cmake-lint"
+    exit 1
+fi
+
+## cmake-format
+if ! tools/scripts/cmake-format.sh hook; then
+    echo "Error while executing cmake-format"
+    exit 1
+fi
+
 ## check for test IDs
 if ! tools/scripts/check_test_ids.sh; then
     echo "Error checking test IDs"
