@@ -72,7 +72,7 @@ function scanWithFileList() {
     if ! test -f "$FILE_WITH_SCAN_LIST"
     then
         echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
-        exit 1
+        return 1
     fi
 
     while IFS= read -r LINE
@@ -89,13 +89,13 @@ function scanWithFileList() {
         if ! test -f "$FILE_TO_SCAN"
         then
             echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
-            exit 1
+            return 1
         fi
 
         if [[ $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER} | grep ${FILE_TO_SCAN} | wc -l) == "0" ]]
         then
             echo "Skipping file '${FILE_TO_SCAN}' since it is not part of '${FILE_WITH_SCAN_LIST}'"
-            exit 0
+            return 0
         fi
 
         echo "Scanning file: ${FILE_TO_SCAN}"
@@ -104,7 +104,7 @@ function scanWithFileList() {
         if [[ -z $FILE_LIST ]]
         then
             echo "'${FILE_WITH_SCAN_LIST}' is empty skipping folder scan."
-            exit 0
+            return 0
         fi
         echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
         $CLANG_TIDY_CMD --warnings-as-errors=* -p build "$(find "${FILE_LIST}" -type f | grep -E ${FILE_FILTER})"
@@ -120,24 +120,31 @@ if [[ "$MODE" == "hook"* ]]; then
     # List only added files
     ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
     echo "Checking files with Clang-Tidy"
-    echo " "
-        if [ -z "$FILES" ]; then
-              echo "No modified files to check, skipping clang-tidy"
+    echo "  Number of modified files: $(echo "${FILES}" | grep -v "^$" | wc -l)"
+    if [ -z "$FILES" ]; then
+        echo "  -> nothing to do"
+    else
+        echo "  processing ..."
+        if [[ $FILE_WITH_SCAN_LIST ]]; then
+            for FILE_TO_SCAN in $FILES; do
+                echo "    ${FILE_TO_SCAN}"
+                scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
+            done
         else
-            if [[ $FILE_WITH_SCAN_LIST ]]; then
-                for FILE_TO_SCAN in $FILES; do
-                    scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
-                done
-            else
-                $CLANG_TIDY_CMD -p build $FILES
-            fi
+            $CLANG_TIDY_CMD -p build $FILES
         fi
+        echo "  ... done"
+    fi
 
-        if [ -z "$ADDED_FILES" ]; then
-            echo "No added files to check, skipping clang-tidy"
-        else
-            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
-        fi
+    echo " "
+    echo "  Number of added files: $(echo "${ADDED_FILES}" | grep -v "^$" | wc -l)"
+    if [ -z "$ADDED_FILES" ]; then
+        echo "  -> nothing to do"
+    else
+        echo "  processing ..."
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
+        echo "  ... done"
+    fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
     DIRECTORY_TO_SCAN=$2
