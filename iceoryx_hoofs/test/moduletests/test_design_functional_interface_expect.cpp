@@ -39,15 +39,9 @@ using namespace iox::testing;
 template <typename FactoryType, typename SutType, typename ExpectCall>
 void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
 {
-    bool wasErrorHandlerCalled = false;
     SutType sut = FactoryType::createValidObject();
-    {
-        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
-            [&](auto, auto) { wasErrorHandlerCalled = true; });
-        callExpect(sut);
-    }
 
-    EXPECT_FALSE(wasErrorHandlerCalled);
+    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
@@ -83,9 +77,8 @@ template <typename FactoryType, typename SutType, typename ExpectCall>
 void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createInvalidObject();
-    {
-        IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    }
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)
