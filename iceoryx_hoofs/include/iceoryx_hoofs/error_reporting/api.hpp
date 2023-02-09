@@ -7,14 +7,15 @@
 
 #define IOX_ERROR(code) iox::err::toError(code)
 
-/// @note The following macros are statements (not expressions).
+/// The following macros are statements (not expressions).
+/// This is important, as it enforces correct use to some degree.
 
 /// @brief calls panic handler and does not return
 /// @param msg optional message string literal
 /// @note could actually throw if desired without breaking control flow asssumptions
 #define IOX_PANIC(...) do { iox::err::panic(__VA_ARGS__); } while(false)
 
-/// @brief report error with some kind
+/// @brief report error of some kind
 /// @param error error object (or code)
 /// @param kind kind of error
 #define IOX_REPORT(error, kind) \

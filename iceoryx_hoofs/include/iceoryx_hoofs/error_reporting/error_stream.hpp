@@ -12,7 +12,8 @@ namespace iox
 namespace err
 {
 
-// will be handled by logger later on
+// TODO: use logger
+
 using ErrorStream = std::stringstream;
 
 inline ErrorStream& errorStream()
@@ -21,6 +22,14 @@ inline ErrorStream& errorStream()
     return stream;
 }
 
+void flush()
+{
+    auto& s = errorStream();
+    s.flush();
+    std::cout << s.str() << std::endl;
+}
+
+/*
 template <class Level>
 void log(const SourceLocation& location, Level level)
 {
@@ -46,6 +55,6 @@ void log(const SourceLocation& location, Level level, error_code_t code, module_
     errorStream() << levelName << "@" << location.file << " " << location.line << " " << location.function << " : "
                   << code << " in module " << module << std::endl;
 }
-
+*/
 } // namespace err
 } // namespace iox

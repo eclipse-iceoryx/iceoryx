@@ -59,6 +59,15 @@ class ErrorReportingAPI_test : public Test
 
 TEST_F(ErrorReportingAPI_test, unconditionalPanic)
 {
+    auto f = []() { IOX_PANIC(); };
+
+    f();
+
+    ASSERT_PANIC();
+}
+
+TEST_F(ErrorReportingAPI_test, unconditionalPanicWithMessage)
+{
     auto f = []() { IOX_PANIC("message"); };
 
     f();
@@ -132,6 +141,15 @@ TEST_F(ErrorReportingAPI_test, checkPreconditionFalse)
     ASSERT_PANIC();
 }
 
+TEST_F(ErrorReportingAPI_test, checkPreconditionWithMessage)
+{
+    auto f = [](int x) { IOX_PRECONDITION(x > 0) << "message" << 73; };
+
+    f(1);
+
+    ASSERT_NO_PANIC();
+}
+
 TEST_F(ErrorReportingAPI_test, checkAssumptionTrue)
 {
     auto f = [](int x) { IOX_ASSUME(x > 0); };
@@ -150,7 +168,16 @@ TEST_F(ErrorReportingAPI_test, checkAssumptionFalse)
     ASSERT_PANIC();
 }
 
-TEST_F(ErrorReportingAPI_test, reportExpectedWithError)
+TEST_F(ErrorReportingAPI_test, checkAssumptionWithMessage)
+{
+    auto f = [](int x) { IOX_ASSUME(x > 0) << "message" << 73; };
+
+    f(0);
+
+    ASSERT_PANIC();
+}
+
+TEST_F(ErrorReportingAPI_test, reportExpectedAsError)
 {
     auto f = []() -> expected<int, MyError> {
         auto e = IOX_ERROR(MyCode::Unknown);

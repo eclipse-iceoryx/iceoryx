@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/error_logging.hpp"
+#include "iceoryx_hoofs/error_reporting/error_stream.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
 #include "platform/error_reporting.hpp"
@@ -14,8 +14,12 @@ namespace iox
 namespace err
 {
 
-// class to later allow using state of the object if necessary
-// must be lightweight to construct
+/// @brief Reports error and optionally acts as a logger for additional messages
+/// Will call panic in destructor and not return if the error kind is
+/// configured for this behaviour.
+/// @tparam Kind kind of error, controls behaviour of the ErrorProxy (e.g. panic)
+/// @note A raw function for this kind of deleagtion does not suffice for optional
+/// logging with multiple arguments.
 template <typename Kind>
 class ErrorProxy final
 {
@@ -34,13 +38,13 @@ class ErrorProxy final
 
     ~ErrorProxy()
     {
-        errorStream() << std::endl;
-        errorStream().flush();
+        iox::err::flush();
         // defer the panic to be able to add functionality to the proxy
-        // compile time
+        // such as printing messages
         if (IsFatal<Kind>::value)
         {
             panic();
+            // will not return
         }
     }
 
@@ -58,6 +62,8 @@ class ErrorProxy final
         // until we have recorded the message
         auto& s = errorStream();
         s << msg;
+
+        // allows chaining of additional messages into the eror stream
         return s;
     }
 
