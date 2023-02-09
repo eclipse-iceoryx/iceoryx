@@ -5,49 +5,49 @@
 
 #include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
 
-#include <atomic>
 #include <iostream>
 
 namespace iox
 {
 namespace err
 {
-// platform specific, static dispatch (optimized away)
+// The static reporting interface that must be defined to at least do nothing.
+// It can be configured for various kinds of errors and uses the type system (i.e. overloading)
+// for efficient dispatch.
+
+// This minimal version ignores all errors and just aborts in fatal cases.
+
+// TODO: log with logger?
 
 template <class Kind, class Error>
 inline void report(const SourceLocation&, Kind, const Error&)
 {
-    std::cout << "REPORT non-fatal" << std::endl;
 }
 
 template <class Error>
 inline void report(const SourceLocation&, iox::err::Fatal, const Error&)
 {
-    std::cout << "REPORT fatal" << std::endl;
 }
 
 template <class Error>
 inline void report(const SourceLocation&, iox::err::PreconditionViolation, const Error&)
 {
-    std::cout << "REPORT precondition violation" << std::endl;
 }
 
 template <class Error>
 inline void report(const SourceLocation&, iox::err::DebugAssertViolation, const Error&)
 {
-    std::cout << "REPORT debug assert violation" << std::endl;
 }
 
 [[noreturn]] inline void panic()
 {
-    std::cout << "PANIC" << std::endl;
-    std::terminate();
+    std::abort();
 }
 
 [[noreturn]] inline void panic(const char* msg)
 {
-    std::cout << "PANIC " << msg << std::endl;
-    std::terminate();
+    std::cout << msg << std::endl;
+    std::abort();
 }
 
 } // namespace err

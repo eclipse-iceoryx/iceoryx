@@ -69,20 +69,5 @@ bool equals(const E1& a, const E2& b)
     return a.code() == b.code() && a.module() == b.module();
 }
 
-/*
-// not useful since argument dependent lookup will generally not find it
-template <typename E1, typename E2>
-bool operator==(const E1& a, const E2& b)
-{
-    return equals(a, b);
-}
-
-template <typename E1, typename E2>
-bool operator!=(const E1& a, const E2& b)
-{
-    return !(a == b);
-}
-*/
-
 } // namespace err
 } // namespace iox

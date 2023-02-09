@@ -44,7 +44,7 @@ class ErrorProxy final
         if (IsFatal<Kind>::value)
         {
             panic();
-            // will not return
+            // will not return, note that the ErrorProxy does not leak resources
         }
     }
 

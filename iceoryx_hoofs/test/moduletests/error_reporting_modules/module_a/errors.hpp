@@ -17,9 +17,9 @@ using module_id_t = iox::err::module_id_t;
 
 enum class ErrorCode : error_code_t
 {
-    Unknown = 0,
-    OutOfMemory = 1,
-    OutOfBounds = 2
+    Unknown = 42,
+    OutOfMemory = 73,
+    OutOfBounds = 66
 };
 
 // names exist in static segment without dynamic memory

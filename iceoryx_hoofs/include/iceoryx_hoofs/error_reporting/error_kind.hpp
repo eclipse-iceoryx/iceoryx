@@ -27,7 +27,6 @@ struct PreconditionViolation
 {
     static constexpr char const* name = "PreconditionViolation";
 
-    // todo: separate level?
     static constexpr error_level_t value = FATAL_LEVEL;
 
     explicit operator error_level_t()
@@ -41,7 +40,6 @@ struct DebugAssertViolation
 {
     static constexpr char const* name = "DebugAssertViolation";
 
-    // todo: separate level?
     static constexpr error_level_t value = FATAL_LEVEL;
 
     explicit operator error_level_t()

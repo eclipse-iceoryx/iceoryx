@@ -1,12 +1,13 @@
-// must be defined globally before first inclusion (actually from cmake, preferably)
-#include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/test_platform/error_reporting.hpp"
-#include <gtest/gtest.h>
-#define TEST_PLATFORM // override the error handling for testing purposes
+#define TEST_PLATFORM // overrides the error handling for testing purposes
 #define IOX_DEBUG     // defensive checks (DEBUG_ASSERT, PRECOND) are active
 
 #include "test.hpp"
 #include <gtest/gtest-death-test.h>
+#include <gtest/gtest.h>
+
+// must be defined globally before first inclusion (actually from cmake, preferably)
+#include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
+
 
 #include "iceoryx_hoofs/error_reporting/api.hpp"
 
@@ -28,20 +29,25 @@ using std::endl;
 using MyError = module_a::error::Error;
 using MyCode = module_a::error::ErrorCode;
 
-#define IGNORE(expr) (void)(expr)
-
-// TODO: more fine-grained error checks (override backend handler)
+iox::err::TestErrorHandler testHandler;
 
 #define ASSERT_NO_PANIC()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
-        ASSERT_FALSE(hasPanicked());                                                                                   \
+        ASSERT_FALSE(iox::err::TestErrorHandler::instance().hasPanicked());                                            \
     } while (false)
 
 #define ASSERT_PANIC()                                                                                                 \
     do                                                                                                                 \
     {                                                                                                                  \
-        ASSERT_TRUE(hasPanicked());                                                                                    \
+        ASSERT_TRUE(iox::err::TestErrorHandler::instance().hasPanicked());                                             \
+    } while (false)
+
+#define ASSERT_ERROR(code)                                                                                             \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        auto e = error_code_t(code);                                                                                   \
+        ASSERT_TRUE(iox::err::TestErrorHandler::instance().hasError(e));                                               \
     } while (false)
 
 class ErrorReportingAPI_test : public Test
@@ -49,11 +55,13 @@ class ErrorReportingAPI_test : public Test
   public:
     void SetUp() override
     {
-        resetPanic();
+        iox::err::TestErrorHandler::instance().reset();
+        ErrorHandler::set(testHandler);
     }
 
     void TearDown() override
     {
+        ErrorHandler::reset();
     }
 };
 
@@ -85,6 +93,7 @@ TEST_F(ErrorReportingAPI_test, reportNonFatal)
     f();
 
     ASSERT_NO_PANIC();
+    ASSERT_ERROR(MyCode::Unknown);
 }
 
 TEST_F(ErrorReportingAPI_test, reportFatal)
@@ -97,6 +106,7 @@ TEST_F(ErrorReportingAPI_test, reportFatal)
     f();
 
     ASSERT_PANIC();
+    ASSERT_ERROR(MyCode::Unknown);
 }
 
 TEST_F(ErrorReportingAPI_test, reportConditionallyTrue)
@@ -109,6 +119,7 @@ TEST_F(ErrorReportingAPI_test, reportConditionallyTrue)
     f();
 
     ASSERT_PANIC();
+    ASSERT_ERROR(MyCode::Unknown);
 }
 
 TEST_F(ErrorReportingAPI_test, reportConditionallyFalse)
@@ -121,6 +132,31 @@ TEST_F(ErrorReportingAPI_test, reportConditionallyFalse)
     f();
 
     ASSERT_NO_PANIC();
+}
+
+TEST_F(ErrorReportingAPI_test, assertTrue)
+{
+    auto f = []() {
+        auto e = IOX_ERROR(MyCode::Unknown);
+        IOX_ASSERT(true, e);
+    };
+
+    f();
+
+    ASSERT_NO_PANIC();
+}
+
+TEST_F(ErrorReportingAPI_test, assertFalse)
+{
+    auto f = []() {
+        auto e = IOX_ERROR(MyCode::Unknown);
+        IOX_ASSERT(false, e);
+    };
+
+    f();
+
+    ASSERT_PANIC();
+    ASSERT_ERROR(MyCode::Unknown);
 }
 
 TEST_F(ErrorReportingAPI_test, checkPreconditionTrue)
@@ -179,16 +215,22 @@ TEST_F(ErrorReportingAPI_test, checkAssumptionWithMessage)
 
 TEST_F(ErrorReportingAPI_test, reportExpectedAsError)
 {
+    // this is not ideal but currently as good as it gets (?) with expected
     auto f = []() -> expected<int, MyError> {
         auto e = IOX_ERROR(MyCode::Unknown);
         return iox::cxx::error<MyError>(e);
     };
 
-    auto res = f();
-    ASSERT_TRUE(res.has_error());
-    IOX_REPORT(res, FATAL);
+    auto g = [&]() {
+        auto res = f();
+        ASSERT_TRUE(res.has_error());
+        IOX_REPORT(res, FATAL);
+    };
+
+    g();
 
     ASSERT_PANIC();
+    ASSERT_ERROR(MyCode::Unknown);
 }
 
 } // namespace
