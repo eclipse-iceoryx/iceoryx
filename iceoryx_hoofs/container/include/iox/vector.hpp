@@ -218,8 +218,7 @@ class vector final
 
     void clearFrom(const uint64_t startPosition) noexcept;
 
-    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : Object size limit is not relevant for
-    //                                                 containers stored in shared memory.
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : Object size limit is not relevant for containers stored in shared memory.
     UninitializedArray<T, Capacity> m_data{};
     uint64_t m_size{0U};
 };
