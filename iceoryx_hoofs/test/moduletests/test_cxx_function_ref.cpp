@@ -17,13 +17,15 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
-
 
 namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox::testing;
 
 constexpr int FREE_FUNC_TEST_VALUE = 42 + 42;
 constexpr int FUNCTOR_TEST_VALUE = 11;
@@ -162,15 +164,15 @@ TEST_F(function_refTest, CreateValidByMoveAssignResultEqual)
 TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3402f27e-ced5-483f-ab39-0069cfd172ac");
+
     auto lambda = []() -> int { return 7654; };
     function_ref<int()> sut1{lambda};
     function_ref<int()> sut2{std::move(sut1)};
+
     // NOLINTJUSTIFICATION Use after move is tested here
-    // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
-    // cppcoreguidelines-avoid-goto)
-    EXPECT_DEATH(sut1(), ""); // ERROR: Empty function_ref invoked
-    // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved, cppcoreguidelines-pro-type-vararg,
-    // cppcoreguidelines-avoid-goto)
+    // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut1(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved)
 }
 
 TEST_F(function_refTest, CreateValidAndSwapResultEqual)

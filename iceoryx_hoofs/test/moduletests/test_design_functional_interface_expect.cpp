@@ -13,15 +13,16 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-//
+
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test_design_functional_interface_types.hpp"
 
 namespace
 {
 using namespace test_design_functional_interface;
 using namespace ::testing;
+using namespace iox::testing;
 
 // the macro is used as code generator to make the tests more readable. because of the
 // template nature of those tests this cannot be implemented in the same readable fashion
@@ -38,15 +39,9 @@ using namespace ::testing;
 template <typename FactoryType, typename SutType, typename ExpectCall>
 void ExpectDoesNotCallTerminateWhenObjectIsValid(const ExpectCall& callExpect)
 {
-    bool wasErrorHandlerCalled = false;
     SutType sut = FactoryType::createValidObject();
-    {
-        auto handle = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>(
-            [&](auto, auto) { wasErrorHandlerCalled = true; });
-        callExpect(sut);
-    }
 
-    EXPECT_FALSE(wasErrorHandlerCalled);
+    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); });
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesNotCallTerminateWhenObjectIsValid_LValueCase)
@@ -82,13 +77,8 @@ template <typename FactoryType, typename SutType, typename ExpectCall>
 void ExpectDoesCallTerminateWhenObjectIsInvalid(const ExpectCall& callExpect)
 {
     SutType sut = FactoryType::createInvalidObject();
-    {
-        auto handle =
-            iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::HoofsError>([&](auto, auto) { std::terminate(); });
-        // @todo iox-#1613 remove EXPECT_DEATH
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-        EXPECT_DEATH(callExpect(sut), ".*");
-    }
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { callExpect(sut); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(FunctionalInterface_test, ExpectDoesCallTerminateWhenObjectIsInvalid_LValueCase)

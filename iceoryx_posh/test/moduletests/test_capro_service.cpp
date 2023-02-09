@@ -19,6 +19,8 @@
 
 #include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/serialization.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iox/string.hpp"
@@ -30,6 +32,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 
 using namespace iox::capro;
 
@@ -129,7 +132,8 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
     testHash[2] = 3U;
     testHash[3] = 4U;
 
-    EXPECT_DEATH({ testHash[4] = 5U; }, ".*");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { testHash[4] = 5U; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 /// END CLASSHASH TESTS

@@ -16,7 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
@@ -33,6 +35,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 using namespace iox::popo;
 using namespace iox::cxx;
 using namespace iox::mepoo;
@@ -126,17 +129,15 @@ constexpr std::chrono::milliseconds ChunkDistributor_test<PolicyType>::BLOCKING_
 template <typename PolicyType>
 constexpr iox::units::Duration ChunkDistributor_test<PolicyType>::DEADLOCK_TIMEOUT;
 
-/// @todo iox-#898: this is broken on macOS and triggers the watchdog, even with 5 seconds timeout
-#if !defined(__APPLE__)
 TYPED_TEST(ChunkDistributor_test, AddingNullptrQueueDoesNotWork)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa7eaa9e-c337-45dc-945a-d097b8916eaa");
     auto sutData = this->getChunkDistributorData();
     typename TestFixture::ChunkDistributor_t sut(sutData.get());
 
-    EXPECT_DEATH(IOX_DISCARD_RESULT(sut.tryAddQueue(nullptr)), ".*");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.tryAddQueue(nullptr)); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
-#endif
 
 TYPED_TEST(ChunkDistributor_test, NewChunkDistributorHasNoQueues)
 {

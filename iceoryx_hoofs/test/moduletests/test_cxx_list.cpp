@@ -17,7 +17,9 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/list.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "test.hpp"
 
 
@@ -25,6 +27,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cxx;
+using namespace iox::testing;
 
 constexpr uint64_t TESTLISTCAPACITY{10U};
 constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
@@ -149,15 +152,6 @@ int64_t iteratorTraitReturnDoubleValue(IterType iter)
     IterValueType m_value = *iter;
     return (2 * m_value); // will only work for integer-convertible m_value types
 }
-
-// in context of EXPECT_DEATH tests, dummyFunc() shall help suppressing following warning :
-// -Wunused-comparison
-// reason: the warning is already addressed with the internal handling, which shall be tested here
-bool dummyFunc(bool whatever)
-{
-    IOX_LOG(ERROR) << "Never get here - ever " << whatever;
-    return whatever;
-}
 } // namespace
 
 
@@ -272,15 +266,18 @@ TEST_F(list_test, FullWhenFilledWithCapacityElements)
 TEST_F(list_test, FullWhenFilledWithMoreThanCapacityElements)
 {
     ::testing::Test::RecordProperty("TEST_ID", "585bb3d9-112c-4db8-af5e-e4c646723515");
-    for (uint64_t i = 0U; i < sut.capacity(); ++i)
-    {
-        sut.emplace_front();
-    }
 
-    EXPECT_THAT(sut.full(), Eq(true));
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(sut.emplace_front(), "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            for (uint64_t i = 0U; i < sut.capacity(); ++i)
+            {
+                sut.emplace_front();
+            }
+
+            EXPECT_THAT(sut.full(), Eq(true));
+            sut.emplace_front();
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 TEST_F(list_test, NotFullWhenFilledWithCapacityAndEraseOneElements)
 {
@@ -727,9 +724,8 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
         }
         else
         {
-            /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-            /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-            EXPECT_DEATH(sut1.emplace_back(cnt), "");
+            IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut1.emplace_back(cnt); },
+                                                      iox::HoofsError::EXPECTS_ENSURES_FAILED);
         }
         ++cnt;
     }
@@ -763,9 +759,8 @@ TEST_F(list_test, EmplaceWithWrongListIterator)
         ++cnt;
     }
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(sut11.emplace(iterOfSut2, cnt), "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut11.emplace(iterOfSut2, cnt); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
@@ -1499,39 +1494,39 @@ TEST_F(list_test, IteratorComparisonOfDifferentLists)
 
     auto iterSut1 = sut11.begin();
     auto iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 == iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 == iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.begin();
     iterSut2 = sut12.begin();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     iterSut1 = sut11.end();
     iterSut2 = sut12.end();
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iterSut1 != iterSut2), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iterSut1 != iterSut2); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 
@@ -2313,9 +2308,8 @@ TEST_F(list_test, invalidIteratorErase)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(sut.erase(iter), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.erase(iter); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorIncrement)
@@ -2331,9 +2325,7 @@ TEST_F(list_test, invalidIteratorIncrement)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(++iter, "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { ++iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorDecrement)
@@ -2349,9 +2341,7 @@ TEST_F(list_test, invalidIteratorDecrement)
     ++iter;
     sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(--iter, "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { --iter; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorComparison)
@@ -2367,9 +2357,9 @@ TEST_F(list_test, invalidIteratorComparison)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(sut.cbegin() == iter), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorComparisonUnequal)
@@ -2385,9 +2375,9 @@ TEST_F(list_test, invalidIteratorComparisonUnequal)
     ++iter;
     auto iter2 = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iter2 != iter), "");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter2 != iter); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorDereferencing)
@@ -2403,9 +2393,8 @@ TEST_F(list_test, invalidIteratorDereferencing)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc((*iter).m_value), "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).m_value); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, invalidIteratorAddressOfOperator)
@@ -2421,9 +2410,8 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    /// @NOLINTJUSTIFICATION @todo iox-#1613 remove EXPECT_DEATH
-    /// @NOLINTNEXTLINE (cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(dummyFunc(iter->m_value == 12U), "");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->m_value == 12U); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(list_test, ListIsCopyableViaMemcpy)

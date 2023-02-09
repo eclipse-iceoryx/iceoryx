@@ -14,11 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;
 using namespace iox::runtime;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/publisher.h"
@@ -63,7 +66,8 @@ description_vector iox_service_discovery_test::searchResult;
 TEST(iox_service_discovery_DeathTest, InitServiceDiscoveryWithNullptrForStorageTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "be551a9e-7dcf-406a-a74c-7dcb1ee16c30");
-    EXPECT_DEATH({ iox_service_discovery_init(nullptr); }, ".*");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_service_discovery_init(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 /// @note We test only if the arguments of iox_service_discovery_find_service are correctly passed to

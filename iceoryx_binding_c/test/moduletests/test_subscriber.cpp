@@ -15,8 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/error_handling/error_handling.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_popper.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
@@ -28,6 +30,7 @@
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/chunk.h"
@@ -130,14 +133,14 @@ TEST_F(iox_sub_test, initSubscriberWithNullptrForStorageReturnsNullptr)
     EXPECT_EQ(iox_sub_init(nullptr, "all", "glory", "hypnotoad", &options), nullptr);
 }
 
-// this crashes if the fixture is used, therefore a test without a fixture
-TEST(iox_sub_test_DeathTest, initSubscriberWithNotInitializedPublisherOptionsTerminates)
+TEST_F(iox_sub_test, initSubscriberWithNotInitializedSubscriberOptionsTerminates)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a33309e-fe21-45f6-815a-eebe0136c572");
     iox_sub_options_t options;
     iox_sub_storage_t storage;
 
-    EXPECT_DEATH({ iox_sub_init(&storage, "a", "b", "c", &options); }, ".*");
+    IOX_EXPECT_FATAL_FAILURE<iox::CBindingError>([&] { iox_sub_init(&storage, "a", "b", "c", &options); },
+                                                 iox::CBindingError::BINDING_C__SUBSCRIBER_OPTIONS_NOT_INITIALIZED);
 }
 
 TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)

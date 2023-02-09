@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/expected.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
@@ -22,6 +24,7 @@
 using namespace ::testing;
 using namespace ::iox::cxx;
 using namespace ::iox;
+using namespace ::iox::testing;
 
 namespace
 {
@@ -583,121 +586,125 @@ TEST_F(expected_test, MoveAssignmentIsNotEnforcedInMoveConstructor)
 TEST_F(expected_test, AccessingErrorOfLValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "da162edf-06b5-47d2-b35f-361d6004a6c4");
+
     auto sut = expected<TestError>::create_value();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.get_error(); }, ""); // ERROR: Trying to access an error but a value is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.get_error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingErrorOfConstLValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "324cab7d-ba04-4ff0-870f-79af993c272f");
+
     const auto sut = expected<TestError>::create_value();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.get_error(); }, ""); // ERROR: Trying to access an error but a value is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.get_error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingErrorOfRValueErrorOnlyExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0a4309e8-d9f3-41a9-9c4b-bdcfda917277");
+
     auto sut = expected<TestError>::create_value();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ std::move(sut).get_error(); }, ""); // ERROR: Trying to access an error but a value is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { std::move(sut).get_error(); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithArrowOpLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1a821c6f-83db-4fe1-8adf-873afa1251a1");
+
     auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ IOX_DISCARD_RESULT(sut->m_a); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut->m_a); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithArrowOpLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c4f04d7c-9fa3-48f6-a6fd-b8e4e47b7632");
+
     const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ IOX_DISCARD_RESULT(sut->m_a); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut->m_a); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08ce6a3f-3813-46de-8e1e-3ffe8087521e");
+
     auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ *sut; }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { *sut; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorWithDerefOpLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "838dd364-f91f-40a7-9720-2b662a045b1e");
+
     const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ *sut; }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { *sut; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "92139583-b8d6-4d83-ae7e-f4109b98d214");
+
     auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.value(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfConstLValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1bcbb835-8b4c-4430-a534-a26573c2380d");
+
     const auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.value(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingValueOfRValueExpectedWhichContainsErrorLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "32d59b52-81f5-417a-8670-dfb2c54fedfb");
+
     auto sut = expected<TestClass, TestError>::create_error(TestError::ERROR1);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ std::move(sut).value(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { std::move(sut).value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingErrorOfLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aee85ead-e066-49fd-99fe-6f1a6045756d");
+
     constexpr int VALID_VALUE{42};
     auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.get_error(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.get_error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingErrorOfConstLValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a49cf02e-b165-4fd6-9c24-65cedc6cddb9");
+
     constexpr int VALID_VALUE{42};
     const auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ sut.get_error(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.get_error(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, AccessingErrorOfRValueExpectedWhichContainsValueLeadsToErrorHandlerCall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ea90b5d-1af6-494a-b35c-da103bed2331");
+
     constexpr int VALID_VALUE{42};
     auto sut = expected<TestClass, TestError>::create_value(VALID_VALUE, VALID_VALUE);
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, cppcoreguidelines-avoid-goto, hicpp-avoid-goto, hicpp-vararg)
-    EXPECT_DEATH({ std::move(sut).get_error(); }, ""); // ERROR: Trying to access a value but an error is stored
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { std::move(sut).get_error(); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(expected_test, TwoErrorOnlyExpectedWithEqualErrorAreEqual)

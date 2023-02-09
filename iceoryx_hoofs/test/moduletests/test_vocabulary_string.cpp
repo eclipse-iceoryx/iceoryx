@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
 
@@ -22,6 +24,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
+using namespace iox::testing;
 
 template <typename T>
 class stringTyped_test : public Test
@@ -3140,19 +3143,20 @@ TEST(String100, FindLastOfForNotIncludedSTDStringFails)
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(0U); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(0U); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68035709-5f8d-4bcb-80ce-ad5619aba84a");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(STRINGCAP); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNonEmptyStringViaAtReturnsCorrectCharacter)
@@ -3182,23 +3186,23 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaAtSu
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5cf6d322-6ee9-41ce-bbf6-4e0d193fa938");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(0U); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(0U); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90a986f4-b29b-4ce7-ad55-79cc4b7b2b29");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(STRINGCAP); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstAtReturnsCorrectCharacter)
@@ -3226,19 +3230,19 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstAtSucceeds
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[0U]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab52924e-1d6a-41e1-a8a9-8cfd9ab2120d");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[STRINGCAP]; },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
@@ -3268,23 +3272,23 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaSubs
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7ca75e53-8e26-4451-8712-a86bfe5bd32c");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[0U]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5498e314-d321-464a-a667-400ee0c4d81f");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[STRINGCAP]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)
