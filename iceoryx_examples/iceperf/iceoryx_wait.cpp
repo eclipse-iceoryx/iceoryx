@@ -32,7 +32,6 @@ void IceoryxWait::init() noexcept
 
 PerfTopic IceoryxWait::receivePerfTopic() noexcept
 {
-    bool hasReceivedSample{false};
     PerfTopic receivedSample;
 
     auto notificationVector = waitset.wait();
@@ -42,7 +41,6 @@ PerfTopic IceoryxWait::receivePerfTopic() noexcept
         {
             m_subscriber.take().and_then([&](const void* data) {
                 receivedSample = *(static_cast<const PerfTopic*>(data));
-                hasReceivedSample = true;
                 m_subscriber.release(data);
             });
         }
