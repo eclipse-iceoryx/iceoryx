@@ -54,7 +54,7 @@ bool IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
 /// }
 /// @endcode
 /// @tparam[in] ErrorType The error type which is expected, e.g. 'iox::HoofsError'
-/// @param[in] testFunction This function will be executed as SUT and is not expected to call the error handler
+/// @param[in] testFunction This function will be executed as SUT and is expected to call the error handler
 /// @param[in] expectedError The error value which triggered the fatal failure
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
