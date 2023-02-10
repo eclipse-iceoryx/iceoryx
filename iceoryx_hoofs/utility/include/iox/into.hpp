@@ -20,19 +20,23 @@
 namespace iox
 {
 
+/// @brief Helper struct to indicate a lossy conversion, e.g. from an unbounded type into a bounded type
 template <typename D>
 struct lossy
 {
 };
+
 namespace detail
 {
+/// @brief Helper struct to get the actual destination type 'T' for `into` with an additional indirection like
+/// `into<lossy<T>>`
 template <typename T>
 struct extract_into_type
 {
     using type_t = T;
 };
 
-
+/// @brief Helper struct to get the actual destination type 'T' for 'into<lossy<T>>'
 template <typename T>
 struct extract_into_type<lossy<T>>
 {
@@ -41,7 +45,16 @@ struct extract_into_type<lossy<T>>
 } // namespace detail
 
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This function needs to
-/// be specialized by the user for the types to be converted.
+/// be specialized by the user for the types to be converted. If a partial specialization is needed, please have a look
+/// at 'FromImpl'.
+/// @note If the conversion is potentially lossy 'Destination from<Source, Destination>(...)' should not be used but
+/// instead either one or both of:
+///   - 'Destination from<Source, lossy<Destination>>(...)'
+///   - 'optional<Destination> from<Source, optional<Destination>>(...)'
+/// The `Destination from<Source, Destination>(...)` implementation should have a 'static_assert' with a hint of the
+/// reason, e.g. lossy conversion and a hint to use 'Destination into<lossy<Destination>>(...)' or
+/// `optional<Destination> into<optional<Destination>>(...)`. The `std_string_support.hpp` can be used as a source of
+/// inspiration for an implementation and error message.
 /// @code
 /// enum class LowLevel
 /// {
