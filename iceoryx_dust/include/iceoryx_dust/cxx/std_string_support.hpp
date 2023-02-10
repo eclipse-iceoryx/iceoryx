@@ -17,7 +17,6 @@
 #define IOX_DUST_STD_STRING_SUPPORT_HPP
 
 #include "iox/into.hpp"
-#include "iox/optional.hpp"
 #include "iox/string.hpp"
 
 #include <string>
@@ -34,12 +33,6 @@ template <uint64_t N>
 struct FromImpl<std::string, string<N>>
 {
     static string<N> fromImpl(const std::string& value) noexcept;
-};
-
-template <uint64_t N>
-struct FromImpl<std::string, optional<string<N>>>
-{
-    static optional<string<N>> fromImpl(const std::string& value) noexcept;
 };
 
 template <uint64_t N>
