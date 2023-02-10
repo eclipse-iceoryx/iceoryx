@@ -5,7 +5,7 @@
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
-#include "iceoryx_hoofs/error_reporting/error_stream.hpp"
+#include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
 #include <atomic>
@@ -35,10 +35,8 @@ struct HandlerInterface
 class DefaultHandler : public HandlerInterface
 {
   public:
-    void report(const SourceLocation& location, error_code_t code) override
+    void report(const SourceLocation&, error_code_t) override
     {
-        errorStream() << "DEFAULT Error " << code << " in line: " << location.line << " function: " << location.function
-                      << " file: " << location.file << std::endl;
     }
 
     void panic() override
@@ -49,11 +47,8 @@ class DefaultHandler : public HandlerInterface
 class TestHandler : public HandlerInterface
 {
   public:
-    void report(const SourceLocation& location, error_code_t code) override
+    void report(const SourceLocation&, error_code_t code) override
     {
-        errorStream() << "TEST Error " << code << " in line: " << location.line << " function: " << location.function
-                      << " file: " << location.file << std::endl;
-
         std::lock_guard<std::mutex> g(m_mutex);
         m_errors.push_back(code);
     }

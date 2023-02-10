@@ -1,3 +1,4 @@
+#include "iceoryx_hoofs/log/logstream.hpp"
 #define TEST_PLATFORM // overrides the error handling for testing purposes
 #define IOX_DEBUG     // defensive checks (DEBUG_ASSERT, PRECOND) are active
 
@@ -29,6 +30,8 @@ using std::endl;
 using MyError = module_a::error::Error;
 using MyCode = module_a::error::ErrorCode;
 
+// TODO: move to some test support file
+
 iox::err::TestErrorHandler testHandler;
 
 #define ASSERT_NO_PANIC()                                                                                              \
@@ -55,6 +58,7 @@ class ErrorReportingAPI_test : public Test
   public:
     void SetUp() override
     {
+        // could be done once before all the tests
         iox::err::TestErrorHandler::instance().reset();
         ErrorHandler::set(testHandler);
     }
@@ -179,6 +183,11 @@ TEST_F(ErrorReportingAPI_test, checkPreconditionFalse)
 
 TEST_F(ErrorReportingAPI_test, checkPreconditionWithMessage)
 {
+    // TODO: we do no want this but we  instead can have
+    // IOX_PRECONDITION(x > 0, "")
+    // IOX_PRECONDITION(x > 0, lambda)
+    // and the secon argument is passed to logstream
+
     auto f = [](int x) { IOX_PRECONDITION(x > 0) << "message" << 73; };
 
     f(1);

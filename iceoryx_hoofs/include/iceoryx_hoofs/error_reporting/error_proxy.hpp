@@ -1,7 +1,7 @@
 #pragma once
 
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/error_stream.hpp"
+#include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
 #include "platform/error_reporting.hpp"
@@ -28,6 +28,7 @@ class ErrorProxy final
 
     template <class Error>
     ErrorProxy(const SourceLocation& location, Kind kind, Error error)
+        : m_location(location)
     {
         // use the logger (problematic if we want to allow expected as we expect something)
         // log(location, kind, error);
@@ -38,7 +39,6 @@ class ErrorProxy final
 
     ~ErrorProxy()
     {
-        iox::err::flush();
         // defer the panic to be able to add functionality to the proxy
         // such as printing messages
         if (IsFatal<Kind>::value)
@@ -54,20 +54,20 @@ class ErrorProxy final
     ErrorProxy& operator=(const ErrorProxy&) = delete;
     ErrorProxy& operator=(ErrorProxy&&) = delete;
 
-    template <typename Msg>
-    ErrorStream& operator<<(const Msg& msg)
+    template <typename T>
+    ErrorProxy& operator<<(const T& value)
     {
-        // will not be reported but logged
-        // reporting would be inefficient, as we would need to store the error
-        // until we have recorded the message
-        auto& s = errorStream();
-        s << msg;
+        (void)value;
+        IOX_LOG_ERROR(m_location) << value;
+
 
         // allows chaining of additional messages into the eror stream
-        return s;
+        // TODO: we need the logstream for this and return it instead to get nice output
+        return *this;
     }
 
   private:
+    SourceLocation m_location;
 };
 
 template <class Kind, class Error>

@@ -10,7 +10,6 @@ using error_code_t = uint32_t;
 using module_id_t = uint32_t;
 
 // no need to reserve, we can distinguish violations from error
-// TODO: maybe enum
 constexpr error_code_t DEBUG_ASSERT_VIOLATION_CODE = 0;
 constexpr error_code_t PRECONDITION_VIOLATION_CODE = 1;
 

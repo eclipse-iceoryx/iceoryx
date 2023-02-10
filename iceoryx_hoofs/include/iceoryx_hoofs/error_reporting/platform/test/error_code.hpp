@@ -11,6 +11,9 @@ namespace iox
 namespace err
 {
 
+// forward declared
+void panic();
+
 template <class Error>
 inline error_code_t toCode(const Error& error)
 {
@@ -30,6 +33,7 @@ inline error_code_t toCode(const iox::cxx::expected<T, Error>& exp)
     if (!exp.has_error())
     {
         // not allowed
+        panic();
         std::abort();
     }
     return toCode(exp.get_error());

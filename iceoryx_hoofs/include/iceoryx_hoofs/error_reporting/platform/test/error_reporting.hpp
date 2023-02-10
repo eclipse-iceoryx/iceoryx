@@ -1,5 +1,6 @@
 #pragma once
 
+#include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #ifndef IOX_HOOFS_TEST_ERROR_REPORTING_HPP
 #define IOX_HOOFS_TEST_ERROR_REPORTING_HPP
 
@@ -21,20 +22,22 @@ namespace err
 
 // the static reporting interface that must be defined to at least do nothing
 // This implementation redirects to the polymorphic handler interface.
-// This adds an additional indirection but is required for testing.
+// This adds an additional indirection but is required for testing or switching handlers
+// during operation (this must be done very carefully and is not recommended).
+
+// TODO: report the level
 
 inline void panic()
 {
-    std::cerr << "TEST PANIC " << std::endl;
-
+    IOX_LOG_PANIC() << "PANIC";
     auto& h = ErrorHandler::get();
     h.panic();
 }
 
 inline void panic(const char* msg)
 {
-    std::cerr << "TEST PANIC " << msg << std::endl;
-
+    // TODO: propagate location to this call
+    IOX_LOG_PANIC() << "PANIC " << msg;
     auto& h = ErrorHandler::get();
     h.panic();
 }
@@ -42,34 +45,38 @@ inline void panic(const char* msg)
 template <class Kind, class Error>
 inline void report(const SourceLocation& location, Kind, const Error& error)
 {
-    std::cout << "TEST REPORT non-fatal" << std::endl;
+    // TODO: decide whether we want to log the error in all cases with a custom handler
+    auto code = toCode(error);
+    IOX_LOG_ERROR(location) << "Error " << code;
     auto& h = ErrorHandler::get();
-
-    h.report(location, toCode(error));
+    h.report(location, code);
 }
 
 template <class Error>
 inline void report(const SourceLocation& location, iox::err::Fatal, const Error& error)
 {
-    std::cout << "TEST REPORT fatal" << std::endl;
+    auto code = toCode(error);
+    IOX_LOG_FATAL_ERROR(location) << "Fatal Error " << code;
     auto& h = ErrorHandler::get();
-    h.report(location, toCode(error));
+    h.report(location, code);
 }
 
 template <class Error>
 inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error)
 {
-    std::cout << "TEST REPORT precondition violation" << std::endl;
+    auto code = toCode(error);
+    IOX_LOG_FATAL_ERROR(location) << "Precondition Violation";
     auto& h = ErrorHandler::get();
-    h.report(location, toCode(error));
+    h.report(location, code);
 }
 
 template <class Error>
 inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error)
 {
-    std::cout << "TEST REPORT debug assert violation" << std::endl;
+    auto code = toCode(error);
+    IOX_LOG_FATAL_ERROR(location) << "Debug Assert Violation";
     auto& h = ErrorHandler::get();
-    h.report(location, toCode(error));
+    h.report(location, code);
 }
 
 } // namespace err
