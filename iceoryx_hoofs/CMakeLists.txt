@@ -71,9 +71,12 @@ iox_add_library(
                                 posix/time/include/
                                 buffer/include/
     FILES
-        source/concurrent/loffli.cpp
+        design/source/functional_interface.cpp
+        memory/source/bump_allocator.cpp
+        memory/source/memory.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
+        source/concurrent/loffli.cpp
         source/cxx/filesystem.cpp
         source/cxx/requires.cpp
         source/cxx/type_traits.cpp
@@ -99,10 +102,7 @@ iox_add_library(
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
         source/memory/relative_pointer_data.cpp
-        source/units/duration.cpp
-        memory/source/bump_allocator.cpp
-        memory/source/memory.cpp
-        design/source/functional_interface.cpp
+        time/source/duration.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
