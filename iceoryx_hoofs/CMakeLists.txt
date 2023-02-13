@@ -1,3 +1,4 @@
+# cmake-format: off
 # Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 # Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
 #
@@ -14,6 +15,7 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
+# cmake-format: on
 
 cmake_minimum_required(VERSION 3.16)
 
@@ -36,90 +38,90 @@ endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
-#
+# cmake-format: off
 ########## build iceoryx hoofs lib ##########
-#
+# cmake-format: on
+
 iox_add_library(
-    TARGET                      iceoryx_hoofs
-    NAMESPACE                   iceoryx_hoofs
-    PROJECT_PREFIX              ${PREFIX}
-    PUBLIC_LIBS                 iceoryx_platform::iceoryx_platform
-    PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
-    PRIVATE_LIBS_LINUX          acl atomic ${CODE_COVERAGE_LIBS}
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
-                                ${PROJECT_SOURCE_DIR}/legacy/include
-                                ${PROJECT_SOURCE_DIR}/memory/include
-                                ${PROJECT_SOURCE_DIR}/container/include
-                                ${PROJECT_SOURCE_DIR}/vocabulary/include
-                                ${PROJECT_SOURCE_DIR}/utility/include
-                                ${PROJECT_SOURCE_DIR}/primitives/include
-                                ${PROJECT_SOURCE_DIR}/design/include
-                                ${PROJECT_SOURCE_DIR}/time/include
-                                ${PROJECT_SOURCE_DIR}/posix/time/include
-                                ${PROJECT_SOURCE_DIR}/buffer/include
-                                ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
-    INSTALL_INTERFACE           include/${PREFIX}
-    EXPORT_INCLUDE_DIRS         include/
-                                legacy/include/
-                                memory/include/
-                                container/include/
-                                vocabulary/include/
-                                utility/include/
-                                primitives/include/
-                                design/include/
-                                time/include/
-                                posix/time/include/
-                                buffer/include/
-    FILES
-        source/concurrent/loffli.cpp
-        posix/time/source/adaptive_wait.cpp
-        posix/time/source/deadline_timer.cpp
-        source/cxx/filesystem.cpp
-        source/cxx/requires.cpp
-        source/cxx/type_traits.cpp
-        source/cxx/unique_id.cpp
-        source/error_handling/error_handler.cpp
-        source/error_handling/error_handling.cpp
-        source/log/building_blocks/console_logger.cpp
-        source/log/building_blocks/logger.cpp
-        source/posix_wrapper/access_control.cpp
-        source/posix_wrapper/file_lock.cpp
-        source/posix_wrapper/mutex.cpp
-        source/posix_wrapper/named_semaphore.cpp
-        source/posix_wrapper/posix_access_rights.cpp
-        source/posix_wrapper/scheduler.cpp
-        source/posix_wrapper/semaphore_interface.cpp
-        source/posix_wrapper/shared_memory_object.cpp
-        source/posix_wrapper/shared_memory_object/memory_map.cpp
-        source/posix_wrapper/shared_memory_object/shared_memory.cpp
-        source/posix_wrapper/signal_handler.cpp
-        source/posix_wrapper/system_configuration.cpp
-        source/posix_wrapper/thread.cpp
-        source/posix_wrapper/types.cpp
-        source/posix_wrapper/unnamed_semaphore.cpp
-        source/posix_wrapper/unix_domain_socket.cpp
-        source/memory/relative_pointer_data.cpp
-        source/units/duration.cpp
-        memory/source/bump_allocator.cpp
-        memory/source/memory.cpp
-        design/source/functional_interface.cpp
+    TARGET iceoryx_hoofs
+    NAMESPACE iceoryx_hoofs
+    PROJECT_PREFIX ${PREFIX}
+    PUBLIC_LIBS iceoryx_platform::iceoryx_platform
+    PRIVATE_LIBS ${ICEORYX_SANITIZER_FLAGS}
+    PRIVATE_LIBS_LINUX acl atomic ${CODE_COVERAGE_LIBS}
+    BUILD_INTERFACE
+        ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/legacy/include
+        ${PROJECT_SOURCE_DIR}/memory/include
+        ${PROJECT_SOURCE_DIR}/container/include
+        ${PROJECT_SOURCE_DIR}/vocabulary/include
+        ${PROJECT_SOURCE_DIR}/utility/include
+        ${PROJECT_SOURCE_DIR}/primitives/include
+        ${PROJECT_SOURCE_DIR}/design/include
+        ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
+    INSTALL_INTERFACE include/${PREFIX}
+    EXPORT_INCLUDE_DIRS
+        include/
+        legacy/include/
+        memory/include/
+        container/include/
+        vocabulary/include/
+        utility/include/
+        primitives/include/
+        design/include/
+    FILES source/concurrent/loffli.cpp
+          source/cxx/adaptive_wait.cpp
+          source/cxx/deadline_timer.cpp
+          source/cxx/filesystem.cpp
+          source/cxx/requires.cpp
+          source/cxx/type_traits.cpp
+          source/cxx/unique_id.cpp
+          source/error_handling/error_handler.cpp
+          source/error_handling/error_handling.cpp
+          source/log/building_blocks/console_logger.cpp
+          source/log/building_blocks/logger.cpp
+          source/posix_wrapper/access_control.cpp
+          source/posix_wrapper/file_lock.cpp
+          source/posix_wrapper/mutex.cpp
+          source/posix_wrapper/named_semaphore.cpp
+          source/posix_wrapper/posix_access_rights.cpp
+          source/posix_wrapper/scheduler.cpp
+          source/posix_wrapper/semaphore_interface.cpp
+          source/posix_wrapper/shared_memory_object.cpp
+          source/posix_wrapper/shared_memory_object/memory_map.cpp
+          source/posix_wrapper/shared_memory_object/shared_memory.cpp
+          source/posix_wrapper/signal_handler.cpp
+          source/posix_wrapper/system_configuration.cpp
+          source/posix_wrapper/thread.cpp
+          source/posix_wrapper/types.cpp
+          source/posix_wrapper/unnamed_semaphore.cpp
+          source/posix_wrapper/unix_domain_socket.cpp
+          source/memory/relative_pointer_data.cpp
+          source/units/duration.cpp
+          memory/source/bump_allocator.cpp
+          memory/source/memory.cpp
+          design/source/functional_interface.cpp
 )
 
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_hoofs/iceoryx_hoofs_deployment.hpp" @ONLY)
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
+    "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_hoofs/iceoryx_hoofs_deployment.hpp"
+    @ONLY
+)
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/${PROJECT_NAME}/iceoryx_hoofs_deployment.hpp
+    FILES
+        ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/${PROJECT_NAME}/iceoryx_hoofs_deployment.hpp
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )
 
-#
+# cmake-format: off
 ########## hoofs testing ##########
-#
+# cmake-format: on
 
-# Finding gtest and adding the subdirectories is split to support the use case of
-# building the testing lib without the tests by providing gtest externally
+# Finding gtest and adding the subdirectories is split to support the use case
+# of building the testing lib without the tests by providing gtest externally
 if(NOT GTest_FOUND AND BUILD_TEST)
     find_package(GTest CONFIG REQUIRED)
 endif()
@@ -132,9 +134,6 @@ if(GTest_FOUND)
     endif()
 endif()
 
-install(
-    FILES
-        cmake/IceoryxPlatform.cmake
-        cmake/IceoryxVersion.cmake
-    DESTINATION ${DESTINATION_CONFIGDIR}
+install(FILES cmake/IceoryxPlatform.cmake cmake/IceoryxVersion.cmake
+        DESTINATION ${DESTINATION_CONFIGDIR}
 )
