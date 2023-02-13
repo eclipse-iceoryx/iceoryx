@@ -27,9 +27,9 @@ namespace detail
 {
 template <typename ErrorType>
 inline bool
-IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
-                       const std::function<void(const ErrorType, const iox::ErrorLevel)>& onFatalFailurePath,
-                       const std::function<void()>& onNonFatalFailurePath)
+IOX_FATAL_FAILURE_TEST(const cxx::function_ref<void()> testFunction,
+                       const cxx::function_ref<void(const ErrorType, const iox::ErrorLevel)> onFatalFailurePath,
+                       const cxx::function_ref<void()> onNonFatalFailurePath)
 {
     std::atomic<bool> hasFatalFailure{false};
     auto th = std::thread([&] {
@@ -70,7 +70,7 @@ IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
 } // namespace detail
 
 template <typename ErrorType>
-inline bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, const ErrorType expectedError)
+inline bool IOX_EXPECT_FATAL_FAILURE(const cxx::function_ref<void()> testFunction, const ErrorType expectedError)
 {
     return detail::IOX_FATAL_FAILURE_TEST<ErrorType>(
         testFunction,
@@ -82,7 +82,7 @@ inline bool IOX_EXPECT_FATAL_FAILURE(const std::function<void()>& testFunction, 
 }
 
 template <typename ErrorType>
-inline bool IOX_EXPECT_NO_FATAL_FAILURE(const std::function<void()>& testFunction)
+inline bool IOX_EXPECT_NO_FATAL_FAILURE(const cxx::function_ref<void()> testFunction)
 {
     return !detail::IOX_FATAL_FAILURE_TEST<ErrorType>(
         testFunction,
