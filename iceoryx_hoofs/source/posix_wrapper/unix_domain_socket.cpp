@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -178,7 +178,14 @@ expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
         {
             if (IpcChannelSide::SERVER == m_channelSide)
             {
-                unlink(&(m_sockAddr.sun_path[0]));
+                auto unlinkCall = posixCall(unlink)(&(m_sockAddr.sun_path[0]))
+                                      .failureReturnValue(ERROR_CODE)
+                                      .ignoreErrnos(ENOENT)
+                                      .evaluate();
+                if (unlinkCall.has_error())
+                {
+                    return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+                }
             }
 
             m_sockfd = INVALID_FD;
