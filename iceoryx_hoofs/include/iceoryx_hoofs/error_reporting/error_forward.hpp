@@ -6,10 +6,43 @@
 
 #include "platform/error_reporting.hpp"
 
+#include <utility>
+
 namespace iox
 {
 namespace err
 {
+
+template <typename Error, typename Kind>
+[[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
+{
+    report(location, kind, error);
+    panic();
+    abort(); // to satisfy the no-return guarantee
+}
+
+template <typename Error, typename Kind>
+void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
+{
+    report(location, kind, error);
+}
+
+template <typename Error, typename Kind>
+void forwardError(const SourceLocation& location, Error&& error, Kind&& kind)
+{
+    // forwarding selection happens at compile time
+    if (requiresHandling(kind))
+    {
+        if (IsFatal<Kind>::value)
+        {
+            forwardFatalError(location, std::forward<Error>(error), std::forward<Kind>(kind));
+        }
+        else
+        {
+            forwardNonFatalError(location, std::forward<Error>(error), std::forward<Kind>(kind));
+        }
+    }
+}
 
 /// @brief Reports error and optionally acts as a logger for additional messages
 /// Will call panic in destructor and not return if the error kind is
