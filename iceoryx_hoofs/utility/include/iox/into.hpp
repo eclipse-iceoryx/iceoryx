@@ -28,8 +28,8 @@ struct lossy
 
 namespace detail
 {
-/// @brief Helper struct to get the actual destination type 'T' for `into` with an additional indirection like
-/// `into<lossy<T>>`
+/// @brief Helper struct to get the actual destination type 'T' for 'into' with an additional indirection like
+/// 'into<lossy<T>>'
 template <typename T>
 struct extract_into_type
 {
@@ -51,9 +51,9 @@ struct extract_into_type<lossy<T>>
 /// instead either one or both of:
 ///   - 'Destination from<Source, lossy<Destination>>(...)'
 ///   - 'optional<Destination> from<Source, optional<Destination>>(...)'
-/// The `Destination from<Source, Destination>(...)` implementation should have a 'static_assert' with a hint of the
+/// The 'Destination from<Source, Destination>(...)' implementation should have a 'static_assert' with a hint of the
 /// reason, e.g. lossy conversion and a hint to use 'Destination into<lossy<Destination>>(...)' or
-/// `optional<Destination> into<optional<Destination>>(...)`. The `std_string_support.hpp` can be used as a source of
+/// 'optional<Destination> into<optional<Destination>>(...)'. The 'std_string_support.hpp' can be used as a source of
 /// inspiration for an implementation and error message.
 /// @code
 /// enum class LowLevel
@@ -105,8 +105,8 @@ struct FromImpl
 };
 
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
-/// function which is automatically available when `from` is implemented. This function shall therefore not be
-/// specialized but always the `from` function.
+/// function which is automatically available when 'from' is implemented. This function shall therefore not be
+/// specialized but always the 'from' function.
 /// @code
 /// Bar b = iox::into<Bar>(Foo::ENUM_VALUE);
 /// @endcode
