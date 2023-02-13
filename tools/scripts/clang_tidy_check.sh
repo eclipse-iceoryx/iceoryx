@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -65,23 +65,86 @@ if [[ -n "$noSpaceInSuppressions" ]]; then
     exit 1
 fi
 
+function scanWithFileList() {
+    FILE_WITH_SCAN_LIST=$1
+    FILE_TO_SCAN=$2
+
+    if ! test -f "$FILE_WITH_SCAN_LIST"
+    then
+        echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
+        return 1
+    fi
+
+    while IFS= read -r LINE
+    do
+        # add files until the comment section starts
+        if [[ "$(echo $LINE | grep "#" | wc -l)" == "1" ]]; then
+            break
+        fi
+        FILE_LIST="${FILE_LIST} $LINE"
+    done < "$FILE_WITH_SCAN_LIST"
+
+    if [[ -n $FILE_TO_SCAN ]]
+    then
+        if ! test -f "$FILE_TO_SCAN"
+        then
+            echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
+            return 1
+        fi
+
+        if [[ $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER} | grep ${FILE_TO_SCAN} | wc -l) == "0" ]]
+        then
+            echo "Skipping file '${FILE_TO_SCAN}' since it is not part of '${FILE_WITH_SCAN_LIST}'"
+            return 0
+        fi
+
+        echo "Scanning file: ${FILE_TO_SCAN}"
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_TO_SCAN
+    else
+        if [[ -z $FILE_LIST ]]
+        then
+            echo "'${FILE_WITH_SCAN_LIST}' is empty skipping folder scan."
+            return 0
+        fi
+        echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build "$(find "${FILE_LIST}" -type f | grep -E ${FILE_FILTER})"
+    fi
+}
+
 if [[ "$MODE" == "hook"* ]]; then
+    if [[ $2 ]]; then
+        FILE_WITH_SCAN_LIST=$2
+    fi
+
     FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
     # List only added files
     ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
     echo "Checking files with Clang-Tidy"
-    echo " "
-        if [ -z "$FILES" ]; then
-              echo "No modified files to check, skipping clang-tidy"
+    echo "  Number of modified files: $(echo "${FILES}" | grep -v "^$" | wc -l)"
+    if [ -z "$FILES" ]; then
+        echo "  -> nothing to do"
+    else
+        echo "  processing ..."
+        if [[ $FILE_WITH_SCAN_LIST ]]; then
+            for FILE_TO_SCAN in $FILES; do
+                echo "    ${FILE_TO_SCAN}"
+                scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
+            done
         else
             $CLANG_TIDY_CMD -p build $FILES
         fi
+        echo "  ... done"
+    fi
 
-        if [ -z "$ADDED_FILES" ]; then
-            echo "No added files to check, skipping clang-tidy"
-        else
-            $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
-        fi
+    echo " "
+    echo "  Number of added files: $(echo "${ADDED_FILES}" | grep -v "^$" | wc -l)"
+    if [ -z "$ADDED_FILES" ]; then
+        echo "  -> nothing to do"
+    else
+        echo "  processing ..."
+        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
+        echo "  ... done"
+    fi
     exit
 elif [[ "$MODE" == "full"* ]]; then
     DIRECTORY_TO_SCAN=$2
@@ -109,45 +172,8 @@ elif [[ "$MODE" == "scan_list"* ]]; then
     FILE_WITH_SCAN_LIST=$2
     FILE_TO_SCAN=$3
 
-    if ! test -f "$FILE_WITH_SCAN_LIST"
-    then
-        echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
-        exit 1
-    fi
+    scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
 
-    for LINE in $(cat $FILE_WITH_SCAN_LIST); do
-        # add files until the comment section starts
-        if [[ "$(echo $LINE | grep "#" | wc -l)" == "1" ]]; then
-            break
-        fi
-        FILE_LIST="${FILE_LIST} $LINE"
-    done
-
-    if [[ -n $FILE_TO_SCAN ]]
-    then
-        if ! test -f "$FILE_TO_SCAN"
-        then
-            echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
-            exit 1
-        fi
-
-        if [[ $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER} | grep ${FILE_TO_SCAN} | wc -l) == "0" ]]
-        then
-            echo "Skipping file '${FILE_TO_SCAN}' since it is not part of '${FILE_WITH_SCAN_LIST}'"
-            exit 0
-        fi
-
-        echo "Scanning file: ${FILE_TO_SCAN}"
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_TO_SCAN
-    else
-        if [[ -z $FILE_LIST ]]
-        then
-            echo "'${FILE_WITH_SCAN_LIST}' is empty skipping folder scan."
-            exit 0
-        fi
-        echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER})
-    fi
     exit $?
 else
     echo "Invalid mode: ${MODE}"

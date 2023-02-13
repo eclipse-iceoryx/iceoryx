@@ -29,13 +29,12 @@
 ./iceoryx_hoofs/test/moduletests/test_console_logger*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/mocks/logger_mock.hpp
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/testing_logger.hpp
-./iceoryx_hoofs/testing/logger.cpp
+./iceoryx_hoofs/testing/testing_logger.cpp
 
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/source/posix_wrapper/*
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
-./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/builder.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/polymorphic_handler.hpp
 ./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp
 
