@@ -34,7 +34,7 @@ IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
     std::atomic<bool> hasFatalFailure{false};
     auto th = std::thread([&] {
         constexpr int JMP_VALUE{1};
-        std::jmp_buf jmpBuffer;
+        jmp_buf jmpBuffer;
 
         optional<ErrorType> detectedError;
         optional<iox::ErrorLevel> detectedErrorLevel;
@@ -45,7 +45,7 @@ IOX_FATAL_FAILURE_TEST(const std::function<void()>& testFunction,
                 detectedErrorLevel.emplace(errorLevel);
 
                 // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
-                std::longjmp(&jmpBuffer[0], JMP_VALUE);
+                longjmp(&jmpBuffer[0], JMP_VALUE);
             });
 
         // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback

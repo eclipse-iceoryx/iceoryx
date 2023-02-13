@@ -22,8 +22,10 @@
 #include "test.hpp"
 
 #include <atomic>
-#include <csetjmp>
 #include <thread>
+
+// NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
+#include <setjmp.h>
 
 namespace iox
 {
