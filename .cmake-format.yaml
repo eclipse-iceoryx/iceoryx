@@ -3,14 +3,57 @@ parse:
   _help_additional_commands:
   - Specify structure for custom cmake functions
   additional_commands:
-    foo:
-      flags:
-      - BAR
-      - BAZ
+    iox_add_executable:
+      pargs:
+        nargs: '*'
+        flags:
+        - USE_C_LANGUAGE
+        - PLACE_IN_BUILD_ROOT
       kwargs:
-        HEADERS: '*'
-        SOURCES: '*'
-        DEPENDS: '*'
+        TARGET: 1
+        STACK_SIZE: 1
+        FILES: +
+        LIBS: +
+        INCLUDE_DIRECTORIES: +
+        LIBS_QNX: +
+        LIBS_LINUX: +
+        LIBS_UNIX: +
+        LIBS_WIN32: +
+        LIBS_APPLE: +
+        BUILD_INTERFACE: +
+        INSTALL_INTERFACE: +
+    iox_add_library:
+      pargs:
+        nargs: '*'
+        flags:
+        - USE_C_LANGUAGE
+        - NO_EXPORT
+        - NO_PACKAGE_SETUP
+        - NO_FIND_PACKAGE_SUPPORT
+        - STATIC
+      kwargs:
+        TARGET: 1
+        NAMESPACE: 1
+        PROJECT_PREFIX: 1
+        FILES: +
+        PUBLIC_LIBS: +
+        PRIVATE_LIBS: +
+        BUILD_INTERFACE: +
+        INSTALL_INTERFACE: +
+        ADDITIONAL_EXPORT_TARGETS: +
+        PUBLIC_INCLUDES: +
+        PRIVATE_INCLUDES: +
+        PUBLIC_LIBS_LINUX: +
+        PRIVATE_LIBS_LINUX: +
+        PUBLIC_LIBS_QNX: +
+        PRIVATE_LIBS_QNX: +
+        PUBLIC_LIBS_UNIX: +
+        PRIVATE_LIBS_UNIX: +
+        PUBLIC_LIBS_WIN32: +
+        PRIVATE_LIBS_WIN32: +
+        PUBLIC_LIBS_APPLE: +
+        PRIVATE_LIBS_APPLE: +
+        EXPORT_INCLUDE_DIRS: +
   _help_override_spec:
   - Override configurations per-command where available
   override_spec: {}
@@ -70,7 +113,7 @@ format:
   _help_dangle_parens:
   - If a statement is wrapped to more than one line, than dangle
   - the closing parenthesis on its own line.
-  dangle_parens: false
+  dangle_parens: true
   _help_dangle_align:
   - If the trailing parenthesis must be 'dangled' on its on
   - 'line, then align it to this reference: `prefix`: the start'
