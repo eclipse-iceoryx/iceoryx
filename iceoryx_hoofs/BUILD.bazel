@@ -30,12 +30,12 @@ configure_file(
 cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
-        "source/**/*.cpp",
-        "vocabulary/source/**/*.cpp",
-        "source/**/*.hpp",
-        "memory/source/*.cpp",
         "design/source/*.cpp",
+        "memory/source/*.cpp",
         "posix/time/source/*.cpp",
+        "source/**/*.cpp",
+        "time/source/*.cpp",
+        "vocabulary/source/**/*.cpp",
     ]),
     hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
