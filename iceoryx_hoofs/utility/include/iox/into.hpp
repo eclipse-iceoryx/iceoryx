@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,42 @@
 
 namespace iox
 {
+
+/// @brief Helper struct to indicate a lossy conversion, e.g. from an unbounded type into a bounded type
+template <typename D>
+struct lossy
+{
+};
+
+namespace detail
+{
+/// @brief Helper struct to get the actual destination type 'T' for 'into' with an additional indirection like
+/// 'into<lossy<T>>'
+template <typename T>
+struct extract_into_type
+{
+    using type_t = T;
+};
+
+/// @brief Helper struct to get the actual destination type 'T' for 'into<lossy<T>>'
+template <typename T>
+struct extract_into_type<lossy<T>>
+{
+    using type_t = T;
+};
+} // namespace detail
+
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This function needs to
-/// be specialized by the user for the types to be converted.
+/// be specialized by the user for the types to be converted. If a partial specialization is needed, please have a look
+/// at 'FromImpl'.
+/// @note If the conversion is potentially lossy 'Destination from<Source, Destination>(...)' should not be used but
+/// instead either one or both of:
+///   - 'Destination from<Source, lossy<Destination>>(...)'
+///   - 'optional<Destination> from<Source, optional<Destination>>(...)'
+/// The 'Destination from<Source, Destination>(...)' implementation should have a 'static_assert' with a hint of the
+/// reason, e.g. lossy conversion and a hint to use 'Destination into<lossy<Destination>>(...)' or
+/// 'optional<Destination> into<optional<Destination>>(...)'. The 'std_string_support.hpp' can be used as a source of
+/// inspiration for an implementation and error message.
 /// @code
 /// enum class LowLevel
 /// {
@@ -60,18 +94,19 @@ namespace iox
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename SourceType, typename DestinationType>
-constexpr DestinationType from(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t from(const SourceType value);
+
 
 // Using a struct as impl, as free functions do not support partially specialized templates
 template <typename SourceType, typename DestinationType>
 struct FromImpl
 {
-    static DestinationType fromImpl(const SourceType& value);
+    static auto fromImpl(const SourceType& value);
 };
 
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
-/// function which is automatically available when `from` is implemented. This function shall therefore not be
-/// specialized but always the `from` function.
+/// function which is automatically available when 'from' is implemented. This function shall therefore not be
+/// specialized but always the 'from' function.
 /// @code
 /// Bar b = iox::into<Bar>(Foo::ENUM_VALUE);
 /// @endcode
@@ -80,7 +115,7 @@ struct FromImpl
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename DestinationType, typename SourceType>
-constexpr DestinationType into(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value);
 
 } // namespace iox
 

@@ -78,9 +78,9 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         auto serviceName = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_NAME);
         auto instance = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_INSTANCE_NAME);
         auto event = service->get_as<std::string>(GATEWAY_CONFIG_SERVICE_EVENT_NAME);
-        entry.m_serviceDescription = iox::capro::ServiceDescription(into<iox::capro::IdString_t>(*serviceName),
-                                                                    into<iox::capro::IdString_t>(*instance),
-                                                                    into<iox::capro::IdString_t>(*event));
+        entry.m_serviceDescription = iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(*serviceName),
+                                                                    into<lossy<iox::capro::IdString_t>>(*instance),
+                                                                    into<lossy<iox::capro::IdString_t>>(*event));
         config.m_configuredServices.push_back(entry);
     }
 

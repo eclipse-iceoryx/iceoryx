@@ -43,7 +43,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSize0ResultsInSize0)
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString;
-    string<STRINGCAP> fuu = into<MyString>(testString);
+    string<STRINGCAP> fuu = into<lossy<MyString>>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(0U));
     EXPECT_THAT(fuu.c_str(), StrEq(""));
@@ -55,7 +55,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeSmallerCapaResults
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP - 1U, 'M');
-    string<STRINGCAP> fuu = into<MyString>(testString);
+    string<STRINGCAP> fuu = into<lossy<MyString>>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1U));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
@@ -67,7 +67,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeCapaResultsInSizeC
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP, 'M');
-    string<STRINGCAP> fuu = into<MyString>(testString);
+    string<STRINGCAP> fuu = into<lossy<MyString>>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString));
@@ -79,7 +79,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeGreaterCapaResults
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString::capacity();
     std::string testString(STRINGCAP + 1U, 'M');
-    string<STRINGCAP> fuu = into<MyString>(testString);
+    string<STRINGCAP> fuu = into<lossy<MyString>>(testString);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString.substr(0U, STRINGCAP)));

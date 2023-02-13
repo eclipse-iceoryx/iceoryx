@@ -136,7 +136,7 @@ TEST_F(PoshRuntime_test, MaxAppNameLength)
     ::testing::Test::RecordProperty("TEST_ID", "dfdf3ce1-c7d4-4c57-94ea-6ed9479371e3");
     std::string maxValidName(iox::MAX_RUNTIME_NAME_LENGTH, 's');
 
-    auto& runtime = PoshRuntime::initRuntime(iox::into<iox::RuntimeName_t>(maxValidName));
+    auto& runtime = PoshRuntime::initRuntime(into<lossy<RuntimeName_t>>(maxValidName));
 
     EXPECT_THAT(maxValidName, StrEq(runtime.getInstanceName().c_str()));
 }
@@ -322,17 +322,17 @@ TEST_F(PoshRuntime_test, getMiddlewarePublisherPublisherlistOverflow)
     for (; i < (iox::MAX_PUBLISHERS - iox::NUMBER_OF_INTERNAL_PUBLISHERS); ++i)
     {
         auto publisherPort = m_runtime->getMiddlewarePublisher(
-            iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+            iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
         ASSERT_NE(nullptr, publisherPort);
     }
     EXPECT_FALSE(publisherlistOverflowDetected);
 
     auto publisherPort = m_runtime->getMiddlewarePublisher(
-        iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+        iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
     EXPECT_EQ(nullptr, publisherPort);
     EXPECT_TRUE(publisherlistOverflowDetected);
 }
@@ -556,17 +556,17 @@ TEST_F(PoshRuntime_test, GetMiddlewareSubscriberSubscriberlistOverflow)
     for (; i < iox::MAX_SUBSCRIBERS; ++i)
     {
         auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-            iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+            iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
         ASSERT_NE(nullptr, subscriberPort);
     }
     EXPECT_FALSE(subscriberlistOverflowDetected);
 
     auto subscriberPort = m_runtime->getMiddlewareSubscriber(
-        iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+        iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
 
     EXPECT_EQ(nullptr, subscriberPort);
     EXPECT_TRUE(subscriberlistOverflowDetected);
@@ -719,17 +719,17 @@ TEST_F(PoshRuntime_test, GetMiddlewareClientWhenMaxClientsAreUsedResultsInClient
     for (; i < iox::MAX_CLIENTS; ++i)
     {
         auto clientPort = m_runtime->getMiddlewareClient(
-            iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+            iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
         ASSERT_THAT(clientPort, Ne(nullptr));
     }
     EXPECT_FALSE(clientOverflowDetected);
 
     auto clientPort = m_runtime->getMiddlewareClient(
-        iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+        iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
     EXPECT_THAT(clientPort, Eq(nullptr));
     EXPECT_TRUE(clientOverflowDetected);
 }
@@ -830,17 +830,17 @@ TEST_F(PoshRuntime_test, GetMiddlewareServerWhenMaxServerAreUsedResultsInServerl
     for (; i < iox::MAX_SERVERS; ++i)
     {
         auto serverPort = m_runtime->getMiddlewareServer(
-            iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                           iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+            iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                           into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
         ASSERT_THAT(serverPort, Ne(nullptr));
     }
     EXPECT_FALSE(serverOverflowDetected);
 
     auto serverPort = m_runtime->getMiddlewareServer(
-        iox::capro::ServiceDescription(iox::into<iox::RuntimeName_t>(convert::toString(i)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 1U)),
-                                       iox::into<iox::RuntimeName_t>(convert::toString(i + 2U))));
+        iox::capro::ServiceDescription(into<lossy<RuntimeName_t>>(convert::toString(i)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 1U)),
+                                       into<lossy<RuntimeName_t>>(convert::toString(i + 2U))));
     EXPECT_THAT(serverPort, Eq(nullptr));
     EXPECT_TRUE(serverOverflowDetected);
 }

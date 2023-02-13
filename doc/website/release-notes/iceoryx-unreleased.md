@@ -372,7 +372,7 @@
     iox::cxx::isValidPathToFile(..);
     iox::cxx::isValidPathToDirectory(..);
     iox::cxx::doesEndWithPathSeparator(..);
-    
+
     // after
     #include "iceoryx_hoofs/cxx/filesystem.hpp"
     iox::cxx::isValidPathEntry(..);
@@ -994,7 +994,7 @@
 
     std::string myStdString("foo");
     // std::string to iox::string
-    iox::string<3> myIoxString = iox::into<iox::string<3>>(myStdString);
+    iox::string<3> myIoxString = iox::into<iox::lossy<iox::string<3>>>(myStdString);
     // iox::string to std::string
     std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
     ```

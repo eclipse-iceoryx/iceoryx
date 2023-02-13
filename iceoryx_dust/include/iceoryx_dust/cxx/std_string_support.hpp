@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,12 @@ struct FromImpl<string<N>, std::string>
 
 template <uint64_t N>
 struct FromImpl<std::string, string<N>>
+{
+    static string<N> fromImpl(const std::string& value) noexcept;
+};
+
+template <uint64_t N>
+struct FromImpl<std::string, lossy<string<N>>>
 {
     static string<N> fromImpl(const std::string& value) noexcept;
 };

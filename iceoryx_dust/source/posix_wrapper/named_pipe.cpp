@@ -221,7 +221,7 @@ expected<IpcChannelError> NamedPipe::trySend(const std::string& message) const n
 
     if (*result)
     {
-        IOX_DISCARD_RESULT(m_data->messages.push(into<Message_t>(message)));
+        IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
         cxx::Expects(!m_data->receiveSemaphore().post().has_error());
         return success<>();
     }
@@ -241,7 +241,7 @@ expected<IpcChannelError> NamedPipe::send(const std::string& message) const noex
     }
 
     cxx::Expects(!m_data->sendSemaphore().wait().has_error());
-    IOX_DISCARD_RESULT(m_data->messages.push(into<Message_t>(message)));
+    IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
     cxx::Expects(!m_data->receiveSemaphore().post().has_error());
 
     return success<>();
@@ -265,7 +265,7 @@ expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
     if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
-        IOX_DISCARD_RESULT(m_data->messages.push(into<Message_t>(message)));
+        IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
         cxx::Expects(!m_data->receiveSemaphore().post().has_error());
         return success<>();
     }
