@@ -119,6 +119,7 @@
 - Remove `algorithm::uniqueMergeSortedContainers` from `algorithm.hpp`
 - Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
+- Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
 
 **Workflow:**
 
