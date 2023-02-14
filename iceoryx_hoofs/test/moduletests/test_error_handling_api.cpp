@@ -1,5 +1,5 @@
-#include "iceoryx_hoofs/log/logstream.hpp"
-#define IOX_DEBUG     // defensive checks (DEBUG_ASSERT, PRECOND) are active
+#include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
+#define IOX_DEBUG // defensive checks (DEBUG_ASSERT, PRECOND) are active
 
 #include "test.hpp"
 #include <gtest/gtest-death-test.h>
@@ -7,7 +7,6 @@
 
 // must be defined globally before first inclusion (actually from cmake, preferably)
 #include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
-
 
 #include "iceoryx_hoofs/error_reporting/api.hpp"
 
@@ -30,8 +29,6 @@ using MyError = module_a::error::Error;
 using MyCode = module_a::error::ErrorCode;
 
 /// @todo move to some test support file
-
-iox::err::TestErrorHandler testHandler;
 
 #define ASSERT_NO_PANIC()                                                                                              \
     do                                                                                                                 \
@@ -57,14 +54,11 @@ class ErrorReportingAPI_test : public Test
   public:
     void SetUp() override
     {
-        // could be done once before all the tests
         iox::err::TestErrorHandler::instance().reset();
-        ErrorHandler::set(testHandler);
     }
 
     void TearDown() override
     {
-        ErrorHandler::reset();
     }
 };
 

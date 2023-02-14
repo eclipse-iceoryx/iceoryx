@@ -5,10 +5,13 @@
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
 #include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iceoryx_hoofs/error_reporting/error.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
+#include <algorithm>
 #include <atomic>
+#include <vector>
 
 // we can use this for test code
 #include <mutex>
@@ -17,6 +20,8 @@ namespace iox
 {
 namespace err
 {
+
+/// @todo maybe another detail namespace
 
 struct HandlerInterface
 {
