@@ -26,7 +26,7 @@ namespace iox
 template <uint64_t N>
 struct FromImpl<string<N>, std::string>
 {
-    static std::string fromImpl(const string<N>& value);
+    static std::string fromImpl(const string<N>& value) noexcept;
 };
 
 template <uint64_t N>

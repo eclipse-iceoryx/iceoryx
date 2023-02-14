@@ -94,14 +94,14 @@ struct extract_into_type<lossy<T>>
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename SourceType, typename DestinationType>
-constexpr typename detail::extract_into_type<DestinationType>::type_t from(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t from(const SourceType value) noexcept;
 
 
 // Using a struct as impl, as free functions do not support partially specialized templates
 template <typename SourceType, typename DestinationType>
 struct FromImpl
 {
-    static auto fromImpl(const SourceType& value);
+    static auto fromImpl(const SourceType& value) noexcept;
 };
 
 /// @brief Converts a value of type SourceType to a corresponding value of type DestinationType. This is a convenience
@@ -115,7 +115,7 @@ struct FromImpl
 /// @param[in] value of type SourceType to convert to DestinationType
 /// @return converted value of SourceType to corresponding value of DestinationType
 template <typename DestinationType, typename SourceType>
-constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value);
+constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value) noexcept;
 
 } // namespace iox
 

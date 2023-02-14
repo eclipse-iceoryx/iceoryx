@@ -60,7 +60,7 @@ inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult va
 
 template <>
 constexpr popo::ServerRequestResult
-from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value);
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value) noexcept;
 
 namespace popo
 {
