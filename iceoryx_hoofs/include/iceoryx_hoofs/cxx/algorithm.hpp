@@ -195,6 +195,7 @@ struct range
     range(T t) noexcept
         : m_value(t)
     {
+        // AXIVION Next Construct AutosarC++19_03-A1.4.3 : False positive! 't >= Minimum' depends on input parameter
         cxx::Expects((t >= Minimum) && (t <= Maximum));
     }
 
@@ -216,7 +217,8 @@ template <typename T>
 constexpr bool isPowerOfTwo(const T n) noexcept
 {
     static_assert(std::is_unsigned<T>::value && !std::is_same<T, bool>::value, "Only unsigned integer are allowed!");
-    return n && ((n & (n - 1U)) == 0U);
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! 'n' can be zero.
+    return (n > 0) && ((n & (n - 1U)) == 0U);
 }
 } // namespace iox
 
