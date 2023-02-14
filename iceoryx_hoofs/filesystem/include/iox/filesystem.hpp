@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_FILESYSTEM_HPP
-#define IOX_HOOFS_CXX_FILESYSTEM_HPP
+#ifndef IOX_HOOFS_FILESYSTEM_FILESYSTEM_HPP
+#define IOX_HOOFS_FILESYSTEM_FILESYSTEM_HPP
 
 #include "iox/string.hpp"
 
@@ -22,8 +22,6 @@
 #include <type_traits>
 
 namespace iox
-{
-namespace cxx
 {
 namespace internal
 {
@@ -197,9 +195,8 @@ constexpr perms operator^=(const perms lhs, const perms rhs) noexcept;
 /// @return the reference to the stream
 template <typename StreamType>
 StreamType& operator<<(StreamType& stream, const perms value) noexcept;
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/filesystem.inl"
+#include "iox/detail/filesystem.inl"
 
 #endif

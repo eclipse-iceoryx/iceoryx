@@ -24,6 +24,7 @@
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {
@@ -62,7 +63,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     posix::FileLock fileLock = std::move(
         posix::FileLockBuilder()
             .name(ROUDI_LOCK_NAME)
-            .permission(iox::cxx::perms::owner_read | iox::cxx::perms::owner_write)
+            .permission(iox::perms::owner_read | iox::perms::owner_write)
             .create()
             .or_else([](auto& error) {
                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)

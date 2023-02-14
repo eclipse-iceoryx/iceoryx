@@ -1,5 +1,5 @@
 # Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/time/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${PROJECT_SOURCE_DIR}/buffer/include
+                                ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -70,14 +71,15 @@ iox_add_library(
                                 time/include/
                                 posix/time/include/
                                 buffer/include/
+                                filesystem/include/
     FILES
         design/source/functional_interface.cpp
+        filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         source/concurrent/loffli.cpp
-        source/cxx/filesystem.cpp
         source/cxx/requires.cpp
         source/cxx/type_traits.cpp
         source/cxx/unique_id.cpp

@@ -1,4 +1,4 @@
-# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,19 +31,21 @@ cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
         "design/source/*.cpp",
+        "filesystem/source/*.cpp",
         "memory/source/*.cpp",
         "posix/time/source/*.cpp",
         "source/**/*.cpp",
         "time/source/*.cpp",
         "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [
         "buffer/include/",
         "container/include/",
         "design/include",
+        "filesystem/include",
         "include/",
         "legacy/include/",
         "memory/include/",

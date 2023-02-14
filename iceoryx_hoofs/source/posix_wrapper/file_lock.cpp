@@ -35,13 +35,13 @@ constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
 expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.";
         return error<FileLockError>(FileLockError::INVALID_FILE_NAME);
     }
 
-    if (!cxx::isValidPathToDirectory(m_path))
+    if (!isValidPathToDirectory(m_path))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
         return error<FileLockError>(FileLockError::INVALID_PATH);
@@ -49,7 +49,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     FileLock::FilePath_t fileLockPath = m_path;
 
-    if (!cxx::doesEndWithPathSeparator(fileLockPath))
+    if (!doesEndWithPathSeparator(fileLockPath))
     {
         fileLockPath.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[0]);
     }

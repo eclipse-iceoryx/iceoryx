@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
@@ -116,7 +116,7 @@ class SharedMemoryBuilder
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(perms, filePermissions, perms::none)
 
     /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, size, 0U)

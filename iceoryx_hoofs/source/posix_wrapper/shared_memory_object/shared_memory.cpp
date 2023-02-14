@@ -58,7 +58,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         return error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
     }
 
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
                        << "\" is not a valid file name";

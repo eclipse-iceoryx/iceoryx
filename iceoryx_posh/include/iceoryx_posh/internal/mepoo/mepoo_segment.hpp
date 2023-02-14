@@ -24,6 +24,7 @@
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {
@@ -58,8 +59,8 @@ class MePooSegment
     uint64_t m_segmentId;
     iox::mepoo::MemoryInfo m_memoryInfo;
 
-    static constexpr cxx::perms SEGMENT_PERMISSIONS =
-        cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;
+    static constexpr perms SEGMENT_PERMISSIONS =
+        perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
 
   private:
     void setSegmentId(const uint64_t segmentId) noexcept;

@@ -17,6 +17,7 @@
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iox/deadline_timer.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/into.hpp"
 
 #include <thread>
@@ -60,10 +61,10 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
     }
 
     // leading slash is allowed even though it is not a valid file name
-    bool isValidPipeName = cxx::isValidFileName(name)
+    bool isValidPipeName = isValidFileName(name)
                            // name is checked for emptiness, so it's ok to get a first member
                            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-                           || (!name.empty() && name.c_str()[0] == '/' && cxx::isValidFileName(*name.substr(1)));
+                           || (!name.empty() && name.c_str()[0] == '/' && isValidFileName(*name.substr(1)));
     if (!isValidPipeName)
     {
         std::cerr << "The named pipe name: \"" << name << "\" is not a valid file path name." << std::endl;
@@ -96,7 +97,7 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
              .memorySizeInBytes(sizeof(NamedPipeData) + alignof(NamedPipeData))
              .accessMode(AccessMode::READ_WRITE)
              .openMode((channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING)
-             .permissions(cxx::perms::owner_all | cxx::perms::group_all)
+             .permissions(perms::owner_all | perms::group_all)
              .create()
              .and_then([this](auto& value) { m_sharedMemory.emplace(std::move(value)); }))
     {

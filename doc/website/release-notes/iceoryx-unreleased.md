@@ -144,7 +144,7 @@
                             .memorySizeInBytes(16)
                             .accessMode(iox::posix::AccessMode::READ_WRITE)
                             .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                            .permissions(cxx::perms::owner_all)
+                            .permissions(perms::owner_all)
                             .create();
     ```
 
@@ -193,7 +193,7 @@
     auto result = iox::posix::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
                     .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
-                    .permissions(iox::cxx::perms::owner_all)
+                    .permissions(iox::perms::owner_all)
                     .initialValue(0U)
                     .create(semaphore);
     ```
@@ -269,7 +269,7 @@
     // after
     auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
                                                  .path("/Now/I/Can/Add/A/Path")
-                                                 .permission(iox::cxx::perms::owner_all)
+                                                 .permission(iox::perms::owner_all)
                                                  .create()
                                                  .expect("Oh no I couldn't create the lock file");
     ```
@@ -375,12 +375,12 @@
     iox::cxx::doesEndWithPathSeparator(..);
 
     // after
-    #include "iceoryx_hoofs/cxx/filesystem.hpp"
-    iox::cxx::isValidPathEntry(..);
-    iox::cxx::isValidFileName(..);
-    iox::cxx::isValidPathToFile(..);
-    iox::cxx::isValidPathToDirectory(..);
-    iox::cxx::doesEndWithPathSeparator(..);
+    #include "iox/filesystem.hpp"
+    iox::isValidPathEntry(..);
+    iox::isValidFileName(..);
+    iox::isValidPathToFile(..);
+    iox::isValidPathToDirectory(..);
+    iox::doesEndWithPathSeparator(..);
     ```
 
     ```cpp

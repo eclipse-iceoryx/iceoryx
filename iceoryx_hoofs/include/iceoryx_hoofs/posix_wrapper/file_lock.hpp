@@ -16,10 +16,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_platform/file.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/string.hpp"
 
 namespace iox
@@ -121,7 +121,7 @@ class FileLockBuilder
 
     /// @brief Defines the access permissions of the file lock. If they are not
     ///        explicitly set they will be none
-    IOX_BUILDER_PARAMETER(cxx::perms, permission, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(perms, permission, perms::none)
 
   public:
     /// @brief Creates a file lock

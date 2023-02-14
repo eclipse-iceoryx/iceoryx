@@ -104,7 +104,7 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 static expected<SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
                                                 const NamedSemaphore::Name_t& name,
                                                 const OpenMode openMode,
-                                                const cxx::perms permissions,
+                                                const perms permissions,
                                                 const uint32_t initialValue) noexcept
 {
     auto result = posixCall(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
@@ -157,7 +157,7 @@ expected<SemaphoreError>
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept
 {
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "The name \"" << m_name << "\" is not a valid semaphore name.";
         return error<SemaphoreError>(SemaphoreError::INVALID_NAME);

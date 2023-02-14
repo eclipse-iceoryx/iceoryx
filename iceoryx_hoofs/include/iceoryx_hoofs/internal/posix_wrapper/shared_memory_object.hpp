@@ -17,12 +17,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -138,7 +138,7 @@ class SharedMemoryObjectBuilder
     IOX_BUILDER_PARAMETER(optional<const void*>, baseAddressHint, nullopt)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(perms, permissions, perms::none)
 
   public:
     expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;
