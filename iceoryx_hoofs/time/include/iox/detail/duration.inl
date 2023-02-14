@@ -79,9 +79,9 @@ inline constexpr uint64_t Duration::positiveValueOrClampToZero(const T value) no
 template <typename T>
 inline constexpr Duration Duration::fromNanoseconds(const T value) noexcept
 {
-    auto clampedValue = positiveValueOrClampToZero(value);
-    auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::NANOSECS_PER_SEC);
-    auto nanoseconds = static_cast<Duration::Nanoseconds_t>(clampedValue % Duration::NANOSECS_PER_SEC);
+    const auto clampedValue = positiveValueOrClampToZero(value);
+    const auto seconds = static_cast<Duration::Seconds_t>(clampedValue / Duration::NANOSECS_PER_SEC);
+    const auto nanoseconds = static_cast<Duration::Nanoseconds_t>(clampedValue % Duration::NANOSECS_PER_SEC);
     return createDuration(seconds, nanoseconds);
 }
 template <typename T>
@@ -108,7 +108,7 @@ inline constexpr Duration Duration::fromSeconds(const T value) noexcept
     const auto clampedValue = positiveValueOrClampToZero(value);
     constexpr Duration::Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<Duration::Seconds_t>::max()};
 
-    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9: False positive, platform-dependent
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive, platform-dependent
     if (clampedValue > MAX_SECONDS_BEFORE_OVERFLOW)
     {
         return Duration::max();
@@ -150,19 +150,19 @@ inline constexpr Duration Duration::fromDays(const T value) noexcept
     return Duration{static_cast<Duration::Seconds_t>(clampedValue * SECS_PER_DAY), 0U};
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration::Duration(const struct timeval& value) noexcept
     : Duration(static_cast<Seconds_t>(value.tv_sec), static_cast<Nanoseconds_t>(value.tv_usec) * NANOSECS_PER_MICROSEC)
 {
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration::Duration(const struct timespec& value) noexcept
     : Duration(static_cast<Seconds_t>(value.tv_sec), static_cast<Nanoseconds_t>(value.tv_nsec))
 {
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
     : Duration(value.it_interval)
 {
@@ -268,7 +268,7 @@ inline constexpr struct timeval Duration::timeval() const noexcept
     return {static_cast<SEC_TYPE>(m_seconds), static_cast<USEC_TYPE>(m_nanoseconds / NANOSECS_PER_MICROSEC)};
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcept
 {
     Seconds_t seconds{m_seconds + rhs.m_seconds};
@@ -287,14 +287,14 @@ inline constexpr Duration Duration::operator+(const Duration& rhs) const noexcep
     return sum;
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration& Duration::operator+=(const Duration& rhs) noexcept
 {
     *this = *this + rhs;
     return *this;
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcept
 {
     if (*this < rhs)
@@ -302,7 +302,7 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
         return Duration::zero();
     }
     Seconds_t seconds{m_seconds - rhs.m_seconds};
-    // AXIVION Next Construct AutosarC++19_03-M0.1.9, AutosarC++19_03-A0.1.1 : False positive, variable IS used
+    // AXIVION Next Construct AutosarC++19_03-M0.1.9, AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments : False positive, variable IS used
     Nanoseconds_t nanoseconds{0U};
     if (m_nanoseconds >= rhs.m_nanoseconds)
     {
@@ -310,13 +310,14 @@ inline constexpr Duration Duration::operator-(const Duration& rhs) const noexcep
     }
     else
     {
+        // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : It is ensured that m_nanoseconds is never larger than NANOSECS_PER_SEC
         nanoseconds = (NANOSECS_PER_SEC - rhs.m_nanoseconds) + m_nanoseconds;
         --seconds;
     }
     return createDuration(seconds, nanoseconds);
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Argument is larger than two words
 inline constexpr Duration& Duration::operator-=(const Duration& rhs) noexcept
 {
     *this = *this - rhs;
@@ -327,7 +328,10 @@ template <typename T>
 inline constexpr Duration
 Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // operator*(...) takes care of negative values and 0 for rhs
+    if ((rhs <= static_cast<T>(0)) || (*this == Duration::zero()))
+    {
+        return Duration::zero();
+    }
 
     static_assert(sizeof(T) <= sizeof(Seconds_t),
                   "only integer types with less or equal to size of uint64_t are allowed for multiplication");
@@ -340,7 +344,7 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     {
         return Duration::max();
     }
-    auto durationFromSeconds = Duration(m_seconds * multiplicator, 0U);
+    const auto durationFromSeconds = Duration(m_seconds * multiplicator, 0U);
 
     // the m_nanoseconds multiplication cannot exceed the limits of a Duration, since m_nanoseconds is always less than
     // a second and m_seconds can hold 64 bits and the multiplicator is at max 64 bits
@@ -357,8 +361,8 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     // multiplicator and another one with the upper 32 bits;
 
     // this is the easy part with the lower 32 bits
-    uint64_t multiplicatorLow{static_cast<uint32_t>(multiplicator)};
-    Duration durationFromNanosecondsLow{Duration::fromNanoseconds(m_nanoseconds * multiplicatorLow)};
+    const uint64_t multiplicatorLow{static_cast<uint32_t>(multiplicator)};
+    const Duration durationFromNanosecondsLow{Duration::fromNanoseconds(m_nanoseconds * multiplicatorLow)};
 
     // this is the complicated part with the upper 32 bits;
     // the m_nanoseconds are multiplied with the upper 32 bits of the multiplicator shifted by 32 bit to the right, thus
@@ -381,12 +385,13 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     constexpr uint64_t ONE_FULL_BLOCK_OF_SECONDS_ONLY{LEAST_COMMON_MULTIPLE >> NUMBER_OF_BITS_IN_UINT32};
     constexpr uint64_t SECONDS_PER_FULL_BLOCK{LEAST_COMMON_MULTIPLE / NANOSECS_PER_SEC};
 
-    uint64_t multiplicatorHigh{static_cast<uint32_t>(multiplicator >> NUMBER_OF_BITS_IN_UINT32)};
-    uint64_t nanosecondsFromHigh{m_nanoseconds * multiplicatorHigh};
-    uint64_t fullBlocksOfSecondsOnly{nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY};
-    uint64_t remainingBlockWithFullAndFractionalSeconds{nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY};
+    const uint64_t multiplicatorHigh{static_cast<uint32_t>(multiplicator >> NUMBER_OF_BITS_IN_UINT32)};
+    const uint64_t nanosecondsFromHigh{m_nanoseconds * multiplicatorHigh};
+    const uint64_t fullBlocksOfSecondsOnly{nanosecondsFromHigh / ONE_FULL_BLOCK_OF_SECONDS_ONLY};
+    const uint64_t remainingBlockWithFullAndFractionalSeconds{nanosecondsFromHigh % ONE_FULL_BLOCK_OF_SECONDS_ONLY};
 
-    auto durationFromNanosecondsHigh =
+    // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : The logic from above prevents overflows
+    const auto durationFromNanosecondsHigh =
         Duration{fullBlocksOfSecondsOnly * SECONDS_PER_FULL_BLOCK, 0U}
         + Duration::fromNanoseconds(remainingBlockWithFullAndFractionalSeconds << NUMBER_OF_BITS_IN_UINT32);
 
@@ -433,11 +438,15 @@ template <typename T>
 inline constexpr Duration
 Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, T>& rhs) const noexcept
 {
-    // operator*(...) takes care of negative values for rhs
-
     if (std::isnan(rhs))
     {
-        return Duration::max();
+        return (*this == Duration::zero()) ? Duration::zero() : Duration::max();
+    }
+
+    // this must be done after the NAN check in order to prevent to access a signaling NAN
+    if ((rhs <= static_cast<T>(0)) || (*this == Duration::zero()))
+    {
+        return Duration::zero();
     }
 
     auto durationFromSeconds = fromFloatingPointSeconds<T>(static_cast<T>(m_seconds) * rhs);
@@ -458,14 +467,9 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
 }
 
 template <typename T>
-inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
+inline constexpr Duration Duration::operator*(const T rhs) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
-
-    if ((rhs <= static_cast<T>(0)) || (*this == Duration::zero()))
-    {
-        return Duration::zero();
-    }
 
     return multiplyWith<T>(rhs);
 }
@@ -478,39 +482,39 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 }
 
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator==(const Duration& lhs, const Duration& rhs) noexcept
 {
     return (lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds == rhs.m_nanoseconds);
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator!=(const Duration& lhs, const Duration& rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator<(const Duration& lhs, const Duration& rhs) noexcept
 {
     return (lhs.m_seconds < rhs.m_seconds)
            || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds < rhs.m_nanoseconds));
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator>(const Duration& lhs, const Duration& rhs) noexcept
 {
     return (lhs.m_seconds > rhs.m_seconds)
            || ((lhs.m_seconds == rhs.m_seconds) && (lhs.m_nanoseconds > rhs.m_nanoseconds));
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator<=(const Duration& lhs, const Duration& rhs) noexcept
 {
     return !(lhs > rhs);
 }
 
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept
 {
     return !(lhs < rhs);
@@ -518,43 +522,43 @@ constexpr bool operator>=(const Duration& lhs, const Duration& rhs) noexcept
 
 namespace duration_literals
 {
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _ns(unsigned long long int value) noexcept
 {
     return Duration::fromNanoseconds(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _us(unsigned long long int value) noexcept
 {
     return Duration::fromMicroseconds(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _ms(unsigned long long int value) noexcept
 {
     return Duration::fromMilliseconds(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _s(unsigned long long int value) noexcept
 {
     return Duration::fromSeconds(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _m(unsigned long long int value) noexcept
 {
     return Duration::fromMinutes(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _h(unsigned long long int value) noexcept
 {
     return Duration::fromHours(value);
 }
 
-// AXIVION Next Line AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : Use of unsigned long long int in user-defined literals is enforced by the standard
 inline constexpr Duration operator"" _d(unsigned long long int value) noexcept
 {
     return Duration::fromDays(value);

@@ -30,6 +30,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     using SEC_TYPE = decltype(std::declval<struct timespec>().tv_sec);
     using NSEC_TYPE = decltype(std::declval<struct timespec>().tv_nsec);
 
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (reference == TimeSpecReference::None)
     {
         static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
@@ -39,13 +40,16 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
             return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
         }
 
-        auto tv_sec = static_cast<SEC_TYPE>(this->m_seconds);
-        auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
+        const auto tv_sec = static_cast<SEC_TYPE>(this->m_seconds);
+        const auto tv_nsec = static_cast<NSEC_TYPE>(this->m_nanoseconds);
         return {tv_sec, tv_nsec};
     }
 
-    struct timespec referenceTime = {};
+    struct timespec referenceTime
+    {
+    };
 
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
                                         &referenceTime)
             .failureReturnValue(-1)
@@ -55,7 +59,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
         return {0, 0};
     }
 
-    auto targetTime = Duration(referenceTime) + *this;
+    const auto targetTime = Duration(referenceTime) + *this;
 
     static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
     if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
@@ -64,17 +68,19 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
         return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
     }
 
-    auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
-    auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
+    const auto tv_sec = static_cast<SEC_TYPE>(targetTime.m_seconds);
+    const auto tv_nsec = static_cast<NSEC_TYPE>(targetTime.m_nanoseconds);
     return {tv_sec, tv_nsec};
 }
 
-std::ostream& operator<<(std::ostream& stream, const units::Duration& t) noexcept
+// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does not require to implement '<<='
+std::ostream& operator<<(std::ostream& stream, const units::Duration t)
 {
     stream << t.m_seconds << "s " << t.m_nanoseconds << "ns";
     return stream;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does not require to implement '<<='
 iox::log::LogStream& operator<<(iox::log::LogStream& stream, const Duration t) noexcept
 {
     stream << t.m_seconds << "s " << t.m_nanoseconds << "ns";
