@@ -11,7 +11,6 @@
 #include <atomic>
 
 // we can use this for test code
-#include <iostream>
 #include <mutex>
 
 namespace iox

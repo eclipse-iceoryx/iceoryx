@@ -4,12 +4,15 @@
 // *** TO BE IMPLEMENTED BY CLIENT
 // ***
 
-#ifdef TEST_PLATFORM
+// does NOT work with tests (as they require the test handler)
+// #define IOX_MINIMAL_ERROR_HANDLING
 
-#include "test/error_reporting.hpp"
+#ifdef IOX_MINIMAL_ERROR_HANDLING
+
+#include "minimal/error_reporting.hpp"
 
 #else
 
-#include "minimal/error_reporting.hpp"
+#include "default/error_reporting.hpp"
 
 #endif

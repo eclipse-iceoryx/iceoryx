@@ -1,5 +1,4 @@
 #include "iceoryx_hoofs/log/logstream.hpp"
-#define TEST_PLATFORM // overrides the error handling for testing purposes
 #define IOX_DEBUG     // defensive checks (DEBUG_ASSERT, PRECOND) are active
 
 #include "test.hpp"
@@ -30,7 +29,7 @@ using std::endl;
 using MyError = module_a::error::Error;
 using MyCode = module_a::error::ErrorCode;
 
-// TODO: move to some test support file
+/// @todo move to some test support file
 
 iox::err::TestErrorHandler testHandler;
 
@@ -113,6 +112,7 @@ TEST_F(ErrorReportingAPI_test, reportFatal)
     ASSERT_ERROR(MyCode::Unknown);
 }
 
+
 TEST_F(ErrorReportingAPI_test, reportConditionallyTrue)
 {
     auto f = []() {
@@ -125,6 +125,7 @@ TEST_F(ErrorReportingAPI_test, reportConditionallyTrue)
     ASSERT_PANIC();
     ASSERT_ERROR(MyCode::Unknown);
 }
+
 
 TEST_F(ErrorReportingAPI_test, reportConditionallyFalse)
 {
@@ -165,7 +166,7 @@ TEST_F(ErrorReportingAPI_test, assertFalse)
 
 TEST_F(ErrorReportingAPI_test, checkPreconditionTrue)
 {
-    auto f = [](int x) { IOX_PRECONDITION(x > 0); };
+    auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
 
     f(1);
 
@@ -174,30 +175,16 @@ TEST_F(ErrorReportingAPI_test, checkPreconditionTrue)
 
 TEST_F(ErrorReportingAPI_test, checkPreconditionFalse)
 {
-    auto f = [](int x) { IOX_PRECONDITION(x > 0); };
+    auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
 
     f(0);
 
     ASSERT_PANIC();
 }
 
-TEST_F(ErrorReportingAPI_test, checkPreconditionWithMessage)
-{
-    // TODO: we do no want this but we  instead can have
-    // IOX_PRECONDITION(x > 0, "")
-    // IOX_PRECONDITION(x > 0, lambda)
-    // and the secon argument is passed to logstream
-
-    auto f = [](int x) { IOX_PRECONDITION(x > 0) << "message" << 73; };
-
-    f(1);
-
-    ASSERT_NO_PANIC();
-}
-
 TEST_F(ErrorReportingAPI_test, checkAssumptionTrue)
 {
-    auto f = [](int x) { IOX_ASSUME(x > 0); };
+    auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
 
     f(1);
 
@@ -206,7 +193,17 @@ TEST_F(ErrorReportingAPI_test, checkAssumptionTrue)
 
 TEST_F(ErrorReportingAPI_test, checkAssumptionFalse)
 {
-    auto f = [](int x) { IOX_ASSUME(x > 0); };
+    auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
+
+    f(0);
+
+    ASSERT_PANIC();
+}
+
+
+TEST_F(ErrorReportingAPI_test, checkPreconditionWithMessage)
+{
+    auto f = [](int x) { IOX_PRECONDITION(x > 0, "message"); };
 
     f(0);
 
@@ -215,12 +212,13 @@ TEST_F(ErrorReportingAPI_test, checkAssumptionFalse)
 
 TEST_F(ErrorReportingAPI_test, checkAssumptionWithMessage)
 {
-    auto f = [](int x) { IOX_ASSUME(x > 0) << "message" << 73; };
+    auto f = [](int x) { IOX_ASSUME(x > 0, "message"); };
 
     f(0);
 
     ASSERT_PANIC();
 }
+
 
 TEST_F(ErrorReportingAPI_test, reportExpectedAsError)
 {
