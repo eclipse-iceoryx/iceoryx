@@ -144,10 +144,9 @@ inline optional<T> stack<T, Capacity>::pop() noexcept
         return nullopt;
     }
 
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : low level memory management with access to the topmost element on
-    // the untyped buffer; reinterpret_cast is safe since the size and the alignment of each array element is guaranteed
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return *reinterpret_cast<T*>(&m_data[--m_size]);
+    optional<T> element{std::move(m_data[--m_size])};
+    m_data[m_size].~T();
+    return element;
 }
 
 template <typename T, uint64_t Capacity>
