@@ -27,10 +27,10 @@ namespace iox
 /// @note value + alignment - 1 must not exceed the maximum value for type T
 /// @note alignment must be a power of two
 template <typename T>
-// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3: The function is in the 'iox' namespace which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3 : The function is in the 'iox' namespace which prevents easy misuse
 T align(const T value, const T alignment) noexcept
 {
-    return (value + (alignment - 1)) & (-alignment);
+    return (value + (alignment - 1)) & (~alignment + 1);
 }
 
 /// @brief allocates aligned memory which can only be free'd by alignedFree
@@ -45,6 +45,7 @@ void alignedFree(void* const memory) noexcept;
 
 /// template recursion stopper for maximum alignment calculation
 template <std::size_t S = 0>
+// AXIVION Next Construct AutosarC++19_03-A2.10.5 : The function is in the 'iox' namespace which prevents easy misuse
 constexpr std::size_t maxAlignment() noexcept
 {
     return S;
@@ -52,9 +53,11 @@ constexpr std::size_t maxAlignment() noexcept
 
 /// calculate maximum alignment of supplied types
 template <typename T, typename... Args>
+// AXIVION Next Construct AutosarC++19_03-A2.10.5 : The function is in the 'iox' namespace which prevents easy misuse
 constexpr std::size_t maxAlignment() noexcept
 {
-    return (alignof(T) > maxAlignment<Args...>()) ? alignof(T) : maxAlignment<Args...>();
+    auto remainingMaxAlignment = maxAlignment<Args...>();
+    return (alignof(T) > remainingMaxAlignment) ? alignof(T) : remainingMaxAlignment;
 }
 
 /// template recursion stopper for maximum size calculation
