@@ -8,7 +8,6 @@
 
 namespace module_b
 {
-
 namespace errors
 {
 

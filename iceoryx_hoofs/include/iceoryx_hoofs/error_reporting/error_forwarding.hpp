@@ -14,15 +14,11 @@ namespace err
 {
 
 template <typename Error, typename Kind>
-/// @todo make noreturn once combined with fatal failure testing (longjmp)
-///[[noreturn]]
-void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
+[[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
     report(location, kind, error);
     panic();
-
-    // acivate later to satisfy the noreturn guarantee
-    // abort();
+    abort();
 }
 
 template <typename Error, typename Kind>

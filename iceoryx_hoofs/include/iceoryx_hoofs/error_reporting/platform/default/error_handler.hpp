@@ -13,6 +13,9 @@
 #include <atomic>
 #include <vector>
 
+// NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
+#include <setjmp.h>
+
 // we can use this for test code
 #include <mutex>
 
@@ -58,6 +61,7 @@ class TestHandler : public HandlerInterface
     void panic() override
     {
         m_panicked = true;
+        jump();
     }
 
     bool hasPanicked()
@@ -84,10 +88,27 @@ class TestHandler : public HandlerInterface
         return iter != m_errors.end();
     }
 
+    bool setJump()
+    {
+        // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
+        return setjmp(&m_jumpBuffer[0]) != JUMP_INDICATOR;
+    }
+
   private:
+    static constexpr int JUMP_INDICATOR{1};
+
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
     std::vector<error_code_t> m_errors;
+
+    // there can be only one active buffer at a time anyway
+    jmp_buf m_jumpBuffer;
+
+    void jump()
+    {
+        // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
+        longjmp(&m_jumpBuffer[0], JUMP_INDICATOR);
+    }
 };
 
 template <typename T>
