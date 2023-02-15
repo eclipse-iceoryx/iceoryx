@@ -642,7 +642,7 @@
 
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
-29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iox/iceoryx_hoofs_types.hpp`
 
 30. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
 

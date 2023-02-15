@@ -18,7 +18,6 @@
 #define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
@@ -51,7 +50,7 @@ class BumpAllocator
     /// @param[in] alignment of the memory to allocate
     /// @return an expected containing a pointer to the memory if allocation was successful, otherwise
     /// BumpAllocatorError
-    cxx::expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief mark the memory as unused
     void deallocate() noexcept;

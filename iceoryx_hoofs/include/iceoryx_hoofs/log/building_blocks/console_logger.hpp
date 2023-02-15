@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
 #define IOX_HOOFS_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 #include "iceoryx_hoofs/log/building_blocks/logformat.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <atomic>
 #include <cstdint>

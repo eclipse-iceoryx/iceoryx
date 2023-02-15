@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
 #define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
