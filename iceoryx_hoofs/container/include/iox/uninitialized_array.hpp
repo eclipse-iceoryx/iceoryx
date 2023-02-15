@@ -77,7 +77,9 @@ class UninitializedArray final
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
-    constexpr UninitializedArray() noexcept = default;
+    // The (empty) user-defined constructor is required.
+    // Use of "= default" leads to value-initialization of class members.
+    constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;
     UninitializedArray& operator=(const UninitializedArray&) = delete;

@@ -149,6 +149,8 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
+        // Access `e` to prevent the compiler from optimizing away the loop
+        EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
     }
 
     new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer>();
@@ -156,6 +158,31 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
     for (auto& e : buffer)
     {
         EXPECT_EQ(e, 0);
+    }
+}
+
+TEST(UninitializedArrayTest, AllElementsAreNotZeroedWhenBufferSetToNonZeroedBuffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "35666437-6ee5-4940-b053-e82d8e312a11");
+    constexpr uint64_t CAPACITY{32};
+    UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer> buffer;
+    for (auto& e : buffer)
+    {
+        new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
+        // Access `e` to prevent the compiler from optimizing away the loop
+        EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
+    }
+
+    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::NonZeroedBuffer>();
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays) : explicitly required for test
+    uint32_t result[CAPACITY];
+    memcpy(&result, &buffer, CAPACITY * sizeof(uint32_t));
+
+    for (uint64_t i = 0; i < CAPACITY; i++)
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index) : false positive, is integer constexpr
+        EXPECT_EQ(result[i], std::numeric_limits<uint32_t>::max());
     }
 }
 
