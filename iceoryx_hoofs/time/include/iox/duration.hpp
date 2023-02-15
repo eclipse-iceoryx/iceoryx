@@ -359,7 +359,6 @@ template <typename T>
 constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 
 /// @brief stream operator for the Duration class
-// AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
 std::ostream& operator<<(std::ostream& stream, const Duration t);
 
 /// @brief Equal to operator
