@@ -21,7 +21,7 @@
 namespace iox
 {
 template <uint64_t N>
-inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value)
+inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value) noexcept
 {
     return std::string(value.c_str(), value.size());
 }

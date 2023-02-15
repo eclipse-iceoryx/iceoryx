@@ -46,7 +46,7 @@ enum class AllocationError
 
 template <>
 constexpr popo::AllocationError
-from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error);
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept;
 
 namespace popo
 {

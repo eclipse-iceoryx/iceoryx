@@ -57,7 +57,7 @@ class BumpAllocator
     void deallocate() noexcept;
 
   private:
-    cxx::byte_t* m_startAddress{nullptr};
+    uint64_t m_startAddress{0U};
     uint64_t m_length{0U};
     uint64_t m_currentPosition{0U};
 };

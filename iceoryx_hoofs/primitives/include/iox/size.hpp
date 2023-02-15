@@ -31,8 +31,8 @@ namespace iox
 /// @param[in] The actual content of the array is not of interest. Its just the capacity of the array that matters.
 /// @return Returns the capacity of the array at compile time.
 template <typename T, uint64_t CapacityValue>
-// AXIVION Next Construct AutosarC++19_03-A18.1.1:returning capacity of C array at compile time is safe, no
-// possibility of out of bounds access
+// AXIVION Next Construct AutosarC++19_03-A2.10.5, AutosarC++19_03-M17.0.3 : The function is in the 'iox' namespace which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-A18.1.1 : returning capacity of C array at compile time is safe, no possibility of out of bounds access
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 static constexpr uint64_t size(T const (&/*notInterested*/)[CapacityValue]) noexcept
 {

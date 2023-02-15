@@ -22,6 +22,7 @@
 #include "test.hpp"
 #include <ctime>
 #include <iostream>
+#include <limits>
 #include <ostream>
 
 namespace
@@ -2071,6 +2072,18 @@ TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithFloatResultsInMoreThanO
     multiply(duration, MULTIPLICATOR, EXPECTED_DURATION);
 }
 
+TEST(Duration_test, MultiplyDurationWithSelfAssignOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ac7e2f7e-984b-4aca-a472-9dc1f1c1f30c");
+    constexpr int64_t MULTIPLICATOR{3};
+    constexpr Duration EXPECTED_DURATION{6_s + 36_ns};
+    auto duration = 2_s + 12_ns;
+
+    duration *= MULTIPLICATOR;
+
+    EXPECT_THAT(duration, Eq(EXPECTED_DURATION));
+}
+
 TEST(Duration_test, MultiplyDurationWithFractionalFloat)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3adcaec4-06fb-4ae5-a05b-70764fc00d64");
@@ -2138,40 +2151,69 @@ TEST(Duration_test, MultiplyDurationResultsInSaturationDueToNanoseconds)
     EXPECT_THAT(DURATION * MULTIPLICATOR, Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, MultiplyZeroDurationWithNaNDoubleResultsInZeroDuration)
+TEST(Duration_test, MultiplyZeroDurationWithQuietNaNResultsInZeroDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4639ac39-639f-4df9-b591-05714f1cbc30");
-    EXPECT_THAT(0_s * NAN, Eq(0_s));
+    EXPECT_THAT(0_s * std::numeric_limits<float>::quiet_NaN(), Eq(0_s));
+    EXPECT_THAT(0_s * std::numeric_limits<double>::quiet_NaN(), Eq(0_s));
+    EXPECT_THAT(0_s * std::numeric_limits<long double>::quiet_NaN(), Eq(0_s));
 }
 
-TEST(Duration_test, MultiplyMaxDurationWithNaNDoubleResultsInMaxDuration)
+TEST(Duration_test, MultiplyMaxDurationWithQuietNaNResultsInMaxDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e09e4248-284d-4ab7-993b-1474ac5e3b11");
-    EXPECT_THAT(DurationAccessor::max() * NAN, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<float>::quiet_NaN(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<double>::quiet_NaN(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<long double>::quiet_NaN(), Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, MultiplyZeroDurationWithPosInfDoubleResultsInZeroDuration)
+TEST(Duration_test, MultiplyZeroDurationWithSignalingNaNResultsInZeroDuration)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5007488d-43e8-456b-97b5-f00832a6b5cf");
+    EXPECT_THAT(0_s * std::numeric_limits<float>::signaling_NaN(), Eq(0_s));
+    EXPECT_THAT(0_s * std::numeric_limits<double>::signaling_NaN(), Eq(0_s));
+    EXPECT_THAT(0_s * std::numeric_limits<long double>::signaling_NaN(), Eq(0_s));
+}
+
+TEST(Duration_test, MultiplyMaxDurationWithSignalingNaNResultsInMaxDuration)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "80e0e30c-6fc2-41d6-a46e-63f6d5ade869");
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<float>::signaling_NaN(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<double>::signaling_NaN(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<long double>::signaling_NaN(),
+                Eq(DurationAccessor::max()));
+}
+
+TEST(Duration_test, MultiplyZeroDurationWithPosInfResultsInZeroDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "71dea32f-1200-4df2-8eff-ea607f1b6a01");
-    EXPECT_THAT(0_s * INFINITY, Eq(0_ns));
+    EXPECT_THAT(0_s * std::numeric_limits<float>::infinity(), Eq(0_ns));
+    EXPECT_THAT(0_s * std::numeric_limits<double>::infinity(), Eq(0_ns));
+    EXPECT_THAT(0_s * std::numeric_limits<long double>::infinity(), Eq(0_ns));
 }
 
-TEST(Duration_test, MultiplyMaxDurationWithPosInfDoubleResultsInMaxDuration)
+TEST(Duration_test, MultiplyMaxDurationWithPosInfResultsInMaxDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5f66a93a-2df1-4f7d-abbf-03d5424a1534");
-    EXPECT_THAT(DurationAccessor::max() * INFINITY, Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<float>::infinity(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<double>::infinity(), Eq(DurationAccessor::max()));
+    EXPECT_THAT(DurationAccessor::max() * std::numeric_limits<long double>::infinity(), Eq(DurationAccessor::max()));
 }
 
-TEST(Duration_test, MultiplyZeroDurationWithNegInfDoubleResultsInZeroDuration)
+TEST(Duration_test, MultiplyZeroDurationWithNegInfResultsInZeroDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3931a3df-e09f-414a-8a1e-64bcb1e010b7");
-    EXPECT_THAT(0_s * (INFINITY * -1.0), Eq(0_ns));
+    EXPECT_THAT(0_s * (std::numeric_limits<float>::infinity() * -1.0), Eq(0_ns));
+    EXPECT_THAT(0_s * (std::numeric_limits<double>::infinity() * -1.0), Eq(0_ns));
+    EXPECT_THAT(0_s * (std::numeric_limits<long double>::infinity() * -1.0), Eq(0_ns));
 }
 
-TEST(Duration_test, MultiplyMaxDurationWithNegInfDoubleResultsInZeroDuration)
+TEST(Duration_test, MultiplyMaxDurationWithNegInfResultsInZeroDuration)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9f563db0-85fa-4558-8928-8fe730f3ff47");
-    EXPECT_THAT(DurationAccessor::max() * (INFINITY * -1.0), Eq(0_ns));
+    EXPECT_THAT(DurationAccessor::max() * (std::numeric_limits<float>::infinity() * -1.0), Eq(0_ns));
+    EXPECT_THAT(DurationAccessor::max() * (std::numeric_limits<double>::infinity() * -1.0), Eq(0_ns));
+    EXPECT_THAT(DurationAccessor::max() * (std::numeric_limits<long double>::infinity() * -1.0), Eq(0_ns));
 }
 
 TEST(Duration_test, MultiplyDurationWithMinimalFloatResultsInZero)

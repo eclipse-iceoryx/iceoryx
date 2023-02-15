@@ -203,8 +203,7 @@ inline T* RelativePointer<T>::getPtr(const segment_id_t id, const offset_t offse
         return nullptr;
     }
     const auto* const basePtr = getBasePtr(id);
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.8, AutosarC++19_03-M5.2.6, AutosarC++19_03-M5.2.9 : Cast
-    // needed for pointer arithmetic
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.8, AutosarC++19_03-M5.2.6, AutosarC++19_03-M5.2.9 : Cast needed for pointer arithmetic
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     return reinterpret_cast<ptr_t>(offset + reinterpret_cast<offset_t>(basePtr));
 }

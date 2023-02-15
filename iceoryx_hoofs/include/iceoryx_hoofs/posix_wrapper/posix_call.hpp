@@ -107,7 +107,7 @@ struct PosixCallDetails
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define posixCall(f)                                                                                                   \
     internal::createPosixCallBuilder(                                                                                  \
-        f,                                                                                                             \
+        &(f),                                                                                                          \
         (#f),                                                                                                          \
         __FILE__,                                                                                                      \
         __LINE__,                                                                                                      \

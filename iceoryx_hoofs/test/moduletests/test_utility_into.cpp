@@ -36,7 +36,7 @@ enum class B
 namespace iox
 {
 template <>
-constexpr B from<A, B>(A e)
+constexpr B from<A, B>(A e) noexcept
 {
     switch (e)
     {

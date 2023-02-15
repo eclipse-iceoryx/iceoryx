@@ -25,7 +25,7 @@ namespace iox
 
 template <>
 constexpr popo::AllocationError
-from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error)
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept
 {
     switch (error)
     {

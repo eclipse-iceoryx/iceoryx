@@ -29,6 +29,7 @@ namespace internal
 /// compiler an unused variable. "static_cast" produces an useless-cast warning
 /// on gcc and this approach solves it cleanly.
 template <typename T>
+// AXIVION Next Construct AutosarC++19_03-M0.1.8 : No side effects are the intended behavior of the function
 inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 {
 }

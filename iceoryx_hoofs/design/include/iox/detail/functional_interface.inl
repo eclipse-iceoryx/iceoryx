@@ -66,8 +66,7 @@ template <typename StringType>
 inline const ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness
-    // of the return value is restored
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const ValueType&>(const_cast<Self*>(this)->expect(msg));
 }
@@ -84,8 +83,7 @@ template <typename StringType>
 inline const ValueType&& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) const&& noexcept
 {
     using Self = ExpectWithValue<Derived, ValueType>;
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness
-    // of the return value is restored
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const ValueType&&>(std::move(const_cast<Self*>(this)->expect(msg)));
 }

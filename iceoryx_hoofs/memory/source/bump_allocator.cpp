@@ -25,7 +25,9 @@
 namespace iox
 {
 BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) noexcept
-    : m_startAddress(static_cast<cxx::byte_t*>(startAddress))
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    : m_startAddress(reinterpret_cast<uint64_t>(startAddress))
     , m_length(length)
 {
 }
@@ -40,20 +42,20 @@ cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t 
         return cxx::error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
     }
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
-    uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
-    uint64_t alignedPosition = align(currentAddress, static_cast<uint64_t>(alignment));
+    const uint64_t currentAddress{m_startAddress + m_currentPosition};
+    uint64_t alignedPosition{align(currentAddress, alignment)};
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
-    alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
+    alignedPosition -= m_startAddress;
 
-    cxx::byte_t* allocation = nullptr;
+    void* allocation{nullptr};
 
-    if (m_length >= alignedPosition + size)
+    auto nextPosition = alignedPosition + size;
+    if (m_length >= nextPosition)
     {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) low-level memory management
-        allocation = m_startAddress + alignedPosition;
-        m_currentPosition = alignedPosition + size;
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+        allocation = reinterpret_cast<void*>(m_startAddress + alignedPosition);
+        m_currentPosition = nextPosition;
     }
     else
     {
