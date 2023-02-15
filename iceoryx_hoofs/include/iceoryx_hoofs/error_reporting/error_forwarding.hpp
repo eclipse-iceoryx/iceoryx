@@ -88,16 +88,9 @@ void forwardError(const SourceLocation& location, Error&& error, Kind&& kind, Me
     }
 }
 
-// this is used to avoid warnings if the expression is not used other than in the assertion
-// it is compiled out by optimizing compilers
-template <typename Lambda>
-void discard(Lambda&& lambda)
+template <typename T>
+void discard(T&&)
 {
-    // enforce that it is not evaluated
-    if (false)
-    {
-        lambda();
-    }
 }
 
 } // namespace err

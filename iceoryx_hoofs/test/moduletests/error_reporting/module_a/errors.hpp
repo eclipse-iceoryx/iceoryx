@@ -9,7 +9,7 @@
 namespace module_a
 {
 
-namespace error
+namespace errors
 {
 
 using error_code_t = iox::err::error_code_t;
@@ -19,13 +19,9 @@ enum class ErrorCode : error_code_t
 {
     Unknown = 42,
     OutOfMemory = 73,
-    OutOfBounds = 66
+    OutOfBounds = 21
 };
 
-// names exist in static segment without dynamic memory
-static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
-
-// simple lightweight error class
 class Error
 {
   public:
@@ -41,19 +37,21 @@ class Error
 
     error_code_t code() const
     {
-        return (error_code_t)m_code;
+        return static_cast<error_code_t>(m_code);
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
-        return errorNames[(error_code_t)m_code];
+        return errorNames[code()];
     }
 
-    static constexpr module_id_t MODULE_ID = 73;
+    static constexpr module_id_t MODULE_ID = 1;
 
   protected:
     ErrorCode m_code;
+
+    static constexpr const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
 };
 
 // could be wrapped by a result/optional monadic type
@@ -66,7 +64,6 @@ class OutOfBoundsError : public Error
     {
     }
 
-    // dummy
     void* details()
     {
         return m_details;
@@ -77,7 +74,7 @@ class OutOfBoundsError : public Error
     void* m_details{nullptr};
 };
 
-} // namespace error
+} // namespace errors
 
 } // namespace module_a
 
@@ -86,10 +83,11 @@ namespace iox
 namespace err
 {
 
-// transform codes to error
-inline module_a::error::Error toError(module_a::error::ErrorCode code)
+// this definition must exist in this namespace for overload resolution
+// each module must use a unqiue error enum, e.g. by namespace
+inline module_a::errors::Error toError(module_a::errors::ErrorCode code)
 {
-    return module_a::error::Error(code);
+    return module_a::errors::Error(code);
 }
 
 } // namespace err

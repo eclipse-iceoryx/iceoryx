@@ -32,8 +32,6 @@ struct HandlerInterface
     // alternatively we have to use a generic base error
     // it could be based on "any", but this would be more expensive
     virtual void report(const SourceLocation& location, error_code_t code) = 0;
-
-    // virtual void report(const SourceLocation& location, error_code_t code, const char* message) = 0;
 };
 
 class DefaultHandler : public HandlerInterface

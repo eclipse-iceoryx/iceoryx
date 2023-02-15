@@ -9,7 +9,7 @@
 namespace module_b
 {
 
-namespace error
+namespace errors
 {
 
 using error_code_t = iox::err::error_code_t;
@@ -17,15 +17,11 @@ using module_id_t = iox::err::module_id_t;
 
 enum class ErrorCode : error_code_t
 {
-    Unknown = 0,
-    OutOfMemory = 1,
-    OutOfBounds = 2
+    Unknown = 24,
+    OutOfMemory = 37,
+    OutOfBounds = 12
 };
 
-// names exist in static segment without dynamic memory
-static const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
-
-// simple lightweight error class
 class Error
 {
   public:
@@ -41,19 +37,21 @@ class Error
 
     error_code_t code() const
     {
-        return (error_code_t)m_code;
+        return static_cast<error_code_t>(m_code);
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
-        return errorNames[(error_code_t)m_code];
+        return errorNames[code()];
     }
 
-    static constexpr module_id_t MODULE_ID = 42;
+    static constexpr module_id_t MODULE_ID = 2;
 
   protected:
     ErrorCode m_code;
+
+    static constexpr const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
 };
 
 // could be wrapped by a result/optional monadic type
@@ -66,7 +64,6 @@ class OutOfBoundsError : public Error
     {
     }
 
-    // dummy
     void* details()
     {
         return m_details;
@@ -77,7 +74,7 @@ class OutOfBoundsError : public Error
     void* m_details{nullptr};
 };
 
-} // namespace error
+} // namespace errors
 
 } // namespace module_b
 
@@ -86,10 +83,9 @@ namespace iox
 namespace err
 {
 
-// transform codes to error
-inline module_b::error::Error toError(module_b::error::ErrorCode code)
+inline module_b::errors::Error toError(module_b::errors::ErrorCode code)
 {
-    return module_b::error::Error(code);
+    return module_b::errors::Error(code);
 }
 
 } // namespace err

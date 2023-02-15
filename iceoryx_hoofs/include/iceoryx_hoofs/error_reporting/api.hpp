@@ -1,10 +1,14 @@
 #pragma once
 
-#include "error_forward.hpp"
+#include "error_forwarding.hpp"
 #include "error_kind.hpp"
 
 // clang-format on
 
+/// @brief transforms an error code to an error object according to
+///        default specification or override by module
+/// @code error code to be transformed
+/// @note this relies on overloading
 #define IOX_ERROR(code) iox::err::toError(code)
 
 // The following macros are statements (not expressions).
@@ -22,7 +26,7 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        forwardError(CURRENT_SOURCE_LOCATION, error, kind);                                                            \
+        forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                                 \
     } while (false)
 
 /// @brief report fatal error
@@ -40,7 +44,7 @@
         {                                                                                                              \
             if (expr)                                                                                                  \
             {                                                                                                          \
-                forwardError(CURRENT_SOURCE_LOCATION, error, kind);                                                    \
+                forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                         \
             }                                                                                                          \
         }                                                                                                              \
     } while (false)
@@ -81,6 +85,7 @@
     do                                                                                                                 \
     {                                                                                                                  \
         discard([&]() { return expr; });                                                                               \
+        discard(message);                                                                                              \
     } while (false)
 #endif
 
@@ -105,6 +110,7 @@
     do                                                                                                                 \
     {                                                                                                                  \
         discard([&]() { return expr; });                                                                               \
+        discard(message);                                                                                              \
     } while (false)
 #endif
 

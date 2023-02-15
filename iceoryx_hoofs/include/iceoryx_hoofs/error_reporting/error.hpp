@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 namespace iox
 {
@@ -13,6 +14,7 @@ using module_id_t = uint32_t;
 constexpr error_code_t DEBUG_ASSERT_VIOLATION_CODE = 0;
 constexpr error_code_t PRECONDITION_VIOLATION_CODE = 1;
 
+constexpr module_id_t ANY_MODULE = 0;
 
 // a complex hierarchy is not required yet, maybe move to a violation header
 class Violation
@@ -23,14 +25,14 @@ class Violation
     {
     }
 
-    static constexpr module_id_t module()
-    {
-        return 0;
-    }
-
     error_code_t code() const
     {
         return m_code;
+    }
+
+    module_id_t module()
+    {
+        return ANY_MODULE;
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
@@ -54,10 +56,29 @@ class Violation
 constexpr module_id_t INVALID_MODULE = 0;
 
 // primary template is the identity
-template <typename Error>
-auto toError(Error&& error)
+// this can be overriden by modules to create their own errors
+template <typename ErrorLike>
+auto toError(ErrorLike&& value)
+{
+    return std::forward<ErrorLike>(value);
+}
+
+template <class Error>
+inline error_code_t toCode(const Error& error)
+{
+    return error.code();
+}
+
+template <>
+inline error_code_t toCode<error_code_t>(const error_code_t& error)
 {
     return error;
+}
+
+template <class Error>
+inline error_code_t toModule(const Error& error)
+{
+    return error.module();
 }
 
 // generic comparison, has interface requirements on error types E1 and E2 without
