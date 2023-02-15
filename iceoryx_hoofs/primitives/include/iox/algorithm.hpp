@@ -14,8 +14,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_ALGORITHM_HPP
-#define IOX_HOOFS_CXX_ALGORITHM_HPP
+#ifndef IOX_HOOFS_PRIMITIVES_ALGORITHM_HPP
+#define IOX_HOOFS_PRIMITIVES_ALGORITHM_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/attributes.hpp"
@@ -222,6 +222,6 @@ constexpr bool isPowerOfTwo(const T n) noexcept
 }
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/algorithm.inl"
+#include "iox/detail/algorithm.inl"
 
-#endif // IOX_HOOFS_CXX_ALGORITHM_HPP
+#endif // IOX_HOOFS_PRIMITIVES_ALGORITHM_HPP

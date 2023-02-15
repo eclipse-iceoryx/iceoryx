@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/attributes.hpp"
 #include "iox/expected.hpp"
 #include "iox/string.hpp"

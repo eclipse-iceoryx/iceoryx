@@ -14,10 +14,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_ALGORITHM_INL
-#define IOX_HOOFS_CXX_ALGORITHM_INL
+#ifndef IOX_HOOFS_PRIMITIVES_ALGORITHM_INL
+#define IOX_HOOFS_PRIMITIVES_ALGORITHM_INL
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 
 namespace iox
 {
@@ -88,4 +88,4 @@ doesContainValue(const T value, const T firstValueListEntry, const ValueList... 
 } // namespace algorithm
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_ALGORITHM_INL
+#endif // IOX_HOOFS_PRIMITIVES_ALGORITHM_INL

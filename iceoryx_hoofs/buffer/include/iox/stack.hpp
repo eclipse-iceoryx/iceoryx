@@ -16,7 +16,7 @@
 #ifndef IOX_HOOFS_BUFFER_STACK_HPP
 #define IOX_HOOFS_BUFFER_STACK_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/optional.hpp"
 #include "iox/uninitialized_array.hpp"
 

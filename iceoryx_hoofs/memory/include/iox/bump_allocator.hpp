@@ -62,4 +62,4 @@ class BumpAllocator
 };
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_MEMORY_BUMP_ALLOCATOR_HPP
+#endif // IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP

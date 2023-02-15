@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_DESIGN_NEWTYPE_HPP
 #define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/detail/newtype/assignment.hpp"
 #include "iox/detail/newtype/comparable.hpp"
 #include "iox/detail/newtype/constructor.hpp"
