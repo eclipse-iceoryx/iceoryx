@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/unique_ptr.hpp"
 
 #include "test.hpp"

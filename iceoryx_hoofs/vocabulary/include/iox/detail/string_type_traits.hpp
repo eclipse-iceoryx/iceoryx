@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {

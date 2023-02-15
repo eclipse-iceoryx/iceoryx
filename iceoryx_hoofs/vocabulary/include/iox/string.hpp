@@ -17,11 +17,11 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_HPP
 #define IOX_HOOFS_VOCABULARY_STRING_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iox/detail/string_internal.hpp"
 #include "iox/detail/string_type_traits.hpp"
 #include "iox/optional.hpp"
+#include "iox/type_traits.hpp"
 
 #include <algorithm>
 #include <cstdint>
@@ -38,37 +38,37 @@ class LogStream;
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArrayOrChar =
-    typename std::enable_if<((is_cxx_string<T>::value || cxx::is_char_array<T>::value)
+    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
                              || (std::is_same<T, std::string>::value || std::is_same<T, char>::value)),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
-using IsStringOrCharArray = typename std::enable_if<((is_cxx_string<T>::value || cxx::is_char_array<T>::value)
+using IsStringOrCharArray = typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
                                                      || std::is_same<T, std::string>::value),
                                                     ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsStdStringOrCharArrayOrChar =
-    typename std::enable_if<((cxx::is_char_array<T>::value || std::is_same<T, std::string>::value)
+    typename std::enable_if<((is_char_array<T>::value || std::is_same<T, std::string>::value)
                              || std::is_same<T, char>::value),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray =
-    typename std::enable_if<(is_cxx_string<T>::value || cxx::is_char_array<T>::value), ReturnType>::type;
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
-using IsCxxStringOrCharArrayOrChar = typename std::enable_if<
-    ((cxx::is_char_array<T1>::value || is_cxx_string<T1>::value) || std::is_same<T1, char>::value)
-        && ((cxx::is_char_array<T2>::value || is_cxx_string<T2>::value) || std::is_same<T2, char>::value),
-    ReturnType>::type;
+using IsCxxStringOrCharArrayOrChar =
+    typename std::enable_if<((is_char_array<T1>::value || is_cxx_string<T1>::value) || std::is_same<T1, char>::value)
+                                && ((is_char_array<T2>::value || is_cxx_string<T2>::value)
+                                    || std::is_same<T2, char>::value),
+                            ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
 using IsCxxStringAndCxxStringOrCharArrayOrChar =
-    typename std::enable_if<((cxx::is_char_array<T1>::value || std::is_same<T1, char>::value)
-                             && is_cxx_string<T2>::value)
+    typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
                                 || (is_cxx_string<T1>::value
-                                    && ((cxx::is_char_array<T2>::value || std::is_same<T2, char>::value)
+                                    && ((is_char_array<T2>::value || std::is_same<T2, char>::value)
                                         || (is_cxx_string<T1>::value && is_cxx_string<T2>::value))),
                             ReturnType>::type;
 
@@ -80,7 +80,7 @@ using IsCxxStringAndCxxStringOrCharArrayOrChar =
 ///
 /// @code
 ///     string<5> fuu("cdefg");
-///     auto bar = iox::cxx::concatenate(fuu, "ahc");
+///     auto bar = iox::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
 IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& str1,
@@ -94,13 +94,13 @@ IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> c
 ///
 /// @code
 ///     string<4> fuu("cdef");
-///     auto bar = iox::cxx::concatenate(fuu, "g", "ah", fuu);
+///     auto bar = iox::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
 IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 
-// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox namespace which prevents easy
 // misuse
 /// @brief concatenates two iox::strings or one iox::string and one string literal/char; concatenation of two
 /// string literals/chars is not possible
@@ -202,7 +202,7 @@ class string final
     ///
     /// @code
     ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
+    ///     using namespace iox;
     ///
     ///     int main()
     ///     {
@@ -227,7 +227,7 @@ class string final
     ///
     /// @code
     ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
+    ///     using namespace iox;
     ///
     ///     int main()
     ///     {
@@ -249,7 +249,7 @@ class string final
     ///
     /// @code
     ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
+    ///     using namespace iox;
     ///
     ///     int main()
     ///     {
@@ -272,7 +272,7 @@ class string final
     ///
     /// @code
     ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
+    ///     using namespace iox;
     ///
     ///     int main()
     ///     {
@@ -306,7 +306,7 @@ class string final
     /// @code
     ///
     ///     #include "iox/string.hpp"
-    ///     using namespace iox::cxx;
+    ///     using namespace iox;
     ///
     ///     int main()
     ///     {
@@ -416,9 +416,9 @@ class string final
     template <typename T>
     IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& str) noexcept;
 
-    /// @brief inserts a cxx:string or char array in the range [str[0], str[count]) at position pos. The insertion fails
-    /// if the string capacity would be exceeded or pos is greater than the string size or count is greater than the
-    /// string to be inserted.
+    /// @brief inserts a iox::string or char array in the range [str[0], str[count]) at position pos. The insertion
+    /// fails if the string capacity would be exceeded or pos is greater than the string size or count is greater than
+    /// the string to be inserted.
     ///
     /// @param [in] pos position at which the string shall be inserted
     /// @param [in] str the iox::string or char array to be inserted

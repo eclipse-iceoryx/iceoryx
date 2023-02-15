@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PORT_MANAGER_HPP
 #define IOX_POSH_ROUDI_PORT_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
@@ -43,6 +42,7 @@
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/optional.hpp"
+#include "iox/type_traits.hpp"
 
 #include <mutex>
 

@@ -45,10 +45,10 @@ template <typename Callable, typename... ArgTypes>
 inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c,
                                                                                          ArgTypes... args) noexcept
 {
-    static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
+    static_assert(is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
                   "first argument");
-    static_assert(cxx::is_invocable_r<void, Callable, T*, ArgTypes...>::value,
+    static_assert(is_invocable_r<void, Callable, T*, ArgTypes...>::value,
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     return loanSample().and_then([&](auto& sample) {

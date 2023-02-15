@@ -18,11 +18,11 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_HPP
 #define IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/internal/popo/base_publisher.hpp"
 #include "iceoryx_posh/internal/popo/publisher_interface.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {

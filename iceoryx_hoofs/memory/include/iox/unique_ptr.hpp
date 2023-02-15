@@ -54,7 +54,7 @@ class unique_ptr final
   public:
     unique_ptr() = delete;
 
-    using DeleterType = void(cxx::add_const_conditionally_t<T* const, T>);
+    using DeleterType = void(add_const_conditionally_t<T* const, T>);
 
     ///
     /// @brief unique_ptr Creates a unique pointer that takes ownership of an object.

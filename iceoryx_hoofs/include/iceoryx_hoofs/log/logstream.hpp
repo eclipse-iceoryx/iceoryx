@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_LOG_LOGSTREAM_HPP
 #define IOX_HOOFS_LOG_LOGSTREAM_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
+#include "iox/type_traits.hpp"
 
 #include <string>
 
@@ -206,8 +206,7 @@ class LogStream
     ///     return stream;
     /// };
     /// @endcode
-    template <typename Callable,
-              typename = std::enable_if_t<cxx::is_invocable_r<LogStream&, Callable, LogStream&>::value>>
+    template <typename Callable, typename = std::enable_if_t<is_invocable_r<LogStream&, Callable, LogStream&>::value>>
     LogStream& operator<<(const Callable& c) noexcept;
 
     /// @brief Logging support for LogLevel

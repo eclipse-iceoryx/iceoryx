@@ -34,6 +34,7 @@ cc_library(
         "filesystem/source/*.cpp",
         "memory/source/*.cpp",
         "posix/time/source/*.cpp",
+        "primitives/source/*.cpp",
         "source/**/*.cpp",
         "time/source/*.cpp",
         "vocabulary/source/**/*.cpp",

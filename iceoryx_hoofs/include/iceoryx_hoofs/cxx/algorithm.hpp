@@ -19,7 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 #include <cstdint>
 #include <limits>

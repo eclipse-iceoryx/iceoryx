@@ -22,7 +22,7 @@
 
 // AXIVION Next Line AutosarC++19_03-A16.2.2 : Needed for Expects and Ensures macros
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 #include <type_traits>
 

@@ -40,7 +40,7 @@ inline expected<ClientSendError> Request<T>::send() noexcept
 }
 
 template <typename T>
-inline cxx::add_const_conditionally_t<RequestHeader, T>& Request<T>::getRequestHeader() noexcept
+inline add_const_conditionally_t<RequestHeader, T>& Request<T>::getRequestHeader() noexcept
 {
     return BaseType::getUserHeader();
 }

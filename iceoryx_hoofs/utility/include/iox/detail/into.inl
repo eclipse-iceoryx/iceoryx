@@ -17,8 +17,7 @@
 #define IOX_HOOFS_UTILITY_INTO_INL
 
 #include "iox/into.hpp"
-
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {
@@ -32,7 +31,7 @@ inline constexpr typename detail::extract_into_type<DestinationType>::type_t fro
 template <typename SourceType, typename DestinationType>
 inline auto FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&) noexcept
 {
-    static_assert(cxx::always_false_v<SourceType> && cxx::always_false_v<DestinationType>, "\n \
+    static_assert(always_false_v<SourceType> && always_false_v<DestinationType>, "\n \
         Conversion for the specified types is not implemented!\n \
         Please specialize 'FromImpl::fromImpl'!\n \
         -------------------------------------------------------------------------\n \

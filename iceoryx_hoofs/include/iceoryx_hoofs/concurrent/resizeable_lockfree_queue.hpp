@@ -18,7 +18,7 @@
 #define IOX_HOOFS_CONCURRENT_RESIZEABLE_LOCKFREE_QUEUE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/vector.hpp"
 
 #include <atomic>
@@ -111,8 +111,7 @@ class ResizeableLockFreeQueue : protected LockFreeQueue<ElementType, MaxCapacity
     /// @param[in]  removeHandler is a function taking an element which specifies
     ///             what to do with removed elements should the need for removal arise.
     /// @return     true if the capacity was successfully set, false otherwise
-    template <typename Function,
-              typename = typename std::enable_if<cxx::is_invocable<Function, ElementType>::value>::type>
+    template <typename Function, typename = typename std::enable_if<is_invocable<Function, ElementType>::value>::type>
     bool setCapacity(const uint64_t newCapacity, Function&& removeHandler) noexcept;
 
     /// @brief Set the capacity to a new capacity between 0 and MaxCapacity, if the capacity is reduced
