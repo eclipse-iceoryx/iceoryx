@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_TIME_UNITS_DURATION_HPP
 #define IOX_HOOFS_TIME_UNITS_DURATION_HPP
 
+#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/time.hpp" // required for QNX
@@ -354,9 +355,14 @@ class Duration
 /// @return a new Duration object
 /// @attention Since negative durations are not allowed, the duration will be clamped to 0
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : Assigning the result of a Duration multiplication with 'operator*=' to an arithmetic type is not supported
 template <typename T>
 constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
+
+/// @brief Dummy implementation with a static assert. Assigning the result of a Duration
+/// multiplication with 'operator*=' to an arithmetic type is not supported
+// AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
+template <typename T>
+constexpr T& operator*=(const T& lhs, const Duration& rhs) noexcept;
 
 /// @brief stream operator for the Duration class
 std::ostream& operator<<(std::ostream& stream, const Duration t);
