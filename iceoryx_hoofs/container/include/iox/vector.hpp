@@ -18,9 +18,9 @@
 #define IOX_HOOFS_CONTAINER_VECTOR_HPP
 
 #include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/attributes.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <algorithm>

@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_INL
 #define IOX_HOOFS_VOCABULARY_OPTIONAL_INL
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 #include "iox/optional.hpp"
 
 namespace iox

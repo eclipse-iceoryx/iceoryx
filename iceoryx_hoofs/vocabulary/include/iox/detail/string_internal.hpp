@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 #define IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 
 #include <cstdint>
 #include <cstring>

@@ -15,9 +15,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iox/attributes.hpp"
 #include "test.hpp"
 
 namespace

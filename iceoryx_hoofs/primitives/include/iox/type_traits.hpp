@@ -21,8 +21,8 @@
 #include <cstdint>
 #include <type_traits>
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/attributes.hpp"
 
 namespace iox
 {

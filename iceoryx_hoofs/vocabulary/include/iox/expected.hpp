@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_EXPECTED_HPP
 #define IOX_HOOFS_VOCABULARY_EXPECTED_HPP
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 #include "iox/functional_interface.hpp"
 #include "iox/optional.hpp"
 #include "iox/variant.hpp"
