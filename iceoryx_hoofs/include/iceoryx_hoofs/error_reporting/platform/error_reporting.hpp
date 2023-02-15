@@ -1,7 +1,8 @@
-#pragma once
+#ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_ERROR_REPORTING_HPP
+#define IOX_HOOFS_ERROR_REPORTING_PLATFORM_ERROR_REPORTING_HPP
 
 // ***
-// *** TO BE IMPLEMENTED BY CLIENT
+// *** Switch between implementations at compile time
 // ***
 
 // does NOT work with tests (as they require the test handler)
@@ -14,5 +15,7 @@
 #else
 
 #include "default/error_reporting.hpp"
+
+#endif
 
 #endif

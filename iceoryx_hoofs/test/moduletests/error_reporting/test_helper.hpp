@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
+#define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
+
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
 
@@ -64,3 +67,5 @@ void runInTestThread(cxx::function_ref<void(void)> testFunction)
 
 } // namespace testing
 } // namespace iox
+
+#endif

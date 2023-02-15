@@ -1,6 +1,5 @@
-#pragma once
-
-#include <cstdint>
+#ifndef IOX_HOOFS_ERROR_REPORTING_LOCATION_HPP
+#define IOX_HOOFS_ERROR_REPORTING_LOCATION_HPP
 
 namespace iox
 {
@@ -21,3 +20,5 @@ struct SourceLocation
     {                                                                                                                  \
         __FILE__, __LINE__, __func__                                                                                   \
     }
+
+#endif

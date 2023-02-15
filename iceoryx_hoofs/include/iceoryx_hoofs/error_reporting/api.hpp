@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_HOOFS_ERROR_REPORTING_API_HPP
+#define IOX_HOOFS_ERROR_REPORTING_API_HPP
 
 #include "error_forwarding.hpp"
 #include "error_kind.hpp"
@@ -115,3 +116,5 @@
 #endif
 
 // clang-format on
+
+#endif

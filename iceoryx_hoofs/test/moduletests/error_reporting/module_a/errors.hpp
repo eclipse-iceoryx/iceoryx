@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_A_ERRORS_HPP
+#define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_MODULE_A_ERRORS_HPP
 
 // ***
 // *** TO BE IMPLEMENTED BY CLIENT - part of any module
@@ -39,7 +40,6 @@ class Error
         return static_cast<error_code_t>(m_code);
     }
 
-    // Contract: must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
         return errorNames[code()];
@@ -74,7 +74,6 @@ class OutOfBoundsError : public Error
 };
 
 } // namespace errors
-
 } // namespace module_a
 
 namespace iox
@@ -82,8 +81,8 @@ namespace iox
 namespace err
 {
 
-// this definition must exist in this namespace for overload resolution
-// each module must use a unqiue error enum, e.g. by namespace
+// This definition must exist in this namespace for overload resolution.
+// Each module must use a unqiue error enum, e.g. by namespace.
 inline module_a::errors::Error toError(module_a::errors::ErrorCode code)
 {
     return module_a::errors::Error(code);
@@ -91,3 +90,5 @@ inline module_a::errors::Error toError(module_a::errors::ErrorCode code)
 
 } // namespace err
 } // namespace iox
+
+#endif

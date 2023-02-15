@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_HPP
+#define IOX_HOOFS_ERROR_REPORTING_ERROR_HPP
 
 #include <cstdint>
 #include <utility>
@@ -91,3 +92,5 @@ bool equals(const E1& a, const E2& b)
 
 } // namespace err
 } // namespace iox
+
+#endif

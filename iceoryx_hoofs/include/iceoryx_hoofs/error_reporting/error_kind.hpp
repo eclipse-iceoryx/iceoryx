@@ -1,7 +1,7 @@
-#pragma once
+#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
+#define IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
 
-#include <stdint.h>
-#include <type_traits>
+#include <cstdint>
 
 namespace iox
 {
@@ -125,3 +125,5 @@ constexpr DebugAssertViolation DEBUG_ASSERT_VIOLATION;
 
 } // namespace err
 } // namespace iox
+
+#endif

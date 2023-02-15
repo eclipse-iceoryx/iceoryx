@@ -1,7 +1,5 @@
-#pragma once
-
-#ifndef IOX_HOOFS_TEST_ERROR_REPORTING_HPP
-#define IOX_HOOFS_TEST_ERROR_REPORTING_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_REPORTING_HPP
+#define IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_REPORTING_HPP
 
 #include "iceoryx_hoofs/error_reporting/error.hpp"
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"

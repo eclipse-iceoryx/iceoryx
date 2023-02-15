@@ -1,4 +1,5 @@
-#pragma once
+#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_FORWARDING_HPP
+#define IOX_HOOFS_ERROR_REPORTING_ERROR_FORWARDING_HPP
 
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
@@ -12,7 +13,10 @@ namespace iox
 {
 namespace err
 {
-
+/// @brief Forwards a fatal error and does not return.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
 template <typename Error, typename Kind>
 [[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
@@ -21,12 +25,20 @@ template <typename Error, typename Kind>
     abort();
 }
 
+/// @brief Forwards a non-fatal error.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
 template <typename Error, typename Kind>
 void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
     report(location, kind, error);
 }
 
+/// @brief Forwards a fatal or non-fatal error.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
 template <typename Error, typename Kind>
 void forwardError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
@@ -45,26 +57,36 @@ void forwardError(const SourceLocation& location, Error&& error, Kind&& kind)
     }
 }
 
-// version with message, separate overload is the efficient solution
-
+/// @brief Forwards a fatal error and a message and does not return.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
+/// @param msg the message to be forwarded
 template <typename Error, typename Kind, typename Message>
-/// @todo make noreturn once combined with fatal failure testing (longjmp)
-///[[noreturn]]
-void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
+[[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
 {
     report(location, kind, error, msg);
     panic();
 
-    // acivate later to satisfy the noreturn guarantee
-    // abort();
+    abort();
 }
 
+/// @brief Forwards a non-fatal error and a message.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
+/// @param msg the message to be forwarded
 template <typename Error, typename Kind, typename Message>
 void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
 {
     report(location, kind, error, msg);
 }
 
+/// @brief Forwards a fatal or non-fatal error and a message.
+/// @param location the location of the error
+/// @param error the error
+/// @param kind the kind of error (category)
+/// @param msg the message to be forwarded
 template <typename Error, typename Kind, typename Message>
 void forwardError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
 {
@@ -84,6 +106,9 @@ void forwardError(const SourceLocation& location, Error&& error, Kind&& kind, Me
     }
 }
 
+/// @brief Discards some generic value.
+/// @note used to suppress unused variable warnings if certain checks are disabled,
+/// the artificial use of value will be optimized away by the compiler.
 template <typename T>
 void discard(T&&)
 {
@@ -91,3 +116,5 @@ void discard(T&&)
 
 } // namespace err
 } // namespace iox
+
+#endif
