@@ -130,10 +130,7 @@ inline T& stack<T, Capacity>::getUnchecked(const uint64_t index) noexcept
 template <typename T, uint64_t Capacity>
 inline const T& stack<T, Capacity>::getUnchecked(const uint64_t index) const noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : reinterpret_cast is safe since the size and the alignment of each
-    // array element is guaranteed
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-    return *reinterpret_cast<const T*>(&m_data[index]);
+    return m_data[index];
 }
 
 template <typename T, uint64_t Capacity>
