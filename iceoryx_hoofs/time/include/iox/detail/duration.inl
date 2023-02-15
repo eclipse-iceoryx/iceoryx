@@ -474,6 +474,16 @@ inline constexpr Duration Duration::operator*(const T rhs) const noexcept
     return multiplyWith<T>(rhs);
 }
 
+template <typename T>
+inline constexpr Duration& Duration::operator*=(const T rhs) noexcept
+{
+    static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
+
+    *this = multiplyWith<T>(rhs);
+
+    return *this;
+}
+
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
 inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept

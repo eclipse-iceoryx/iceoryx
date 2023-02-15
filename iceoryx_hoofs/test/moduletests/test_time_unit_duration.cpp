@@ -2072,6 +2072,18 @@ TEST(Duration_test, MultiplyDurationMoreThanOneSecondWithFloatResultsInMoreThanO
     multiply(duration, MULTIPLICATOR, EXPECTED_DURATION);
 }
 
+TEST(Duration_test, MultiplyDurationWithSelfAssignOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ac7e2f7e-984b-4aca-a472-9dc1f1c1f30c");
+    constexpr int64_t MULTIPLICATOR{3};
+    constexpr Duration EXPECTED_DURATION{6_s + 36_ns};
+    auto duration = 2_s + 12_ns;
+
+    duration *= MULTIPLICATOR;
+
+    EXPECT_THAT(duration, Eq(EXPECTED_DURATION));
+}
+
 TEST(Duration_test, MultiplyDurationWithFractionalFloat)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3adcaec4-06fb-4ae5-a05b-70764fc00d64");

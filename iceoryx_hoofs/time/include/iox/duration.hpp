@@ -207,7 +207,7 @@ class Duration
 
     /// @brief Adds a Duration to itself. On overflow duration saturates to Duration::max().
     /// @param[in] rhs is the second summand
-    /// @return a new Duration object
+    /// @return a reference to itself
     // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr Duration& operator+=(const Duration& rhs) noexcept;
 
@@ -220,7 +220,7 @@ class Duration
 
     /// @brief Subtracts a Duration from itself. On underflow duration saturates to Duration::zero().
     /// @param[in] rhs is the subtrahend
-    /// @return a new Duration object
+    /// @return a reference to itself
     /// @attention Since negative durations are not allowed, the duration will be clamped to 0
     // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr Duration& operator-=(const Duration& rhs) noexcept;
@@ -234,9 +234,20 @@ class Duration
     /// @note There is no explicit division operator! This can be achieved by multiplication with the inverse of the
     /// divisor.
     /// @note Multiplication of a non-zero duration with NaN and +Inf results in a saturated max duration
-    // AXIVION Next Construct AutosarC++19_03-M5.17.1 : Self assignment with 'operator*=' is not supported for now
     template <typename T>
     constexpr Duration operator*(const T rhs) const noexcept;
+
+    /// @brief Multiplies a Duration with an arithmetic type and assigns the result to itself.
+    /// @tparam T is an arithmetic type for the multiplicator
+    /// @param[in] rhs is the multiplicator
+    /// @return a reference to itself
+    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
+    /// @note A duration of 0 will always result in 0, no matter if multiplied with NaN or +Inf
+    /// @note There is no explicit division operator! This can be achieved by multiplication with the inverse of the
+    /// divisor.
+    /// @note Multiplication of a non-zero duration with NaN and +Inf results in a saturated max duration
+    template <typename T>
+    constexpr Duration& operator*=(const T rhs) noexcept;
 
     // END ARITHMETIC
 
