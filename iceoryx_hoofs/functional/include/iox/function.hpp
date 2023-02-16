@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_FUNCTIONAL_FUNCTION_HPP
 #define IOX_HOOFS_FUNCTIONAL_FUNCTION_HPP
 
-#include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
+#include "iox/detail/storable_function.hpp"
 
 namespace iox
 {
@@ -26,7 +26,7 @@ constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
 /// @brief A static memory replacement for std::function
 ///        Allows storing a callable with a given signature if its size does not exceed a limit.
 ///        This limit can be adjusted by changing the Bytes parameter.
-///        In contrast to cxx::function_ref cxx::function objects own everything needed
+///        In contrast to cxx::function_ref iox::function objects own everything needed
 ///        to invoke the underlying callable and can be safely stored.
 ///        They also support copy and move semantics in natural way
 ///        by copying or moving the underlying callable.
@@ -43,7 +43,7 @@ constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
 ///
 
 template <typename Signature, uint64_t Capacity = DEFAULT_FUNCTION_CAPACITY>
-using function = cxx::storable_function<Capacity, Signature>;
+using function = storable_function<Capacity, Signature>;
 
 } // namespace iox
 
