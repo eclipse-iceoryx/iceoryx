@@ -21,4 +21,9 @@
 #include <gtest/gtest.h>
 #include <memory>
 
+// defensive checks (IOX_ASSUME, IOX_PRECONDITION) are active during testing
+/// @todo this is preferably configured in cmake
+#define IOX_CHECK_PRECONDITIONS
+#define IOX_CHECK_ASSUMPTIONS
+
 #endif // IOX_HOOFS_TEST_TEST_HPP

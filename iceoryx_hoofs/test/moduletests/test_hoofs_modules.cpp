@@ -17,7 +17,6 @@
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
-#define IOX_DEBUG // defensive checks (DEBUG_ASSERT, PRECOND) are active
 #include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
 
 #include "test.hpp"
@@ -37,9 +36,6 @@ int main(int argc, char* argv[])
 
     iox::err::TestErrorHandler testHandler;
     iox::err::ErrorHandler::set(testHandler);
-
-    auto& h = iox::err::ErrorHandler::get();
-    std::cerr << "TESTHANDLER " << &h << std::endl;
 
     g_argc = argc;
     g_argv = argv;

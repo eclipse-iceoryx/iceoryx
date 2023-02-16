@@ -1,5 +1,3 @@
-#define IOX_DEBUG // defensive checks (IOX_ASSUME, IOX_PRECONDITION) are active
-
 #include "test.hpp"
 #include <gtest/gtest.h>
 

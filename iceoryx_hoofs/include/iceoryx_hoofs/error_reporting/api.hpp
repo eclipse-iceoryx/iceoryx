@@ -72,10 +72,10 @@
 // Instead a special internal error type is used.
 // If required, a custom error option can be added but for now location should be sufficient.
 
-/// @brief in debug mode only: report fatal error if expr evaluates to false
+/// @brief if enabled: report fatal error if expr evaluates to false
 /// @param expr boolean expression that must hold upon entry of the function it appears in
 /// @param message message to be logged in case of violation
-#ifdef IOX_DEBUG
+#ifdef IOX_CHECK_PRECONDITIONS
 #define IOX_PRECONDITION(expr, message)                                                                                \
     do                                                                                                                 \
     {                                                                                                                  \
@@ -95,11 +95,11 @@
     } while (false)
 #endif
 
-/// @brief in debug mode only: report fatal error if expr evaluates to false
+/// @brief if enabled: report fatal error if expr evaluates to false
 /// @note for conditions that should not happen with correct use
 /// @param expr boolean expression that must hold
 /// @param message message to be logged in case of violation
-#ifdef IOX_DEBUG
+#ifdef IOX_CHECK_ASSUMPTIONS
 #define IOX_ASSUME(expr, message)                                                                                      \
     do                                                                                                                 \
     {                                                                                                                  \
