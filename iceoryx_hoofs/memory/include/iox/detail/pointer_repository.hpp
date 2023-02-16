@@ -23,8 +23,6 @@
 
 namespace iox
 {
-namespace memory
-{
 constexpr uint64_t MAX_POINTER_REPO_CAPACITY{10000U};
 
 /// @brief Allows registration of memory segments with their start pointers and size.
@@ -109,9 +107,8 @@ class PointerRepository final
 
     bool addPointerIfIdIsFree(const id_t id, const ptr_t ptr, const uint64_t size) noexcept;
 };
-} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/memory/pointer_repository.inl"
+#include "iox/detail/pointer_repository.inl"
 
 #endif // IOX_HOOFS_MEMORY_POINTER_REPOSITORY_HPP

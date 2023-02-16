@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 
-#include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
+#include "iox/detail/pointer_repository.hpp"
 #include "iox/newtype.hpp"
 
 #include <cstdint>
