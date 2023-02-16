@@ -18,12 +18,18 @@
 
 #include "iox/algorithm.hpp"
 #include "iox/optional.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
+
+// Due to 'pop' returning an 'iox::optional'
+template <typename T>
+using is_storable_in_iox_stack_t = typename std::is_move_constructible<T>::type;
+
 // AXIVION Next Construct AutosarC++19_03-A12.1.1 : it is guaranteed that the array elements are initialized before read
 // access
 // AXIVION Next Construct AutosarC++19_03-A9.6.1 : false positive since no bit-fields are involved
@@ -34,6 +40,8 @@ template <typename T, uint64_t Capacity>
 class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 {
   public:
+    static_assert(is_storable_in_iox_stack_t<T>::value, "T has to be move constructible");
+
     stack() noexcept = default;
     stack(const stack& rhs) noexcept;
     stack(stack&& rhs) noexcept;
