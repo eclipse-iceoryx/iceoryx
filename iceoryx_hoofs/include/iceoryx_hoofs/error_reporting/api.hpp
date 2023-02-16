@@ -3,6 +3,7 @@
 
 #include "error_forwarding.hpp"
 #include "error_kind.hpp"
+#include "platform/error_reporting.hpp"
 
 // clang-format on
 
@@ -19,7 +20,11 @@
 /// @brief calls panic handler and does not return
 /// @param msg optional message string literal
 /// @note could actually throw if desired without breaking control flow asssumptions
-#define IOX_PANIC(...) do { iox::err::panic(__VA_ARGS__); } while(false)
+#define IOX_PANIC(...)                                                                                                 \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        iox::err::panic(CURRENT_SOURCE_LOCATION);                                                                      \
+    } while (false)
 
 /// @brief report error of some kind
 /// @param error error object (or code)

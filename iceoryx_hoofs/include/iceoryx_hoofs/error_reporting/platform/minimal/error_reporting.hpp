@@ -44,13 +44,13 @@ inline void report(const SourceLocation&, iox::err::DebugAssertViolation, const 
 }
 
 /// @brief react on panic (non-recoverable)
-[[noreturn]] inline void panic()
+[[noreturn]] inline void panic(const SourceLocation&)
 {
     std::abort();
 }
 
 /// @brief react on panic with additional message (non-recoverable)
-[[noreturn]] inline void panic(const char* msg)
+[[noreturn]] inline void panic(const SourceLocation&, const char* msg)
 {
     // deliberately do not use logger in minimal version
     std::cerr << msg << std::endl;

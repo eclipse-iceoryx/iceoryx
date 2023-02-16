@@ -15,8 +15,10 @@
 /// @param location the location of the error
 #define IOX_LOG_FATAL_ERROR(location)                                                                                  \
     IOX_LOG_INTERNAL(location.file, location.line, location.function, iox::log::LogLevel::FATAL)                       \
-        << location.file << " line " << location.line
+        << location.file << " line " << location.line << ": "
 
-#define IOX_LOG_PANIC() IOX_LOG(FATAL)
+/// @brief Log a panic invocation.
+/// @param location the location of the panic invocation.
+#define IOX_LOG_PANIC(location) IOX_LOG_FATAL_ERROR(location)
 
 #endif

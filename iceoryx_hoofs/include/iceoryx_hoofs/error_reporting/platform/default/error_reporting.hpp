@@ -23,17 +23,17 @@ namespace err
 // This adds an additional indirection but is required for testing or switching handlers
 // during operation (this must be done very carefully and is not recommended).
 
-inline void panic()
+inline void panic(const SourceLocation& location)
 {
-    IOX_LOG_PANIC() << "Panic";
+    IOX_LOG_PANIC(location) << "Panic";
     auto& h = ErrorHandler::get();
     h.panic();
 }
 
-inline void panic(const char* msg)
+inline void panic(const SourceLocation& location, const char* msg)
+// inline void panic(const SourceLocation& location, const char* msg)
 {
-    // TODO: propagate location to this call
-    IOX_LOG_PANIC() << "Panic " << msg;
+    IOX_LOG_PANIC(location) << "Panic " << msg;
     auto& h = ErrorHandler::get();
     h.panic();
 }
@@ -60,9 +60,7 @@ template <class Error, class Message>
 inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
-    /// @todo we want to log the type of error (Preconditon violation) in the same line but
-    /// but this does not work here
-    IOX_LOG_FATAL_ERROR(location) << std::forward<Message>(msg);
+    IOX_LOG_FATAL_ERROR(location) << ": Precondition Violation " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.report(location, code);
 }
@@ -71,9 +69,7 @@ template <class Error, class Message>
 inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
-    /// @todo we want to log the type of error (Debug assert violation) in the same line but
-    /// but this does not work here
-    IOX_LOG_FATAL_ERROR(location) << std::forward<Message>(msg);
+    IOX_LOG_FATAL_ERROR(location) << ": Debug Assert Violation " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.report(location, code);
 }

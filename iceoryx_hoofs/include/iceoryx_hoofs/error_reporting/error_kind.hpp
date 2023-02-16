@@ -2,6 +2,7 @@
 #define IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
 
 #include <cstdint>
+#include <type_traits>
 
 namespace iox
 {

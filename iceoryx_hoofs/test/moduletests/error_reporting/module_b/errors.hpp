@@ -88,6 +88,12 @@ inline module_b::errors::Error toError(module_b::errors::ErrorCode code)
     return module_b::errors::Error(code);
 }
 
+// Any error code of this enum has the same module id.
+inline module_id_t toModule(module_b::errors::ErrorCode)
+{
+    return module_b::errors::Error::MODULE_ID;
+}
+
 } // namespace err
 } // namespace iox
 

@@ -21,7 +21,7 @@ template <typename Error, typename Kind>
 [[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
     report(location, kind, error);
-    panic();
+    panic(location);
     abort();
 }
 
@@ -66,7 +66,7 @@ template <typename Error, typename Kind, typename Message>
 [[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
 {
     report(location, kind, error, msg);
-    panic();
+    panic(location);
 
     abort();
 }

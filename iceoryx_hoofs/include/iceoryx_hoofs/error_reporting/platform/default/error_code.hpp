@@ -12,9 +12,6 @@ namespace iox
 namespace err
 {
 
-// forward declaration
-void panic();
-
 // Specialization for expected
 // Can be done for other generic error types (e.g. monads)
 // overload for expected, but this will not work at a polymorphic level (we need a base class)
@@ -23,8 +20,8 @@ inline error_code_t toCode(const iox::cxx::expected<T, Error>& exp)
 {
     if (!exp.has_error())
     {
-        // not allowed
-        panic();
+        // not allowed, we cannot properly continue
+        IOX_LOG(FATAL) << " Fatal Error - reported expected with a value";
         std::abort();
     }
     return toCode(exp.get_error());
@@ -35,8 +32,8 @@ inline error_code_t toModule(const iox::cxx::expected<T, Error>& exp)
 {
     if (!exp.has_error())
     {
-        // not allowed
-        panic();
+        // not allowed, we cannot properly continue
+        IOX_LOG(FATAL) << " Fatal Error - reported expected with a value";
         std::abort();
     }
     return toModule(exp.get_error());

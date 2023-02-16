@@ -26,6 +26,12 @@ class Violation
     {
     }
 
+    Violation(error_code_t code, module_id_t module)
+        : m_code(code)
+        , m_module(module)
+    {
+    }
+
     error_code_t code() const
     {
         return m_code;
@@ -33,7 +39,7 @@ class Violation
 
     module_id_t module()
     {
-        return ANY_MODULE;
+        return m_module;
     }
 
     // Contract: must return a pointer to data segment (no dynamic memory)
@@ -44,6 +50,7 @@ class Violation
 
   public:
     error_code_t m_code{DEBUG_ASSERT_VIOLATION_CODE};
+    module_id_t m_module{ANY_MODULE};
 
     static constexpr const char* NAME = "Violation";
 };
