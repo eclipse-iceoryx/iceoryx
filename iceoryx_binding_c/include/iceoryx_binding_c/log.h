@@ -29,6 +29,9 @@ enum iox_LogLevel
     Iceoryx_LogLevel_Fatal
 };
 
+/// @deprecated Will be removed with iceoryx 4.0. This define is required for Cyclone DDS.
+#define Iceoryx_LogLevel_Verbose Iceoryx_LogLevel_Trace
+
 /// @brief set the log level of the iceoryx runtime
 /// @param[in] level log level to be set
 /// @note must be called before the runtime is initialized
