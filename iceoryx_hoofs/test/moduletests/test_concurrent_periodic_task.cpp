@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iox/function.hpp"
 
 #include "test.hpp"
 
@@ -217,7 +217,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
     {
-        concurrent::PeriodicTask<cxx::function<void()>> sut(
+        concurrent::PeriodicTask<function<void()>> sut(
             PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);

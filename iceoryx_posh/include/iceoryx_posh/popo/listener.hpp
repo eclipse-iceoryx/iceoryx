@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/expected.hpp"
+#include "iox/function.hpp"
 
 #include <thread>
 
@@ -50,7 +50,7 @@ class Event_t
               const uint64_t eventTypeHash,
               internal::GenericCallbackRef_t callback,
               internal::TranslationCallbackRef_t translationCallback,
-              const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
+              const function<void(uint64_t)> invalidationCallback) noexcept;
     void executeCallback() noexcept;
     bool isInitialized() const noexcept;
 
@@ -66,7 +66,7 @@ class Event_t
     void* m_userType = nullptr;
 
     uint64_t m_eventId = INVALID_ID;
-    cxx::function<void(uint64_t)> m_invalidationCallback = [](auto) {};
+    function<void(uint64_t)> m_invalidationCallback = [](auto) {};
 };
 } // namespace internal
 
@@ -180,7 +180,7 @@ class ListenerImpl
                                                const uint64_t eventTypeHash,
                                                internal::GenericCallbackRef_t callback,
                                                internal::TranslationCallbackRef_t translationCallback,
-                                               const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
+                                               const function<void(uint64_t)> invalidationCallback) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 

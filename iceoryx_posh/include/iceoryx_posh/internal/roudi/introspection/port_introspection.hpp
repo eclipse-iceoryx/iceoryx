@@ -18,11 +18,11 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
 #include "fixed_size_container.hpp"
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/function.hpp"
 
 #include <atomic>
 #include <mutex>
@@ -317,7 +317,7 @@ class PortIntrospection
     PortData m_portData;
 
     units::Duration m_sendInterval{units::Duration::fromSeconds(1U)};
-    concurrent::PeriodicTask<cxx::function<void()>> m_publishingTask{
+    concurrent::PeriodicTask<function<void()>> m_publishingTask{
         concurrent::PeriodicTaskManualStart, "PortIntr", *this, &PortIntrospection::send};
 };
 

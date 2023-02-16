@@ -17,6 +17,7 @@
 #include "iceoryx_dust/internal/cli/option_definition.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iox/function.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
 
@@ -53,7 +54,7 @@ class OptionDefinition_test : public Test
     }
 
     uint64_t numberOfErrorCallbackCalls = 0U;
-    iox::cxx::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
+    iox::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
     static Argument_t defaultValue;
 };
 Argument_t OptionDefinition_test::defaultValue = "DEFAULT VALUE";

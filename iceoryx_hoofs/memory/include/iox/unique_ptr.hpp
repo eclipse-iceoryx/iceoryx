@@ -18,8 +18,8 @@
 #ifndef IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 #define IOX_HOOFS_MEMORY_UNIQUE_PTR_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/function.hpp"
 #include <memory>
 
 namespace iox
@@ -63,7 +63,7 @@ class unique_ptr final
     /// @param object The pointer to the object to be managed.
     /// @param deleter The deleter function for cleaning up the managed object.
     ///
-    unique_ptr(T* const object, const cxx::function<DeleterType>& deleter) noexcept;
+    unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept;
 
     unique_ptr(const unique_ptr& other) = delete;
     unique_ptr& operator=(const unique_ptr&) = delete;
@@ -119,7 +119,7 @@ class unique_ptr final
 
   private:
     T* m_ptr{nullptr};
-    cxx::function<DeleterType> m_deleter;
+    function<DeleterType> m_deleter;
 };
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Parameters are explicitly not identical to compare two unique_ptr's

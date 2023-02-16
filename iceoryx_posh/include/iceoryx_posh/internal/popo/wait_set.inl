@@ -119,7 +119,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
         }
     }
 
-    cxx::function<void(uint64_t)> invalidationCallback = NotificationAttorney::getInvalidateTriggerMethod(eventOrigin);
+    function<void(uint64_t)> invalidationCallback = NotificationAttorney::getInvalidateTriggerMethod(eventOrigin);
     auto index = m_indexRepository.pop();
     if (!index)
     {

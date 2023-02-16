@@ -66,6 +66,9 @@
 ./iceoryx_hoofs/filesystem/**/*
 ./iceoryx_hoofs/test/moduletests/test_filesystem_*
 
+./iceoryx_hoofs/functional/**/*
+./iceoryx_hoofs/test/moduletests/test_functional_*
+
 # IMPORTANT:
 #    after the first # everything is considered a comment, add new files and
 #    directories only at the top of this file

@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_TRIGGER_HPP
 #define IOX_POSH_POPO_TRIGGER_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_posh/popo/notification_callback.hpp"
 #include "iceoryx_posh/popo/notification_info.hpp"
+#include "iox/function.hpp"
 
 namespace iox
 {
@@ -72,8 +72,8 @@ class Trigger
     template <typename T, typename UserType>
     Trigger(StateBasedTrigger_t,
             T* const stateOrigin,
-            const cxx::function<bool()>& hasTriggeredCallback,
-            const cxx::function<void(uint64_t)>& resetCallback,
+            const function<bool()>& hasTriggeredCallback,
+            const function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
@@ -94,7 +94,7 @@ class Trigger
     template <typename T, typename UserType>
     Trigger(EventBasedTrigger_t,
             T* const notificationOrigin,
-            const cxx::function<void(uint64_t)>& resetCallback,
+            const function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, UserType>& callback,
             const uint64_t uniqueId,
@@ -147,8 +147,8 @@ class Trigger
   private:
     template <typename T, typename ContextDataType>
     Trigger(T* const notificationOrigin,
-            const cxx::function<bool()>& hasTriggeredCallback,
-            const cxx::function<void(uint64_t)>& resetCallback,
+            const function<bool()>& hasTriggeredCallback,
+            const function<void(uint64_t)>& resetCallback,
             const uint64_t notificationId,
             const NotificationCallback<T, ContextDataType>& callback,
             const uint64_t uniqueId,
@@ -159,8 +159,8 @@ class Trigger
   private:
     NotificationInfo m_notificationInfo;
 
-    cxx::function<bool()> m_hasTriggeredCallback;
-    cxx::function<void(uint64_t)> m_resetCallback;
+    function<bool()> m_hasTriggeredCallback;
+    function<void(uint64_t)> m_resetCallback;
     uint64_t m_uniqueId = INVALID_TRIGGER_ID;
 
     TriggerType m_triggerType = TriggerType::STATE_BASED;

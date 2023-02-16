@@ -53,9 +53,9 @@ NotificationAttorney::getCallbackForIsStateConditionSatisfied(T& eventOrigin, Ta
 }
 
 template <typename T>
-inline cxx::function<void(uint64_t)> NotificationAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
+inline function<void(uint64_t)> NotificationAttorney::getInvalidateTriggerMethod(T& eventOrigin) noexcept
 {
-    return cxx::function<void(uint64_t)>(eventOrigin, static_cast<void (T::*)(uint64_t)>(&T::invalidateTrigger));
+    return function<void(uint64_t)>(eventOrigin, static_cast<void (T::*)(uint64_t)>(&T::invalidateTrigger));
 }
 
 } // namespace popo

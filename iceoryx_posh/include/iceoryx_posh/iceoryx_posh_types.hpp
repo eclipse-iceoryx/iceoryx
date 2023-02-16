@@ -18,13 +18,13 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iox/duration.hpp"
+#include "iox/function.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
@@ -99,7 +99,7 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = build::IOX_MAX_REQUEST_QUEUE_CAP
 // Waitset
 namespace popo
 {
-using WaitSetIsConditionSatisfiedCallback = optional<cxx::function<bool()>>;
+using WaitSetIsConditionSatisfiedCallback = optional<function<bool()>>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = build::IOX_MAX_NUMBER_OF_CONDITION_VARIABLES;
 

@@ -18,6 +18,7 @@
 #include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iox/function.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
 
@@ -53,7 +54,7 @@ class CommandLineParser_test : public Test
     }
 
     uint64_t numberOfErrorCallbackCalls = 0U;
-    iox::cxx::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
+    iox::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
     static Argument_t defaultValue;
 };
 Argument_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";

@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/function.hpp"
 
 #include <iostream>
 
@@ -92,7 +92,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
-    cxx::function<void(acl_t)> freeACL = [&](acl_t acl) {
+    function<void(acl_t)> freeACL = [&](acl_t acl) {
         auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         /// NOLINTJUSTIFICATION @todo iox-#1032 will be replaced with refactored error handling

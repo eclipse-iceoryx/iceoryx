@@ -39,7 +39,7 @@ cc_library(
         "time/source/*.cpp",
         "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [
@@ -47,6 +47,7 @@ cc_library(
         "container/include/",
         "design/include",
         "filesystem/include",
+        "functional/include",
         "include/",
         "legacy/include/",
         "memory/include/",
