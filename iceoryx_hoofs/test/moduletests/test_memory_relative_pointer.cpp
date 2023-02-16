@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
+#include "iox/relative_pointer.hpp"
 #include "test.hpp"
 
 #include <cstdint>
@@ -24,7 +24,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::memory;
+using namespace iox;
 
 constexpr uint64_t SHARED_MEMORY_SIZE = 4096UL * 32UL;
 constexpr uint64_t NUMBER_OF_MEMORY_PARTITIONS = 2U;

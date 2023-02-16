@@ -41,7 +41,7 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
     // this is only necessary if it's not an empty chunk
     if (chunk)
     {
-        memory::RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
+        RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
         cxx::Ensures(id <= memory::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
@@ -59,8 +59,8 @@ SharedChunk ShmSafeUnmanagedChunk::releaseToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt = memory::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
-                                                                     memory::segment_id_t{m_chunkManagement.id()});
+    auto chunkMgmt =
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
     m_chunkManagement.reset();
     return SharedChunk(chunkMgmt.get());
 }
@@ -71,8 +71,8 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
     {
         return SharedChunk();
     }
-    auto chunkMgmt = memory::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
-                                                                     memory::segment_id_t{m_chunkManagement.id()});
+    auto chunkMgmt =
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
     chunkMgmt->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
     return SharedChunk(chunkMgmt.get());
 }
@@ -88,8 +88,8 @@ ChunkHeader* ShmSafeUnmanagedChunk::getChunkHeader() noexcept
     {
         return nullptr;
     }
-    auto chunkMgmt = memory::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
-                                                                     memory::segment_id_t{m_chunkManagement.id()});
+    auto chunkMgmt =
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
     return chunkMgmt->m_chunkHeader.get();
 }
 
@@ -105,8 +105,8 @@ bool ShmSafeUnmanagedChunk::isNotLogicalNullptrAndHasNoOtherOwners() const noexc
         return false;
     }
 
-    auto chunkMgmt = memory::RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(),
-                                                                     memory::segment_id_t{m_chunkManagement.id()});
+    auto chunkMgmt =
+        RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
     return chunkMgmt->m_referenceCounter.load(std::memory_order_relaxed) == 1U;
 }
 

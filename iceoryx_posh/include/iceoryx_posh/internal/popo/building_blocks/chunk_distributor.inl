@@ -54,7 +54,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_
     const auto alreadyKnownReceiver =
         std::find_if(getMembers()->m_queues.begin(),
                      getMembers()->m_queues.end(),
-                     [&](const memory::RelativePointer<ChunkQueueData_t> queue) { return queue.get() == queueToAdd; });
+                     [&](const RelativePointer<ChunkQueueData_t> queue) { return queue.get() == queueToAdd; });
 
     // check if the queue is not already in the list
     if (alreadyKnownReceiver == getMembers()->m_queues.end())
@@ -63,7 +63,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_
         {
             // AXIVION Next Construct AutosarC++19_03-A0.1.2, AutosarC++19_03-M0-3-2 : we checked the capacity, so
             // pushing will be fine
-            getMembers()->m_queues.push_back(memory::RelativePointer<ChunkQueueData_t>(queueToAdd));
+            getMembers()->m_queues.push_back(RelativePointer<ChunkQueueData_t>(queueToAdd));
 
             const auto currChunkHistorySize = getMembers()->m_history.size();
 
@@ -179,8 +179,7 @@ inline uint64_t ChunkDistributor<ChunkDistributorDataType>::deliverToAllStoredQu
             //          and without this intersection we would deliver to dead queues
             typename MemberType_t::LockGuard_t lock(*getMembers());
             typename ChunkDistributorDataType::QueueContainer_t queueIntersection(remainingQueues.size());
-            auto greaterThan = [](memory::RelativePointer<ChunkQueueData_t>& a,
-                                  memory::RelativePointer<ChunkQueueData_t>& b) -> bool {
+            auto greaterThan = [](RelativePointer<ChunkQueueData_t>& a, RelativePointer<ChunkQueueData_t>& b) -> bool {
                 return reinterpret_cast<uint64_t>(a.get()) > reinterpret_cast<uint64_t>(b.get());
             };
             std::sort(getMembers()->m_queues.begin(), getMembers()->m_queues.end(), greaterThan);

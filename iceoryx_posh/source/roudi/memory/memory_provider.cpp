@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/memory.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {
@@ -83,7 +83,7 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    auto maybeSegmentId = memory::UntypedRelativePointer::registerPtr(m_memory, m_size);
+    auto maybeSegmentId = UntypedRelativePointer::registerPtr(m_memory, m_size);
 
     if (!maybeSegmentId.has_value())
     {
@@ -125,7 +125,7 @@ expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        memory::UntypedRelativePointer::unregisterPtr(memory::segment_id_t{m_segmentId});
+        UntypedRelativePointer::unregisterPtr(segment_id_t{m_segmentId});
         m_memory = nullptr;
         m_size = 0U;
     }

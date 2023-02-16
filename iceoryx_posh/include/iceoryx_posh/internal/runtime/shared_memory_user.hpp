@@ -18,10 +18,10 @@
 #define IOX_POSH_RUNTIME_SHARED_MEMORY_USER_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
+#include "iox/relative_pointer.hpp"
 #include "iox/vector.hpp"
 
 
@@ -40,11 +40,11 @@ class SharedMemoryUser
     /// address space
     SharedMemoryUser(const size_t topicSize,
                      const uint64_t segmentId,
-                     const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                     const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     void openDataSegments(const uint64_t segmentId,
-                          const memory::UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
+                          const UntypedRelativePointer::offset_t segmentManagerAddressOffset) noexcept;
 
   private:
     optional<posix::SharedMemoryObject> m_shmObject;

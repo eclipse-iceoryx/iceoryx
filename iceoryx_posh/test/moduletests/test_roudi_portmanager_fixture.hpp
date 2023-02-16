@@ -105,7 +105,7 @@ class PortManager_test : public Test
     {
         delete m_portManager;
         delete m_roudiMemoryManager;
-        iox::memory::UntypedRelativePointer::unregisterAll();
+        iox::UntypedRelativePointer::unregisterAll();
     }
 
     void addInternalPublisherOfPortManagerToVector()

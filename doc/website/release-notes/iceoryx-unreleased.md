@@ -501,7 +501,7 @@
     }
     ```
 
-21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and moved it from namespace `rp::` to `memory::`
+21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and removed it from namespace `rp::`
 
     ```cpp
     // before
@@ -509,8 +509,8 @@
     iox::rp::BaseRelativePointer myUntypedRelativePointer;
 
     // after
-    #include "iceoryx_hoofs/memory/relative_pointer.hpp"
-    iox::memory::UntypedRelativePointer myUntypedRelativePointer;
+    #include "iox/relative_pointer.hpp"
+    iox::UntypedRelativePointer myUntypedRelativePointer;
     ```
 
 22. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
