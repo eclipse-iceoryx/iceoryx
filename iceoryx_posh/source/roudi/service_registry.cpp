@@ -141,7 +141,7 @@ void ServiceRegistry::purge(const capro::ServiceDescription& serviceDescription)
 void ServiceRegistry::find(const optional<capro::IdString_t>& service,
                            const optional<capro::IdString_t>& instance,
                            const optional<capro::IdString_t>& event,
-                           cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
+                           function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
     {
@@ -172,7 +172,7 @@ uint32_t ServiceRegistry::findIndex(const capro::ServiceDescription& serviceDesc
     return NO_INDEX;
 }
 
-void ServiceRegistry::forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
+void ServiceRegistry::forEach(function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept
 {
     for (auto& entry : m_serviceDescriptions)
     {

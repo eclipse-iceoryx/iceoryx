@@ -17,8 +17,8 @@
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A16.2.3 : <type_traits> is included through "type_traits.hpp"
 
-#ifndef IOX_HOOFS_CXX_FUNCTION_REF_HPP
-#define IOX_HOOFS_CXX_FUNCTION_REF_HPP
+#ifndef IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_HPP
+#define IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_HPP
 
 // AXIVION Next Line AutosarC++19_03-A16.2.2 : Needed for Expects and Ensures macros
 #include "iceoryx_hoofs/cxx/requires.hpp"
@@ -27,8 +27,6 @@
 #include <type_traits>
 
 namespace iox
-{
-namespace cxx
 {
 template <typename SignatureType>
 class function_ref;
@@ -40,7 +38,7 @@ template <typename T1, typename T2>
 using has_same_decayed_type = typename std::
     integral_constant<bool, bool(std::is_same<typename std::decay<T1>::type, typename std::decay<T2>::type>::value)>;
 
-/// @brief cxx::function_ref is a non-owning reference to a callable.
+/// @brief iox::function_ref is a non-owning reference to a callable.
 ///
 ///        It has these features:
 ///         * No heap usage
@@ -50,7 +48,7 @@ using has_same_decayed_type = typename std::
 ///
 /// @code
 ///         // Usage as function parameter
-///         void fuu(cxx::function_ref<void()> callback)
+///         void fuu(iox::function_ref<void()> callback)
 ///         {
 ///             callback();
 ///         }
@@ -60,7 +58,7 @@ using has_same_decayed_type = typename std::
 ///         // Usage with l-values
 ///         // Pitfall: Ensure that lifetime of callable suits the point in time of calling callback()
 ///         auto callable = [&]{ doSomething(); };
-///         cxx::function_ref<void()> callback(callable);
+///         iox::function_ref<void()> callback(callable);
 ///         // Call the callback
 ///         callback();
 /// @endcode
@@ -114,10 +112,9 @@ class function_ref<ReturnType(ArgTypes...)> final
 template <class ReturnType, class... ArgTypes>
 void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<ReturnType(ArgTypes...)>& rhs) noexcept;
 
-} // namespace cxx
 } // namespace iox
 
 // AXIVION Next Line AutosarC++19_03-M16.0.1 : Include needed to split template declaration and definition
-#include "iceoryx_hoofs/internal/cxx/function_ref.inl"
+#include "iox/detail/function_ref.inl"
 
-#endif // IOX_HOOFS_CXX_FUNCTION_REF_HPP
+#endif // IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_HPP

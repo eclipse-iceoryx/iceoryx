@@ -26,7 +26,7 @@ constexpr uint64_t DEFAULT_FUNCTION_CAPACITY{128U};
 /// @brief A static memory replacement for std::function
 ///        Allows storing a callable with a given signature if its size does not exceed a limit.
 ///        This limit can be adjusted by changing the Bytes parameter.
-///        In contrast to cxx::function_ref iox::function objects own everything needed
+///        In contrast to iox::function_ref iox::function objects own everything needed
 ///        to invoke the underlying callable and can be safely stored.
 ///        They also support copy and move semantics in natural way
 ///        by copying or moving the underlying callable.

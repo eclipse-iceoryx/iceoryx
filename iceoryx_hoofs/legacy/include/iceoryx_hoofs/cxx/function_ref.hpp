@@ -14,24 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_STORABLE_FUNCTION_HPP
-#define IOX_HOOFS_STORABLE_FUNCTION_HPP
+#ifndef IOX_HOOFS_CXX_FUNCTION_REF_HPP
+#define IOX_HOOFS_CXX_FUNCTION_REF_HPP
 
-#include "iox/detail/storable_function.hpp"
+#include "iox/function_ref.hpp"
 
 namespace iox
 {
 /// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/storable_function.hpp' instead")]]
+/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/function_ref.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::signature` instead of `iox::cxx::signature`
-using iox::signature;
+/// @deprecated use `iox::function_ref` instead of `iox::cxx::function_ref`
+using iox::function_ref;
 
-/// @deprecated use `iox::storable_function` instead of `iox::cxx::storable_function`
-using iox::storable_function;
+/// @deprecated use `iox::has_same_decayed_type` instead of `iox::cxx::has_same_decayed_type`
+using iox::has_same_decayed_type;
 
 } // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_STORABLE_FUNCTION_HPP
+#endif // IOX_HOOFS_CXX_FUNCTION_REF_HPP

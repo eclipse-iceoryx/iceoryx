@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CXX_SCOPE_GUARD_HPP
 #define IOX_HOOFS_CXX_SCOPE_GUARD_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iox/function.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 
 namespace iox

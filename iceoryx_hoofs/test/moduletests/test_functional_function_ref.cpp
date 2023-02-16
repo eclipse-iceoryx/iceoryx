@@ -15,16 +15,16 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/attributes.hpp"
+#include "iox/function_ref.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 using namespace iox::testing;
 
 constexpr int FREE_FUNC_TEST_VALUE = 42 + 42;
@@ -259,7 +259,7 @@ TEST_F(function_refTest, StoreInStdFunctionResultEqual)
     ::testing::Test::RecordProperty("TEST_ID", "99d9ac22-dddb-44fc-a80b-fe559f6acf63");
     auto lambda = []() -> int { return 37; };
     function_ref<int()> moep(lambda);
-    // Moves cxx::function_ref into std::function, needs copy c'tor
+    // Moves iox::function_ref into std::function, needs copy c'tor
     std::function<int()> sut(moep);
     EXPECT_THAT(sut(), Eq(37));
 }

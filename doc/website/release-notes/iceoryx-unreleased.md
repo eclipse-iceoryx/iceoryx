@@ -86,7 +86,7 @@
   to increase comprehension and cover more test cases
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
 - Replace `MethodCallback` with `iox::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
-- Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Remove null-ability `iox::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Remove implicit conversion from `iox::expected` to `iox::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
 - `SignalHandler` returns an `iox::expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)

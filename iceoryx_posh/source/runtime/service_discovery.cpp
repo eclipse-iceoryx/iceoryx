@@ -37,7 +37,7 @@ void ServiceDiscovery::update()
 void ServiceDiscovery::findService(const optional<capro::IdString_t>& service,
                                    const optional<capro::IdString_t>& instance,
                                    const optional<capro::IdString_t>& event,
-                                   const cxx::function_ref<void(const capro::ServiceDescription&)>& callableForEach,
+                                   const function_ref<void(const capro::ServiceDescription&)>& callableForEach,
                                    const popo::MessagingPattern pattern) noexcept
 {
     update();

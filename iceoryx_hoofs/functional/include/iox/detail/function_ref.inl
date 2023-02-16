@@ -15,17 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_FUNCTION_REF_INL
-#define IOX_HOOFS_CXX_FUNCTION_REF_INL
+#ifndef IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_INL
+#define IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_INL
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/function_ref.hpp"
 
 #include <memory>
 
 namespace iox
-{
-namespace cxx
 {
 template <class ReturnType, class... ArgTypes>
 template <typename CallableType, typename>
@@ -115,7 +113,6 @@ inline void swap(function_ref<ReturnType(ArgTypes...)>& lhs, function_ref<Return
     lhs.swap(rhs);
 }
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_FUNCTION_REF_INL
+#endif // IOX_HOOFS_FUNCTIONAL_FUNCTION_REF_INL

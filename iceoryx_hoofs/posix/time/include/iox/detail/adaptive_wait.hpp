@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_TIME_ADAPTIVE_WAIT_HPP
 #define IOX_HOOFS_TIME_ADAPTIVE_WAIT_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iox/duration.hpp"
+#include "iox/function_ref.hpp"
 
 #include <cstdint>
 
@@ -54,7 +54,7 @@ class adaptive_wait
 
     /// @brief Waits in a loop in a smart wait until continueToWait returns false.
     /// @param[in] continueToWait callable which returns if the wait should continue
-    void wait_loop(const cxx::function_ref<bool()>& continueToWait) noexcept;
+    void wait_loop(const function_ref<bool()>& continueToWait) noexcept;
 
   protected:
     /// @note All numbers are not accurate and are just rough estimates

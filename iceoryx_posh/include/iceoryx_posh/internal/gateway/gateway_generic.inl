@@ -135,8 +135,7 @@ GatewayGeneric<channel_t, gateway_t>::findChannel(const iox::capro::ServiceDescr
 }
 
 template <typename channel_t, typename gateway_t>
-inline void
-GatewayGeneric<channel_t, gateway_t>::forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept
+inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const function_ref<void(channel_t&)> f) const noexcept
 {
     auto guardedVector = m_channels.getScopeGuard();
     for (auto channel = guardedVector->begin(); channel != guardedVector->end(); ++channel)
