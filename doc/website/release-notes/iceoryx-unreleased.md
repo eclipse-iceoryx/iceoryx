@@ -340,7 +340,7 @@
     iox::cxx::isPowerOfTwo(..);
 
     // after
-    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    #include "iox/algorithm.hpp"
     iox::greater_or_equal(..);
     iox::range(..);
     iox::BestFittingType(..);
@@ -474,7 +474,7 @@
     constexpr uint32_t MIN_VAL = algorithm::min(3, 1890, 57);
 
     // after
-    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    #include "iox/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```
@@ -642,7 +642,7 @@
 
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
-29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iox/iceoryx_hoofs_types.hpp`
 
 30. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
 

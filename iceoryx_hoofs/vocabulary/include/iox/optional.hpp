@@ -18,8 +18,8 @@
 #define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 #include "iox/functional_interface.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
@@ -31,7 +31,7 @@ namespace iox
 struct nullopt_t
 {
 };
-// AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox namespace which prevents easy
 // misuse
 constexpr nullopt_t nullopt{nullopt_t()};
 
@@ -40,7 +40,7 @@ struct in_place_t
 {
 };
 
-// AXIVION Next Construct AutosarC++19_03-M17.0.2 : in_place is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : in_place is defined within iox namespace which prevents easy
 // misuse
 constexpr in_place_t in_place{};
 
@@ -233,7 +233,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
         // is wrapped inside the optional
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-        cxx::byte_t data[sizeof(T)];
+        byte_t data[sizeof(T)];
     };
     element_t m_data;
 
@@ -243,7 +243,7 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     void destruct_value() noexcept;
 };
 
-// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox::cxx which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox which prevents easy misuse
 /// @brief Creates an optional which contains a value by forwarding the arguments
 ///         to the constructor of T.
 /// @param[in] args arguments which will be perfectly forwarded to the constructor

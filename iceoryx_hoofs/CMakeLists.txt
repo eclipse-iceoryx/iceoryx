@@ -79,9 +79,9 @@ iox_add_library(
         memory/source/memory.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
+        primitives/source/type_traits.cpp
         source/concurrent/loffli.cpp
         source/cxx/requires.cpp
-        source/cxx/type_traits.cpp
         source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp

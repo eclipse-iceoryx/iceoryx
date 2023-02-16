@@ -15,21 +15,19 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_TYPE_TRAITS_HPP
-#define IOX_HOOFS_CXX_TYPE_TRAITS_HPP
+#ifndef IOX_HOOFS_PRIMITIVES_TYPE_TRAITS_HPP
+#define IOX_HOOFS_PRIMITIVES_TYPE_TRAITS_HPP
 
 #include <cstdint>
 #include <type_traits>
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/attributes.hpp"
 
 namespace iox
 {
 template <uint64_t Capacity>
 class string;
-namespace cxx
-{
 ///
 /// @brief Conditionally add const to type T if C has the const qualifier
 /// @tparam T is the type to conditionally add the const qualifier
@@ -160,7 +158,7 @@ using void_t = void;
 template <typename T>
 struct TypeInfo
 {
-    static_assert(cxx::always_false_v<T>, "unknown type");
+    static_assert(always_false_v<T>, "unknown type");
     static constexpr const char NAME[] = "unknown type";
 };
 template <typename T>
@@ -256,7 +254,6 @@ constexpr const char TypeInfo<iox::string<N>>::NAME[];
 /// END TypeInfo
 //////////////////
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_TYPE_TRAITS_HPP
+#endif // IOX_HOOFS_PRIMITIVES_TYPE_TRAITS_HPP

@@ -18,7 +18,7 @@
 #define IOX_HOOFS_VOCABULARY_NOT_NULL_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {

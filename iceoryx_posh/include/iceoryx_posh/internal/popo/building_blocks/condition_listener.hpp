@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_LISTENER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_LISTENER_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iox/algorithm.hpp"
 
 namespace iox
 {

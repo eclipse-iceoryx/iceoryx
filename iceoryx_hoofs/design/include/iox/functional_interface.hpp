@@ -17,8 +17,8 @@
 #define IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
 
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/type_traits.hpp"
 
 #include <utility>
 
@@ -32,7 +32,7 @@ struct HasValueMethod : std::false_type
 };
 
 template <typename Derived>
-struct HasValueMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().value())>> : std::true_type
+struct HasValueMethod<Derived, void_t<decltype(std::declval<Derived>().value())>> : std::true_type
 {
 };
 
@@ -42,7 +42,7 @@ struct HasGetErrorMethod : std::false_type
 };
 
 template <typename Derived>
-struct HasGetErrorMethod<Derived, cxx::void_t<decltype(std::declval<Derived>().get_error())>> : std::true_type
+struct HasGetErrorMethod<Derived, void_t<decltype(std::declval<Derived>().get_error())>> : std::true_type
 {
 };
 
@@ -426,7 +426,7 @@ struct FunctionalInterfaceImpl<Derived, void, ErrorType>
 ///        a reference to the underlying error.
 ///
 /// @note When inheriting from this type one does not have to write additional unit tests.
-///       Instead add a factory for your class to "test_cxx_functional_interface_types.hpp",
+///       Instead add a factory for your class to "test_design_functional_interface_types.hpp",
 ///       add the type to the FunctionalInterfaceImplementations and all typed tests will be
 ///       generated.
 template <typename Derived, typename ValueType, typename ErrorType>

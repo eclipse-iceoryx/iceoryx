@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_POPO_REQUEST_HPP
 #define IOX_POSH_POPO_REQUEST_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_user.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/unique_ptr.hpp"
 
 namespace iox
@@ -36,10 +36,10 @@ class RpcInterface;
 /// These requests are sent to the server via the iceoryx system.
 template <typename T>
 class Request
-    : public SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, cxx::add_const_conditionally_t<RequestHeader, T>>
+    : public SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, add_const_conditionally_t<RequestHeader, T>>
 {
     using BaseType =
-        SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, cxx::add_const_conditionally_t<RequestHeader, T>>;
+        SmartChunk<RpcInterface<Request<T>, ClientSendError>, T, add_const_conditionally_t<RequestHeader, T>>;
 
     template <typename S, typename TT>
     using ForClientOnly = typename BaseType::template ForProducerOnly<S, TT>;
@@ -59,7 +59,7 @@ class Request
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.
-    cxx::add_const_conditionally_t<RequestHeader, T>& getRequestHeader() noexcept;
+    add_const_conditionally_t<RequestHeader, T>& getRequestHeader() noexcept;
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.

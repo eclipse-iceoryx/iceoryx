@@ -66,7 +66,7 @@ class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersVal
     iox::roudi::ConfigFilePathString_t m_configFilePath;
     void CreateTmpTomlFile(std::shared_ptr<cpptoml::table> toml)
     {
-        m_configFilePath.append(iox::cxx::TruncateToCapacity, "generated_gateway_config.toml");
+        m_configFilePath.append(iox::TruncateToCapacity, "generated_gateway_config.toml");
         std::fstream fs(iox::into<std::string>(m_configFilePath), std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {

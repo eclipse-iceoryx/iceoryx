@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_settings.hpp"
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/memory.hpp"
 
 namespace iox

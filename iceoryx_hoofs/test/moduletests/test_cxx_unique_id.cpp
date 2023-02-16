@@ -15,8 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
-
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 
 #include "test.hpp"
 

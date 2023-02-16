@@ -15,14 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iox/string.hpp"
+#include "iox/type_traits.hpp"
 #include "test.hpp"
 
 
 namespace iox
-{
-namespace cxx
 {
 namespace test
 {
@@ -36,13 +34,12 @@ struct has_mytype_as_member<T, void_t<typename T::myType>> : std::true_type
 {
 };
 } // namespace test
-} // namespace cxx
 } // namespace iox
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 TEST(TypeTraitsTest, IsInvocableResolvesToTrue)
 {
@@ -83,7 +80,7 @@ TEST(TypeTraitsTest, NoTypeAsMemberIsFalse)
     {
     };
 
-    EXPECT_FALSE(iox::cxx::test::has_mytype_as_member<Sut>::value);
+    EXPECT_FALSE(test::has_mytype_as_member<Sut>::value);
 }
 
 TEST(TypeTraitsTest, MyTypeAsMemberIsTrue)
@@ -94,7 +91,7 @@ TEST(TypeTraitsTest, MyTypeAsMemberIsTrue)
         using myType = int;
     };
 
-    EXPECT_TRUE(iox::cxx::test::has_mytype_as_member<Sut>::value);
+    EXPECT_TRUE(test::has_mytype_as_member<Sut>::value);
 }
 
 TEST(TypeTraitsTest, AddConstConditionallyAddsConstIfConditionTypeIsConst)
@@ -103,7 +100,7 @@ TEST(TypeTraitsTest, AddConstConditionallyAddsConstIfConditionTypeIsConst)
     using SutType = uint8_t;
     using ConditionType = bool;
 
-    using SutTypeResult = iox::cxx::add_const_conditionally<SutType, const ConditionType>::type;
+    using SutTypeResult = iox::add_const_conditionally<SutType, const ConditionType>::type;
 
     EXPECT_TRUE(std::is_const<SutTypeResult>::value);
     // EXPECT_TRUE macro is broken when std::is_same is used directly
@@ -117,7 +114,7 @@ TEST(TypeTraitsTest, AddConstConditionallyDoesNotAddsConstIfConditionTypeIsNotCo
     using SutType = uint8_t;
     using ConditionType = bool;
 
-    using SutTypeResult = iox::cxx::add_const_conditionally<SutType, ConditionType>::type;
+    using SutTypeResult = iox::add_const_conditionally<SutType, ConditionType>::type;
 
     EXPECT_FALSE(std::is_const<SutTypeResult>::value);
     // EXPECT_TRUE macro is broken when std::is_same is used directly
@@ -131,7 +128,7 @@ TEST(TypeTraitsTest, AddConstConditionallyTypeAliasWorks)
     using SutType = uint8_t;
     using ConditionType = bool;
 
-    using SutTypeResult = iox::cxx::add_const_conditionally_t<SutType, const ConditionType>;
+    using SutTypeResult = iox::add_const_conditionally_t<SutType, const ConditionType>;
 
     EXPECT_TRUE(std::is_const<SutTypeResult>::value);
 }

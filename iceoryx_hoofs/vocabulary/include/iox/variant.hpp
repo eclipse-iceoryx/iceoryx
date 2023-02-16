@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_VARIANT_HPP
 #define IOX_HOOFS_VOCABULARY_VARIANT_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/detail/variant_internal.hpp"
 
 #include <cstdint>

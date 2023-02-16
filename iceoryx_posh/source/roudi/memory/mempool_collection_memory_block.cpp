@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/memory.hpp"
 

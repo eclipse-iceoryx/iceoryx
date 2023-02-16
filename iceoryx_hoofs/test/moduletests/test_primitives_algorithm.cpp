@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
 
@@ -23,7 +23,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::algorithm;
-using namespace iox::cxx;
 using namespace iox;
 
 class algorithm_test : public Test

@@ -14,14 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_ATTRIBUTES_HPP
-#define IOX_HOOFS_CXX_ATTRIBUTES_HPP
+#ifndef IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
+#define IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
 
 #include "iceoryx_platform/attributes.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 namespace internal
 {
@@ -34,7 +32,6 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 {
 }
 } // namespace internal
-} // namespace cxx
 } // namespace iox
 
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 : Aliasing of fully qualified templated function.
@@ -48,9 +45,8 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 ///     uint32_t foo();
 ///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
 /// @endcode
-#define IOX_DISCARD_RESULT(expr) ::iox::cxx::internal::IOX_DISCARD_RESULT_IMPL(expr)
+#define IOX_DISCARD_RESULT(expr) ::iox::internal::IOX_DISCARD_RESULT_IMPL(expr)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
-
 
 #endif

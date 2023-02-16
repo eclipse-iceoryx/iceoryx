@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
-#define IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
+#ifndef IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_HPP
+#define IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_HPP
 
 /// @note since this file will be included by many other files, it should not include other header except
 /// iceoryx_platform or STL header
@@ -24,10 +24,7 @@
 
 namespace iox
 {
-namespace cxx
-{
 using byte_t = uint8_t;
-}
 
 // AXIVION Next Construct AutosarC++19_03-M2.10.1 : log is a sensible namespace for a logger; furthermore it is in the
 // iox namespace and when used as function the compiler will complain
@@ -55,6 +52,6 @@ constexpr const char* asStringLiteral(const LogLevel value) noexcept;
 } // namespace log
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/iceoryx_hoofs_types.inl"
+#include "iox/detail/iceoryx_hoofs_types.inl"
 
-#endif // IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
+#endif // IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_HPP

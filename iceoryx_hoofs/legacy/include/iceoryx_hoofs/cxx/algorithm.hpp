@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,23 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_CXX_ALGORITHM_HPP
+#define IOX_HOOFS_CXX_ALGORITHM_HPP
 
-#include "iceoryx_posh/roudi/memory/memory_block.hpp"
-#include "iox/attributes.hpp"
+#include "iox/algorithm.hpp"
+#pragma message(                                                                                                       \
+    "Deprecated in 3.0, removed in 4.0, please include 'iox/algorithm.hpp' instead of 'iceoryx_hoofs/cxx/algorithm.hpp'")
 
-namespace iox
-{
-namespace roudi
-{
-void MemoryBlock::onMemoryAvailable(not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
-{
-    // nothing to do in the default implementation
-}
-
-optional<void*> MemoryBlock::memory() const noexcept
-{
-    return m_memory ? make_optional<void*>(m_memory) : nullopt_t();
-}
-
-} // namespace roudi
-} // namespace iox
+#endif // IOX_HOOFS_CXX_ALGORITHM_HPP

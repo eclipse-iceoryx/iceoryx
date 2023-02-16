@@ -34,12 +34,12 @@ BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) no
 
 // NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
+expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     if (size == 0)
     {
         IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
-        return cxx::error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
+        return error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
     }
 
     const uint64_t currentAddress{m_startAddress + m_currentPosition};
@@ -62,10 +62,10 @@ cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t 
         IOX_LOG(WARN) << "Trying to allocate additional " << size << " bytes in the memory of capacity " << m_length
                       << " when there are already " << alignedPosition << " aligned bytes in use.\n Only "
                       << m_length - alignedPosition << " bytes left.";
-        return cxx::error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
+        return error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
     }
 
-    return cxx::success<void*>(allocation);
+    return success<void*>(allocation);
 }
 
 void BumpAllocator::deallocate() noexcept

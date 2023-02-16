@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INL
 #define IOX_HOOFS_VOCABULARY_STRING_INL
 
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -328,7 +328,7 @@ template <typename T>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) method is disabled via static_assert
 inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 {
-    static_assert(cxx::always_false_v<string<Capacity>>,
+    static_assert(always_false_v<string<Capacity>>,
                   "operator += is not supported by iox::string, please use append or unsafe_append instead");
     return *this;
 }
@@ -357,7 +357,7 @@ concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 }
 
 template <typename T1, typename T2>
-// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox namespace which prevents easy
 // misuse
 inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& str1, const T2& str2) noexcept

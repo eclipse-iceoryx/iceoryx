@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
 #include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
+#include "iox/attributes.hpp"
 #include "iox/optional.hpp"
 #include "test.hpp"
 

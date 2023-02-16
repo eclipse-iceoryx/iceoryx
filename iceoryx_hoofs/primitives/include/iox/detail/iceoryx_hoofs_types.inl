@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ICEORYX_HOOFS_TYPES_INL
-#define IOX_HOOFS_ICEORYX_HOOFS_TYPES_INL
+#ifndef IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_INL
+#define IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_INL
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 /// @note since this file will be included by many other files, it should not include other header except
 /// iceoryx_platform or STL header
@@ -53,4 +53,4 @@ inline constexpr const char* asStringLiteral(const LogLevel value) noexcept
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_ICEORYX_HOOFS_TYPES_INL
+#endif // IOX_HOOFS_PRIMITIVES_ICEORYX_HOOFS_TYPES_INL

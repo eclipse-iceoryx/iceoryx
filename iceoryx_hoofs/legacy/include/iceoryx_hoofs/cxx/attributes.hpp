@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,22 +14,23 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#ifndef IOX_HOOFS_CXX_ATTRIBUTES_HPP
+#define IOX_HOOFS_CXX_ATTRIBUTES_HPP
+
 #include "iox/attributes.hpp"
 
 namespace iox
 {
-namespace roudi
+/// @todo iox-#1593 Deprecate include
+/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/attributes.hpp' instead")]]
+namespace cxx
 {
-void MemoryBlock::onMemoryAvailable(not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
+namespace internal
 {
-    // nothing to do in the default implementation
-}
-
-optional<void*> MemoryBlock::memory() const noexcept
-{
-    return m_memory ? make_optional<void*>(m_memory) : nullopt_t();
-}
-
-} // namespace roudi
+/// @deprecated use `iox::internal::IOX_DISCARD_RESULT_IMPL` instead of `iox::cxx::internal::IOX_DISCARD_RESULT_IMPL`
+using iox::internal::IOX_DISCARD_RESULT_IMPL;
+} // namespace internal
+} // namespace cxx
 } // namespace iox
+
+#endif

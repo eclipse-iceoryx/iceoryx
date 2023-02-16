@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 #define IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
@@ -35,7 +35,7 @@ struct ZeroedBuffer
     {
         // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-        cxx::byte_t data[sizeof(ElementType)];
+        byte_t data[sizeof(ElementType)];
     };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory.
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
@@ -52,7 +52,7 @@ struct NonZeroedBuffer
     {
         // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-        cxx::byte_t data[sizeof(ElementType)];
+        byte_t data[sizeof(ElementType)];
     };
     // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)

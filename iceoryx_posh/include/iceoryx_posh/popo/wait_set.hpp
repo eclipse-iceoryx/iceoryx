@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_WAIT_SET_HPP
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
 #include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -30,6 +29,7 @@
 #include "iceoryx_posh/popo/trigger.hpp"
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/stack.hpp"
 #include "iox/vector.hpp"
 

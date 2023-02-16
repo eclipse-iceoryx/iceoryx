@@ -18,8 +18,8 @@
 #ifndef IOX_POSH_POPO_SMART_CHUNK_HPP
 #define IOX_POSH_POPO_SMART_CHUNK_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/unique_ptr.hpp"
 
 namespace iox
@@ -63,9 +63,7 @@ struct SmartChunkPrivateData<TransmissionInterface, const T, H>
 } // namespace internal
 
 
-template <typename TransmissionInterface,
-          typename T,
-          typename H = cxx::add_const_conditionally_t<mepoo::NoUserHeader, T>>
+template <typename TransmissionInterface, typename T, typename H = add_const_conditionally_t<mepoo::NoUserHeader, T>>
 class SmartChunk
 {
   protected:
@@ -156,7 +154,7 @@ class SmartChunk
     /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the smartChunk.
     /// @return The ChunkHeader of the underlying memory chunk.
     ///
-    cxx::add_const_conditionally_t<mepoo::ChunkHeader, T>* getChunkHeader() noexcept;
+    add_const_conditionally_t<mepoo::ChunkHeader, T>* getChunkHeader() noexcept;
 
     ///
     /// @brief Retrieve the ChunkHeader of the underlying memory chunk loaned to the smartChunk.
@@ -169,7 +167,7 @@ class SmartChunk
     /// @return The user-header of the underlying memory chunk.
     ///
     template <typename R = H, typename = HasUserHeader<R, H>>
-    cxx::add_const_conditionally_t<R, T>& getUserHeader() noexcept;
+    add_const_conditionally_t<R, T>& getUserHeader() noexcept;
 
     ///
     /// @brief Retrieve the user-header of the underlying memory chunk loaned to the SmartChunk.
