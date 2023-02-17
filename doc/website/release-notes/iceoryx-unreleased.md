@@ -609,8 +609,8 @@
 
     ```cpp
     // before
-    iox::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
-    iox::function<void()> emptyFunction;
+    iox::cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    iox::cxx::function<void()> emptyFunction;
 
     if (helloFunc) { // required since the object could always be null
         helloFunc();
