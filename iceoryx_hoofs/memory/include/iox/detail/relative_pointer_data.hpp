@@ -24,8 +24,6 @@
 
 namespace iox
 {
-namespace memory
-{
 /// @brief This are the data for a relative pointer. To be able so safely be used in the shared memory and prevent torn
 /// writes/reads, the class must not be larger than 64 bits and trivially copy-able.
 class RelativePointerData
@@ -80,9 +78,8 @@ class RelativePointerData
     uint64_t m_idAndOffset{LOGICAL_NULLPTR};
 };
 
-} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/memory/relative_pointer_data.inl"
+#include "iox/detail/relative_pointer_data.inl"
 
 #endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_DATA_HPP

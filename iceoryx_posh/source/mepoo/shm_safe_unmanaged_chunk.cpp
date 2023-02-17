@@ -44,12 +44,11 @@ ShmSafeUnmanagedChunk::ShmSafeUnmanagedChunk(mepoo::SharedChunk chunk) noexcept
         RelativePointer<mepoo::ChunkManagement> ptr{chunk.release()};
         auto id = ptr.getId();
         auto offset = ptr.getOffset();
-        cxx::Ensures(id <= memory::RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
-        cxx::Ensures(offset <= memory::RelativePointerData::OFFSET_RANGE
+        cxx::Ensures(id <= RelativePointerData::ID_RANGE && "RelativePointer id must fit into id type!");
+        cxx::Ensures(offset <= RelativePointerData::OFFSET_RANGE
                      && "RelativePointer offset must fit into offset type!");
         /// @todo iox-#1196 Unify types to uint64_t
-        m_chunkManagement =
-            memory::RelativePointerData(static_cast<memory::RelativePointerData::identifier_t>(id), offset);
+        m_chunkManagement = RelativePointerData(static_cast<RelativePointerData::identifier_t>(id), offset);
     }
 }
 

@@ -79,6 +79,7 @@ iox_add_library(
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
+        memory/source/relative_pointer_data.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         primitives/source/type_traits.cpp
@@ -105,7 +106,6 @@ iox_add_library(
         source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
-        source/memory/relative_pointer_data.cpp
         time/source/duration.cpp
 )
 
