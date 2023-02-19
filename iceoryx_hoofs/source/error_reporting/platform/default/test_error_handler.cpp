@@ -41,17 +41,24 @@ bool TestHandler::hasError(error_code_t code) const
     return iter != m_errors.end();
 }
 
-bool TestHandler::setJump()
+jmp_buf& TestHandler::prepareJump()
 {
-    // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
-    return setjmp(&m_jumpBuffer[0]) != JUMP_INDICATOR;
+    m_jump = true;
+    return m_jumpBuffer;
 }
-
 
 void TestHandler::jump()
 {
-    // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
-    longjmp(&m_jumpBuffer[0], JUMP_INDICATOR);
+    if (m_jump)
+    {
+        // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
+        longjmp(&m_jumpBuffer[0], jumpIndicator());
+    }
+}
+
+int TestHandler::jumpIndicator()
+{
+    return JUMPED;
 }
 
 } // namespace err

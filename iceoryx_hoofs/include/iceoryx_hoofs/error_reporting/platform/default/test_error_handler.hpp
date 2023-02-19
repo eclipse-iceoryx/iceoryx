@@ -47,22 +47,25 @@ class TestHandler : public ErrorHandlerInterface
     /// @brief Indicates whether as specific error occurred previously.
     bool hasError(error_code_t code) const;
 
-    /// @brief Sets a jump destination or indicates that a jump (to a previous stackframe) was
-    /// performed.
+    /// @brief Prepare a jump and return jump buffer
     /// @return true if the jump destination was set, false otherwise (jump occurred)
-    /// @note a convenience wrapper for setjmp
-    /// @note used for testing only
-    bool setJump();
+    /// @note setjmp cannot be called in such a helper function (must still be on stack once
+    /// longjmp is called)
+    jmp_buf& prepareJump();
+
+    /// @brief Returns the value that is set by longjmp in case of a jump.
+    /// @return the jump indicator value
+    static int jumpIndicator();
 
   private:
-    static constexpr int JUMP_INDICATOR{1};
+    static constexpr int JUMPED{1};
 
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
     std::vector<error_code_t> m_errors;
 
-    // there can be only one active buffer at a time anyway
     jmp_buf m_jumpBuffer;
+    bool m_jump{false};
 
     void jump();
 };

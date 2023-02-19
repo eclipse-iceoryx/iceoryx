@@ -1,5 +1,6 @@
 #pragma once
 
+#include <csetjmp>
 #ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
 #define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
 
@@ -8,6 +9,9 @@
 
 #include <thread>
 #include <utility>
+
+#include <functional>
+#include <stdio.h>
 
 #define ASSERT_NO_PANIC()                                                                                              \
     do                                                                                                                 \
@@ -33,14 +37,32 @@ namespace iox
 namespace testing
 {
 
-void runInTestThread(cxx::function_ref<void(void)> testFunction)
+/// @brief runs testFunction in a testContext that can detect fatal failures;
+/// runs in the same thread
+/// @note uses a longjump
+template <typename Function, typename... Args>
+void testContext(Function&& testFunction, Args&&... args)
 {
-    auto f = [&]() {
-        if (iox::err::TestErrorHandler::instance().setJump())
-        {
-            testFunction();
-        }
-    };
+    auto& buf = iox::err::TestErrorHandler::instance().prepareJump();
+
+    // setjmp must be called in a stackframe that still exists when longjmp is called
+    // Therefore there cannot be a convenient abstraction that does not also
+    // know the test function that is being called.
+    // NOLINTNEXTLINE
+    if (setjmp(&buf[0]) != iox::err::TestErrorHandler::instance().jumpIndicator())
+    {
+        testFunction(std::forward<Args>(args)...);
+    }
+}
+
+/// @brief runs testFunction in a testContext that can detect fatal failures;
+/// runs in a separate thread
+/// @note uses a longjump inside the thread it runs the function in
+template <typename Function, typename... Args>
+void runInTestThread(Function&& testFunction, Args&&... args)
+{
+    // needed to infer the testContext arguments
+    auto f = [&]() { testContext(std::forward<Function>(testFunction), std::forward<Args>(args)...); };
 
     std::thread t(f);
     if (t.joinable())
@@ -48,22 +70,6 @@ void runInTestThread(cxx::function_ref<void(void)> testFunction)
         t.join();
     }
 }
-
-/// @todo this should work but somehow does not, investigate
-/// this would increase generality/elegance mainly
-// template <typename Function, typename... Args>
-// void runInTestThread(Function&& testFunction, Args&&... args)
-// {
-//     auto f = [&]() {
-//         if (iox::err::TestErrorHandler::instance().setJump())
-//         {
-//             testFunction(std::forward<Args>(args)...);
-//         }
-//     };
-
-//     std::thread t(f);
-//     t.join();
-// }
 
 } // namespace testing
 } // namespace iox

@@ -23,19 +23,21 @@ namespace err
 // This adds an additional indirection but is required for testing or switching handlers
 // during operation (this must be done very carefully and is not recommended).
 
-inline void panic(const SourceLocation& location)
+[[noreturn]] inline void panic(const SourceLocation& location)
 {
     IOX_LOG_PANIC(location) << "Panic";
     auto& h = ErrorHandler::get();
     h.panic();
+    abort();
 }
 
-inline void panic(const SourceLocation& location, const char* msg)
+[[noreturn]] inline void panic(const SourceLocation& location, const char* msg)
 // inline void panic(const SourceLocation& location, const char* msg)
 {
     IOX_LOG_PANIC(location) << "Panic " << msg;
     auto& h = ErrorHandler::get();
     h.panic();
+    abort();
 }
 
 template <class Kind, class Error>
