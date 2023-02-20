@@ -23,8 +23,6 @@
 
 namespace iox
 {
-namespace design_pattern
-{
 /// @brief Manages a static instance of type T in a way so that each
 /// existing StaticLifetimeGuard prevents the destruction of
 /// the instance.
@@ -112,9 +110,8 @@ class StaticLifetimeGuard
     static uint64_t setCount(uint64_t count);
 };
 
-} // namespace design_pattern
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/design_pattern/static_lifetime_guard.inl"
+#include "iox/detail/static_lifetime_guard.inl"
 
 #endif // IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_HPP

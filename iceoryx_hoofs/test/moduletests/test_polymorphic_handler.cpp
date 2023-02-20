@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/static_lifetime_guard.hpp"
 
 #include "test.hpp"
 #include <atomic>
@@ -61,7 +61,7 @@ struct Alternate : public Interface
 };
 
 template <typename T>
-using Guard = iox::design_pattern::StaticLifetimeGuard<T>;
+using Guard = iox::StaticLifetimeGuard<T>;
 
 // should the handler instances be accessed, they will live at least as
 // long as the guard objects

@@ -18,7 +18,7 @@
 #define IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_INL
 
 #include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/static_lifetime_guard.hpp"
 #include <atomic>
 #include <cstdlib>
 #include <type_traits>
