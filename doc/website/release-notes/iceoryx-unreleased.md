@@ -101,7 +101,7 @@
 - Move package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
 - Set `SOVERSION` with project major version for shared libraries in CMake [\#1308](https://github.com/eclipse-iceoryx/iceoryx/issues/1308)
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
-- Rename `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
+- Rename `cxx::GenericRAII` to `iox::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
@@ -443,7 +443,7 @@
     std::cout << iox::size(ARRAY) << std::endl;    // prints 42
     ```
 
-18. Rename `cxx::GenericRAII` to `cxx::ScopeGuard`
+18. Rename `cxx::GenericRAII` to `iox::ScopeGuard`
 
     ```cpp
     // before
@@ -457,8 +457,8 @@
     }};
 
     // after
-    #include "iceoryx_hoofs/cxx/scope_guard.hpp"
-    iox::cxx::ScopeGuard {[]()
+    #include "iox/scope_guard.hpp"
+    iox::ScopeGuard {[]()
     {
         // do on creation
     },[]()

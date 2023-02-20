@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 #define IOX_POSH_ROUDI_ROUDI_MULTI_PROCESS_HPP
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/file.hpp"
@@ -29,6 +28,7 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iox/relative_pointer.hpp"
+#include "iox/scope_guard.hpp"
 
 #include <cstdint>
 #include <thread>
@@ -126,7 +126,7 @@ class RouDi
 
     void monitorAndDiscoveryUpdate() noexcept;
 
-    cxx::ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
+    ScopeGuard m_unregisterRelativePtr{[] { UntypedRelativePointer::unregisterAll(); }};
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
@@ -138,7 +138,7 @@ class RouDi
     /// @note destroy the memory right at the end of the dTor, since the memory is not needed anymore and we know that
     /// the lifetime of the MemoryBlocks must be at least as long as RouDi; this saves us from issues if the
     /// RouDiMemoryManager outlives some MemoryBlocks
-    cxx::ScopeGuard m_roudiMemoryManagerCleaner{[this]() {
+    ScopeGuard m_roudiMemoryManagerCleaner{[this]() {
         if (this->m_roudiMemoryInterface->destroyMemory().has_error())
         {
             LogWarn() << "unable to cleanup roudi memory interface";

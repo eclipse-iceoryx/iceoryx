@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 #define IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
+#include "iox/scope_guard.hpp"
 
 namespace iox
 {
@@ -28,7 +28,7 @@ namespace cxx
 /// @tparam [in] CTorArgs ctor types for the object to construct
 /// @param [in] memory is a reference to a memory container, e.g. optional
 /// @param [in] ctorArgs ctor arguments for the object to construct
-/// @return cxx::ScopeGuard
+/// @return iox::ScopeGuard
 template <typename T, typename... CTorArgs>
 ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
 } // namespace cxx

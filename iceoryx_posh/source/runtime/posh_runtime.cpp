@@ -82,7 +82,7 @@ PoshRuntime& PoshRuntime::defaultRuntimeFactory(optional<const RuntimeName_t*> n
     static typename std::aligned_storage<sizeof(PoshRuntimeImpl), alignof(PoshRuntimeImpl)>::type buf;
     // This is the primary lifetime participant. It ensures that, even if getLifetimeParticipant()
     // is never called, the runtime has the same lifetime as a regular static variable.
-    static cxx::ScopeGuard staticLifetimeParticipant = [](auto name) {
+    static ScopeGuard staticLifetimeParticipant = [](auto name) {
         new (&buf) PoshRuntimeImpl(name);
         poshRuntimeNeedsManualDestruction() = true;
         return getLifetimeParticipant();
@@ -106,15 +106,15 @@ PoshRuntime& PoshRuntime::getInstance(optional<const RuntimeName_t*> name) noexc
     return getRuntimeFactory()(name);
 }
 
-cxx::ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
+ScopeGuard PoshRuntime::getLifetimeParticipant() noexcept
 {
-    return cxx::ScopeGuard([]() { ++poshRuntimeStaticRefCount(); },
-                           []() {
-                               if (0 == --poshRuntimeStaticRefCount() && poshRuntimeNeedsManualDestruction())
-                               {
-                                   getInstance().~PoshRuntime();
-                               }
-                           });
+    return ScopeGuard([]() { ++poshRuntimeStaticRefCount(); },
+                      []() {
+                          if (0 == --poshRuntimeStaticRefCount() && poshRuntimeNeedsManualDestruction())
+                          {
+                              getInstance().~PoshRuntime();
+                          }
+                      });
 }
 
 PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept

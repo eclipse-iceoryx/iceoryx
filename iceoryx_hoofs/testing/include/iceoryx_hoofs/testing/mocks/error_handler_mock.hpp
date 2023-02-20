@@ -18,6 +18,7 @@
 
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
 #include "iox/function.hpp"
+#include "iox/scope_guard.hpp"
 #include <mutex>
 
 #include "iceoryx_hoofs/testing/test.hpp"
@@ -45,7 +46,7 @@ class ErrorHandlerMock : protected ErrorHandler
 {
   public:
     template <typename Error>
-    static cxx::ScopeGuard setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
+    static ScopeGuard setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept;
 
   protected:
     static std::mutex m_handlerMutex;
@@ -77,10 +78,9 @@ inline void errorHandlerForTest(const uint32_t error, const char* errorName, con
 }
 
 template <typename Error>
-inline cxx::ScopeGuard
-ErrorHandlerMock::setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept
+inline ScopeGuard ErrorHandlerMock::setTemporaryErrorHandler(const TypedHandlerFunction<Error>& newHandler) noexcept
 {
-    return cxx::ScopeGuard(
+    return ScopeGuard(
         [&newHandler] {
             std::lock_guard<std::mutex> lock(m_handlerMutex);
             typedHandler<Error>.emplace(newHandler);
