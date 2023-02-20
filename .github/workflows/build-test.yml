@@ -162,7 +162,7 @@ jobs:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -170,4 +170,4 @@ jobs:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx
           flags: unittests_timing
-          fail_ci_if_error: true
+          fail_ci_if_error: false
