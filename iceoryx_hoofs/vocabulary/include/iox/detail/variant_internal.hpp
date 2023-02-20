@@ -52,7 +52,6 @@ struct is_in_place_type<in_place_type<T>> : std::true_type
 {
 };
 
-using byte_t = uint8_t;
 template <typename TypeToCheck, typename T, typename... Targs>
 struct does_contain_type
 {

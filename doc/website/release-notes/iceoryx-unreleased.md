@@ -119,6 +119,7 @@
 - Remove `algorithm::uniqueMergeSortedContainers` from `algorithm.hpp`
 - Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
+- Make iox::byte_t a distinct type [\#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 
 **Workflow:**
 
@@ -1033,3 +1034,15 @@
     // after
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
+47. Renaming `byte_t` to `byte`
+    `byte` is not a simple type alias, now it is a distinct type like c++17 `std::byte`.
+    The type `byte` does not support any arithmetic operations nor has member functions.
+
+    ```cpp
+    //before
+    iox::byte_t m_size;
+
+    //after
+    iox::byte m_size;
+    ```
+

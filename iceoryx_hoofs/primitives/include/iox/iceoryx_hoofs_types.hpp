@@ -24,7 +24,10 @@
 
 namespace iox
 {
-using byte_t = uint8_t;
+
+enum class byte : uint8_t
+{
+};
 
 // AXIVION Next Construct AutosarC++19_03-M2.10.1 : log is a sensible namespace for a logger; furthermore it is in the
 // iox namespace and when used as function the compiler will complain
