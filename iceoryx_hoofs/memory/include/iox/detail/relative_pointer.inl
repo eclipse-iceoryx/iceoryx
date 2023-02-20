@@ -104,6 +104,7 @@ inline T* RelativePointer<T>::operator->() const noexcept
 {
     auto* const ptr{get()};
     cxx::Ensures(ptr != nullptr);
+    IOX_ASSUME(ptr != nullptr, "");
     return ptr;
 }
 

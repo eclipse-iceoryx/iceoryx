@@ -1,9 +1,8 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_API_HPP
 #define IOX_HOOFS_ERROR_REPORTING_API_HPP
 
-#include "error_forwarding.hpp"
-#include "error_kind.hpp"
-#include "platform/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
+#include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
 
 // clang-format on
 
@@ -32,7 +31,7 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                                 \
+        iox::err::forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                       \
     } while (false)
 
 /// @brief report fatal error
@@ -46,11 +45,11 @@
 #define IOX_REPORT_IF(expr, error, kind)                                                                               \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (requiresHandling(iox::err::kind))                                                                          \
+        if (iox::err::requiresHandling(iox::err::kind))                                                                \
         {                                                                                                              \
             if (expr)                                                                                                  \
             {                                                                                                          \
-                forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                         \
+                iox::err::forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                               \
             }                                                                                                          \
         }                                                                                                              \
     } while (false)
@@ -79,19 +78,19 @@
 #define IOX_PRECONDITION(expr, message)                                                                                \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (requiresHandling(iox::err::PRECONDITION_VIOLATION_CODE))                                                   \
+        if (iox::err::requiresHandling(iox::err::PRECONDITION_VIOLATION_CODE))                                         \
             if (!(expr))                                                                                               \
-                forwardError(CURRENT_SOURCE_LOCATION,                                                                  \
-                             Violation(iox::err::PRECONDITION_VIOLATION_CODE),                                         \
-                             PRECONDITION_VIOLATION,                                                                   \
-                             message);                                                                                 \
+                iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                        \
+                                       iox::err::Violation(iox::err::PRECONDITION_VIOLATION_CODE),                     \
+                                       iox::err::PRECONDITION_VIOLATION,                                               \
+                                       message);                                                                       \
     } while (false)
 #else
 #define IOX_PRECONDITION(expr, message)                                                                                \
     do                                                                                                                 \
     {                                                                                                                  \
-        discard([&]() { return expr; });                                                                               \
-        discard(message);                                                                                              \
+        iox::err::discard([&]() { return expr; });                                                                     \
+        iox::err::discard(message);                                                                                    \
     } while (false)
 #endif
 
@@ -103,20 +102,20 @@
 #define IOX_ASSUME(expr, message)                                                                                      \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (requiresHandling(iox::err::DEBUG_ASSERT_VIOLATION_CODE))                                                   \
+        if (iox::err::requiresHandling(iox::err::DEBUG_ASSERT_VIOLATION_CODE))                                         \
             if (!(expr))                                                                                               \
-                forwardError(CURRENT_SOURCE_LOCATION,                                                                  \
-                             Violation(iox::err::DEBUG_ASSERT_VIOLATION_CODE),                                         \
-                             DEBUG_ASSERT_VIOLATION,                                                                   \
-                             message);                                                                                 \
+                iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                        \
+                                       iox::err::Violation(iox::err::DEBUG_ASSERT_VIOLATION_CODE),                     \
+                                       iox::err::DEBUG_ASSERT_VIOLATION,                                               \
+                                       message);                                                                       \
     } while (false)
 
 #else
 #define IOX_ASSUME(expr, message)                                                                                      \
     do                                                                                                                 \
     {                                                                                                                  \
-        discard([&]() { return expr; });                                                                               \
-        discard(message);                                                                                              \
+        iox::err::discard([&]() { return expr; });                                                                     \
+        iox::err::discard(message);                                                                                    \
     } while (false)
 #endif
 

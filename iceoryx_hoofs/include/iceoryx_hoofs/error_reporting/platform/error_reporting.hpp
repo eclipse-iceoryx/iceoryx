@@ -10,11 +10,11 @@
 
 #ifdef IOX_MINIMAL_ERROR_HANDLING
 
-#include "minimal/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/platform/minimal/error_reporting.hpp"
 
 #else
 
-#include "default/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/platform/default/error_reporting.hpp"
 
 #endif
 

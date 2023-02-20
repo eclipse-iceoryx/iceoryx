@@ -171,6 +171,7 @@ struct greater_or_equal
         : m_value(t)
     {
         cxx::Expects(t >= Minimum);
+        // IOX_PRECONDITION(t >= Minimum, "");
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but

@@ -5,7 +5,7 @@
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
-#include "platform/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
 
 #include <utility>
 
