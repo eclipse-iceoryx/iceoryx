@@ -401,7 +401,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
-        ResponseHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
+        ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
     sut.responseQueuePusher.push(sharedChunk);
 
     sut.portUser.getResponse()

@@ -85,7 +85,6 @@ iox_add_library(
         primitives/source/type_traits.cpp
         source/concurrent/loffli.cpp
         source/cxx/requires.cpp
-        source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
         source/log/building_blocks/console_logger.cpp
@@ -107,6 +106,7 @@ iox_add_library(
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
         time/source/duration.cpp
+        utility/source/unique_id.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

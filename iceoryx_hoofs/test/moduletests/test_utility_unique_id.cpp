@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iox/attributes.hpp"
+#include "iox/detail/unique_id.hpp"
 
 #include "test.hpp"
 
@@ -25,7 +25,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 TEST(UniqueId_test, ConstructingUniqueIdWorks)
 {

@@ -1,25 +1,25 @@
 @startuml
 
 class RpcBaseHeader {
-  + RpcBaseHeader(uniqueClientQueueId: cxx::UniqueId&, lastKnownQueueIndex: uint32_t, sequenceId: uint64_t, rpcHeaderVersion: uint8_t)
+  + RpcBaseHeader(uniqueClientQueueId: UniqueId&, lastKnownQueueIndex: uint32_t, sequenceId: uint64_t, rpcHeaderVersion: uint8_t)
   + getRpcHeaderVersion(): uint8_t
   + getSequenceId(): int64_t
   + getChunkHeader(): ChunkHeader*
   + getUserPayload(): void*
   # m_rpcHeaderVersion: uint8_t
   # m_lastKnownClientQueueIndex: uint32_t
-  # m_uniqueClientQueueId: cxx::UniqueId
+  # m_uniqueClientQueueId: UniqueId
   # m_sequenceId: int64_t
 }
 
 class RequestHeader {
-  + RequestHeader(uniqueClientQueueId: cxx::UniqueId&, lastKnownQueueIndex: uint32_t)
+  + RequestHeader(uniqueClientQueueId: UniqueId&, lastKnownQueueIndex: uint32_t)
   + setSequenceId(sequenceId: int64_t): void
   {static} fromPayload(payload: void*): RequestHeader*
 }
 
 class ResponseHeader {
-  + ResponseHeader(uniqueClientQueueId: cxx::UniqueId&, lastKnownQueueIndex: uint32_t, sequenceId: uint64_t)
+  + ResponseHeader(uniqueClientQueueId: UniqueId&, lastKnownQueueIndex: uint32_t, sequenceId: uint64_t)
   + setServerError(): void
   + hasServerError(): bool
   {static} fromPayload(payload: void*): RequestHeader*

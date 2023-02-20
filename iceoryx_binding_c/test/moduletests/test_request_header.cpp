@@ -45,7 +45,7 @@ class iox_request_header_test : public Test
     }
 
     ChunkMock<int64_t, RequestHeader> chunk;
-    RequestHeader* baseHeader{new (chunk.userHeader()) RequestHeader(iox::cxx::UniqueId(), 0U)};
+    RequestHeader* baseHeader{new (chunk.userHeader()) RequestHeader(iox::UniqueId(), 0U)};
     void* payload = nullptr;
     const void* constPayload = nullptr;
     iox_request_header_t sut = nullptr;

@@ -24,7 +24,7 @@ namespace
 using namespace ::testing;
 using namespace iox::popo;
 
-using iox::cxx::UniqueId;
+using iox::UniqueId;
 
 class RpcBaseHeaderAccess : public RpcBaseHeader
 {

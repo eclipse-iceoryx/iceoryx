@@ -47,7 +47,7 @@ class iox_response_header_test : public Test
 
     static int64_t initialSequenceId;
     ChunkMock<int64_t, ResponseHeader> chunk;
-    ResponseHeader* baseHeader{new (chunk.userHeader()) ResponseHeader(iox::cxx::UniqueId(), 0U, initialSequenceId)};
+    ResponseHeader* baseHeader{new (chunk.userHeader()) ResponseHeader(iox::UniqueId(), 0U, initialSequenceId)};
     void* payload = nullptr;
     const void* constPayload = nullptr;
     iox_response_header_t sut = nullptr;
