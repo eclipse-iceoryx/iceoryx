@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iox/not_null.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {

@@ -14,14 +14,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_SCOPED_STATIC_HPP
-#define IOX_HOOFS_CXX_SCOPED_STATIC_HPP
+#ifndef IOX_HOOFS_MEMORY_SCOPED_STATIC_HPP
+#define IOX_HOOFS_MEMORY_SCOPED_STATIC_HPP
 
 #include "iox/scope_guard.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 /// create a ScopeGuard object to cleanup a static optional object at the end of the scope
 /// @tparam [in] T memory container which has emplace(...) and reset
@@ -31,10 +29,9 @@ namespace cxx
 /// @return iox::ScopeGuard
 template <typename T, typename... CTorArgs>
 ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/scoped_static.inl"
+#include "iox/detail/scoped_static.inl"
 
 
-#endif // IOX_HOOFS_CXX_SCOPED_STATIC_HPP
+#endif // IOX_HOOFS_MEMORY_SCOPED_STATIC_HPP
