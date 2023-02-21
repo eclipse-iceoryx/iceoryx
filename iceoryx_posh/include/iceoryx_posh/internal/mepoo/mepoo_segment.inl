@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {
@@ -76,8 +76,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
-                auto maybeSegmentId = iox::memory::UntypedRelativePointer::registerPtr(
-                    sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                auto maybeSegmentId = iox::UntypedRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
+                                                                               sharedMemoryObject.getSizeInBytes());
                 if (!maybeSegmentId.has_value())
                 {
                     errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);

@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 #define IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP
 
-#include "iceoryx_hoofs/internal/memory/pointer_repository.hpp"
+#include "iox/detail/pointer_repository.hpp"
 #include "iox/newtype.hpp"
 
 #include <cstdint>
@@ -26,8 +26,6 @@
 #include <limits>
 
 namespace iox
-{
-namespace memory
 {
 struct segment_id_t : public NewType<uint64_t,
                                      newtype::DefaultConstructable,
@@ -262,9 +260,8 @@ bool operator!=(std::nullptr_t, const RelativePointer<T> rhs) noexcept;
 template <typename T>
 bool operator!=(const RelativePointer<T> lhs, std::nullptr_t rhs) noexcept;
 
-} // namespace memory
 } // namespace iox
 
-#include "iceoryx_hoofs/memory/relative_pointer.inl"
+#include "iox/detail/relative_pointer.inl"
 
 #endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_HPP

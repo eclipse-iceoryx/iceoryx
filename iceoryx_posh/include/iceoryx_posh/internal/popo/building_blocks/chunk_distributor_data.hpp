@@ -18,13 +18,13 @@
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_DATA_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/relative_pointer.hpp"
 #include "iox/vector.hpp"
 
 #include <cstdint>
@@ -47,8 +47,7 @@ struct ChunkDistributorData : public LockingPolicy
 
     const uint64_t m_historyCapacity;
 
-    using QueueContainer_t =
-        vector<memory::RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
+    using QueueContainer_t = vector<RelativePointer<ChunkQueueData_t>, ChunkDistributorDataProperties_t::MAX_QUEUES>;
     QueueContainer_t m_queues;
 
     /// @todo iox-#1710 If we would make the ChunkDistributor lock-free, can we than extend the UsedChunkList to

@@ -15,14 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_SCOPE_GUARD_INL
-#define IOX_HOOFS_CXX_SCOPE_GUARD_INL
+#ifndef IOX_HOOFS_MEMORY_SCOPE_GUARD_INL
+#define IOX_HOOFS_MEMORY_SCOPE_GUARD_INL
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
+#include "iox/scope_guard.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 template <uint64_t CleanupCapacity>
 inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
@@ -74,7 +72,6 @@ inline void ScopeGuardWithVariableCapacity<CleanupCapacity>::destroy() noexcept
     }
 }
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_GENERIC_RAII_INL
+#endif // IOX_HOOFS_MEMORY_SCOPE_GUARD_INL

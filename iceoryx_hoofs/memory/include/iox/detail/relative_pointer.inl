@@ -18,11 +18,9 @@
 #ifndef IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
 #define IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
-{
-namespace memory
 {
 template <typename T>
 // NOLINTJUSTIFICATION NewType size is comparable to an integer, hence pass by value is preferred
@@ -295,7 +293,6 @@ inline bool operator!=(const RelativePointer<T> lhs, std::nullptr_t) noexcept
 {
     return lhs.get() != nullptr;
 }
-} // namespace memory
 } // namespace iox
 
 #endif // IOX_HOOFS_MEMORY_RELATIVE_POINTER_INL

@@ -19,11 +19,11 @@
 
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
 #include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/internal/mepoo/shm_safe_unmanaged_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/popo/port_queue_policies.hpp"
+#include "iox/relative_pointer.hpp"
 
 #include <mutex>
 
@@ -46,7 +46,7 @@ struct ChunkQueueData : public LockingPolicy
     cxx::VariantQueue<mepoo::ShmSafeUnmanagedChunk, MAX_CAPACITY> m_queue;
     std::atomic_bool m_queueHasLostChunks{false};
 
-    memory::RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
+    RelativePointer<ConditionVariableData> m_conditionVariableDataPtr;
     optional<uint64_t> m_conditionVariableNotificationIndex;
     const QueueFullPolicy m_queueFullPolicy;
 };

@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/used_chunk_list.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iox/not_null.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {
@@ -39,7 +40,7 @@ struct ChunkSenderData : public ChunkDistributorDataType
 
     using ChunkDistributorData_t = ChunkDistributorDataType;
 
-    const memory::RelativePointer<mepoo::MemoryManager> m_memoryMgr;
+    const RelativePointer<mepoo::MemoryManager> m_memoryMgr;
     mepoo::MemoryInfo m_memoryInfo;
     UsedChunkList<MaxChunksAllocatedSimultaneously> m_chunksInUse;
     mepoo::SequenceNumber_t m_sequenceNumber{0U};

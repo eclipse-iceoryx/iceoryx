@@ -14,14 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iox/optional.hpp"
+#include "iox/scope_guard.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 class ScopeGuard_test : public Test
 {

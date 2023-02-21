@@ -15,18 +15,17 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iox/attributes.hpp"
 #include "iox/optional.hpp"
+#include "iox/scope_guard.hpp"
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox;
 
 TEST(UniquePortId_test, SettingTheRouDiIdWorks)

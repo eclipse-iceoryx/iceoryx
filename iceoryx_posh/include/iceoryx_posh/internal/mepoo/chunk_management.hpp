@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 #define IOX_POSH_MEPOO_CHUNK_MANAGEMENT_HPP
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iox/not_null.hpp"
+#include "iox/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -40,11 +40,11 @@ struct ChunkManagement
                     const not_null<MemPool*> mempool,
                     const not_null<MemPool*> chunkManagementPool) noexcept;
 
-    iox::memory::RelativePointer<base_t> m_chunkHeader;
+    iox::RelativePointer<base_t> m_chunkHeader;
     referenceCounter_t m_referenceCounter{1U};
 
-    iox::memory::RelativePointer<MemPool> m_mempool;
-    iox::memory::RelativePointer<MemPool> m_chunkManagementPool;
+    iox::RelativePointer<MemPool> m_mempool;
+    iox::RelativePointer<MemPool> m_chunkManagementPool;
 };
 } // namespace mepoo
 } // namespace iox

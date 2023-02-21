@@ -18,10 +18,10 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/scoped_static.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iox/optional.hpp"
+#include "iox/scoped_static.hpp"
 
 namespace iox
 {
@@ -37,18 +37,18 @@ uint8_t IceOryxRouDiApp::run() noexcept
     if (m_run)
     {
         static optional<IceOryxRouDiComponents> m_rouDiComponents;
-        auto componentsScopeGuard = cxx::makeScopedStatic(m_rouDiComponents, m_config);
+        auto componentsScopeGuard = makeScopedStatic(m_rouDiComponents, m_config);
 
         static optional<RouDi> roudi;
         auto roudiScopeGuard =
-            cxx::makeScopedStatic(roudi,
-                                  m_rouDiComponents.value().rouDiMemoryManager,
-                                  m_rouDiComponents.value().portManager,
-                                  RouDi::RoudiStartupParameters{m_monitoringMode,
-                                                                true,
-                                                                RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
-                                                                m_compatibilityCheckLevel,
-                                                                m_processKillDelay});
+            makeScopedStatic(roudi,
+                             m_rouDiComponents.value().rouDiMemoryManager,
+                             m_rouDiComponents.value().portManager,
+                             RouDi::RoudiStartupParameters{m_monitoringMode,
+                                                           true,
+                                                           RouDi::RuntimeMessagesThreadStart::IMMEDIATE,
+                                                           m_compatibilityCheckLevel,
+                                                           m_processKillDelay});
         iox::posix::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;

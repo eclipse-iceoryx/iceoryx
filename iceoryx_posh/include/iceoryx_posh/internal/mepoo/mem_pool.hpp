@@ -18,10 +18,10 @@
 #define IOX_POSH_MEPOO_MEM_POOL_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -73,7 +73,7 @@ class MemPool
     void adjustMinFree() noexcept;
     bool isMultipleOfAlignment(const uint32_t value) const noexcept;
 
-    memory::RelativePointer<uint8_t> m_rawMemory;
+    RelativePointer<uint8_t> m_rawMemory;
 
     uint32_t m_chunkSize{0U};
     /// needs to be 32 bit since loffli supports only 32 bit numbers

@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/log/logger.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 #include "iox/function.hpp"
+#include "iox/scope_guard.hpp"
 
 #include <iostream>
 

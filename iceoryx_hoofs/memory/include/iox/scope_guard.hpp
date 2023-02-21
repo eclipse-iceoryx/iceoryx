@@ -14,16 +14,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_CXX_SCOPE_GUARD_HPP
-#define IOX_HOOFS_CXX_SCOPE_GUARD_HPP
+#ifndef IOX_HOOFS_MEMORY_SCOPE_GUARD_HPP
+#define IOX_HOOFS_MEMORY_SCOPE_GUARD_HPP
 
 #include "iox/function.hpp"
 #include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief The ScopeGuard class is a simple helper class to apply the C++ RAII
 ///             idiom quickly. You set 2 functions, one which is called in the
@@ -80,9 +78,8 @@ class ScopeGuardWithVariableCapacity final
 // This alias can be removed with C++17 and class template argument deduction
 using ScopeGuard = ScopeGuardWithVariableCapacity<>;
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/scope_guard.inl"
+#include "iox/detail/scope_guard.inl"
 
-#endif // IOX_HOOFS_CXX_SCOPE_GUARD_HPP
+#endif // IOX_HOOFS_MEMORY_SCOPE_GUARD_HPP

@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_HPP
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -33,6 +32,7 @@
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/optional.hpp"
+#include "iox/scope_guard.hpp"
 
 #include <atomic>
 
@@ -81,7 +81,7 @@ class PoshRuntime
     ///          lifetime participant and thus the PoshRuntime lives long enough.
     ///
     /// @return an opaque RAII object
-    static cxx::ScopeGuard getLifetimeParticipant() noexcept;
+    static ScopeGuard getLifetimeParticipant() noexcept;
 
     /// @brief get the name that was used to register with RouDi
     /// @return name of the registered application

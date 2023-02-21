@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,27 +13,21 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 #define IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
+#include "iox/scoped_static.hpp"
 
 namespace iox
 {
+/// @todo iox-#1593 Deprecate include
+/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/scoped_static.hpp' instead")]]
 namespace cxx
 {
-/// create a ScopeGuard object to cleanup a static optional object at the end of the scope
-/// @tparam [in] T memory container which has emplace(...) and reset
-/// @tparam [in] CTorArgs ctor types for the object to construct
-/// @param [in] memory is a reference to a memory container, e.g. optional
-/// @param [in] ctorArgs ctor arguments for the object to construct
-/// @return cxx::ScopeGuard
-template <typename T, typename... CTorArgs>
-ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept;
+/// @deprecated use `iox::makeScopedStatic` instead of `iox::cxx::makeScopedStatic`
+using iox::makeScopedStatic;
 } // namespace cxx
 } // namespace iox
-
-#include "iceoryx_hoofs/internal/cxx/scoped_static.inl"
-
 
 #endif // IOX_HOOFS_CXX_SCOPED_STATIC_HPP

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -32,6 +31,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/scope_guard.hpp"
 #include "test.hpp"
 
 #include <memory>
