@@ -77,10 +77,10 @@ class UninitializedArray final
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
+    /// @deterministic
     // The (empty) user-defined constructor is required.
     // Use of "= default" leads to value-initialization of class members.
-
-    /// @deterministic
+    // AXIVION Next Construct AutosarC++19_03-A12.6.1 : This is a low-level building block which is supposed to provide uninitialized memory
     constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;
