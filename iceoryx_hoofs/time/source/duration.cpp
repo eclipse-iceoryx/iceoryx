@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/duration.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 

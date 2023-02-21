@@ -18,10 +18,10 @@
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
 #include "iceoryx_dust/cxx/serialization.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/expected.hpp"
+#include "iox/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"

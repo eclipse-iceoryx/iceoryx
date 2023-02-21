@@ -14,10 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_LOGGING_HPP
-#define IOX_HOOFS_LOG_LOGGING_HPP
+#ifndef IOX_HOOFS_REPORTING_LOGGING_HPP
+#define IOX_HOOFS_REPORTING_LOGGING_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iox/logstream.hpp"
+
 namespace iox
 {
 namespace log
@@ -64,4 +65,4 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
-#endif // IOX_HOOFS_LOG_LOGGING_HPP
+#endif // IOX_HOOFS_REPORTING_LOGGING_HPP

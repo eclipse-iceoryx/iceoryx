@@ -662,7 +662,7 @@
     logger.LogInfo() << "Hello World";
 
     // after
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     iox::log::Logger::init(iox::log::LogLevel::INFO);
 
@@ -678,7 +678,7 @@
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
 
     // after
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     iox::log::Logger::init(iox::log::LogLevel::ERROR);
     ```
@@ -746,7 +746,7 @@
 
     // after
     // ==== file bar.cpp ====
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     namespace foo
     {

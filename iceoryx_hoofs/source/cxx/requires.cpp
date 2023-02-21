@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 #include <iostream>
 

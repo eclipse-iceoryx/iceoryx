@@ -19,7 +19,7 @@
 #define IOX_DUST_CXX_CONVERT_INL
 
 #include "iceoryx_dust/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {

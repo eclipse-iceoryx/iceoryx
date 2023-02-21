@@ -16,9 +16,9 @@
 #ifndef IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 #define IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/logstream.hpp"
 
 #include <cstdint>
 

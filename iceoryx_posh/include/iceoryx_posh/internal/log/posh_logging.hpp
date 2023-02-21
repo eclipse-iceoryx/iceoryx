@@ -18,7 +18,7 @@
 
 // @todo iox-#1755 for transition only; delete this file
 
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 #define LogFatal() IOX_LOG(FATAL)
 #define LogError() IOX_LOG(ERROR)

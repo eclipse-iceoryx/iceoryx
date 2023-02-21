@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 #define IOX_HOOFS_TESTUTILS_WATCH_DOG_HPP
 
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iox/duration.hpp"
+#include "iox/logging.hpp"
 
 #include <functional>
 #include <gtest/gtest.h>

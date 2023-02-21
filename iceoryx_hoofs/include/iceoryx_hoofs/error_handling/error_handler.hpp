@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 
-#include "iceoryx_hoofs/log/logger.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iox/function.hpp"
+#include "iox/logger.hpp"
+#include "iox/logging.hpp"
 #include "iox/scope_guard.hpp"
 
 #include <iostream>

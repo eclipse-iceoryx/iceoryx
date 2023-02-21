@@ -17,9 +17,9 @@
 
 #include "iceoryx_hoofs/cxx/list.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/attributes.hpp"
+#include "iox/logging.hpp"
 #include "test.hpp"
 
 

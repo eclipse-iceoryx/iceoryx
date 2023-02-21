@@ -16,8 +16,8 @@
 
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {

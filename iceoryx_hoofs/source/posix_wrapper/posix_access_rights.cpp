@@ -16,13 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/logging.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <limits>
