@@ -32,7 +32,7 @@ Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest
 For a basic setup you need to install the following packages:
 
 ```bash
-sudo apt install ros-humble-ros-base ros-humble-ros-testing ros-humble-launch-testing ros-humble-ament-cmake python3-colcon-common-extensions
+sudo apt install ros-humble-ros-base ros-humble-launch-testing ros-humble-ament-cmake python3-colcon-common-extensions
 ```
 
 For the future versions you can use the corresponding ROS 2 release.

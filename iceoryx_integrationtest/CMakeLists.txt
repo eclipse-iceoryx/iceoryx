@@ -28,8 +28,9 @@ if(BUILD_TESTING)
     test_iceoptions_example test_complexdata_example test_user_header_example
     test_icediscovery_example test_icediscovery_in_c_example test_icediscovery_monitoring
     test_request_response_in_c_listener_and_waitset test_request_response_basic test_request_response_in_c_basic
-    test_request_response_listener test_request_response_untyped test_ice_access_control_example
+    test_request_response_listener test_request_response_untyped
   )
+  # add test_ice_access_control_example when activating integrationtest #1910
 
   foreach(TEST IN LISTS IOX_INT_TESTS)
     add_launch_test(

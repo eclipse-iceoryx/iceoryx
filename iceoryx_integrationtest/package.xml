@@ -25,7 +25,7 @@
   <test_depend>example_callbacks_in_c</test_depend>
   <test_depend>example_complexdata</test_depend>
   <test_depend>example_icedelivery</test_depend>
-  <test_depend>example_ice_access_control</test_depend>
+  <!-- <test_depend>example_ice_access_control</test_depend> -->
   <test_depend>example_icedelivery_in_c</test_depend>
   <test_depend>example_icediscovery</test_depend>
   <test_depend>example_icediscovery_in_c</test_depend>
