@@ -29,11 +29,6 @@
 ./iceoryx_hoofs/source/posix_wrapper/*
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
-./iceoryx_hoofs/include/iceoryx_hoofs/design_pattern/polymorphic_handler.hpp
-
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/design_pattern/polymorphic_handler.inl
-
-./iceoryx_hoofs/test/moduletests/test_polymorphic_handler.cpp
 
 ./iceoryx_hoofs/posix/**/*
 

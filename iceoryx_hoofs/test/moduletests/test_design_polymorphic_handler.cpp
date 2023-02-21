@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
+#include "iox/polymorphic_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
 #include "test.hpp"
@@ -82,7 +82,7 @@ struct Hooks
     }
 };
 
-using Handler = iox::design_pattern::PolymorphicHandler<Interface, Default, Hooks>;
+using Handler = iox::PolymorphicHandler<Interface, Default, Hooks>;
 
 class PolymorphicHandler_test : public Test
 {

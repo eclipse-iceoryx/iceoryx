@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_INL
-#define IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_INL
+#ifndef IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_INL
+#define IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_INL
 
-#include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
+#include "iox/polymorphic_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
 #include <atomic>
 #include <cstdlib>
@@ -25,9 +25,6 @@
 
 namespace iox
 {
-namespace design_pattern
-{
-
 namespace detail
 {
 
@@ -176,7 +173,6 @@ PolymorphicHandler<Interface, Default, Hooks>::guard() noexcept
     return StaticLifetimeGuard<Self>();
 }
 
-} // namespace design_pattern
 } // namespace iox
 
-#endif // IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_INL
+#endif // IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_INL
