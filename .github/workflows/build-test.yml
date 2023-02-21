@@ -72,13 +72,13 @@ jobs:
   run-integration-test:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
       - name: Setup ROS
         uses: ros-tooling/setup-ros@v0.5
         with:
-          required-ros-distributions: foxy
+          required-ros-distributions: humble
       - uses: actions/checkout@v3
       - run: ./tools/ci/run-integration-test.sh
 
@@ -162,7 +162,7 @@ jobs:
           file: ./lcov_results/unittest/lcov/iceoryx_lcov_result_unit.info
           name: iceoryx
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
@@ -170,4 +170,4 @@ jobs:
           file: ./lcov_results/unittest_timing/lcov/iceoryx_lcov_result_unit-timing.info
           name: iceoryx
           flags: unittests_timing
-          fail_ci_if_error: true
+          fail_ci_if_error: false

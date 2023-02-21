@@ -21,6 +21,23 @@
   <test_depend>iceoryx_hoofs</test_depend>
   <test_depend>iceoryx_dust</test_depend>
 
+  <test_depend>example_callbacks</test_depend>
+  <test_depend>example_callbacks_in_c</test_depend>
+  <test_depend>example_complexdata</test_depend>
+  <test_depend>example_icedelivery</test_depend>
+  <!-- <test_depend>example_ice_access_control</test_depend> -->
+  <test_depend>example_icedelivery_in_c</test_depend>
+  <test_depend>example_icediscovery</test_depend>
+  <test_depend>example_icediscovery_in_c</test_depend>
+  <test_depend>example_icehello</test_depend>
+  <test_depend>example_iceoptions</test_depend>
+  <test_depend>example_request_response</test_depend>
+  <test_depend>example_request_response_in_c</test_depend>
+  <test_depend>example_singleprocess</test_depend>
+  <test_depend>example_user_header</test_depend>
+  <test_depend>example_waitset</test_depend>
+  <test_depend>example_waitset_in_c</test_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

@@ -24,15 +24,15 @@ Limitations:
 
 ## Setup
 
-To build and execute the tests you need to have ROS 2 installed. Please follow the instructions on <https://docs.ros.org/en/foxy/Installation.html>.
-The system tests are currently tested on ROS 2 "Foxy Fitzroy" in Ubuntu 20.04 LTS.
+To build and execute the tests you need to have ROS 2 installed. Please follow the instructions on <https://docs.ros.org/en/humble/Installation.html>.
+The system tests are currently tested on ROS 2 "Humble Hawksbill" in Ubuntu 22.04 LTS.
 
 Please remove beforehand the `COLCON_IGNORE` files from `iceoryx_integrationtest` and `iceoryx_examples`.
 
 For a basic setup you need to install the following packages:
 
 ```bash
-sudo apt install ros-foxy-ros-base ros-foxy-ros-testing ros-foxy-launch-testing ros-foxy-ament-cmake python3-colcon-common-extensions
+sudo apt install ros-humble-ros-base ros-humble-launch-testing ros-humble-ament-cmake python3-colcon-common-extensions
 ```
 
 For the future versions you can use the corresponding ROS 2 release.
@@ -40,14 +40,14 @@ For the future versions you can use the corresponding ROS 2 release.
 Once installed, you need to source ROS 2 to make the environment available in your terminal:
 
 ```bash
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 ```
 
 **_NOTE:_** You can add the source command to your `~/.bashrc` for automatic loading the ROS 2 workspace at boot time.
 
 Required for the colcon build of iceoryx is that the repository is located within a ROS workspace like this:
 
-```
+```shell
 iceoryx_workspace
 └── src
     └── iceoryx
@@ -67,7 +67,7 @@ iceoryx_workspace
 Go into your iceoryx_workspace folder and do the colcon build:
 
 ```bash
-colcon build
+colcon build --packages-up-to iceoryx_integrationtest
 ```
 
 The expected output should be like this: `Summary: 21 packages finished [31.7s]`
@@ -118,7 +118,7 @@ An output for a failing test could look like this:
     Traceback (most recent call last):
       File "iceoryx_workspace/src/iceoryx/iceoryx_integrationtest/iceoryx_integrationtest/test_roudi_startup_shutdown.py", line 52, in test_roudi_ready
         proc_output.assertWaitFor(
-      File "/opt/ros/foxy/lib/python3.8/site-packages/launch_testing/io_handler.py", line 146, in assertWaitFor
+      File "/opt/ros/humble/lib/python3.8/site-packages/launch_testing/io_handler.py", line 146, in assertWaitFor
         assert success, 'Waiting for output timed out'
     AssertionError: Waiting for output timed out
 ```
