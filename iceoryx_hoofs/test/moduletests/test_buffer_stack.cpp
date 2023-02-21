@@ -43,6 +43,7 @@ struct CompareOrder
 class TestClass
 {
   public:
+    static uint32_t cTor;
     static uint32_t copyCTor;
     static uint32_t moveCTor;
     static uint32_t copyAssignment;
@@ -58,6 +59,7 @@ class TestClass
         , m_b(b)
         , m_c(c)
     {
+        cTor++;
     }
 
     TestClass(const TestClass& rhs) noexcept
@@ -115,6 +117,7 @@ class TestClass
     uint32_t m_a = 0, m_b = 0, m_c = 0;
 };
 
+uint32_t TestClass::cTor;
 uint32_t TestClass::copyCTor;
 uint32_t TestClass::moveCTor;
 uint32_t TestClass::copyAssignment;
@@ -141,6 +144,7 @@ class stack_test : public Test
 
     void SetUp() override
     {
+        TestClass::cTor = 0;
         TestClass::copyCTor = 0;
         TestClass::moveCTor = 0;
         TestClass::copyAssignment = 0;
@@ -207,9 +211,17 @@ TEST_F(stack_test, popCreatesSpaceForAnotherElement)
     ::testing::Test::RecordProperty("TEST_ID", "3ebf7f6d-81ef-45d6-83a6-80f8588cbba6");
     pushElements(STACK_SIZE);
 
-    EXPECT_THAT(m_sut.pop(), Ne(nullopt));
+    EXPECT_TRUE(m_sut.pop().has_value());
     EXPECT_TRUE(m_sut.push());
-    EXPECT_THAT(TestClass::dTor, Eq(1));
+
+// clang >= 15 performs mandatory elision of copy/move operations (C++17 requirement)
+#if defined(__clang__) && __clang_major__ >= 15
+    constexpr uint64_t ELISION_CORRECTION{0};
+#else
+    constexpr uint64_t ELISION_CORRECTION{1};
+#endif
+
+    EXPECT_THAT(TestClass::dTor, Eq(2 + ELISION_CORRECTION));
 }
 
 TEST_F(stack_test, TestClassDTorIsCalledWhenStackGoesOutOfScope)
@@ -252,6 +264,42 @@ TEST_F(stack_test, CopyConstructorWorksAndCallsTestClassCopyConstructor)
     EXPECT_THAT(TestClass::copyCTor, Eq(1));
     ASSERT_THAT(testStack.size(), Eq(1));
     EXPECT_THAT(testStack.pop().value(), Eq(TestClass(ELEMENT, ELEMENT, ELEMENT)));
+}
+
+TEST_F(stack_test, CopyCtorWithOneElementLeadsToEqualCtorAndDtorCalls)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dc44fcdc-ced6-4345-822b-58b9e58baf85");
+    constexpr uint32_t ELEMENT{37};
+    {
+        stack<TestClass, STACK_SIZE> other;
+        other.push(TestClass(ELEMENT, ELEMENT, ELEMENT));
+
+        stack<TestClass, STACK_SIZE> sut(other);
+
+        EXPECT_EQ(other.size(), 1);
+        EXPECT_EQ(sut.size(), 1);
+
+        EXPECT_THAT(TestClass::dTor, Eq(1));
+        EXPECT_THAT(TestClass::copyCTor, Eq(1));
+        EXPECT_THAT(TestClass::moveCTor, Eq(1));
+
+        auto element = sut.pop();
+        ASSERT_TRUE(element.has_value());
+        EXPECT_THAT(other.size(), Eq(1));
+        EXPECT_THAT(sut.size(), Eq(0));
+    }
+
+// clang >= 15 performs mandatory elision of copy/move operations (C++17 requirement)
+#if defined(__clang__) && __clang_major__ >= 15
+    constexpr uint64_t ELISION_CORRECTION{0};
+#else
+    constexpr uint64_t ELISION_CORRECTION{1};
+#endif
+
+    EXPECT_THAT(TestClass::dTor, Eq(4 + ELISION_CORRECTION));
+    EXPECT_THAT(TestClass::cTor, Eq(4 + ELISION_CORRECTION));
+    EXPECT_THAT(TestClass::copyCTor, Eq(1));
+    EXPECT_THAT(TestClass::moveCTor, Eq(2 + ELISION_CORRECTION));
 }
 
 TEST_F(stack_test, CopyConstructorWithEmptyStackWorks)

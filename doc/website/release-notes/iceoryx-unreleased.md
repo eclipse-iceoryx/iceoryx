@@ -69,6 +69,7 @@
   [\#1821](https://github.com/eclipse-iceoryx/iceoryx/issues/1821)
 - Can not build iceoryx with gcc 9.4 [\#1871](https://github.com/eclipse-iceoryx/iceoryx/issues/1871)
 - Update iceoryx_integrationtest package to use ROS2 Humble [\#1906](https://github.com/eclipse-iceoryx/iceoryx/issues/1906)
+- Fix potential memory leak in `iox::stack` [\#1893](https://github.com/eclipse-iceoryx/iceoryx/issues/1893)
 
 **Refactoring:**
 
