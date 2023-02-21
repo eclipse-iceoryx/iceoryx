@@ -47,7 +47,7 @@ source /opt/ros/humble/setup.bash
 
 Required for the colcon build of iceoryx is that the repository is located within a ROS workspace like this:
 
-```
+```shell
 iceoryx_workspace
 └── src
     └── iceoryx
@@ -67,7 +67,7 @@ iceoryx_workspace
 Go into your iceoryx_workspace folder and do the colcon build:
 
 ```bash
-colcon build
+colcon build --packages-up-to iceoryx_integrationtest
 ```
 
 The expected output should be like this: `Summary: 21 packages finished [31.7s]`
