@@ -50,11 +50,9 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     };
 
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
-    if (posix::posixCall(clock_gettime)((reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC,
-                                        &referenceTime)
-            .failureReturnValue(-1)
-            .evaluate()
-            .has_error())
+    // AXIVION Next Construct AutosarC++19_03-M5.0.3: False positive! CLOCK_REALTIME and CLOCK_MONOTONIC are of type clockid_t
+    const clockid_t clockId{(reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC};
+    if (posix::posixCall(clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error())
     {
         return {0, 0};
     }
@@ -62,6 +60,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     const auto targetTime = Duration(referenceTime) + *this;
 
     static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
         IOX_LOG(TRACE) << ": Result of conversion would overflow, clamping to max value!";
