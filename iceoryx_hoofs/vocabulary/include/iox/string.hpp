@@ -534,7 +534,7 @@ class string final
 
     // safe access is guaranteed since the char array is wrapped inside the string class
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char m_rawstring[Capacity + 1]{};
+    char m_rawstring[Capacity + 1]{'\0'};
     uint64_t m_rawstringSize{0U};
 };
 
