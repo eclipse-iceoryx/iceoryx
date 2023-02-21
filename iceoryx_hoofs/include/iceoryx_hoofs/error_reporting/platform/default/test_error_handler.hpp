@@ -31,7 +31,7 @@ class TestHandler : public ErrorHandlerInterface
     /// @brief Defines the reaction on error.
     /// @param location the location of the error
     /// @param code the code of the error
-    void report(const SourceLocation&, error_code_t code) override;
+    void report(const SourceLocation&, ErrorCode code) override;
 
     /// @brief Indicates whether there was a panic call previously.
     /// @return true if there was a panic call, false otherwise
@@ -43,9 +43,9 @@ class TestHandler : public ErrorHandlerInterface
     /// @brief Indicates whether any error occurred previously.
     bool hasError() const;
 
-    /// @todo module must be propagated here as well
+    /// @todo module id must be propagated here as well
     /// @brief Indicates whether as specific error occurred previously.
-    bool hasError(error_code_t code) const;
+    bool hasError(ErrorCode code) const;
 
     /// @brief Prepare a jump and return jump buffer
     /// @return true if the jump destination was set, false otherwise (jump occurred)
@@ -62,10 +62,10 @@ class TestHandler : public ErrorHandlerInterface
 
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
-    std::vector<error_code_t> m_errors;
+    std::vector<ErrorCode> m_errors;
 
     jmp_buf m_jumpBuffer;
-    bool m_jump{false};
+    std::atomic<bool> m_jump{false};
 
     void jump();
 };

@@ -5,7 +5,7 @@ namespace iox
 namespace err
 {
 
-void TestHandler::report(const SourceLocation&, error_code_t code)
+void TestHandler::report(const SourceLocation&, ErrorCode code)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(code);
@@ -34,8 +34,9 @@ bool TestHandler::hasError() const
     return !m_errors.empty();
 }
 
-bool TestHandler::hasError(error_code_t code) const
+bool TestHandler::hasError(ErrorCode code) const
 {
+    /// @todo use module id as well
     std::lock_guard<std::mutex> g(m_mutex);
     auto iter = std::find(m_errors.begin(), m_errors.end(), code);
     return iter != m_errors.end();

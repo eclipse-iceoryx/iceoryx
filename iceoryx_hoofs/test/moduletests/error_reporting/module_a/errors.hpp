@@ -6,16 +6,17 @@
 // ***
 
 #include "iceoryx_hoofs/error_reporting/error.hpp"
+#include "iceoryx_hoofs/error_reporting/types.hpp"
 
 namespace module_a
 {
 namespace errors
 {
 
-using error_code_t = iox::err::error_code_t;
-using module_id_t = iox::err::module_id_t;
+using ErrorCode = iox::err::ErrorCode;
+using ModuleId = iox::err::ModuleId;
 
-enum class ErrorCode : error_code_t
+enum class Code : ErrorCode::type
 {
     Unknown = 42,
     OutOfMemory = 73,
@@ -25,27 +26,27 @@ enum class ErrorCode : error_code_t
 class Error
 {
   public:
-    explicit Error(ErrorCode code = ErrorCode::Unknown)
-        : m_code(code)
+    explicit Error(Code code = Code::Unknown)
+        : m_code(static_cast<ErrorCode::type>(code))
     {
     }
 
-    static constexpr module_id_t module()
+    static constexpr ModuleId module()
     {
         return MODULE_ID;
     }
 
-    error_code_t code() const
+    ErrorCode code() const
     {
-        return static_cast<error_code_t>(m_code);
+        return static_cast<ErrorCode>(m_code);
     }
 
     const char* name() const
     {
-        return errorNames[code()];
+        return errorNames[code().value];
     }
 
-    static constexpr module_id_t MODULE_ID = 1;
+    static constexpr ModuleId MODULE_ID{1};
 
   protected:
     ErrorCode m_code;
@@ -59,7 +60,7 @@ class OutOfBoundsError : public Error
 {
   public:
     OutOfBoundsError()
-        : Error(ErrorCode::OutOfBounds)
+        : Error(Code::OutOfBounds)
     {
     }
 
@@ -83,13 +84,13 @@ namespace err
 
 // This definition must exist in this namespace for overload resolution.
 // Each module must use a unqiue error enum, e.g. by namespace.
-inline module_a::errors::Error toError(module_a::errors::ErrorCode code)
+inline module_a::errors::Error toError(module_a::errors::Code code)
 {
     return module_a::errors::Error(code);
 }
 
 // Any error code of this enum has the same module id.
-inline module_id_t toModule(module_a::errors::ErrorCode)
+inline ModuleId toModule(module_a::errors::Code)
 {
     return module_a::errors::Error::MODULE_ID;
 }

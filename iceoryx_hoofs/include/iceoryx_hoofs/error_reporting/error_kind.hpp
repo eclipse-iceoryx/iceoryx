@@ -8,6 +8,9 @@ namespace iox
 {
 namespace err
 {
+
+/// todo: abstract in types
+
 using error_level_t = uint32_t;
 constexpr error_level_t FATAL_LEVEL{0};
 
@@ -99,7 +102,6 @@ bool constexpr requiresHandling(Kind)
     return true;
 }
 
-// FATAL always requires handling
 bool constexpr requiresHandling(Fatal)
 {
     return true;

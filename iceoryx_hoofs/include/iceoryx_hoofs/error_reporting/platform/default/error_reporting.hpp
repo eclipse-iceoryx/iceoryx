@@ -43,7 +43,7 @@ template <class Kind, class Error>
 inline void report(const SourceLocation& location, Kind, const Error& error)
 {
     auto code = toCode(error);
-    IOX_LOG_ERROR(location) << " Error " << code << " in module " << toModule(error);
+    IOX_LOG_ERROR(location) << " Error " << code.value << " in module " << toModule(error).value;
     auto& h = ErrorHandler::get();
     h.report(location, code);
 }
@@ -52,7 +52,7 @@ template <class Error>
 inline void report(const SourceLocation& location, iox::err::Fatal, const Error& error)
 {
     auto code = toCode(error);
-    IOX_LOG_FATAL_ERROR(location) << " Fatal Error " << code << " in module " << toModule(error);
+    IOX_LOG_FATAL_ERROR(location) << " Fatal Error " << code.value << " in module " << toModule(error).value;
     auto& h = ErrorHandler::get();
     h.report(location, code);
 }

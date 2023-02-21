@@ -4,6 +4,7 @@
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 
+/// @todo with a log stream interface this could be doen with functions, not macros
 
 /// @brief Log the location of an error.
 /// @param location the location of the error

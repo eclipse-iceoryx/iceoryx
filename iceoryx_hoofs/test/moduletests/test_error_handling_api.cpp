@@ -1,6 +1,9 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
+#define IOX_CHECK_PRECONDITIONS
+#define IOX_CHECK_ASSUMPTIONS
+
 // some dummy modules under test
 #include "error_reporting/module_a/error_reporting.hpp"
 #include "error_reporting/module_b/error_reporting.hpp"
@@ -16,10 +19,10 @@ using namespace iox::cxx;
 using namespace iox::testing;
 
 using MyErrorA = module_a::errors::Error;
-using MyCodeA = module_a::errors::ErrorCode;
+using MyCodeA = module_a::errors::Code;
 
 using MyErrorB = module_b::errors::Error;
-using MyCodeB = module_b::errors::ErrorCode;
+using MyCodeB = module_b::errors::Code;
 
 class ErrorReportingAPI_test : public Test
 {

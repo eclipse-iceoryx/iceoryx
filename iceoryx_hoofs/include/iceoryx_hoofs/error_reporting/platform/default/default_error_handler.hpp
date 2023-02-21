@@ -18,7 +18,7 @@ class DefaultHandler : public ErrorHandlerInterface
     /// @brief Defines the reaction on error.
     /// @param location the location of the error
     /// @param code the code of the error
-    void report(const SourceLocation&, error_code_t) override;
+    void report(const SourceLocation&, ErrorCode) override;
 };
 
 } // namespace err
