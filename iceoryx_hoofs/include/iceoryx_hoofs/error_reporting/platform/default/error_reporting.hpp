@@ -6,7 +6,6 @@
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
-#include "iceoryx_hoofs/error_reporting/platform/default/error_code.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
 

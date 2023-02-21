@@ -243,27 +243,6 @@ TEST_F(ErrorReportingAPI_test, checkAssumptionWithMessage)
     ASSERT_PANIC();
 }
 
-TEST_F(ErrorReportingAPI_test, reportExpectedAsError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "316a1641-6750-421b-a414-1ce858e45529");
-    // this is not ideal but currently as good as it gets (?) with expected
-    auto f = []() -> expected<int, MyErrorA> {
-        auto e = IOX_ERROR(MyCodeA::Unknown);
-        return iox::cxx::error<MyErrorA>(e);
-    };
-
-    auto g = [&]() {
-        auto res = f();
-        ASSERT_TRUE(res.has_error());
-        IOX_REPORT(res, FATAL);
-    };
-
-    runInTestThread(g);
-
-    ASSERT_PANIC();
-    ASSERT_ERROR(MyCodeA::Unknown);
-}
-
 TEST_F(ErrorReportingAPI_test, reportErrorsFromDifferentModules)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bc53c41-4e4b-466e-b706-603ed5a3d0cf");
