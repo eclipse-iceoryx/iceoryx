@@ -26,7 +26,7 @@ namespace cxx
 {
 template <uint64_t CleanupCapacity>
 inline ScopeGuardWithVariableCapacity<CleanupCapacity>::ScopeGuardWithVariableCapacity(
-    const cxx::function<void(), CleanupCapacity>& cleanupFunction) noexcept
+    const function<void(), CleanupCapacity>& cleanupFunction) noexcept
     : m_cleanupFunction(cleanupFunction)
 {
 }

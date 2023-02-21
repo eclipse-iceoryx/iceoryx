@@ -16,11 +16,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/pthread.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/function.hpp"
 #include "iox/string.hpp"
 
 #include <atomic>
@@ -50,7 +50,7 @@ enum class ThreadError
 /// @code
 /// #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 ///
-/// iox::cxx::function<void()> callable = []() { /* ... */ };
+/// iox::function<void()> callable = []() { /* ... */ };
 /// optional<Thread> myThread;
 /// ThreadBuilder().create(myThread, callable).expect("Couldn't create a thread.");
 /// @endcode
@@ -60,7 +60,7 @@ enum class ThreadError
 class Thread
 {
   public:
-    using callable_t = cxx::function<void()>;
+    using callable_t = function<void()>;
 
     Thread(const Thread&) = delete;
     Thread& operator=(const Thread&) = delete;

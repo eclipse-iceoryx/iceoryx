@@ -24,7 +24,7 @@ namespace iox
 {
 // AXIVION Next Construct AutosarC++19_03-A12.1.5 : False positive, the class doesn't require a delegating ctor
 template <typename T>
-inline unique_ptr<T>::unique_ptr(T* const object, const cxx::function<DeleterType>& deleter) noexcept
+inline unique_ptr<T>::unique_ptr(T* const object, const function<DeleterType>& deleter) noexcept
     : m_ptr(object)
     , m_deleter(deleter)
 {

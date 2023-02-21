@@ -14,16 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_STORABLE_FUNCTION_INL
-#define IOX_HOOFS_STORABLE_FUNCTION_INL
+#ifndef IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_INL
+#define IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_INL
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/internal/cxx/storable_function.hpp"
+#include "iox/detail/storable_function.hpp"
 #include "iox/memory.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 // AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
 // @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
@@ -353,7 +351,6 @@ storable_function<Capacity, signature<ReturnType, Args...>>::operations::destroy
     }
 }
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_STORABLE_FUNCTION_INL
+#endif // IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_INL

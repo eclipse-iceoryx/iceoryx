@@ -14,15 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/function.hpp"
 #include "test.hpp"
 
 #include <functional>
 #include <iostream>
 
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 namespace
 {
@@ -31,7 +31,7 @@ constexpr uint64_t Bytes = 128U;
 
 using signature = int32_t(int32_t);
 template <typename T>
-using fixed_size_function = iox::cxx::function<T, Bytes>;
+using fixed_size_function = function<T, Bytes>;
 using test_function = fixed_size_function<signature>;
 
 
@@ -445,14 +445,14 @@ TEST_F(function_test, FunctorOfSizeSmallerThanStorageBytesCanBeStored)
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
     EXPECT_LE(sizeof(Functor), BYTES);
     Functor f(73);
-    iox::cxx::function<signature, BYTES> sut(f);
+    function<signature, BYTES> sut(f);
 }
 
 TEST_F(function_test, IsStorableIsConsistent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "78fd4207-9ef4-459d-96f4-9cca98135b47");
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
-    constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<Functor>();
+    constexpr auto RESULT = function<signature, BYTES>::is_storable<Functor>();
     EXPECT_TRUE(RESULT);
 }
 
@@ -460,7 +460,7 @@ TEST_F(function_test, IsNotStorableDueToSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4ecd7078-5b3d-4fd5-b5af-296401b652ce");
     constexpr auto BYTES = test_function::required_storage_size<Functor>();
-    constexpr auto RESULT = iox::cxx::function<signature, BYTES - alignof(Functor)>::is_storable<Functor>();
+    constexpr auto RESULT = function<signature, BYTES - alignof(Functor)>::is_storable<Functor>();
     EXPECT_FALSE(RESULT);
 }
 
@@ -470,7 +470,7 @@ TEST_F(function_test, IsNotStorableDueToSignature)
     auto nonStorable = []() {};
     using NonStorable = decltype(nonStorable);
     constexpr auto BYTES = test_function::required_storage_size<NonStorable>();
-    constexpr auto RESULT = iox::cxx::function<signature, BYTES>::is_storable<NonStorable>();
+    constexpr auto RESULT = function<signature, BYTES>::is_storable<NonStorable>();
     EXPECT_FALSE(RESULT);
 }
 
@@ -478,7 +478,7 @@ TEST_F(function_test, IsNotStorableDueToSignature)
 TEST_F(function_test, CallWithCopyConstructibleArgument)
 {
     ::testing::Test::RecordProperty("TEST_ID", "20018d76-6255-407a-b3d3-77b6b480067d");
-    iox::cxx::function<int32_t(const Arg&), 1024> sut(freeFunctionWithCopyableArg);
+    function<int32_t(const Arg&), 1024> sut(freeFunctionWithCopyableArg);
     std::function<int32_t(const Arg&)> func(freeFunctionWithCopyableArg);
     Arg::resetCounts();
 
@@ -498,7 +498,7 @@ TEST_F(function_test, CallWithVoidSignatureWorks)
     const int32_t initial = 73;
     int value = initial;
     auto lambda = [&]() { ++value; };
-    iox::cxx::function<void(void), 128> sut(lambda);
+    function<void(void), 128> sut(lambda);
 
     sut();
 
@@ -512,7 +512,7 @@ TEST_F(function_test, CallWithReferenceArgumentsWorks)
     Arg arg(initial);
 
     auto lambda = [](Arg& a) { ++a.value; };
-    iox::cxx::function<void(Arg&), 128> sut(lambda);
+    function<void(Arg&), 128> sut(lambda);
 
     sut(arg);
 
@@ -526,7 +526,7 @@ TEST_F(function_test, CallWithConstReferenceArgumentsWorks)
     Arg arg(initial);
 
     auto lambda = [](const Arg& a) { return a.value + 1; };
-    iox::cxx::function<int32_t(const Arg&), 128> sut(lambda);
+    function<int32_t(const Arg&), 128> sut(lambda);
 
     auto result = sut(arg);
 
@@ -542,7 +542,7 @@ TEST_F(function_test, CallWithValueArgumentsWorks)
     /// @NOLINTJUSTIFICATION value argument is tested here
     /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
     auto lambda = [](const Arg a) { return a.value + 1; };
-    iox::cxx::function<int32_t(Arg&), 128> sut(lambda);
+    function<int32_t(Arg&), 128> sut(lambda);
 
     auto result = sut(arg);
 
@@ -556,7 +556,7 @@ TEST_F(function_test, CallWithRValueReferenceArgumentsWorks)
     Arg arg(initial);
 
     auto lambda = [](Arg&& a) { return a.value + 1; };
-    iox::cxx::function<int32_t(Arg &&), 128> sut(lambda);
+    function<int32_t(Arg &&), 128> sut(lambda);
 
     auto result = sut(std::move(arg));
 
@@ -576,7 +576,7 @@ TEST_F(function_test, CallWithMixedArgumentsWorks)
     /// @NOLINTJUSTIFICATION value argument is tested here
     /// @NOLINTNEXTLINE(performance-unnecessary-value-param)
     auto lambda = [](Arg& a1, const Arg& a2, Arg&& a3, Arg a4) { return a1.value + a2.value + a3.value + a4.value; };
-    iox::cxx::function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
+    function<int32_t(Arg&, const Arg&, Arg&&, Arg), 128> sut(lambda);
 
     auto result = sut(arg1, arg2, std::move(arg3), arg4);
 

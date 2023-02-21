@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_TESTUTILS_ERROR_HANDLER_MOCK_HPP
 #define IOX_HOOFS_TESTUTILS_ERROR_HANDLER_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/error_handling/error_handler.hpp"
+#include "iox/function.hpp"
 #include <mutex>
 
 #include "iceoryx_hoofs/testing/test.hpp"
@@ -25,7 +25,7 @@
 namespace iox
 {
 template <typename Error>
-using TypedHandlerFunction = cxx::function<void(const Error, const ErrorLevel)>;
+using TypedHandlerFunction = function<void(const Error, const ErrorLevel)>;
 
 /// @brief This mock is needed for unit testing, special debugging cases and
 ///         other corner cases where we'd like to explicitly suppress the

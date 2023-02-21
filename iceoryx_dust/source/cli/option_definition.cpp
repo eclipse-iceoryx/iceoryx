@@ -23,7 +23,7 @@ namespace cli
 namespace internal
 {
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
-                                   const cxx::function<void()> onFailureCallback) noexcept
+                                   const function<void()> onFailureCallback) noexcept
     : m_programDescription{programDescription}
     , m_onFailureCallback{onFailureCallback}
 {

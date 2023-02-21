@@ -18,7 +18,6 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
@@ -128,7 +128,7 @@ class GatewayGeneric : public gateway_t
     /// @param f The function to execute.
     /// @note This operation allows thread-safe access to the internal collection.
     ///
-    void forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept;
+    void forEachChannel(const function_ref<void(channel_t&)> f) const noexcept;
 
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.

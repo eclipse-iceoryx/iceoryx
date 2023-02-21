@@ -45,7 +45,7 @@ void adaptive_wait::wait() noexcept
     }
 }
 
-void adaptive_wait::wait_loop(const cxx::function_ref<bool()>& continueToWait) noexcept
+void adaptive_wait::wait_loop(const function_ref<bool()>& continueToWait) noexcept
 {
     while (continueToWait())
     {

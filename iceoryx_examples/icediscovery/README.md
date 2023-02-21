@@ -397,7 +397,7 @@ m_listener.attachEvent(*m_discovery, iox::runtime::ServiceDiscoveryEvent::SERVIC
     .or_else(errorHandler);
 ```
 
-The callback is stored as a `cxx::function` which does not require dynamic memory (but limits the size of the stored function,
+The callback is stored as a `iox::function` which does not require dynamic memory (but limits the size of the stored function,
 which is relevant e.g. for capturing lambdas). If dynamic memory is no concern we can also use a `std::function`.
 The callback can be any callable with a `(void)(discovery::Discovery&)` signature.
 Again the callback signature can be generalized somewhat but there are constraints to use it with the listener.

@@ -58,6 +58,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
+                                ${PROJECT_SOURCE_DIR}/functional/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -72,6 +73,7 @@ iox_add_library(
                                 posix/time/include/
                                 buffer/include/
                                 filesystem/include/
+                                functional/include/
     FILES
         design/source/functional_interface.cpp
         filesystem/source/filesystem.cpp

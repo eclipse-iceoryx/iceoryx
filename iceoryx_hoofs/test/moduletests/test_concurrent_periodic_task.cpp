@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iox/function.hpp"
+#include "iox/function_ref.hpp"
 
 #include "test.hpp"
 
@@ -193,7 +193,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithObjectAsReference, Repea
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunctionRef, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "71b34fd4-4b2b-43e5-a574-9261460cca7c");
     {
-        concurrent::PeriodicTask<cxx::function_ref<void()>> sut(
+        concurrent::PeriodicTask<function_ref<void()>> sut(
             PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
@@ -217,7 +217,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithStdFunction, Repeat(3), 
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskRunningWithCxxFunction, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "1b890488-a86b-40bf-a51d-12128459cb79");
     {
-        concurrent::PeriodicTask<cxx::function<void()>> sut(
+        concurrent::PeriodicTask<function<void()>> sut(
             PeriodicTaskAutoStart, INTERVAL, "Test", PeriodicTaskTestType::increment);
 
         std::this_thread::sleep_for(SLEEP_TIME);
@@ -247,7 +247,7 @@ TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsActiveAppliesNewIntervalAfte
 TIMING_TEST_F(PeriodicTask_test, PeriodicTaskWhichIsExecutingTheCallableIsBlockingOnStop, Repeat(3), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "4a4db536-3691-4a73-aeb0-09cd37009b9e");
     auto start = std::chrono::steady_clock::now();
-    concurrent::PeriodicTask<cxx::function_ref<void()>> sut(
+    concurrent::PeriodicTask<function_ref<void()>> sut(
         PeriodicTaskAutoStart, INTERVAL, "Test", [] { std::this_thread::sleep_for(SLEEP_TIME); });
     sut.stop();
     auto stop = std::chrono::steady_clock::now();

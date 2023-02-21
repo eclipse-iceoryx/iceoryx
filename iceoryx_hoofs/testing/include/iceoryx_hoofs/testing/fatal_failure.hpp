@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 #define IOX_HOOFS_TESTING_FATAL_FAILURE_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 #include "test.hpp"
 
@@ -43,9 +43,9 @@ namespace detail
 /// @param[in] onNonFatalFailurePath This function will be executed on the non-failure path if no failure was detected
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool IOX_FATAL_FAILURE_TEST(const cxx::function_ref<void()> testFunction,
-                            const cxx::function_ref<void(const ErrorType, const iox::ErrorLevel)> onFatalFailurePath,
-                            const cxx::function_ref<void()> onNonFatalFailurePath);
+bool IOX_FATAL_FAILURE_TEST(const function_ref<void()> testFunction,
+                            const function_ref<void(const ErrorType, const iox::ErrorLevel)> onFatalFailurePath,
+                            const function_ref<void()> onNonFatalFailurePath);
 } // namespace detail
 
 /// @brief This function is used in cases a fatal failure is expected. The function only works in combination with the
@@ -61,7 +61,7 @@ bool IOX_FATAL_FAILURE_TEST(const cxx::function_ref<void()> testFunction,
 /// @param[in] expectedError The error value which triggered the fatal failure
 /// @return true if a fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool IOX_EXPECT_FATAL_FAILURE(const cxx::function_ref<void()> testFunction, const ErrorType expectedError);
+bool IOX_EXPECT_FATAL_FAILURE(const function_ref<void()> testFunction, const ErrorType expectedError);
 
 /// @brief This function is used in cases no fatal failure is expected but could potentially occur. The function only
 /// works in combination with the iceoryx error handler.
@@ -75,7 +75,7 @@ bool IOX_EXPECT_FATAL_FAILURE(const cxx::function_ref<void()> testFunction, cons
 /// @param[in] testFunction This function will be executed as SUT and is not expected to call the error handler
 /// @return true if no fatal failure occurs, false otherwise
 template <typename ErrorType>
-bool IOX_EXPECT_NO_FATAL_FAILURE(const cxx::function_ref<void()> testFunction);
+bool IOX_EXPECT_NO_FATAL_FAILURE(const function_ref<void()> testFunction);
 
 } // namespace testing
 } // namespace iox

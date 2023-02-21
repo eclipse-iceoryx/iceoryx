@@ -17,8 +17,6 @@
 #ifndef IOX_POSH_POPO_WAIT_SET_HPP
 #define IOX_POSH_POPO_WAIT_SET_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
@@ -30,6 +28,8 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/function.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/stack.hpp"
 #include "iox/vector.hpp"
 
@@ -216,7 +216,7 @@ class WaitSet
         PLACEHOLDER
     };
 
-    using WaitFunction = cxx::function_ref<ConditionListener::NotificationVector_t()>;
+    using WaitFunction = function_ref<ConditionListener::NotificationVector_t()>;
     template <typename T, typename ContextDataType>
     expected<uint64_t, WaitSetError> attachImpl(T& eventOrigin,
                                                 const WaitSetIsConditionSatisfiedCallback& hasTriggeredCallback,

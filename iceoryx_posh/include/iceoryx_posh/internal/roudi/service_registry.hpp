@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 #include "iox/vector.hpp"
 
@@ -89,12 +89,12 @@ class ServiceRegistry
     void find(const optional<capro::IdString_t>& service,
               const optional<capro::IdString_t>& instance,
               const optional<capro::IdString_t>& event,
-              cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+              function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     /// @brief Applys a callable to all entries
     /// @param[in] callable, callable to apply to each entry
     /// @note Can be used to obtain all entries or count them
-    void forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+    void forEach(function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
   private:
     using Entry_t = optional<ServiceDescriptionEntry>;

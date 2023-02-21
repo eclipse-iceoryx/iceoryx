@@ -22,8 +22,7 @@ namespace cli
 {
 namespace internal
 {
-OptionManager::OptionManager(const OptionDescription_t& programDescription,
-                             const cxx::function<void()> onFailureCallback)
+OptionManager::OptionManager(const OptionDescription_t& programDescription, const function<void()> onFailureCallback)
     : m_optionSet{programDescription, onFailureCallback}
 {
 }

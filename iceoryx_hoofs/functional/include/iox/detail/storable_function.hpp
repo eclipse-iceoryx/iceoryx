@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_STORABLE_FUNCTION_HPP
-#define IOX_HOOFS_STORABLE_FUNCTION_HPP
+#ifndef IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_HPP
+#define IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_HPP
 
 #include "iox/iceoryx_hoofs_types.hpp"
 #include "iox/type_traits.hpp"
@@ -25,8 +25,6 @@
 
 
 namespace iox
-{
-namespace cxx
 {
 template <typename ReturnType, typename... Args>
 using signature = ReturnType(Args...);
@@ -204,9 +202,8 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
 template <uint64_t Capacity, typename T>
 void swap(storable_function<Capacity, T>& f, storable_function<Capacity, T>& g) noexcept;
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/storable_function.inl"
+#include "iox/detail/storable_function.inl"
 
-#endif // IOX_HOOFS_STORABLE_FUNCTION_HPP
+#endif // IOX_HOOFS_FUNCTIONAL_STORABLE_FUNCTION_HPP

@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
 #define IOX_HOOFS_DESIGN_FUNCTIONAL_INTERFACE_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/type_traits.hpp"
 
 #include <utility>
@@ -153,8 +153,8 @@ template <typename Derived, typename ValueType>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThenWithValue
 {
-    using and_then_callback_t = cxx::function_ref<void(ValueType&)>;
-    using const_and_then_callback_t = cxx::function_ref<void(const ValueType&)>;
+    using and_then_callback_t = function_ref<void(ValueType&)>;
+    using const_and_then_callback_t = function_ref<void(const ValueType&)>;
 
     /// @note and_then has a template argument since otherwise we encounter issue
     ///       with the type deduction and constness of auto arguments. A detailed
@@ -205,7 +205,7 @@ template <typename Derived>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct AndThen
 {
-    using and_then_callback_t = cxx::function_ref<void()>;
+    using and_then_callback_t = function_ref<void()>;
 
     /// @brief Calls the provided callable when the object is valid. If the object is not
     ///        valid, nothing happens.
@@ -243,8 +243,8 @@ template <typename Derived, typename ErrorType>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElseWithValue
 {
-    using or_else_callback_t = cxx::function_ref<void(ErrorType&)>;
-    using const_or_else_callback_t = cxx::function_ref<void(const ErrorType&)>;
+    using or_else_callback_t = function_ref<void(ErrorType&)>;
+    using const_or_else_callback_t = function_ref<void(const ErrorType&)>;
 
     /// @note or_else has a template argument since otherwise we encounter issue
     ///       with the type deduction and constness of auto arguments. A detailed
@@ -295,7 +295,7 @@ template <typename Derived>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct OrElse
 {
-    using or_else_callback_t = cxx::function_ref<void()>;
+    using or_else_callback_t = function_ref<void()>;
 
     /// @brief Calls the provided callable when the object is invalid. If the object is valid,
     ///        nothing happens.
