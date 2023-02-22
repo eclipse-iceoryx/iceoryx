@@ -1,9 +1,17 @@
-#include "iceoryx_hoofs/error_reporting/platform/default/test_error_handler.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
+#include <csetjmp>
 
 namespace iox
 {
-namespace err
+namespace testing
 {
+
+using namespace iox::err;
+
+TestHandler::TestHandler()
+    : m_jump(&m_jumpBuffer)
+{
+}
 
 void TestHandler::report(const SourceLocation&, ErrorCode code)
 {
@@ -24,9 +32,10 @@ bool TestHandler::hasPanicked()
 
 void TestHandler::reset()
 {
-    m_panicked = false;
     std::lock_guard<std::mutex> g(m_mutex);
+    m_panicked = false;
     m_errors.clear();
+    m_jump.store(&m_jumpBuffer);
 }
 
 bool TestHandler::hasError() const
@@ -42,15 +51,19 @@ bool TestHandler::hasError(ErrorCode code) const
     return iter != m_errors.end();
 }
 
-jmp_buf& TestHandler::prepareJump()
+jmp_buf* TestHandler::prepareJump()
 {
-    m_jump = true;
-    return m_jumpBuffer;
+    // winner can prepare the jump
+    return m_jump.exchange(nullptr);
 }
 
 void TestHandler::jump()
 {
-    if (m_jump)
+    jmp_buf* exp = nullptr;
+    // if it is a nullptr, somebody (and only one) has prepared jump
+    // it will be reset on first jump, so there cannot be concurrent jumps
+    // essentially the first panic call wins, resets and and jumps
+    if (m_jump.compare_exchange_strong(exp, &m_jumpBuffer))
     {
         // NOLINTNEXTLINE(cert-err52-cpp) exception handling is not used by design
         longjmp(&m_jumpBuffer[0], jumpIndicator());
@@ -62,5 +75,5 @@ int TestHandler::jumpIndicator()
     return JUMPED;
 }
 
-} // namespace err
+} // namespace testing
 } // namespace iox

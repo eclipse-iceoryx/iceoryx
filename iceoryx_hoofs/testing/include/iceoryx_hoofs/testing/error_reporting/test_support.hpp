@@ -1,7 +1,11 @@
-#ifndef IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
-#define IOX_HOOFS_MODULETESTS_ERROR_REPORTING_TEST_HELPER_HPP
+#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_SUPPORT_HPP
+#define IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_SUPPORT_HPP
 
+#include <gtest/gtest.h>
+
+#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
 
 #include <thread>
 #include <utility>
@@ -14,10 +18,12 @@ namespace iox
 namespace testing
 {
 
+using TestErrorHandler = iox::design_pattern::StaticLifetimeGuard<iox::testing::TestHandler>;
+
 /// @brief indicates whether the test error handler invoked panic
 inline bool hasPanicked()
 {
-    return iox::err::TestErrorHandler::instance().hasPanicked();
+    return TestErrorHandler::instance().hasPanicked();
 }
 
 /// @brief indicates whether the test error handler registered a specific error
@@ -25,7 +31,7 @@ template <typename Code>
 inline bool hasError(Code&& code)
 {
     auto e = iox::err::toError(std::forward<Code>(code));
-    return iox::err::TestErrorHandler::instance().hasError(e.code());
+    return TestErrorHandler::instance().hasError(e.code());
 }
 
 /// @brief runs testFunction in a testContext that can detect fatal failures;
@@ -34,20 +40,19 @@ inline bool hasError(Code&& code)
 template <typename Function, typename... Args>
 inline void testContext(Function&& testFunction, Args&&... args)
 {
-    jmp_buf* buf{nullptr};
-    while (buf == nullptr)
+    jmp_buf* buf = TestErrorHandler::instance().prepareJump();
+
+    if (buf == nullptr)
     {
-        buf = iox::err::TestErrorHandler::instance().prepareJump();
-        // we do need the buffer to proceed and hence retry
-        // (could also fail the test instead)
-        // should not fail in correct usage
+        // should not fail with correct usage
+        GTEST_FAIL();
     };
 
     // setjmp must be called in a stackframe that still exists when longjmp is called
     // Therefore there cannot be a convenient abstraction that does not also
     // know the test function that is being called.
     // NOLINTNEXTLINE
-    if (setjmp(*buf) != iox::err::TestErrorHandler::instance().jumpIndicator())
+    if (setjmp(*buf) != TestErrorHandler::instance().jumpIndicator())
     {
         testFunction(std::forward<Args>(args)...);
     }

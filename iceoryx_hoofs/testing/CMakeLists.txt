@@ -36,6 +36,7 @@ iox_add_library(
         mocks/error_handler_mock.cpp
         testing_logger.cpp
         timing_test.cpp
+        test_error_handler.cpp
 )
 
 if(TEST_WITH_ADDITIONAL_USER)
