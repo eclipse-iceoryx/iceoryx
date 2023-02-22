@@ -46,7 +46,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
       // the correct type whenever the callable is used
       /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_callable(reinterpret_cast<void*>(function))
-    , m_invoker(invokeFreeFunction)
+    , m_invoker(&invokeFreeFunction)
 {
     cxx::Expects(function);
 
@@ -80,7 +80,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     const auto p = &object;
     // AXIVION Next Construct AutosarC++19_03-A7.1.1: type erased functor lambda cannot be const
     // as it may change by calling its operator() later (hence stored as non-const)
-    auto functor = [p, method](Args... args) -> ReturnType { return (*p.*method)(std::forward<Args>(args)...); };
+    const auto functor = [p, method](Args... args) -> ReturnType { return (*p.*method)(std::forward<Args>(args)...); };
     storeFunctor(functor);
 }
 
@@ -151,7 +151,7 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::operator()(Args... args) const noexcept
 {
     cxx::Expects(m_callable != nullptr); // should not happen unless incorrectly used after move
-    // AXIVION Next Construct AutosarC++19_03-M0.3.1: m_invoker is initialized in ctor or assignment,
+    // AXIVION Next Construct AutosarC++19_03-M0.3.1, FaultDetection-NullPointerDereference: m_invoker is initialized in ctor or assignment,
     // can only be nullptr if this was moved from (calling operator() is illegal in this case)
     return m_invoker(m_callable, std::forward<Args>(args)...);
 }
@@ -172,14 +172,17 @@ inline void swap(storable_function<Capacity, T>& f, storable_function<Capacity, 
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T>
-inline constexpr void* storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(byte_t* startAddress)
+inline constexpr void*
+storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(void* startAddress) noexcept
 {
     static_assert(is_storable<T>(), "type does not fit into storage");
-    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
-    uint64_t alignment = alignof(T);
-    uint64_t alignedPosition = align(reinterpret_cast<uint64_t>(startAddress), alignment);
+    // AXIVION DISABLE STYLE AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast required for low level pointer alignment
+    // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+    const uint64_t alignment{alignof(T)};
+    const uint64_t alignedPosition{align(reinterpret_cast<uint64_t>(startAddress), alignment)};
     return reinterpret_cast<void*>(alignedPosition);
-    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr) required for low level pointer alignment
+    // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+    // AXIVION ENABLE STYLE AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9
 }
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
@@ -187,9 +190,10 @@ template <typename Functor, typename>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::storeFunctor(const Functor& functor) noexcept
 {
     using StoredType = typename std::remove_reference<Functor>::type;
-    m_callable = safeAlign<StoredType>(m_storage);
+    m_callable = safeAlign<StoredType>(&m_storage[0]);
 
     // erase the functor type and store as reference to the call in storage
+    // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
     new (m_callable) StoredType(functor);
 
     m_invoker = &invoke<StoredType>;
@@ -204,12 +208,13 @@ template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::copy(const storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    dest.m_callable = safeAlign<CallableType>(dest.m_storage);
+    dest.m_callable = safeAlign<CallableType>(&dest.m_storage[0]);
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
     cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
 
+    // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
     // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above
     new (dest.m_callable) CallableType(*obj);
     dest.m_invoker = src.m_invoker;
@@ -222,12 +227,13 @@ template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::move(storable_function& src,
                                                                               storable_function& dest) noexcept
 {
-    dest.m_callable = safeAlign<CallableType>(dest.m_storage);
+    dest.m_callable = safeAlign<CallableType>(&dest.m_storage[0]);
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
     cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
 
+    // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
     // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above
     new (dest.m_callable) CallableType(std::move(*obj));
     dest.m_invoker = src.m_invoker;
@@ -236,6 +242,7 @@ inline void storable_function<Capacity, signature<ReturnType, Args...>>::move(st
     src.m_invoker = nullptr;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M0.1.8: False positive! The function calls the destructor of a member of the parameter
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename CallableType>
 inline void storable_function<Capacity, signature<ReturnType, Args...>>::destroy(storable_function& f) noexcept
@@ -249,6 +256,7 @@ inline void storable_function<Capacity, signature<ReturnType, Args...>>::destroy
     }
 }
 
+// AXIVION Next Construct AutosarC++19_03-A8.4.8: Out parameter is required for the intended functionality of the internal helper function
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline void
 storable_function<Capacity, signature<ReturnType, Args...>>::copyFreeFunction(const storable_function& src,
@@ -309,7 +317,9 @@ template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T>
 inline constexpr uint64_t storable_function<Capacity, signature<ReturnType, Args...>>::required_storage_size() noexcept
 {
-    return sizeof(T) + alignof(T) - 1;
+    const uint64_t size{sizeof(T)};
+    const uint64_t alignment{alignof(T)};
+    return (size + alignment) - 1;
 }
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
