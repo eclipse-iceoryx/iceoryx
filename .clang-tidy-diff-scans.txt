@@ -15,11 +15,6 @@
 ./iceoryx_hoofs/include/iceoryx_hoofs/posix_wrapper/*
 ./iceoryx_hoofs/include/iceoryx_hoofs/internal/posix_wrapper/*
 
-./iceoryx_hoofs/include/iceoryx_hoofs/log/**/*
-./iceoryx_hoofs/include/iceoryx_hoofs/internal/log/**/*
-./iceoryx_hoofs/source/log/**/*
-./iceoryx_hoofs/test/moduletests/test_log*
-./iceoryx_hoofs/test/moduletests/test_console_logger*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/mocks/logger_mock.hpp
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/fatal_failure*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/testing_logger.hpp

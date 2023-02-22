@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL
-#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL
+#ifndef IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_INL
+#define IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_INL
 
-#include "iceoryx_hoofs/log/building_blocks/logger.hpp"
+#include "iox/building_blocks/logger.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -126,4 +126,4 @@ inline void Logger<BaseLogger>::initLoggerInternal(const LogLevel logLevel) noex
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_INL
+#endif // IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_INL

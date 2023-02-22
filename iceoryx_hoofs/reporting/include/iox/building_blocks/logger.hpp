@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP
-#define IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP
+#ifndef IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_HPP
+#define IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_HPP
 
 #include "iox/iceoryx_hoofs_types.hpp"
 
@@ -104,6 +104,6 @@ class Logger : public BaseLogger
 } // namespace log
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/log/building_blocks/logger.inl"
+#include "iox/detail/building_blocks/logger.inl"
 
-#endif // IOX_HOOFS_LOG_BUILDING_BLOCKS_LOGGER_HPP
+#endif // IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGGER_HPP

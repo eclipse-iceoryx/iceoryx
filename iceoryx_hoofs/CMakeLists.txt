@@ -85,12 +85,12 @@ iox_add_library(
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         primitives/source/type_traits.cpp
+        reporting/source/building_blocks/console_logger.cpp
+        reporting/source/building_blocks/logger.cpp
         source/concurrent/loffli.cpp
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/log/building_blocks/console_logger.cpp
-        source/log/building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp
