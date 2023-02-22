@@ -40,6 +40,7 @@ inline auto FromImpl<SourceType, DestinationType>::fromImpl(const SourceType&) n
         -------------------------------------------------------------------------");
 }
 
+// AXIVION Next Construct AutosarC++19_03-A15.5.3, AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : Intentional behavior. The library itself does not throw and on the implementation side a try-catch block can be used
 template <typename DestinationType, typename SourceType>
 inline constexpr typename detail::extract_into_type<DestinationType>::type_t into(const SourceType value) noexcept
 {
