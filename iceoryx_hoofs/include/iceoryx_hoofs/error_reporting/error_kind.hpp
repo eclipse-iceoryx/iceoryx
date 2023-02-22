@@ -1,7 +1,6 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
 #define IOX_HOOFS_ERROR_REPORTING_ERROR_KIND_HPP
 
-#include <cstdint>
 #include <type_traits>
 
 namespace iox
@@ -9,47 +8,21 @@ namespace iox
 namespace err
 {
 
-/// todo: abstract in types
-
-using error_level_t = uint32_t;
-constexpr error_level_t FATAL_LEVEL{0};
-
 // mandatory fatal error category that always exists
 struct Fatal
 {
-    static constexpr char const* name = "Fatal";
-
-    static constexpr error_level_t value = FATAL_LEVEL;
-
-    explicit operator error_level_t()
-    {
-        return value;
-    }
+    static constexpr char const* name = "Fatal Error";
 };
 
 struct PreconditionViolation
 {
     static constexpr char const* name = "PreconditionViolation";
-
-    static constexpr error_level_t value = FATAL_LEVEL;
-
-    explicit operator error_level_t()
-    {
-        return value;
-    }
 };
 
 // postconditions and other asserts, not for preconditions
 struct DebugAssertViolation
 {
     static constexpr char const* name = "DebugAssertViolation";
-
-    static constexpr error_level_t value = FATAL_LEVEL;
-
-    explicit operator error_level_t()
-    {
-        return value;
-    }
 };
 
 template <class T>
@@ -57,6 +30,9 @@ struct IsFatal : public std::false_type
 {
 };
 
+// This specialization makes it impossible to specialize them differently elsewhere,
+// as this would lead to a compilation error.
+// This enforces that these errors are always fatal in the sense that they cause panic and abort.
 template <>
 struct IsFatal<Fatal> : public std::true_type
 {
@@ -72,49 +48,30 @@ struct IsFatal<DebugAssertViolation> : public std::true_type
 {
 };
 
+// The function syntax is more useful if there is already a value (instead of only a type).
+// It must be consistent with the type trait, i.e. yield the same boolean value.
 template <class Kind>
 bool constexpr isFatal(Kind)
 {
-    return false;
+    return IsFatal<Kind>::value;
 }
 
 template <>
 bool constexpr isFatal<Fatal>(Fatal)
 {
-    return true;
+    return IsFatal<Fatal>::value;
 }
 
 template <>
 bool constexpr isFatal<PreconditionViolation>(PreconditionViolation)
 {
-    return true;
+    return IsFatal<PreconditionViolation>::value;
 }
 
 template <>
 bool constexpr isFatal<DebugAssertViolation>(DebugAssertViolation)
 {
-    return true;
-}
-
-template <typename Kind>
-bool constexpr requiresHandling(Kind)
-{
-    return true;
-}
-
-bool constexpr requiresHandling(Fatal)
-{
-    return true;
-}
-
-bool constexpr requiresHandling(PreconditionViolation)
-{
-    return true;
-}
-
-bool constexpr requiresHandling(DebugAssertViolation)
-{
-    return true;
+    return IsFatal<DebugAssertViolation>::value;
 }
 
 // indicates serious condition, unable to continue

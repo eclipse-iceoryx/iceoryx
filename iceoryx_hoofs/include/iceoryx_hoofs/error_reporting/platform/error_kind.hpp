@@ -13,21 +13,10 @@ namespace iox
 namespace err
 {
 
-enum class ErrorLevel : error_level_t
-{
-    ERROR = FATAL_LEVEL + 1,
-};
-
 // prefer types to avoid switch statements and the like and allow annotations (such as name here)
 struct Error
 {
     static constexpr char const* name = "Error";
-    static constexpr error_level_t value = static_cast<error_level_t>(ErrorLevel::ERROR);
-
-    explicit operator error_level_t()
-    {
-        return value;
-    }
 };
 
 constexpr Error RUNTIME_ERROR{};
