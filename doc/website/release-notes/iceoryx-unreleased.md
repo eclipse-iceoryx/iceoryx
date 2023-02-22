@@ -146,7 +146,7 @@
                             .memorySizeInBytes(16)
                             .accessMode(iox::posix::AccessMode::READ_WRITE)
                             .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                            .permissions(perms::owner_all)
+                            .permissions(iox::perms::owner_all)
                             .create();
     ```
 
@@ -1022,4 +1022,14 @@
 
     // after
     #include "iox/duration.hpp"
+    ```
+
+46. The `perms` enum is replaced by the `access_control` class
+
+    ```cpp
+    // before
+    iox::perms foo { iox::perms::owner_all | iox::perms::group_read };
+
+    // after
+    iox::access_control foo { iox::perms::owner_all | iox::perms::group_read };
     ```
