@@ -81,18 +81,20 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the application
     ///         terminates.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) the usage of 'nullopt' shall be transparent when used with an 'optional'
     optional(const nullopt_t) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
     ///         T. This optional has a value.
     /// @param[in] value rvalue of type T which will be moved into the optional
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // AXIVION DISABLE STYLE AutosarC++19_03-A12.1.4 : the usage of 'T' shall be transparent when used with an 'optional'
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(T&& value) noexcept;
 
     /// @brief Creates an optional by using the copy constructor of T.
     /// @param[in] value lvalue of type T which will be copy constructed into the optional
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // AXIVION DISABLE STYLE AutosarC++19_03-A12.1.4 : the usage of 'T' shall be transparent when used with an 'optional'
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(const T& value) noexcept;
 
     /// @brief Creates an optional and an object inside the optional on construction by perfectly forwarding args to the
@@ -228,13 +230,15 @@ class optional final : public FunctionalInterface<optional<T>, T, void>
     //     initHandle(&handle);
     //   }
     bool m_hasValue{false};
+    // AXIVION DISABLE STYLE AutosarC++19_03-A9.6.1 : False positive. Used type has defined size.
     struct alignas(T) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1, AutosarC++19_03-M0.1.3 : required as low level building block, encapsulated in abstraction and not directly used
         // is wrapped inside the optional
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
         byte_t data[sizeof(T)];
     };
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size limit is not relevant for containers stored in shared memory
     element_t m_data;
 
   private:

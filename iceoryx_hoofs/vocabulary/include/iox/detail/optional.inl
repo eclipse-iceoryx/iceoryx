@@ -105,6 +105,7 @@ inline optional<T>& optional<T>::operator=(const optional& rhs) noexcept
         }
         else if (rhs.m_hasValue && m_hasValue)
         {
+            // AXIVION Next Construct AutosarC++19_03-A5.0.1 : False positive! 'value()' != 'rhs.value()'
             value() = rhs.value();
         }
         else if (rhs.m_hasValue && !m_hasValue)
@@ -132,6 +133,7 @@ inline optional<T>& optional<T>::operator=(optional&& rhs) noexcept
         }
         else if (rhs.m_hasValue && m_hasValue)
         {
+            // AXIVION Next Construct AutosarC++19_03-A5.0.1 : False positive! 'value()' != 'rhs.value()'
             value() = std::move(rhs.value());
         }
         else if (rhs.m_hasValue && !m_hasValue)
@@ -309,7 +311,7 @@ bool operator!=(const optional<T>& lhs, const optional<T>& rhs) noexcept
     const auto onlyLhsNul = !lhs.has_value() && rhs.has_value();
     const auto onlyRhsNul = lhs.has_value() && !rhs.has_value();
     const auto bothValuesUnequal = (lhs.has_value() && rhs.has_value()) && (*lhs != *rhs);
-    return bothValuesUnequal || onlyRhsNul || onlyLhsNul;
+    return (bothValuesUnequal || onlyRhsNul) || onlyLhsNul;
 }
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with nullopt_t is required
