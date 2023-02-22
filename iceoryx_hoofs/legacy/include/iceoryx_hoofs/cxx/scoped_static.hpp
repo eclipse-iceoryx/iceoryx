@@ -25,7 +25,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/scoped_static.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::makeScopedStatic` instead of `iox::cxx::makeScopedStatic`
+/// @deprecated use 'iox::makeScopedStatic' instead of 'iox::cxx::makeScopedStatic'
 using iox::makeScopedStatic;
 } // namespace cxx
 } // namespace iox

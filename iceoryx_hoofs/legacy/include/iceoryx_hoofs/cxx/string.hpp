@@ -25,26 +25,26 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/string.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::concatenate` instead of `iox::cxx::concatenate`
+/// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'
 using iox::concatenate;
-/// @deprecated use `iox::is_cxx_string` instead of `iox::cxx::is_cxx_string`
+/// @deprecated use 'iox::is_cxx_string' instead of 'iox::cxx::is_cxx_string'
 using iox::is_cxx_string;
-/// @deprecated use `iox::IsCxxStringAndCxxStringOrCharArrayOrChar` instead of
-/// `iox::cxx::IsCxxStringAndCxxStringOrCharArrayOrChar`
+/// @deprecated use 'iox::IsCxxStringAndCxxStringOrCharArrayOrChar' instead of
+/// 'iox::cxx::IsCxxStringAndCxxStringOrCharArrayOrChar'
 using iox::IsCxxStringAndCxxStringOrCharArrayOrChar;
-/// @deprecated use `iox::IsCxxStringOrCharArray` instead of `iox::cxx::IsCxxStringOrCharArray`
+/// @deprecated use 'iox::IsCxxStringOrCharArray' instead of 'iox::cxx::IsCxxStringOrCharArray'
 using iox::IsCxxStringOrCharArray;
-/// @deprecated use `iox::IsCxxStringOrCharArrayOrChar` instead of `iox::cxx::IsCxxStringOrCharArrayOrChar`
+/// @deprecated use 'iox::IsCxxStringOrCharArrayOrChar' instead of 'iox::cxx::IsCxxStringOrCharArrayOrChar'
 using iox::IsCxxStringOrCharArrayOrChar;
-/// @deprecated use `iox::IsStringOrCharArray` instead of `iox::cxx::IsStringOrCharArray`
+/// @deprecated use 'iox::IsStringOrCharArray' instead of 'iox::cxx::IsStringOrCharArray'
 using iox::IsStringOrCharArray;
-/// @deprecated use `iox::IsStringOrCharArrayOrChar` instead of `iox::cxx::IsStringOrCharArrayOrChar`
+/// @deprecated use 'iox::IsStringOrCharArrayOrChar' instead of 'iox::cxx::IsStringOrCharArrayOrChar'
 using iox::IsStringOrCharArrayOrChar;
-/// @deprecated use `iox::string` instead of `iox::string`
+/// @deprecated use 'iox::string' instead of 'iox::string'
 using iox::string;
-/// @deprecated use `iox::TruncateToCapacity` instead of `iox::cxx::TruncateToCapacity`
+/// @deprecated use 'iox::TruncateToCapacity' instead of 'iox::cxx::TruncateToCapacity'
 using iox::TruncateToCapacity;
-/// @deprecated use `iox::TruncateToCapacity_t` instead of `iox::cxx::TruncateToCapacity_t`
+/// @deprecated use 'iox::TruncateToCapacity_t' instead of 'iox::cxx::TruncateToCapacity_t'
 using iox::TruncateToCapacity_t;
 } // namespace cxx
 } // namespace iox

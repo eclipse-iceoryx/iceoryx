@@ -149,7 +149,7 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
-        // Access `e` to prevent the compiler from optimizing away the loop
+        // Access 'e' to prevent the compiler from optimizing away the loop
         EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
     }
 
@@ -169,7 +169,7 @@ TEST(UninitializedArrayTest, AllElementsAreNotZeroedWhenBufferSetToNonZeroedBuff
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
-        // Access `e` to prevent the compiler from optimizing away the loop
+        // Access 'e' to prevent the compiler from optimizing away the loop
         EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
     }
 

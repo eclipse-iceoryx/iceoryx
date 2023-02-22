@@ -24,7 +24,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/vector.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::vector` instead of `iox::cxx::vector`
+/// @deprecated use 'iox::vector' instead of 'iox::cxx::vector'
 using iox::vector;
 } // namespace cxx
 } // namespace iox
