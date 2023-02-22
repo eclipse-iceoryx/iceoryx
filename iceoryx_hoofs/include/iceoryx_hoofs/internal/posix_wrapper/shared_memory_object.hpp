@@ -138,7 +138,7 @@ class SharedMemoryObjectBuilder
     IOX_BUILDER_PARAMETER(optional<const void*>, baseAddressHint, nullopt)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(perms, permissions, perms::none)
+    IOX_BUILDER_PARAMETER(access_control, permissions, perms::none)
 
   public:
     expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;

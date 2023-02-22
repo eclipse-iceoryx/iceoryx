@@ -66,7 +66,7 @@ class PosixShmMemoryProvider : public MemoryProvider
     posix::OpenMode m_openMode{posix::OpenMode::OPEN_EXISTING};
     optional<posix::SharedMemoryObject> m_shmObject;
 
-    static constexpr perms SHM_MEMORY_PERMISSIONS =
+    static constexpr access_control SHM_MEMORY_PERMISSIONS =
         perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
 };
 

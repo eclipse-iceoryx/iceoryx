@@ -116,7 +116,7 @@ class SharedMemoryBuilder
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(perms, filePermissions, perms::none)
+    IOX_BUILDER_PARAMETER(access_control, filePermissions, perms::none)
 
     /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, size, 0U)

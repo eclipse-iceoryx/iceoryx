@@ -104,12 +104,12 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 static expected<SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
                                                 const NamedSemaphore::Name_t& name,
                                                 const OpenMode openMode,
-                                                const perms permissions,
+                                                const access_control permissions,
                                                 const uint32_t initialValue) noexcept
 {
     auto result = posixCall(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
                                               convertToOflags(openMode),
-                                              static_cast<mode_t>(permissions),
+                                              permissions.value(),
                                               static_cast<unsigned int>(initialValue))
                       .failureReturnValue(IOX_SEM_FAILED)
                       .evaluate();

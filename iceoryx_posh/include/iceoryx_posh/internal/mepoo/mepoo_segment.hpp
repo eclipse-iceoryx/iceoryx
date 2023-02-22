@@ -59,7 +59,7 @@ class MePooSegment
     uint64_t m_segmentId;
     iox::mepoo::MemoryInfo m_memoryInfo;
 
-    static constexpr perms SEGMENT_PERMISSIONS =
+    static constexpr access_control SEGMENT_PERMISSIONS =
         perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
 
   private:

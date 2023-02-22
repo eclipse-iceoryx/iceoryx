@@ -26,7 +26,6 @@
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/scope_guard.hpp"
 
-#include <bitset>
 #include <cassert>
 
 namespace iox
@@ -46,8 +45,8 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         IOX_LOG(ERROR) << "Unable to create shared memory with the following properties [ name = " << m_name
                        << ", access mode = " << asStringLiteral(m_accessMode)
                        << ", open mode = " << asStringLiteral(m_openMode)
-                       << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions)).to_string()
-                       << ", sizeInBytes = " << m_size << " ]";
+                       << ", mode = " << iox::log::oct(m_filePermissions.value()) << ", sizeInBytes = " << m_size
+                       << " ]";
     };
 
 
@@ -96,7 +95,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 nameWithLeadingSlash.c_str(),
                 convertToOflags(m_accessMode,
                                 (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
-                static_cast<mode_t>(m_filePermissions))
+                m_filePermissions.value())
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
                 .evaluate();
@@ -109,7 +108,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 hasOwnership = false;
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
                                                  convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
-                                                 static_cast<mode_t>(m_filePermissions))
+                                                 m_filePermissions.value())
                              .failureReturnValue(SharedMemory::INVALID_HANDLE)
                              .evaluate();
             }

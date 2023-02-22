@@ -51,7 +51,7 @@ static void finishEntry(StreamType& stream, const bool hasPrecedingEntry, const 
 }
 
 template <typename StreamType>
-static void printOwnerPermissions(StreamType& stream, const perms value)
+static void printOwnerPermissions(StreamType& stream, const access_control value)
 {
     bool hasPrecedingEntry = false;
     stream << "owner: {";
@@ -75,7 +75,7 @@ static void printOwnerPermissions(StreamType& stream, const perms value)
 }
 
 template <typename StreamType>
-static void printGroupPermissions(StreamType& stream, const perms value)
+static void printGroupPermissions(StreamType& stream, const access_control value)
 {
     bool hasPrecedingEntry = false;
     stream << "group: {";
@@ -99,7 +99,7 @@ static void printGroupPermissions(StreamType& stream, const perms value)
 }
 
 template <typename StreamType>
-static void printOtherPermissions(StreamType& stream, const perms value)
+static void printOtherPermissions(StreamType& stream, const access_control value)
 {
     bool hasPrecedingEntry = false;
     stream << "others: {";
@@ -123,7 +123,7 @@ static void printOtherPermissions(StreamType& stream, const perms value)
 }
 
 template <typename StreamType>
-static void printSpecialBits(StreamType& stream, const perms value)
+static void printSpecialBits(StreamType& stream, const access_control value)
 {
     bool hasPrecedingEntry = false;
     stream << "special bits: {";
@@ -147,22 +147,29 @@ static void printSpecialBits(StreamType& stream, const perms value)
 }
 
 template <typename StreamType>
-StreamType& operator<<(StreamType& stream, const perms value) noexcept
+void printAccessControl(StreamType& stream, const access_control value) noexcept
 {
     if (value == perms::unknown)
     {
         stream << "unknown permissions";
-        return stream;
+        return;
     }
 
     printOwnerPermissions(stream, value);
     printGroupPermissions(stream, value);
     printOtherPermissions(stream, value);
     printSpecialBits(stream, value);
+}
 
+std::ostream& operator<<(std::ostream& stream, const access_control value) noexcept
+{
+    printAccessControl(stream, value);
     return stream;
 }
 
-template std::ostream& operator<<(std::ostream&, const perms) noexcept;
-template log::LogStream& operator<<(log::LogStream&, const perms) noexcept;
+iox::log::LogStream& operator<<(iox::log::LogStream& stream, const access_control value) noexcept
+{
+    printAccessControl(stream, value);
+    return stream;
+}
 } // namespace iox

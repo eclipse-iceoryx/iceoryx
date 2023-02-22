@@ -24,8 +24,8 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/filesystem.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::perms` instead of `iox::cxx::perms`
-using iox::perms;
+/// @deprecated use 'iox::access_control' instead of 'iox::cxx::perms'
+using perms = iox::access_control;
 } // namespace cxx
 } // namespace iox
 

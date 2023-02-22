@@ -121,7 +121,7 @@ class FileLockBuilder
 
     /// @brief Defines the access permissions of the file lock. If they are not
     ///        explicitly set they will be none
-    IOX_BUILDER_PARAMETER(perms, permission, perms::none)
+    IOX_BUILDER_PARAMETER(access_control, permission, perms::none)
 
   public:
     /// @brief Creates a file lock
