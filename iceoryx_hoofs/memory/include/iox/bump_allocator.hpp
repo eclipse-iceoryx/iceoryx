@@ -24,14 +24,14 @@
 namespace iox
 {
 
-enum class BumpAllocatorError
+enum class BumpAllocatorError : uint8_t
 {
     OUT_OF_MEMORY,
     REQUESTED_ZERO_SIZED_MEMORY
 };
 
 /// @brief A bump allocator for the memory provided in the ctor arguments
-class BumpAllocator
+class BumpAllocator final
 {
   public:
     /// @brief c'tor
