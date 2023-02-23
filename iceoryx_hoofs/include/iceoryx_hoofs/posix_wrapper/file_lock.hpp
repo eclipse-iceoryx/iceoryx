@@ -52,7 +52,7 @@ enum class FileLockError
 /// @code
 ///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
 ///                                                .path("/tmp")
-///                                                .permission(iox::cxx::perms::owner_all)
+///                                                .permission(iox::perms::owner_all)
 ///                                                .create()
 ///                                                .expect("Oh no I couldn't create the lock");
 /// @endcode
