@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
 
@@ -24,6 +26,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
+using namespace iox::testing;
 
 class vector_test : public Test
 {
@@ -958,6 +961,22 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
 
     EXPECT_THAT(dTor, Eq(1U));
     EXPECT_THAT(moveAssignment, Eq(2U));
+}
+
+TEST_F(vector_test, AccessOfNonExistingElementWithAtLeadTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "31a4f0fb-31dd-4269-9bec-31ef0542c42b");
+    EXPECT_THAT(sut.empty(), Eq(true));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(69); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(vector_test, AccessOfNonExistingElementWithBracketLeadTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "69a4f0fb-3d31-4273-9bec-69ef05a4242b");
+    EXPECT_THAT(sut.empty(), Eq(true));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[31]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
