@@ -157,35 +157,44 @@ iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const
 
 void iox_pub_release_chunk(iox_pub_t const self, void* const userPayload)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(userPayload != nullptr);
     PublisherPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayload));
 }
 
 void iox_pub_publish_chunk(iox_pub_t const self, void* const userPayload)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(userPayload != nullptr);
     PublisherPortUser(self->m_portData).sendChunk(ChunkHeader::fromUserPayload(userPayload));
 }
 
 void iox_pub_offer(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     PublisherPortUser(self->m_portData).offer();
 }
 
 void iox_pub_stop_offer(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     PublisherPortUser(self->m_portData).stopOffer();
 }
 
 bool iox_pub_is_offered(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return PublisherPortUser(self->m_portData).isOffered();
 }
 
 bool iox_pub_has_subscribers(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return PublisherPortUser(self->m_portData).hasSubscribers();
 }
 
 iox_service_description_t iox_pub_get_service_description(iox_pub_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return TranslateServiceDescription(PublisherPortUser(self->m_portData).getCaProServiceDescription());
 }
