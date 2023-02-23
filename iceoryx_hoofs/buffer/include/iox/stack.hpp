@@ -42,31 +42,47 @@ class stack final // NOLINT(cppcoreguidelines-pro-type-member-init, hicpp-member
   public:
     static_assert(is_storable_in_iox_stack_t<T>::value, "T has to be move constructible");
 
+    /// @deterministic
     stack() noexcept = default;
+
+    /// @deterministic
     stack(const stack& rhs) noexcept;
+
+    /// @deterministic
     stack(stack&& rhs) noexcept;
+
+    /// @deterministic
     stack& operator=(const stack& rhs) noexcept;
+
+    /// @deterministic
     stack& operator=(stack&& rhs) noexcept;
+
+    /// @deterministic
     ~stack() noexcept;
 
     /// @brief returns the last pushed element when the stack contains elements
     ///         otherwise a nullopt
+    /// @deterministic
     optional<T> pop() noexcept;
 
     /// @brief pushed an element into the stack by forwarding all arguments
     ///        to the constructor of T
     /// @param[in] args arguments which will be perfectly forwarded to the constructor of T
     /// @return true if the push was successful, otherwise false
+    /// @deterministic
     template <typename... Targs>
     bool push(Targs&&... args) noexcept;
 
     /// @brief calls the destructor of all contained elements in reverse creation order and empties the stack
+    /// @deterministic
     void clear() noexcept;
 
     /// @brief returns the stack size
+    /// @deterministic
     uint64_t size() const noexcept;
 
     /// @brief returns the stack capacity
+    /// @deterministic
     static constexpr uint64_t capacity() noexcept;
 
   private:

@@ -43,27 +43,33 @@ class vector final
     using const_iterator = const T*;
 
     /// @brief creates an empty vector
+    /// @deterministic
     vector() noexcept = default;
 
     /// @brief creates a vector with count copies of elements with value value
     /// @param [in] count is the number copies which are inserted into the vector
     /// @param [in] value is the value which is inserted into the vector
+    /// @deterministic
     vector(const uint64_t count, const T& value) noexcept;
 
     /// @brief creates a vector with count copies of elements constructed with the default constructor of T
     /// @param [in] count is the number copies which are inserted into the vector
+    /// @deterministic
     explicit vector(const uint64_t count) noexcept;
 
     /// @brief copy constructor to copy a vector of the same capacity
     /// @param[in] rhs is the copy origin
+    /// @deterministic
     vector(const vector& rhs) noexcept;
 
     /// @brief move constructor to move a vector of the same capacity
     /// @param[in] rhs is the move origin
+    /// @deterministic
     vector(vector&& rhs) noexcept;
 
     /// @brief destructs the vector and also calls the destructor of all
     ///         contained elements in reverse construction order
+    /// @deterministic
     ~vector() noexcept;
 
     /// @brief copy assignment. if the destination vector contains more
@@ -71,6 +77,7 @@ class vector final
     ///         destructed
     /// @param[in] rhs is the copy origin
     /// @return reference to self
+    /// @deterministic
     vector& operator=(const vector& rhs) noexcept;
 
     /// @brief move assignment. if the destination vector contains more
@@ -78,90 +85,109 @@ class vector final
     ///         destructed
     /// @param[in] rhs is the move origin
     /// @return reference to self
+    /// @deterministic
     vector& operator=(vector&& rhs) noexcept;
 
     /// @brief returns an iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
     ///         end (the first iterator which is outside of the vector)
+    /// @deterministic
     iterator begin() noexcept;
 
     /// @brief returns a const iterator to the first element of the vector,
     ///         if the vector is empty it returns the same iterator as
     ///         end (the first iterator which is outside of the vector)
+    /// @deterministic
     const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector)
+    /// @deterministic
     iterator end() noexcept;
 
     /// @brief returns a const iterator to the element which comes after the last
     ///         element (the first element which is outside of the vector)
+    /// @deterministic
     const_iterator end() const noexcept;
 
     /// @brief return the pointer to the underlying array
     /// @return pointer to underlying array
+    /// @deterministic
     T* data() noexcept;
 
     /// @brief return the const pointer to the underlying array
     /// @return const pointer to underlying array
+    /// @deterministic
     const T* data() const noexcept;
 
     /// @brief returns a reference to the element stored at index.
     /// @param[in] index of the element to return
     /// @return reference to the element stored at index
     /// @attention Out of bounds access leads to a program termination!
+    /// @deterministic
     T& at(const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index.
     /// @param[in] index of the element to return
     /// @return const reference to the element stored at index
     /// @attention Out of bounds access leads to a program termination!
+    /// @deterministic
     const T& at(const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the element stored at index.
     /// @param[in] index of the element to return
     /// @return reference to the element stored at index
     /// @attention Out of bounds access leads to a program termination!
+    /// @deterministic
     T& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index.
     /// @param[in] index of the element to return
     /// @return const reference to the element stored at index
     /// @attention Out of bounds access leads to a program termination!
+    /// @deterministic
     const T& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns a reference to the first element; terminates if the vector is empty
     /// @return reference to the first element
     /// @attention Accessing an empty vector leads to a program termination!
+    /// @deterministic
     T& front() noexcept;
 
     /// @brief returns a const reference to the first element; terminates if the vector is empty
     /// @return const reference to the first element
     /// @attention Accessing an empty vector leads to a program termination!
+    /// @deterministic
     const T& front() const noexcept;
 
     /// @brief returns a reference to the last element; terminates if the vector is empty
     /// @return reference to the last element
     /// @attention Accessing an empty vector leads to a program termination!
+    /// @deterministic
     T& back() noexcept;
 
     /// @brief returns a const reference to the last element; terminates if the vector is empty
     /// @return const reference to the last element
     /// @attention Accessing an empty vector leads to a program termination!
+    /// @deterministic
     const T& back() const noexcept;
 
     /// @brief returns the capacity of the vector which was given via the template
     ///         argument
+    /// @deterministic
     static constexpr uint64_t capacity() noexcept;
 
     /// @brief returns the number of elements which are currently stored in the
     ///         vector
+    /// @deterministic
     uint64_t size() const noexcept;
 
     /// @brief returns true if the vector is emtpy, otherwise false
+    /// @deterministic
     bool empty() const noexcept;
 
     /// @brief calls the destructor of all contained elements and removes them
+    /// @deterministic
     void clear() noexcept;
 
     /// @brief resizes the vector. If the vector size increases new elements will be constructed with the given
@@ -173,6 +199,7 @@ class vector final
     /// @note perfect forwarded arguments are explicitly not wanted here. think of what happens if resize
     ///       creates two new elements via move construction. The first one has a valid source but the second
     ///       gets an already moved parameter.
+    /// @deterministic
     template <typename... Targs>
     bool resize(const uint64_t count, const Targs&... args) noexcept;
 
@@ -181,6 +208,7 @@ class vector final
     /// @param[in] position the position where the element should be created
     /// @param[in] args arguments which are used by the constructor of the newly created argument
     /// @return true if successful, false if position is greater than size or the vector is already full
+    /// @deterministic
     template <typename... Targs>
     bool emplace(const uint64_t position, Targs&&... args) noexcept;
 
@@ -188,21 +216,25 @@ class vector final
     ///         and performs a placement new at the end
     /// @param[in] args arguments which are used by the constructor of the newly created argument
     /// @return true if successful, false if the vector is already full
+    /// @deterministic
     template <typename... Targs>
     bool emplace_back(Targs&&... args) noexcept;
 
     /// @brief appends the given element at the end of the vector
     /// @param[in] value to append to the vector
     /// @return true if successful, false if vector already full
+    /// @deterministic
     bool push_back(const T& value) noexcept;
 
     /// @brief appends the given element at the end of the vector
     /// @param[in] value to append to the vector
     /// @return true if successful, false if vector already full
+    /// @deterministic
     bool push_back(T&& value) noexcept;
 
     /// @brief removes the last element of the vector; calling pop_back on an empty container does nothing
     /// @return true if the last element was removed. If the vector is empty it returns false.
+    /// @deterministic
     bool pop_back() noexcept;
 
     /// @brief removes an element at the given position. if this element is in
@@ -210,6 +242,7 @@ class vector final
     ///         left to ensure that the elements are stored contiguously
     /// @param[in] position at which the element shall be removed
     /// @return true if the element was removed, i.e. begin() <= position < end(), otherwise false
+    /// @deterministic
     bool erase(iterator position) noexcept;
 
   private:
