@@ -34,6 +34,12 @@ inline bool hasError(Code&& code)
     return TestErrorHandler::instance().hasError(e.code());
 }
 
+/// @brief indicates whether the test error handler registered any error
+inline bool hasError()
+{
+    return TestErrorHandler::instance().hasError();
+}
+
 /// @brief runs testFunction in a testContext that can detect fatal failures;
 /// runs in the same thread
 /// @note uses a longjump
@@ -95,6 +101,12 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
         ASSERT_TRUE(iox::testing::hasError(code));                                                                     \
     } while (false)
 
+#define ASSERT_NO_ERROR()                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        ASSERT_FALSE(iox::testing::hasError());                                                                        \
+    } while (false)
+
 #define EXPECT_NO_PANIC()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
@@ -113,3 +125,9 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
         EXPECT_TRUE(iox::testing::hasError(code));                                                                     \
     } while (false)
 #endif
+
+#define EXPECT_NO_ERROR()                                                                                              \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        EXPECT_FALSE(iox::testing::hasError());                                                                        \
+    } while (false)

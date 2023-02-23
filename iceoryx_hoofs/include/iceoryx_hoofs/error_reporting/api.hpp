@@ -4,14 +4,6 @@
 #include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
 
-// clang-format on
-
-/// @brief transforms an error code to an error object according to
-///        default specification or override by module
-/// @code error code to be transformed
-/// @note this relies on overloading
-#define IOX_ERROR(code) iox::err::toError(code)
-
 // The following macros are statements (not expressions).
 // This is important, as it enforces correct use to some degree.
 // For example thye cannot be used as function arguments and must be terminated with a ';'.
@@ -22,7 +14,7 @@
 #define IOX_PANIC(...)                                                                                                 \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::panic(CURRENT_SOURCE_LOCATION);                                                                      \
+        iox::err::panic(CURRENT_SOURCE_LOCATION, ##__VA_ARGS__);                                                       \
     } while (false)
 
 /// @brief report error of some kind
@@ -31,7 +23,7 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                       \
+        iox::err::forwardError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                               \
     } while (false)
 
 /// @brief report fatal error
@@ -47,7 +39,7 @@
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            iox::err::forwardError(CURRENT_SOURCE_LOCATION, IOX_ERROR(error), kind);                                   \
+            iox::err::forwardError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                           \
         }                                                                                                              \
     } while (false)
 
@@ -55,7 +47,7 @@
 /// @note for conditions that may actually happen during correct use
 /// @param expr boolean expression that must hold
 /// @param error error object (or code)
-#define IOX_ASSERT(expr, error) IOX_REPORT_IF(!(expr), error, FATAL)
+#define IOX_REQUIRE(expr, error) IOX_REPORT_IF(!(expr), error, FATAL)
 
 //*****************************
 //* For safe mode and debugging
@@ -72,7 +64,7 @@
 /// @param expr boolean expression that must hold upon entry of the function it appears in
 /// @param message message to be logged in case of violation
 #ifdef IOX_CHECK_PRECONDITIONS
-#define IOX_PRECONDITION(expr, message)                                                                                \
+#define IOX_PRECONDITION(expr, ...)                                                                                    \
     do                                                                                                                 \
     {                                                                                                                  \
         if (!(expr))                                                                                                   \
@@ -80,15 +72,14 @@
             iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                            \
                                    iox::err::Violation(iox::err::ErrorCode::PRECONDITION_VIOLATION),                   \
                                    iox::err::PRECONDITION_VIOLATION,                                                   \
-                                   message);                                                                           \
+                                   ##__VA_ARGS__);                                                                     \
         }                                                                                                              \
     } while (false)
 #else
-#define IOX_PRECONDITION(expr, message)                                                                                \
+#define IOX_PRECONDITION(expr, ...)                                                                                    \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::discard([&]() { return expr; });                                                                     \
-        iox::err::discard(message);                                                                                    \
+        iox::err::discard([&]() { return expr; }, ##__VA_ARGS__);                                                      \
     } while (false)
 #endif
 
@@ -97,7 +88,7 @@
 /// @param expr boolean expression that must hold
 /// @param message message to be logged in case of violation
 #ifdef IOX_CHECK_ASSUMPTIONS
-#define IOX_ASSUME(expr, message)                                                                                      \
+#define IOX_ASSUME(expr, ...)                                                                                          \
     do                                                                                                                 \
     {                                                                                                                  \
         if (!(expr))                                                                                                   \
@@ -105,19 +96,23 @@
             iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                            \
                                    iox::err::Violation(iox::err::ErrorCode::DEBUG_ASSERT_VIOLATION),                   \
                                    iox::err::DEBUG_ASSERT_VIOLATION,                                                   \
-                                   message);                                                                           \
+                                   ##__VA_ARGS__);                                                                     \
         }                                                                                                              \
     } while (false)
 
 #else
-#define IOX_ASSUME(expr, message)                                                                                      \
+#define IOX_ASSUME(expr, ...)                                                                                          \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::discard([&]() { return expr; });                                                                     \
-        iox::err::discard(message);                                                                                    \
+        iox::err::discard([&]() { return expr; }, ##__VA_ARGS__);                                                      \
     } while (false)
 #endif
 
-// clang-format on
+/// @note We have to discard the expr otherwise we may get some unused variable warnings at call
+/// site if variables of the expression are not used elsewhere (unusual but possible).
+
+/// @note We can get the same effect of optimized out code by using compile time logic
+/// such as defining requiresHandling<Kind>::value defining whether the error should be handled
+/// This would make #ifdef switches largely redundant (optionally only at configuration time)
 
 #endif

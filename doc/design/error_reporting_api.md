@@ -114,41 +114,23 @@ Signals panic, invokes the panic handler and aborts execution.
 
 ### Report an error
 
-```cpp
-auto e = IOX_ERROR(Code::OutOfMemory);
-
-// ...
-
-IOX_REPORT(e, RUNTIME_ERROR)
-```
-
-or, as a shorthand,
+To report an error the error code (later to be extended to error objects) has to be provided
 
 ```cpp
 IOX_REPORT(Code::OutOfMemory, RUNTIME_ERROR);
 ```
 
-This reports an error and continues execution.
+This reports a `OutOfMemory` error and continues execution.
 
 ### Report a fatal error
 
 Similarly
 
 ```cpp
-auto e = IOX_ERROR(Code::OutOfMemory);
-
-// ...
-
-IOX_REPORT_FATAL(e)
-```
-
-or
-
-```cpp
 IOX_REPORT_FATAL(Code::OutOfMemory);
 ```
 
-report a fatal error that aborts execution after the platform specific handler is invoked.
+reports a fatal error that aborts execution after the platform specific handler is invoked.
 
 Decoupling the error and its category is intentional, as e.g. an `OutOfMemory` error may not always be
 fatal. It may become fatal after it is propagated further along the call stack. 
@@ -173,11 +155,17 @@ the case that it does not
 ```cpp
 int x;
 // ...
-IOX_ASSERT(x>=0, Code::OutOfBounds)
+IOX_REQUIRE(x>=0, Code::OutOfBounds)
 ```
 
+The condition is required to hold and this requirement is always checked.
 If the condition does not hold, panic is invoked and the executon stops.
 
+This should be used for conditions that may not hold on the correct path, e.g. for error cases.
+It should not be used for assumptions that have to be true in correct code 
+(use `IOX_ASSUME` or `IOX_PRECONDITION` for this).
+
+Note it that no condition can generally be enforced in the sense that it must be true and no checking is required.
 
 ## Using the API to check contracts and assumptions
 

@@ -22,7 +22,7 @@
 #include <memory>
 
 // defensive checks (IOX_ASSUME, IOX_PRECONDITION) are active during testing
-/// @todo this is preferably configured in cmake
+/// @todo this is preferably configured in cmake or somewhere else
 #define IOX_CHECK_PRECONDITIONS
 #define IOX_CHECK_ASSUMPTIONS
 

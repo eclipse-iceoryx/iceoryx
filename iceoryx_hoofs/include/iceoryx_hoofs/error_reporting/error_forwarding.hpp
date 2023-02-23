@@ -98,11 +98,11 @@ void forwardError(const SourceLocation& location, Error&& error, Kind&& kind, Me
     }
 }
 
-/// @brief Discards some generic value.
+/// @brief Discards some generic values.
 /// @note used to suppress unused variable warnings if certain checks are disabled,
 /// the artificial use of value will be optimized away by the compiler.
-template <typename T>
-void discard(T&&)
+template <typename... Args>
+void discard(Args&&...)
 {
 }
 
