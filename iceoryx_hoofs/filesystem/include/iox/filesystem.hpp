@@ -381,16 +381,16 @@ constexpr access_control operator&=(const access_control lhs, const access_contr
 /// @return lhs = lhs ^ rhs
 constexpr access_control operator^=(const access_control lhs, const access_control rhs) noexcept;
 
-/// @brief The 'ostream' operator for the perms enum. It handles the enum as if
+/// @brief The 'ostream' operator for the 'access_control' class. It handles the class as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
-/// @param[in] stream reference to the stream
+/// @param[in] stream reference to the 'ostream'
 /// @param[in] value the file permission
 /// @return the reference to the stream
 std::ostream& operator<<(std::ostream& stream, const access_control value) noexcept;
 
-/// @brief The 'LogStream' operator for the perms enum. It handles the enum as if
+/// @brief The 'LogStream' operator for the 'access_control' class. It handles the class as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
-/// @param[in] stream reference to the stream
+/// @param[in] stream reference to the 'LogStream'
 /// @param[in] value the file permission
 /// @return the reference to the stream
 iox::log::LogStream& operator<<(iox::log::LogStream& stream, const access_control value) noexcept;
