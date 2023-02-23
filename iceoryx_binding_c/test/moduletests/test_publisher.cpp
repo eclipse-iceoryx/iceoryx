@@ -25,7 +25,6 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
-#include <gtest/gtest.h>
 
 using namespace iox;
 using namespace iox::popo;
