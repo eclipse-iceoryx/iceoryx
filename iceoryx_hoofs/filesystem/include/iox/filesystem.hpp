@@ -122,7 +122,7 @@ class access_control final
     {
         // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Filesystem permissions are defined in octal representation
 
-        // the code cannot be moved to the `*.inl` file since the functions are used in the `perms` namespace to define
+        // the code cannot be moved to the '*.inl' file since the functions are used in the 'perms' namespace to define
         // the respective constants
 
         /// @note Implementation detail! Please use 'iox::perms::none'.
@@ -243,7 +243,7 @@ class access_control final
         /// @note Implementation detail! Please use 'iox::perms::unknown'.
         static constexpr access_control unknown() noexcept
         {
-            constexpr value_type VALUE{0xFFFF};
+            constexpr value_type VALUE{0xFFFFU};
             return access_control{VALUE};
         }
 
@@ -310,9 +310,11 @@ static constexpr access_control all{access_control::detail::all()};
 
 /// @brief set uid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
+// AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
 static constexpr access_control set_uid{access_control::detail::set_uid()};
 /// @brief set gid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
+// AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
 static constexpr access_control set_gid{access_control::detail::set_gid()};
 /// @brief set sticky bit
 /// @note sticky bit introduction: https://en.wikipedia.org/wiki/Sticky_bit

@@ -99,12 +99,15 @@ inline bool isValidPathToFile(const iox::string<StringCapacity>& name) noexcept
         isFileNameValid = isValidFileName(s);
     });
 
-    bool isPathToDirectoryValid{false};
-    name.substr(0, position).and_then([&isPathToDirectoryValid](const auto& s) noexcept {
-        isPathToDirectoryValid = s.empty() || isValidPathToDirectory(s);
+    bool isPathValid{false};
+    name.substr(0, position).and_then([&isPathValid](const auto& s) noexcept {
+        const bool isEmptyPath{s.empty()};
+        const bool isPathToDirectoryValid{isValidPathToDirectory(s)};
+        isPathValid = isEmptyPath || isPathToDirectoryValid;
     });
 
-    return isPathToDirectoryValid && isFileNameValid;
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
+    return isPathValid && isFileNameValid;
 }
 
 template <uint64_t StringCapacity>
@@ -115,53 +118,54 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
         return false;
     }
 
-    auto temp = name;
-
     const iox::string<StringCapacity> currentDirectory{"."};
     const iox::string<StringCapacity> parentDirectory{".."};
 
-    while (!temp.empty())
-    {
-        const auto separatorPosition = temp.find_first_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
-            TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
+    const iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS> pathSeparators{
+        TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS};
 
-        // multiple slashes are explicitly allowed. the following paths
-        // are equivalent:
-        // /some/fuu/bar
-        // //some///fuu////bar
-        if (separatorPosition && (*separatorPosition == 0))
+    auto remaining = name;
+    while (!remaining.empty())
+    {
+        const auto separatorPosition = remaining.find_first_of(pathSeparators);
+
+        if (separatorPosition.has_value())
         {
-            temp.substr(*separatorPosition + 1).and_then([&temp](const auto& s) noexcept { temp = s; });
-        }
-        else
-        {
+            const uint64_t position{separatorPosition.value()};
+
+            // multiple slashes are explicitly allowed. the following paths
+            // are equivalent:
+            // /some/fuu/bar
+            // //some///fuu////bar
+
             // verify if the entry between two path separators is a valid directory
             // name, e.g. either it has the relative component . or .. or conforms
             // with a valid file name
-            if (separatorPosition)
+            if (position != 0)
             {
-                const auto filenameToVerify = temp.substr(0, *separatorPosition);
+                const auto guaranteedSubstr = remaining.substr(0, position);
+                const auto& filenameToVerify = guaranteedSubstr.value();
                 const bool isValidDirectory{
-                    (isValidFileName(*filenameToVerify))
-                    || ((*filenameToVerify == currentDirectory) || (*filenameToVerify == parentDirectory))};
+                    (isValidFileName(filenameToVerify))
+                    || ((filenameToVerify == currentDirectory) || (filenameToVerify == parentDirectory))};
                 if (!isValidDirectory)
                 {
                     return false;
                 }
+            }
 
-                temp.substr(*separatorPosition + 1).and_then([&temp](const auto& s) noexcept { temp = s; });
-            }
-            // we reached the last entry, if its a valid file name the path is valid
-            else
-            {
-                return isValidPathEntry(temp, RelativePathComponents::ACCEPT);
-            }
+            remaining.substr(position + 1).and_then([&remaining](const auto& s) noexcept { remaining = s; });
+        }
+        else // we reached the last entry, if its a valid file name the path is valid
+        {
+            return isValidPathEntry(remaining, RelativePathComponents::ACCEPT);
         }
     }
 
     return true;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A5.2.5, AutosarC++19_03-M5.0.16, FaultDetection-OutOfBounds : IOX_PATH_SEPARATORS is not a string but an array of chars without a null termination and all elements are valid characters
 template <uint64_t StringCapacity>
 inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) noexcept
 {
@@ -214,6 +218,7 @@ constexpr access_control operator^(const access_control lhs, const access_contro
 
 constexpr access_control operator~(const access_control value) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : Cast is safe and required due to integer promotion
     return access_control(static_cast<access_control::value_type>(~value.value()));
 }
 
