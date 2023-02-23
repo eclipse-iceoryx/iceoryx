@@ -186,53 +186,53 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
     return false;
 }
 
-constexpr access_control::value_type access_control::value() const noexcept
+constexpr access_rights::value_type access_rights::value() const noexcept
 {
     return m_value;
 }
 
-constexpr bool operator==(const access_control lhs, const access_control rhs) noexcept
+constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept
 {
     return lhs.value() == rhs.value();
 }
 
-constexpr bool operator!=(const access_control lhs, const access_control rhs) noexcept
+constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-constexpr access_control operator|(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept
 {
-    return access_control(lhs.value() | rhs.value());
+    return access_rights(lhs.value() | rhs.value());
 }
 
-constexpr access_control operator&(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept
 {
-    return access_control(lhs.value() & rhs.value());
+    return access_rights(lhs.value() & rhs.value());
 }
 
-constexpr access_control operator^(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept
 {
-    return access_control(lhs.value() ^ rhs.value());
+    return access_rights(lhs.value() ^ rhs.value());
 }
 
-constexpr access_control operator~(const access_control value) noexcept
+constexpr access_rights operator~(const access_rights value) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : Cast is safe and required due to integer promotion
-    return access_control(static_cast<access_control::value_type>(~value.value()));
+    return access_rights(static_cast<access_rights::value_type>(~value.value()));
 }
 
-constexpr access_control operator|=(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator|(lhs, rhs);
 }
 
-constexpr access_control operator&=(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator&(lhs, rhs);
 }
 
-constexpr access_control operator^=(const access_control lhs, const access_control rhs) noexcept
+constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator^(lhs, rhs);
 }

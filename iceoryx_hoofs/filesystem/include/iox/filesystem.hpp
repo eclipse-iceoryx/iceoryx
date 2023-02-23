@@ -98,23 +98,23 @@ bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 /// #include <iox/filesystem.hpp>
 /// void foo()
 /// {
-///     iox::access_control bar { iox::perms::owner_all | iox::perms::group_read };
+///     iox::access_rights bar { iox::perms::owner_all | iox::perms::group_read };
 /// }
 ///
 /// @endcode
-class access_control final
+class access_rights final
 {
   public:
     using value_type = uint16_t;
 
-    access_control() noexcept = default;
-    access_control(const access_control&) noexcept = default;
-    access_control(access_control&&) noexcept = default;
+    access_rights() noexcept = default;
+    access_rights(const access_rights&) noexcept = default;
+    access_rights(access_rights&&) noexcept = default;
 
-    access_control& operator=(const access_control&) noexcept = default;
-    access_control& operator=(access_control&&) noexcept = default;
+    access_rights& operator=(const access_rights&) noexcept = default;
+    access_rights& operator=(access_rights&&) noexcept = default;
 
-    ~access_control() noexcept = default;
+    ~access_rights() noexcept = default;
 
     constexpr value_type value() const noexcept;
 
@@ -126,143 +126,143 @@ class access_control final
         // the respective constants
 
         /// @note Implementation detail! Please use 'iox::perms::none'.
-        static constexpr access_control none() noexcept
+        static constexpr access_rights none() noexcept
         {
             constexpr value_type VALUE{0};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::owner_read'.
-        static constexpr access_control owner_read() noexcept
+        static constexpr access_rights owner_read() noexcept
         {
             constexpr value_type VALUE{0400};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::owner_write'.
-        static constexpr access_control owner_write() noexcept
+        static constexpr access_rights owner_write() noexcept
         {
             constexpr value_type VALUE{0200};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::owner_exec'.
-        static constexpr access_control owner_exec() noexcept
+        static constexpr access_rights owner_exec() noexcept
         {
             constexpr value_type VALUE{0100};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::owner_all'.
-        static constexpr access_control owner_all() noexcept
+        static constexpr access_rights owner_all() noexcept
         {
             constexpr value_type VALUE{0700};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::group_read'.
-        static constexpr access_control group_read() noexcept
+        static constexpr access_rights group_read() noexcept
         {
             constexpr value_type VALUE{040};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::group_write'.
-        static constexpr access_control group_write() noexcept
+        static constexpr access_rights group_write() noexcept
         {
             constexpr value_type VALUE{020};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::group_exec'.
-        static constexpr access_control group_exec() noexcept
+        static constexpr access_rights group_exec() noexcept
         {
             constexpr value_type VALUE{010};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::group_all'.
-        static constexpr access_control group_all() noexcept
+        static constexpr access_rights group_all() noexcept
         {
             constexpr value_type VALUE{070};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::others_read'.
-        static constexpr access_control others_read() noexcept
+        static constexpr access_rights others_read() noexcept
         {
             constexpr value_type VALUE{04};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::others_write'.
-        static constexpr access_control others_write() noexcept
+        static constexpr access_rights others_write() noexcept
         {
             constexpr value_type VALUE{02};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::others_exec'.
-        static constexpr access_control others_exec() noexcept
+        static constexpr access_rights others_exec() noexcept
         {
             constexpr value_type VALUE{01};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::others_all'.
-        static constexpr access_control others_all() noexcept
+        static constexpr access_rights others_all() noexcept
         {
             constexpr value_type VALUE{07};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::all'.
-        static constexpr access_control all() noexcept
+        static constexpr access_rights all() noexcept
         {
             constexpr value_type VALUE{0777};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::set_uid'.
-        static constexpr access_control set_uid() noexcept
+        static constexpr access_rights set_uid() noexcept
         {
             constexpr value_type VALUE{04000};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::set_gid'.
-        static constexpr access_control set_gid() noexcept
+        static constexpr access_rights set_gid() noexcept
         {
             constexpr value_type VALUE{02000};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
         /// @note Implementation detail! Please use 'iox::perms::sticky_bit'.
-        static constexpr access_control sticky_bit() noexcept
+        static constexpr access_rights sticky_bit() noexcept
         {
             constexpr value_type VALUE{01000};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::mask'.
-        static constexpr access_control mask() noexcept
+        static constexpr access_rights mask() noexcept
         {
             constexpr value_type VALUE{07777};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         /// @note Implementation detail! Please use 'iox::perms::unknown'.
-        static constexpr access_control unknown() noexcept
+        static constexpr access_rights unknown() noexcept
         {
             constexpr value_type VALUE{0xFFFFU};
-            return access_control{VALUE};
+            return access_rights{VALUE};
         }
 
         // AXIVION ENABLE STYLE AutosarC++19_03-M2.13.2
     };
 
-    friend constexpr bool operator==(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr bool operator!=(const access_control lhs, const access_control rhs) noexcept;
+    friend constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept;
 
-    friend constexpr access_control operator|(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr access_control operator&(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr access_control operator^(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr access_control operator~(const access_control value) noexcept;
-    friend constexpr access_control operator|=(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr access_control operator&=(const access_control lhs, const access_control rhs) noexcept;
-    friend constexpr access_control operator^=(const access_control lhs, const access_control rhs) noexcept;
+    friend constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr access_rights operator~(const access_rights value) noexcept;
+    friend constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept;
+    friend constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept;
 
   private:
-    explicit constexpr access_control(value_type value) noexcept
+    explicit constexpr access_rights(value_type value) noexcept
         : m_value(value)
     {
     }
@@ -276,55 +276,55 @@ namespace perms
 // AXIVION DISABLE STYLE AutosarC++19_03-A2.10.5 : Name reuse is intentional since they refer to the same value. Additionally, different namespaces are used.
 
 /// @brief Deny everything
-static constexpr access_control none{access_control::detail::none()};
+static constexpr access_rights none{access_rights::detail::none()};
 
 /// @brief owner has read permission
-static constexpr access_control owner_read{access_control::detail::owner_read()};
+static constexpr access_rights owner_read{access_rights::detail::owner_read()};
 /// @brief owner has write permission
-static constexpr access_control owner_write{access_control::detail::owner_write()};
+static constexpr access_rights owner_write{access_rights::detail::owner_write()};
 /// @brief owner has execution permission
-static constexpr access_control owner_exec{access_control::detail::owner_exec()};
+static constexpr access_rights owner_exec{access_rights::detail::owner_exec()};
 /// @brief owner has all permissions
-static constexpr access_control owner_all{access_control::detail::owner_all()};
+static constexpr access_rights owner_all{access_rights::detail::owner_all()};
 
 /// @brief group has read permission
-static constexpr access_control group_read{access_control::detail::group_read()};
+static constexpr access_rights group_read{access_rights::detail::group_read()};
 /// @brief group has write permission
-static constexpr access_control group_write{access_control::detail::group_write()};
+static constexpr access_rights group_write{access_rights::detail::group_write()};
 /// @brief group has execution permission
-static constexpr access_control group_exec{access_control::detail::group_exec()};
+static constexpr access_rights group_exec{access_rights::detail::group_exec()};
 /// @brief group has all permissions
-static constexpr access_control group_all{access_control::detail::group_all()};
+static constexpr access_rights group_all{access_rights::detail::group_all()};
 
 /// @brief others have read permission
-static constexpr access_control others_read{access_control::detail::others_read()};
+static constexpr access_rights others_read{access_rights::detail::others_read()};
 /// @brief others have write permission
-static constexpr access_control others_write{access_control::detail::others_write()};
+static constexpr access_rights others_write{access_rights::detail::others_write()};
 /// @brief others have execution permission
-static constexpr access_control others_exec{access_control::detail::others_exec()};
+static constexpr access_rights others_exec{access_rights::detail::others_exec()};
 /// @brief others have all permissions
-static constexpr access_control others_all{access_control::detail::others_all()};
+static constexpr access_rights others_all{access_rights::detail::others_all()};
 
 /// @brief all permissions for everyone
-static constexpr access_control all{access_control::detail::all()};
+static constexpr access_rights all{access_rights::detail::all()};
 
 /// @brief set uid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr access_control set_uid{access_control::detail::set_uid()};
+static constexpr access_rights set_uid{access_rights::detail::set_uid()};
 /// @brief set gid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr access_control set_gid{access_control::detail::set_gid()};
+static constexpr access_rights set_gid{access_rights::detail::set_gid()};
 /// @brief set sticky bit
 /// @note sticky bit introduction: https://en.wikipedia.org/wiki/Sticky_bit
-static constexpr access_control sticky_bit{access_control::detail::sticky_bit()};
+static constexpr access_rights sticky_bit{access_rights::detail::sticky_bit()};
 
 /// @brief all permissions for everyone as well as uid, gid and sticky bit
-static constexpr access_control mask{access_control::detail::mask()};
+static constexpr access_rights mask{access_rights::detail::mask()};
 
 /// @brief unknown permissions
-static constexpr access_control unknown{access_control::detail::unknown()};
+static constexpr access_rights unknown{access_rights::detail::unknown()};
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A2.10.5
 } // namespace perms
@@ -334,68 +334,68 @@ static constexpr access_control unknown{access_control::detail::unknown()};
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs == rhs
-constexpr bool operator==(const access_control lhs, const access_control rhs) noexcept;
+constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the not equal operator
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs != rhs
-constexpr bool operator!=(const access_control lhs, const access_control rhs) noexcept;
+constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary or operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs | rhs
-constexpr access_control operator|(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary and operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs & rhs
-constexpr access_control operator&(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary exclusive or operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs ^ rhs
-constexpr access_control operator^(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary complement operation
 /// @param[in] value the value used for the operation
 /// @return ~value
-constexpr access_control operator~(const access_control value) noexcept;
+constexpr access_rights operator~(const access_rights value) noexcept;
 
 /// @brief Implements the binary or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs | rhs
-constexpr access_control operator|=(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary and assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs & rhs
-constexpr access_control operator&=(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept;
 
 /// @brief Implements the binary exclusive or assignment operation
 /// @param[in] lhs left hand side of the operation
 /// @param[in] rhs right hand side of the operation
 /// @return lhs = lhs ^ rhs
-constexpr access_control operator^=(const access_control lhs, const access_control rhs) noexcept;
+constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept;
 
-/// @brief The 'ostream' operator for the 'access_control' class. It handles the class as if
+/// @brief The 'ostream' operator for the 'access_rights' class. It handles the class as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
 /// @param[in] stream reference to the 'ostream'
 /// @param[in] value the file permission
 /// @return the reference to the stream
-std::ostream& operator<<(std::ostream& stream, const access_control value) noexcept;
+std::ostream& operator<<(std::ostream& stream, const access_rights value) noexcept;
 
-/// @brief The 'LogStream' operator for the 'access_control' class. It handles the class as if
+/// @brief The 'LogStream' operator for the 'access_rights' class. It handles the class as if
 ///        it was a bitset and always lists the values for owner, group, others, special bits
 /// @param[in] stream reference to the 'LogStream'
 /// @param[in] value the file permission
 /// @return the reference to the stream
-iox::log::LogStream& operator<<(iox::log::LogStream& stream, const access_control value) noexcept;
+iox::log::LogStream& operator<<(iox::log::LogStream& stream, const access_rights value) noexcept;
 } // namespace iox
 
 #include "iox/detail/filesystem.inl"

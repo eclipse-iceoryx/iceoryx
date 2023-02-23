@@ -27,7 +27,7 @@ namespace iox
 {
 namespace roudi
 {
-constexpr access_control PosixShmMemoryProvider::SHM_MEMORY_PERMISSIONS;
+constexpr access_rights PosixShmMemoryProvider::SHM_MEMORY_PERMISSIONS;
 
 PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
                                                const posix::AccessMode accessMode,

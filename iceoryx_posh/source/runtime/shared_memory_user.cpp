@@ -25,7 +25,7 @@ namespace iox
 {
 namespace runtime
 {
-constexpr access_control SharedMemoryUser::SHM_SEGMENT_PERMISSIONS;
+constexpr access_rights SharedMemoryUser::SHM_SEGMENT_PERMISSIONS;
 
 SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                                    const uint64_t segmentId,

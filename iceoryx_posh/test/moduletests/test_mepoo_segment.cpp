@@ -49,13 +49,13 @@ class MePooSegment_test : public Test
                                              const iox::posix::AccessMode,
                                              const iox::posix::OpenMode,
                                              const void*,
-                                             const iox::access_control)>;
+                                             const iox::access_rights)>;
         SharedMemoryObject_MOCK(const SharedMemory::Name_t& name,
                                 const uint64_t memorySizeInBytes,
                                 const AccessMode accessMode,
                                 const OpenMode openMode,
                                 const void* baseAddressHint,
-                                const iox::access_control permissions)
+                                const iox::access_rights permissions)
             : m_memorySizeInBytes(memorySizeInBytes)
             , m_baseAddressHint(const_cast<void*>(baseAddressHint))
         {
@@ -121,7 +121,7 @@ class MePooSegment_test : public Test
 
         IOX_BUILDER_PARAMETER(iox::optional<const void*>, baseAddressHint, iox::nullopt)
 
-        IOX_BUILDER_PARAMETER(iox::access_control, permissions, iox::perms::none)
+        IOX_BUILDER_PARAMETER(iox::access_rights, permissions, iox::perms::none)
 
       public:
         iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
@@ -174,7 +174,7 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
                                                                        const iox::posix::AccessMode f_accessMode,
                                                                        const iox::posix::OpenMode openMode,
                                                                        const void*,
-                                                                       const iox::access_control) {
+                                                                       const iox::access_rights) {
         EXPECT_THAT(f_name, Eq(SharedMemory::Name_t("iox_roudi_test2")));
         EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
         EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
@@ -195,7 +195,7 @@ TEST_F(MePooSegment_test, GetSharedMemoryObject)
                                                                         const iox::posix::AccessMode,
                                                                         const iox::posix::OpenMode,
                                                                         const void*,
-                                                                        const iox::access_control) {
+                                                                        const iox::access_rights) {
         memorySizeInBytes = f_memorySizeInBytes;
     };
     SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};

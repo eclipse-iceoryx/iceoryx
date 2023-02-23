@@ -29,7 +29,7 @@ namespace iox
 namespace mepoo
 {
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-constexpr access_control MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SEGMENT_PERMISSIONS;
+constexpr access_rights MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SEGMENT_PERMISSIONS;
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(

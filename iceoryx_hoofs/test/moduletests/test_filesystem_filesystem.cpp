@@ -594,8 +594,8 @@ TEST(filesystem_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhen
 TEST(filesystem_test, permsBinaryOrEqualToBinaryOrOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b72fcec-c2b3-4a45-801f-542ff3195a2f");
-    constexpr access_control TEST_VALUE_LHS = perms::others_write;
-    constexpr access_control TEST_VALUE_RHS = perms::group_all;
+    constexpr access_rights TEST_VALUE_LHS = perms::others_write;
+    constexpr access_rights TEST_VALUE_RHS = perms::group_all;
 
     constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
@@ -606,8 +606,8 @@ TEST(filesystem_test, permsBinaryOrEqualToBinaryOrOfUnderlyingType)
 TEST(filesystem_test, permsBinaryAndEqualToBinaryAndOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "15a02845-21b0-41fb-80bf-ee2ff9a81427");
-    constexpr access_control TEST_VALUE_LHS = perms::others_read;
-    constexpr access_control TEST_VALUE_RHS = perms::mask;
+    constexpr access_rights TEST_VALUE_LHS = perms::others_read;
+    constexpr access_rights TEST_VALUE_RHS = perms::mask;
 
     constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
@@ -618,8 +618,8 @@ TEST(filesystem_test, permsBinaryAndEqualToBinaryAndOfUnderlyingType)
 TEST(filesystem_test, permsBinaryExclusiveOrEqualToBinaryExclusiveOrOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8094a263-2861-45ad-aecd-9312d477bc2d");
-    constexpr access_control TEST_VALUE_LHS = perms::set_gid;
-    constexpr access_control TEST_VALUE_RHS = perms::set_uid;
+    constexpr access_rights TEST_VALUE_LHS = perms::set_gid;
+    constexpr access_rights TEST_VALUE_RHS = perms::set_uid;
 
     constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
@@ -630,10 +630,10 @@ TEST(filesystem_test, permsBinaryExclusiveOrEqualToBinaryExclusiveOrOfUnderlying
 TEST(filesystem_test, permsBinaryComplementEqualToBinaryComplementOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c313cf42-4cf0-4836-95ff-129111a707b0");
-    constexpr access_control TEST_VALUE = perms::owner_read;
+    constexpr access_rights TEST_VALUE = perms::owner_read;
 
-    constexpr access_control::value_type BASE_VALUE = 0x0100;
-    constexpr access_control::value_type EXPECTED_VALUE = 0xFEFF;
+    constexpr access_rights::value_type BASE_VALUE = 0x0100;
+    constexpr access_rights::value_type EXPECTED_VALUE = 0xFEFF;
 
     ASSERT_THAT(TEST_VALUE.value(), Eq(BASE_VALUE));
 
@@ -643,13 +643,13 @@ TEST(filesystem_test, permsBinaryComplementEqualToBinaryComplementOfUnderlyingTy
 TEST(filesystem_test, permsBinaryOrAssignmentEqualToBinaryOrAssignmentOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d3611de8-f932-4485-9e64-6cd8af4526dc");
-    constexpr access_control TEST_VALUE = perms::sticky_bit;
-    constexpr access_control TEST_VALUE_RHS = perms::group_read;
+    constexpr access_rights TEST_VALUE = perms::sticky_bit;
+    constexpr access_rights TEST_VALUE_RHS = perms::group_read;
 
     auto sutBaseValue = TEST_VALUE.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
 
-    access_control sut = TEST_VALUE;
+    access_rights sut = TEST_VALUE;
 
     EXPECT_THAT((sut |= TEST_VALUE_RHS).value(), Eq(sutBaseValue |= BASE_VALUE_RHS));
 }
@@ -657,13 +657,13 @@ TEST(filesystem_test, permsBinaryOrAssignmentEqualToBinaryOrAssignmentOfUnderlyi
 TEST(filesystem_test, permsBinaryAndAssignmentEqualToBinaryAndAssignmentOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "03c139be-e3ec-477e-8598-5da93699ab75");
-    constexpr access_control TEST_VALUE = perms::others_exec;
-    constexpr access_control TEST_VALUE_RHS = perms::others_all;
+    constexpr access_rights TEST_VALUE = perms::others_exec;
+    constexpr access_rights TEST_VALUE_RHS = perms::others_all;
 
     auto sutBaseValue = TEST_VALUE.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
 
-    access_control sut = TEST_VALUE;
+    access_rights sut = TEST_VALUE;
 
     EXPECT_THAT((sut &= TEST_VALUE_RHS).value(), Eq(sutBaseValue &= BASE_VALUE_RHS));
 }
@@ -671,13 +671,13 @@ TEST(filesystem_test, permsBinaryAndAssignmentEqualToBinaryAndAssignmentOfUnderl
 TEST(filesystem_test, permsBinaryExclusiveOrAssignmentEqualToBinaryExclusiveOrAssignmentOfUnderylingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dae75205-a635-4535-8e8d-05541bb05b60");
-    constexpr access_control TEST_VALUE = perms::none;
-    constexpr access_control TEST_VALUE_RHS = perms::owner_all;
+    constexpr access_rights TEST_VALUE = perms::none;
+    constexpr access_rights TEST_VALUE_RHS = perms::owner_all;
 
     auto sutBaseValue = TEST_VALUE.value();
     constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
 
-    access_control sut = TEST_VALUE;
+    access_rights sut = TEST_VALUE;
 
     EXPECT_THAT((sut ^= TEST_VALUE_RHS).value(), Eq(sutBaseValue ^= BASE_VALUE_RHS));
 }

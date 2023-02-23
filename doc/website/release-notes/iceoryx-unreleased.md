@@ -1024,12 +1024,12 @@
     #include "iox/duration.hpp"
     ```
 
-46. The `perms` enum is replaced by the `access_control` class
+46. The `perms` enum is replaced by the `access_rights` class
 
     ```cpp
     // before
     iox::perms foo { iox::perms::owner_all | iox::perms::group_read };
 
     // after
-    iox::access_control foo { iox::perms::owner_all | iox::perms::group_read };
+    iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
