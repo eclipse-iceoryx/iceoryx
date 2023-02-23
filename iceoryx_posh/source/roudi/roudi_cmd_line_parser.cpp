@@ -41,7 +41,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* SHORT_OPTIONS = "hvm:l:u:x:k:";
-    int32_t index;
+    int index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
     {

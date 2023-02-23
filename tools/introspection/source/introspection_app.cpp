@@ -82,7 +82,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
                                              CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {
     int32_t opt;
-    int32_t index;
+    int index;
 
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index)) != -1)
     {

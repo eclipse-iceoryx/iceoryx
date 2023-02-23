@@ -28,7 +28,7 @@ void LoFFLi::init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity)
     cxx::Expects(capacity > 0 && "A capacity of 0 is not supported!");
     constexpr uint32_t INTERNALLY_RESERVED_INDICES{1U};
     cxx::Expects(capacity < (std::numeric_limits<Index_t>::max() - INTERNALLY_RESERVED_INDICES)
-                 && "Requested capacityexceeds limits!");
+                 && "Requested capacity exceeds limits!");
     cxx::Expects(m_head.is_lock_free() && "std::atomic<LoFFLi::Node> must be lock-free!");
 
     m_nextFreeIndex = freeIndicesMemory;

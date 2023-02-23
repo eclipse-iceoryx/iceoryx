@@ -43,7 +43,7 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 // NOLINTBEGIN(readability-function-size, bugprone-easily-swappable-parameters)
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
-                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
     // NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
     : UnixDomainSocket(
@@ -69,7 +69,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
                                    const IpcChannelSide channelSide,
-                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgSize,
                                    const uint64_t) noexcept
     // NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
     : m_name(name)

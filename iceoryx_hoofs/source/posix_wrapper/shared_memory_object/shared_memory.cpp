@@ -200,12 +200,12 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     return *this;
 }
 
-int32_t SharedMemory::getHandle() const noexcept
+int SharedMemory::getHandle() const noexcept
 {
     return m_handle;
 }
 
-int32_t SharedMemory::get_file_handle() const noexcept
+int SharedMemory::get_file_handle() const noexcept
 {
     return m_handle;
 }

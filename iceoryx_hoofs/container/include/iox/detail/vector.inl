@@ -354,7 +354,7 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
     {
         // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
         uint64_t index{static_cast<uint64_t>(position - begin())};
-        size_t n{index};
+        uint64_t n{index};
         while ((n + 1U) < size())
         {
             // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.

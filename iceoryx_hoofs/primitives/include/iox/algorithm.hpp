@@ -114,9 +114,9 @@ inline constexpr bool doesContainValue(const T) noexcept;
 /// @return true if value is contained in the ValueList, otherwise false
 /// @note be aware that value is tested for exact equality with the entries of ValueList and regular floating-point
 /// comparison rules apply
-template <typename T, typename... ValueList>
+template <typename T1, typename T2, typename... ValueList>
 inline constexpr bool
-doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
+doesContainValue(const T1 value, const T2 firstValueListEntry, const ValueList... remainingValueListEntries) noexcept;
 } // namespace algorithm
 
 namespace internal
@@ -150,11 +150,19 @@ struct BestFittingTypeImpl<true, true, false>
 template <uint64_t Value>
 struct BestFittingType
 {
+// gcc warns here that the uint8_t test for BestFittingType<256> is always true... which is correct, but we need it for portability anyway
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
     using Type_t =
         typename internal::BestFittingTypeImpl<(Value > static_cast<uint64_t>(std::numeric_limits<uint8_t>::max())),
                                                (Value > static_cast<uint64_t>(std::numeric_limits<uint16_t>::max())),
                                                (Value
                                                 > static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()))>::Type_t;
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 };
 
 template <uint64_t Value>

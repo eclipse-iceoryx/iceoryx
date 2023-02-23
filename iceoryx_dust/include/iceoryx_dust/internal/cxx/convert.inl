@@ -240,6 +240,19 @@ inline bool convert::fromString<unsigned long>(const char* v, unsigned long& des
 }
 #endif
 
+#if defined(__GNUC__) && (INTPTR_MAX == INT32_MAX)
+/// introduced for 32-bit arm-none-eabi-gcc since uintptr_t is not uint32_t despite it has the same size
+/// who knows why ¯\_(ツ)_/¯
+template <>
+inline bool convert::fromString<uintptr_t>(const char* v, uintptr_t& dest) noexcept
+{
+    uint64_t temp{0};
+    bool retVal = fromString(v, temp);
+    dest = temp;
+    return retVal;
+}
+#endif
+
 template <>
 inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest) noexcept
 {
