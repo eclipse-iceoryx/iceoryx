@@ -123,7 +123,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics, since
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1, AutosarC++19_03-A16.7.1: conditional compilation is required for setting gcc diagnostics, since
 // gcc 8 incorrectly warns here about out of bounds array access
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic push
@@ -227,7 +227,7 @@ inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other)
         {
             return -1;
         }
-        const int64_t isLargerThanOther{(m_rawstringSize > otherSize) ? 1 : 0};
+        const int64_t isLargerThanOther{(m_rawstringSize > otherSize) ? 1L : 0L};
         return isLargerThanOther;
     }
     return result;
@@ -510,7 +510,7 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_o
     const uint64_t dataSize{internal::GetSize<T>::call(str)};
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
-        const void* const found = memchr(data, m_rawstring[p], dataSize);
+        const void* const found{memchr(data, m_rawstring[p], dataSize)};
         if (found != nullptr)
         {
             return p;
