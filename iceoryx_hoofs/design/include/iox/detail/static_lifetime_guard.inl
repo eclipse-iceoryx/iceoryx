@@ -17,14 +17,12 @@
 #ifndef IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_INL
 #define IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_INL
 
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/static_lifetime_guard.hpp"
 
 #include <atomic>
 #include <thread>
 
 namespace iox
-{
-namespace design_pattern
 {
 
 // NOLINTJUSTIFICATION these static variables are private and mutability is required
@@ -153,7 +151,6 @@ void StaticLifetimeGuard<T>::destroy()
     }
 }
 
-} // namespace design_pattern
 } // namespace iox
 
 #endif // IOX_HOOFS_DESIGN_STATIC_LIFETIME_GUARD_INL

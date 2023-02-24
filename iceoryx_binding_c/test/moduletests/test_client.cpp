@@ -76,7 +76,7 @@ class iox_client_test : public Test
             sizeof(int64_t), iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT, sizeof(ResponseHeader)));
         ASSERT_FALSE(chunk.has_error());
         new (chunk->getChunkHeader()->userHeader())
-            ResponseHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, 0U);
+            ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, 0U);
         *static_cast<int64_t*>(chunk->getUserPayload()) = chunkValue;
         iox::popo::ChunkQueuePusher<ClientChunkQueueData_t> pusher{&sutPort->m_chunkReceiverData};
         pusher.push(*chunk);

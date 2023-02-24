@@ -14,16 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_UNIQUE_ID_HPP
-#define IOX_HOOFS_CXX_UNIQUE_ID_HPP
+#ifndef IOX_HOOFS_UTILITY_UNIQUE_ID_HPP
+#define IOX_HOOFS_UTILITY_UNIQUE_ID_HPP
 
 #include "iox/newtype.hpp"
 
 #include <atomic>
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief Unique IDs within a process starting with 1. Monotonic increasing IDs are
 /// created with each call to the constructor. The IDs are copy/move constructible/assignable,
@@ -51,7 +49,6 @@ class UniqueId : public NewType<uint64_t,
     static std::atomic<value_type> m_IdCounter; // initialized in corresponding cpp file
 };
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_UNIQUE_ID_HPP
+#endif // IOX_HOOFS_UTILITY_UNIQUE_ID_HPP

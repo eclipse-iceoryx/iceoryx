@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
 #include "iox/detail/adaptive_wait.hpp"
+#include "iox/detail/unique_id.hpp"
 #include "iox/not_null.hpp"
 
 #include <thread>
@@ -108,17 +108,15 @@ class ChunkDistributor
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
     /// @param[in] chunk is the SharedChunk to be delivered
     /// @return ChunkDistributorError if the queue was not found
-    expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
-                                                   const uint32_t lastKnownQueueIndex,
-                                                   mepoo::SharedChunk chunk) noexcept;
+    expected<ChunkDistributorError>
+    deliverToQueue(const UniqueId uniqueQueueId, const uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept;
 
-    /// @brief Lookup for the index of a queue with a specific cxx::UniqueId
+    /// @brief Lookup for the index of a queue with a specific iox::UniqueId
     /// @param[in] uniqueQueueId is the unique ID of the queue to query the index
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
     /// found at the index, the queue is searched by iteration over all stored queues
     /// @return the index of the queue with uniqueQueueId or nullopt if the queue was not found
-    optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
-                                     const uint32_t lastKnownQueueIndex) const noexcept;
+    optional<uint32_t> getQueueIndex(const UniqueId uniqueQueueId, const uint32_t lastKnownQueueIndex) const noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara

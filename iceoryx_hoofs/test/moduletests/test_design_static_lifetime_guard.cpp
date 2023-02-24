@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/static_lifetime_guard.hpp"
 #include "iox/vector.hpp"
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
@@ -78,7 +78,7 @@ template <uint64_t N>
 uint32_t Fou<N>::instancesCreated{0};
 
 template <uint64_t N>
-using TestGuard = iox::design_pattern::StaticLifetimeGuard<Fou<N>>;
+using TestGuard = iox::StaticLifetimeGuard<Fou<N>>;
 
 // create a bundle of types and functions that are relevant for the tests,
 // since we need a different static type for each test
@@ -335,7 +335,7 @@ TEST_F(StaticLifetimeGuard_test, instanceCtorIsConcurrentlyCalledExactlyOnce)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2b7e60e5-159d-4bcf-adc8-21f5a23d2f27");
     using Instance = DelayedFou<1>;
-    using Sut = iox::design_pattern::StaticLifetimeGuard<Instance>;
+    using Sut = iox::StaticLifetimeGuard<Instance>;
     constexpr uint32_t NUM_THREADS = 8;
 
     EXPECT_EQ(Instance::ctorCalled, 0);

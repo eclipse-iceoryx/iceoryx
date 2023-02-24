@@ -17,13 +17,13 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/detail/unique_id.hpp"
 #include "iox/expected.hpp"
 #include "iox/into.hpp"
 #include "iox/not_null.hpp"
@@ -122,7 +122,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return true when successful, false otherwise
     /// @note This method does not add the chunk to the history
     bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
-                     const cxx::UniqueId uniqueQueueId,
+                     const UniqueId uniqueQueueId,
                      const uint32_t lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it

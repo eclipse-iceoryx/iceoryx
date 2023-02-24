@@ -14,11 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
+#include "iox/detail/unique_id.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 // start with 1, just in case we want to use 0 for a special purpose later on
 /// @NOLINTJUSTIFICATION see argument in header
@@ -29,5 +27,4 @@ UniqueId::UniqueId() noexcept
     : ThisType(newtype::internal::ProtectedConstructor, m_IdCounter.fetch_add(1U, std::memory_order_relaxed))
 {
 }
-} // namespace cxx
 } // namespace iox

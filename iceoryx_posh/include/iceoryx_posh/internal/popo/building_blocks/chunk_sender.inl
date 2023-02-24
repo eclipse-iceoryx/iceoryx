@@ -198,7 +198,7 @@ inline uint64_t ChunkSender<ChunkSenderDataType>::send(mepoo::ChunkHeader* const
 
 template <typename ChunkSenderDataType>
 inline bool ChunkSender<ChunkSenderDataType>::sendToQueue(mepoo::ChunkHeader* const chunkHeader,
-                                                          const cxx::UniqueId uniqueQueueId,
+                                                          const UniqueId uniqueQueueId,
                                                           const uint32_t lastKnownQueueIndex) noexcept
 {
     mepoo::SharedChunk chunk(nullptr);

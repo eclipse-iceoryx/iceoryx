@@ -18,8 +18,8 @@
 #ifndef IOX_POSH_POPO_RPC_HEADER_HPP
 #define IOX_POSH_POPO_RPC_HEADER_HPP
 
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/detail/unique_id.hpp"
 
 #include <cstdint>
 
@@ -31,12 +31,12 @@ class RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue where the response shall be delivered
+    /// @param[in] uniqueClientQueueId is the iox::UniqueId of the client queue where the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request
     /// @param[in] rpcHeaderVersion is set by RequestHeader/ResponseHeader and should be RPC_HEADER_VERSION
-    explicit RpcBaseHeader(const cxx::UniqueId& uniqueClientQueueId,
+    explicit RpcBaseHeader(const UniqueId& uniqueClientQueueId,
                            const uint32_t lastKnownClientQueueIndex,
                            const int64_t sequenceId,
                            const uint8_t rpcHeaderVersion) noexcept;
@@ -86,7 +86,7 @@ class RpcBaseHeader
   protected:
     uint8_t m_rpcHeaderVersion{RPC_HEADER_VERSION};
     uint32_t m_lastKnownClientQueueIndex{UNKNOWN_CLIENT_QUEUE_INDEX};
-    cxx::UniqueId m_uniqueClientQueueId;
+    UniqueId m_uniqueClientQueueId;
     int64_t m_sequenceId{0};
 };
 
@@ -94,10 +94,10 @@ class RequestHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
+    /// @param[in] uniqueClientQueueId is the iox::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
-    explicit RequestHeader(const cxx::UniqueId& uniqueClientQueueId, const uint32_t lastKnownClientQueueIndex) noexcept;
+    explicit RequestHeader(const UniqueId& uniqueClientQueueId, const uint32_t lastKnownClientQueueIndex) noexcept;
 
     RequestHeader(const RequestHeader& other) = delete;
     RequestHeader& operator=(const RequestHeader&) = delete;
@@ -120,11 +120,11 @@ class ResponseHeader : public RpcBaseHeader
 {
   public:
     /// @brief Constructs and initializes a RpcBaseHeader
-    /// @param[in] uniqueClientQueueId is the cxx::UniqueId of the client queue to which the response shall be delivered
+    /// @param[in] uniqueClientQueueId is the iox::UniqueId of the client queue to which the response shall be delivered
     /// @param[in] lastKnownClientQueueIndex is the last know index of the client queue in the ChunkDistributor for fast
     /// lookup
     /// @param[in] sequenceId is a custom ID to map a response to a request
-    explicit ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
+    explicit ResponseHeader(const UniqueId& uniqueClientQueueId,
                             const uint32_t lastKnownClientQueueIndex,
                             const int64_t sequenceId) noexcept;
 

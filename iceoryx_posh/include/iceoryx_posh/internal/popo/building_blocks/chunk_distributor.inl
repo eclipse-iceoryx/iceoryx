@@ -226,7 +226,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(not_null<Chu
 
 template <typename ChunkDistributorDataType>
 inline expected<ChunkDistributorError>
-ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId uniqueQueueId,
+ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const UniqueId uniqueQueueId,
                                                            const uint32_t lastKnownQueueIndex,
                                                            mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept
 {
@@ -267,7 +267,7 @@ ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const cxx::UniqueId u
 
 template <typename ChunkDistributorDataType>
 inline optional<uint32_t>
-ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const cxx::UniqueId uniqueQueueId,
+ChunkDistributor<ChunkDistributorDataType>::getQueueIndex(const UniqueId uniqueQueueId,
                                                           const uint32_t lastKnownQueueIndex) const noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());

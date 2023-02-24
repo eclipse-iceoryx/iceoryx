@@ -14,17 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_HPP
-#define IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_HPP
+#ifndef IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_HPP
+#define IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_HPP
 
 #include <atomic>
 #include <type_traits>
 
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/static_lifetime_guard.hpp"
 
 namespace iox
-{
-namespace design_pattern
 {
 namespace detail
 {
@@ -124,9 +122,8 @@ class PolymorphicHandler
     std::atomic<Interface*> m_current{nullptr};
 };
 
-} // namespace design_pattern
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/design_pattern/polymorphic_handler.inl"
+#include "iox/detail/polymorphic_handler.inl"
 
-#endif // IOX_HOOFS_DESIGN_PATTERN_POLYMORPHIC_HANDLER_HPP
+#endif // IOX_HOOFS_DESIGN_POLYMORPHIC_HANDLER_HPP
