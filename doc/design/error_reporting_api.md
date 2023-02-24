@@ -221,6 +221,27 @@ check postconditions.
 It should not be used at the start of a function body and instead replaced with a precondition check
 in this case.
 
+### Marking unreachable code
+
+It is also possible to explcitly state that code is supposed to be unreachable.
+```cpp
+if(condition) {
+    // reachable code that does something
+    // This also implies that it is assumed that the condition cannot be false.
+} else {
+    IOX_UNREACHABLE();
+    // code here should be dead, otherwise it is a bug
+}
+```
+
+If checking for unreachable code at runtime is enabled and `IOX_UNREACHABLE` is reached, 
+`panic` will be invoked and the program aborts. Stating that specific code cannot be reached is
+a specific assumption and any violation is considered a bug (hence checking can be optionally
+disabled).
+
+This has advantages for test coverage as the compiler and other tools that rely on the compiler (say
+for coverage) are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
+
 ## Summary
 
 This shows how the API can be used to either signal errors to an underlying backend or safeguard
