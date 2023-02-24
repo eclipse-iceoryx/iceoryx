@@ -52,7 +52,7 @@ enum class FileLockError
 /// @code
 ///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
 ///                                                .path("/tmp")
-///                                                .permission(iox::cxx::perms::owner_all)
+///                                                .permission(iox::perms::owner_all)
 ///                                                .create()
 ///                                                .expect("Oh no I couldn't create the lock");
 /// @endcode
@@ -121,7 +121,7 @@ class FileLockBuilder
 
     /// @brief Defines the access permissions of the file lock. If they are not
     ///        explicitly set they will be none
-    IOX_BUILDER_PARAMETER(perms, permission, perms::none)
+    IOX_BUILDER_PARAMETER(access_rights, permission, perms::none)
 
   public:
     /// @brief Creates a file lock

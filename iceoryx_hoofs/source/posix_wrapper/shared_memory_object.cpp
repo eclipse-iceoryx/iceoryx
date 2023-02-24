@@ -75,7 +75,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                        << ", access mode = " << asStringLiteral(m_accessMode)
                        << ", open mode = " << asStringLiteral(m_openMode)
                        << ", baseAddressHint = " << logBaseAddressHint
-                       << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
+                       << ", permissions = " << iox::log::oct(m_permissions.value()) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()
@@ -136,14 +136,14 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
-                "open mode = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
+                "open mode = %s, baseAddressHint = %p, permissions = %u ] maybe requires more memory than it is "
                 "currently available in the system.\n",
                 m_name.c_str(),
                 static_cast<unsigned long long>(m_memorySizeInBytes),
                 asStringLiteral(m_accessMode),
                 asStringLiteral(m_openMode),
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong()));
+                m_permissions.value()));
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }

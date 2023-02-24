@@ -39,11 +39,15 @@ inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
         // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
         const char c{name[i]};
 
+        // AXIVION DISABLE STYLE AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments : False positive, variable IS used
+        // AXIVION DISABLE STYLE AutosarC++19_03-M4.5.3 : We are explicitly checking for ASCII characters which have defined consecutive values
         const bool isSmallLetter{(internal::ASCII_A <= c) && (c <= internal::ASCII_Z)};
         const bool isCapitalLetter{(internal::ASCII_CAPITAL_A <= c) && (c <= internal::ASCII_CAPITAL_Z)};
         const bool isNumber{(internal::ASCII_0 <= c) && (c <= internal::ASCII_9)};
-        const bool isSpecialCharacter{((c == internal::ASCII_MINUS) || (c == internal::ASCII_DOT))
+        const bool isSpecialCharacter{((c == internal::ASCII_DASH) || (c == internal::ASCII_DOT))
                                       || ((c == internal::ASCII_COLON) || (c == internal::ASCII_UNDERSCORE))};
+        // AXIVION ENABLE STYLE AutosarC++19_03-M4.5.3
+        // AXIVION ENABLE STYLE AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments
 
         if ((!isSmallLetter && !isCapitalLetter) && (!isNumber && !isSpecialCharacter))
         {
@@ -80,18 +84,30 @@ inline bool isValidPathToFile(const iox::string<StringCapacity>& name) noexcept
         return false;
     }
 
-    iox::string<StringCapacity> filePart{name};
-    iox::string<StringCapacity> pathPart;
+    auto maybeSeparator = name.find_last_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
+        TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
 
-    name.find_last_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(TruncateToCapacity,
-                                                                           &platform::IOX_PATH_SEPARATORS[0],
-                                                                           platform::IOX_NUMBER_OF_PATH_SEPARATORS))
-        .and_then([&](auto position) {
-            name.substr(position + 1).and_then([&filePart](auto& s) { filePart = s; });
-            name.substr(0, position).and_then([&pathPart](auto& s) { pathPart = s; });
-        });
+    if (!maybeSeparator.has_value())
+    {
+        return isValidFileName(name);
+    }
 
-    return (pathPart.empty() || isValidPathToDirectory(pathPart)) && isValidFileName(filePart);
+    const auto& position = maybeSeparator.value();
+
+    bool isFileNameValid{false};
+    name.substr(position + 1).and_then([&isFileNameValid](const auto& s) noexcept {
+        isFileNameValid = isValidFileName(s);
+    });
+
+    bool isPathValid{false};
+    name.substr(0, position).and_then([&isPathValid](const auto& s) noexcept {
+        const bool isEmptyPath{s.empty()};
+        const bool isPathToDirectoryValid{isValidPathToDirectory(s)};
+        isPathValid = isEmptyPath || isPathToDirectoryValid;
+    });
+
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
+    return isPathValid && isFileNameValid;
 }
 
 template <uint64_t StringCapacity>
@@ -102,52 +118,54 @@ inline bool isValidPathToDirectory(const iox::string<StringCapacity>& name) noex
         return false;
     }
 
-    auto temp = name;
-
     const iox::string<StringCapacity> currentDirectory{"."};
     const iox::string<StringCapacity> parentDirectory{".."};
 
-    while (!temp.empty())
+    const iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS> pathSeparators{
+        TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS};
+
+    auto remaining = name;
+    while (!remaining.empty())
     {
-        auto separatorPosition = temp.find_first_of(iox::string<platform::IOX_NUMBER_OF_PATH_SEPARATORS>(
-            TruncateToCapacity, &platform::IOX_PATH_SEPARATORS[0], platform::IOX_NUMBER_OF_PATH_SEPARATORS));
+        const auto separatorPosition = remaining.find_first_of(pathSeparators);
 
-        // multiple slashes are explicitly allowed. the following paths
-        // are equivalent:
-        // /some/fuu/bar
-        // //some///fuu////bar
-        if (separatorPosition && (*separatorPosition == 0))
+        if (separatorPosition.has_value())
         {
-            temp.substr(*separatorPosition + 1).and_then([&temp](auto& s) { temp = s; });
-            continue;
-        }
+            const uint64_t position{separatorPosition.value()};
 
-        // verify if the entry between two path separators is a valid directory
-        // name, e.g. either it has the relative component . or .. or conforms
-        // with a valid file name
-        if (separatorPosition)
-        {
-            auto filenameToVerify = temp.substr(0, *separatorPosition);
-            bool isValidDirectory{
-                (isValidFileName(*filenameToVerify))
-                || ((*filenameToVerify == currentDirectory) || (*filenameToVerify == parentDirectory))};
-            if (!isValidDirectory)
+            // multiple slashes are explicitly allowed. the following paths
+            // are equivalent:
+            // /some/fuu/bar
+            // //some///fuu////bar
+
+            // verify if the entry between two path separators is a valid directory
+            // name, e.g. either it has the relative component . or .. or conforms
+            // with a valid file name
+            if (position != 0)
             {
-                return false;
+                const auto guaranteedSubstr = remaining.substr(0, position);
+                const auto& filenameToVerify = guaranteedSubstr.value();
+                const bool isValidDirectory{
+                    (isValidFileName(filenameToVerify))
+                    || ((filenameToVerify == currentDirectory) || (filenameToVerify == parentDirectory))};
+                if (!isValidDirectory)
+                {
+                    return false;
+                }
             }
 
-            temp.substr(*separatorPosition + 1).and_then([&temp](auto& s) { temp = s; });
+            remaining.substr(position + 1).and_then([&remaining](const auto& s) noexcept { remaining = s; });
         }
-        // we reached the last entry, if its a valid file name the path is valid
-        else
+        else // we reached the last entry, if its a valid file name the path is valid
         {
-            return isValidPathEntry(temp, RelativePathComponents::ACCEPT);
+            return isValidPathEntry(remaining, RelativePathComponents::ACCEPT);
         }
     }
 
     return true;
 }
 
+// AXIVION Next Construct AutosarC++19_03-A5.2.5, AutosarC++19_03-M5.0.16, FaultDetection-OutOfBounds : IOX_PATH_SEPARATORS is not a string but an array of chars without a null termination and all elements are valid characters
 template <uint64_t StringCapacity>
 inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) noexcept
 {
@@ -156,7 +174,7 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
         return false;
     }
     // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
-    char lastCharacter{name[name.size() - 1U]};
+    const char lastCharacter{name[name.size() - 1U]};
 
     for (const auto separator : iox::platform::IOX_PATH_SEPARATORS)
     {
@@ -168,53 +186,53 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
     return false;
 }
 
-constexpr perms operator|(const perms lhs, const perms rhs) noexcept
+constexpr access_rights::value_type access_rights::value() const noexcept
 {
-    using T = std::underlying_type<perms>::type;
-    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
-    // which also can be used like a bitset like the corresponding C defines.
-    // Diverting from this behavior would be unexpected for users and may introduce bugs.
-    return static_cast<perms>(static_cast<T>(lhs) | static_cast<T>(rhs));
+    return m_value;
 }
 
-constexpr perms operator&(const perms lhs, const perms rhs) noexcept
+constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept
 {
-    using T = std::underlying_type<perms>::type;
-    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
-    // which also can be used like a bitset like the corresponding C defines.
-    // Diverting from this behavior would be unexpected for users and may introduce bugs.
-    return static_cast<perms>(static_cast<T>(lhs) & static_cast<T>(rhs));
+    return lhs.value() == rhs.value();
 }
 
-constexpr perms operator^(const perms lhs, const perms rhs) noexcept
+constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept
 {
-    using T = std::underlying_type<perms>::type;
-    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
-    // which also can be used like a bitset like the corresponding C defines.
-    // Diverting from this behavior would be unexpected for users and may introduce bugs.
-    return static_cast<perms>(static_cast<T>(lhs) ^ static_cast<T>(rhs));
+    return !(lhs == rhs);
 }
 
-constexpr perms operator~(const perms value) noexcept
+constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept
 {
-    using T = std::underlying_type<perms>::type;
-    // AXIVION Next Construct AutosarC++19_03-A7.2.1 : Designed according to the C++17 std::perms pendant
-    // which also can be used like a bitset like the corresponding C defines.
-    // Diverting from this behavior would be unexpected for users and may introduce bugs.
-    return static_cast<perms>(~static_cast<T>(value));
+    return access_rights(lhs.value() | rhs.value());
 }
 
-constexpr perms operator|=(const perms lhs, const perms rhs) noexcept
+constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept
+{
+    return access_rights(lhs.value() & rhs.value());
+}
+
+constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept
+{
+    return access_rights(lhs.value() ^ rhs.value());
+}
+
+constexpr access_rights operator~(const access_rights value) noexcept
+{
+    // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : Cast is safe and required due to integer promotion
+    return access_rights(static_cast<access_rights::value_type>(~value.value()));
+}
+
+constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator|(lhs, rhs);
 }
 
-constexpr perms operator&=(const perms lhs, const perms rhs) noexcept
+constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator&(lhs, rhs);
 }
 
-constexpr perms operator^=(const perms lhs, const perms rhs) noexcept
+constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator^(lhs, rhs);
 }
