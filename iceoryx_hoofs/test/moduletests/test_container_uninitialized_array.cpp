@@ -103,34 +103,38 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
 TEST(UninitializedArrayTest, isNotCopyConstructible)
 {
     ::testing::Test::RecordProperty("TEST_ID", "abc31a08-77b2-4fd2-af14-3129bafda00c");
+    constexpr uint64_t CAPACITY{31U};
 
-    bool is_copy_constructible = std::is_copy_constructible<UninitializedArray<int, 31>>::value;
-    EXPECT_FALSE(is_copy_constructible);
+    bool isCopyConstructible = std::is_copy_constructible<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isCopyConstructible);
 }
 
 TEST(UninitializedArrayTest, isNotCopyAssignable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "42c31a08-77b2-4fd2-6914-3129869da00c");
+    constexpr uint64_t CAPACITY{69U};
 
-    bool is_copy_assignable = std::is_copy_assignable<UninitializedArray<int, 31>>::value;
-    EXPECT_FALSE(is_copy_assignable);
+    bool isCopyAssignable = std::is_copy_assignable<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isCopyAssignable);
 }
 
 
 TEST(UninitializedArrayTest, isNotMoveConstructible)
 {
     ::testing::Test::RecordProperty("TEST_ID", "baf31a08-77b2-4692-6914-31298693100c");
+    constexpr uint64_t CAPACITY{13U};
 
-    bool is_move_constructible = std::is_move_constructible<UninitializedArray<int, 31>>::value;
-    EXPECT_FALSE(is_move_constructible);
+    bool isMoveConstructible = std::is_move_constructible<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isMoveConstructible);
 }
 
 TEST(UninitializedArrayTest, isNotMoveAssignable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "caba1a08-77b2-4fd2-3114-3129842daa0c");
+    constexpr uint64_t CAPACITY{42U};
 
-    bool is_move_assignable = std::is_move_assignable<UninitializedArray<int, 31>>::value;
-    EXPECT_FALSE(is_move_assignable);
+    bool isMoveAssignable = std::is_move_assignable<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isMoveAssignable);
 }
 
 typedef ::testing::Types<UninitializedArray<int, 10>,

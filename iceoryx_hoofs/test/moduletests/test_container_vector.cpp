@@ -963,20 +963,82 @@ TEST_F(vector_test, EraseOfMiddleElementCallsDTorAndMove)
     EXPECT_THAT(moveAssignment, Eq(2U));
 }
 
-TEST_F(vector_test, AccessOfNonExistingElementWithAtLeadTermination)
+TEST_F(vector_test, AccessOfNonExistingElementOnEmptyVectorLeadTermination)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "31a4f0fb-31dd-4269-9bec-31ef0542c42b");
-    EXPECT_THAT(sut.empty(), Eq(true));
+    ::testing::Test::RecordProperty("TEST_ID", "31a4f0fb-31dd-4119-baba-31efab42c42b");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(69); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    ASSERT_THAT(sut.empty(), Eq(true));
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
-TEST_F(vector_test, AccessOfNonExistingElementWithBracketLeadTermination)
+TEST_F(vector_test, AccessOfNonExistingElementOnPartiallyFilledVectorLeadTermination)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "69a4f0fb-3d31-4273-9bec-69ef05a4242b");
-    EXPECT_THAT(sut.empty(), Eq(true));
+    ::testing::Test::RecordProperty("TEST_ID", "13a1f2fb-01dd-3265-9bec-31ef0542c42b");
+    constexpr int a{5};
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[31]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    for (uint64_t i = 0U; i < (VECTOR_CAPACITY - 2U); ++i)
+    {
+        ASSERT_THAT(sut.push_back(a), Eq(true));
+    }
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(vector_test, AccessOfNonExistingElementOnFullVectorLeadTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "42a4f0fb-71ad-1269-9b1c-71efca72c42b");
+    constexpr int a{5};
+
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    {
+        ASSERT_THAT(sut.push_back(a), Eq(true));
+    }
+
+    ASSERT_THAT(sut.size(), Eq(VECTOR_CAPACITY));
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(accessOffset); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(vector_test, OutOfBoundsAccessOnEmptyVectorLeadsToTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "13d4f0fb-baba-1273-9b1c-acab15a4212b");
+
+    ASSERT_THAT(sut.empty(), Eq(true));
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(vector_test, OutOfBoundsAccessOnPartiallyFilledVectorLeadsToTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "59a4f0fb-ad31-c273-9b41-69153564242b");
+    constexpr int a{5};
+
+    for (uint64_t i = 0U; i < (VECTOR_CAPACITY - 2U); ++i)
+    {
+        ASSERT_THAT(sut.push_back(a), Eq(true));
+    }
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(vector_test, OutOfBoundsAccessOnFullVectorLeadsToTermination)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "09a4fafa-3d31-3113-5bec-62ef01a4212b");
+    constexpr int a{5};
+
+    for (uint64_t i = 0U; i < VECTOR_CAPACITY; ++i)
+    {
+        ASSERT_THAT(sut.push_back(a), Eq(true));
+    }
+
+    const uint64_t accessOffset{sut.size() + 1U};
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[accessOffset]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(vector_test, EraseOfFrontElementCallsDTorAndMove)
