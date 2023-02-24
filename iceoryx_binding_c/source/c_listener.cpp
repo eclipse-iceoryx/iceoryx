@@ -284,6 +284,7 @@ iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data
     iox::cxx::Expects(self != nullptr);
     iox::cxx::Expects(serviceDiscovery != nullptr);
     iox::cxx::Expects(callback != nullptr);
+    iox::cxx::Expects(contextData != nullptr);
 
     auto result = self->attachEvent(*serviceDiscovery,
                                     c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),

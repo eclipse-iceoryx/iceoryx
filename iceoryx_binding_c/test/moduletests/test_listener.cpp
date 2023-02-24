@@ -14,10 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_binding_c/enums.h"
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_binding_c/internal/cpp2c_subscriber.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iceoryx_posh/internal/popo/ports/client_server_port_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_single_producer.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
@@ -31,6 +35,7 @@ using namespace iox::popo;
 using namespace iox::posix;
 using namespace iox::mepoo;
 using namespace iox::runtime;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/client.h"
@@ -220,8 +225,8 @@ constexpr std::chrono::milliseconds iox_listener_test::TIMEOUT;
 TEST_F(iox_listener_test, InitListenerWithNullptrForStorageReturnsNullptr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ee5f8898-c178-4546-9bb4-6e3329f1b632");
-    GTEST_SKIP() << "@todo iox-#1106 Enable once nullptr in binding_c is implemented";
-    EXPECT_EQ(iox_listener_init(nullptr), nullptr);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_listener_init(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(iox_listener_test, CapacityIsCorrect)
@@ -290,21 +295,113 @@ TEST_F(iox_listener_test, AttachingSubscriberEventWorks)
                 Eq(iox_ListenerResult::ListenerResult_SUCCESS));
 }
 
-TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrCallbackFails)
+TEST_F(iox_listener_test, AttachingSubscriberEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "db39c3ef-1518-4769-942e-642d0f58abdb");
-    GTEST_SKIP() << "@todo iox-#1106 Enable once nullptr in binding_c is implemented";
-    EXPECT_THAT(iox_listener_attach_subscriber_event(
-                    &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, NULL),
-                Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event(
+                &m_sut, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event(
+                nullptr, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event(
+                &m_sut, nullptr, iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED, &subscriberCallback);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
-TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrCallbackFails)
+TEST_F(iox_listener_test, AttachingUserTriggerEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "990e8f3c-36f0-4687-8246-ce8a02f969ae");
-    GTEST_SKIP() << "@todo iox-#1106 Enable once nullptr in binding_c is implemented";
-    EXPECT_THAT(iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], NULL),
-                Eq(iox_ListenerResult::ListenerResult_EMPTY_EVENT_CALLBACK));
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_user_trigger_event(nullptr, m_userTrigger[0U], &userTriggerCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_user_trigger_event(&m_sut, nullptr, &userTriggerCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_user_trigger_event(&m_sut, m_userTrigger[0U], nullptr); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_listener_test, AttachingUserTriggerEventWithContextDataWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b89957be-19fc-4830-810c-50902061e03d");
+    int someContextData;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_user_trigger_event_with_context_data(
+                nullptr, m_userTrigger[0U], &userTriggerCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_user_trigger_event_with_context_data(
+                &m_sut, nullptr, &userTriggerCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_user_trigger_event_with_context_data(
+                &m_sut, m_userTrigger[0U], nullptr, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_user_trigger_event_with_context_data(
+                &m_sut, m_userTrigger[0U], &userTriggerCallbackWithContextData, nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_listener_test, AttachingSubscriberEventWithContextDataWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "99885218-09f1-4a30-9fb7-287f4b752dd4");
+    int someContextData;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event_with_context_data(&m_sut,
+                                                                   &m_subscriber[0U],
+                                                                   iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                                   nullptr,
+                                                                   &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event_with_context_data(nullptr,
+                                                                   &m_subscriber[0U],
+                                                                   iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                                   &subscriberCallbackWithContextData,
+                                                                   &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event_with_context_data(&m_sut,
+                                                                   nullptr,
+                                                                   iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                                   &subscriberCallbackWithContextData,
+                                                                   &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_subscriber_event_with_context_data(&m_sut,
+                                                                   &m_subscriber[0U],
+                                                                   iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED,
+                                                                   &subscriberCallbackWithContextData,
+                                                                   nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(iox_listener_test, AttachingSubscriberTillListenerFullWorks)
@@ -334,6 +431,46 @@ TEST_F(iox_listener_test, DetachingSubscriberTillListenerEmptyWorks)
             &m_sut, &m_subscriber[i], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED);
         EXPECT_THAT(iox_listener_size(&m_sut), Eq(MAX_NUMBER_OF_EVENTS_PER_LISTENER - i - 1U));
     }
+}
+
+TEST_F(iox_listener_test, DetachingSubscriberEventWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1121040-1d32-4e94-a993-5f6885bd0ed0");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_detach_subscriber_event(
+                nullptr, &m_subscriber[0U], iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_detach_subscriber_event(&m_sut, nullptr, iox_SubscriberEvent::SubscriberEvent_DATA_RECEIVED);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_listener_test, DetachingUserTriggerEventWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d8ec0c93-1c4e-4e30-a15a-89eeaeb2edda");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_detach_user_trigger_event(nullptr, m_userTrigger[0U]); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_listener_detach_user_trigger_event(&m_sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_listener_test, CheckListenerSizeWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "44a7b724-e201-4d4e-ad19-daa5eecc3f2a");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_listener_size(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_listener_test, CheckListenerCapacityWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b09e9e38-9b4e-4998-8966-6685e15492f9");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_listener_capacity(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(iox_listener_test, AttachingSubscriberEventTwiceFailsWithEVENT_ALREADY_ATTACHED)
@@ -434,6 +571,86 @@ TEST_F(iox_listener_test, AttachingClientWorks)
     iox_client_deinit(client);
 }
 
+TEST_F(iox_listener_test, AttachingClientWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a94e0e0a-45df-41d2-bcc6-7fad44364cda");
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_client_event(nullptr, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_client_event(&m_sut, nullptr, ClientEvent_RESPONSE_RECEIVED, &clientCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, nullptr); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(client);
+}
+
+TEST_F(iox_listener_test, AttachingClientWithContextDataWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "99f41b1c-4fa7-4048-ae47-86ad466c30a0");
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_client_event_with_context_data(
+                nullptr, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_client_event_with_context_data(
+                &m_sut, nullptr, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_client_event_with_context_data(
+                &m_sut, client, ClientEvent_RESPONSE_RECEIVED, nullptr, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_client_event_with_context_data(
+                &m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallbackWithContextData, nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(client);
+}
+
+TEST_F(iox_listener_test, DettachingClientWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "decb7c56-d5f0-43a2-852f-825887770c2c");
+    iox_client_storage_t clientStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareClient(_, _, _)).WillOnce(Return(&clientPortData));
+
+    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+    iox_listener_attach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED, &clientCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
+
+    iox_listener_detach_client_event(&m_sut, client, ClientEvent_RESPONSE_RECEIVED);
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_detach_client_event(nullptr, client, ClientEvent_RESPONSE_RECEIVED); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_detach_client_event(&m_sut, nullptr, ClientEvent_RESPONSE_RECEIVED); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(client);
+}
+
 void notifyClient(ClientPortData& portData)
 {
     portData.m_connectRequested.store(true);
@@ -531,6 +748,85 @@ TEST_F(iox_listener_test, AttachingServerWithContextDataWorks)
     iox_server_deinit(server);
 }
 
+TEST_F(iox_listener_test, AttachingServerEventWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6459238c-3819-4e26-b66d-b250a08c0776");
+    iox_server_storage_t serverStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_server_event(nullptr, server, ServerEvent_REQUEST_RECEIVED, &serverCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_server_event(&m_sut, nullptr, ServerEvent_REQUEST_RECEIVED, &serverCallback); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_attach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED, nullptr); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(server);
+}
+
+TEST_F(iox_listener_test, AttachingServerWithContextDataWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bb56e5aa-1bed-49c0-a942-23cff1f1c8d6");
+    iox_server_storage_t serverStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    uint64_t someContextData = 0U;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_server_event_with_context_data(
+                nullptr, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_server_event_with_context_data(
+                &m_sut, nullptr, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_server_event_with_context_data(
+                &m_sut, server, ServerEvent_REQUEST_RECEIVED, nullptr, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_server_event_with_context_data(
+                &m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallbackWithContextData, nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(server);
+}
+
+TEST_F(iox_listener_test, DettachingListenerServerWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1b107418-e907-456d-a939-94b5c73e9ab7");
+    iox_server_storage_t serverStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareServer(_, _, _)).WillOnce(Return(&serverPortData));
+
+    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+    iox_listener_attach_server_event(&m_sut, server, ServerEvent_REQUEST_RECEIVED, &serverCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_detach_server_event(nullptr, server, ServerEvent_REQUEST_RECEIVED); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_listener_detach_server_event(&m_sut, nullptr, ServerEvent_REQUEST_RECEIVED); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(server);
+}
+
 TIMING_TEST_F(iox_listener_test, NotifyingServerEventWorks, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "0b8c6951-7682-47d2-9c2d-3d43689af144");
     iox_server_storage_t serverStorage;
@@ -615,6 +911,120 @@ TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWorks)
         &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
     EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
 
+    iox_service_discovery_deinit(serviceDiscovery);
+}
+
+TEST_F(iox_listener_test, AttachingServiceDiscoveryWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6015de0d-6197-4f53-b9c2-f7f8be9f4b7e");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event(
+                nullptr, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event(
+                &m_sut, nullptr, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event(
+                &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_service_discovery_deinit(serviceDiscovery);
+}
+
+TEST_F(iox_listener_test, AttachingServiceDiscoveryWithContextDataWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3f3d6be8-df3c-40a5-ac3d-b88189afbd30");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    uint64_t someContextData = 0U;
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+    iox_listener_attach_service_discovery_event_with_context_data(&m_sut,
+                                                                  serviceDiscovery,
+                                                                  ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                                                                  &serviceDiscoveryCallbackWithContextData,
+                                                                  &someContextData);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event_with_context_data(
+                nullptr,
+                serviceDiscovery,
+                ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                &serviceDiscoveryCallbackWithContextData,
+                &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event_with_context_data(
+                &m_sut,
+                nullptr,
+                ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                &serviceDiscoveryCallbackWithContextData,
+                &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event_with_context_data(
+                &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, nullptr, &someContextData);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_attach_service_discovery_event_with_context_data(
+                &m_sut,
+                serviceDiscovery,
+                ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED,
+                &serviceDiscoveryCallbackWithContextData,
+                nullptr);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    iox_service_discovery_deinit(serviceDiscovery);
+}
+
+TEST_F(iox_listener_test, DettachingListenerServiceDiscoveryWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bb746406-bb83-4ddb-b943-d8f986369ab1");
+    iox_service_discovery_storage_t serviceDiscoveryStorage;
+    EXPECT_CALL(*runtimeMock, getMiddlewareSubscriber(_, _, _)).WillOnce(Return(&m_subscriberPortData[0]));
+
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(0U));
+    iox_listener_attach_service_discovery_event(
+        &m_sut, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED, &serviceDiscoveryCallback);
+    EXPECT_THAT(iox_listener_size(&m_sut), Eq(1U));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_detach_service_discovery_event(
+                nullptr, serviceDiscovery, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            iox_listener_detach_service_discovery_event(
+                &m_sut, nullptr, ServiceDiscoveryEvent_SERVICE_REGISTRY_CHANGED);
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
     iox_service_discovery_deinit(serviceDiscovery);
 }
 
