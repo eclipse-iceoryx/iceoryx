@@ -532,8 +532,8 @@ class string final
     template <uint64_t N>
     string& move(string<N>&& rhs) noexcept;
 
-    // safe access is guaranteed since the char array is wrapped inside the string class
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+    // AXIVION Next Construct FaultDetection-IndirectAssignmentOverflow : False positive. Overflow checks are done before assigning and the data will be truncated if necessary
+    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) safe access is guaranteed since the char array is wrapped inside the string class
     char m_rawstring[Capacity + 1]{};
     uint64_t m_rawstringSize{0U};
 };

@@ -106,7 +106,7 @@ inline string<Capacity>::string(const char (&other)[N]) noexcept
 template <uint64_t Capacity>
 // NOLINTNEXTLINE(hicpp-named-parameter, readability-named-parameter) justification in header
 inline string<Capacity>::string(TruncateToCapacity_t, const char* const other) noexcept
-    : string(TruncateToCapacity, other, [&other]() -> uint64_t {
+    : string(TruncateToCapacity, other, [&other]() noexcept -> uint64_t {
         return (other != nullptr) ? strnlen(other, Capacity) : 0U;
     }())
 {
@@ -123,13 +123,13 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: conditional compilation is required for setting gcc diagnostics, since
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1, AutosarC++19_03-A16.7.1: conditional compilation is required for setting gcc diagnostics, since
 // gcc 8 incorrectly warns here about out of bounds array access
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
 #endif
-        std::memcpy(&(m_rawstring[0]), other, Capacity);
+        std::memcpy(m_rawstring, other, Capacity);
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic pop
 #endif
@@ -142,7 +142,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else
     {
-        std::memcpy(&(m_rawstring[0]), other, count);
+        std::memcpy(m_rawstring, other, count);
         m_rawstring[count] = '\0';
         m_rawstringSize = count;
     }
@@ -162,9 +162,9 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         return *this;
     }
 
-    std::memcpy(&(m_rawstring[0]), rhs, N);
+    std::memcpy(m_rawstring, rhs, N);
 
-    m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(rhs, N)));
+    m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(&rhs[0], N)));
     m_rawstring[m_rawstringSize] = '\0';
 
     if (rhs[m_rawstringSize] != '\0')
@@ -209,7 +209,7 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
                        << Capacity << ") of the fixed string.";
         return false;
     }
-    std::memcpy(&(m_rawstring[0]), str, strSize);
+    std::memcpy(m_rawstring, str, strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return true;
@@ -219,15 +219,16 @@ template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other) const noexcept
 {
-    uint64_t otherSize{internal::GetSize<T>::call(other)};
-    auto result = memcmp(c_str(), internal::GetData<T>::call(other), std::min(m_rawstringSize, otherSize));
+    const uint64_t otherSize{internal::GetSize<T>::call(other)};
+    const auto result = memcmp(c_str(), internal::GetData<T>::call(other), std::min(m_rawstringSize, otherSize));
     if (result == 0)
     {
         if (m_rawstringSize < otherSize)
         {
             return -1;
         }
-        return ((m_rawstringSize > otherSize) ? 1 : 0);
+        const int64_t isLargerThanOther{(m_rawstringSize > otherSize) ? 1L : 0L};
+        return isLargerThanOther;
     }
     return result;
 }
@@ -235,7 +236,7 @@ inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other)
 template <uint64_t Capacity>
 inline int64_t string<Capacity>::compare(char other) const noexcept
 {
-    auto result = memcmp(c_str(), &other, 1U);
+    const auto result = memcmp(c_str(), &other, 1U);
     if (result == 0)
     {
         if (empty())
@@ -250,7 +251,7 @@ inline int64_t string<Capacity>::compare(char other) const noexcept
 template <uint64_t Capacity>
 inline const char* string<Capacity>::c_str() const noexcept
 {
-    return &m_rawstring[0];
+    return m_rawstring;
 }
 
 template <uint64_t Capacity>
@@ -284,8 +285,8 @@ inline string<Capacity>& string<Capacity>::copy(const string<N>& rhs) noexcept
 {
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
-    uint64_t strSize{rhs.size()};
-    std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
+    const uint64_t strSize{rhs.size()};
+    std::memcpy(m_rawstring, rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     return *this;
@@ -298,7 +299,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
     static_assert(N <= Capacity,
                   "Assignment failed. The capacity of the given fixed string is larger than the capacity of this.");
     const uint64_t strSize{rhs.size()};
-    std::memcpy(&(m_rawstring[0]), rhs.c_str(), strSize);
+    std::memcpy(m_rawstring, rhs.c_str(), strSize);
     m_rawstring[strSize] = '\0';
     m_rawstringSize = strSize;
     rhs.clear();
@@ -341,8 +342,8 @@ concatenate(const T1& str1, const T2& str2) noexcept
     uint64_t size2{internal::GetSize<T2>::call(str2)};
     using NewStringType = string<internal::SumCapa<T1, T2>::value>;
     NewStringType newString;
-    std::memcpy(&(newString.m_rawstring[0]), internal::GetData<T1>::call(str1), size1);
-    std::memcpy(&(newString.m_rawstring[0]) + size1, internal::GetData<T2>::call(str2), size2);
+    std::memcpy(newString.m_rawstring, internal::GetData<T1>::call(str1), size1);
+    std::memcpy(&newString.m_rawstring[size1], internal::GetData<T2>::call(str2), size2);
     newString.m_rawstring[size1 + size2] = '\0';
     newString.m_rawstringSize = size1 + size2;
 
@@ -369,9 +370,9 @@ template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArrayOrChar<T, bool> string<Capacity>::unsafe_append(const T& str) noexcept
 {
-    uint64_t tSize{internal::GetSize<T>::call(str)};
-    const char* tData{internal::GetData<T>::call(str)};
-    uint64_t clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
+    const uint64_t tSize{internal::GetSize<T>::call(str)};
+    const char* const tData{internal::GetData<T>::call(str)};
+    const uint64_t clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
 
     if (tSize > clampedTSize)
     {
@@ -392,14 +393,14 @@ template <typename T>
 inline IsStringOrCharArrayOrChar<T, string<Capacity>&> string<Capacity>::append(TruncateToCapacity_t,
                                                                                 const T& str) noexcept
 {
-    uint64_t tSize{internal::GetSize<T>::call(str)};
-    const char* tData{internal::GetData<T>::call(str)};
-    uint64_t clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
+    const uint64_t tSize{internal::GetSize<T>::call(str)};
+    const char* const tData{internal::GetData<T>::call(str)};
+    uint64_t const clampedTSize{std::min(Capacity - m_rawstringSize, tSize)};
 
     std::memcpy(&(m_rawstring[m_rawstringSize]), tData, clampedTSize);
     if (tSize > clampedTSize)
     {
-        IOX_LOG(WARN) << "The last " << (tSize - Capacity) + m_rawstringSize << " characters of " << tData
+        IOX_LOG(WARN) << "The last " << (tSize - clampedTSize) << " characters of " << tData
                       << " are truncated, because the length is larger than the capacity.";
     }
 
@@ -430,6 +431,7 @@ template <typename T>
 inline IsCxxStringOrCharArray<T, bool>
 string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (count > internal::GetSize<T>::call(str))
     {
         return false;
@@ -441,6 +443,7 @@ string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count)
         return false;
     }
 
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (pos > m_rawstringSize)
     {
         return false;
@@ -462,9 +465,9 @@ inline optional<string<Capacity>> string<Capacity>::substr(const uint64_t pos, c
         return nullopt;
     }
 
-    uint64_t length{std::min(count, m_rawstringSize - pos)};
+    const uint64_t length{std::min(count, m_rawstringSize - pos)};
     string subString;
-    std::memcpy(&(subString.m_rawstring[0]), &m_rawstring[pos], length);
+    std::memcpy(subString.m_rawstring, &m_rawstring[pos], length);
     subString.m_rawstring[length] = '\0';
     subString.m_rawstringSize = length;
     return subString;
@@ -498,15 +501,16 @@ template <typename T>
 inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_first_of(const T& str,
                                                                                   const uint64_t pos) const noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (pos > m_rawstringSize)
     {
         return nullopt;
     }
-    const char* found{nullptr};
-    const char* data{internal::GetData<T>::call(str)};
+    const char* const data{internal::GetData<T>::call(str)};
+    const uint64_t dataSize{internal::GetSize<T>::call(str)};
     for (auto p = pos; p < m_rawstringSize; ++p)
     {
-        found = std::strchr(data, m_rawstring[p]);
+        const void* const found{memchr(data, m_rawstring[p], dataSize)};
         if (found != nullptr)
         {
             return p;
@@ -530,17 +534,17 @@ inline IsStringOrCharArray<T, optional<uint64_t>> string<Capacity>::find_last_of
     {
         p = m_rawstringSize - 1U;
     }
-    const char* found{nullptr};
-    const char* data{internal::GetData<T>::call(str)};
+    const char* const data{internal::GetData<T>::call(str)};
+    const uint64_t dataSize{internal::GetSize<T>::call(str)};
     for (; p > 0U; --p)
     {
-        found = std::strchr(data, m_rawstring[p]);
+        const void* const found{memchr(data, m_rawstring[p], dataSize)};
         if (found != nullptr)
         {
             return p;
         }
     }
-    found = std::strchr(data, m_rawstring[p]);
+    const void* const found{memchr(data, m_rawstring[p], dataSize)};
     if (found != nullptr)
     {
         return 0U;
@@ -614,12 +618,14 @@ inline IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const stri
     return (rhs.compare(lhs) <= 0);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.4 : Code reuse is established by a helper function
 template <typename T, uint64_t Capacity>
 inline IsStringOrCharArrayOrChar<T, bool> operator==(const string<Capacity>& lhs, const T& rhs) noexcept
 {
     return (lhs.compare(rhs) == 0);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.4 : Code reuse is established by a helper function
 template <typename T, uint64_t Capacity>
 inline IsStringOrCharArrayOrChar<T, bool> operator!=(const string<Capacity>& lhs, const T& rhs) noexcept
 {

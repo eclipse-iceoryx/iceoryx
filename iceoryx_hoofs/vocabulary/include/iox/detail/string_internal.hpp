@@ -86,9 +86,10 @@ template <uint64_t N>
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetSize<char[N]>
 {
+    // AXIVION Next Construct FaultDetection-TaintAnalysis : False positive! The size of the type is deduced
     static uint64_t call(const charArray<N>& data) noexcept
     {
-        return strnlen(data, N);
+        return strnlen(&data[0], N);
     }
 };
 
