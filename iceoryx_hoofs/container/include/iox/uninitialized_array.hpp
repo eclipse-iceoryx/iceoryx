@@ -79,6 +79,8 @@ class UninitializedArray final
 
     // The (empty) user-defined constructor is required.
     // Use of "= default" leads to value-initialization of class members.
+
+    /// @deterministic
     constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;
@@ -90,27 +92,34 @@ class UninitializedArray final
     /// @param[in] index position of the element to return
     /// @return reference to the element
     /// @note out of bounds access leads to undefined behavior
+    /// @deterministic
     constexpr ElementType& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index
     /// @param[in] index position of the element to return
     /// @return const reference to the element
     /// @note out of bounds access leads to undefined behavior
+    /// @deterministic
     constexpr const ElementType& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns an iterator to the beginning of the UninitializedArray
+    /// @deterministic
     iterator begin() noexcept;
 
     /// @brief returns a const iterator to the beginning of the UninitializedArray
+    /// @deterministic
     const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the end of the UninitializedArray
+    /// @deterministic
     iterator end() noexcept;
 
     /// @brief returns a const iterator to the end of the UninitializedArray
+    /// @deterministic
     const_iterator end() const noexcept;
 
     /// @brief returns the array capacity
+    /// @deterministic
     static constexpr uint64_t capacity() noexcept;
 
   private:
