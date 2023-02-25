@@ -15,6 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
@@ -27,6 +29,7 @@ using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox;
 using namespace iox::cxx;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/client.h"
@@ -126,7 +129,7 @@ constexpr const char iox_client_test::SERVICE[];
 constexpr const char iox_client_test::INSTANCE[];
 constexpr const char iox_client_test::EVENT[];
 
-TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
+TEST_F(iox_client_test, NotInitializedOptionsAreUninitialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "347f3a6d-8659-4ac3-81be-720e8a444d5e");
 #if !defined(__clang__)
@@ -139,7 +142,7 @@ TEST_F(iox_client_test, notInitializedOptionsAreUninitialized)
 #endif
 }
 
-TEST_F(iox_client_test, initializedOptionsAreInitialized)
+TEST_F(iox_client_test, InitializedOptionsAreInitialized)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b512741e-9c1f-410f-a40b-68fec4a72bc5");
     iox_client_options_t initializedOptions;
@@ -147,7 +150,187 @@ TEST_F(iox_client_test, initializedOptionsAreInitialized)
     EXPECT_TRUE(iox_client_options_is_initialized(&initializedOptions));
 }
 
-TEST_F(iox_client_test, initializedOptionsAreToCPPDefaults)
+TEST_F(iox_client_test, InitializedOptionsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3ae62644-5fb2-45cf-af99-b4daba43d044");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_options_init(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, CheckInitializedOptionsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9a3b7845-170f-4b7f-a0a4-f5b43d96059f");
+    iox_client_options_t initializedOptions;
+    iox_client_options_init(&initializedOptions);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_options_is_initialized(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, InitializingClientWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ce04604b-ae5b-451f-842b-3c3d3f41ebb7");
+    iox_client_options_t options;
+    iox_client_options_init(&options);
+    options.responseQueueCapacity = 456;
+    strncpy(options.nodeName, "hypnotoad is all you need", IOX_CONFIG_NODE_NAME_SIZE);
+    options.connectOnCreate = false;
+    options.responseQueueFullPolicy = QueueFullPolicy_BLOCK_PRODUCER;
+    options.serverTooSlowPolicy = ConsumerTooSlowPolicy_WAIT_FOR_CONSUMER;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_init(nullptr, SERVICE, INSTANCE, EVENT, &options); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_init(&sutStorage, nullptr, INSTANCE, EVENT, &options); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_init(&sutStorage, SERVICE, nullptr, EVENT, &options); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_client_init(&sutStorage, SERVICE, INSTANCE, nullptr, &options); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    // IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+    //     [&] { iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr); },
+    //     iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, DeinitClientWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2f055b75-3cdd-4a55-b292-86b1ffb7a32d");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_deinit(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, LoanAlignedChunkWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "18eb8cf9-59a4-4e53-beaf-a174e372efff");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    constexpr uint64_t ALIGNMENT = 128;
+    void* payload = nullptr;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_client_loan_aligned_request(nullptr, &payload, 32, ALIGNMENT); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_loan_aligned_request(sut, nullptr, 32, ALIGNMENT); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(sut);
+}
+
+TEST_F(iox_client_test, ReleaseClientWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "09e9ee2d-e9b3-4791-8f9f-979f2d75f7c9");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, 32), Eq(AllocationResult_SUCCESS));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_release_request(nullptr, payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_release_request(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(sut);
+}
+
+TEST_F(iox_client_test, SendWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c7d9b5e9-ed49-4a67-b5fc-12aaf21447b9");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+
+    void* payload = nullptr;
+    EXPECT_THAT(iox_client_loan_request(sut, &payload, sizeof(int64_t)), Eq(AllocationResult_SUCCESS));
+    *static_cast<int64_t*>(payload) = 8912389;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_send(nullptr, payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(sut);
+}
+
+TEST_F(iox_client_test, ClientConnectWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f778de64-e153-4fb7-9535-9bd288979cc9");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_connect(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, ClientDisconnectWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "69e69ebc-f8bd-4d70-9eee-de593acc5019");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_disconnect(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, ClientGetConnectStateWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cdf21827-47c8-49d8-bf07-b375dab74a70");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_get_connection_state(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, ClientTakeResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2cdd5a14-bd66-48a7-847c-e9c9ddcfc882");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk(800131);
+    const void* payload = nullptr;
+
+    EXPECT_THAT(iox_client_take_response(sut, &payload), Eq(ChunkReceiveResult_SUCCESS));
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_take_response(nullptr, &payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_take_response(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_deinit(sut);
+}
+
+TEST_F(iox_client_test, ClientReleasingResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6cde4e4b-4b4c-4200-a660-aa2eb8c687ee");
+    prepareClientInit();
+    iox_client_t sut = iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connect();
+    receiveChunk();
+    const void* payload = nullptr;
+
+    iox_client_take_response(sut, &payload);
+    EXPECT_THAT(memoryManager.getMemPoolInfo(0).m_usedChunks, Eq(1U));
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_release_response(nullptr, payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_release_response(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    iox_client_release_response(sut, payload);
+    iox_client_deinit(sut);
+}
+
+TEST_F(iox_client_test, ReleasingQueuedResponsesWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0d36d962-96af-4b82-a19c-4d4dc34f8c37");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_release_queued_responses(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, CheckClientHasResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e2b81347-ce89-4d24-bd18-1cbdd716940e");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_has_responses(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, CheckClientHasMissedResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "516b27af-5f78-4988-9886-726c414b6b31");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_client_has_missed_responses(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_client_test, InitializedOptionsAreToCPPDefaults)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a48477c1-7762-4790-acd1-5b13db486cac");
     iox_client_options_t initializedOptions;
