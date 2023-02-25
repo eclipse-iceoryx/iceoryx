@@ -53,6 +53,7 @@ iox_node_t iox_node_create(const char* const nodeName)
 
 void iox_node_destroy(iox_node_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     NodeBindingExtension(self).destroy();
 }
 

@@ -15,8 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include <gtest/gtest.h>
 
 extern "C" {
 #include "iceoryx_binding_c/node.h"
@@ -27,6 +30,8 @@ namespace
 {
 using namespace iox;
 using namespace iox::runtime;
+using namespace iox::testing;
+
 class iox_node_test : public RouDi_GTest
 {
   public:
@@ -111,6 +116,13 @@ TEST_F(iox_node_test, getNodeRuntimeNameBufferIsLessThanNodeProcessNameLength)
 
     ASSERT_THAT(nameLength, Eq(m_runtimeName.size()));
     EXPECT_THAT(truncatedProcessName, StrEq(expectedProcessName));
+}
+
+TEST_F(iox_node_test, destroyNodeWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c5665aef-0710-4300-a99f-f968739e5222");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_node_destroy(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 } // namespace
