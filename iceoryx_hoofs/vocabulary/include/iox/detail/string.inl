@@ -123,8 +123,8 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
     }
     else if (Capacity < count)
     {
-// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1, AutosarC++19_03-A16.7.1: conditional compilation is required for setting gcc diagnostics, since
-// gcc 8 incorrectly warns here about out of bounds array access
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: pre-processor is required for setting gcc diagnostics, since gcc 8 incorrectly warns here about out of bounds array access
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.7.1: see rule 'A16.0.1' above
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Warray-bounds"
@@ -133,6 +133,7 @@ inline string<Capacity>::string(TruncateToCapacity_t, const char* const other, c
 #if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
 #pragma GCC diagnostic pop
 #endif
+        // AXIVION ENABLE STYLE AutosarC++19_03-A16.7.1
         // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
 
         m_rawstring[Capacity] = '\0';
