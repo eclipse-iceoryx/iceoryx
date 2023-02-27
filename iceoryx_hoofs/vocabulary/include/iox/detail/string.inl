@@ -310,7 +310,7 @@ inline string<Capacity>& string<Capacity>::move(string<N>&& rhs) noexcept
 // AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
 // not require to implement '<<='
 template <uint64_t Capacity>
-inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept(false)
 {
     stream << str.c_str();
     return stream;
