@@ -235,7 +235,7 @@ class Duration
     /// divisor.
     /// @note Multiplication of a non-zero duration with NaN and +Inf results in a saturated max duration
     template <typename T>
-    constexpr Duration operator*(const T rhs) const noexcept;
+    constexpr Duration operator*(const T& rhs) const noexcept;
 
     /// @brief Multiplies a Duration with an arithmetic type and assigns the result to itself.
     /// @tparam T is an arithmetic type for the multiplicator
@@ -247,7 +247,7 @@ class Duration
     /// divisor.
     /// @note Multiplication of a non-zero duration with NaN and +Inf results in a saturated max duration
     template <typename T>
-    constexpr Duration& operator*=(const T rhs) noexcept;
+    constexpr Duration& operator*=(const T& rhs) noexcept;
 
     // END ARITHMETIC
 
@@ -373,7 +373,7 @@ constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept;
 /// multiplication with 'operator*=' to an arithmetic type is not supported
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
-constexpr T& operator*=(const T& lhs, const Duration& rhs) noexcept;
+constexpr T& operator*=(T& lhs, const Duration& rhs) noexcept;
 
 /// @brief stream operator for the Duration class
 std::ostream& operator<<(std::ostream& stream, const Duration t);

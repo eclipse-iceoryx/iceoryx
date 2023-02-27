@@ -210,8 +210,7 @@ template <typename Derived>
 inline const Derived&& AndThen<Derived>::and_then(const and_then_callback_t& callable) const&& noexcept
 {
     using Self = AndThen<Derived>;
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness
-    // of the return value is restored
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast avoids code duplication, is safe since the constness of the return value is restored
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return std::move(const_cast<const Derived&>(const_cast<Self*>(this)->and_then(callable)));
 }

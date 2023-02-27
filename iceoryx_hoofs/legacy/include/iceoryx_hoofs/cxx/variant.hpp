@@ -25,11 +25,11 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/variant.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::in_place_index` instead of `iox::cxx::in_place_index`
+/// @deprecated use 'iox::in_place_index' instead of 'iox::cxx::in_place_index'
 using iox::in_place_index;
-/// @deprecated use `iox::in_place_type` instead of `iox::cxx::in_place_type`
+/// @deprecated use 'iox::in_place_type' instead of 'iox::cxx::in_place_type'
 using iox::in_place_type;
-/// @deprecated use `iox::variant` instead of `iox::cxx::variant`
+/// @deprecated use 'iox::variant' instead of 'iox::cxx::variant'
 using iox::variant;
 } // namespace cxx
 } // namespace iox

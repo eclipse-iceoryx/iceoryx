@@ -24,7 +24,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/stack.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::stack` instead of `iox::cxx::stack`
+/// @deprecated use 'iox::stack' instead of 'iox::cxx::stack'
 using iox::stack;
 } // namespace cxx
 } // namespace iox

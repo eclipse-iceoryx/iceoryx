@@ -25,7 +25,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/scope_guard.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::ScopeGuard` instead of `iox::cxx::ScopeGuard`
+/// @deprecated use 'iox::ScopeGuard' instead of 'iox::cxx::ScopeGuard'
 using iox::ScopeGuard;
 
 } // namespace cxx

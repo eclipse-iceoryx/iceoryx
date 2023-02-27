@@ -33,11 +33,14 @@ struct ZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
         byte_t data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory.
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity]{};
 };
@@ -50,11 +53,14 @@ struct NonZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-M0.1.3 : required by low level UninitializedArray building block and encapsulated in abstraction, declaration of field in struct for usage elsewhere
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
         byte_t data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1, AutosarC++19_03-A1.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction, object size limit is not relevant for containers stored in shared memory
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity];
 };
@@ -77,10 +83,10 @@ class UninitializedArray final
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
+    /// @deterministic
     // The (empty) user-defined constructor is required.
     // Use of "= default" leads to value-initialization of class members.
-
-    /// @deterministic
+    // AXIVION Next Construct AutosarC++19_03-A12.6.1 : This is a low-level building block which is supposed to provide uninitialized memory
     constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;
@@ -123,7 +129,7 @@ class UninitializedArray final
     static constexpr uint64_t capacity() noexcept;
 
   private:
-    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size limit is not relevant for containers stored in shared memory
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
     Buffer<ElementType, Capacity> m_buffer;
 };
 

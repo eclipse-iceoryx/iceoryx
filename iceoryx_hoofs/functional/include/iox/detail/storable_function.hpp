@@ -193,7 +193,7 @@ class storable_function<Capacity, signature<ReturnType, Args...>> final
     static ReturnType invokeFreeFunction(void* callable, Args&&... args) noexcept;
 
     template <typename T>
-    static constexpr void* safeAlign(byte_t* startAddress);
+    static constexpr void* safeAlign(void* startAddress) noexcept;
 };
 
 /// @brief swap two storable functions

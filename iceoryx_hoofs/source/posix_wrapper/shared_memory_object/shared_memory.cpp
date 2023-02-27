@@ -113,7 +113,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                              .evaluate();
             }
 
-            // Check again, as the if-block above may have changed `result`
+            // Check again, as the if-block above may have changed 'result'
             if (result.has_error())
             {
                 printError();

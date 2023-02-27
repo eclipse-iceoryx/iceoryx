@@ -25,7 +25,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/function.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::function` instead of `iox::cxx::function`
+/// @deprecated use 'iox::function' instead of 'iox::cxx::function'
 using iox::function;
 } // namespace cxx
 } // namespace iox

@@ -24,35 +24,35 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/newtype.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::NewType` instead of `iox::cxx::NewType`
+/// @deprecated use 'iox::NewType' instead of 'iox::cxx::NewType'
 using iox::NewType;
 
 namespace newtype
 {
-/// @deprecated use `iox::newtype::AssignByValueCopy` instead of `iox::cxx::newtype::AssignByValueCopy`
+/// @deprecated use 'iox::newtype::AssignByValueCopy' instead of 'iox::cxx::newtype::AssignByValueCopy'
 using iox::newtype::AssignByValueCopy;
-/// @deprecated use `iox::newtype::AssignByValueMove` instead of `iox::cxx::newtype::AssignByValueMove`
+/// @deprecated use 'iox::newtype::AssignByValueMove' instead of 'iox::cxx::newtype::AssignByValueMove'
 using iox::newtype::AssignByValueMove;
-/// @deprecated use `iox::newtype::Comparable` instead of `iox::cxx::newtype::Comparable`
+/// @deprecated use 'iox::newtype::Comparable' instead of 'iox::cxx::newtype::Comparable'
 using iox::newtype::Comparable;
-/// @deprecated use `iox::newtype::ConstructByValueCopy` instead of `iox::cxx::newtype::ConstructByValueCopy`
+/// @deprecated use 'iox::newtype::ConstructByValueCopy' instead of 'iox::cxx::newtype::ConstructByValueCopy'
 using iox::newtype::ConstructByValueCopy;
-/// @deprecated use `iox::newtype::Convertable` instead of `iox::cxx::newtype::Convertable`
+/// @deprecated use 'iox::newtype::Convertable' instead of 'iox::cxx::newtype::Convertable'
 using iox::newtype::Convertable;
-/// @deprecated use `iox::newtype::CopyAssignable` instead of `iox::cxx::newtype::CopyAssignable`
+/// @deprecated use 'iox::newtype::CopyAssignable' instead of 'iox::cxx::newtype::CopyAssignable'
 using iox::newtype::CopyAssignable;
-/// @deprecated use `iox::newtype::CopyConstructable` instead of `iox::cxx::newtype::CopyConstructable`
+/// @deprecated use 'iox::newtype::CopyConstructable' instead of 'iox::cxx::newtype::CopyConstructable'
 using iox::newtype::CopyConstructable;
-/// @deprecated use `iox::newtype::DefaultConstructable` instead of `iox::cxx::newtype::DefaultConstructable`
+/// @deprecated use 'iox::newtype::DefaultConstructable' instead of 'iox::cxx::newtype::DefaultConstructable'
 using iox::newtype::DefaultConstructable;
-/// @deprecated use `iox::newtype::MoveAssignable` instead of `iox::cxx::newtype::MoveAssignable`
+/// @deprecated use 'iox::newtype::MoveAssignable' instead of 'iox::cxx::newtype::MoveAssignable'
 using iox::newtype::MoveAssignable;
-/// @deprecated use `iox::newtype::MoveConstructable` instead of `iox::cxx::newtype::MoveConstructable`
+/// @deprecated use 'iox::newtype::MoveConstructable' instead of 'iox::cxx::newtype::MoveConstructable'
 using iox::newtype::MoveConstructable;
-/// @deprecated use `iox::newtype::ProtectedConstructByValueCopy` instead of
-/// `iox::cxx::newtype::ProtectedConstructByValueCopy`
+/// @deprecated use 'iox::newtype::ProtectedConstructByValueCopy' instead of
+/// 'iox::cxx::newtype::ProtectedConstructByValueCopy'
 using iox::newtype::ProtectedConstructByValueCopy;
-/// @deprecated use `iox::newtype::Sortable` instead of `iox::cxx::newtype::Sortable`
+/// @deprecated use 'iox::newtype::Sortable' instead of 'iox::cxx::newtype::Sortable'
 using iox::newtype::Sortable;
 
 namespace internal

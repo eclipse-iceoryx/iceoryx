@@ -25,11 +25,11 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/expected.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::error` instead of `iox::cxx::error`
+/// @deprecated use 'iox::error' instead of 'iox::cxx::error'
 using iox::error;
-/// @deprecated use `iox::expected` instead of `iox::cxx::expected`
+/// @deprecated use 'iox::expected' instead of 'iox::cxx::expected'
 using iox::expected;
-/// @deprecated use `iox::success` instead of `iox::cxx::success`
+/// @deprecated use 'iox::success' instead of 'iox::cxx::success'
 using iox::success;
 } // namespace cxx
 } // namespace iox

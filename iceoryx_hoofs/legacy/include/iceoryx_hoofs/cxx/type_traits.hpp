@@ -25,31 +25,31 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/type_traits.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::add_const_conditionally` instead of `iox::cxx::add_const_conditionally`
+/// @deprecated use 'iox::add_const_conditionally' instead of 'iox::cxx::add_const_conditionally'
 using iox::add_const_conditionally;
 
-/// @deprecated use `iox::add_const_conditionally_t` instead of `iox::cxx::add_const_conditionally_t`
+/// @deprecated use 'iox::add_const_conditionally_t' instead of 'iox::cxx::add_const_conditionally_t'
 using iox::add_const_conditionally_t;
 
-/// @deprecated use `iox::always_false_v` instead of `iox::cxx::always_false_v`
+/// @deprecated use 'iox::always_false_v' instead of 'iox::cxx::always_false_v'
 using iox::always_false_v;
 
-/// @deprecated use `iox::is_invocable` instead of `iox::cxx::is_invocable`
+/// @deprecated use 'iox::is_invocable' instead of 'iox::cxx::is_invocable'
 using iox::is_invocable;
 
-/// @deprecated use `iox::is_invocable_r` instead of `iox::cxx::is_invocable_r`
+/// @deprecated use 'iox::is_invocable_r' instead of 'iox::cxx::is_invocable_r'
 using iox::is_invocable_r;
 
-/// @deprecated use `iox::is_function_pointer` instead of `iox::cxx::is_function_pointer`
+/// @deprecated use 'iox::is_function_pointer' instead of 'iox::cxx::is_function_pointer'
 using iox::is_function_pointer;
 
-/// @deprecated use `iox::is_char_array` instead of `iox::cxx::is_char_array`
+/// @deprecated use 'iox::is_char_array' instead of 'iox::cxx::is_char_array'
 using iox::is_char_array;
 
-/// @deprecated use `iox::void_t` instead of `iox::cxx::void_t`
+/// @deprecated use 'iox::void_t' instead of 'iox::cxx::void_t'
 using iox::void_t;
 
-/// @deprecated use `iox::TypeInfo` instead of `iox::cxx::TypeInfo`
+/// @deprecated use 'iox::TypeInfo' instead of 'iox::cxx::TypeInfo'
 using iox::TypeInfo;
 } // namespace cxx
 } // namespace iox

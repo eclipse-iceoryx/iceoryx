@@ -25,7 +25,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/deadline_timer.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::deadline_timer` instead of `iox::cxx::DeadlineTimer`
+/// @deprecated use 'iox::deadline_timer' instead of 'iox::cxx::DeadlineTimer'
 using DeadlineTimer = iox::deadline_timer;
 } // namespace cxx
 } // namespace iox

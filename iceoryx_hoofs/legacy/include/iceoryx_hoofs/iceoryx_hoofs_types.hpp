@@ -25,12 +25,12 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/iceoryx_hoofs_types.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::byte_t` instead of `iox::cxx::byte_t`
+/// @deprecated use 'iox::byte_t' instead of 'iox::cxx::byte_t'
 using iox::byte_t;
 } // namespace cxx
 namespace log
 {
-/// @deprecated use `iox::log::LogLevel` instead of `iox::cxx::log::LogLevel`
+/// @deprecated use 'iox::log::LogLevel' instead of 'iox::cxx::log::LogLevel'
 using iox::log::LogLevel;
 } // namespace log
 } // namespace iox
