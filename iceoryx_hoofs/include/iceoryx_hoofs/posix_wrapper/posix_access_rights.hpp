@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
 
+#include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
@@ -33,8 +34,7 @@ static constexpr int MaxNumberOfGroups = 888;
 class PosixGroup
 {
   public:
-    static constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
-    using groupName_t = string<MAX_GROUP_NAME_LENGTH>;
+    using groupName_t = string<platform::MAX_GROUP_NAME_LENGTH>;
     explicit PosixGroup(const gid_t id) noexcept;
     explicit PosixGroup(const groupName_t& name) noexcept;
 
@@ -60,8 +60,7 @@ class PosixUser
   public:
     using groupVector_t = vector<PosixGroup, MaxNumberOfGroups>;
 
-    static constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
-    using userName_t = string<MAX_USER_NAME_LENGTH>;
+    using userName_t = string<platform::MAX_USER_NAME_LENGTH>;
 
     explicit PosixUser(const uid_t id) noexcept;
     explicit PosixUser(const userName_t& name) noexcept;

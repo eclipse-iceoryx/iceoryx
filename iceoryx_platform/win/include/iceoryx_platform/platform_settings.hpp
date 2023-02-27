@@ -40,6 +40,9 @@ constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\Windows\\Temp\\";
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 128U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 
+constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
+constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
+
 template <typename C, typename... Cargs>
 using invoke_result = std::invoke_result<C, Cargs...>;
 
