@@ -246,9 +246,10 @@ inline bool vector<T, Capacity>::resize(const uint64_t count, const Targs&... ar
 template <typename T, uint64_t Capacity>
 inline T* vector<T, Capacity>::data() noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
+    // AXIVION DISABLE STYLE AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<T*>(const_cast<const vector<T, Capacity>*>(this)->data());
+    // AXIVION ENABLE STYLE AutosarC++19_03-A5.2.3
 }
 
 template <typename T, uint64_t Capacity>
