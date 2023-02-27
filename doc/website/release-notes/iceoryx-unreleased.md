@@ -1033,3 +1033,14 @@
     // after
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
+
+47. Renaming `byte_t` to `byte`
+
+    ```cpp
+    //before
+    iox::byte_t m_size;
+
+    //after
+    iox::byte m_size;
+    ```
+

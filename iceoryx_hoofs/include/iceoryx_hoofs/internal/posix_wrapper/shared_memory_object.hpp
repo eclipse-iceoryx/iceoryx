@@ -31,7 +31,6 @@ namespace iox
 {
 namespace posix
 {
-using byte_t = uint8_t;
 
 enum class SharedMemoryObjectError
 {
