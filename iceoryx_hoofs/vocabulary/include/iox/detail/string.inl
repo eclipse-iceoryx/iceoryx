@@ -336,7 +336,7 @@ inline string<Capacity>& string<Capacity>::operator+=(const T&) noexcept
 }
 
 template <typename T1, typename T2>
-inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+inline IsIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 concatenate(const T1& str1, const T2& str2) noexcept
 {
     uint64_t size1{internal::GetSize<T1>::call(str1)};
@@ -352,7 +352,7 @@ concatenate(const T1& str1, const T2& str2) noexcept
 }
 
 template <typename T1, typename T2, typename... Targs>
-inline IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
+inline IsIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 {
     return concatenate(concatenate(str1, str2), targs...);
@@ -361,7 +361,7 @@ concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept
 template <typename T1, typename T2>
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox namespace which prevents easy
 // misuse
-inline IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+inline IsIoxStringAndIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& str1, const T2& str2) noexcept
 {
     return concatenate(str1, str2);
@@ -429,7 +429,7 @@ inline string<Capacity>& string<Capacity>::append(TruncateToCapacity_t, char cst
 
 template <uint64_t Capacity>
 template <typename T>
-inline IsCxxStringOrCharArray<T, bool>
+inline IsIoxStringOrCharArray<T, bool>
 string<Capacity>::insert(const uint64_t pos, const T& str, const uint64_t count) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
@@ -581,40 +581,40 @@ inline constexpr const char& string<Capacity>::operator[](const uint64_t pos) co
     return at(pos);
 }
 
-// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with std::string, char array or
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with char array or
 // char is also intended
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) == 0);
 }
 
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) != 0);
 }
 
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) > 0);
 }
 
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) >= 0);
 }
 
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) < 0);
 }
 
 template <typename T, uint64_t Capacity>
-inline IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
+inline IsCustomStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
 {
     return (rhs.compare(lhs) <= 0);
 }

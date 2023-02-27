@@ -21,7 +21,6 @@
 
 #include <cstdint>
 #include <cstring>
-#include <string>
 
 namespace iox
 {
@@ -67,7 +66,7 @@ struct GetCapa<char>
     static constexpr uint64_t capa{1U};
 };
 
-/// @brief struct to get size of iox::string/std::string/char array/char
+/// @brief struct to get size of iox::string/char array/char
 template <typename T>
 struct GetSize;
 
@@ -94,15 +93,6 @@ struct GetSize<char[N]>
 };
 
 template <>
-struct GetSize<std::string>
-{
-    static uint64_t call(const std::string& data) noexcept
-    {
-        return data.size();
-    }
-};
-
-template <>
 struct GetSize<char>
 {
     static uint64_t call(char) noexcept
@@ -111,7 +101,7 @@ struct GetSize<char>
     }
 };
 
-/// @brief struct to get a pointer to the char array of the fixed string/string literal/std::string
+/// @brief struct to get a pointer to the char array of the fixed string/string literal
 template <typename T>
 struct GetData;
 
@@ -126,7 +116,7 @@ struct GetData<string<N>>
 
 template <uint64_t N>
 // provides uniform and safe access (in combination with GetCapa and GetSize) to string like constructs like
-// iox::string, std::string, string literal, char
+// iox::string, string literal, char
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetData<char[N]>
 {

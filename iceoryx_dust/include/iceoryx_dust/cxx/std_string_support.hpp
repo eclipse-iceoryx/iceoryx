@@ -23,6 +23,33 @@
 
 namespace iox
 {
+
+template <>
+struct is_custom_string<std::string> : public std::true_type
+{
+};
+
+namespace internal
+{
+template <>
+struct GetData<std::string>
+{
+    static const char* call(const std::string& data) noexcept
+    {
+        return data.data();
+    }
+};
+
+template <>
+struct GetSize<std::string>
+{
+    static uint64_t call(const std::string& data) noexcept
+    {
+        return data.size();
+    }
+};
+} // namespace internal
+
 template <uint64_t N>
 struct FromImpl<string<N>, std::string>
 {

@@ -26,7 +26,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
 
 namespace iox
 {
@@ -34,34 +33,46 @@ namespace log
 {
 class LogStream;
 }
+
+/// @brief This helper struct can be used to enable the comparison methods for a custom string type by specializing for
+/// a custom 'T'
+/// @note The custom string needs 'c_str' and 'size' method
+template <typename T>
+struct is_custom_string : public std::false_type
+{
+};
+
 // AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1 : C-array type usage is intentional
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArrayOrChar =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, char>::value),
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, char>::value
+                             || is_custom_string<T>::value),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArray =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
+    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || is_custom_string<T>::value),
+                            ReturnType>::type;
 
 template <typename T, typename ReturnType>
-using IsStdStringOrCharArrayOrChar =
-    typename std::enable_if<(is_char_array<T>::value || std::is_same<T, char>::value), ReturnType>::type;
+using IsCustomStringOrCharArrayOrChar =
+    typename std::enable_if<(is_char_array<T>::value || std::is_same<T, char>::value || is_custom_string<T>::value),
+                            ReturnType>::type;
 
 template <typename T, typename ReturnType>
-using IsCxxStringOrCharArray =
+using IsIoxStringOrCharArray =
     typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
-using IsCxxStringOrCharArrayOrChar =
+using IsIoxStringOrCharArrayOrChar =
     typename std::enable_if<((is_char_array<T1>::value || is_cxx_string<T1>::value) || std::is_same<T1, char>::value)
                                 && ((is_char_array<T2>::value || is_cxx_string<T2>::value)
                                     || std::is_same<T2, char>::value),
                             ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
-using IsCxxStringAndCxxStringOrCharArrayOrChar =
+using IsIoxStringAndIoxStringOrCharArrayOrChar =
     typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
                                 || (is_cxx_string<T1>::value
                                     && ((is_char_array<T2>::value || std::is_same<T2, char>::value)
@@ -79,7 +90,7 @@ using IsCxxStringAndCxxStringOrCharArrayOrChar =
 ///     auto bar = iox::concatenate(fuu, "ahc");
 /// @endcode
 template <typename T1, typename T2>
-IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& str1,
+IsIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> concatenate(const T1& str1,
                                                                                            const T2& str2) noexcept;
 
 /// @brief concatenates an arbitrary number of iox::strings, string literals or chars
@@ -93,7 +104,7 @@ IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>> c
 ///     auto bar = iox::concatenate(fuu, "g", "ah", fuu);
 /// @endcode
 template <typename T1, typename T2, typename... Targs>
-IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
+IsIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2, Targs...>::value>>
 concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : operator+ is defined within iox namespace which prevents easy
@@ -105,7 +116,7 @@ concatenate(const T1& str1, const T2& str2, const Targs&... targs) noexcept;
 ///
 /// @return a new iox::string with capacity equal to the sum of the capacities of the concatenated strings/chars
 template <typename T1, typename T2>
-IsCxxStringAndCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+IsIoxStringAndIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
 operator+(const T1& str1, const T2& str2) noexcept;
 
 /// @brief struct used to define a compile time variable which is used to distinguish between
@@ -422,7 +433,7 @@ class string final
     ///
     /// @return true if the insertion was successful, otherwise false
     template <typename T>
-    IsCxxStringOrCharArray<T, bool> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
+    IsIoxStringOrCharArray<T, bool> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
     /// @brief creates a substring containing the characters from pos until count; if pos+count is greater than the size
     /// of the original string the returned substring only contains the characters from pos until size();
@@ -506,7 +517,7 @@ class string final
     friend class string;
 
     template <typename T1, typename T2>
-    friend IsCxxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
+    friend IsIoxStringOrCharArrayOrChar<T1, T2, string<internal::SumCapa<T1, T2>::value>>
     concatenate(const T1& str1, const T2& str2) noexcept;
 
   private:
@@ -540,7 +551,7 @@ class string final
 ///
 /// @return true if the contents of lhs and rhs are equal, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a lhs  char array or char is not equal to a rhs iox::string
 ///
@@ -549,16 +560,16 @@ IsStdStringOrCharArrayOrChar<T, bool> operator==(const T& lhs, const string<Capa
 ///
 /// @return true if the contents of lhs and rhs are not equal, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator!=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
-/// @brief checks if a lhs std::string, char array or char is less than a rhs iox::string
+/// @brief checks if a lhs char array or char is less than a rhs iox::string
 ///
 /// @param [in] lhs is the char array or char
 /// @param [in] rhs is the iox::string
 ///
 /// @return true if lhs is less than rhs, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a lhs char array or char is less than or equal to a rhs iox::string
 ///
@@ -567,7 +578,7 @@ IsStdStringOrCharArrayOrChar<T, bool> operator<(const T& lhs, const string<Capac
 ///
 /// @return true if lhs is less than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a lhs char array or char is greater than a rhs iox::string
 ///
@@ -576,7 +587,7 @@ IsStdStringOrCharArrayOrChar<T, bool> operator<=(const T& lhs, const string<Capa
 ///
 /// @return true if lhs is greater than rhs, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if a lhs char array or char is greater than or equal to a rhs iox::string
 ///
@@ -585,7 +596,7 @@ IsStdStringOrCharArrayOrChar<T, bool> operator>(const T& lhs, const string<Capac
 ///
 /// @return true if lhs is greater than or equal to rhs, otherwise false
 template <typename T, uint64_t Capacity>
-IsStdStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
+IsCustomStringOrCharArrayOrChar<T, bool> operator>=(const T& lhs, const string<Capacity>& rhs) noexcept;
 
 /// @brief checks if lhs is equal to rhs
 ///
