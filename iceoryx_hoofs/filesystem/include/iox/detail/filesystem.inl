@@ -39,7 +39,8 @@ inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
         // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
         const char c{name[i]};
 
-        // AXIVION DISABLE STYLE AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments : False positive, variable IS used
+        // AXIVION DISABLE STYLE FaultDetection-UnusedAssignments : False positive, variable IS used
+        // AXIVION DISABLE STYLE AutosarC++19_03-A0.1.1 : False positive, variable IS used
         // AXIVION DISABLE STYLE AutosarC++19_03-M4.5.3 : We are explicitly checking for ASCII characters which have defined consecutive values
         const bool isSmallLetter{(internal::ASCII_A <= c) && (c <= internal::ASCII_Z)};
         const bool isCapitalLetter{(internal::ASCII_CAPITAL_A <= c) && (c <= internal::ASCII_CAPITAL_Z)};
@@ -47,7 +48,8 @@ inline bool isValidPathEntry(const iox::string<StringCapacity>& name,
         const bool isSpecialCharacter{((c == internal::ASCII_DASH) || (c == internal::ASCII_DOT))
                                       || ((c == internal::ASCII_COLON) || (c == internal::ASCII_UNDERSCORE))};
         // AXIVION ENABLE STYLE AutosarC++19_03-M4.5.3
-        // AXIVION ENABLE STYLE AutosarC++19_03-A0.1.1, FaultDetection-UnusedAssignments
+        // AXIVION ENABLE STYLE AutosarC++19_03-A0.1.1
+        // AXIVION ENABLE STYLE FaultDetection-UnusedAssignments
 
         if ((!isSmallLetter && !isCapitalLetter) && (!isNumber && !isSpecialCharacter))
         {
