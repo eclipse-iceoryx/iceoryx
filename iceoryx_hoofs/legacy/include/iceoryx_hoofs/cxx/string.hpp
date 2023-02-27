@@ -36,7 +36,7 @@ using IsCxxStringAndCxxStringOrCharArrayOrChar = iox::IsIoxStringAndIoxStringOrC
 /// @deprecated use 'iox::IsIoxStringOrCharArray' instead of 'iox::cxx::IsCxxStringOrCharArray'
 template <typename T, typename ReturnType>
 using IsCxxStringOrCharArray = iox::IsIoxStringOrCharArray<T, ReturnType>;
-/// @deprecated use 'iox::IsCxxStringOrCharArrayOrChar' instead of 'iox::cxx::IsCxxStringOrCharArrayOrChar'
+/// @deprecated use 'iox::IsIoxStringOrCharArrayOrChar' instead of 'iox::cxx::IsCxxStringOrCharArrayOrChar'
 template <typename T1, typename T2, typename ReturnType>
 using IsCxxStringOrCharArrayOrChar = iox::IsIoxStringOrCharArrayOrChar<T1, T2, ReturnType>;
 /// @deprecated use 'iox::IsStringOrCharArray' instead of 'iox::cxx::IsStringOrCharArray'

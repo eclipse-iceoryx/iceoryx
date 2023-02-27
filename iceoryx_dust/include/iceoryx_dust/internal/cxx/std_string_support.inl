@@ -41,6 +41,15 @@ inline string<N> FromImpl<std::string, lossy<string<N>>>::fromImpl(const std::st
 {
     return string<N>(TruncateToCapacity, value.c_str(), value.size());
 }
+
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
+template <uint64_t Capacity>
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
+{
+    stream << str.c_str();
+    return stream;
+}
 } // namespace iox
 
 #endif // IOX_DUST_STD_STRING_SUPPORT_INL

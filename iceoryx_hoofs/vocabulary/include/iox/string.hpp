@@ -36,7 +36,7 @@ class LogStream;
 
 /// @brief This helper struct can be used to enable the comparison methods for a custom string type by specializing for
 /// a custom 'T'
-/// @note The custom string needs 'c_str' and 'size' method
+/// @note The custom string needs a specialisation of 'GetData' and 'GetSize' as well
 template <typename T>
 struct is_custom_string : public std::false_type
 {
@@ -544,6 +544,14 @@ class string final
     char m_rawstring[Capacity + 1]{};
     uint64_t m_rawstringSize{0U};
 };
+
+/// @brief Logging support for the fixed string
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+/// @return a reference to the LogStream instance
+template <uint64_t Capacity>
+log::LogStream& operator<<(log::LogStream& stream, const string<Capacity>& str) noexcept;
 
 /// @brief checks if a lhs char array or char is equal to a rhs iox::string
 ///

@@ -281,6 +281,28 @@ TYPED_TEST(StdString_test, CompareWithStdStringResultNegativeWithDifferentSize)
     EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
 }
 
+/// @note template <uint64_t Capacity>
+/// inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str)
+TYPED_TEST(StdString_test, EmptyStreamInputWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "88c68194-9a9c-4f2f-a0e0-90bd72f9b102");
+    std::ostringstream testStream;
+    testStream << "";
+    EXPECT_THAT(testStream.str(), StrEq(""));
+}
+
+TYPED_TEST(StdString_test, StreamInputOfSizeCapacityWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c9b3dff3-008d-4189-818f-3534767e7ee4");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    string<STRINGCAP> testFixedString(TruncateToCapacity, testString.c_str(), testString.size());
+    std::ostringstream testStream;
+    testStream << testFixedString;
+    EXPECT_THAT(testStream.str(), Eq(testFixedString.c_str()));
+}
+
 // const std::string testStdString = &testCharArray[0];
 // EXPECT_THAT(this->testSubject < testStdString, Eq(false));
 // EXPECT_THAT(this->testSubject <= testStdString, Eq(true));

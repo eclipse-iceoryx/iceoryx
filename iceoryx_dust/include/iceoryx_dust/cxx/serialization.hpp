@@ -18,6 +18,7 @@
 #define IOX_DUST_CXX_SERIALIZATION_HPP
 
 #include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 
 #include <iostream>
 #include <sstream>

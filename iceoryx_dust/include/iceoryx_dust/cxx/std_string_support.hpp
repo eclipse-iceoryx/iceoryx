@@ -20,6 +20,7 @@
 #include "iox/string.hpp"
 
 #include <string>
+#include <ostream>
 
 namespace iox
 {
@@ -67,6 +68,15 @@ struct FromImpl<std::string, lossy<string<N>>>
 {
     static string<N> fromImpl(const std::string& value) noexcept;
 };
+
+/// @brief outputs the fixed string on stream
+///
+/// @param [in] stream is the output stream
+/// @param [in] str is the fixed string
+///
+/// @return the stream output of the fixed string
+template <uint64_t Capacity>
+std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
 } // namespace iox
 
 #include "iceoryx_dust/internal/cxx/std_string_support.inl"

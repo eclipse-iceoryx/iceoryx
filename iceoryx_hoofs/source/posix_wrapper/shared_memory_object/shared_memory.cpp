@@ -71,8 +71,8 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 
     if (hasOwnership && (m_accessMode == AccessMode::READ_ONLY))
     {
-        std::cerr << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
-                  << "Initializing a new file requires write access" << std::endl;
+        IOX_LOG(ERROR) << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
+                       << "Initializing a new file requires write access";
         return error<SharedMemoryError>(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
     }
 
