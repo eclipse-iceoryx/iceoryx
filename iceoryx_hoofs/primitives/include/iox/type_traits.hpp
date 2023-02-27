@@ -134,12 +134,12 @@ struct is_char_array : std::false_type
 };
 
 template <uint64_t N>
-// AXIVION Next Construct AutosarC++19_03-A18.1.1 : struct used to deduce char array types, it
-// does not use them
-/// @NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
+// AXIVION DISABLE STYLE AutosarC++19_03-A18.1.1 : struct used to deduce char array types, it does not use them
+// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 struct is_char_array<char[N]> : std::true_type
 {
 };
+// AXIVION ENABLE STYLE AutosarC++19_03-A18.1.1
 
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
@@ -149,12 +149,14 @@ using void_t = void;
 /// BEGIN TypeInfo
 //////////////////
 
-/// @brief Provides a translation from a type into its human readable name
-/// NOLINTJUSTIFICATION The name should be stored in a compile time variable. Access is always
-///   safe since it is null terminated and always constant. Other alternatives are not available
-///   at compile time.
-/// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+// AXIVION DISABLE STYLE AutosarC++19_03-A8.5.2 : Initialization with equal sign is okay here and needed for MSVC
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.1.4 : See NOLINTJUSTIFICATION below
+// NOLINTJUSTIFICATION The name should be stored in a compile time variable. Access is always
+//   safe since it is null terminated and always constant. Other alternatives are not available
+//   at compile time.
+// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 
+/// @brief Provides a translation from a type into its human readable name
 template <typename T>
 struct TypeInfo
 {
@@ -236,6 +238,7 @@ struct TypeInfo<double>
     static constexpr const char NAME[] = "double";
 };
 
+// AXIVION Next Construct AutosarC++19_03-A0.4.2 : The type is not directly used but only to get a string representation of the type
 template <>
 struct TypeInfo<long double>
 {
@@ -249,7 +252,10 @@ struct TypeInfo<iox::string<N>>
 };
 template <uint64_t N>
 constexpr const char TypeInfo<iox::string<N>>::NAME[];
-/// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.1.4
+// AXIVION ENABLE STYLE AutosarC++19_03-A8.5.2
+
 //////////////////
 /// END TypeInfo
 //////////////////
