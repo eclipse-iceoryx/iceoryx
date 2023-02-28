@@ -1028,7 +1028,7 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
 
 /// @note int64_t compare(const T& other) const noexcept
 /// with T = {char array}
-TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
+TYPED_TEST(stringTyped_test, CompareEqCharArrayResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "13a0f1a3-b006-4686-a5a0-3c6a2c7113e0");
     using MyString = typename TestFixture::stringType;
@@ -1049,7 +1049,7 @@ TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df4a32d0-72b1-4c65-86f3-15b007ab003c");
     using MyString = typename TestFixture::stringType;
@@ -1070,7 +1070,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
     EXPECT_THAT(this->testSubject.compare(testCharArray), Lt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d315afbc-558d-474a-8ae5-f53451526c73");
     using MyString = typename TestFixture::stringType;
@@ -1091,7 +1091,7 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositive)
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a871dfe3-4acd-437c-b315-de3c43ece19b");
     using MyString = typename TestFixture::stringType;
@@ -1233,7 +1233,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
 
-    // required to verify string literal functionality of cxx::string
+    // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     const char test[] = {'M'};
     EXPECT_THAT(test == this->testSubject, Eq(true));
@@ -1263,7 +1263,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
 /// bool operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator>(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
-/// with T = {char array, std::string}
+/// with T = {char array}
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9dcd5cce-ce7d-4cf9-8c36-edca46d09ff7");
@@ -2573,24 +2573,6 @@ TEST(String100, FindNotIncludedStringLiteralFails)
 
     res = testString.find("abc", 50U);
     EXPECT_THAT(res.has_value(), Eq(false));
-}
-
-TEST(String100, FindSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "794f62c2-deca-4511-9529-3353ff9ee552");
-    string<100U> testString("R2-D2");
-    string<100U> testStdString = "2";
-    auto res = testString.find(testStdString);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find(testStdString, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find(testStdString, 2U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
 }
 
 TEST(String100, FindNotIncludedSTDStringFails)
