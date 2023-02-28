@@ -68,7 +68,12 @@ struct GetCapa<char>
 
 /// @brief struct to get size of iox::string/char array/char
 template <typename T>
-struct GetSize;
+struct GetSize
+{
+    static_assert(always_false_v<T>, "\n \
+        'GetSize' for the specified type is not implemented!\n \
+        Please specialize 'iox::internal::GetSize'!\n");
+};
 
 template <uint64_t N>
 struct GetSize<string<N>>
@@ -103,7 +108,12 @@ struct GetSize<char>
 
 /// @brief struct to get a pointer to the char array of the fixed string/string literal
 template <typename T>
-struct GetData;
+struct GetData
+{
+    static_assert(always_false_v<T>, "\n \
+        'GetData' for the specified type is not implemented!\n \
+        Please specialize 'iox::internal::GetData'!\n");
+};
 
 template <uint64_t N>
 struct GetData<string<N>>

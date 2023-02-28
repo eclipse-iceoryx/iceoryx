@@ -476,6 +476,8 @@ TYPED_TEST(StdString_test, CompareOperatorsWithDifferentStdStringWithDifferentSi
     // compare with greater string
     std::string temp1(STRINGCAP + 5U, 'M');
     string<STRINGCAP + 5U> sutGreater;
+    ASSERT_THAT(sutGreater.unsafe_assign(temp1.c_str()), Eq(true));
+
     EXPECT_THAT(sutGreater < testStdString, Eq(false));
     EXPECT_THAT(sutGreater <= testStdString, Eq(false));
     EXPECT_THAT(sutGreater > testStdString, Eq(true));
@@ -516,6 +518,7 @@ TYPED_TEST(StdString_test, CompareOperatorsWithEqualStdStringWithDifferentCapa)
     {
         c = 'M';
     }
+    testCharArray[STRINGCAP] = '\0';
 
     const std::string testStdString = &testCharArray[0];
     EXPECT_THAT(this->testSubject < testStdString, Eq(false));
