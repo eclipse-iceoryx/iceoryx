@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/deadline_timer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 #include <time.h>
 
@@ -57,7 +58,14 @@ iox::units::Duration deadline_timer::remainingTime() const noexcept
 iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
     timespec time_since_epoch{0, 0};
-    clock_gettime(CLOCK_REALTIME, &time_since_epoch);
+    if (posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &time_since_epoch)
+            .failureReturnValue(-1)
+            .evaluate()
+            .has_error())
+    {
+        using namespace iox::units::duration_literals;
+        return 0_s;
+    }
     return iox::units::Duration{time_since_epoch};
 }
 } // namespace iox
