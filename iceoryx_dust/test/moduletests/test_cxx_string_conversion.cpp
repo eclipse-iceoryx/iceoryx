@@ -361,7 +361,7 @@ TYPED_TEST(StdString_test, CheckForEqualityWithUnequalStdStringsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "8851f836-aa00-416a-9461-77f0909bcf1a");
     this->testSubject = "M";
 
-    const std::string testStdString{"M"};
+    const std::string testStdString{"L"};
     EXPECT_THAT(this->testSubject == testStdString, Eq(false));
     EXPECT_THAT(testStdString == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testStdString, Eq(true));

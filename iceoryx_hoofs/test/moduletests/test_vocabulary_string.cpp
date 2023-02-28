@@ -84,7 +84,7 @@ TYPED_TEST(stringTyped_test, CopyConstructStringOfSizeCapaResultsInSizeCapa)
     string<STRINGCAP> fuu(this->testSubject);
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
-    EXPECT_THAT(fuu.c_str(), StrEq(testString.c_str()));
+    EXPECT_THAT(fuu.c_str(), StrEq(testString));
 }
 
 /// @note string(string&& other) noexcept
@@ -1835,7 +1835,7 @@ TYPED_TEST(stringTyped_test, ConcatenateTwoNotEmptyStringsWorks)
 
     EXPECT_THAT(testString2.capacity(), Eq(2U * STRINGCAP + 3U));
     EXPECT_THAT(testString2.size(), Eq(this->testSubject.size() + testString1.size()));
-    EXPECT_THAT(testString2.c_str(), StrEq((testStdString0 + testStdString1).c_str()));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
@@ -1852,7 +1852,7 @@ TYPED_TEST(stringTyped_test, ConcatenateThreeStringsWorks)
                             + std::string(testString1.c_str(), testString1.size());
     EXPECT_THAT(testString3.capacity(), Eq(3U * STRINGCAP + 2U));
     EXPECT_THAT(testString3.size(), Eq(cmpString.size()));
-    EXPECT_THAT(testString3.c_str(), StrEq(cmpString.c_str()));
+    EXPECT_THAT(testString3.c_str(), StrEq(cmpString));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWorks)
@@ -1996,7 +1996,7 @@ TYPED_TEST(stringTyped_test, ConcatenateNotEmptyStringsWorks)
     string<6U * STRINGCAP> testString2 = this->testSubject + testString1 + this->testSubject;
     EXPECT_THAT(testString2.capacity(), Eq(6U * STRINGCAP));
     EXPECT_THAT(testString2.size(), Eq(2U * this->testSubject.size() + testString1.size()));
-    EXPECT_THAT(testString2.c_str(), StrEq((testStdString0 + testStdString1 + testStdString0).c_str()));
+    EXPECT_THAT(testString2.c_str(), StrEq(testStdString0 + testStdString1 + testStdString0));
 }
 
 TYPED_TEST(stringTyped_test, ConcatenateEmptyStringAndStringLiteralWithOperatorPlusWorks)
@@ -2184,12 +2184,12 @@ TYPED_TEST(stringTyped_test, UnsafeAppendWithCharFailsWhenCapacityIsExceeded)
     EXPECT_THAT(this->testSubject.unsafe_append('L'), Eq(false));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
 
     EXPECT_THAT(this->testSubject.unsafe_append('\0'), Eq(false));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp));
 }
 
 TYPED_TEST(stringTyped_test, UnsafeAppendWithCharToEmptyStringWorks)
@@ -2370,7 +2370,7 @@ TYPED_TEST(stringTyped_test, AppendCharDoesNotChangeStringWhenCapacityIsExceeded
     this->testSubject.append(TruncateToCapacity, 'L');
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP).c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(temp.substr(0, STRINGCAP)));
 }
 
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos = 0) const noexcept;
@@ -2388,10 +2388,10 @@ TYPED_TEST(stringTyped_test, SubstrWithDefaultPosAndSizeResultsInWholeString)
     std::string testStdSubstring = testStdString.substr();
     EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
     EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
 }
 
 TEST(String100, SubstrWithDefaultSizeWorks)
@@ -2408,7 +2408,7 @@ TEST(String100, SubstrWithDefaultSizeWorks)
     auto testSubstring = res.value();
     EXPECT_THAT(testSubstring.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring.c_str(), StrEq(testStdSubstring));
 }
 
 /// @note iox::cxx::optional<string<Capacity>> substr(uint64_t pos, uint64_t count) const noexcept
@@ -2425,7 +2425,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring1 = res1.value();
     EXPECT_THAT(testSubstring1.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring1.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring1.c_str(), StrEq(testStdSubstring));
 
     testStdSubstring = testStdString.substr(20, 5);
     auto res2 = testCxxString.substr(20U, 5U);
@@ -2433,7 +2433,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring2 = res2.value();
     EXPECT_THAT(testSubstring2.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring2.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring2.c_str(), StrEq(testStdSubstring));
 
     testStdSubstring = testStdString.substr(0, 26);
     auto res3 = testCxxString.substr(0U, 26U);
@@ -2441,7 +2441,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring3 = res3.value();
     EXPECT_THAT(testSubstring3.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring3.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring3.c_str(), StrEq(testStdSubstring));
 
     testStdSubstring = testStdString.substr(11, 8);
     auto res4 = testCxxString.substr(11U, 8U);
@@ -2449,7 +2449,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring4 = res4.value();
     EXPECT_THAT(testSubstring4.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring4.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring4.c_str(), StrEq(testStdSubstring));
 
     testStdSubstring = testStdString.substr(13, 98);
     auto res5 = testCxxString.substr(13U, 98U);
@@ -2457,7 +2457,7 @@ TEST(String100, SubstrWithValidPosAndSizeWorks)
     auto testSubstring5 = res5.value();
     EXPECT_THAT(testSubstring5.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(testSubstring5.size(), Eq(testStdSubstring.size()));
-    EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring.c_str()));
+    EXPECT_THAT(testSubstring5.c_str(), StrEq(testStdSubstring));
 }
 
 TYPED_TEST(stringTyped_test, SubstrWithInvalidPosFails)
@@ -2854,7 +2854,7 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaAtSu
 
     this->testSubject.at(STRINGCAP - 1) = NEW_CHARACTER;
     testSTDString.at(STRINGCAP - 1) = NEW_CHARACTER;
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString.c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString));
 }
 
 /// @note constexpr const char& at(const uint64_t pos) const noexcept
@@ -2940,7 +2940,7 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaSubs
 
     this->testSubject[STRINGCAP - 1] = NEW_CHARACTER;
     testSTDString[STRINGCAP - 1] = NEW_CHARACTER;
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString.c_str()));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testSTDString));
 }
 
 /// @note constexpr const char& operator[](const uint64_t pos) const noexcept
