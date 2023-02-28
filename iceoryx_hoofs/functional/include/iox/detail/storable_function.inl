@@ -23,8 +23,8 @@
 
 namespace iox
 {
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are initialized in body before read access
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// AXIVION DISABLE STYLE AutosarC++19_03-A12.6.1: members are initialized before read access
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename Functor, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const Functor& functor) noexcept
@@ -36,15 +36,14 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 // to lack of sufficient common initialization
 // AXIVION Next Construct AutosarC++19_03-M5.2.6: the converted pointer is only used
 // as its original function pointer type after reconversion (type erasure)
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init) members are default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     ReturnType (*function)(Args...)) noexcept
     : // AXIVION Next Construct AutosarC++19_03-A5.2.4: reinterpret_cast is required for type erasure,
       // we use type erasure in combination with compile time template arguments to restore
       // the correct type whenever the callable is used
-      /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     m_callable(reinterpret_cast<void*>(function))
     , m_invoker(&invokeFreeFunction)
 {
@@ -55,37 +54,44 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     // destroy is not needed for free functions
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// AXIVION DISABLE STYLE AutosarC++19_03-M0.3.1: Pointer p aliases a reference and method is a member function pointer that cannot be null (*)
+// AXIVION DISABLE STYLE AutosarC++19_03-A5.3.2: see rule 'M0.3.1' above
+// AXIVION DISABLE STYLE FaultDetection-NullPointerDereference: see rule 'M0.3.1' above
+
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init) members are default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     T& object, ReturnType (T::*method)(Args...)) noexcept
 {
-    const auto p = &object;
-    // AXIVION Next Construct AutosarC++19_03-A7.1.1: type erased functor lambda cannot be const
-    // as it may change by calling its operator() later (hence stored as non-const)
-    auto functor = [p, method](Args... args) -> ReturnType { return (*p.*method)(std::forward<Args>(args)...); };
+    T* const p{&object};
+    const auto functor = [p, method](Args... args) noexcept -> ReturnType {
+        return (*p.*method)(std::forward<Args>(args)...);
+    };
+
     storeFunctor(functor);
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: members are default initialized
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 template <typename T, typename>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(const T& object,
                                                                                       ReturnType (T::*method)(Args...)
                                                                                           const) noexcept
 {
-    const auto p = &object;
-    // AXIVION Next Construct AutosarC++19_03-A7.1.1: type erased functor lambda cannot be const
-    // as it may change by calling its operator() later (hence stored as non-const)
-    const auto functor = [p, method](Args... args) -> ReturnType { return (*p.*method)(std::forward<Args>(args)...); };
+    const T* const p{&object};
+    const auto functor = [p, method](Args... args) noexcept -> ReturnType {
+        return (*p.*method)(std::forward<Args>(args)...);
+    };
+
     storeFunctor(functor);
 }
 
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// AXIVION ENABLE STYLE FaultDetection-NullPointerDereference
+// AXIVION ENABLE STYLE AutosarC++19_03-A5.3.2
+// AXIVION ENABLE STYLE AutosarC++19_03-M0.3.1
+
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init) m_storage is default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     const storable_function& other) noexcept
@@ -97,8 +103,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 
 // AXIVION Next Construct AutosarC++19_03-A12.8.4: we copy only the operation pointer table
 // (required) and will perform a move with its type erased move function
-// AXIVION Next Construct AutosarC++19_03-A12.6.1: m_storage is default initialized
-// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
+// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init) m_storage is default initialized
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_function(
     storable_function&& other) noexcept
@@ -107,6 +112,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
 {
     m_operations.move(other, *this);
 }
+// AXIVION ENABLE STYLE AutosarC++19_03-A12.6.1
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline storable_function<Capacity, signature<ReturnType, Args...>>&
@@ -146,6 +152,8 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::~storable_fu
     m_operations.destroy(*this);
 }
 
+// AXIVION Next Construct AutosarC++19_03-A7.5.2: false positive, operator() does not call itself
+// but the invoked function can be recursive in general (entirely controllable by caller)
 // AXIVION Next Construct AutosarC++19_03-A2.10.1: false positive, args does not hide anything
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::operator()(Args... args) const noexcept
@@ -176,13 +184,15 @@ inline constexpr void*
 storable_function<Capacity, signature<ReturnType, Args...>>::safeAlign(void* startAddress) noexcept
 {
     static_assert(is_storable<T>(), "type does not fit into storage");
-    // AXIVION DISABLE STYLE AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : Cast required for low level pointer alignment
+    // AXIVION DISABLE STYLE AutosarC++19_03-A5.2.4 : Cast required for low level pointer alignment
+    // AXIVION DISABLE STYLE AutosarC++19_03-M5.2.9 : Conversion required for low level pointer alignment
     // NOLINTBEGIN(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
     const uint64_t alignment{alignof(T)};
     const uint64_t alignedPosition{align(reinterpret_cast<uint64_t>(startAddress), alignment)};
     return reinterpret_cast<void*>(alignedPosition);
     // NOLINTEND(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
-    // AXIVION ENABLE STYLE AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9
+    // AXIVION ENABLE STYLE AutosarC++19_03-M5.2.9
+    // AXIVION ENABLE STYLE AutosarC++19_03-A5.2.4
 }
 
 template <uint64_t Capacity, typename ReturnType, typename... Args>
@@ -286,12 +296,13 @@ template <typename CallableType>
 inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::invoke(void* callable,
                                                                                       Args&&... args) noexcept
 {
-    // AXIVION Next Construct AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
+    // AXIVION DISABLE STYLE AutosarC++19_03-A18.9.2: we use idiomatic perfect forwarding
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     // AXIVION Next Construct AutosarC++19_03-A5.3.2: callable is guaranteed not to be nullptr
     // when invoke is called (it is private and only used for type erasure)
     // NOLINTNEXTLINE(clang-analyzer-core.CallAndMessage) see justification above
     return (*static_cast<CallableType*>(callable))(std::forward<Args>(args)...);
+    // AXIVION ENABLE STYLE AutosarC++19_03-A18.9.2
 }
 
 // AXIVION Next Construct AutosarC++19_03-A2.10.1: false positive, args does not hide anything
@@ -309,7 +320,7 @@ storable_function<Capacity, signature<ReturnType, Args...>>::invokeFreeFunction(
     // AXIVION Next Construct AutosarC++19_03-A5.2.4: reinterpret_cast is required for type erasure
     // type erasure in combination with compile time template arguments to restore the correct type
     // when the callable is called
-    /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return (reinterpret_cast<ReturnType (*)(Args...)>(callable))(std::forward<Args>(args)...);
 }
 

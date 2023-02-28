@@ -25,6 +25,7 @@ template <typename T, typename... CTorArgs>
 inline ScopeGuard makeScopedStatic(T& memory, CTorArgs&&... ctorArgs) noexcept
 {
     memory.emplace(std::forward<CTorArgs>(ctorArgs)...);
+    /// @todo iox-#1392 make noexcept dependent on the actual used type
     return ScopeGuard([&memory]() noexcept { memory.reset(); });
 }
 } // namespace iox
