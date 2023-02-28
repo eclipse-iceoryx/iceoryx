@@ -121,7 +121,7 @@ int main()
                 std::cout << "dismiss data\n";
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 // We need to release the data to reset the trigger hasData
-                // otherwise the WaitSet would notify us in `waitset.wait()` again
+                // otherwise the WaitSet would notify us in 'waitset.wait()' again
                 // instantly.
                 subscriber->releaseQueuedData();
             }

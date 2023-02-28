@@ -623,7 +623,7 @@ using string_t = iox::capro::IdString_t;
 
 string_t randomString(uint64_t size = string_t::capacity())
 {
-    // deliberately contains no `0` (need to exclude some char)
+    // deliberately contains no '0' (need to exclude some char)
     static const char chars[] = "123456789"
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                 "abcdefghijklmnopqrstuvwxyz";

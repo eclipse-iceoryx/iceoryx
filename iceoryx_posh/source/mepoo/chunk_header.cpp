@@ -66,7 +66,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
             m_userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
 
             // this is safe since the alignment of the user-payload is larger than the one from the ChunkHeader
-            // -> the user-payload is either adjacent and `backOffset` is at the same location as `userPayloadOffset`
+            // -> the user-payload is either adjacent and 'backOffset' is at the same location as 'userPayloadOffset'
             //    or the user-payload is not adjacent and there is space of at least the alignment of ChunkHeader
             //    between the ChunkHeader and the user-payload
             auto addressOfBackOffset = alignedUserPayloadAddress - sizeof(UserPayloadOffset_t);

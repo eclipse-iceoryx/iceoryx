@@ -61,7 +61,7 @@ class MemPoolCollectionMemoryBlock final : public MemoryBlock
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable
-    /// @note This will create the MemPools at the location `memory` points to
+    /// @note This will create the MemPools at the location 'memory' points to
     void onMemoryAvailable(not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy

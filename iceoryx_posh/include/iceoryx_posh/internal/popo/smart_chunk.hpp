@@ -68,7 +68,7 @@ class SmartChunk
 {
   protected:
     static_assert(std::is_const<T>::value == std::is_const<H>::value,
-                  "The type `T` and the user-header `H` must be equal in their const qualifier to ensure the same "
+                  "The type 'T' and the user-header 'H' must be equal in their const qualifier to ensure the same "
                   "access restrictions for the user-header as for the smartChunk data!");
 
     /// @brief Helper type to enable the constructor for the producer, i.e. when T has no const qualifier
@@ -87,7 +87,7 @@ class SmartChunk
   public:
     /// @brief Constructor for a SmartChunk used by the Producer
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// @param smartChunkUniquePtr is a 'rvalue' to a 'iox::unique_ptr<T>' with to the data of the encapsulated type
     /// T
     /// @param producer is a reference to the producer to be able to use producer specific methods
     template <typename S = T, typename = ForProducerOnly<S, T>>
@@ -95,7 +95,7 @@ class SmartChunk
 
     /// @brief Constructor for a SmartChunk used by the Consumer
     /// @tparam S is a dummy template parameter to enable the constructor only for const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// @param smartChunkUniquePtr is a 'rvalue' to a 'iox::unique_ptr<T>' with to the data of the encapsulated type
     /// T
     template <typename S = T, typename = ForConsumerOnly<S, T>>
     explicit SmartChunk(iox::unique_ptr<T>&& smartChunkUniquePtr) noexcept;
@@ -176,7 +176,7 @@ class SmartChunk
     template <typename R = H, typename = HasUserHeader<R, H>>
     const R& getUserHeader() const noexcept;
 
-    /// @note used by the producer to release the chunk ownership from the `SmartChunk` after publishing the chunk and
+    /// @note used by the producer to release the chunk ownership from the 'SmartChunk' after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
     T* release() noexcept;
 

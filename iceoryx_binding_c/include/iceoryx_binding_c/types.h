@@ -64,7 +64,7 @@ typedef struct
 /// @brief handle of the chunk header
 typedef struct
 {
-    // could be empty but then we get `struct has no members` warning
+    // could be empty but then we get 'struct has no members' warning
     uint8_t do_not_touch_me[1];
 } iox_chunk_header_t;
 

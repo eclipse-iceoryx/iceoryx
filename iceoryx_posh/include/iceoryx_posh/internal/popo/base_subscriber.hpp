@@ -50,7 +50,7 @@ enum class SubscriberState : StateEnumIdentifier
 
 /// @brief base class for all types of subscriber
 /// @param[in] port_t type of the underlying port, required for testing
-/// @note Not intended for public usage! Use the `Subscriber` or `UntypedSubscriber` instead!
+/// @note Not intended for public usage! Use the 'Subscriber' or 'UntypedSubscriber' instead!
 template <typename port_t = iox::SubscriberPortUserType>
 class BaseSubscriber
 {
@@ -120,7 +120,7 @@ class BaseSubscriber
     BaseSubscriber(BaseSubscriber&& rhs) = delete;
     BaseSubscriber& operator=(BaseSubscriber&& rhs) = delete;
 
-    /// @brief small helper method to unwrap the `expected<optional<ChunkHeader*>>` from the `tryGetChunk` method of the
+    /// @brief small helper method to unwrap the 'expected<optional<ChunkHeader*>>' from the 'tryGetChunk' method of the
     /// port
     expected<const mepoo::ChunkHeader*, ChunkReceiveResult> takeChunk() noexcept;
 

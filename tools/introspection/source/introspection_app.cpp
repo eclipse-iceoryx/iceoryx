@@ -109,7 +109,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             }
             else
             {
-                std::cout << "Invalid argument for `t`! Will be ignored!";
+                std::cout << "Invalid argument for 't'! Will be ignored!";
             }
             break;
         }

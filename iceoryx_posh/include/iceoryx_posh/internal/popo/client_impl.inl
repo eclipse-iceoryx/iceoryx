@@ -64,7 +64,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loan(
 template <typename Req, typename Res, typename BaseClientT>
 expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
-    // take the ownership of the chunk from the Request to transfer it to `sendRequest`
+    // take the ownership of the chunk from the Request to transfer it to 'sendRequest'
     auto payload = request.release();
     auto* requestHeader = static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     return port().sendRequest(requestHeader);

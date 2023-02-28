@@ -26,7 +26,7 @@ namespace iox
 namespace popo
 {
 /// @brief The UntypedServerImpl class implements the untyped server API
-/// @note Not intended for public usage! Use the `UntypedServer` instead!
+/// @note Not intended for public usage! Use the 'UntypedServer' instead!
 template <typename BaseServerT = BaseServer<>>
 class UntypedServerImpl : public BaseServerT
 {
@@ -43,12 +43,12 @@ class UntypedServerImpl : public BaseServerT
     /// @brief Take the request chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.
     /// @details No automatic cleanup of the associated chunk is performed
-    ///          and must be manually done by calling `releaseRequest`
+    ///          and must be manually done by calling 'releaseRequest'
     expected<const void*, ServerRequestResult> take() noexcept;
 
     /// @brief Releases the ownership of the request chunk provided by the payload pointer.
     /// @param requestPayload pointer to the payload of the chunk to be released
-    /// @details The requestPayload pointer must have been previously provided by `take`
+    /// @details The requestPayload pointer must have been previously provided by 'take'
     ///          and not have been already released. The chunk must not be accessed afterwards
     ///          as its memory may have been reclaimed.
     void releaseRequest(const void* const requestPayload) noexcept;
@@ -72,7 +72,7 @@ class UntypedServerImpl : public BaseServerT
 
     /// @brief Releases the ownership of the response chunk provided by the payload pointer.
     /// @param responsePayload pointer to the payload of the chunk to be released
-    /// @details The responsePayload pointer must have been previously provided by `loan`
+    /// @details The responsePayload pointer must have been previously provided by 'loan'
     ///          and not have been already released. The chunk must not be accessed afterwards
     ///          as its memory may have been reclaimed.
     void releaseResponse(void* const responsePayload) noexcept;
