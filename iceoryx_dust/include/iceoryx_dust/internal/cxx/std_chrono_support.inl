@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_DUST_STD_CHRONO_SUPPORT_INL
 #define IOX_DUST_STD_CHRONO_SUPPORT_INL
 

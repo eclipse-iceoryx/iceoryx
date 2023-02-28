@@ -18,7 +18,7 @@
 #include "iox/deadline_timer.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
-#include <time.h>
+#include "iceoryx_platform/time.hpp"
 
 namespace iox
 {
