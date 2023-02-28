@@ -122,6 +122,7 @@
 - Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
 - Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
+- Move `std::chrono` dependency to `iceoryx_dust` [\#536](https://github.com/eclipse-iceoryx/iceoryx/issues/536)
 
 **Workflow:**
 
@@ -1047,3 +1048,16 @@
     iox::byte m_size;
     ```
 
+48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
+
+    ```cpp
+    //before
+    std::chrono::milliseconds chronoDuration = 1_ms;
+    iox::units::Duration ioxDuration(chronoDuration);
+
+    //after
+    #include "iceoryx_dust/cxx/std_chrono_support.hpp"
+
+    std::chrono::milliseconds chronoDuration = 1_ms;
+    iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};
+    ```
