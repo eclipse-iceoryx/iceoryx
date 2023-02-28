@@ -47,7 +47,7 @@ class Response
 
   public:
     /// @brief Constructor for a Response used by the server/client
-    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// @param smartChunkUniquePtr is a 'rvalue' to a 'iox::unique_ptr<T>' with to the data of the encapsulated type
     /// T
     /// @param producer (for server only) is a reference to the server to be able to use server specific methods
     using BaseType::BaseType;

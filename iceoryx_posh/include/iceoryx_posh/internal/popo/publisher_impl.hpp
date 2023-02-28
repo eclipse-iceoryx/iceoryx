@@ -29,7 +29,7 @@ namespace iox
 namespace popo
 {
 /// @brief The PublisherImpl class implements the typed publisher API
-/// @note Not intended for public usage! Use the `Publisher` instead!
+/// @note Not intended for public usage! Use the 'Publisher' instead!
 template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisherType = BasePublisher<>>
 class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
 {

@@ -21,6 +21,7 @@ jobs:
       - run: ./tools/scripts/clang_format.sh check
       - run: ./tools/scripts/list_stl_dependencies.sh check
       - run: ./tools/scripts/check_test_ids.sh
+      - run: ./tools/scripts/check_invalid_characters.sh
       - run: ./tools/ci/cmake-linter.sh
 
   build-test-ubuntu:

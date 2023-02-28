@@ -715,7 +715,7 @@ TEST_F(ServerPort_test, SendResponseWithInvalidClientQueueIdReleasesTheChunkToTh
     ::testing::Test::RecordProperty("TEST_ID", "45823507-b83b-496b-965e-a48bd3c07b9e");
     auto& sut = serverPortWithOfferOnCreate;
 
-    // the client is not yet connected to the `clientResponseQueue` which ID is used to send the responses to
+    // the client is not yet connected to the 'clientResponseQueue' which ID is used to send the responses to
     allocateResponseWithRequestHeaderAndThen(sut, [&](const auto, auto res) {
         constexpr uint64_t NUMBER_OF_REQUEST_CHUNKS{1U};
         constexpr uint64_t NUMBER_OF_RESPONSE_CHUNKS{1U};

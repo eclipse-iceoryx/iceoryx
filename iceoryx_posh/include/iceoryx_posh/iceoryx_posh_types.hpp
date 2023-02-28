@@ -172,16 +172,16 @@ enum class ConnectionState : uint32_t
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(ConnectionState value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept;
 
 // Default properties of ChunkDistributorData

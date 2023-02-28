@@ -25,7 +25,7 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/iceoryx_hoofs_types.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::byte` instead of `iox::cxx::byte_t`
+/// @deprecated use 'iox::byte' instead of 'iox::cxx::byte_t'
 using byte_t = byte;
 
 } // namespace cxx

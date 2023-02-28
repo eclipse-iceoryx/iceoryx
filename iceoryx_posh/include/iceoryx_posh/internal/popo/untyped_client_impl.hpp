@@ -28,7 +28,7 @@ namespace iox
 namespace popo
 {
 /// @brief The UntypedClientImpl class implements the untyped client API
-/// @note Not intended for public usage! Use the `UntypedClient` instead!
+/// @note Not intended for public usage! Use the 'UntypedClient' instead!
 template <typename BaseClientT = BaseClient<>>
 class UntypedClientImpl : public BaseClientT
 {
@@ -52,7 +52,7 @@ class UntypedClientImpl : public BaseClientT
 
     /// @brief Releases the ownership of the request chunk provided by the payload pointer.
     /// @param requestPayload pointer to the payload of the chunk to be released
-    /// @details The requestPayload pointer must have been previously provided by `loan`
+    /// @details The requestPayload pointer must have been previously provided by 'loan'
     ///          and not have been already released. The chunk must not be accessed afterwards
     ///          as its memory may have been reclaimed.
     void releaseRequest(void* const requestPayload) noexcept;
@@ -65,12 +65,12 @@ class UntypedClientImpl : public BaseClientT
     /// @brief Take the response chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.
     /// @details No automatic cleanup of the associated chunk is performed
-    ///          and must be manually done by calling `releaseResponse`
+    ///          and must be manually done by calling 'releaseResponse'
     expected<const void*, ChunkReceiveResult> take() noexcept;
 
     /// @brief Releases the ownership of the response chunk provided by the payload pointer.
     /// @param responsePayload pointer to the payload of the chunk to be released
-    /// @details The responsePayload pointer must have been previously provided by `take`
+    /// @details The responsePayload pointer must have been previously provided by 'take'
     ///          and not have been already released. The chunk must not be accessed afterwards
     ///          as its memory may have been reclaimed.
     void releaseResponse(const void* const responsePayload) noexcept;

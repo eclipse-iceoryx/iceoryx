@@ -26,7 +26,7 @@ namespace iox
 namespace popo
 {
 /// @brief The UntypedPublisherImpl class implements the untyped publisher API
-/// @note Not intended for public usage! Use the `UntypedPublisher` instead!
+/// @note Not intended for public usage! Use the 'UntypedPublisher' instead!
 template <typename BasePublisherType = BasePublisher<>>
 class UntypedPublisherImpl : public BasePublisherType
 {

@@ -43,7 +43,7 @@ typedef struct
     /// @brief Sets whether the server blocks when the client response queue is full
     ENUM iox_ConsumerTooSlowPolicy clientTooSlowPolicy;
 
-    /// @brief this value will be set exclusively by `iox_server_options_init` and is not supposed to be modified
+    /// @brief this value will be set exclusively by 'iox_server_options_init' and is not supposed to be modified
     /// otherwise
     uint64_t initCheck;
 } iox_server_options_t;
@@ -98,8 +98,8 @@ void iox_server_release_request(iox_server_t const self, const void* const paylo
 /// @param[in] payloadSize user-payload size of the allocated request
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-/// @note for the user-payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
-///       for a custom user-payload alignment please use `iox_server_loan_aligned_response`
+/// @note for the user-payload alignment 'IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT' is used
+///       for a custom user-payload alignment please use 'iox_server_loan_aligned_response'
 ENUM iox_AllocationResult iox_server_loan_response(iox_server_t const self,
                                                    const void* const requestPayload,
                                                    void** const payload,

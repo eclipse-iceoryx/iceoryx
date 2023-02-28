@@ -56,7 +56,7 @@ class MemPoolSegmentManagerMemoryBlock : public MemoryBlock
 
   protected:
     /// @copydoc MemoryBlock::onMemoryAvailable
-    /// @note This will create the SegmentManager at the location `memory` points to
+    /// @note This will create the SegmentManager at the location 'memory' points to
     void onMemoryAvailable(not_null<void*> memory) noexcept override;
 
     /// @copydoc MemoryBlock::destroy

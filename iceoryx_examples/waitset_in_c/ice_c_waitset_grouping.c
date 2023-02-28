@@ -134,7 +134,7 @@ int main(void)
                 printf("dismiss data\n");
                 iox_sub_t subscriber = iox_notification_info_get_subscriber_origin(notification);
                 // We need to release the samples to reset the event hasSamples
-                // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+                // otherwise the WaitSet would notify us in 'iox_ws_wait()' again
                 // instantly.
                 iox_sub_release_queued_chunks(subscriber);
             }

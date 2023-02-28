@@ -91,24 +91,24 @@ struct ChunkHeader
     /// @return the const pointer to the user-payload
     const void* userPayload() const noexcept;
 
-    /// @brief Get a pointer to the `ChunkHeader` associated to the user-payload of the chunk
+    /// @brief Get a pointer to the 'ChunkHeader' associated to the user-payload of the chunk
     /// @param[in] userPayload is the pointer to the user-payload of the chunk
-    /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    /// @return the pointer to the 'ChunkHeader' or a 'nullptr' if 'userPayload' is a 'nullptr'
     static ChunkHeader* fromUserPayload(void* const userPayload) noexcept;
 
-    /// @brief Get a const pointer to the `ChunkHeader` associated to the user-payload of the chunk
+    /// @brief Get a const pointer to the 'ChunkHeader' associated to the user-payload of the chunk
     /// @param[in] userPayload is the const pointer to the user-payload of the chunk
-    /// @return the const pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    /// @return the const pointer to the 'ChunkHeader' or a 'nullptr' if 'userPayload' is a 'nullptr'
     static const ChunkHeader* fromUserPayload(const void* const userPayload) noexcept;
 
-    /// @brief Get a pointer to the `ChunkHeader` associated to the user-header of the chunk
+    /// @brief Get a pointer to the 'ChunkHeader' associated to the user-header of the chunk
     /// @param[in] userHeader is the pointer to the user-header of the chunk
-    /// @return the pointer to the `ChunkHeader` or a `nullptr` if `userHeader` is a `nullptr`
+    /// @return the pointer to the 'ChunkHeader' or a 'nullptr' if 'userHeader' is a 'nullptr'
     static ChunkHeader* fromUserHeader(void* const userHeader) noexcept;
 
-    /// @brief Get a const pointer to the `ChunkHeader` associated to the user-header of the chunk
+    /// @brief Get a const pointer to the 'ChunkHeader' associated to the user-header of the chunk
     /// @param[in] userHeader is the const pointer to the user-header of the chunk
-    /// @return the const pointer to the `ChunkHeader` or a `nullptr` if `userPayload` is a `nullptr`
+    /// @return the const pointer to the 'ChunkHeader' or a 'nullptr' if 'userPayload' is a 'nullptr'
     static const ChunkHeader* fromUserHeader(const void* const userHeader) noexcept;
 
     /// @brief Calculates the used size of the chunk with the ChunkHeader, user-heander and user-payload
@@ -158,7 +158,7 @@ struct ChunkHeader
     // size of the whole chunk, including the header
     uint32_t m_chunkSize{0U};
     uint8_t m_chunkHeaderVersion{CHUNK_HEADER_VERSION};
-    // reserved for future functionality and used to indicate the padding bytes; currently not used and set to `0`
+    // reserved for future functionality and used to indicate the padding bytes; currently not used and set to '0'
     uint8_t m_reserved{0};
     // currently just a placeholder
     uint16_t m_userHeaderId{NO_USER_HEADER};
