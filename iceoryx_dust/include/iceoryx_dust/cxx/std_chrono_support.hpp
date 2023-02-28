@@ -17,12 +17,30 @@
 #define IOX_DUST_STD_CHRONO_SUPPORT_HPP
 
 #include "iox/duration.hpp"
+#include "iox/into.hpp"
 
 #include <chrono>
 
 namespace iox
 {
+/// @brief Construct a Duration object from std::chrono::milliseconds
+/// @param[in] value as milliseconds
+/// @attention Since negative durations are not allowed, the duration will be clamped to 0
+template <>
+struct FromImpl<std::chrono::milliseconds, units::Duration>
+{
+    static units::Duration fromImpl(const std::chrono::milliseconds& value) noexcept;
+};
 
+
+/// @brief Construct a Duration object from std::chrono::nanoseconds
+/// @param[in] value as nanoseconds
+/// @attention Since negative durations are not allowed, the duration will be clamped to 0
+template <>
+struct FromImpl<std::chrono::nanoseconds, units::Duration>
+{
+    static units::Duration fromImpl(const std::chrono::nanoseconds& value) noexcept;
+};
 } // namespace iox
 
 #include "iceoryx_dust/internal/cxx/std_chrono_support.inl"

@@ -23,7 +23,6 @@
 #include "iceoryx_platform/time.hpp" // required for QNX
 #include "iox/expected.hpp"
 
-#include <chrono>
 #include <cmath>
 
 namespace iox
@@ -167,22 +166,6 @@ class Duration
     /// @note only it_interval from the itimerspec is used
     // AXIVION Next Line AutosarC++19_03-A8.4.7 : Argument is larger than two words
     constexpr explicit Duration(const struct itimerspec& value) noexcept;
-
-    /// @brief Construct a Duration object from std::chrono::milliseconds
-    /// @param[in] value as milliseconds
-    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    constexpr explicit Duration(const std::chrono::milliseconds value) noexcept;
-
-    /// @brief Construct a Duration object from std::chrono::nanoseconds
-    /// @param[in] value as nanoseconds
-    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    constexpr explicit Duration(const std::chrono::nanoseconds value) noexcept;
-
-    /// @brief Assigns a std::chrono::milliseconds to an duration object
-    /// @param[in] rhs is the right hand side of the assignment
-    /// @return a reference to the Duration object with the assigned millisecond value
-    /// @attention Since negative durations are not allowed, the duration will be clamped to 0
-    Duration& operator=(const std::chrono::milliseconds rhs) noexcept;
 
     // END CONSTRUCTORS AND ASSIGNMENT
 

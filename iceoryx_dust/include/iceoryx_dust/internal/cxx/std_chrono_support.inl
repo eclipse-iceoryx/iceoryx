@@ -21,6 +21,17 @@
 namespace iox
 {
 
+inline units::Duration
+FromImpl<std::chrono::milliseconds, units::Duration>::fromImpl(const std::chrono::milliseconds& value) noexcept
+{
+    return units::Duration::fromMilliseconds(value.count());
+}
+
+inline units::Duration
+FromImpl<std::chrono::nanoseconds, units::Duration>::fromImpl(const std::chrono::nanoseconds& value) noexcept
+{
+    return units::Duration::fromNanoseconds(value.count());
+}
 } // namespace iox
 
 #endif // IOX_DUST_STD_CHRONO_SUPPORT_INL

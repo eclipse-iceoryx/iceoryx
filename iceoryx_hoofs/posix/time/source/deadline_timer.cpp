@@ -17,6 +17,8 @@
 
 #include "iox/deadline_timer.hpp"
 
+#include <time.h>
+
 namespace iox
 {
 deadline_timer::deadline_timer(const iox::units::Duration timeToWait) noexcept
@@ -48,11 +50,14 @@ iox::units::Duration deadline_timer::remainingTime() const noexcept
     {
         return m_endTime - currentTime;
     }
-    return iox::units::Duration(std::chrono::milliseconds(0));
+    using namespace iox::units::duration_literals;
+    return 0_s;
 }
 
 iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
-    return iox::units::Duration{std::chrono::steady_clock::now().time_since_epoch()};
+    timespec time_since_epoch{0, 0};
+    clock_gettime(CLOCK_REALTIME, &time_since_epoch);
+    return iox::units::Duration{time_since_epoch};
 }
 } // namespace iox

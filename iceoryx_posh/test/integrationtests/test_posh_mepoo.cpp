@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -454,7 +455,7 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto stop = std::chrono::steady_clock::now();
 
     // Calc the difference
-    auto timediff = iox::units::Duration(stop - start);
+    auto timediff = iox::into<iox::units::Duration>(stop - start);
 
     PrintTiming(timediff);
 

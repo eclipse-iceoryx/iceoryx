@@ -30,7 +30,7 @@ template <uint64_t N>
 inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string&) noexcept
 {
     static_assert(always_false_v<std::string> && always_false_v<string<N>>, "\n \
-        The conversion from 'std::string' to 'iox::sring<N>' is potentially lossy!\n \
+        The conversion from 'std::string' to 'iox::string<N>' is potentially lossy!\n \
         This happens when the size of source string exceeds the capacity of the destination string!\n \
         Please use 'iox::into<iox::lossy<iox::string<N>>>' which returns a 'iox::string<N>' and truncates the\n \
             source string if its size exceeds the capacity of the destination string");
