@@ -111,15 +111,54 @@ TYPED_TEST(StdString_test, StringOfSizeCapaToSTDStringConvResultsInSizeCapa)
     EXPECT_THAT(testString2.c_str(), StrEq(testString1.substr(0, STRINGCAP)));
 }
 
-TYPED_TEST(StdString_test, IoxStringCanBeConvertedToStdString)
+TYPED_TEST(StdString_test, UnsafeAppendEmptyStdStringWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "698be7cc-f911-42be-b512-b5336eb1d4bd");
+    ::testing::Test::RecordProperty("TEST_ID", "d2da56ce-c68b-4d66-9fc6-25564776b3a4");
     using MyString = typename TestFixture::stringType;
-    MyString ioxString("B");
+    constexpr auto STRINGCAP = MyString::capacity();
+    this->testSubject = "M";
+    std::string testStdString;
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
 
-    auto sut = into<std::string>(ioxString);
+TYPED_TEST(StdString_test, UnsafeAppendFittingStdStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "32beaa61-3282-4964-af1f-b185b7cc50ee");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    string<5U * STRINGCAP> sut("R2-D");
+    std::string testStdString = "2";
+    EXPECT_THAT(sut.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(sut.capacity(), Eq(5U * STRINGCAP));
+    EXPECT_THAT(sut.size(), Eq(5U));
+    EXPECT_THAT(sut.c_str(), StrEq("R2-D2"));
+}
 
-    EXPECT_THAT(sut.c_str(), StrEq(ioxString.c_str()));
+TYPED_TEST(StdString_test, UnsafeAppendTooLargeStdStringFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ea5ed2f4-e7a5-4417-af30-8cec5af2d8d4");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testStdString(STRINGCAP + 1U, 'M');
+
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(false));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.empty(), Eq(true));
+}
+
+TYPED_TEST(StdString_test, UnsafeAppendWithStdStringToEmptyStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8f30ed18-c15c-4252-91b2-9506ca5a998c");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testStdString = "d";
+    EXPECT_THAT(this->testSubject.unsafe_append(testStdString), Eq(true));
+    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString));
 }
 
 TEST(String100, FindLastOfForNotIncludedSTDStringFails)
