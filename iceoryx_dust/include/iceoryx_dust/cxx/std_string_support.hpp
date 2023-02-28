@@ -32,6 +32,7 @@ struct is_custom_string<std::string> : public std::true_type
 
 namespace internal
 {
+/// @brief struct to get a pointer to the char array of the std::string
 template <>
 struct GetData<std::string>
 {
@@ -41,6 +42,7 @@ struct GetData<std::string>
     }
 };
 
+/// @brief struct to get size of a std::string
 template <>
 struct GetSize<std::string>
 {

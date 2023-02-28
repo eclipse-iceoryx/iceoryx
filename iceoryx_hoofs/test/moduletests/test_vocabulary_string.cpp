@@ -2575,21 +2575,6 @@ TEST(String100, FindNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8b2116c9-5f7d-48b4-8c26-cb3b71cf0ea2");
-    string<100U> testString("Kernfusionsbaby");
-    string<100U> testStdString = "abc";
-    auto res = testString.find(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note template <typename T>
 /// iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
