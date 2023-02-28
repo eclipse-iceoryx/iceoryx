@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -346,7 +346,7 @@ TYPED_TEST(StdString_test, CompareEqStringAndStdStringWithDifferentCapaResultsIn
 /// with T = {std::string}
 TYPED_TEST(StdString_test, CheckForEqualityWithEqualStdStringsWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "38d8e0ca-97c5-4e3f-9cb7-589bb7de3b71");
+    ::testing::Test::RecordProperty("TEST_ID", "f59dac18-3ee4-46de-86e1-e7838bd25d5a");
     this->testSubject = "M";
 
     const std::string testStdString{"M"};
@@ -724,109 +724,4 @@ TEST(String100, FindSTDStringInNotEmptyStringWorks)
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(4U));
 }
-
-// const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-// EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-// EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-// EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-// EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-// EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-// EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-// EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
-
-// const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-// EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-// EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-// EXPECT_THAT(testStdString != this->testSubject, Eq(true));
-
-
-// std::string testStdString = "M";
-// testStdString.reserve(STRINGCAP + 5U);
-// EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-// EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-// EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-// EXPECT_THAT(testStdString != this->testSubject, Eq(false));
-
-//     const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-// EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-// EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-// EXPECT_THAT(testStdString != this->testSubject, Eq(true));
-
-//     const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-// EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-// EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-// EXPECT_THAT(testStdString != this->testSubject, Eq(false));
-
-// EXPECT_THAT(sutGreater < testStdString, Eq(false));
-// EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-// EXPECT_THAT(sutGreater > testStdString, Eq(true));
-// EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-// EXPECT_THAT(testStdString < sutGreater, Eq(true));
-// EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-// EXPECT_THAT(testStdString > sutGreater, Eq(false));
-// EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
-// EXPECT_THAT(sutLess < testStdString, Eq(true));
-// EXPECT_THAT(sutLess <= testStdString, Eq(true));
-// EXPECT_THAT(sutLess > testStdString, Eq(false));
-// EXPECT_THAT(sutLess >= testStdString, Eq(false));
-// EXPECT_THAT(testStdString < sutLess, Eq(false));
-// EXPECT_THAT(testStdString <= sutLess, Eq(false));
-// EXPECT_THAT(testStdString > sutLess, Eq(true));
-// EXPECT_THAT(testStdString >= sutLess, Eq(true));
-
-
-// EXPECT_THAT(sutGreater < testStdString, Eq(false));
-// EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-// EXPECT_THAT(sutGreater > testStdString, Eq(true));
-// EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-// EXPECT_THAT(testStdString < sutGreater, Eq(true));
-// EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-// EXPECT_THAT(testStdString > sutGreater, Eq(false));
-// EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
-// EXPECT_THAT(sutLess < testStdString, Eq(true));
-// EXPECT_THAT(sutLess <= testStdString, Eq(true));
-// EXPECT_THAT(sutLess > testStdString, Eq(false));
-// EXPECT_THAT(sutLess >= testStdString, Eq(false));
-// EXPECT_THAT(testStdString < sutLess, Eq(false));
-// EXPECT_THAT(testStdString <= sutLess, Eq(false));
-// EXPECT_THAT(testStdString > sutLess, Eq(true));
-// EXPECT_THAT(testStdString >= sutLess, Eq(true));
-
-// const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-// EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-// EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-// EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-// EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-// EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-// EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-// EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
-
-// const std::string testStdString;
-// EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
-
-//     EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
-
-// const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject.compare(testStdString.c_str()), Lt(0));
-
-// const std::string testStdString = &testCharArray[0];
-// EXPECT_THAT(this->testSubject.compare(testStdString.c_str()), Gt(0));
-
-
-// std::string testStdString(STRINGCAP, 'M');
-// testStdString.reserve(STRINGCAP + 13U);
-// EXPECT_THAT(this->testSubject.compare(testStdString.c_str()), Eq(0));
-
-// std::string testStdString = 'a';
-// res = this->testSubject.find_first_of(testStdString);
-// EXPECT_THAT(res.has_value(), Eq(false));
 } // namespace

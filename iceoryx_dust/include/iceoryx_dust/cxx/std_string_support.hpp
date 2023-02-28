@@ -19,8 +19,8 @@
 #include "iox/into.hpp"
 #include "iox/string.hpp"
 
-#include <string>
 #include <ostream>
+#include <string>
 
 namespace iox
 {
