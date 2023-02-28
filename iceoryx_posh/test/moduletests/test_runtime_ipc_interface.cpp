@@ -304,7 +304,7 @@ TYPED_TEST(IpcInterface_test, TimedSendWorks)
         if (!result)
         {
             // Do not exceed timeout
-            auto timeDiff = units::Duration(after - before);
+            auto timeDiff = into<units::Duration>(after - before);
             EXPECT_GE(timeDiff, maxTimeout);
 
             break;
