@@ -78,7 +78,9 @@ inline LogStream::LogStream(const char* file, const int line, const char* functi
 {
 }
 
+/// @todo iox-#1755 use something like 'source_location'
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
+// NOLINTNEXTLINE(readability-function-size)
 inline LogStream::LogStream(
     const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept
     : m_logger(Logger::get())
