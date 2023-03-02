@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_INL
-#define IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_INL
+#ifndef IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_INL
+#define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_INL
 
-#include "iox/building_blocks/console_logger.hpp"
+#include "iox/log/building_blocks/console_logger.hpp"
 
 namespace iox
 {
@@ -96,4 +96,4 @@ inline void ConsoleLogger::logArithmetic(const T value, const char* format) noex
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_INL
+#endif // IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_INL

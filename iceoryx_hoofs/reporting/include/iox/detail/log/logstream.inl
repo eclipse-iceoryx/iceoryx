@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_LOGSTREAM_INL
-#define IOX_HOOFS_REPORTING_LOGSTREAM_INL
+#ifndef IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL
+#define IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL
 
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 
 #include <string>
 
@@ -226,4 +226,4 @@ inline LogStreamOff& LogStreamOff::operator<<(T&&) noexcept
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_REPORTING_LOGSTREAM_INL
+#endif // IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL

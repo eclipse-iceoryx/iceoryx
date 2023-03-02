@@ -21,7 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/expected.hpp"
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"

@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/filesystem.hpp"
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 #include <iostream>
 
 namespace iox

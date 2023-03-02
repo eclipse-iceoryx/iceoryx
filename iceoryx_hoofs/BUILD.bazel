@@ -35,7 +35,7 @@ cc_library(
         "memory/source/*.cpp",
         "posix/time/source/*.cpp",
         "primitives/source/*.cpp",
-        "reporting/source/building_blocks/*.cpp",
+        "reporting/source/log/building_blocks/*.cpp",
         "source/**/*.cpp",
         "time/source/*.cpp",
         "utility/source/*.cpp",

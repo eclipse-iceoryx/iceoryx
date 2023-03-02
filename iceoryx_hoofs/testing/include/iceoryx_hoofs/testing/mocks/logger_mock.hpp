@@ -16,9 +16,9 @@
 #ifndef IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 #define IOX_HOOFS_MOCKS_LOGGER_MOCK_HPP
 
-#include "iox/logger.hpp"
+#include "iox/log/logger.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/logging.hpp"
-#include "iox/logstream.hpp"
 #include "iox/optional.hpp"
 
 #include <mutex>

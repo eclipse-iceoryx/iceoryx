@@ -19,7 +19,7 @@
 
 #include "iox/detail/string_internal.hpp"
 #include "iox/detail/string_type_traits.hpp"
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/type_traits.hpp"
 

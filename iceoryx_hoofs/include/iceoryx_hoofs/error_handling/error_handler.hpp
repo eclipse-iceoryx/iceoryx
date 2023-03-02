@@ -18,7 +18,7 @@
 #define IOX_HOOFS_ERROR_HANDLING_ERROR_HANDLER_HPP
 
 #include "iox/function.hpp"
-#include "iox/logger.hpp"
+#include "iox/log/logger.hpp"
 #include "iox/logging.hpp"
 #include "iox/scope_guard.hpp"
 

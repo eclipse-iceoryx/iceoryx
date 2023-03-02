@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
-#include "iox/logger.hpp"
+#include "iox/log/logger.hpp"
 
 #include <iostream>
 

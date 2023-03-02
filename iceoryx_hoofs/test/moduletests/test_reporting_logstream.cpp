@@ -17,8 +17,8 @@
 
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_hoofs/testing/test.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/logging.hpp"
-#include "iox/logstream.hpp"
 
 #include <array>
 #include <cstdint>

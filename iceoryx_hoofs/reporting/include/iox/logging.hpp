@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_REPORTING_LOGGING_HPP
 #define IOX_HOOFS_REPORTING_LOGGING_HPP
 
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 
 namespace iox
 {

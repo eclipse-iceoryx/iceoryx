@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_LOGSTREAM_HPP
-#define IOX_HOOFS_REPORTING_LOGSTREAM_HPP
+#ifndef IOX_HOOFS_REPORTING_LOG_LOGSTREAM_HPP
+#define IOX_HOOFS_REPORTING_LOG_LOGSTREAM_HPP
 
-#include "iox/logger.hpp"
+#include "iox/log/logger.hpp"
 #include "iox/type_traits.hpp"
 
 #include <string>
@@ -260,6 +260,6 @@ using SelectedLogStream = typename LogStreamTypeSelector<MINIMAL_LOG_LEVEL>::typ
 } // namespace log
 } // namespace iox
 
-#include "iox/detail/logstream.inl"
+#include "iox/detail/log/logstream.inl"
 
-#endif // IOX_HOOFS_REPORTING_LOGSTREAM_HPP
+#endif // IOX_HOOFS_REPORTING_LOG_LOGSTREAM_HPP

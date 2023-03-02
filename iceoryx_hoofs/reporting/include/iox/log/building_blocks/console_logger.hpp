@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
-#define IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
+#ifndef IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
+#define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
 
-#include "iox/building_blocks/logformat.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
+#include "iox/log/building_blocks/logformat.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -137,6 +137,6 @@ class ConsoleLogger
 } // namespace log
 } // namespace iox
 
-#include "iox/detail/building_blocks/console_logger.inl"
+#include "iox/detail/log/building_blocks/console_logger.inl"
 
-#endif // IOX_HOOFS_REPORTING_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP
+#endif // IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_CONSOLE_LOGGER_HPP

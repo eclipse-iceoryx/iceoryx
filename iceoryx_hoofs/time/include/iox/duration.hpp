@@ -20,8 +20,8 @@
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_platform/time.hpp" // required for QNX
 #include "iox/expected.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/logging.hpp"
-#include "iox/logstream.hpp"
 
 #include <cmath>
 

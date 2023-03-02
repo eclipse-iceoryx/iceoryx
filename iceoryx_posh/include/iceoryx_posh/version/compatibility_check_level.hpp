@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 #define IOX_POSH_VERSION_COMPATIBILITY_CHECK_LEVEL_HPP
 
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 
 namespace iox
 {

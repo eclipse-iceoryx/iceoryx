@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/building_blocks/console_logger.hpp"
+#include "iox/log/building_blocks/console_logger.hpp"
 
 #include "iceoryx_platform/fcntl.hpp"
 #include "iox/logging.hpp"

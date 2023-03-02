@@ -18,7 +18,7 @@
 #define IOX_HOOFS_TESTING_TESTING_LOGGER_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iox/logger.hpp"
+#include "iox/log/logger.hpp"
 
 #include "test.hpp"
 

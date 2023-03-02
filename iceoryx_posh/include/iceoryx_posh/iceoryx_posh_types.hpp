@@ -24,7 +24,7 @@
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
 #include "iox/duration.hpp"
 #include "iox/function.hpp"
-#include "iox/logstream.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"

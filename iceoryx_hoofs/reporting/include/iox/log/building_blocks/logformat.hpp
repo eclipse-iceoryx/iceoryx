@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGFORMAT_HPP
-#define IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGFORMAT_HPP
+#ifndef IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
+#define IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
 
 #include "iox/iceoryx_hoofs_types.hpp"
 
@@ -130,6 +130,6 @@ static constexpr const char* LOG_FORMAT_OCT{internal::logFormatOct<T>()};
 } // namespace log
 } // namespace iox
 
-#include "iox/detail/building_blocks/logformat.inl"
+#include "iox/detail/log/building_blocks/logformat.inl"
 
-#endif // IOX_HOOFS_REPORTING_BUILDING_BLOCKS_LOGFORMAT_HPP
+#endif // IOX_HOOFS_REPORTING_LOG_BUILDING_BLOCKS_LOGFORMAT_HPP
