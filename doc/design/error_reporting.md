@@ -1,7 +1,6 @@
-# The New Error Reporting API
+# Error Reporting API
 
-This is intended as a quick guide through the new error reporting API that will gradually replace
-the previous error handler.
+This is intended as a quick guide through the new error reporting API that will gradually replace the previous error handler.
 
 ## Terminology
 
@@ -37,7 +36,7 @@ Some error code that is unique per module.
 An error object to be reported. Must contain at least some error code and is associated with some
 module (by its id).
 
-## How it works
+## How It Works
 
 The whole mechanism is very flexible and generic and relies on overloading and perfect forwarding 
 to relay information, e.g. errors. That means much of it can be optimized at compile time, 
@@ -46,18 +45,18 @@ as the compiler has full knowledge about all the template definitions.
 This holds up to the platform, where it is possible to e.g. use runtime polymorphism or simply link
 against some library.
 
-## Reponsibilty of the Platform
+### Reponsibilty of the Platform
 
 1. Define the error handling backend
 1. It expects that errors satisfy some mild conditions (like providing a code)
 1. Provide a header that defines the reporting; to be used by any module
 
-In principle a platform can support a wide range of error types, from simple code to monadic result
+In principle a platform can support a wide range of error types, from simple error codes to monadic result
 types. The only condition is that the backend must be able to handle them.
 
 In this way, the platform defines a contract for the errors.
 
-## Reponsibilty of a Module
+### Reponsibilty of a Module
 
 1. Define all its errors and error codes
 1. The errors must satisfy the error contract conditions required by the platform.
@@ -66,7 +65,7 @@ In this way, the platform defines a contract for the errors.
 
 Once this is defined, the module can use the error reporting in its own functions.
 
-## Kinds of Errors
+### Kinds of Errors
 
 There are three mandatory kinds (or categories) of errors.
 
@@ -81,12 +80,12 @@ Furthermore the platform may define additional kinds of errors, specifically non
 For non-fatal errors the execution continues afer reporting, so they should be used when the
 circumstances allow recovery from the error.
 
-## Panic
+### Panic
 
 Before execution is aborted, a special `panic` handler is invoked. The platform defines this handler
 as part of the backend.
 
-## Using the API to report errors
+## Using the API to Report Errors
 
 Assume the module defines some error codes
 
@@ -112,7 +111,7 @@ IOX_PANIC("some message");
 
 Signals panic, invokes the panic handler and aborts execution.
 
-### Report an error
+### Report an Error
 
 To report an error the error code (later to be extended to error objects) has to be provided
 
@@ -122,7 +121,7 @@ IOX_REPORT(Code::OutOfMemory, RUNTIME_ERROR);
 
 This reports a `OutOfMemory` error and continues execution.
 
-### Report a fatal error
+### Report a Fatal Error
 
 Similarly
 
@@ -137,7 +136,7 @@ fatal. It may become fatal after it is propagated further along the call stack.
 Propagation is possible by various means, e.g. return codes, monadic types or ven exceptions (that
 must be caught before reporting the error elsewhere again).
 
-### Conditionally report an error
+### Conditionally Report an Error
 
 Conditionally reporting an error if some condition holds is useful for more compact error reporting.
 
@@ -147,7 +146,7 @@ int x;
 IOX_REPORT_IF(x<0, Code::OutOfBounds, RUNTIME_ERROR)
 ```
 
-### Assert that a condition holds
+### Assert That a Condition Holds
 
 Similarly we can conditionally check whether a condition does not hold and report a fatal error in
 the case that it does not
@@ -167,7 +166,7 @@ It should not be used for assumptions that have to be true in correct code
 
 Note it that no condition can generally be enforced in the sense that it must be true and no checking is required.
 
-## Using the API to check contracts and assumptions
+## Using the API to Check Contracts and Assumptions
 
 The following checks can be disabled and are intended to increase safety during incorrect
 use, specifically detect incorrect use at runtime.
@@ -177,7 +176,7 @@ programming).
 
 If these checks are disabled, there is no overhead in the code, i.e. no checking or reporting takes place.
 
-### Checking preconditions
+### Checking Preconditions
 
 A precondition check
 
@@ -201,7 +200,7 @@ panicis invoked and execution stops.
 The verification can be optionally disabled, and hence this also documents assumptions of the
 function itself.
 
-### Checking assumptions
+### Checking Assumptions
 
 Checking assumptions is similar to checking preconditions, but can happen anywhere in the code.
 
@@ -221,16 +220,17 @@ check postconditions.
 It should not be used at the start of a function body and instead replaced with a precondition check
 in this case.
 
-### Marking unreachable code
+### Marking Unreachable Code
 
 It is also possible to explcitly state that code is supposed to be unreachable.
 ```cpp
 if(condition) {
-    // reachable code that does something
+    // Reachable code that does something
     // This also implies that it is assumed that the condition cannot be false.
 } else {
     IOX_UNREACHABLE();
-    // code here should be dead, otherwise it is a bug
+    // Code here should be dead, otherwise it is a bug
+    // There should ideally be no dead code, but there are exceptions.
 }
 ```
 
@@ -241,9 +241,197 @@ disabled).
 
 This has advantages for test coverage as the compiler and other tools that rely on the compiler (say
 for coverage) are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
+As a consequnece, branches with `IOX_UNREACHABLE` do not necessarily lead to a return statement.
 
-## Summary
+### Summary
 
 This shows how the API can be used to either signal errors to an underlying backend or safeguard
 against bug conditions such as precodition violations. As the latter should not happen in correct
 code, these can be disabled.
+
+## Examples
+
+The following examples show how non-fatal and fatal errors cane be signaled.
+
+## Recoverable Errors
+
+The default version only supports error codes.
+The following assumes there exists a `RUNTIME_ERROR` category.
+
+```cpp
+enum class Code {
+    SomeError
+};
+
+expected<int, Code> algorithm(int x)
+{
+    if(errorCondition(x))
+    {
+        IOX_REPORT(SomeError, RUNTIME_ERROR);
+        // control flow continues and the error is propagated to the caller
+        return error<Code>(SomeError);
+    }
+    return 42;
+}
+
+expected<int, E> identity() {
+    
+    auto result = algorithm(73);
+
+    if(result.has_error())
+    {
+        // transform the error to E and propagate it
+        return into<error<E>>(result.get_error());
+    }
+    
+    // no error, return identity
+    return *result;
+};
+```
+
+This is similar to exception handling without the convenience of propagation.
+While this shows the use with `expected`, it can be used with any error return type, 
+for example the error code itself.
+
+A generalization allows to report more complex error types directly. This requires a corresponding
+implementation of the platform backend.
+
+```cpp
+expected<int, Code> algorithm(int x)
+{
+    if(errorCondition(x))
+    {
+        // create an exception like custom error
+        auto e = error<CustomError>(SomeError, "additional error info");
+        // report e directly
+        IOX_REPORT_FATAL(e, RUNTIME_ERROR);
+        return e;
+    }
+    return 42;
+}
+
+expected<int, E> identity()
+{
+    auto result = algorithm();
+
+    if(result.has_error())
+    {
+        // transform the error and propagate it
+        return into<error<E>>(result.get_error());
+    }
+    // no error, return identity
+    return *result;
+};
+```
+
+## Non-recoverable Errors
+
+Non-recoverable errors should generally not be used in combination with return codes or other error
+types, since the control flow does not return from a fatal error.
+
+```cpp
+int algorithm(int x)
+{
+    if(errorCondition(x))
+    {
+        IOX_REPORT_FATAL(SomeError);
+        // does not return, so no return statement is required
+    }
+    return 42;
+}
+
+int identity()
+{
+    auto result = algorithm();
+
+    // if a result was returned, we know that no error has occured
+    return result;
+};
+```
+
+Alternatively the shorthand version can be used
+
+```cpp
+int algorithm(int x)
+{
+    // require that the condition holds or raise a fatal error
+    IOX_REQUIRE(!errorCondition(x), SomeError);
+    return 42;
+}
+```
+
+A generalization to error types other than codes is possible with a corresponding 
+backend implementation.
+
+## Structure
+
+### Basics
+
+The overall implementation concepts allows customization at platform level and a provides 
+a default implementation.
+
+Everything related to error reporting is located in the corresponding folder `error_reporting`.
+Since the main API is stateless, there is no need for classes. Everything directly in this folder
+(i.e. not in a subfolder) is not supposed to be changed.
+
+These are
+
+1. `api.h`: the reporting API to be used
+2. `configuration.hpp`: the default configuration (compile time flags)
+3. `error_forwarding.hpp`: forwarding to the platform backend
+4. `error_kind.hpp`: mandatory error categories
+5. `error_logging.hpp`: logging related definitions (TODO: move to platform to break dependency?)
+6. `location.hpp`: source location related definitions
+7. `types.hpp`: auxiliary types
+
+All the files focus on singular aspects to allow fine-grained inclusion.
+All definitions have to reside in `iox::err`, which is considered a private (detail) namespace 
+for everything related to error reporting. Since the API uses macros, it has no namespace itself.
+
+### Platform
+
+A specific platform backend may depend on any of them and has to implement an error reporting
+interface `error_reporting.hpp`. 
+
+Apart from implementing the error reporting interface, a platform does not have to follow 
+a specific structure. However, it cannot depend on anything that intends to use the error 
+reporting itself. It can override or extend some definitions and it is encouraged to use the same 
+file names as in the mandatory absics. For example `platform/error_kind.hpp` specifies additional 
+error kinds (apart from the mandatory fatal errors).
+
+The main purpose of the platform is to define the actions to take for each error.
+
+### Default Platform
+
+The default implementation in `platform/default` allows switching between a `DefaultHandler` 
+and a `TestHandler` at runtime.
+The latter is used in testing to verify that an error occured when the it is expected.
+
+The `DefaultHandler` is deployed outside of tests and provides minimal logging information.
+
+### Testing
+
+All testing related definitions are located in `iceoryx_hoofs/testing/error_reporting`.
+These are the definition of `TestHandler` in `test_error_handler.hpp` and auxiliary functions in
+`test_support.hpp` to be used in tests to verify errors. The latter can be extended as required.
+
+### Platform Extension
+
+Extension is possible by either changing the default implementation or providing an
+additional platform that is used by all modules.
+
+### Modules
+
+There must be a single point where all modules are defined to ensure they use unique ids and use the
+same platform. Currently this happens in the `modules` folder but is work in progress to be
+completed during integration of error reporting.
+
+There is `modules/hoofs/error_reporting.hpp` that defines all the errors and platform 
+used by `iceoryx_hoofs`. The `api.hpp` is included there to make it easy to use the custom error 
+reporting in any iceoryx hoofs file by including `modules/hoofs/error_reporting.hpp`.
+
+Replacing the previous error handling is supposed to happen by
+
+1. Adapting the error definitions for `iceoryx_hoofs` in `modules/hoofs/errors.hpp`
+2. Introducing a similar folder structure for `iceoryx_posh`
+3. Replacing occurences of the previous error handler call (including `cxx::Expects`)
