@@ -47,10 +47,12 @@ void iox_user_trigger_deinit(iox_user_trigger_t const self)
 
 void iox_user_trigger_trigger(iox_user_trigger_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     self->trigger();
 }
 
 bool iox_user_trigger_has_triggered(iox_user_trigger_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->hasTriggered();
 }
