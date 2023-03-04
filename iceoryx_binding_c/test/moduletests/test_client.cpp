@@ -186,9 +186,10 @@ TEST_F(iox_client_test, InitializingClientWithNullptrFails)
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_client_init(&sutStorage, SERVICE, INSTANCE, nullptr, &options); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
-    // IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-    //     [&] { iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr); },
-    //     iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_client_options_t emptyOpts;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_client_init(&sutStorage, SERVICE, INSTANCE, EVENT, &emptyOpts); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TEST_F(iox_client_test, DeinitClientWithNullptrFails)
