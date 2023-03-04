@@ -145,6 +145,7 @@ iox_AllocationResult iox_server_loan_aligned_response(iox_server_t const self,
 iox_ServerSendResult iox_server_send(iox_server_t const self, void* const payload)
 {
     iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(payload != nullptr);
 
     auto result = self->send(payload);
     if (result.has_error())
