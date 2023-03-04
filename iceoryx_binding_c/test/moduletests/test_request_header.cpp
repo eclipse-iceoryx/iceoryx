@@ -14,10 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 
 using namespace iox::popo;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/request_header.h"
@@ -98,4 +101,84 @@ TEST_F(iox_request_header_test, getChunkHeaderWorks)
     EXPECT_THAT(reinterpret_cast<const iox::mepoo::ChunkHeader*>(iox_request_header_get_chunk_header_const(sutConst)),
                 Eq(baseHeader->getChunkHeader()));
 }
+
+TEST_F(iox_request_header_test, requestHeaderFromPayloadWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "edc6ecf7-b530-4b0c-b4b8-67bf001ff433");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_from_payload(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderFromPayloadConstWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5c643aab-53fa-4139-8840-2165b0560df7");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_from_payload_const(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderSetSequenceIdWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1a270e15-8dd5-4ed7-a3dd-eeead6e3dbef");
+    constexpr int64_t SOME_LUCKY_SEQUENCE_ID = 182673231;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_request_header_set_sequence_id(nullptr, SOME_LUCKY_SEQUENCE_ID); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetRpcHeaderVersionWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "93362715-2db1-46a6-8ac1-aa109b2c885a");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_rpc_header_version(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetRpcHeaderVersionConstWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "1960c937-13bd-43fc-9807-e9afc8f049fe");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_rpc_header_version_const(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetSequenceIdWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0b8ca05a-29be-4a4d-9636-b408829454c2");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_sequence_id(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetSequenceIdConstWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ffbb763e-2e2e-41e8-8193-96ce8ea2a8a8");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_sequence_id_const(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetUserPayloadWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b794a6a-6cfe-491d-86e8-1b0e6859497c");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_user_payload(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetUserPayloadConstWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bb8f3020-b010-467c-91f1-6f684f3b36bb");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_user_payload_const(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetChunkHeaderWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "df2a439b-1746-4b95-895a-6c42085906c2");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_chunk_header(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_request_header_test, requestHeaderGetChunkHeaderConstWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "57fbe663-a746-45e8-a18d-4b8aa3bfc344");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_request_header_get_chunk_header_const(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
 } // namespace
