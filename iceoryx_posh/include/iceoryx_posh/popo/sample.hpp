@@ -44,7 +44,7 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
 
     /// @brief Constructor for a Sample used by the publisher/subscriber
     /// @tparam S is a dummy template parameter to enable the constructor only for non-const T
-    /// @param smartChunkUniquePtr is a `rvalue` to a `iox::unique_ptr<T>` with to the data of the encapsulated type
+    /// @param smartChunkUniquePtr is a 'rvalue' to a 'iox::unique_ptr<T>' with to the data of the encapsulated type
     /// T
     /// @param producer (for publisher only) is a reference to the publisher to be able to use publisher specific
     /// methods
@@ -64,7 +64,7 @@ class Sample : public SmartChunk<PublisherInterface<T, H>, T, H>
     template <typename, typename, typename>
     friend class PublisherImpl;
 
-    /// @note used by the publisher to release the chunk ownership from the `Sample` after publishing the chunk and
+    /// @note used by the publisher to release the chunk ownership from the 'Sample' after publishing the chunk and
     /// therefore preventing the invocation of the custom deleter
     using BaseType::release;
 

@@ -26,38 +26,38 @@ namespace cxx
 {
 namespace internal
 {
-/// @deprecated use `iox::internal::HasValueMethod` instead of `iox::cxx::internal::HasValueMethod`
+/// @deprecated use 'iox::internal::HasValueMethod' instead of 'iox::cxx::internal::HasValueMethod'
 using iox::internal::HasValueMethod;
 
-/// @deprecated use `iox::internal::HasGetErrorMethod` instead of `iox::cxx::internal::HasGetErrorMethod`
+/// @deprecated use 'iox::internal::HasGetErrorMethod' instead of 'iox::cxx::internal::HasGetErrorMethod'
 using iox::internal::HasGetErrorMethod;
 
-/// @deprecated use `iox::internal::Expect` instead of `iox::cxx::internal::Expect`
+/// @deprecated use 'iox::internal::Expect' instead of 'iox::cxx::internal::Expect'
 using iox::internal::Expect;
 
-/// @deprecated use `iox::internal::ExpectWithValue` instead of `iox::cxx::internal::ExpectWithValue`
+/// @deprecated use 'iox::internal::ExpectWithValue' instead of 'iox::cxx::internal::ExpectWithValue'
 using iox::internal::ExpectWithValue;
 
-/// @deprecated use `iox::internal::ValueOr` instead of `iox::cxx::internal::ValueOr`
+/// @deprecated use 'iox::internal::ValueOr' instead of 'iox::cxx::internal::ValueOr'
 using iox::internal::ValueOr;
 
-/// @deprecated use `iox::internal::AndThenWithValue` instead of `iox::cxx::internal::AndThenWithValue`
+/// @deprecated use 'iox::internal::AndThenWithValue' instead of 'iox::cxx::internal::AndThenWithValue'
 using iox::internal::AndThenWithValue;
 
-/// @deprecated use `iox::internal::AndThen` instead of `iox::cxx::internal::AndThen`
+/// @deprecated use 'iox::internal::AndThen' instead of 'iox::cxx::internal::AndThen'
 using iox::internal::AndThen;
 
-/// @deprecated use `iox::internal::OrElseWithValue` instead of `iox::cxx::internal::OrElseWithValue`
+/// @deprecated use 'iox::internal::OrElseWithValue' instead of 'iox::cxx::internal::OrElseWithValue'
 using iox::internal::OrElseWithValue;
 
-/// @deprecated use `iox::internal::OrElse` instead of `iox::cxx::internal::OrElse`
+/// @deprecated use 'iox::internal::OrElse' instead of 'iox::cxx::internal::OrElse'
 using iox::internal::OrElse;
 
-/// @deprecated use `iox::internal::FunctionalInterfaceImpl` instead of `iox::cxx::internal::FunctionalInterfaceImpl`
+/// @deprecated use 'iox::internal::FunctionalInterfaceImpl' instead of 'iox::cxx::internal::FunctionalInterfaceImpl'
 using iox::internal::FunctionalInterfaceImpl;
 } // namespace internal
 
-/// @deprecated use `iox::FunctionalInterface` instead of `iox::cxx::FunctionalInterface`
+/// @deprecated use 'iox::FunctionalInterface' instead of 'iox::cxx::FunctionalInterface'
 using iox::FunctionalInterface;
 
 } // namespace cxx

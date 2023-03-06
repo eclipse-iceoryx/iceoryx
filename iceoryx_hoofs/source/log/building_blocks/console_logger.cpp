@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,8 +107,10 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
         strncpy(&timestampString[0], &TIME_FORMAT[0], ConsoleLogger::bufferSize(TIME_FORMAT));
     }
 
-    constexpr uint32_t MILLISECS_PER_SECOND{1000};
-    const auto milliseconds = static_cast<int32_t>(timestamp.tv_nsec % MILLISECS_PER_SECOND);
+    constexpr uint32_t MILLISECS_PER_SEC{1000};
+    constexpr uint32_t NANOSECS_PER_MILLISEC{1000000};
+    // convert nanoseconds to milliseconds and compute the remaining milliseconds in a second
+    const auto milliseconds = static_cast<int32_t>((timestamp.tv_nsec / NANOSECS_PER_MILLISEC) % MILLISECS_PER_SEC);
 
     /// @todo iox-#1755 do we also want to always log the iceoryx version and commit sha? Maybe do that only in
     /// 'initLogger' with LogDebug

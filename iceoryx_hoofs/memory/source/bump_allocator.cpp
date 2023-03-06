@@ -25,7 +25,7 @@
 namespace iox
 {
 BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) noexcept
-    // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : required for low level memory management
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     : m_startAddress(reinterpret_cast<uint64_t>(startAddress))
     , m_length(length)
@@ -49,7 +49,7 @@ expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size,
 
     void* allocation{nullptr};
 
-    auto nextPosition = alignedPosition + size;
+    const uint64_t nextPosition{alignedPosition + size};
     if (m_length >= nextPosition)
     {
         // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management

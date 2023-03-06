@@ -350,6 +350,7 @@ Duration::multiplyWith(const std::enable_if_t<!std::is_floating_point<T>::value,
     // a second and m_seconds can hold 64 bits and the multiplicator is at max 64 bits
 
     // check if the result of the m_nanoseconds multiplication can easily be converted into a Duration
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (m_nanoseconds <= maxBeforeOverflow)
     {
         return durationFromSeconds + Duration::fromNanoseconds(m_nanoseconds * multiplicator);
@@ -466,8 +467,9 @@ Duration::multiplyWith(const std::enable_if_t<std::is_floating_point<T>::value, 
     return durationFromSeconds + durationFromNanoseconds;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1 : False positive! Corresponding assignment operator is implemented below
 template <typename T>
-inline constexpr Duration Duration::operator*(const T rhs) const noexcept
+inline constexpr Duration Duration::operator*(const T& rhs) const noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
@@ -475,7 +477,7 @@ inline constexpr Duration Duration::operator*(const T rhs) const noexcept
 }
 
 template <typename T>
-inline constexpr Duration& Duration::operator*=(const T rhs) noexcept
+inline constexpr Duration& Duration::operator*=(const T& rhs) noexcept
 {
     static_assert(std::is_arithmetic<T>::value, "non arithmetic types are not supported for multiplication");
 
@@ -484,6 +486,7 @@ inline constexpr Duration& Duration::operator*=(const T rhs) noexcept
     return *this;
 }
 
+// AXIVION Next Construct AutosarC++19_03-M5.17.1 : False positive! Corresponding assignment operator is implemented below
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
 inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
@@ -493,7 +496,7 @@ inline constexpr Duration operator*(const T& lhs, const Duration& rhs) noexcept
 
 // AXIVION Next Construct AutosarC++19_03-A8.4.7 : Each argument is larger than two words
 template <typename T>
-inline constexpr T& operator*=(const T&, const Duration&) noexcept
+inline constexpr T& operator*=(T&, const Duration&) noexcept
 {
     static_assert(
         cxx::always_false_v<T>,

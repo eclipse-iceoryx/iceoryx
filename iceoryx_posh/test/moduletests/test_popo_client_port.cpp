@@ -750,7 +750,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
     sut.portRouDi.releaseAllChunks();
 
-    // this is not part of the client port but holds the chunk from `sendRequest`
+    // this is not part of the client port but holds the chunk from 'sendRequest'
     serverRequestQueue.clear();
 
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));

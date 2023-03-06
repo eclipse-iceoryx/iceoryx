@@ -545,7 +545,7 @@ class string final
 ///
 /// @return the stream output of the fixed string
 template <uint64_t Capacity>
-std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
+std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept(false);
 
 /// @brief Logging support for the fixed string
 ///

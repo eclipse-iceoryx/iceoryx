@@ -25,10 +25,10 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/function_ref.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::function_ref` instead of `iox::cxx::function_ref`
+/// @deprecated use 'iox::function_ref' instead of 'iox::cxx::function_ref'
 using iox::function_ref;
 
-/// @deprecated use `iox::has_same_decayed_type` instead of `iox::cxx::has_same_decayed_type`
+/// @deprecated use 'iox::has_same_decayed_type' instead of 'iox::cxx::has_same_decayed_type'
 using iox::has_same_decayed_type;
 
 } // namespace cxx

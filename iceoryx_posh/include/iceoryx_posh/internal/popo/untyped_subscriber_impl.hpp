@@ -33,7 +33,7 @@ class Void
 };
 
 /// @brief The UntypedSubscriberImpl class implements the untyped subscriber API
-/// @note Not intended for public usage! Use the `UntypedSubscriber` instead!
+/// @note Not intended for public usage! Use the 'UntypedSubscriber' instead!
 template <typename BaseSubscriberType = BaseSubscriber<>>
 class UntypedSubscriberImpl : public BaseSubscriberType
 {
@@ -53,7 +53,7 @@ class UntypedSubscriberImpl : public BaseSubscriberType
     /// @brief Take the chunk from the top of the receive queue.
     /// @return The user-payload pointer of the chunk taken.
     /// @details No automatic cleanup of the associated chunk is performed
-    ///          and must be manually done by calling `release`
+    ///          and must be manually done by calling 'release'
     ///
     expected<const void*, ChunkReceiveResult> take() noexcept;
 

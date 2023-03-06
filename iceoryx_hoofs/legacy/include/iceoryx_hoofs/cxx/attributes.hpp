@@ -27,7 +27,7 @@ namespace cxx
 {
 namespace internal
 {
-/// @deprecated use `iox::internal::IOX_DISCARD_RESULT_IMPL` instead of `iox::cxx::internal::IOX_DISCARD_RESULT_IMPL`
+/// @deprecated use 'iox::internal::IOX_DISCARD_RESULT_IMPL' instead of 'iox::cxx::internal::IOX_DISCARD_RESULT_IMPL'
 using iox::internal::IOX_DISCARD_RESULT_IMPL;
 } // namespace internal
 } // namespace cxx

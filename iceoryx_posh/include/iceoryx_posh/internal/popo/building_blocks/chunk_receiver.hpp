@@ -38,16 +38,16 @@ enum class ChunkReceiveResult
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(const ChunkReceiveResult value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ChunkReceiveResult value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ChunkReceiveResult value) noexcept;
 
 /// @brief The ChunkReceiver is a building block of the shared memory communication infrastructure. It extends

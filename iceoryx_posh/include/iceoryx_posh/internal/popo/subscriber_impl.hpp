@@ -26,7 +26,7 @@ namespace iox
 namespace popo
 {
 /// @brief The SubscriberImpl class implements the typed subscriber API
-/// @note Not intended for public usage! Use the `Subscriber` instead!
+/// @note Not intended for public usage! Use the 'Subscriber' instead!
 template <typename T, typename H = iox::mepoo::NoUserHeader, typename BaseSubscriberType = BaseSubscriber<>>
 class SubscriberImpl : public BaseSubscriberType
 {

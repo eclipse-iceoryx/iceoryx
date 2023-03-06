@@ -101,6 +101,7 @@ constexpr typename detail::extract_into_type<DestinationType>::type_t from(const
 template <typename SourceType, typename DestinationType>
 struct FromImpl
 {
+    // AXIVION Next Construct AutosarC++19_03-A7.1.5 : 'auto' is only used for the generic implementation which will always result in a compile error
     static auto fromImpl(const SourceType& value) noexcept;
 };
 

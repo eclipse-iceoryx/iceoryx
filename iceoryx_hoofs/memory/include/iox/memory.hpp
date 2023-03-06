@@ -56,8 +56,9 @@ template <typename T, typename... Args>
 // AXIVION Next Construct AutosarC++19_03-A2.10.5 : The function is in the 'iox' namespace which prevents easy misuse
 constexpr std::size_t maxAlignment() noexcept
 {
-    auto remainingMaxAlignment = maxAlignment<Args...>();
-    return (alignof(T) > remainingMaxAlignment) ? alignof(T) : remainingMaxAlignment;
+    const std::size_t remainingMaxAlignment{maxAlignment<Args...>()};
+    const std::size_t currentTypeAligment{alignof(T)};
+    return (currentTypeAligment > remainingMaxAlignment) ? currentTypeAligment : remainingMaxAlignment;
 }
 
 /// template recursion stopper for maximum size calculation

@@ -71,6 +71,7 @@
 - Update iceoryx_integrationtest package to use ROS2 Humble [\#1906](https://github.com/eclipse-iceoryx/iceoryx/issues/1906)
 - Fix potential memory leak in `iox::stack` [\#1893](https://github.com/eclipse-iceoryx/iceoryx/issues/1893)
 - Make `MAX_USER_NAME_LENGTH` and `MAX_GROUP_NAME_LENGTH` platform-dependent [\#1919](https://github.com/eclipse-iceoryx/iceoryx/issues/1919)
+- Fix milliseconds in log timestamps [\#1932](https://github.com/eclipse-iceoryx/iceoryx/issues/1932)
 
 **Refactoring:**
 
@@ -120,6 +121,7 @@
 - Remove `algorithm::uniqueMergeSortedContainers` from `algorithm.hpp`
 - Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
+- Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
 
 **Workflow:**
 
@@ -1034,3 +1036,14 @@
     // after
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
+
+47. Renaming `byte_t` to `byte`
+
+    ```cpp
+    //before
+    iox::byte_t m_size;
+
+    //after
+    iox::byte m_size;
+    ```
+

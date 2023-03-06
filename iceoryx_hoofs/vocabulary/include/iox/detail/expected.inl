@@ -36,6 +36,7 @@ inline success<T>::success(T&& t) noexcept
 {
 }
 
+// AXIVION Next Construct AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : Intentional behavior. 'success' is not intended to be used with a type which throws
 template <typename T>
 template <typename... Targs>
 inline success<T>::success(Targs&&... args) noexcept
@@ -104,6 +105,7 @@ template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>&
 expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive. Check needed to avoid self assignment.
     if (this != &rhs)
     {
         m_store = std::move(rhs.m_store);
@@ -222,11 +224,12 @@ inline const ValueType& expected<ValueType, ErrorType>::operator*() const noexce
 }
 
 template <typename ValueType, typename ErrorType>
-const ValueType& expected<ValueType, ErrorType>::value_unchecked() const noexcept
+inline const ValueType& expected<ValueType, ErrorType>::value_unchecked() const noexcept
 {
     return *m_store.template get_at_index<VALUE_INDEX>();
 }
 
+// AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: see doxygen brief section in header
 template <typename ValueType, typename ErrorType>
 template <typename T>
 inline expected<ValueType, ErrorType>::operator expected<T>() const noexcept
@@ -270,6 +273,7 @@ inline expected<ErrorType>::expected(expected<ErrorType>&& rhs) noexcept
 template <typename ErrorType>
 inline expected<ErrorType>& expected<ErrorType>::operator=(expected<ErrorType>&& rhs) noexcept
 {
+    // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive. Check needed to avoid self assignment.
     if (this != &rhs)
     {
         m_store = std::move(rhs.m_store);

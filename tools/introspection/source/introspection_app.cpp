@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -109,7 +109,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             }
             else
             {
-                std::cout << "Invalid argument for `t`! Will be ignored!";
+                std::cout << "Invalid argument for 't'! Will be ignored!";
             }
             break;
         }
@@ -228,15 +228,16 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    /// @todo iox-#1692 Wrap kernel calls with posixCall
-    int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
-
-    // Event detected
-    if ((eventCount == nFileDesc) && (fileDesc.revents == POLLIN))
-    {
-        updateDisplayYX();
-        refreshTerminal();
-    }
+    iox::posix::posixCall(poll)(&fileDesc, nFileDesc, timeoutMs)
+        .failureReturnValue(-1)
+        .evaluate()
+        .and_then([&](auto eventCount) {
+            if (static_cast<size_t>(eventCount.value) == nFileDesc && fileDesc.revents == POLLIN)
+            {
+                this->updateDisplayYX();
+                this->refreshTerminal();
+            }
+        });
 }
 
 void IntrospectionApp::prettyPrint(const std::string& str, const PrettyOptions pr)
@@ -791,7 +792,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         }
     }
 
-    getchar();
+    iox::posix::posixCall(getchar)().failureReturnValue(EOF).evaluate().expect(
+        "unable to exit the introspection client since getchar failed");
     closeTerminal();
 }
 

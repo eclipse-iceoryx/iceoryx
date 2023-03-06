@@ -84,7 +84,7 @@ expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>::loan
 template <typename Req, typename Res, typename BaseServerT>
 expected<ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
 {
-    // take the ownership of the chunk from the Response to transfer it to `sendResponse`
+    // take the ownership of the chunk from the Response to transfer it to 'sendResponse'
     auto payload = response.release();
     auto* responseHeader = static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     return port().sendResponse(responseHeader);

@@ -32,7 +32,7 @@ namespace iox
 namespace popo
 {
 /// @brief The ServerImpl class implements the typed server API
-/// @note Not intended for public usage! Use the `Server` instead!
+/// @note Not intended for public usage! Use the 'Server' instead!
 template <typename Req, typename Res, typename BaseServerT = BaseServer<>>
 class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, ServerSendError>
 {

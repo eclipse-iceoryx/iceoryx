@@ -91,11 +91,13 @@ function_ref<ReturnType(ArgTypes...)>::operator=(function_ref<ReturnType(ArgType
 }
 
 template <class ReturnType, class... ArgTypes>
+// AXIVION Next Construct AutosarC++19_03-A15.4.2, AutosarC++19_03-A15.5.3, FaultDetection-NoexceptViolations : Intentional behavior. The library itself does not throw and on the implementation side a try-catch block can be used
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
 {
     // Expect that a callable was assigned beforehand
-    // AXIVION Next Line AutosarC++19_03-M5.3.1 : 'nullptr' check shall be performed explicitly
-    cxx::ExpectsWithMsg(m_pointerToCallable != nullptr, "Empty function_ref invoked");
+    cxx::ExpectsWithMsg((m_pointerToCallable != nullptr) && (m_functionPointer != nullptr),
+                        "Empty function_ref invoked");
+    // AXIVION Next Line AutosarC++19_03-M0.3.1, FaultDetection-NullPointerDereference : 'nullptr' check is done above
     return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
 }
 
