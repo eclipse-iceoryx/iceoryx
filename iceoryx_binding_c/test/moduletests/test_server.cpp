@@ -511,18 +511,6 @@ TEST_F(iox_server_test, SendWorks)
     iox_server_deinit(sut);
 }
 
-TEST_F(iox_server_test, SendWithNullptrReturnsError)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "af538f0b-ce37-48d2-8940-28d39d7a411e");
-    prepareServerInit();
-    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
-    connectClient();
-
-    EXPECT_THAT(iox_server_send(sut, nullptr), Eq(ServerSendResult_INVALID_RESPONSE));
-
-    iox_server_deinit(sut);
-}
-
 TEST_F(iox_server_test, InitServerOptionsWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eaf125c5-213f-4dd5-9a0b-5e6303e5f1d9");
@@ -540,7 +528,6 @@ TEST_F(iox_server_test, IsServerOptionsInitializedWithNullptrFails)
 TEST_F(iox_server_test, InitServerWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fee79cac-1ccc-42d0-8bf8-33aa8a0f104e");
-    prepareServerInit();
     iox_server_options_t options;
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_init(nullptr, SERVICE, INSTANCE, EVENT, nullptr); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);

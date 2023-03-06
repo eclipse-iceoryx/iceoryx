@@ -282,6 +282,9 @@ TEST_F(iox_service_discovery_test, FindServiceApplyCallablekServiceDiscoveryWith
 TEST_F(iox_service_discovery_test, FindServiceApplyCallableWithContextDataServiceDiscoveryWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "72242b75-0c81-4a6b-b4cd-d6990e6e4b7b");
+    auto findHandler = [](const iox_service_description_t s, void*) {
+        EXPECT_THAT(s.instanceString, StrEq("RouDi_ID"));
+    };
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
             iox_service_discovery_find_service_apply_callable_with_context_data(
@@ -291,7 +294,7 @@ TEST_F(iox_service_discovery_test, FindServiceApplyCallableWithContextDataServic
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
             iox_service_discovery_find_service_apply_callable_with_context_data(
-                sut, nullptr, nullptr, nullptr, findHandler, nullptr, MessagingPattern_PUB_SUB);
+                sut, nullptr, nullptr, nullptr, nullptr, &searchResult, MessagingPattern_PUB_SUB);
         },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }

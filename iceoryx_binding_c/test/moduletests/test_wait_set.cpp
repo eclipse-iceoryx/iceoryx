@@ -176,13 +176,6 @@ void serviceDiscoveryCallbackWithContextData(iox_service_discovery_t serviceDisc
 
 } // namespace
 
-TEST_F(iox_ws_test, InitWaitSetWithNullptrForStorageReturnsNullptr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c0f6b413-de1f-441f-916e-aa158fbfdde3");
-    GTEST_SKIP() << "@todo iox-#1106 Enable once nullptr in binding_c is implemented";
-    EXPECT_EQ(iox_ws_init(nullptr), nullptr);
-}
-
 TEST_F(iox_ws_test, CapacityIsCorrect)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab5c64d3-0f74-4aa5-8e8d-8419c3ad71ed");
@@ -701,10 +694,10 @@ TEST_F(iox_ws_test, WaitSetAttachUserTriggerEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6797e1c6-d187-4e42-a2bb-c46efe1536e5");
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback); },
+        [&] { iox_ws_attach_user_trigger_event(nullptr, m_userTrigger[0U], 0U, userTriggerCallback); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] { iox_ws_attach_user_trigger_event(m_sut, m_userTrigger[0U], 0U, userTriggerCallback); },
+        [&] { iox_ws_attach_user_trigger_event(m_sut, nullptr, 0U, userTriggerCallback); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -760,7 +753,7 @@ TEST_F(iox_ws_test, WaitSetDetachUserTriggerEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachClientEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7564a392-8720-42b6-a850-b85b363524fd");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_attach_client_event(nullptr, client, ClientEvent_RESPONSE_RECEIVED, 0, nullptr); },
@@ -773,7 +766,7 @@ TEST_F(iox_ws_test, WaitSetAttachClientEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachClientEventWithContextDataWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0e01b407-379e-462d-bdaf-d30894ee4971");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
     uint64_t someContextData = 0U;
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
@@ -796,7 +789,7 @@ TEST_F(iox_ws_test, WaitSetAttachClientEventWithContextDataWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachClientStateWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "255590fc-565e-4cf7-890d-889ea8790439");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_attach_client_state(m_sut, nullptr, ClientState_HAS_RESPONSE, 0, nullptr); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -808,7 +801,7 @@ TEST_F(iox_ws_test, WaitSetAttachClientStateWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachClientStateWithContextDataWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a0e41734-9f56-4c1c-bf9f-82c50e19a758");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
     uint64_t someContextData = 0U;
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
@@ -827,7 +820,7 @@ TEST_F(iox_ws_test, WaitSetAttachClientStateWithContextDataWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetDetachClientEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d7e243b8-34c4-48e0-8b0a-f988c35835be");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_detach_client_event(nullptr, client, ClientEvent_RESPONSE_RECEIVED); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -839,7 +832,7 @@ TEST_F(iox_ws_test, WaitSetDetachClientEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetDetachClientStateWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cfc25db4-1675-4968-a6fd-eda0a8a9d54a");
-    iox_client_t client = iox_client_init(&clientStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_client_t client = iox_client_t();
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_detach_client_state(nullptr, client, ClientState_HAS_RESPONSE); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -851,8 +844,7 @@ TEST_F(iox_ws_test, WaitSetDetachClientStateWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServerEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dda23967-4dec-4905-8581-7c126b902b18");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_attach_server_event(nullptr, server, ServerEvent_REQUEST_RECEIVED, 0, nullptr); },
@@ -865,8 +857,7 @@ TEST_F(iox_ws_test, WaitSetAttachServerEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServerEventWithContextDataWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "91a84993-7a86-4f4f-9f36-8795d100080c");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
     uint64_t someContextData = 0U;
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
@@ -885,8 +876,7 @@ TEST_F(iox_ws_test, WaitSetAttachServerEventWithContextDataWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServerStateWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fdbe65c0-55a1-44ab-9b5c-e60b31078f5d");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_attach_server_state(nullptr, server, ServerState_HAS_REQUEST, 0, nullptr); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -898,8 +888,7 @@ TEST_F(iox_ws_test, WaitSetAttachServerStateWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServerStateWithContextDataWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "70c5f4b1-f9da-4689-8f04-00266d419c5c");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
     uint64_t someContextData = 0U;
     constexpr uint64_t SOME_EVENT_ID = 912371012314;
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
@@ -927,8 +916,7 @@ TEST_F(iox_ws_test, WaitSetAttachServerStateWithContextDataWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetDetachServerEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1310f324-abb9-45ce-8ec7-c23fd20a9c20");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_detach_server_event(nullptr, server, ServerEvent_REQUEST_RECEIVED); },
@@ -941,8 +929,7 @@ TEST_F(iox_ws_test, WaitSetDetachServerEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetDetachServerStateWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7247d49a-fb2c-4aaa-acf9-ed077a62e7c0");
-    iox_server_storage_t serverStorage;
-    iox_server_t server = iox_server_init(&serverStorage, "ServiceA", "InstanceA", "EventA", nullptr);
+    iox_server_t server = iox_server_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] { iox_ws_detach_server_state(nullptr, server, ServerState_HAS_REQUEST); },
@@ -955,8 +942,7 @@ TEST_F(iox_ws_test, WaitSetDetachServerStateWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServiceDiscoveryEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "117a9521-62e8-4c9c-b797-a015d97f4eef");
-    iox_service_discovery_storage_t serviceDiscoveryStorage;
-    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
@@ -975,8 +961,7 @@ TEST_F(iox_ws_test, WaitSetAttachServiceDiscoveryEventWithNullptrFails)
 TEST_F(iox_ws_test, WaitSetAttachServiceDiscoveryEventWithConextDataWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e19d3a7-6231-408d-a3c0-e378dd754c7d");
-    iox_service_discovery_storage_t serviceDiscoveryStorage;
-    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
@@ -995,8 +980,7 @@ TEST_F(iox_ws_test, WaitSetAttachServiceDiscoveryEventWithConextDataWithNullptrF
 TEST_F(iox_ws_test, WaitSetDetachServiceDiscoveryEventWithNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c489ea47-6239-4dc7-ba86-c181f034132f");
-    iox_service_discovery_storage_t serviceDiscoveryStorage;
-    iox_service_discovery_t serviceDiscovery = iox_service_discovery_init(&serviceDiscoveryStorage);
+    iox_service_discovery_t serviceDiscovery = iox_service_discovery_t();
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
         [&] {
