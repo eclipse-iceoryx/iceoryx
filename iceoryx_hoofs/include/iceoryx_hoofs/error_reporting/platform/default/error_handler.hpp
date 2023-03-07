@@ -1,8 +1,8 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_ERROR_HANDLER_HPP
 #define IOX_HOOFS_ERROR_REPORTING_PLATFORM_ERROR_HANDLER_HPP
 
-#include "iceoryx_hoofs/design_pattern/polymorphic_handler.hpp"
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
+#include "iox/polymorphic_handler.hpp"
+#include "iox/static_lifetime_guard.hpp"
 
 #include "iceoryx_hoofs/error_reporting/platform/default/default_error_handler.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
@@ -13,9 +13,9 @@ namespace err
 {
 
 // this is to be used later
-using ErrorHandler = iox::design_pattern::PolymorphicHandler<ErrorHandlerInterface, DefaultHandler>;
+using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultHandler>;
 
-using DefaultErrorHandler = iox::design_pattern::StaticLifetimeGuard<DefaultHandler>;
+using DefaultErrorHandler = iox::StaticLifetimeGuard<DefaultHandler>;
 
 } // namespace err
 } // namespace iox

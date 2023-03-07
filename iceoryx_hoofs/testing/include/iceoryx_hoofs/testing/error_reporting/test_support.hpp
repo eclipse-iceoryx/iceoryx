@@ -19,9 +19,9 @@
 
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/design_pattern/static_lifetime_guard.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
 #include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
+#include "iox/static_lifetime_guard.hpp"
 
 #include <thread>
 #include <utility>
@@ -34,7 +34,7 @@ namespace iox
 namespace testing
 {
 
-using TestErrorHandler = iox::design_pattern::StaticLifetimeGuard<iox::testing::TestHandler>;
+using TestErrorHandler = iox::StaticLifetimeGuard<iox::testing::TestHandler>;
 
 /// @brief indicates whether the test error handler invoked panic
 inline bool hasPanicked()
