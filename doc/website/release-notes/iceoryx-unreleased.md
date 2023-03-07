@@ -70,6 +70,7 @@
 - Can not build iceoryx with gcc 9.4 [\#1871](https://github.com/eclipse-iceoryx/iceoryx/issues/1871)
 - Update iceoryx_integrationtest package to use ROS2 Humble [\#1906](https://github.com/eclipse-iceoryx/iceoryx/issues/1906)
 - Fix potential memory leak in `iox::stack` [\#1893](https://github.com/eclipse-iceoryx/iceoryx/issues/1893)
+- Make `MAX_USER_NAME_LENGTH` and `MAX_GROUP_NAME_LENGTH` platform-dependent [\#1919](https://github.com/eclipse-iceoryx/iceoryx/issues/1919)
 - Fix milliseconds in log timestamps [\#1932](https://github.com/eclipse-iceoryx/iceoryx/issues/1932)
 
 **Refactoring:**
