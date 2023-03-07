@@ -8,19 +8,23 @@ namespace iox
 namespace err
 {
 
+// These are lightweight regular read/write types that do not require encapsulation (no invariants
+// can be broken).
+// Deliberately not default constructible.
+
 struct ErrorCode
 {
     using type = uint32_t;
+
+    static constexpr type DEBUG_ASSERT_VIOLATION{0};
+    static constexpr type PRECONDITION_VIOLATION{1};
+
+    type value;
 
     constexpr explicit ErrorCode(uint32_t value)
         : value(value)
     {
     }
-
-    type value;
-
-    static constexpr type DEBUG_ASSERT_VIOLATION{0};
-    static constexpr type PRECONDITION_VIOLATION{1};
 
     bool operator==(const ErrorCode& rhs) const
     {
@@ -37,21 +41,21 @@ struct ModuleId
 {
     using type = uint32_t;
 
+    static constexpr type UNKNOWN{0};
+
+    type value;
+
     constexpr explicit ModuleId(uint32_t value)
         : value(value)
     {
     }
 
-    type value;
-
-    static constexpr type UNKNOWN{0};
-
-    bool operator==(const ErrorCode& rhs) const
+    bool operator==(const ModuleId& rhs) const
     {
         return value == rhs.value;
     }
 
-    bool operator!=(const ErrorCode& rhs) const
+    bool operator!=(const ModuleId& rhs) const
     {
         return !(*this == rhs);
     }
