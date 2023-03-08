@@ -46,13 +46,13 @@ struct is_custom_string : public std::false_type
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArrayOrChar =
-    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
+    typename std::enable_if<((is_iox_string<T>::value || is_char_array<T>::value)
                              || (std::is_same<T, char>::value || is_custom_string<T>::value)),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArray =
-    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value) || is_custom_string<T>::value),
+    typename std::enable_if<((is_iox_string<T>::value || is_char_array<T>::value) || is_custom_string<T>::value),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
@@ -62,21 +62,21 @@ using IsCustomStringOrCharArrayOrChar =
 
 template <typename T, typename ReturnType>
 using IsIoxStringOrCharArray =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value), ReturnType>::type;
+    typename std::enable_if<(is_iox_string<T>::value || is_char_array<T>::value), ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
 using IsIoxStringOrCharArrayOrChar =
-    typename std::enable_if<((is_char_array<T1>::value || is_cxx_string<T1>::value) || std::is_same<T1, char>::value)
-                                && ((is_char_array<T2>::value || is_cxx_string<T2>::value)
+    typename std::enable_if<((is_char_array<T1>::value || is_iox_string<T1>::value) || std::is_same<T1, char>::value)
+                                && ((is_char_array<T2>::value || is_iox_string<T2>::value)
                                     || std::is_same<T2, char>::value),
                             ReturnType>::type;
 
 template <typename T1, typename T2, typename ReturnType>
 using IsIoxStringAndIoxStringOrCharArrayOrChar =
-    typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_cxx_string<T2>::value)
-                                || (is_cxx_string<T1>::value
+    typename std::enable_if<((is_char_array<T1>::value || std::is_same<T1, char>::value) && is_iox_string<T2>::value)
+                                || (is_iox_string<T1>::value
                                     && ((is_char_array<T2>::value || std::is_same<T2, char>::value)
-                                        || (is_cxx_string<T1>::value && is_cxx_string<T2>::value))),
+                                        || (is_iox_string<T1>::value && is_iox_string<T2>::value))),
                             ReturnType>::type;
 
 /// @brief concatenates two iox::strings/string literals/chars
@@ -392,7 +392,7 @@ class string final
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] str is the iox::string/string literal/custom string literal to append
+    /// @param [in] str is the iox::string/string literal/custom string to append
     ///
     /// @return reference to self
     ///

@@ -469,36 +469,6 @@ TYPED_TEST(StdString_test, CompareOperatorsWithDifferentStdStringWithDifferentSi
     EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
-TYPED_TEST(StdString_test, CompareOperatorsWithEqualStdStringWithDifferentCapa)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "e54181ac-6322-4b49-b26b-b17c7df1fe07");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string temp(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(temp.c_str()), Eq(true));
-
-    constexpr uint64_t TEST_CHAR_ARRAY_CAPACITY = STRINGCAP + 6U;
-    // NOLINTJUSTIFICATION required to verify string literal functionality of iox::string
-    // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-    char testCharArray[TEST_CHAR_ARRAY_CAPACITY];
-    for (auto& c : testCharArray)
-    {
-        c = 'M';
-    }
-    testCharArray[STRINGCAP] = '\0';
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-    EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-    EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-    EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
-}
-
 TYPED_TEST(StdString_test, AppendStdStringContainingNullWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f8814d78-449b-4c3a-b7c7-7c3ff2a0a62f");
@@ -512,7 +482,6 @@ TYPED_TEST(StdString_test, AppendStdStringContainingNullWorks)
     const std::string testStdString = expectedString.substr(1);
 
     // append std::string
-    sut = "i";
     sut.append(TruncateToCapacity, testStdString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));

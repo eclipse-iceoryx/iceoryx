@@ -27,8 +27,9 @@ namespace cxx
 {
 /// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'
 using iox::concatenate;
-/// @deprecated use 'iox::is_cxx_string' instead of 'iox::cxx::is_cxx_string'
-using iox::is_cxx_string;
+/// @deprecated use 'iox::is_iox_string' instead of 'iox::cxx::is_cxx_string'
+template <typename T>
+using is_cxx_string = iox::is_iox_string<T>;
 /// @deprecated use 'iox::IsIoxStringAndIoxStringOrCharArrayOrChar' instead of
 /// 'iox::cxx::IsCxxStringAndCxxStringOrCharArrayOrChar'
 template <typename T1, typename T2, typename ReturnType>

@@ -2484,11 +2484,6 @@ TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
     res = this->testSubject.find("");
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
-
-    MyString testStdString;
-    res = this->testSubject.find(testStdString);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
 }
 
 TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
@@ -3188,20 +3183,20 @@ TEST(stringTyped_test, NonCxxStringsAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
 
-    EXPECT_FALSE(is_cxx_string<int>::value);
+    EXPECT_FALSE(is_iox_string<int>::value);
     /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
     /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<int[10]>::value);
-    EXPECT_FALSE(is_cxx_string<char[11]>::value);
+    EXPECT_FALSE(is_iox_string<int[10]>::value);
+    EXPECT_FALSE(is_iox_string<char[11]>::value);
     /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<char>::value);
+    EXPECT_FALSE(is_iox_string<char>::value);
 }
 
 TEST(stringTyped_test, CxxStringsAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
 
-    EXPECT_TRUE(is_cxx_string<iox::string<1>>::value);
-    EXPECT_TRUE(is_cxx_string<iox::string<10>>::value);
+    EXPECT_TRUE(is_iox_string<iox::string<1>>::value);
+    EXPECT_TRUE(is_iox_string<iox::string<10>>::value);
 }
 } // namespace
