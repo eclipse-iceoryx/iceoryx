@@ -49,7 +49,7 @@ class ErrorReportingApi_test : public Test
     }
 };
 
-TEST_F(ErrorReportingApi_test, unconditionalPanic)
+TEST_F(ErrorReportingApi_test, panic)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a55f00f1-c89d-4d4d-90ea-6ca510ad3942");
     auto f = []() { IOX_PANIC(); };
@@ -59,7 +59,7 @@ TEST_F(ErrorReportingApi_test, unconditionalPanic)
     ASSERT_PANIC();
 }
 
-TEST_F(ErrorReportingApi_test, unconditionalPanicWithMessage)
+TEST_F(ErrorReportingApi_test, panicWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cfbaf43b-de11-4858-ab86-ae3ae3fac2fe");
     auto f = []() { IOX_PANIC("message"); };

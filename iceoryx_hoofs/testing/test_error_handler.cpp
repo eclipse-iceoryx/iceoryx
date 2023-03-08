@@ -1,5 +1,25 @@
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
-#include <csetjmp>
+#include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/types.hpp"
+
+// NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
+#include <setjmp.h>
 
 namespace iox
 {
@@ -13,10 +33,16 @@ TestHandler::TestHandler()
 {
 }
 
-void TestHandler::report(const SourceLocation&, ErrorCode code)
+void TestHandler::reportError(err::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
-    m_errors.push_back(code);
+    m_errors.push_back(desc);
+}
+
+void TestHandler::reportViolation(err::ErrorDescriptor desc)
+{
+    std::lock_guard<std::mutex> g(m_mutex);
+    m_violations.push_back(desc);
 }
 
 void TestHandler::panic()
@@ -25,7 +51,7 @@ void TestHandler::panic()
     jump();
 }
 
-bool TestHandler::hasPanicked()
+bool TestHandler::hasPanicked() const
 {
     return m_panicked;
 }
@@ -35,20 +61,40 @@ void TestHandler::reset()
     std::lock_guard<std::mutex> g(m_mutex);
     m_panicked = false;
     m_errors.clear();
+    m_violations.clear();
     m_jump.store(&m_jumpBuffer);
 }
 
 bool TestHandler::hasError() const
 {
+    std::lock_guard<std::mutex> g(m_mutex);
     return !m_errors.empty();
 }
 
-bool TestHandler::hasError(ErrorCode code) const
+bool TestHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
 {
-    /// @todo use module id as well
     std::lock_guard<std::mutex> g(m_mutex);
-    auto iter = std::find(m_errors.begin(), m_errors.end(), code);
-    return iter != m_errors.end();
+    for (auto desc : m_errors)
+    {
+        if (desc.code == code && desc.module == module)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool TestHandler::hasViolation(ErrorCode code) const
+{
+    std::lock_guard<std::mutex> g(m_mutex);
+    for (auto desc : m_violations)
+    {
+        if (desc.code == code)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 jmp_buf* TestHandler::prepareJump()

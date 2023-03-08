@@ -17,7 +17,9 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_HANDLER_HPP
 #define IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_HANDLER_HPP
 
+#include "iceoryx_hoofs/error_reporting/location.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/types.hpp"
 
 namespace iox
 {
@@ -36,15 +38,20 @@ class DefaultHandler : public ErrorHandlerInterface
     DefaultHandler(const DefaultHandler&) = delete;
     DefaultHandler(DefaultHandler&&) = delete;
     DefaultHandler& operator=(const DefaultHandler&) = delete;
-    DefaultHandler operator=(DefaultHandler&&) = delete;
+    DefaultHandler& operator=(DefaultHandler&&) = delete;
 
     /// @brief Defines the reaction on panic.
     void panic() override;
 
     /// @brief Defines the reaction on error.
     /// @param location the location of the error
-    /// @param code the code of the error
-    void report(const SourceLocation&, ErrorCode) override;
+    /// @param desc error descriptor
+    void reportError(ErrorDescriptor desc) override;
+
+    /// @brief Defines the reaction onviolation.
+    /// @param location the location of the violation
+    /// @param desc error descriptor
+    void reportViolation(ErrorDescriptor desc) override;
 };
 
 } // namespace err

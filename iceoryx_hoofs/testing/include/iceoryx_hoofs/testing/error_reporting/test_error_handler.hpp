@@ -21,6 +21,7 @@
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/types.hpp"
 
 #include <algorithm>
 #include <atomic>
@@ -53,13 +54,16 @@ class TestHandler : public iox::err::ErrorHandlerInterface
     void panic() override;
 
     /// @brief Defines the reaction on error.
-    /// @param location the location of the error
-    /// @param code the code of the error
-    void report(const iox::err::SourceLocation&, iox::err::ErrorCode code) override;
+    /// @param desc error descriptor
+    void reportError(err::ErrorDescriptor desc) override;
+
+    /// @brief Defines the reaction on violation.
+    /// @param desc error descriptor
+    void reportViolation(err::ErrorDescriptor desc) override;
 
     /// @brief Indicates whether there was a panic call previously.
     /// @return true if there was a panic call, false otherwise
-    bool hasPanicked();
+    bool hasPanicked() const;
 
     /// @brief Reset panic state and clears all errors that occurred previously.
     void reset();
@@ -67,9 +71,12 @@ class TestHandler : public iox::err::ErrorHandlerInterface
     /// @brief Indicates whether any error occurred previously.
     bool hasError() const;
 
-    /// @todo module id must be propagated here as well
     /// @brief Indicates whether as specific error occurred previously.
-    bool hasError(iox::err::ErrorCode code) const;
+    bool hasError(iox::err::ErrorCode code, iox::err::ModuleId module = iox::err::ModuleId()) const;
+
+    /// @brief Indicates whether a assumption violation occurred previously.
+    /// @note We do not track module id for violations.
+    bool hasViolation(iox::err::ErrorCode code) const;
 
     /// @brief Prepare a jump and return jump buffer
     /// @return pointer to jump buffer if successful, nullptr otherwise
@@ -84,11 +91,17 @@ class TestHandler : public iox::err::ErrorHandlerInterface
 
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
-    std::vector<iox::err::ErrorCode> m_errors;
+    std::vector<err::ErrorDescriptor> m_errors;
+
+    // we track violations separately (leads to simple search)
+    std::vector<err::ErrorDescriptor> m_violations;
 
     // if we would like to support concurrent jumps it gets very tricky
     // and we would need multiple jump buffers
     jmp_buf m_jumpBuffer{};
+
+    // actually not needed to be atomic since it is not supposed to be used from multiple threads
+    // (longjmp does not support this)
     std::atomic<jmp_buf*> m_jump{nullptr};
 
     void jump();

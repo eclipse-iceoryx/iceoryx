@@ -5,7 +5,11 @@ namespace iox
 namespace err
 {
 
-void DefaultHandler::report(const SourceLocation&, ErrorCode)
+void DefaultHandler::reportError(ErrorDescriptor)
+{
+}
+
+void DefaultHandler::reportViolation(ErrorDescriptor)
 {
 }
 

@@ -10,7 +10,6 @@ namespace err
 
 // These are lightweight regular read/write types that do not require encapsulation (no invariants
 // can be broken).
-// Deliberately not default constructible.
 
 struct ErrorCode
 {
@@ -45,7 +44,7 @@ struct ModuleId
 
     type value;
 
-    constexpr explicit ModuleId(uint32_t value)
+    constexpr explicit ModuleId(uint32_t value = UNKNOWN)
         : value(value)
     {
     }

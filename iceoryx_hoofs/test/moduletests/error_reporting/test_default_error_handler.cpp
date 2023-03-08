@@ -24,6 +24,7 @@
 
 namespace
 {
+
 using namespace ::testing;
 using namespace iox::err;
 
@@ -39,7 +40,6 @@ class DefaultHandler_test : public Test
     void TearDown() override
     {
     }
-
 
     DefaultHandler sut;
 };
@@ -60,7 +60,8 @@ TEST_F(DefaultHandler_test, panicDoesNothing)
 TEST_F(DefaultHandler_test, reportDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e288318-c756-4666-b779-b944b89ffaf5");
-    sut.report(CURRENT_SOURCE_LOCATION, CODE);
+    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
+    sut.reportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
 }
 
 } // namespace
