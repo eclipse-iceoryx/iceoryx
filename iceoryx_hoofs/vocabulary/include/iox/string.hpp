@@ -46,18 +46,18 @@ struct is_custom_string : public std::false_type
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArrayOrChar =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || std::is_same<T, char>::value
-                             || is_custom_string<T>::value),
+    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value)
+                             || (std::is_same<T, char>::value || is_custom_string<T>::value)),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsStringOrCharArray =
-    typename std::enable_if<(is_cxx_string<T>::value || is_char_array<T>::value || is_custom_string<T>::value),
+    typename std::enable_if<((is_cxx_string<T>::value || is_char_array<T>::value) || is_custom_string<T>::value),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
 using IsCustomStringOrCharArrayOrChar =
-    typename std::enable_if<(is_char_array<T>::value || std::is_same<T, char>::value || is_custom_string<T>::value),
+    typename std::enable_if<((is_char_array<T>::value || std::is_same<T, char>::value) || is_custom_string<T>::value),
                             ReturnType>::type;
 
 template <typename T, typename ReturnType>
@@ -392,7 +392,7 @@ class string final
     ///
     /// @param [in] TruncateToCapacity_t is a compile time variable which is used to make the user aware of the possible
     /// truncation
-    /// @param [in] str is the iox::string/string/custom string literal to append
+    /// @param [in] str is the iox::string/string literal/custom string literal to append
     ///
     /// @return reference to self
     ///
@@ -553,7 +553,9 @@ class string final
 template <uint64_t Capacity>
 log::LogStream& operator<<(log::LogStream& stream, const string<Capacity>& str) noexcept;
 
-/// @brief checks if a lhs char array or char is equal to a rhs iox::string
+// AXIVION DISABLE STYLE AutosarC++19_03-A13.5.5: Comparison with custom string, char array or
+// char is also intended
+/// @brief checks if a lhs custom string, char array or char is equal to a rhs iox::string
 ///
 /// @param [in] rhs is the iox::string
 ///
