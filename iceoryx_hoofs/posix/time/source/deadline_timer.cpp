@@ -58,14 +58,11 @@ iox::units::Duration deadline_timer::remainingTime() const noexcept
 iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
     timespec time_since_epoch{0, 0};
-    if (posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &time_since_epoch)
-            .failureReturnValue(-1)
-            .evaluate()
-            .has_error())
-    {
-        using namespace iox::units::duration_literals;
-        return 0_s;
-    }
+    cxx::EnsuresWithMsg(!posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &time_since_epoch)
+                             .failureReturnValue(-1)
+                             .evaluate()
+                             .has_error(),
+                        "An error which should never happen occured during 'clock_gettime'!");
     return iox::units::Duration{time_since_epoch};
 }
 } // namespace iox
