@@ -24,7 +24,8 @@ namespace iox
 namespace err
 {
 
-// mandatory fatal error category that always exists
+// Tag types for mandatory fatal error categories that always exist
+
 struct Fatal
 {
     static constexpr char const* name = "Fatal Error";
@@ -35,10 +36,9 @@ struct PreconditionViolation
     static constexpr char const* name = "Precondition Violation";
 };
 
-// postconditions and other asserts, not for preconditions
-struct DebugAssertViolation
+struct AssumptionViolation
 {
-    static constexpr char const* name = "DebugAssert Violation";
+    static constexpr char const* name = "Assumption Violation";
 };
 
 template <class T>
@@ -60,7 +60,7 @@ struct IsFatal<PreconditionViolation> : public std::true_type
 };
 
 template <>
-struct IsFatal<DebugAssertViolation> : public std::true_type
+struct IsFatal<AssumptionViolation> : public std::true_type
 {
 };
 
@@ -85,9 +85,9 @@ bool constexpr isFatal<PreconditionViolation>(PreconditionViolation)
 }
 
 template <>
-bool constexpr isFatal<DebugAssertViolation>(DebugAssertViolation)
+bool constexpr isFatal<AssumptionViolation>(AssumptionViolation)
 {
-    return IsFatal<DebugAssertViolation>::value;
+    return IsFatal<AssumptionViolation>::value;
 }
 
 // indicates serious condition, unable to continue
@@ -97,7 +97,7 @@ constexpr Fatal FATAL;
 constexpr PreconditionViolation PRECONDITION_VIOLATION;
 
 // indicates a bug (contract breach by callee)
-constexpr DebugAssertViolation DEBUG_ASSERT_VIOLATION;
+constexpr AssumptionViolation ASSUMPTION_VIOLATION;
 
 } // namespace err
 } // namespace iox

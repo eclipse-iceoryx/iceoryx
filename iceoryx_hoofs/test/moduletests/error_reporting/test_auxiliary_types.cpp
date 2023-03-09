@@ -25,9 +25,6 @@ namespace
 using namespace ::testing;
 using namespace iox::err;
 
-constexpr ErrorCode::type CODE{73};
-constexpr ErrorCode::type ID{73};
-
 template <typename T>
 class RegularType_test : public Test
 {

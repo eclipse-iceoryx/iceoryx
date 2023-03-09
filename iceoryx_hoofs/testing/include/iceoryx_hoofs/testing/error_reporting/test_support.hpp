@@ -66,7 +66,7 @@ inline bool hasPreconditionViolation()
 /// @brief indicates whether the test error handler registered a precondition violation
 inline bool hasAssumptionViolation()
 {
-    auto code = iox::err::ErrorCode{iox::err::ErrorCode::DEBUG_ASSERT_VIOLATION};
+    auto code = iox::err::ErrorCode{iox::err::ErrorCode::ASSUMPTION_VIOLATION};
     return TestErrorHandler::instance().hasViolation(code);
 }
 

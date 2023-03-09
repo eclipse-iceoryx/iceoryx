@@ -98,7 +98,7 @@
         if (iox::err::Configuration::CHECK_PRECONDITIONS && !(expr))                                                   \
         {                                                                                                              \
             iox::err::forwardFatalError(CURRENT_SOURCE_LOCATION,                                                       \
-                                        iox::err::Violation(iox::err::ErrorCode::PRECONDITION_VIOLATION),              \
+                                        iox::err::Violation::createPreconditionViolation(),                            \
                                         iox::err::PRECONDITION_VIOLATION,                                              \
                                         ##__VA_ARGS__);                                                                \
         }                                                                                                              \
@@ -114,8 +114,8 @@
         if (iox::err::Configuration::CHECK_ASSUMPTIONS && !(expr))                                                     \
         {                                                                                                              \
             iox::err::forwardFatalError(CURRENT_SOURCE_LOCATION,                                                       \
-                                        iox::err::Violation(iox::err::ErrorCode::DEBUG_ASSERT_VIOLATION),              \
-                                        iox::err::DEBUG_ASSERT_VIOLATION,                                              \
+                                        iox::err::Violation::createAssumptionViolation(),                              \
+                                        iox::err::ASSUMPTION_VIOLATION,                                                \
                                         ##__VA_ARGS__);                                                                \
         }                                                                                                              \
     } while (false)

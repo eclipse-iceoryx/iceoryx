@@ -20,6 +20,8 @@
 #include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
+/// @todo Incomplete and not used yet, will be used in integration or error reporting into iceoryx_hoofs
+
 namespace iox
 {
 namespace hoofs_errors

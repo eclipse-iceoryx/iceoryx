@@ -29,20 +29,19 @@ namespace err
 // We expect an error to have the following interface
 // 1. ErrorCode code() const
 // 2. ModuleId module() const
-// 3. const char* name() const
-// The latter must return a pointer to the data segment (no dynamic memory) to be efficient.
 
-// By default, there are only violations and error codes.
+// By default, there are only error codes and violations.
+// Custom errors can be added but must satisfy the minimal interface.
 
 class Violation
 {
   public:
-    explicit Violation(ErrorCode::type code)
+    explicit Violation(ErrorCode code)
         : m_code(code)
     {
     }
 
-    Violation(ErrorCode::type code, ModuleId module)
+    Violation(ErrorCode code, ModuleId module)
         : m_code(code)
         , m_module(module)
     {
@@ -58,16 +57,29 @@ class Violation
         return m_module;
     }
 
-    const char* name() const
+    bool operator==(const Violation& rhs) const
     {
-        return NAME;
+        return m_code == rhs.m_code && m_module == rhs.m_module;
     }
 
-  public:
-    ErrorCode m_code{ErrorCode::DEBUG_ASSERT_VIOLATION};
-    ModuleId m_module{ModuleId::ANY};
+    bool operator!=(const Violation& rhs) const
+    {
+        return !(*this == rhs);
+    }
 
-    static constexpr const char* NAME = "Violation";
+    static Violation createPreconditionViolation()
+    {
+        return Violation(ErrorCode(ErrorCode::PRECONDITION_VIOLATION));
+    }
+
+    static Violation createAssumptionViolation()
+    {
+        return Violation(ErrorCode(ErrorCode::ASSUMPTION_VIOLATION));
+    }
+
+  private:
+    ErrorCode m_code;
+    ModuleId m_module{ModuleId::ANY};
 };
 
 // primary template is the identity

@@ -33,7 +33,7 @@ struct ErrorCode
 
     type value;
 
-    static constexpr type DEBUG_ASSERT_VIOLATION{0};
+    static constexpr type ASSUMPTION_VIOLATION{0};
     static constexpr type PRECONDITION_VIOLATION{1};
 
     constexpr explicit ErrorCode(uint32_t value)

@@ -62,51 +62,53 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::Fatal, const Error& error)
+inline void report(const SourceLocation& location, iox::err::Fatal kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << " Fatal Error " << code.value << " in module " << module.value;
+    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << code.value << " in module " << module.value;
     auto& h = ErrorHandler::get();
     h.reportError(ErrorDescriptor(location, code, module));
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error)
+inline void report(const SourceLocation& location, iox::err::PreconditionViolation kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << ": Precondition Violation";
+    IOX_LOG_FATAL_ERROR(location) << kind.name;
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error)
+inline void report(const SourceLocation& location, iox::err::AssumptionViolation kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << ": Debug Assert Violation";
+    IOX_LOG_FATAL_ERROR(location) << kind.name;
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
 
 template <class Error, class Message>
-inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error, Message&& msg)
+inline void
+report(const SourceLocation& location, iox::err::PreconditionViolation kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << ": Precondition Violation " << std::forward<Message>(msg);
+    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
 
 template <class Error, class Message>
-inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error, Message&& msg)
+inline void
+report(const SourceLocation& location, iox::err::AssumptionViolation kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << ": Debug Assert Violation " << std::forward<Message>(msg);
+    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }

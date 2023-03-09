@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
 
-// to establish connection to the custom implementation of the actions
+// to establish connection to the custom implementation
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
 #include <utility>
