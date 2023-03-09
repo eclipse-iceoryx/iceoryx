@@ -14,33 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP
+#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP
 
-#include <type_traits>
+// ***
+// * Include this header in a module to use custom actions
+// ***
 
-namespace iox
-{
-namespace err
-{
+#include "iceoryx_hoofs/error_reporting/custom/default/configuration.hpp"
 
-struct ConfigurationTag
-{
-};
-
-// can be specialized here to change parameters at compile time
-template <typename T>
-struct ConfigurationParameters
-{
-    static_assert(std::is_same<T, ConfigurationTag>::value, "Incorrect configuration tag type");
-
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
-};
-
-using Configuration = ConfigurationParameters<ConfigurationTag>;
-
-} // namespace err
-} // namespace iox
+#include "iceoryx_hoofs/error_reporting/custom/default/error_reporting.hpp"
 
 #endif

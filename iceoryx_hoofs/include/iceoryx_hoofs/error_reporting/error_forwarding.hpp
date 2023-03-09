@@ -18,10 +18,10 @@
 #define IOX_HOOFS_ERROR_REPORTING_ERROR_FORWARDING_HPP
 
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
-#include "iceoryx_hoofs/error_reporting/location.hpp"
+#include "iceoryx_hoofs/error_reporting/source_location.hpp"
 
 // to establish connection to the custom implementation of the actions
-#include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
 #include <utility>
 

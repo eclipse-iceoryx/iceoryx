@@ -17,10 +17,10 @@
 #ifndef IOX_HOOFS_TESTING_TEST_ERROR_HANDLER_ERROR_REPORTING_HPP
 #define IOX_HOOFS_TESTING_TEST_ERROR_HANDLER_ERROR_REPORTING_HPP
 
+#include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
 #include "iceoryx_hoofs/error_reporting/errors.hpp"
-#include "iceoryx_hoofs/error_reporting/location.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/source_location.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
 #include <algorithm>

@@ -14,22 +14,23 @@ id and defines its errors.
 A unique id for each module that is defined by some central instance that knows all modules that are
 to be used in some project.
 
-### Platform 
+### Custom Implementation
 
 The backend code that is used by any module. It can be changed at compile time and there is only
-one active platform at a time.
+one active implementation at a time.
 
 ### Error Reporting API
 
-The frontend to repor errors. API for short.
+The frontend to repor errors that is used by the individual modules.
 
 ### Error Handler
 
-The backend that defines the actions on reported errors. Defined by the platform.
+The part of the custom implementation that defines the actions on reported errors.
 
 ### Error Code
 
-Some error code that is unique per module.
+Some error code that is unique for each error module. It is recommended that it corresponds only 
+to the type of error (i.e. out-of-memory error) only and not the location.
 
 ### Error
 
@@ -42,24 +43,24 @@ The whole mechanism is very flexible and generic and relies on overloading and p
 to relay information, e.g. errors. That means much of it can be optimized at compile time, 
 as the compiler has full knowledge about all the template definitions. 
 
-This holds up to the platform, where it is possible to e.g. use runtime polymorphism or simply link
+This holds up to the custom implementation, where it is possible to e.g. use runtime polymorphism or simply link
 against some library.
 
-### Reponsibilty of the Platform
+### Reponsibilty of the Custom Implementation
 
 1. Define the error handling backend
 1. It expects that errors satisfy some mild conditions (like providing a code)
 1. Provide a header that defines the reporting; to be used by any module
 
-In principle a platform can support a wide range of error types, from simple error codes to monadic result
+In principle a custom implementation can support a wide range of error types, from simple error codes to monadic result
 types. The only condition is that the backend must be able to handle them.
 
-In this way, the platform defines a contract for the errors.
+In this way, the custom implementation defines a contract for the errors.
 
 ### Reponsibilty of a Module
 
 1. Define all its errors and error codes
-1. The errors must satisfy the error contract conditions required by the platform.
+1. The errors must satisfy the error contract conditions required by the custom implementation.
 1. Define how codes are converted to errors
 1. Combine the definitions with the API and rovide a header that defines its whole error reporting.
 
@@ -73,16 +74,16 @@ There are three mandatory kinds (or categories) of errors.
 1. Precondition violations
 1. Debug assert violations
 
-All of them must be supported by the platform and all of them abort execution (which cannot be
+All of them must be supported by the custom implementation and all of them abort execution (which cannot be
 changed).
 
-Furthermore the platform may define additional kinds of errors, specifically non-fatal errors.
+Furthermore the custom implementation may define additional kinds of errors, specifically non-fatal errors.
 For non-fatal errors the execution continues afer reporting, so they should be used when the
 circumstances allow recovery from the error.
 
 ### Panic
 
-Before execution is aborted, a special `panic` handler is invoked. The platform defines this handler
+Before execution is aborted, a special `panic` handler is invoked. The custom implementation defines this handler
 as part of the backend.
 
 ## Using the API to Report Errors
@@ -97,7 +98,7 @@ enum class Code
 };
 ```
 
-and the platform defines a non-fatal `RUNTIME_ERROR`.
+and the custom implementation defines a non-fatal `RUNTIME_ERROR`.
 
 Then we may use the following functions
 
@@ -129,7 +130,7 @@ Similarly
 IOX_REPORT_FATAL(Code::OutOfMemory);
 ```
 
-reports a fatal error that aborts execution after the platform specific handler is invoked.
+reports a fatal error that aborts execution after the custom implementation specific handler is invoked.
 
 Decoupling the error and its category is intentional, as e.g. an `OutOfMemory` error may not always be
 fatal. It may become fatal after it is propagated further along the call stack. 
@@ -294,7 +295,7 @@ While this shows the use with `expected`, it can be used with any error return t
 for example the error code itself.
 
 A generalization allows to report more complex error types directly. This requires a corresponding
-implementation of the platform backend.
+custom implementation.
 
 ```cpp
 expected<int, Code> algorithm(int x)
@@ -367,7 +368,7 @@ backend implementation.
 
 ### Basics
 
-The overall implementation concepts allows customization at platform level and a provides 
+The overall implementation concepts allows customizationof the implementation level and a provides 
 a default implementation.
 
 Everything related to error reporting is located in the corresponding folder `error_reporting`.
@@ -378,9 +379,9 @@ These are
 
 1. `api.h`: the reporting API to be used
 2. `configuration.hpp`: the default configuration (compile time flags)
-3. `error_forwarding.hpp`: forwarding to the platform backend
+3. `error_forwarding.hpp`: forwarding to the custom implementation
 4. `error_kind.hpp`: mandatory error categories
-5. `error_logging.hpp`: logging related definitions (TODO: move to platform to break dependency?)
+5. `error_logging.hpp`: logging related definitions
 6. `location.hpp`: source location related definitions
 7. `types.hpp`: auxiliary types
 
@@ -388,22 +389,22 @@ All the files focus on singular aspects to allow fine-grained inclusion.
 All definitions have to reside in `iox::err`, which is considered a private (detail) namespace 
 for everything related to error reporting. Since the API uses macros, it has no namespace itself.
 
-### Platform
+### Custom Implementation
 
-A specific platform backend may depend on any of them and has to implement an error reporting
+A specific custom implementation may depend on any of them and has to implement an error reporting
 interface `error_reporting.hpp`. 
 
-Apart from implementing the error reporting interface, a platform does not have to follow 
+Apart from implementing the error reporting interface, a custom implementation does not have to follow 
 a specific structure. However, it cannot depend on anything that intends to use the error 
 reporting itself. It can override or extend some definitions and it is encouraged to use the same 
-file names as in the mandatory absics. For example `platform/error_kind.hpp` specifies additional 
+file names as in the mandatory absics. For example `custom/error_kind.hpp` specifies additional 
 error kinds (apart from the mandatory fatal errors).
 
-The main purpose of the platform is to define the actions to take for each error.
+The main purpose of thec ustom implementation is to define the actions to take for each error.
 
-### Default Platform
+### Default Implementation
 
-The default implementation in `platform/default` allows switching between a `DefaultHandler` 
+The default implementation in `custom/default` allows switching between a `DefaultHandler` 
 and a `TestHandler` at runtime.
 The latter is used in testing to verify that an error occured when the it is expected.
 
@@ -415,18 +416,18 @@ All testing related definitions are located in `iceoryx_hoofs/testing/error_repo
 These are the definition of `TestHandler` in `test_error_handler.hpp` and auxiliary functions in
 `test_support.hpp` to be used in tests to verify errors. The latter can be extended as required.
 
-### Platform Extension
+### Custom Implementation
 
-Extension is possible by either changing the default implementation or providing an
-additional platform that is used by all modules.
+Extension of existing definitions is possible by either changing the default implementation 
+or providing an additional custom implementation and ensure that it is used by all modules.
 
 ### Modules
 
 There must be a single point where all modules are defined to ensure they use unique ids and use the
-same platform. Currently this happens in the `modules` folder but is work in progress to be
+same custom implementation. Currently this happens in the `modules` folder but is work in progress to be
 completed during integration of error reporting.
 
-There is `modules/hoofs/error_reporting.hpp` that defines all the errors and platform 
+There is `modules/hoofs/error_reporting.hpp` that defines all the errors and custom implementation 
 used by `iceoryx_hoofs`. The `api.hpp` is included there to make it easy to use the custom error 
 reporting in any iceoryx hoofs file by including `modules/hoofs/error_reporting.hpp`.
 

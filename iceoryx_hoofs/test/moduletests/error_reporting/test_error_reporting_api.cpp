@@ -13,10 +13,6 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-
-#include "iceoryx_hoofs/error_reporting/api.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
-#include "moduletests/error_reporting/module_a/errors.hpp"
 #include "test.hpp"
 #include <gtest/gtest.h>
 
@@ -24,6 +20,7 @@
 #include "module_a/error_reporting.hpp"
 #include "module_b/error_reporting.hpp"
 
+// simplifies checking for errors during test execution
 #include "iceoryx_hoofs/testing/error_reporting/test_support.hpp"
 
 namespace

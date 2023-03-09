@@ -17,10 +17,8 @@
 #include "test.hpp"
 #include <gtest/gtest.h>
 
-
-#include "iceoryx_hoofs/error_reporting/location.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
-
+#include "iceoryx_hoofs/error_reporting/custom/default/error_handler.hpp"
+#include "iceoryx_hoofs/error_reporting/source_location.hpp"
 
 namespace
 {
@@ -44,6 +42,7 @@ class DefaultHandler_test : public Test
     DefaultHandler sut;
 };
 
+// Can only check that it can be called, there are no observable effects.
 TEST_F(DefaultHandler_test, constructionAndDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c96199c0-3921-49a9-827a-506a8a4391f3");

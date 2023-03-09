@@ -14,31 +14,26 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
+#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_KIND_HPP
 
-#include <type_traits>
+#include "iceoryx_hoofs/error_reporting/error_kind.hpp"
+
+// ***
+// * Extend error kinds
+// ***
 
 namespace iox
 {
 namespace err
 {
 
-struct ConfigurationTag
+struct RuntimeError
 {
+    static constexpr char const* name = "RuntimeError";
 };
 
-// can be specialized here to change parameters at compile time
-template <typename T>
-struct ConfigurationParameters
-{
-    static_assert(std::is_same<T, ConfigurationTag>::value, "Incorrect configuration tag type");
-
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
-};
-
-using Configuration = ConfigurationParameters<ConfigurationTag>;
+constexpr RuntimeError RUNTIME_ERROR{};
 
 } // namespace err
 } // namespace iox

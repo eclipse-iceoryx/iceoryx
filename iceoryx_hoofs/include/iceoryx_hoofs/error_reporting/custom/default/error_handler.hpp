@@ -14,31 +14,24 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CONFIGURATION_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_HPP
+#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_HANDLER_HPP
 
-#include <type_traits>
+#include "iox/polymorphic_handler.hpp"
+#include "iox/static_lifetime_guard.hpp"
+
+#include "iceoryx_hoofs/error_reporting/custom/default/default_error_handler.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
 
 namespace iox
 {
 namespace err
 {
 
-struct ConfigurationTag
-{
-};
+// this is to be used later
+using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultHandler>;
 
-// can be specialized here to change parameters at compile time
-template <typename T>
-struct ConfigurationParameters
-{
-    static_assert(std::is_same<T, ConfigurationTag>::value, "Incorrect configuration tag type");
-
-    static constexpr bool CHECK_PRECONDITIONS{true};
-    static constexpr bool CHECK_ASSUMPTIONS{true};
-};
-
-using Configuration = ConfigurationParameters<ConfigurationTag>;
+using DefaultErrorHandler = iox::StaticLifetimeGuard<DefaultHandler>;
 
 } // namespace err
 } // namespace iox

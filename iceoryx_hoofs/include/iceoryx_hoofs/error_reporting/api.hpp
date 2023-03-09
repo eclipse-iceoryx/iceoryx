@@ -18,8 +18,8 @@
 #define IOX_HOOFS_ERROR_REPORTING_API_HPP
 
 #include "iceoryx_hoofs/error_reporting/configuration.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) source location requires macros
 

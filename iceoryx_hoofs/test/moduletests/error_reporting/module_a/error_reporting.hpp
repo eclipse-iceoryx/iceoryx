@@ -10,7 +10,7 @@
 
 #include "errors.hpp"
 
-#include "iceoryx_hoofs/error_reporting/platform/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
 #include "iceoryx_hoofs/error_reporting/api.hpp"
 

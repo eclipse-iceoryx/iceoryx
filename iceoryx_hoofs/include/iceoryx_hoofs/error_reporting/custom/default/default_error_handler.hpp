@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_HANDLER_HPP
-#define IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_HANDLER_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_HANDLER_HPP
+#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_HANDLER_HPP
 
-#include "iceoryx_hoofs/error_reporting/location.hpp"
-#include "iceoryx_hoofs/error_reporting/platform/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
+#include "iceoryx_hoofs/error_reporting/source_location.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
 namespace iox
@@ -28,7 +28,7 @@ namespace err
 
 /// @brief Defines the default reaction of dynamic error handling.
 /// The default reaction is to do nothing apart from logging and termination on panic.
-/// As this is common for all error handling of the given platform, this happens in the
+/// As this is common for all error handling of the given custom implementation, this happens in the
 /// reporting API before the (polymorphic) custom behavior is invoked.
 class DefaultHandler : public ErrorHandlerInterface
 {

@@ -19,7 +19,7 @@
 
 #include <gtest/gtest.h>
 
-#include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/default/error_handler.hpp"
 #include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
