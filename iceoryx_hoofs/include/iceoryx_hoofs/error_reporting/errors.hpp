@@ -1,3 +1,19 @@
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_HPP
 #define IOX_HOOFS_ERROR_REPORTING_ERROR_HPP
 
@@ -10,11 +26,17 @@ namespace iox
 namespace err
 {
 
-// a complex hierarchy is not required yet, maybe move to a violation header
+// We expect an error to have the following interface
+// 1. ErrorCode code() const
+// 2. ModuleId module() const
+// 3. const char* name() const
+// The latter must return a pointer to the data segment (no dynamic memory) to be efficient.
+
+// By default, there are only violations and error codes.
+
 class Violation
 {
   public:
-    /// @todo: fix ctor types and class hierarchy (violation)
     explicit Violation(ErrorCode::type code)
         : m_code(code)
     {
@@ -36,7 +58,6 @@ class Violation
         return m_module;
     }
 
-    // must return a pointer to data segment (no dynamic memory)
     const char* name() const
     {
         return NAME;
@@ -44,18 +65,13 @@ class Violation
 
   public:
     ErrorCode m_code{ErrorCode::DEBUG_ASSERT_VIOLATION};
-    ModuleId m_module{ModuleId::UNKNOWN};
+    ModuleId m_module{ModuleId::ANY};
 
     static constexpr const char* NAME = "Violation";
 };
 
-// we expect an error to have
-// 1. ErrorCode code()
-// 2. module_id_t module()
-// 3. const char* name()
-
 // primary template is the identity
-// this can be overriden by modules to create their own errors
+// this can be overriden by modules to handle specific errors
 template <typename ErrorLike>
 auto toError(ErrorLike&& value)
 {
@@ -78,14 +94,6 @@ template <class Error>
 inline ModuleId toModule(const Error& error)
 {
     return error.module();
-}
-
-// generic comparison, has interface requirements on error types E1 and E2 without
-// inheritance
-template <typename E1, typename E2>
-bool equals(const E1& a, const E2& b)
-{
-    return a.code() == b.code() && a.module() == b.module();
 }
 
 } // namespace err

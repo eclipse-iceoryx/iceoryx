@@ -5,7 +5,7 @@
 // *** TO BE IMPLEMENTED BY CLIENT - part of any module
 // ***
 
-#include "iceoryx_hoofs/error_reporting/error.hpp"
+#include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
 namespace module_a

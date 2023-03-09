@@ -147,3 +147,17 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
     {                                                                                                                  \
         EXPECT_FALSE(iox::testing::hasError());                                                                        \
     } while (false)
+
+#if 0
+#define ASSERT_PRECONDITION_VIOLATION()                                                                                \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        ASSERT_TRUE(iox::testing::hasViolation(iox::err::ErrorCode{iox::err::Error}));                                 \
+    } while (false)
+
+#define ASSERT_ASSUMPTION_VIOLATION()                                                                                  \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        ASSERT_TRUE(iox::testing::hasError(code));                                                                     \
+    } while (false)
+#endif

@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_REPORTING_HPP
 #define IOX_HOOFS_ERROR_REPORTING_PLATFORM_DEFAULT_ERROR_REPORTING_HPP
 
-#include "iceoryx_hoofs/error_reporting/error.hpp"
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
+#include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/location.hpp"
 
 #include "iceoryx_hoofs/error_reporting/platform/default/error_handler.hpp"

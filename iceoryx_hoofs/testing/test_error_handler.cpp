@@ -73,12 +73,17 @@ bool TestHandler::hasError() const
 
 bool TestHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
 {
+    constexpr iox::err::ModuleId ANY_MODULE{iox::err::ModuleId::ANY};
     std::lock_guard<std::mutex> g(m_mutex);
     for (auto desc : m_errors)
     {
-        if (desc.code == code && desc.module == module)
+        if (desc.code == code)
         {
-            return true;
+            if (module == ANY_MODULE)
+            {
+                return true;
+            }
+            return desc.module == module;
         }
     }
     return false;
