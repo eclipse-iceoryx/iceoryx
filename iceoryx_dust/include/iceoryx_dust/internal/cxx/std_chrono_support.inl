@@ -23,16 +23,28 @@ namespace iox
 {
 
 inline units::Duration
+FromImpl<std::chrono::nanoseconds, units::Duration>::fromImpl(const std::chrono::nanoseconds& value) noexcept
+{
+    return units::Duration::fromNanoseconds(value.count());
+}
+inline units::Duration
+FromImpl<std::chrono::microseconds, units::Duration>::fromImpl(const std::chrono::microseconds& value) noexcept
+{
+    return units::Duration::fromMicroseconds(value.count());
+}
+
+inline units::Duration
 FromImpl<std::chrono::milliseconds, units::Duration>::fromImpl(const std::chrono::milliseconds& value) noexcept
 {
     return units::Duration::fromMilliseconds(value.count());
 }
 
 inline units::Duration
-FromImpl<std::chrono::nanoseconds, units::Duration>::fromImpl(const std::chrono::nanoseconds& value) noexcept
+FromImpl<std::chrono::seconds, units::Duration>::fromImpl(const std::chrono::seconds& value) noexcept
 {
-    return units::Duration::fromNanoseconds(value.count());
+    return units::Duration::fromSeconds(value.count());
 }
+
 } // namespace iox
 
 #endif // IOX_DUST_STD_CHRONO_SUPPORT_INL

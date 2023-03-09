@@ -23,6 +23,24 @@
 
 namespace iox
 {
+/// @brief Construct a Duration object from std::chrono::nanoseconds
+/// @param[in] value as nanoseconds
+/// @attention Since negative durations are not allowed, the duration will be clamped to 0
+template <>
+struct FromImpl<std::chrono::nanoseconds, units::Duration>
+{
+    static units::Duration fromImpl(const std::chrono::nanoseconds& value) noexcept;
+};
+
+/// @brief Construct a Duration object from std::chrono::microseconds
+/// @param[in] value as microseconds
+/// @attention Since negative durations are not allowed, the duration will be clamped to 0
+template <>
+struct FromImpl<std::chrono::microseconds, units::Duration>
+{
+    static units::Duration fromImpl(const std::chrono::microseconds& value) noexcept;
+};
+
 /// @brief Construct a Duration object from std::chrono::milliseconds
 /// @param[in] value as milliseconds
 /// @attention Since negative durations are not allowed, the duration will be clamped to 0
@@ -32,14 +50,13 @@ struct FromImpl<std::chrono::milliseconds, units::Duration>
     static units::Duration fromImpl(const std::chrono::milliseconds& value) noexcept;
 };
 
-
-/// @brief Construct a Duration object from std::chrono::nanoseconds
-/// @param[in] value as nanoseconds
+/// @brief Construct a Duration object from std::chrono::seconds
+/// @param[in] value as seconds
 /// @attention Since negative durations are not allowed, the duration will be clamped to 0
 template <>
-struct FromImpl<std::chrono::nanoseconds, units::Duration>
+struct FromImpl<std::chrono::seconds, units::Duration>
 {
-    static units::Duration fromImpl(const std::chrono::nanoseconds& value) noexcept;
+    static units::Duration fromImpl(const std::chrono::seconds& value) noexcept;
 };
 } // namespace iox
 
