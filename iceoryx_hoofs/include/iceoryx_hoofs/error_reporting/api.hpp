@@ -42,7 +42,14 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::forwardError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                               \
+        if (isFatal(kind))                                                                                             \
+        {                                                                                                              \
+            forwardFatalError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                                \
+        }                                                                                                              \
+        else                                                                                                           \
+        {                                                                                                              \
+            forwardNonFatalError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                             \
+        }                                                                                                              \
     } while (false)
 
 /// @brief report fatal error
@@ -58,7 +65,14 @@
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            iox::err::forwardError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                           \
+            if (isFatal(kind))                                                                                         \
+            {                                                                                                          \
+                forwardFatalError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                            \
+            }                                                                                                          \
+            else                                                                                                       \
+            {                                                                                                          \
+                forwardNonFatalError(CURRENT_SOURCE_LOCATION, iox::err::toError(error), kind);                         \
+            }                                                                                                          \
         }                                                                                                              \
     } while (false)
 
@@ -83,10 +97,10 @@
     {                                                                                                                  \
         if (iox::err::Configuration::CHECK_PRECONDITIONS && !(expr))                                                   \
         {                                                                                                              \
-            iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                            \
-                                   iox::err::Violation(iox::err::ErrorCode::PRECONDITION_VIOLATION),                   \
-                                   iox::err::PRECONDITION_VIOLATION,                                                   \
-                                   ##__VA_ARGS__);                                                                     \
+            iox::err::forwardFatalError(CURRENT_SOURCE_LOCATION,                                                       \
+                                        iox::err::Violation(iox::err::ErrorCode::PRECONDITION_VIOLATION),              \
+                                        iox::err::PRECONDITION_VIOLATION,                                              \
+                                        ##__VA_ARGS__);                                                                \
         }                                                                                                              \
     } while (false)
 
@@ -99,10 +113,10 @@
     {                                                                                                                  \
         if (iox::err::Configuration::CHECK_ASSUMPTIONS && !(expr))                                                     \
         {                                                                                                              \
-            iox::err::forwardError(CURRENT_SOURCE_LOCATION,                                                            \
-                                   iox::err::Violation(iox::err::ErrorCode::DEBUG_ASSERT_VIOLATION),                   \
-                                   iox::err::DEBUG_ASSERT_VIOLATION,                                                   \
-                                   ##__VA_ARGS__);                                                                     \
+            iox::err::forwardFatalError(CURRENT_SOURCE_LOCATION,                                                       \
+                                        iox::err::Violation(iox::err::ErrorCode::DEBUG_ASSERT_VIOLATION),              \
+                                        iox::err::DEBUG_ASSERT_VIOLATION,                                              \
+                                        ##__VA_ARGS__);                                                                \
         }                                                                                                              \
     } while (false)
 
@@ -110,10 +124,7 @@
 #define IOX_UNREACHABLE()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (iox::err::Configuration::CHECK_UNREACHABLE)                                                                \
-        {                                                                                                              \
-            iox::err::panic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");             \
-        }                                                                                                              \
+        iox::err::panic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");                 \
     } while (false)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)

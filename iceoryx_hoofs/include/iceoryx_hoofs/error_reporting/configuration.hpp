@@ -20,7 +20,6 @@ struct ConfigurationParameters
 
     static constexpr bool CHECK_PRECONDITIONS{true};
     static constexpr bool CHECK_ASSUMPTIONS{true};
-    static constexpr bool CHECK_UNREACHABLE{true};
 };
 
 using Configuration = ConfigurationParameters<ConfigurationTag>;
