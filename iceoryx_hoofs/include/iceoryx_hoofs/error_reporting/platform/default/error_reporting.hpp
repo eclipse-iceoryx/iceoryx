@@ -71,6 +71,26 @@ inline void report(const SourceLocation& location, iox::err::Fatal, const Error&
     h.reportError(ErrorDescriptor(location, code, module));
 }
 
+template <class Error>
+inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error)
+{
+    auto code = toCode(error);
+    auto module = toModule(error);
+    IOX_LOG_FATAL_ERROR(location) << ": Precondition Violation";
+    auto& h = ErrorHandler::get();
+    h.reportViolation(ErrorDescriptor(location, code, module));
+}
+
+template <class Error>
+inline void report(const SourceLocation& location, iox::err::DebugAssertViolation, const Error& error)
+{
+    auto code = toCode(error);
+    auto module = toModule(error);
+    IOX_LOG_FATAL_ERROR(location) << ": Debug Assert Violation";
+    auto& h = ErrorHandler::get();
+    h.reportViolation(ErrorDescriptor(location, code, module));
+}
+
 template <class Error, class Message>
 inline void report(const SourceLocation& location, iox::err::PreconditionViolation, const Error& error, Message&& msg)
 {

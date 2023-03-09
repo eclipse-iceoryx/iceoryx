@@ -16,6 +16,8 @@ namespace errors
 using ErrorCode = iox::err::ErrorCode;
 using ModuleId = iox::err::ModuleId;
 
+constexpr ModuleId MODULE_ID{13};
+
 enum class Code : ErrorCode::type
 {
     Unknown = 24,
@@ -46,32 +48,10 @@ class Error
         return errorNames[code().value];
     }
 
-    static constexpr ModuleId MODULE_ID{2};
-
   protected:
     ErrorCode m_code;
 
     static constexpr const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
-};
-
-// could be wrapped by a result/optional monadic type
-// could also be implemented without inheritence
-class OutOfBoundsError : public Error
-{
-  public:
-    OutOfBoundsError()
-        : Error(Code::OutOfBounds)
-    {
-    }
-
-    void* details()
-    {
-        return m_details;
-    }
-
-  private:
-    // more infos if available
-    void* m_details{nullptr};
 };
 
 } // namespace errors
@@ -92,7 +72,7 @@ inline module_b::errors::Error toError(module_b::errors::Code code)
 // Any error code of this enum has the same module id.
 inline ModuleId toModule(module_b::errors::Code)
 {
-    return module_b::errors::Error::MODULE_ID;
+    return module_b::errors::MODULE_ID;
 }
 
 } // namespace err

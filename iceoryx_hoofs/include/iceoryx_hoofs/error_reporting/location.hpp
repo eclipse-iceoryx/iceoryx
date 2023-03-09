@@ -15,6 +15,8 @@ struct SourceLocation
 } // namespace err
 } // namespace iox
 
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) macro is required for use of location intriniscs
+/// (__FILE__ etc.)
 #define CURRENT_SOURCE_LOCATION                                                                                        \
     iox::err::SourceLocation                                                                                           \
     {                                                                                                                  \

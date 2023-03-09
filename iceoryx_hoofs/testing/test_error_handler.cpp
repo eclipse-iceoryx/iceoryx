@@ -21,6 +21,8 @@
 // NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
 #include <setjmp.h>
 
+#include <iostream>
+
 namespace iox
 {
 namespace testing

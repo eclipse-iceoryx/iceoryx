@@ -14,6 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_reporting/api.hpp"
+#include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
+#include "moduletests/error_reporting/module_a/errors.hpp"
 #include "test.hpp"
 #include <gtest/gtest.h>
 
@@ -25,6 +28,8 @@
 
 namespace
 {
+
+// NOLINTBEGIN(cppcoreguidelines-avoid-do-while) bad rule, disable globally
 using namespace ::testing;
 using namespace iox::err;
 using namespace iox::cxx;
@@ -56,7 +61,7 @@ TEST_F(ErrorReportingApi_test, panic)
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
 }
 
 TEST_F(ErrorReportingApi_test, panicWithMessage)
@@ -66,7 +71,7 @@ TEST_F(ErrorReportingApi_test, panicWithMessage)
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
 }
 
 TEST_F(ErrorReportingApi_test, reportNonFatal)
@@ -76,8 +81,8 @@ TEST_F(ErrorReportingApi_test, reportNonFatal)
 
     runInTestThread(f);
 
-    ASSERT_NO_PANIC();
-    ASSERT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_NO_PANIC(); // but also not IOX_OK as there is an error!
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
 TEST_F(ErrorReportingApi_test, reportFatal)
@@ -87,66 +92,63 @@ TEST_F(ErrorReportingApi_test, reportFatal)
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
-    ASSERT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_PANIC();
+
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, reportConditionallyTrue)
+TEST_F(ErrorReportingApi_test, reportConditionalError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d95fe843-5e1b-422f-bd15-a791b639b43e");
-    auto f = []() { IOX_REPORT_IF(true, MyCodeA::OutOfBounds, FATAL); };
+    auto f = []() { IOX_REPORT_IF(true, MyCodeA::OutOfBounds, RUNTIME_ERROR); };
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
-    ASSERT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, reportConditionallyFalse)
+TEST_F(ErrorReportingApi_test, reportConditionalNoError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9d9d6464-4586-4382-8d5f-38f3795af791");
-    auto f = []() { IOX_REPORT_IF(false, MyCodeA::Unknown, FATAL); };
+    auto f = []() { IOX_REPORT_IF(false, MyCodeA::Unknown, RUNTIME_ERROR); };
 
     runInTestThread(f);
 
-    ASSERT_NO_PANIC();
-    EXPECT_NO_ERROR();
+    EXPECT_IOX_OK();
 }
 
-TEST_F(ErrorReportingApi_test, requireTrue)
+TEST_F(ErrorReportingApi_test, requireConditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c684878-20f8-426f-bb8b-7576b567d04f");
     auto f = []() { IOX_REQUIRE(true, MyCodeA::OutOfBounds); };
 
     runInTestThread(f);
 
-    ASSERT_NO_PANIC();
-    EXPECT_NO_ERROR();
+    EXPECT_IOX_OK();
 }
 
-TEST_F(ErrorReportingApi_test, requireFalse)
+TEST_F(ErrorReportingApi_test, requireConditionNotSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb62d315-8854-401b-82af-6161ae45a34e");
     auto f = []() { IOX_REQUIRE(false, MyCodeA::OutOfBounds); };
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
-    ASSERT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_PANIC();
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionTrue)
+TEST_F(ErrorReportingApi_test, checkPreconditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb6e2122-7c57-4657-9567-ecb63e26a3ed");
     auto f = [](int x) { IOX_PRECONDITION(x > 0); };
 
     runInTestThread(f, 1);
 
-    ASSERT_NO_PANIC();
-    EXPECT_NO_ERROR();
+    EXPECT_IOX_OK();
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionFalse)
+TEST_F(ErrorReportingApi_test, checkPreconditionViolated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b2d27f6d-d0c7-405a-afbf-bf8a72661b20");
     auto f = [](int x) { IOX_PRECONDITION(x > 0); };
@@ -155,31 +157,32 @@ TEST_F(ErrorReportingApi_test, checkPreconditionFalse)
 
     runInTestThread(f, 0);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
+    EXPECT_PRECONDITION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionTrue)
+TEST_F(ErrorReportingApi_test, checkAssumptionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a76ce780-3387-4ae8-8e4c-c96bdb8aa753");
     auto f = [](int x) { IOX_ASSUME(x > 0); };
 
     runInTestThread(f, 1);
 
-    ASSERT_NO_PANIC();
-    EXPECT_NO_ERROR();
+    EXPECT_IOX_OK();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionFalse)
+TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ee71bd3-9004-4950-8441-25e98cf8409c");
     auto f = [](int x) { IOX_ASSUME(x > 0); };
 
     runInTestThread(f, 0);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
+    EXPECT_ASSUMPTION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionWithMessage)
+TEST_F(ErrorReportingApi_test, checkPreconditionNotSatisfiedWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "18d5b9a6-2d60-478e-8c50-d044a3672290");
 
@@ -187,17 +190,19 @@ TEST_F(ErrorReportingApi_test, checkPreconditionWithMessage)
 
     runInTestThread(f, 0);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
+    EXPECT_PRECONDITION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionWithMessage)
+TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfiedWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b416674a-5861-4ab7-947b-0bd0af2f627b");
     auto f = [](int x) { IOX_ASSUME(x > 0, "some message"); };
 
     runInTestThread(f, 0);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
+    EXPECT_ASSUMPTION_VIOLATION();
 }
 
 TEST_F(ErrorReportingApi_test, reportErrorsFromDifferentModules)
@@ -210,9 +215,41 @@ TEST_F(ErrorReportingApi_test, reportErrorsFromDifferentModules)
 
     runInTestThread(f);
 
-    ASSERT_NO_PANIC();
-    ASSERT_ERROR(MyCodeA::OutOfBounds);
-    ASSERT_ERROR(MyCodeB::OutOfMemory);
+    EXPECT_NO_PANIC();
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_ERROR(MyCodeB::OutOfMemory);
+}
+
+TEST_F(ErrorReportingApi_test, distinguishErrorsFromDifferentModules)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f9547051-2ff7-477b-8144-e58995ff8366");
+    auto f = []() { IOX_REPORT(MyCodeA::OutOfBounds, RUNTIME_ERROR); };
+
+    runInTestThread(f);
+
+    // these two are equivalent
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_TRUE(hasError(MyCodeA::OutOfBounds));
+
+    // note that the below fails due to different enums (the errors are not the same)
+    EXPECT_FALSE(hasError(MyCodeB::OutOfBounds));
+}
+
+TEST_F(ErrorReportingApi_test, reportErrorsAndViolations)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b70331d9-f8ce-4be9-94f1-6d9505bad1d5");
+    auto f = []() {
+        IOX_REPORT(MyCodeA::OutOfBounds, RUNTIME_ERROR);
+        IOX_REPORT(MyCodeB::OutOfMemory, RUNTIME_ERROR);
+        IOX_ASSUME(false);
+    };
+
+    runInTestThread(f);
+
+    EXPECT_PANIC();
+    EXPECT_VIOLATION();
+    EXPECT_ERROR(MyCodeA::OutOfBounds);
+    EXPECT_ERROR(MyCodeB::OutOfMemory);
 }
 
 TEST_F(ErrorReportingApi_test, panicAtUnreachableCode)
@@ -222,7 +259,9 @@ TEST_F(ErrorReportingApi_test, panicAtUnreachableCode)
 
     runInTestThread(f);
 
-    ASSERT_PANIC();
+    EXPECT_PANIC();
 }
+
+// NOLINTEND(cppcoreguidelines-avoid-do-while)
 
 } // namespace

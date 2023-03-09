@@ -1,9 +1,27 @@
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_HOOFS_ERROR_REPORTING_API_HPP
 #define IOX_HOOFS_ERROR_REPORTING_API_HPP
 
 #include "iceoryx_hoofs/error_reporting/configuration.hpp"
 #include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
 #include "iceoryx_hoofs/error_reporting/platform/error_kind.hpp"
+
+// NOLINTBEGIN(cppcoreguidelines-macro-usage) source location requires macros
 
 // The following macros are statements (not expressions).
 // This is important, as it enforces correct use to some degree.
@@ -50,15 +68,12 @@
 /// @param error error object (or code)
 #define IOX_REQUIRE(expr, error) IOX_REPORT_IF(!(expr), error, FATAL)
 
-//*****************************
-//* For safe mode and debugging
-//*****************************
-
-// There are no error codes/errors required here on purpose, as it would make the use cumbersome.
-// Instead a special internal error type is used.
-// If required, a custom error option can be added but for now location should be sufficient.
-// Note that all checks based on iox::err::Configuration:: are compile time checks, i.e.
-// the branch can be optimized out if the check is disabled.
+//************************************************************************************************
+//* For documentation of intent, defensive programming and debugging
+//*
+//* There are no error codes/errors required here on purpose, as it would make the use cumbersome.
+//* Instead a special internal error type is used.
+//************************************************************************************************
 
 /// @brief if enabled: report fatal error if expr evaluates to false
 /// @param expr boolean expression that must hold upon entry of the function it appears in
@@ -91,7 +106,7 @@
         }                                                                                                              \
     } while (false)
 
-/// @brief if enabled: panic if control flow reaches this code at runtime
+/// @brief panic if control flow reaches this code at runtime
 #define IOX_UNREACHABLE()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
@@ -100,5 +115,7 @@
             iox::err::panic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");             \
         }                                                                                                              \
     } while (false)
+
+// NOLINTEND(cppcoreguidelines-macro-usage)
 
 #endif
