@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
 #include "iceoryx_hoofs/log/logging.hpp"
 
-/// @todo with a log stream interface this could be doen with functions, not macros
+// with a log stream interface this could be done with functions, not macros
 // NOLINTBEGIN(cppcoreguidelines-macro-usage, bugprone-macro-parentheses) macros are required without logstream interface
 
 /// @brief Log the location of an error.

@@ -24,19 +24,25 @@ namespace iox
 namespace err
 {
 
-// Tag types for mandatory fatal error categories that always exist
+// Tag types for mandatory fatal error categories that always exist.
+// They have the suffix "Kind" to allow using the prefix as the actual error type.
+// The split between error type and error kind is intentional to allow emitting the same error
+// type with a different kind if needed, similar to categorical logging.
+//
+// In addition, this has the advantage to be more explicit at reporting site instead of hiding
+// the information in a function name or the error itself.
 
-struct Fatal
+struct FatalKind
 {
     static constexpr char const* name = "Fatal Error";
 };
 
-struct PreconditionViolation
+struct PreconditionViolationKind
 {
     static constexpr char const* name = "Precondition Violation";
 };
 
-struct AssumptionViolation
+struct AssumptionViolationKind
 {
     static constexpr char const* name = "Assumption Violation";
 };
@@ -50,17 +56,17 @@ struct IsFatal : public std::false_type
 // as this would lead to a compilation error.
 // This enforces that these errors are always fatal in the sense that they cause panic and abort.
 template <>
-struct IsFatal<Fatal> : public std::true_type
+struct IsFatal<FatalKind> : public std::true_type
 {
 };
 
 template <>
-struct IsFatal<PreconditionViolation> : public std::true_type
+struct IsFatal<PreconditionViolationKind> : public std::true_type
 {
 };
 
 template <>
-struct IsFatal<AssumptionViolation> : public std::true_type
+struct IsFatal<AssumptionViolationKind> : public std::true_type
 {
 };
 
@@ -73,31 +79,31 @@ bool constexpr isFatal(Kind)
 }
 
 template <>
-bool constexpr isFatal<Fatal>(Fatal)
+bool constexpr isFatal<FatalKind>(FatalKind)
 {
-    return IsFatal<Fatal>::value;
+    return IsFatal<FatalKind>::value;
 }
 
 template <>
-bool constexpr isFatal<PreconditionViolation>(PreconditionViolation)
+bool constexpr isFatal<PreconditionViolationKind>(PreconditionViolationKind)
 {
-    return IsFatal<PreconditionViolation>::value;
+    return IsFatal<PreconditionViolationKind>::value;
 }
 
 template <>
-bool constexpr isFatal<AssumptionViolation>(AssumptionViolation)
+bool constexpr isFatal<AssumptionViolationKind>(AssumptionViolationKind)
 {
-    return IsFatal<AssumptionViolation>::value;
+    return IsFatal<AssumptionViolationKind>::value;
 }
 
 // indicates serious condition, unable to continue
-constexpr Fatal FATAL;
+constexpr FatalKind FATAL;
 
 // indicates a bug (contract breach by caller)
-constexpr PreconditionViolation PRECONDITION_VIOLATION;
+constexpr PreconditionViolationKind PRECONDITION_VIOLATION;
 
 // indicates a bug (contract breach by callee)
-constexpr AssumptionViolation ASSUMPTION_VIOLATION;
+constexpr AssumptionViolationKind ASSUMPTION_VIOLATION;
 
 } // namespace err
 } // namespace iox

@@ -34,7 +34,7 @@ namespace err
 /// @param error the error
 /// @param kind the kind of error (category)
 template <typename Error, typename Kind>
-[[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
+[[noreturn]] inline void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
     report(location, std::forward<Kind>(kind), std::forward<Error>(error));
     panic(location);
@@ -46,7 +46,7 @@ template <typename Error, typename Kind>
 /// @param error the error
 /// @param kind the kind of error (category)
 template <typename Error, typename Kind>
-void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
+inline void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& kind)
 {
     report(location, std::forward<Kind>(kind), std::forward<Error>(error));
 }
@@ -57,7 +57,7 @@ void forwardNonFatalError(const SourceLocation& location, Error&& error, Kind&& 
 /// @param kind the kind of error (category)
 /// @param msg the message to be forwarded
 template <typename Error, typename Kind, typename Message>
-[[noreturn]] void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
+[[noreturn]] inline void forwardFatalError(const SourceLocation& location, Error&& error, Kind&& kind, Message&& msg)
 {
     report(location, std::forward<Kind>(kind), std::forward<Error>(error), std::forward<Message>(msg));
     panic(location);

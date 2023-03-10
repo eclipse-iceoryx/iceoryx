@@ -19,7 +19,6 @@
 
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
-
 namespace
 {
 using namespace ::testing;
@@ -83,19 +82,23 @@ TYPED_TEST(RegularType_test, moveCtorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "04a18398-9122-48ce-8bad-28e5331f9e68");
 
+    typename TestFixture::Sut copy(this->sut);
     typename TestFixture::Sut movedTo(std::move(this->sut));
 
     EXPECT_EQ(movedTo.value, this->value);
+    EXPECT_EQ(movedTo, copy);
 }
 
 TYPED_TEST(RegularType_test, moveAssignmentWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "46d8ce73-7b6b-4c0f-aca2-d2e404e8e0e6");
 
+    typename TestFixture::Sut copy(this->sut);
     typename TestFixture::Sut movedTo(this->differentValue);
     movedTo = std::move(this->sut);
 
     EXPECT_EQ(movedTo.value, this->value);
+    EXPECT_EQ(movedTo, copy);
 }
 
 TYPED_TEST(RegularType_test, equalityComparisonWorks)

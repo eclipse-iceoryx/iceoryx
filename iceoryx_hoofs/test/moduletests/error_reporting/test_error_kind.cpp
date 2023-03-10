@@ -33,8 +33,8 @@ TEST(ErrorKind_test, fatalErrorsAreFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2524192f-a29c-45bc-b950-ae29deb8b3ae");
 
-    Fatal sut;
-    EXPECT_TRUE(IsFatal<Fatal>::value);
+    FatalKind sut;
+    EXPECT_TRUE(IsFatal<FatalKind>::value);
     EXPECT_TRUE(isFatal(sut));
 }
 
@@ -42,8 +42,8 @@ TEST(ErrorKind_test, preconditionViolationsAreFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21b79757-e46b-44fe-854a-7579b7f2243b");
 
-    PreconditionViolation sut;
-    EXPECT_TRUE(IsFatal<PreconditionViolation>::value);
+    PreconditionViolationKind sut;
+    EXPECT_TRUE(IsFatal<PreconditionViolationKind>::value);
     EXPECT_TRUE(isFatal(sut));
     EXPECT_TRUE(isFatal(PRECONDITION_VIOLATION));
 }
@@ -52,8 +52,8 @@ TEST(ErrorKind_test, assumptionViolationsAreFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b502e70e-157d-45a0-9654-61ada213531d");
 
-    AssumptionViolation sut;
-    EXPECT_TRUE(IsFatal<AssumptionViolation>::value);
+    AssumptionViolationKind sut;
+    EXPECT_TRUE(IsFatal<AssumptionViolationKind>::value);
     EXPECT_TRUE(isFatal(sut));
     EXPECT_TRUE(isFatal(ASSUMPTION_VIOLATION));
 }
@@ -62,8 +62,8 @@ TEST(ErrorKind_test, runtimeErrorsAreNotFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "22c69c24-5082-4e81-8b3f-306e624731a5");
 
-    RuntimeError sut;
-    EXPECT_FALSE(IsFatal<RuntimeError>::value);
+    RuntimeErrorKind sut;
+    EXPECT_FALSE(IsFatal<RuntimeErrorKind>::value);
     EXPECT_FALSE(isFatal(sut));
 }
 

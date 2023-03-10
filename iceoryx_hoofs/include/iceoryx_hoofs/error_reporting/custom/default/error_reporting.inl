@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_HPP
-#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_INL
+#define IOX_HOOFS_ERROR_REPORTING_CUSTOM_DEFAULT_ERROR_REPORTING_INL
 
 #include "iceoryx_hoofs/error_reporting/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"
@@ -65,7 +65,7 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::Fatal kind, const Error& error)
+inline void report(const SourceLocation& location, iox::err::FatalKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -75,7 +75,7 @@ inline void report(const SourceLocation& location, iox::err::Fatal kind, const E
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::PreconditionViolation kind, const Error& error)
+inline void report(const SourceLocation& location, iox::err::PreconditionViolationKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -85,7 +85,7 @@ inline void report(const SourceLocation& location, iox::err::PreconditionViolati
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::AssumptionViolation kind, const Error& error)
+inline void report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -96,7 +96,7 @@ inline void report(const SourceLocation& location, iox::err::AssumptionViolation
 
 template <class Error, class Message>
 inline void
-report(const SourceLocation& location, iox::err::PreconditionViolation kind, const Error& error, Message&& msg)
+report(const SourceLocation& location, iox::err::PreconditionViolationKind kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -107,7 +107,7 @@ report(const SourceLocation& location, iox::err::PreconditionViolation kind, con
 
 template <class Error, class Message>
 inline void
-report(const SourceLocation& location, iox::err::AssumptionViolation kind, const Error& error, Message&& msg)
+report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
