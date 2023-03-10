@@ -31,7 +31,7 @@ template <typename Derived>
 template <typename StringType>
 inline void Expect<Derived>::expect(const StringType& msg) const noexcept
 {
-    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
+    static_assert(is_char_array<StringType>::value || is_iox_string<StringType>::value,
                   "Only char arrays and iox::strings are allowed as message type.");
 
     const auto& derivedThis = *static_cast<const Derived*>(this);
@@ -47,7 +47,7 @@ template <typename Derived, typename ValueType>
 template <typename StringType>
 inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& msg) & noexcept
 {
-    static_assert(is_char_array<StringType>::value || is_cxx_string<StringType>::value,
+    static_assert(is_char_array<StringType>::value || is_iox_string<StringType>::value,
                   "Only char arrays and iox::strings are allowed as message type.");
 
     auto& derivedThis = *static_cast<Derived*>(this);

@@ -123,6 +123,7 @@
 - The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
 - Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
 - Move `std::chrono` dependency to `iceoryx_dust` [\#536](https://github.com/eclipse-iceoryx/iceoryx/issues/536)
+- Move `std::string` dependency from `iox::string` to `std_string_support.hpp` in `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 
 **Workflow:**
 
@@ -1006,7 +1007,30 @@
     std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
     ```
 
-44. Move and rename `DeadlineTimer`
+44. In order to use the comparison or `operator<<` operators, `insert`, `find`, `unsafe_append` functions for
+    `std::string` together with `iox::string` include the support header:
+
+    ```cpp
+    // before
+    std::string myStdString("foo");
+    iox::string<3> myIoxString("foo");
+    if(myIoxString == myStdString)
+    {
+      ..
+    }
+
+    // after
+    #include "iceoryx_dust/cxx/std_string_support.hpp"
+
+    std::string myStdString("foo");
+    iox::string<3> myIoxString("foo");
+    if(myIoxString == myStdString)
+    {
+      ..
+    }
+    ```
+
+45. Move and rename `DeadlineTimer`
 
     ```cpp
     // before
@@ -1018,7 +1042,7 @@
     iox::deadline_timer myTimer;
     ```
 
-45. Changed include path of `iox::units::Duration`
+46. Changed include path of `iox::units::Duration`
 
     ```cpp
     // before
@@ -1028,7 +1052,7 @@
     #include "iox/duration.hpp"
     ```
 
-46. The `perms` enum is replaced by the `access_rights` class
+47. The `perms` enum is replaced by the `access_rights` class
 
     ```cpp
     // before

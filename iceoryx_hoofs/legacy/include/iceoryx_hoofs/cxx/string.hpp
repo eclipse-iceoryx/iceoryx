@@ -27,15 +27,19 @@ namespace cxx
 {
 /// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'
 using iox::concatenate;
-/// @deprecated use 'iox::is_cxx_string' instead of 'iox::cxx::is_cxx_string'
-using iox::is_cxx_string;
-/// @deprecated use 'iox::IsCxxStringAndCxxStringOrCharArrayOrChar' instead of
+/// @deprecated use 'iox::is_iox_string' instead of 'iox::cxx::is_cxx_string'
+template <typename T>
+using is_cxx_string = iox::is_iox_string<T>;
+/// @deprecated use 'iox::IsIoxStringAndIoxStringOrCharArrayOrChar' instead of
 /// 'iox::cxx::IsCxxStringAndCxxStringOrCharArrayOrChar'
-using iox::IsCxxStringAndCxxStringOrCharArrayOrChar;
-/// @deprecated use 'iox::IsCxxStringOrCharArray' instead of 'iox::cxx::IsCxxStringOrCharArray'
-using iox::IsCxxStringOrCharArray;
-/// @deprecated use 'iox::IsCxxStringOrCharArrayOrChar' instead of 'iox::cxx::IsCxxStringOrCharArrayOrChar'
-using iox::IsCxxStringOrCharArrayOrChar;
+template <typename T1, typename T2, typename ReturnType>
+using IsCxxStringAndCxxStringOrCharArrayOrChar = iox::IsIoxStringAndIoxStringOrCharArrayOrChar<T1, T2, ReturnType>;
+/// @deprecated use 'iox::IsIoxStringOrCharArray' instead of 'iox::cxx::IsCxxStringOrCharArray'
+template <typename T, typename ReturnType>
+using IsCxxStringOrCharArray = iox::IsIoxStringOrCharArray<T, ReturnType>;
+/// @deprecated use 'iox::IsIoxStringOrCharArrayOrChar' instead of 'iox::cxx::IsCxxStringOrCharArrayOrChar'
+template <typename T1, typename T2, typename ReturnType>
+using IsCxxStringOrCharArrayOrChar = iox::IsIoxStringOrCharArrayOrChar<T1, T2, ReturnType>;
 /// @deprecated use 'iox::IsStringOrCharArray' instead of 'iox::cxx::IsStringOrCharArray'
 using iox::IsStringOrCharArray;
 /// @deprecated use 'iox::IsStringOrCharArrayOrChar' instead of 'iox::cxx::IsStringOrCharArrayOrChar'
