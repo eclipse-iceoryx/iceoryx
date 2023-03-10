@@ -21,6 +21,10 @@
 #include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
 
+// ***
+// * Define public error reporting API
+// ***
+
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) source location requires macros
 
 // The following macros are statements (not expressions).

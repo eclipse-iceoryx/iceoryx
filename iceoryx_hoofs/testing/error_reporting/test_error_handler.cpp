@@ -30,35 +30,35 @@ namespace testing
 
 using namespace iox::err;
 
-TestHandler::TestHandler()
+TestErrorHandler::TestErrorHandler()
     : m_jump(&m_jumpBuffer)
 {
 }
 
-void TestHandler::reportError(err::ErrorDescriptor desc)
+void TestErrorHandler::reportError(err::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(desc);
 }
 
-void TestHandler::reportViolation(err::ErrorDescriptor desc)
+void TestErrorHandler::reportViolation(err::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_violations.push_back(desc);
 }
 
-void TestHandler::panic()
+void TestErrorHandler::panic()
 {
     m_panicked = true;
     jump();
 }
 
-bool TestHandler::hasPanicked() const
+bool TestErrorHandler::hasPanicked() const
 {
     return m_panicked;
 }
 
-void TestHandler::reset()
+void TestErrorHandler::reset()
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_panicked = false;
@@ -67,13 +67,13 @@ void TestHandler::reset()
     m_jump.store(&m_jumpBuffer);
 }
 
-bool TestHandler::hasError() const
+bool TestErrorHandler::hasError() const
 {
     std::lock_guard<std::mutex> g(m_mutex);
     return !m_errors.empty();
 }
 
-bool TestHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
+bool TestErrorHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
 {
     constexpr iox::err::ModuleId ANY_MODULE{iox::err::ModuleId::ANY};
     std::lock_guard<std::mutex> g(m_mutex);
@@ -91,7 +91,7 @@ bool TestHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
     return false;
 }
 
-bool TestHandler::hasViolation(ErrorCode code) const
+bool TestErrorHandler::hasViolation(ErrorCode code) const
 {
     std::lock_guard<std::mutex> g(m_mutex);
     for (auto desc : m_violations)
@@ -104,13 +104,13 @@ bool TestHandler::hasViolation(ErrorCode code) const
     return false;
 }
 
-jmp_buf* TestHandler::prepareJump()
+jmp_buf* TestErrorHandler::prepareJump()
 {
     // winner can prepare the jump
     return m_jump.exchange(nullptr);
 }
 
-void TestHandler::jump()
+void TestErrorHandler::jump()
 {
     jmp_buf* exp = nullptr;
     // if it is a nullptr, somebody (and only one) has prepared jump
@@ -123,7 +123,7 @@ void TestHandler::jump()
     }
 }
 
-int TestHandler::jumpIndicator()
+int TestErrorHandler::jumpIndicator()
 {
     return JUMPED;
 }

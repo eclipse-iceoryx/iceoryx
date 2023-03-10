@@ -21,15 +21,15 @@ namespace iox
 namespace err
 {
 
-void DefaultHandler::reportError(ErrorDescriptor)
+void DefaultErrorHandler::reportError(ErrorDescriptor)
 {
 }
 
-void DefaultHandler::reportViolation(ErrorDescriptor)
+void DefaultErrorHandler::reportViolation(ErrorDescriptor)
 {
 }
 
-void DefaultHandler::panic()
+void DefaultErrorHandler::panic()
 {
 }
 

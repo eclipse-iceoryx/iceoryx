@@ -18,7 +18,7 @@
 #define IOX_HOOFS_ERROR_REPORTING_CUSTOM_ERROR_REPORTING_HPP
 
 // ***
-// * Include this header in a module to use custom actions
+// * Include this header in a module to use custom error reporting
 // ***
 
 #include "iceoryx_hoofs/error_reporting/custom/default/configuration.hpp"

@@ -30,15 +30,15 @@ namespace err
 /// The default reaction is to do nothing apart from logging and termination on panic.
 /// As this is common for all error handling of the given custom implementation, this happens in the
 /// reporting API before the (polymorphic) custom behavior is invoked.
-class DefaultHandler : public ErrorHandlerInterface
+class DefaultErrorHandler : public ErrorHandlerInterface
 {
   public:
-    DefaultHandler() = default;
-    ~DefaultHandler() override = default;
-    DefaultHandler(const DefaultHandler&) = delete;
-    DefaultHandler(DefaultHandler&&) = delete;
-    DefaultHandler& operator=(const DefaultHandler&) = delete;
-    DefaultHandler& operator=(DefaultHandler&&) = delete;
+    DefaultErrorHandler() = default;
+    ~DefaultErrorHandler() override = default;
+    DefaultErrorHandler(const DefaultErrorHandler&) = delete;
+    DefaultErrorHandler(DefaultErrorHandler&&) = delete;
+    DefaultErrorHandler& operator=(const DefaultErrorHandler&) = delete;
+    DefaultErrorHandler& operator=(DefaultErrorHandler&&) = delete;
 
     /// @brief Defines the reaction on panic.
     void panic() override;

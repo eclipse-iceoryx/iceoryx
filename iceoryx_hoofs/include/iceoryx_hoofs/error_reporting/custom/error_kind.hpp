@@ -30,7 +30,7 @@ namespace err
 
 struct RuntimeError
 {
-    static constexpr char const* name = "RuntimeError";
+    static constexpr char const* name = "Runtime Error";
 };
 
 constexpr RuntimeError RUNTIME_ERROR{};

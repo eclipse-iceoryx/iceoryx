@@ -19,11 +19,16 @@
 
 #include <type_traits>
 
+// ***
+// * Configure active checks and other compile time parameters
+// ***
+
 namespace iox
 {
 namespace err
 {
 
+// tag type that can be used to override the configuration in a custom implementation
 struct ConfigurationTag
 {
 };
@@ -38,6 +43,7 @@ struct ConfigurationParameters
     static constexpr bool CHECK_ASSUMPTIONS{true};
 };
 
+// used by the API to obtain the compile time parameters
 using Configuration = ConfigurationParameters<ConfigurationTag>;
 
 } // namespace err

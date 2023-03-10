@@ -34,61 +34,41 @@ namespace iox
 namespace testing
 {
 
-using TestErrorHandler = iox::StaticLifetimeGuard<iox::testing::TestHandler>;
-
-/// @brief indicates whether the test error handler invoked panic
-inline bool hasPanicked()
-{
-    return TestErrorHandler::instance().hasPanicked();
-}
+using ErrorHandler = iox::StaticLifetimeGuard<iox::testing::TestErrorHandler>;
 
 /// @brief indicates whether the test error handler registered a specific error
 template <typename Code>
 inline bool hasError(Code&& code)
 {
     auto e = iox::err::toError(std::forward<Code>(code));
-    return TestErrorHandler::instance().hasError(e.code(), e.module());
+    return ErrorHandler::instance().hasError(e.code(), e.module());
 }
+
+/// @brief indicates whether the test error handler invoked panic
+bool hasPanicked();
 
 /// @brief indicates whether the test error handler registered any error
-inline bool hasError()
-{
-    return TestErrorHandler::instance().hasError();
-}
+bool hasError();
 
 /// @brief indicates whether the test error handler registered a precondition violation
-inline bool hasPreconditionViolation()
-{
-    auto code = iox::err::ErrorCode{iox::err::ErrorCode::PRECONDITION_VIOLATION};
-    return TestErrorHandler::instance().hasViolation(code);
-}
+bool hasPreconditionViolation();
 
 /// @brief indicates whether the test error handler registered a precondition violation
-inline bool hasAssumptionViolation()
-{
-    auto code = iox::err::ErrorCode{iox::err::ErrorCode::ASSUMPTION_VIOLATION};
-    return TestErrorHandler::instance().hasViolation(code);
-}
+bool hasAssumptionViolation();
 
 /// @brief indicates whether the test error handler registered  violation (there are only two kinds).
-inline bool hasViolation()
-{
-    return hasPreconditionViolation() || hasAssumptionViolation();
-}
+bool hasViolation();
 
 /// @brief indicates there is no error, violation or panic.
-inline bool isInNormalState()
-{
-    return !(hasPanicked() || hasError() || hasViolation());
-}
+bool isInNormalState();
 
 /// @brief runs testFunction in a testContext that can detect fatal failures;
 /// runs in the same thread
-/// @note uses a longjump
+/// @note uses setjmp/longjmp
 template <typename Function, typename... Args>
 inline void testContext(Function&& testFunction, Args&&... args)
 {
-    jmp_buf* buf = TestErrorHandler::instance().prepareJump();
+    jmp_buf* buf = ErrorHandler::instance().prepareJump();
 
     if (buf == nullptr)
     {
@@ -99,8 +79,8 @@ inline void testContext(Function&& testFunction, Args&&... args)
     // setjmp must be called in a stackframe that still exists when longjmp is called
     // Therefore there cannot be a convenient abstraction that does not also
     // know the test function that is being called.
-    // NOLINTNEXTLINE
-    if (setjmp(*buf) != TestErrorHandler::instance().jumpIndicator())
+    // NOLINTNEXTLINE(cert-err52-cpp) required for testing to jump in case of failure
+    if (setjmp(*buf) != ErrorHandler::instance().jumpIndicator())
     {
         testFunction(std::forward<Args>(args)...);
     }
@@ -128,6 +108,8 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 // Use macros to preserve line numbers in tests (failure case).
 
 // ASSERT_* aborts test if the check fails.
+
+// NOLINTBEGIN(cppcoreguidelines-macro-usage) macro required for source location in tests
 
 #define ASSERT_IOX_OK()                                                                                                \
     do                                                                                                                 \
@@ -208,7 +190,6 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
     {                                                                                                                  \
         EXPECT_TRUE(iox::testing::hasError(code));                                                                     \
     } while (false)
-#endif
 
 #define EXPECT_NO_ERROR()                                                                                              \
     do                                                                                                                 \
@@ -239,3 +220,7 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
     {                                                                                                                  \
         EXPECT_TRUE(iox::testing::hasAssumptionViolation());                                                           \
     } while (false)
+
+// NOLINTEND(cppcoreguidelines-macro-usage)
+
+#endif

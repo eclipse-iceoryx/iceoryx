@@ -28,7 +28,7 @@ using namespace iox::err;
 
 constexpr ErrorCode CODE{73};
 
-class DefaultHandler_test : public Test
+class DefaultErrorHandler_test : public Test
 {
   public:
     void SetUp() override
@@ -39,24 +39,24 @@ class DefaultHandler_test : public Test
     {
     }
 
-    DefaultHandler sut;
+    DefaultErrorHandler sut;
 };
 
 // Can only check that it can be called, there are no observable effects.
-TEST_F(DefaultHandler_test, constructionAndDestructionWorks)
+TEST_F(DefaultErrorHandler_test, constructionAndDestructionWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c96199c0-3921-49a9-827a-506a8a4391f3");
 }
 
 // Can only check that it can be called, there are no observable effects.
-TEST_F(DefaultHandler_test, panicDoesNothing)
+TEST_F(DefaultErrorHandler_test, panicDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d7f7048-94d3-42b7-a25a-1a7b506fd835");
     sut.panic();
 }
 
 // Can only check that it can be called, there are no observable effects.
-TEST_F(DefaultHandler_test, reportDoesNothing)
+TEST_F(DefaultErrorHandler_test, reportDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e288318-c756-4666-b779-b944b89ffaf5");
     sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});

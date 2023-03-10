@@ -28,10 +28,9 @@ namespace iox
 namespace err
 {
 
-// this is to be used later
-using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultHandler>;
+using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultErrorHandler>;
 
-using DefaultErrorHandler = iox::StaticLifetimeGuard<DefaultHandler>;
+using DefaultErrorHandlerGuard = iox::StaticLifetimeGuard<DefaultErrorHandler>;
 
 } // namespace err
 } // namespace iox

@@ -43,7 +43,8 @@ class ErrorReportingApi_test : public Test
   public:
     void SetUp() override
     {
-        TestErrorHandler::instance().reset();
+        /// @todo this should be done for all tests (using Gtest hooks) in integration
+        iox::testing::ErrorHandler::instance().reset();
     }
 
     void TearDown() override
