@@ -153,15 +153,15 @@ TEST_F(TestErrorHandler_test, resettingMultipleErrorsWorks)
 TEST_F(TestErrorHandler_test, prepareJumpWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df6356a6-9e9e-4ee3-8a7c-7eb68cfe2516");
-    auto buf = sut.prepareJump();
+    auto* buf = sut.prepareJump();
     EXPECT_NE(buf, nullptr);
 }
 
 TEST_F(TestErrorHandler_test, onlyOneJumpCanBePrepared)
 {
     ::testing::Test::RecordProperty("TEST_ID", "45ad9ab9-0f79-4b7c-8e36-76da3067c0fd");
-    auto buf1 = sut.prepareJump();
-    auto buf2 = sut.prepareJump();
+    auto* buf1 = sut.prepareJump();
+    auto* buf2 = sut.prepareJump();
     EXPECT_NE(buf1, nullptr);
     EXPECT_EQ(buf2, nullptr);
 }
@@ -170,7 +170,8 @@ void jump(TestErrorHandler& handler, int& jmpValue)
 {
     auto* buf = handler.prepareJump();
     // setjmp must be used in a control flow construct like if, while (UB otherwise)
-    if (setjmp(*buf) != handler.jumpIndicator())
+    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
+    if (setjmp(&(*buf)[0]) != handler.jumpIndicator())
     {
         // regular control flow panics
         handler.panic();
@@ -205,7 +206,8 @@ void noJump(TestErrorHandler& handler, int& jmpValue)
 {
     jmp_buf buf;
     // setjmp must be used in a control flow construct like if, while (UB otherwise)
-    if (setjmp(buf) != handler.jumpIndicator())
+    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used, required for testing to jump in case of failure
+    if (setjmp(&(buf[0])) != handler.jumpIndicator())
     {
         // regular control flow panics
         handler.panic();

@@ -43,15 +43,8 @@ class Error
         return static_cast<ErrorCode>(m_code);
     }
 
-    const char* name() const
-    {
-        return errorNames[code().value];
-    }
-
   protected:
     ErrorCode m_code;
-
-    static constexpr const char* errorNames[] = {"Unknown", "OutOfMemory", "OutOfBounds"};
 };
 
 } // namespace errors

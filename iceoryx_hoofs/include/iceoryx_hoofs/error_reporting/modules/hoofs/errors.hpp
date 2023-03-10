@@ -20,7 +20,7 @@
 #include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
-/// @todo #1032 Incomplete and not used yet, will be used in integration or error reporting into
+/// @todo iox-#1032 Incomplete and not used yet, will be used in integration or error reporting into
 /// iceoryx_hoofs. This is just a sketch/proof of concept.
 
 namespace iox
@@ -55,6 +55,7 @@ class Error
 
     const char* name() const
     {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index) temporary mechanism
         return errorNames[m_code.value];
     }
 
@@ -63,8 +64,9 @@ class Error
   protected:
     iox::err::ErrorCode m_code;
 
-    /// @todo #1032 Incomplete and not used yet, use a robust compile time mechanism to define names
+    /// @todo iox-#1032 Incomplete and not used yet, use a robust compile time mechanism to define names
     /// in integration follow up
+    /// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays) temporary mechanism
     static constexpr const char* errorNames[] = {"Unknown"};
 };
 

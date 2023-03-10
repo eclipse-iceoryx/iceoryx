@@ -44,7 +44,7 @@ class ErrorReporting_test : public Test
   public:
     void SetUp() override
     {
-        /// @todo #1032 this should be done for all tests (using Gtest hooks) in integration
+        /// @todo iox-#1032 this should be done for all tests (using Gtest hooks) in integration
         iox::testing::ErrorHandler::instance().reset();
     }
 

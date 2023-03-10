@@ -23,6 +23,13 @@ namespace err
 {
 struct SourceLocation
 {
+    SourceLocation(const char* file, int line, const char* function)
+        : file(file)
+        , line(line)
+        , function(function)
+    {
+    }
+
     const char* file{nullptr};
     int line{0};
     const char* function{nullptr};
@@ -31,12 +38,12 @@ struct SourceLocation
 } // namespace err
 } // namespace iox
 
-/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) macro is required for use of location intriniscs
-/// (__FILE__ etc.)
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) macro is required for use of location intrinsics (__FILE__ etc.)
 #define CURRENT_SOURCE_LOCATION                                                                                        \
     iox::err::SourceLocation                                                                                           \
     {                                                                                                                  \
-        __FILE__, __LINE__, __func__                                                                                   \
-    }
+        __FILE__, __LINE__, static_cast<const char*>(__FUNCTION__)                                                     \
+    } // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+      // needed for source code location, safely wrapped in macro
 
 #endif
