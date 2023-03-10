@@ -28,7 +28,7 @@ enum class Code : ErrorCode::type
 class Error
 {
   public:
-    explicit Error(Code code = Code::Unknown)
+    constexpr explicit Error(Code code = Code::Unknown)
         : m_code(static_cast<ErrorCode::type>(code))
     {
     }

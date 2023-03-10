@@ -17,10 +17,15 @@
 #ifndef IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERROR_REPORTING_HPP
 #define IOX_HOOFS_ERROR_REPORTING_MODULES_HOOFS_ERROR_REPORTING_HPP
 
+// Each module (= some unit with its own errors) must provide the following.
+
+// 1. Define the errors of the module
 #include "iceoryx_hoofs/error_reporting/modules/hoofs/errors.hpp"
 
+// 2. Include the custom reporting implementation
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
+// 3. Include the error reporting API
 #include "iceoryx_hoofs/error_reporting/api.hpp"
 
 #endif

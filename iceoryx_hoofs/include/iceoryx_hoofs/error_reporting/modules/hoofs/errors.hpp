@@ -20,7 +20,8 @@
 #include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
-/// @todo Incomplete and not used yet, will be used in integration or error reporting into iceoryx_hoofs
+/// @todo Incomplete and not used yet, will be used in integration or error reporting into
+/// iceoryx_hoofs. This is just a sketch/proof of concept.
 
 namespace iox
 {
@@ -62,6 +63,8 @@ class Error
   protected:
     iox::err::ErrorCode m_code;
 
+    /// @todo Incomplete and not used yet, use a robust compile time mechanism to define names
+    /// in integration follow up
     static constexpr const char* errorNames[] = {"Unknown"};
 };
 

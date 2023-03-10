@@ -43,12 +43,6 @@ class DefaultErrorHandler_test : public Test
 };
 
 // Can only check that it can be called, there are no observable effects.
-TEST_F(DefaultErrorHandler_test, constructionAndDestructionWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c96199c0-3921-49a9-827a-506a8a4391f3");
-}
-
-// Can only check that it can be called, there are no observable effects.
 TEST_F(DefaultErrorHandler_test, panicDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d7f7048-94d3-42b7-a25a-1a7b506fd835");

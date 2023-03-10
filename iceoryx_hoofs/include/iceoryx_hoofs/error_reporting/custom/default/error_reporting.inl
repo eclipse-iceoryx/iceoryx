@@ -43,9 +43,12 @@ namespace err
     abort();
 }
 
-[[noreturn]] inline void panic(const SourceLocation& location, const char* msg)
+// note that Message is generic as the logger technically accepts more general loggable constructs
+// beyond const char*
+template <class Message>
+[[noreturn]] inline void panic(const SourceLocation& location, Message&& msg)
 {
-    IOX_LOG_PANIC(location) << "Panic " << msg;
+    IOX_LOG_PANIC(location) << "Panic " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.panic();
     abort();

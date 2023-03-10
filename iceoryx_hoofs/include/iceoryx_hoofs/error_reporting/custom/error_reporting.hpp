@@ -23,6 +23,6 @@
 
 #include "iceoryx_hoofs/error_reporting/custom/default/configuration.hpp"
 
-#include "iceoryx_hoofs/error_reporting/custom/default/error_reporting.hpp"
+#include "iceoryx_hoofs/error_reporting/custom/default/error_reporting.inl"
 
 #endif
