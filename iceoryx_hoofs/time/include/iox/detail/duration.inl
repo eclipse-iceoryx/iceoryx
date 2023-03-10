@@ -168,22 +168,6 @@ inline constexpr Duration::Duration(const struct itimerspec& value) noexcept
 {
 }
 
-inline constexpr Duration::Duration(const std::chrono::milliseconds value) noexcept
-    : Duration(Duration::fromMilliseconds(value.count()))
-{
-}
-
-inline constexpr Duration::Duration(const std::chrono::nanoseconds value) noexcept
-    : Duration(Duration::fromNanoseconds(value.count()))
-{
-}
-
-inline Duration& Duration::operator=(const std::chrono::milliseconds rhs) noexcept
-{
-    *this = Duration(rhs);
-    return *this;
-}
-
 inline constexpr uint64_t Duration::toNanoseconds() const noexcept
 {
     constexpr Seconds_t MAX_SECONDS_BEFORE_OVERFLOW{std::numeric_limits<uint64_t>::max()

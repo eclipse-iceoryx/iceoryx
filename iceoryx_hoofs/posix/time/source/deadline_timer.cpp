@@ -16,6 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/deadline_timer.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+
+#include "iceoryx_platform/time.hpp"
 
 namespace iox
 {
@@ -48,11 +51,18 @@ iox::units::Duration deadline_timer::remainingTime() const noexcept
     {
         return m_endTime - currentTime;
     }
-    return iox::units::Duration(std::chrono::milliseconds(0));
+    using namespace iox::units::duration_literals;
+    return 0_s;
 }
 
 iox::units::Duration deadline_timer::getCurrentMonotonicTime() noexcept
 {
-    return iox::units::Duration{std::chrono::steady_clock::now().time_since_epoch()};
+    timespec time_since_epoch{0, 0};
+    cxx::EnsuresWithMsg(!posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &time_since_epoch)
+                             .failureReturnValue(-1)
+                             .evaluate()
+                             .has_error(),
+                        "An error which should never happen occured during 'clock_gettime'!");
+    return iox::units::Duration{time_since_epoch};
 }
 } // namespace iox

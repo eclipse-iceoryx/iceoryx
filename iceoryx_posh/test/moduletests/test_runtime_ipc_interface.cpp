@@ -15,6 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
@@ -303,8 +304,8 @@ TYPED_TEST(IpcInterface_test, TimedSendWorks)
         if (!result)
         {
             // Do not exceed timeout
-            auto timeDiff = units::Duration(after - before);
-            EXPECT_GE(timeDiff, maxTimeout);
+            auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(after - before);
+            EXPECT_GE(into<units::Duration>(timeDiff), maxTimeout);
 
             break;
         }
@@ -333,7 +334,7 @@ TYPED_TEST(IpcInterface_test, TimedReceiveWorks)
     ASSERT_FALSE(this->server->timedReceive(timeout, receivedMessage));
     auto after = system_clock::now();
 
-    auto timeDiff = units::Duration(after - before);
-    EXPECT_GE(timeDiff, timeout);
+    auto timeDiff = std::chrono::duration_cast<std::chrono::milliseconds>(after - before);
+    EXPECT_GE(into<units::Duration>(timeDiff), timeout);
 }
 } // namespace

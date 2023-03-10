@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/types.hpp"
@@ -699,7 +700,7 @@ void ProcessManager::monitorProcesses() noexcept
     {
         if (processIterator->isMonitored())
         {
-            auto timediff = units::Duration(currentTimestamp - processIterator->getTimestamp());
+            auto timediff = into<units::Duration>(currentTimestamp - processIterator->getTimestamp());
 
             static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
                           "keep alive timeout too small");
