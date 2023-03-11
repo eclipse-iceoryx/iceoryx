@@ -23,6 +23,8 @@
 // simplifies checking for errors during test execution
 #include "iceoryx_hoofs/testing/error_reporting/test_support.hpp"
 
+#include <iostream>
+
 namespace
 {
 

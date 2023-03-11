@@ -48,7 +48,7 @@ namespace err
 template <class Message>
 [[noreturn]] inline void panic(const SourceLocation& location, Message&& msg)
 {
-    IOX_LOG_PANIC(location) << "Panic " << std::forward<Message>(msg);
+    IOX_LOG_PANIC(location) << "Panic " << msg;
     auto& h = ErrorHandler::get();
     h.panic();
     abort();
