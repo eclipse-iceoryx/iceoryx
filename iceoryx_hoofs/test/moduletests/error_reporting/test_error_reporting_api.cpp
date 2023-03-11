@@ -261,7 +261,6 @@ TEST_F(ErrorReportingApi_test, panicAtUnreachableCode)
 
     EXPECT_PANIC();
 }
-
 // NOLINTEND(cppcoreguidelines-avoid-do-while)
 
 } // namespace

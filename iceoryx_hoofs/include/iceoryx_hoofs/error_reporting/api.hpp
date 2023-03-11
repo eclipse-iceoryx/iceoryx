@@ -37,14 +37,27 @@
 // Note: once source location becomes available without macro usage this could (and arguably should)
 // be transformed into a function API.
 
+
 /// @brief calls panic handler and does not return
 /// @param msg optional message string literal
 /// @note could actually throw if desired without breaking control flow asssumptions
+#if 0
+// GCC extension, no auxiliary macros needed.
 #define IOX_PANIC(...)                                                                                                 \
     do                                                                                                                 \
     {                                                                                                                  \
         iox::err::panic(CURRENT_SOURCE_LOCATION, ##__VA_ARGS__);                                                       \
     } while (false)
+
+#else
+// ISO CPP compliant but requires heavy auxiliary macro machinery.
+#define IOX_PANIC(...)                                                                                                 \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        IOX_PANIC_ISO_CPP_COMPLIANT_(__VA_ARGS__);                                                                     \
+    } while (false)
+
+#endif
 
 /// @brief report error of some kind
 /// @param error error object (or code)
