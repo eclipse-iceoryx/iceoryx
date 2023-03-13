@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 extern "C" {
 #include "iceoryx_binding_c/log.h"

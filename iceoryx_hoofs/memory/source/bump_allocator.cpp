@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/bump_allocator.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/logging.hpp"
 #include "iox/memory.hpp"
 
 #include <iostream>

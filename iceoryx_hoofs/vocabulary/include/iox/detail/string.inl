@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INL
 #define IOX_HOOFS_VOCABULARY_STRING_INL
 
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 #include "iox/string.hpp"
 
 namespace iox

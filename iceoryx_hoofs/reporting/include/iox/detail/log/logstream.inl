@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_LOG_LOGSTREAM_INL
-#define IOX_HOOFS_LOG_LOGSTREAM_INL
+#ifndef IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL
+#define IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL
 
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iox/log/logstream.hpp"
 
 #include <string>
 
@@ -78,7 +78,9 @@ inline LogStream::LogStream(const char* file, const int line, const char* functi
 {
 }
 
+/// @todo iox-#1755 use something like 'source_location'
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
+// NOLINTNEXTLINE(readability-function-size)
 inline LogStream::LogStream(
     const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept
     : m_logger(Logger::get())
@@ -224,4 +226,4 @@ inline LogStreamOff& LogStreamOff::operator<<(T&&) noexcept
 } // namespace log
 } // namespace iox
 
-#endif // IOX_HOOFS_LOG_LOGSTREAM_INL
+#endif // IOX_HOOFS_REPORTING_LOG_LOGSTREAM_INL

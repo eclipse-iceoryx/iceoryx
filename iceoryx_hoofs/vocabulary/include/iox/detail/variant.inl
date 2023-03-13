@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_VOCABULARY_VARIANT_INL
 #define IOX_HOOFS_VOCABULARY_VARIANT_INL
 
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 #include "iox/variant.hpp"
 
 namespace iox

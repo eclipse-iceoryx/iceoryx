@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/functional_interface.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {

@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_HPP
 #define IOX_HOOFS_VOCABULARY_STRING_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iox/detail/string_internal.hpp"
 #include "iox/detail/string_type_traits.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/type_traits.hpp"
 

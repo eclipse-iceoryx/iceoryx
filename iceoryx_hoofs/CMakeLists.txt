@@ -59,6 +59,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/functional/include
+                                ${PROJECT_SOURCE_DIR}/reporting/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -74,6 +75,7 @@ iox_add_library(
                                 buffer/include/
                                 filesystem/include/
                                 functional/include/
+                                reporting/include/
     FILES
         design/source/functional_interface.cpp
         filesystem/source/filesystem.cpp
@@ -83,12 +85,12 @@ iox_add_library(
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         primitives/source/type_traits.cpp
+        reporting/source/log/building_blocks/console_logger.cpp
+        reporting/source/log/building_blocks/logger.cpp
         source/concurrent/loffli.cpp
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/log/building_blocks/console_logger.cpp
-        source/log/building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp

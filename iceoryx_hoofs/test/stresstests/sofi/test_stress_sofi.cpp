@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/concurrent/sofi.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_hoofs/testing/test.hpp"
 

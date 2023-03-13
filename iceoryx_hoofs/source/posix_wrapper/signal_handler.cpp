@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
