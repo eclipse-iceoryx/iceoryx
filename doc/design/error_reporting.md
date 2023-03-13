@@ -105,12 +105,16 @@ Then we may use the following functions
 ### Panic
 
 ```cpp
-IOX_PANIC();
-
 IOX_PANIC("some message");
+
+IOX_PANIC("");
 ```
 
 Signals panic, invokes the panic handler and aborts execution.
+
+Even if there is no message to be provided, it has to be called with an empty message. This is a
+technical limitation from macro usage (required for location) as it is not allowed to have empty variadic
+macros.
 
 ### Report an Error
 
@@ -201,6 +205,13 @@ panicis invoked and execution stops.
 The verification can be optionally disabled, and hence this also documents assumptions of the
 function itself.
 
+Use
+
+```cpp
+IOX_PRECONDITION(x>=0, "")
+```
+if there is no message.
+
 ### Checking Assumptions
 
 Checking assumptions is similar to checking preconditions, but can happen anywhere in the code.
@@ -220,6 +231,13 @@ check postconditions.
 
 It should not be used at the start of a function body and instead replaced with a precondition check
 in this case.
+
+Use
+
+```cpp
+IOX_ASSUME(x>=0, "")
+```
+if there is no message.
 
 ### Marking Unreachable Code
 

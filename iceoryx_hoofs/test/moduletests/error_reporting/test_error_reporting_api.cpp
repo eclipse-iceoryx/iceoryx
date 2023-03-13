@@ -54,10 +54,10 @@ class ErrorReportingApi_test : public Test
     }
 };
 
-TEST_F(ErrorReportingApi_test, panic)
+TEST_F(ErrorReportingApi_test, panicWithoutMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a55f00f1-c89d-4d4d-90ea-6ca510ad3942");
-    auto f = []() { IOX_PANIC(); };
+    auto f = []() { IOX_PANIC(""); };
 
     runInTestThread(f);
 
@@ -141,7 +141,7 @@ TEST_F(ErrorReportingApi_test, requireConditionNotSatisfied)
 TEST_F(ErrorReportingApi_test, checkPreconditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb6e2122-7c57-4657-9567-ecb63e26a3ed");
-    auto f = [](int x) { IOX_PRECONDITION(x > 0); };
+    auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
 
     runInTestThread(f, 1);
 
@@ -151,7 +151,7 @@ TEST_F(ErrorReportingApi_test, checkPreconditionSatisfied)
 TEST_F(ErrorReportingApi_test, checkPreconditionViolated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b2d27f6d-d0c7-405a-afbf-bf8a72661b20");
-    auto f = [](int x) { IOX_PRECONDITION(x > 0); };
+    auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
 
     runInTestThread([&]() { f(0); });
 
@@ -164,7 +164,7 @@ TEST_F(ErrorReportingApi_test, checkPreconditionViolated)
 TEST_F(ErrorReportingApi_test, checkAssumptionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a76ce780-3387-4ae8-8e4c-c96bdb8aa753");
-    auto f = [](int x) { IOX_ASSUME(x > 0); };
+    auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
 
     runInTestThread(f, 1);
 
@@ -174,7 +174,7 @@ TEST_F(ErrorReportingApi_test, checkAssumptionSatisfied)
 TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ee71bd3-9004-4950-8441-25e98cf8409c");
-    auto f = [](int x) { IOX_ASSUME(x > 0); };
+    auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
 
     runInTestThread(f, 0);
 
@@ -241,7 +241,7 @@ TEST_F(ErrorReportingApi_test, reportErrorsAndViolations)
     auto f = []() {
         IOX_REPORT(MyCodeA::OutOfBounds, RUNTIME_ERROR);
         IOX_REPORT(MyCodeB::OutOfMemory, RUNTIME_ERROR);
-        IOX_ASSUME(false);
+        IOX_ASSUME(false, "");
     };
 
     runInTestThread(f);

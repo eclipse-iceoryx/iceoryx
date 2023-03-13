@@ -55,6 +55,17 @@ class ErrorReporting_test : public Test
 
 TEST_F(ErrorReporting_test, panicWorks)
 {
+    ::testing::Test::RecordProperty("TEST_ID", "27f25cec-c815-4541-9f7d-fd2aa02474c1");
+
+    auto f = []() { panic(); };
+
+    iox::testing::runInTestThread(f);
+
+    EXPECT_PANIC();
+}
+
+TEST_F(ErrorReporting_test, panicWithLocationWorks)
+{
     ::testing::Test::RecordProperty("TEST_ID", "5aca0c31-1c1b-4004-bd41-b4b400258c12");
 
     auto f = []() { panic(CURRENT_SOURCE_LOCATION); };
