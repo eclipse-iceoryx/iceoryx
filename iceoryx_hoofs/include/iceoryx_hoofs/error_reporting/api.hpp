@@ -31,7 +31,7 @@
 
 // The following macros are statements (not expressions).
 // This is important, as it enforces correct use to some degree.
-// For example thye cannot be used as function arguments and must be terminated with a ';'.
+// For example they cannot be used as function arguments and must be terminated with a ';'.
 //
 // Note: once source location becomes available without macro usage this could (and arguably should)
 // be transformed into a function API.
@@ -43,7 +43,7 @@
 #define IOX_PANIC(message)                                                                                             \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::panic(CURRENT_SOURCE_LOCATION, message);                                                             \
+        iox::err::forwardPanic(CURRENT_SOURCE_LOCATION, message);                                                      \
     } while (false)
 /// @brief report error of some kind
 /// @param error error object (or code)
@@ -51,13 +51,13 @@
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (isFatal(kind))                                                                                             \
+        if (iox::err::isFatal(kind))                                                                                   \
         {                                                                                                              \
-            forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                                \
+            iox::err::forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                      \
         }                                                                                                              \
         else                                                                                                           \
         {                                                                                                              \
-            forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                             \
+            iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                   \
         }                                                                                                              \
     } while (false)
 
@@ -74,13 +74,13 @@
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            if (isFatal(kind))                                                                                         \
+            if (iox::err::isFatal(kind))                                                                               \
             {                                                                                                          \
-                forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                            \
+                iox::err::forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                  \
             }                                                                                                          \
             else                                                                                                       \
             {                                                                                                          \
-                forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                         \
+                iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);               \
             }                                                                                                          \
         }                                                                                                              \
     } while (false)

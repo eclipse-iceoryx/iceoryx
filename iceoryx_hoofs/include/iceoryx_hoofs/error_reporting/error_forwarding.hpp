@@ -29,6 +29,20 @@ namespace iox
 {
 namespace err
 {
+// This is lightweight and only exists to hide some complexity that would otherwise be part of the
+// macro API.
+
+/// @brief Forwards that a panic state was encountered and does not return.
+/// @param location the location of the panic invocation
+/// @param msg the message to be forwarded
+/// @note required to enforce no return
+template <typename Message>
+[[noreturn]] inline void forwardPanic(const SourceLocation& location, Message&& msg)
+{
+    panic(location, std::forward<Message>(msg));
+    abort();
+}
+
 /// @brief Forwards a fatal error and does not return.
 /// @param location the location of the error
 /// @param error the error

@@ -18,26 +18,26 @@
 #define IOX_HOOFS_ERROR_REPORTING_ERROR_LOGGING_HPP
 
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 // with a log stream interface this could be done with functions, not macros
 // NOLINTBEGIN(cppcoreguidelines-macro-usage, bugprone-macro-parentheses) macros are required without logstream interface
 
 /// @brief Log the location of an error.
 /// @param location the location of the error
-#define IOX_LOG_ERROR(location)                                                                                        \
+#define IOX_ERROR_INTERNAL_LOG(location)                                                                               \
     IOX_LOG_INTERNAL(location.file, location.line, location.function, iox::log::LogLevel::ERROR)                       \
         << location.file << " line " << location.line
 
 /// @brief Log the location of a fatal error.
 /// @param location the location of the error
-#define IOX_LOG_FATAL_ERROR(location)                                                                                  \
+#define IOX_ERROR_INTERNAL_LOG_FATAL(location)                                                                         \
     IOX_LOG_INTERNAL(location.file, location.line, location.function, iox::log::LogLevel::FATAL)                       \
         << location.file << " line " << location.line << ": "
 
 /// @brief Log a panic invocation.
 /// @param location the location of the panic invocation.
-#define IOX_LOG_PANIC(location) IOX_LOG_FATAL_ERROR(location)
+#define IOX_ERROR_INTERNAL_LOG_PANIC(location) IOX_ERROR_INTERNAL_LOG_FATAL(location)
 
 // NOLINTEND(cppcoreguidelines-macro-usage, bugprone-macro-parentheses)
 

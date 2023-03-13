@@ -21,7 +21,7 @@ one active implementation at a time.
 
 ### Error Reporting API
 
-The frontend to repor errors that is used by the individual modules.
+The frontend to report errors that is used by the individual modules.
 
 ### Error Handler
 
@@ -62,7 +62,7 @@ In this way, the custom implementation defines a contract for the errors.
 1. Define all its errors and error codes
 1. The errors must satisfy the error contract conditions required by the custom implementation.
 1. Define how codes are converted to errors
-1. Combine the definitions with the API and rovide a header that defines its whole error reporting.
+1. Combine the definitions with the API and provide a header that defines its whole error reporting.
 
 Once this is defined, the module can use the error reporting in its own functions.
 
@@ -72,7 +72,7 @@ There are three mandatory kinds (or categories) of errors.
 
 1. Fatal errors
 1. Precondition violations
-1. Debug assert violations
+1. Assumption violations
 
 All of them must be supported by the custom implementation and all of them abort execution (which cannot be
 changed).
@@ -138,7 +138,7 @@ reports a fatal error that aborts execution after the custom implementation spec
 
 Decoupling the error and its category is intentional, as e.g. an `OutOfMemory` error may not always be
 fatal. It may become fatal after it is propagated further along the call stack. 
-Propagation is possible by various means, e.g. return codes, monadic types or ven exceptions (that
+Propagation is possible by various means, e.g. return codes, monadic types or even exceptions (that
 must be caught before reporting the error elsewhere again).
 
 ### Conditionally Report an Error
@@ -200,7 +200,7 @@ reordering if the following code does not depend on the condition at all. This i
 the language and cannot be avoided.
 
 In case of violation, the violation and a (potentially empty) message are forwarded to the backend,
-panicis invoked and execution stops.
+panic is invoked and execution stops.
 
 The verification can be optionally disabled, and hence this also documents assumptions of the
 function itself.

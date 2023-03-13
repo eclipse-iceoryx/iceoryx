@@ -53,7 +53,7 @@ namespace err
 // Custom panic with location
 [[noreturn]] inline void panic(const SourceLocation& location)
 {
-    IOX_LOG_PANIC(location) << "Panic";
+    IOX_ERROR_INTERNAL_LOG_PANIC(location) << "Panic";
     panic();
 }
 
@@ -63,7 +63,7 @@ namespace err
 template <class Message>
 [[noreturn]] inline void panic(const SourceLocation& location, Message&& msg)
 {
-    IOX_LOG_PANIC(location) << "Panic " << msg;
+    IOX_ERROR_INTERNAL_LOG_PANIC(location) << "Panic " << msg;
     panic();
 }
 
@@ -73,7 +73,7 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_ERROR(location) << " Error " << code.value << " in module " << module.value;
+    IOX_ERROR_INTERNAL_LOG(location) << " Error " << code.value << " in module " << module.value;
     auto& h = ErrorHandler::get();
     h.reportError(ErrorDescriptor(location, code, module));
 }
@@ -88,7 +88,7 @@ inline void report(const SourceLocation& location, iox::err::FatalKind kind, con
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << code.value << " in module " << module.value;
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name << " " << code.value << " in module " << module.value;
     auto& h = ErrorHandler::get();
     h.reportError(ErrorDescriptor(location, code, module));
 }
@@ -98,7 +98,7 @@ inline void report(const SourceLocation& location, iox::err::PreconditionViolati
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << kind.name;
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name;
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
@@ -108,7 +108,7 @@ inline void report(const SourceLocation& location, iox::err::AssumptionViolation
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << kind.name;
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name;
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
@@ -119,7 +119,7 @@ report(const SourceLocation& location, iox::err::PreconditionViolationKind kind,
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << std::forward<Message>(msg);
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name << " " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
@@ -130,7 +130,7 @@ report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, c
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_LOG_FATAL_ERROR(location) << kind.name << " " << std::forward<Message>(msg);
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name << " " << std::forward<Message>(msg);
     auto& h = ErrorHandler::get();
     h.reportViolation(ErrorDescriptor(location, code, module));
 }
