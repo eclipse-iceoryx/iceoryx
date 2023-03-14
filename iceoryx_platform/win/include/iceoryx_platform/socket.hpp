@@ -24,6 +24,7 @@
 #include <cstdint>
 
 #define AF_LOCAL AF_INET
+#define SOCK_NONBLOCK 0
 using sa_family_t = int;
 
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
