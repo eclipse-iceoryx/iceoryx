@@ -181,6 +181,7 @@ TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPo
     WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     // ===== Test ===== //
     ASSERT_FALSE(waitSet.attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Verify ===== //
@@ -209,6 +210,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOf
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
@@ -238,6 +240,7 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     std::unique_ptr<WaitSetTest> waitSet2{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
@@ -256,6 +259,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
@@ -273,6 +277,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);

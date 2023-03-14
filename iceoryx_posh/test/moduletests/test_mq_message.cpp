@@ -29,20 +29,14 @@ using iox::runtime::IpcMessage;
 class IpcMessage_test : public Test
 {
   protected:
-    void SetUp()
+    void SetUp() override
     {
         time_MOCK::doUseMock = true;
         time_MOCK::mock.reset(new NiceMock<time_MOCK>());
-        internal::CaptureStdout();
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
         time_MOCK::mock.reset();
         time_MOCK::doUseMock = false;
     }

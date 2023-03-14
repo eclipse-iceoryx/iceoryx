@@ -118,20 +118,14 @@ class MemPoolIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
         SegmentMock segmentMock;
         m_segmentManager_mock.m_segmentContainer.push_back(segmentMock);
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     template <typename MemPoolInfoStruct>
@@ -213,6 +207,8 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     initMemPoolInfoContainer(memPoolInfoContainer);
 
     EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_, _, _, _)).Times(0);
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers()).WillRepeatedly(Return(false));
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).WillRepeatedly(Return());
 
     introspectionAccess.send();
 }
@@ -267,6 +263,7 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     }));
     // we use the hasSubscribers call to check how often the thread calls the send method
     EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers).Times(AtLeast(4));
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).WillRepeatedly(Return());
 
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);

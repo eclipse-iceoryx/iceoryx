@@ -46,7 +46,6 @@ constexpr char goodName[] = "channel_test";
 /// @req
 /// @brief This test suite verifies the functionality which is specific to the UnixDomainSocket class
 /// @pre server and client object are allocated and move to the member object of the fixture
-/// @post StdErr is capture and outputed to StdCout
 /// @note Most of the UnixDomainSocket functionality is tested in "IpcChannel_test"
 class UnixDomainSocket_test : public Test
 {

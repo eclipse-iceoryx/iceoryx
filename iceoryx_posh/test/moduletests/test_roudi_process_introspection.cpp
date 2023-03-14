@@ -51,18 +51,12 @@ class ProcessIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& sut)
@@ -171,6 +165,7 @@ TEST_F(ProcessIntrospection_test, thread)
                 m_chunk.get()->chunkHeader())));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), hasSubscribers()).WillRepeatedly(Return(true));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), offer()).Times(1);
+        EXPECT_CALL(introspectionAccess->getPublisherPort().value(), stopOffer()).WillRepeatedly(Return());
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
 
         using namespace iox::units::duration_literals;

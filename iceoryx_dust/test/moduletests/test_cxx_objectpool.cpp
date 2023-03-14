@@ -99,19 +99,13 @@ struct FooPoolWithPrivateMembersAccess : FooPool
 class ObjectPool_test : public Test
 {
   public:
-    void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStderr();
         Foo::resetConstructionCounter(); // reset Foo constructionCounter in each test
         Foo::resetDestructionCounter();  // reset Foo destructionCounter in each test
     }
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     int data;

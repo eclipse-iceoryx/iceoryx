@@ -63,19 +63,13 @@ class iox_pub_test : public Test
     {
     }
 
-    void SetUp()
+    void SetUp() override
     {
         m_sut.m_portData = &m_publisherPortData;
-        ::testing::internal::CaptureStderr();
     }
 
-    void TearDown()
+    void TearDown() override
     {
-        std::string output = ::testing::internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     void Subscribe(popo::PublisherPortData* ptr)
