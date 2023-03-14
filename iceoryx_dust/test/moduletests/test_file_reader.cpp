@@ -19,7 +19,6 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
-#include "iceoryx_platform/platform_settings.hpp"
 #include "test.hpp"
 
 
@@ -152,8 +151,7 @@ TEST_F(FileReader_test, errorInformMode)
 
     iox::cxx::FileReader reader("FileNotFound.abc", "TheInfamousPath", iox::cxx::FileReader::ErrorMode::Inform);
 
-    const std::string expectedOutput = "Could not open file 'TheInfamousPath"
-                                       + std::string{iox::platform::IOX_PATH_SEPARATORS[0]} + "FileNotFound.abc'.";
+    const std::string expectedOutput = "Could not open file 'FileNotFound.abc' from path 'TheInfamousPath'.";
     iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
         iox::log::LogLevel::ERROR, [&](const auto& logMessages) {
             ASSERT_THAT(logMessages.size(), Eq(1U));
@@ -165,10 +163,18 @@ TEST_F(FileReader_test, errorTerminateMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
 
+    const std::string fileName{"ISaidNo!"};
+    const std::string filePath{"InTheMiddleOfNowhere"};
+
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [&] {
-            iox::cxx::FileReader reader("ISaidNo!", "InTheMiddleOfNowhere", iox::cxx::FileReader::ErrorMode::Terminate);
-        },
+        [&] { iox::cxx::FileReader reader(fileName, filePath, iox::cxx::FileReader::ErrorMode::Terminate); },
         iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    const std::string expectedOutput = "Could not open file 'ISaidNo!' from path 'InTheMiddleOfNowhere'. Exiting!";
+    iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
+        iox::log::LogLevel::FATAL, [&](const auto& logMessages) {
+            ASSERT_THAT(logMessages.size(), Gt(1U));
+            EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+        });
 }
 } // namespace

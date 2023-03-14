@@ -31,8 +31,12 @@ namespace cxx
 {
 FileReader::FileReader(const std::string& fileName, const std::string& filePath, ErrorMode errorMode) noexcept
 {
-    m_file = filePath.empty() ? fileName : filePath + platform::IOX_PATH_SEPARATORS[0] + fileName;
-    m_fileStream.open(m_file, std::fstream::in);
+    {
+        // create the full file path string in a separate scope in order to prevent to trigger the leak sanitizer in the
+        // test for 'ErrorMode::Terminate'
+        std::string fullFilePath = filePath.empty() ? fileName : filePath + platform::IOX_PATH_SEPARATORS[0] + fileName;
+        m_fileStream.open(fullFilePath, std::fstream::in);
+    }
 
     if (!isOpen())
     {
@@ -44,13 +48,13 @@ FileReader::FileReader(const std::string& fileName, const std::string& filePath,
         }
         case ErrorMode::Inform:
         {
-            IOX_LOG(ERROR) << "Could not open file '" << m_file << "'.";
+            IOX_LOG(ERROR) << "Could not open file '" << fileName << "' from path '" << filePath << "'.";
             return;
         }
         case ErrorMode::Terminate:
         {
             m_fileStream.close();
-            IOX_LOG(FATAL) << "Could not open file '" << m_file << "'. Exiting!";
+            IOX_LOG(FATAL) << "Could not open file '" << fileName << "' from path '" << filePath << "'. Exiting!";
             cxx::Ensures(false);
             return;
         }

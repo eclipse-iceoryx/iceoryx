@@ -52,7 +52,7 @@ class FileReader
     /// error mode is evaluated when an error occurs.
     explicit FileReader(const std::string& fileName,
                         const std::string& filePath = "",
-                        ErrorMode f_errorMode = ErrorMode::Inform) noexcept;
+                        ErrorMode errorMode = ErrorMode::Inform) noexcept;
 
     FileReader(const FileReader&) = delete;
     FileReader(FileReader&&) = delete;
@@ -68,7 +68,6 @@ class FileReader
 
   private:
     std::fstream m_fileStream;
-    std::string m_file;
 };
 
 } // namespace cxx
