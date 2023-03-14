@@ -163,7 +163,7 @@ PerfTopic MQ::receivePerfTopic() noexcept
 
 void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept
 {
-    int32_t openFlags = O_RDWR;
+    int32_t openFlags = O_RDWR | O_NONBLOCK;
     if (channelSide == iox::posix::IpcChannelSide::SERVER)
     {
         openFlags |= O_CREAT;
@@ -208,23 +208,35 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
 
 void MQ::send(const char* buffer, uint32_t length) noexcept
 {
-    iox::posix::posixCall(mq_send)(m_mqDescriptorPublisher, buffer, length, 1U)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << std::endl
-                      << "send error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    while (iox::posix::posixCall(mq_send)(m_mqDescriptorPublisher, buffer, length, 1U)
+               .failureReturnValue(ERROR_CODE)
+               .ignoreErrnos(EAGAIN)
+               .evaluate()
+               .or_else([&](auto& r) {
+                   std::cout << std::endl
+                             << "send error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum()
+                             << std::endl;
+                   exit(1);
+               })
+               ->errnum
+           == EAGAIN)
+    {
+    }
 }
 
 void MQ::receive(char* buffer) noexcept
 {
-    iox::posix::posixCall(mq_receive)(m_mqDescriptorSubscriber, buffer, MAX_MESSAGE_SIZE, nullptr)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "receive error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    while (iox::posix::posixCall(mq_receive)(m_mqDescriptorSubscriber, buffer, MAX_MESSAGE_SIZE, nullptr)
+               .failureReturnValue(ERROR_CODE)
+               .ignoreErrnos(EAGAIN)
+               .evaluate()
+               .or_else([&](auto& r) {
+                   std::cout << "receive error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum()
+                             << std::endl;
+                   exit(1);
+               })
+               ->errnum
+           == EAGAIN)
+    {
+    }
 }
