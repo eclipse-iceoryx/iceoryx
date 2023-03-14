@@ -54,15 +54,15 @@ class ErrorHandlerInterface
     virtual ~ErrorHandlerInterface() = default;
 
     /// @brief Defines the reaction on panic.
-    virtual void panic() = 0;
+    virtual void onPanic() = 0;
 
     /// @brief Defines the reaction on error.
     /// @param desc error descriptor
-    virtual void reportError(ErrorDescriptor desc) = 0;
+    virtual void onReportError(ErrorDescriptor desc) = 0;
 
     /// @brief Defines the reaction on violation (a bug in the code)
     /// @param desc error descriptor
-    virtual void reportViolation(ErrorDescriptor desc) = 0;
+    virtual void onReportViolation(ErrorDescriptor desc) = 0;
 };
 
 } // namespace err

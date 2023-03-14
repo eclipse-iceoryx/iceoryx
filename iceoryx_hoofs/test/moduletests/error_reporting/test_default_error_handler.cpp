@@ -46,15 +46,15 @@ class DefaultErrorHandler_test : public Test
 TEST_F(DefaultErrorHandler_test, panicDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0d7f7048-94d3-42b7-a25a-1a7b506fd835");
-    sut.panic();
+    sut.onPanic();
 }
 
 // Can only check that it can be called, there are no observable effects.
 TEST_F(DefaultErrorHandler_test, reportDoesNothing)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e288318-c756-4666-b779-b944b89ffaf5");
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
-    sut.reportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
+    sut.onReportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE});
 }
 
 } // namespace

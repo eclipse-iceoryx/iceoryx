@@ -88,7 +88,7 @@ TEST_F(TestErrorHandler_test, constructionAndDestructionWorks)
 TEST_F(TestErrorHandler_test, panicWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e2c5e639-722f-4bab-85c7-98268345b033");
-    sut.panic();
+    sut.onPanic();
     EXPECT_TRUE(sut.hasPanicked());
     EXPECT_FALSE(sut.hasError());
 
@@ -99,7 +99,7 @@ TEST_F(TestErrorHandler_test, panicWorks)
 TEST_F(TestErrorHandler_test, reportErrorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90bd13cf-ece2-4221-8cce-7b2a99568a6a");
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
     EXPECT_FALSE(sut.hasPanicked());
     EXPECT_TRUE(sut.hasError());
     EXPECT_TRUE(sut.hasError(CODE1, MODULE));
@@ -112,7 +112,7 @@ TEST_F(TestErrorHandler_test, reportErrorWorks)
 TEST_F(TestErrorHandler_test, reportViolationWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5746886e-7309-4435-9e0a-2e6856a318f5");
-    sut.reportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, VIOLATION, MODULE});
+    sut.onReportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, VIOLATION, MODULE});
 
     EXPECT_TRUE(hasViolation());
 
@@ -123,8 +123,8 @@ TEST_F(TestErrorHandler_test, reportViolationWorks)
 TEST_F(TestErrorHandler_test, hasErrorDetectsOnlyreportErroredErrors)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ee52915-88b7-4041-9f63-93ec5c882e95");
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE2, MODULE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE2, MODULE});
 
     EXPECT_FALSE(sut.hasPanicked());
     EXPECT_TRUE(sut.hasError(CODE1, MODULE));
@@ -140,11 +140,11 @@ TEST_F(TestErrorHandler_test, hasErrorDetectsOnlyreportErroredErrors)
 TEST_F(TestErrorHandler_test, resettingMultipleErrorsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9715c394-5576-4fd8-a0f6-24560f60c161");
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
-    sut.reportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE2, MODULE});
-    sut.reportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, VIOLATION, MODULE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE1, MODULE});
+    sut.onReportError(ErrorDescriptor{CURRENT_SOURCE_LOCATION, CODE2, MODULE});
+    sut.onReportViolation(ErrorDescriptor{CURRENT_SOURCE_LOCATION, VIOLATION, MODULE});
 
-    sut.panic();
+    sut.onPanic();
 
     sut.reset();
     EXPECT_FALSE(hasAnyError());
@@ -174,7 +174,7 @@ void jump(TestErrorHandler& handler, int& jmpValue)
     if (setjmp(&(*buf)[0]) != handler.jumpIndicator())
     {
         // regular control flow panics
-        handler.panic();
+        handler.onPanic();
     }
     else
     {
@@ -197,7 +197,7 @@ TEST_F(TestErrorHandler_test, panicTriggersPreparedJump)
     t.join();
 
     EXPECT_TRUE(sut.hasPanicked());
-    // jumpIndicator() is consistent with value of setjmp after panic
+    // jumpIndicator() is consistent with value of setjmp after onPanic
     EXPECT_EQ(jmpValue, TestErrorHandler::jumpIndicator());
     EXPECT_NE(jmpValue, 0);
 }
@@ -210,7 +210,7 @@ void noJump(TestErrorHandler& handler, int& jmpValue)
     if (setjmp(&(buf[0])) != handler.jumpIndicator())
     {
         // regular control flow panics
-        handler.panic();
+        handler.onPanic();
     }
     else
     {
@@ -219,7 +219,7 @@ void noJump(TestErrorHandler& handler, int& jmpValue)
     }
 }
 
-// This checks that panic will not jump without proper setup by test code
+// This checks that onPanic will not jump without proper setup by test code
 // Note that this must happen outside of the TestErrorHandler implementation due to
 // limitations of setjmp.
 TEST_F(TestErrorHandler_test, panicDoesNotTriggerUnpreparedJump)

@@ -35,22 +35,22 @@ TestErrorHandler::TestErrorHandler()
 {
 }
 
-void TestErrorHandler::reportError(err::ErrorDescriptor desc)
+void TestErrorHandler::onPanic()
+{
+    m_panicked = true;
+    jump();
+}
+
+void TestErrorHandler::onReportError(err::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(desc);
 }
 
-void TestErrorHandler::reportViolation(err::ErrorDescriptor desc)
+void TestErrorHandler::onReportViolation(err::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_violations.push_back(desc);
-}
-
-void TestErrorHandler::panic()
-{
-    m_panicked = true;
-    jump();
 }
 
 bool TestErrorHandler::hasPanicked() const
