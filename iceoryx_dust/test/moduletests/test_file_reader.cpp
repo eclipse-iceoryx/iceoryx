@@ -16,6 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/file_reader.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "test.hpp"
 
 
@@ -27,6 +30,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace ::iox::testing;
 
 const std::string TestFile = "FileReader_test.tmp";
 #ifndef _WIN32
@@ -48,8 +52,6 @@ class FileReader_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStdout();
-
         std::fstream fs(TestFilePath, std::fstream::out | std::fstream::trunc);
         if (fs.std::fstream::is_open())
         {
@@ -63,11 +65,6 @@ class FileReader_test : public Test
     }
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
         if (std::remove(TestFilePath.c_str()) != 0)
         {
             std::cerr << "Failed to remove temporary file '" << TestFilePath
@@ -140,32 +137,44 @@ TEST_F(FileReader_test, readAllLines)
 TEST_F(FileReader_test, errorIgnoreMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4155a17f-2ac3-4240-b0e5-f9bb704cc03d");
-    internal::CaptureStderr();
+
     iox::cxx::FileReader reader(
         "FileNotAvailable.readme", "PathThatNeverHasBeen", iox::cxx::FileReader::ErrorMode::Ignore);
-    EXPECT_TRUE(internal::GetCapturedStderr().empty());
+
+    iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
+        iox::log::LogLevel::ERROR, [&](const auto& logMessages) { ASSERT_THAT(logMessages.size(), Eq(0U)); });
 }
 
 TEST_F(FileReader_test, errorInformMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5dd405e-e8cc-4c86-a4a2-02d38830a4d6");
-    internal::CaptureStderr();
+
     iox::cxx::FileReader reader("FileNotFound.abc", "TheInfamousPath", iox::cxx::FileReader::ErrorMode::Inform);
-    EXPECT_FALSE(internal::GetCapturedStderr().empty());
+
+    const std::string expectedOutput = "Could not open file 'FileNotFound.abc' from path 'TheInfamousPath'.";
+    iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
+        iox::log::LogLevel::ERROR, [&](const auto& logMessages) {
+            ASSERT_THAT(logMessages.size(), Eq(1U));
+            EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+        });
 }
 
 TEST_F(FileReader_test, errorTerminateMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "146e3109-6d98-44ee-a3a9-5d151616a212");
-    std::set_terminate([]() { std::cout << "", std::abort(); });
 
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // using IOX_EXPECT_FATAL_FAILURE currently causes issues with the leak sanitizer with this test
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH(
-        {
-            iox::cxx::FileReader reader("ISaidNo!", "InTheMiddleOfNowhere", iox::cxx::FileReader::ErrorMode::Terminate);
-        },
-        ".*");
+    const std::string fileName{"ISaidNo!"};
+    const std::string filePath{"InTheMiddleOfNowhere"};
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox::cxx::FileReader reader(fileName, filePath, iox::cxx::FileReader::ErrorMode::Terminate); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    const std::string expectedOutput = "Could not open file 'ISaidNo!' from path 'InTheMiddleOfNowhere'. Exiting!";
+    iox::testing::TestingLogger::checkLogMessageIfLogLevelIsSupported(
+        iox::log::LogLevel::FATAL, [&](const auto& logMessages) {
+            ASSERT_THAT(logMessages.size(), Gt(1U));
+            EXPECT_THAT(logMessages[0], HasSubstr(expectedOutput));
+        });
 }
 } // namespace

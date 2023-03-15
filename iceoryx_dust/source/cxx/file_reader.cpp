@@ -17,6 +17,7 @@
 
 #include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
@@ -28,15 +29,18 @@ namespace iox
 {
 namespace cxx
 {
-FileReader::FileReader(const std::string& f_fileName, const std::string& f_filePath, ErrorMode f_errorMode) noexcept
-    : m_errorMode{f_errorMode}
+FileReader::FileReader(const std::string& fileName, const std::string& filePath, ErrorMode errorMode) noexcept
 {
-    m_file = f_filePath.empty() ? f_fileName : f_filePath + platform::IOX_PATH_SEPARATORS[0] + f_fileName;
-    m_fileStream.open(m_file, std::fstream::in);
+    {
+        // create the full file path string in a separate scope in order to prevent to trigger the leak sanitizer in the
+        // test for 'ErrorMode::Terminate'
+        std::string fullFilePath = filePath.empty() ? fileName : filePath + platform::IOX_PATH_SEPARATORS[0] + fileName;
+        m_fileStream.open(fullFilePath, std::fstream::in);
+    }
 
     if (!isOpen())
     {
-        switch (m_errorMode)
+        switch (errorMode)
         {
         case ErrorMode::Ignore:
         {
@@ -44,16 +48,13 @@ FileReader::FileReader(const std::string& f_fileName, const std::string& f_fileP
         }
         case ErrorMode::Inform:
         {
-            std::cerr << "\033[5;31m"
-                      << "Could not open file '" << m_file << "'."
-                      << "\033[0m" << std::endl;
+            IOX_LOG(ERROR) << "Could not open file '" << fileName << "' from path '" << filePath << "'.";
             return;
         }
         case ErrorMode::Terminate:
         {
-            std::cerr << "\033[5;31m"
-                      << "Could not open file '" << m_file << "'. Exiting!"
-                      << "\033[0m" << std::endl;
+            m_fileStream.close();
+            IOX_LOG(FATAL) << "Could not open file '" << fileName << "' from path '" << filePath << "'. Exiting!";
             cxx::Ensures(false);
             return;
         }
@@ -65,9 +66,9 @@ bool FileReader::isOpen() const noexcept
     return m_fileStream.is_open();
 }
 
-bool FileReader::readLine(std::string& f_string) noexcept
+bool FileReader::readLine(std::string& buffer) noexcept
 {
-    return static_cast<bool>(std::getline(m_fileStream, f_string));
+    return static_cast<bool>(std::getline(m_fileStream, buffer));
 }
 
 } // namespace cxx

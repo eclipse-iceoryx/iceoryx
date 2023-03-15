@@ -17,7 +17,9 @@
 #ifndef IOX_DUST_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
 #define IOX_DUST_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
 
+#include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -45,5 +47,31 @@ struct CmdArgs
     std::unique_ptr<std::vector<std::string>> contents;
 };
 
+class OutBuffer
+{
+  public:
+    OutBuffer()
+    {
+        std::cout.rdbuf(m_capture.rdbuf());
+    }
+    ~OutBuffer()
+    {
+        std::cout.rdbuf(m_originalOutBuffer);
+    }
+
+    void clear()
+    {
+        m_capture.str("");
+    }
+
+    std::string output()
+    {
+        return m_capture.str();
+    }
+
+  private:
+    std::streambuf* m_originalOutBuffer{std::cout.rdbuf()};
+    std::stringstream m_capture;
+};
 
 #endif

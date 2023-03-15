@@ -127,18 +127,12 @@ class ServiceRegistry_test : public Test
 {
   public:
     using ServiceDescription = iox::capro::ServiceDescription;
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     uint64_t countServices()

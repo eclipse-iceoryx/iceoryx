@@ -61,22 +61,16 @@ class PortIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
         ASSERT_THAT(m_introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection)),
                     Eq(true));
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     bool comparePortData(const iox::roudi::SubscriberPortData& a, const iox::roudi::SubscriberPortData& b)
