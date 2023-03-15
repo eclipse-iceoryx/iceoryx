@@ -20,6 +20,8 @@
 #include <cstdint>
 #include <sys/socket.h>
 
+#define SOCK_NONBLOCK 0
+
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);
 int iox_setsockopt(int sockfd, int level, int optname, const void* optval, socklen_t optlen);

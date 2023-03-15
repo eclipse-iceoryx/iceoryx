@@ -93,7 +93,7 @@ void UDS::initFollower() noexcept
 void UDS::init() noexcept
 {
     // init subscriber
-    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM | SOCK_NONBLOCK, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdSubscriber = r.value; })
@@ -112,7 +112,7 @@ void UDS::init() noexcept
         });
 
     // init publisher
-    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM | SOCK_NONBLOCK, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdPublisher = r.value; })
@@ -135,7 +135,7 @@ void UDS::waitForLeader() noexcept
                                                           reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
                                                           sizeof(m_sockAddrPublisher))
                             .failureReturnValue(ERROR_CODE)
-                            .ignoreErrnos(ENOENT)
+                            .ignoreErrnos(ENOENT, ECONNREFUSED)
                             .evaluate()
                             .or_else([](auto& r) {
                                 std::cout << "send error " << r.getHumanReadableErrnum() << std::endl;
@@ -143,7 +143,7 @@ void UDS::waitForLeader() noexcept
                             })
                             .value();
 
-        if (sendCall.errnum == ENOENT)
+        if (sendCall.errnum == ENOENT || sendCall.errnum == ECONNREFUSED)
         {
             constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
             std::this_thread::sleep_for(RETRY_INTERVAL);
@@ -239,32 +239,40 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
     // only return from this loop when the message could be send successfully
     // if the OS socket message buffer if full, retry until it is free'd by
     // the OS and the message could be send
-    while (iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
-                                             buffer,
-                                             length,
-                                             0,
-                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                             sizeof(m_sockAddrPublisher))
-               .failureReturnValue(ERROR_CODE)
-               .ignoreErrnos(ENOBUFS)
-               .evaluate()
-               .or_else([](auto& r) {
-                   std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
-                   exit(1);
-               })
-               ->errnum
-           == ENOBUFS)
+    while (true)
     {
+        auto result = iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
+                                                        buffer,
+                                                        length,
+                                                        0,
+                                                        reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                                        sizeof(m_sockAddrPublisher))
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOBUFS, EAGAIN)
+                          .evaluate()
+                          .or_else([](auto& r) {
+                              std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
+                              exit(1);
+                          });
+        if (result->errnum != ENOBUFS && result->errnum != EAGAIN)
+        {
+            break;
+        }
     }
 }
 
 void UDS::receive(char* buffer) noexcept
 {
-    iox::posix::posixCall(iox_recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([](auto& r) {
-            std::cout << "receive error " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    while (iox::posix::posixCall(iox_recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+               .failureReturnValue(ERROR_CODE)
+               .ignoreErrnos(EAGAIN)
+               .evaluate()
+               .or_else([](auto& r) {
+                   std::cout << "receive error " << r.getHumanReadableErrnum() << std::endl;
+                   exit(1);
+               })
+               ->errnum
+           == EAGAIN)
+    {
+    }
 }
