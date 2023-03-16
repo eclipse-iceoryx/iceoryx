@@ -78,7 +78,14 @@ class StaticLifetimeGuard
     static uint64_t count();
 
   private:
-    using storage_t = typename std::aligned_storage_t<sizeof(T), alignof(T)>;
+    struct alignas(T) storage_t
+    {
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
+        // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
+        unsigned char data[sizeof(T)];
+    };
 
     static constexpr uint32_t UNINITIALIZED{0};
     static constexpr uint32_t INITALIZING{1};
