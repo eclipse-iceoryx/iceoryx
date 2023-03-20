@@ -41,12 +41,17 @@ struct TestValues
     static std::vector<std::string> TOO_LONG_CONTENT_VALUES;
 };
 
+template <>
 uint64_t TestValues<UserName>::CAPACITY = platform::MAX_USER_NAME_LENGTH;
+template <>
 std::vector<std::string> TestValues<UserName>::VALID_VALUES{{"some-user"}, {"user2"}};
+template <>
 std::vector<std::string> TestValues<UserName>::INVALID_CHARACTER_VALUES{
     {"some-!user"}, {"*kasjd"}, {"_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+template <>
 std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_VALUES{
     {""}, {"-do-not-start-with-dash"}, {"5do-not-start-with-a-number"}};
+template <>
 std::vector<std::string> TestValues<UserName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
 // NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
 
@@ -86,7 +91,7 @@ TYPED_TEST(SemanticString_test, InitializeWithValidStringValueWorks)
         ASSERT_THAT(sut.has_error(), Eq(false));
         EXPECT_THAT(sut->size(), Eq(value.size()));
         EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
-        EXPECT_THAT(sut->as_string().c_str(), StrEq(value.c_str()));
+        EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
     }
 }
 
@@ -151,7 +156,7 @@ TYPED_TEST(SemanticString_test, AppendValidContentToValidStringWorks)
             EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
 
             auto result = value + add_value;
-            EXPECT_THAT(sut->as_string().c_str(), StrEq(result.c_str()));
+            EXPECT_THAT(sut->as_string().c_str(), StrEq(result));
         }
     }
 }
@@ -173,7 +178,7 @@ TYPED_TEST(SemanticString_test, AppendInvalidContentToValidStringFails)
             EXPECT_THAT(sut->size(), value.size());
             EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
 
-            EXPECT_THAT(sut->as_string().c_str(), StrEq(value.c_str()));
+            EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
         }
     }
 }
@@ -195,7 +200,7 @@ TYPED_TEST(SemanticString_test, AppendTooLongContentToValidStringFails)
             EXPECT_THAT(sut->size(), Eq(value.size()));
             EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
 
-            EXPECT_THAT(sut->as_string().c_str(), StrEq(value.c_str()));
+            EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
         }
     }
 }
@@ -226,7 +231,7 @@ TYPED_TEST(SemanticString_test, InsertValidContentToValidStringWorks)
 
                 auto result = value;
                 result.insert(insert_position, add_value);
-                EXPECT_THAT(sut->as_string().c_str(), StrEq(result.c_str()));
+                EXPECT_THAT(sut->as_string().c_str(), StrEq(result));
             }
         }
     }
@@ -255,7 +260,7 @@ TYPED_TEST(SemanticString_test, InsertInvalidContentToValidStringFails)
 
                 EXPECT_THAT(sut->size(), value.size());
                 EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
-                EXPECT_THAT(sut->as_string().c_str(), StrEq(value.c_str()));
+                EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
             }
         }
     }
@@ -285,7 +290,7 @@ TYPED_TEST(SemanticString_test, InsertTooLongContentToValidStringFails)
                 EXPECT_THAT(sut->size(), Eq(value.size()));
                 EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
 
-                EXPECT_THAT(sut->as_string().c_str(), StrEq(value.c_str()));
+                EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
             }
         }
     }
