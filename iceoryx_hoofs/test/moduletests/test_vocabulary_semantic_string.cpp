@@ -30,7 +30,6 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::testing;
 
-// NOLINTBEGIN(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
 template <typename T>
 struct TestValues
 {
@@ -39,6 +38,8 @@ struct TestValues
     static std::vector<std::string> INVALID_CHARACTER_VALUES;
     static std::vector<std::string> INVALID_CONTENT_VALUES;
     static std::vector<std::string> TOO_LONG_CONTENT_VALUES;
+    static std::string GREATER_VALID_VALUE;
+    static std::string SMALLER_VALID_VALUE;
 };
 
 template <>
@@ -53,13 +54,23 @@ std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_VALUES{
     {""}, {"-do-not-start-with-dash"}, {"5do-not-start-with-a-number"}};
 template <>
 std::vector<std::string> TestValues<UserName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
-// NOLINTEND(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
+template <>
+std::string TestValues<UserName>::GREATER_VALID_VALUE{"zebra-zusel"};
+template <>
+std::string TestValues<UserName>::SMALLER_VALID_VALUE{"alfons-alf"};
 
 template <typename T>
 class SemanticString_test : public Test
 {
   protected:
     using SutType = T;
+    string<SutType::capacity()> greater_value_str =
+        string<SutType::capacity()>(TruncateToCapacity, TestValues<SutType>::GREATER_VALID_VALUE.c_str());
+    string<SutType::capacity()> smaller_value_str =
+        string<SutType::capacity()>(TruncateToCapacity, TestValues<SutType>::SMALLER_VALID_VALUE.c_str());
+
+    SutType greater_value = SutType::create(greater_value_str).expect("Failed to create test string.");
+    SutType smaller_value = SutType::create(smaller_value_str).expect("Failed to create test string.");
 };
 
 using Implementations = Types<UserName>;
@@ -296,4 +307,61 @@ TYPED_TEST(SemanticString_test, InsertTooLongContentToValidStringFails)
     }
 }
 
+TYPED_TEST(SemanticString_test, EqualityOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "97889932-ac3b-4155-9958-34c843d2d323");
+
+    EXPECT_TRUE(this->greater_value == this->greater_value);
+    EXPECT_FALSE(this->greater_value == this->smaller_value);
+
+    EXPECT_TRUE(this->greater_value == this->greater_value_str);
+    EXPECT_FALSE(this->greater_value == this->smaller_value_str);
+}
+
+TYPED_TEST(SemanticString_test, InequalityOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "32903b0b-3594-4c00-9869-d18e1dfc773f");
+
+    EXPECT_FALSE(this->greater_value != this->greater_value);
+    EXPECT_TRUE(this->greater_value != this->smaller_value);
+
+    EXPECT_FALSE(this->greater_value != this->greater_value_str);
+    EXPECT_TRUE(this->greater_value != this->smaller_value_str);
+}
+
+TYPED_TEST(SemanticString_test, LessThanOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "53f5b765-b462-4cc1-bab7-9b937fbbcecf");
+
+    EXPECT_TRUE(this->greater_value <= this->greater_value);
+    EXPECT_TRUE(this->smaller_value <= this->greater_value);
+    EXPECT_FALSE(this->greater_value <= this->smaller_value);
+}
+
+TYPED_TEST(SemanticString_test, LessOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cea977a4-ccb3-42a6-9d13-e09dce24c273");
+
+    EXPECT_FALSE(this->greater_value < this->greater_value);
+    EXPECT_TRUE(this->smaller_value < this->greater_value);
+    EXPECT_FALSE(this->greater_value < this->smaller_value);
+}
+
+TYPED_TEST(SemanticString_test, GreaterThanOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5d731b17-f787-46fc-b64d-3d86c9102008");
+
+    EXPECT_TRUE(this->greater_value >= this->greater_value);
+    EXPECT_FALSE(this->smaller_value >= this->greater_value);
+    EXPECT_TRUE(this->greater_value >= this->smaller_value);
+}
+
+TYPED_TEST(SemanticString_test, GreaterOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8c046cff-fb69-43b4-9a45-e86f17c874db");
+
+    EXPECT_FALSE(this->greater_value > this->greater_value);
+    EXPECT_FALSE(this->smaller_value > this->greater_value);
+    EXPECT_TRUE(this->greater_value > this->smaller_value);
+}
 } // namespace

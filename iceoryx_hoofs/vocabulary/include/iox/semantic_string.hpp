@@ -63,7 +63,8 @@ using DoesContainInvalidContent = bool (*)(const string<Capacity>& value);
 ///         'test_vocabulary_semantic_string.cpp'.
 ///         One has to only add the specific implementation to the 'Implementations'
 ///         type list.
-template <uint64_t Capacity,
+template <typename Child,
+          uint64_t Capacity,
           DoesContainInvalidContent<Capacity> DoesContainInvalidContentCall,
           DoesContainInvalidCharacter<Capacity> DoesContainInvalidCharacterCall>
 class SemanticString
@@ -78,7 +79,7 @@ class SemanticString
     // avoid-c-arrays: we would like to assign string_literals, safe since it is known
     //                 at compile time.
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
-    static expected<SemanticString, SemanticStringError> create(const char (&value)[N]) noexcept;
+    static expected<Child, SemanticStringError> create(const char (&value)[N]) noexcept;
 
     /// @brief Creates a new SemanticString from the provided string.
     ///         If the value contains invalid characters or invalid content
@@ -86,7 +87,7 @@ class SemanticString
     /// @param[in] value the value of the SemanticString
     /// @return expected either containing the new SemanticString or an error
     template <uint64_t N>
-    static expected<SemanticString, SemanticStringError> create(const string<N>& value) noexcept;
+    static expected<Child, SemanticStringError> create(const string<N>& value) noexcept;
 
     /// @brief Returns the number of characters.
     /// @return number of characters
@@ -120,12 +121,43 @@ class SemanticString
     template <typename T>
     expected<SemanticStringError> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
-  private:
+    bool operator==(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator==(const T& rhs) const noexcept;
+
+    bool operator!=(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator!=(const T& rhs) const noexcept;
+
+    bool operator<=(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator<=(const T& rhs) const noexcept;
+
+    bool operator<(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator<(const T& rhs) const noexcept;
+
+    bool operator>=(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator>=(const T& rhs) const noexcept;
+
+    bool operator>(const SemanticString& rhs) const noexcept;
+
+    template <typename T>
+    IsStringOrCharArray<T, bool> operator>(const T& rhs) const noexcept;
+
+  protected:
     template <uint64_t N>
     explicit SemanticString(const string<N>& value) noexcept;
 
+  private:
     template <uint64_t N>
-    static expected<SemanticString, SemanticStringError> create_impl(const char* value) noexcept;
+    static expected<Child, SemanticStringError> create_impl(const char* value) noexcept;
 
   private:
     string<Capacity> m_data;

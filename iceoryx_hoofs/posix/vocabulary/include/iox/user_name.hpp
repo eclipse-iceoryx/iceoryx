@@ -27,10 +27,16 @@ bool user_name_does_contain_invalid_characters(const string<platform::MAX_USER_N
 bool user_name_does_contain_invalid_content(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept;
 } // namespace details
 
-class UserName : public SemanticString<platform::MAX_USER_NAME_LENGTH,
+class UserName : public SemanticString<UserName,
+                                       platform::MAX_USER_NAME_LENGTH,
                                        details::user_name_does_contain_invalid_content,
                                        details::user_name_does_contain_invalid_characters>
 {
+    using Parent = SemanticString<UserName,
+                                  platform::MAX_USER_NAME_LENGTH,
+                                  details::user_name_does_contain_invalid_content,
+                                  details::user_name_does_contain_invalid_characters>;
+    using Parent::Parent;
 };
 } // namespace iox
 
