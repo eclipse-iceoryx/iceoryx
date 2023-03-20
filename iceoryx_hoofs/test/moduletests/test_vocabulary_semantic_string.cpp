@@ -329,7 +329,7 @@ TYPED_TEST(SemanticString_test, InequalityOperatorWorks)
     EXPECT_TRUE(this->greater_value != this->smaller_value_str);
 }
 
-TYPED_TEST(SemanticString_test, LessThanOperatorWorks)
+TYPED_TEST(SemanticString_test, LessThanOrEqualOperatorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "53f5b765-b462-4cc1-bab7-9b937fbbcecf");
 
@@ -338,7 +338,7 @@ TYPED_TEST(SemanticString_test, LessThanOperatorWorks)
     EXPECT_FALSE(this->greater_value <= this->smaller_value);
 }
 
-TYPED_TEST(SemanticString_test, LessOperatorWorks)
+TYPED_TEST(SemanticString_test, LessThanOperatorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cea977a4-ccb3-42a6-9d13-e09dce24c273");
 
@@ -347,7 +347,7 @@ TYPED_TEST(SemanticString_test, LessOperatorWorks)
     EXPECT_FALSE(this->greater_value < this->smaller_value);
 }
 
-TYPED_TEST(SemanticString_test, GreaterThanOperatorWorks)
+TYPED_TEST(SemanticString_test, GreaterThanOrEqualOperatorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d731b17-f787-46fc-b64d-3d86c9102008");
 
@@ -356,7 +356,7 @@ TYPED_TEST(SemanticString_test, GreaterThanOperatorWorks)
     EXPECT_TRUE(this->greater_value >= this->smaller_value);
 }
 
-TYPED_TEST(SemanticString_test, GreaterOperatorWorks)
+TYPED_TEST(SemanticString_test, GreaterThanOperatorWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8c046cff-fb69-43b4-9a45-e86f17c874db");
 

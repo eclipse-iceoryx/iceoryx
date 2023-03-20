@@ -121,33 +121,69 @@ class SemanticString
     template <typename T>
     expected<SemanticStringError> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
+    /// @brief checks if another SemanticString is equal to this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents equal, otherwise false
     bool operator==(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is equal to this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents equal, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator==(const T& rhs) const noexcept;
 
+    /// @brief checks if another SemanticString is not equal to this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents not equal, otherwise false
     bool operator!=(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is not equal to this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents not equal, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator!=(const T& rhs) const noexcept;
 
+    /// @brief checks if another SemanticString is less than or equal this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents are less than or equal rhs, otherwise false
     bool operator<=(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is less than or equal this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents are less than or equal rhs, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator<=(const T& rhs) const noexcept;
 
+    /// @brief checks if another SemanticString is less than this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents are less than rhs, otherwise false
     bool operator<(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is less than this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents are less than rhs, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator<(const T& rhs) const noexcept;
 
+    /// @brief checks if another SemanticString is greater than or equal this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents are greater than or equal rhs, otherwise false
     bool operator>=(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is greater than or equal this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents are greater than or equal rhs, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator>=(const T& rhs) const noexcept;
 
+    /// @brief checks if another SemanticString is greater than this string
+    /// @param [in] rhs the other SemanticString
+    /// @return true if the contents are greater than rhs, otherwise false
     bool operator>(const SemanticString& rhs) const noexcept;
 
+    /// @brief checks if another string or char array is greater than this string
+    /// @param [in] rhs the other string
+    /// @return true if the contents are greater than rhs, otherwise false
     template <typename T>
     IsStringOrCharArray<T, bool> operator>(const T& rhs) const noexcept;
 
