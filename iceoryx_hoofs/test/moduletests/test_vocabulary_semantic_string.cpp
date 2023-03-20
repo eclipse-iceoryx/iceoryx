@@ -57,6 +57,10 @@ class SemanticString_test : public Test
 
 using Implementations = Types<UserName>;
 
+// cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay: we use compile time
+//      string literals as test input. Those string literals are decaying into pointers in a safe
+//      null-terminated fashion and are therefore safe to use.
+// NOLINTBEGIN(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
 TYPED_TEST_SUITE(SemanticString_test, Implementations, );
 
 TYPED_TEST(SemanticString_test, InitializeWithValidStringLiteralWorks)
@@ -304,6 +308,7 @@ TYPED_TEST(SemanticString_test, InsertTooLongContentToValidStringFails)
         }
     }
 }
+// NOLINTEND(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
 
 
 } // namespace
