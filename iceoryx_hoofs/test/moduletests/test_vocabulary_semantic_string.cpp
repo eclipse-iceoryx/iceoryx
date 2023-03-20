@@ -129,4 +129,181 @@ TYPED_TEST(SemanticString_test, InitializeWithTooLongContentFails)
         ASSERT_THAT(sut.get_error(), Eq(SemanticStringError::ExceedsMaximumLength));
     }
 }
+
+TYPED_TEST(SemanticString_test, AppendValidContentToValidStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "56ea499f-5ac3-4ffe-abea-b56194cfd728");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto add_value : TestValues<SutType>::VALID_VALUES)
+        {
+            auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+            ASSERT_THAT(sut.has_error(), Eq(false));
+
+            EXPECT_THAT(sut->append(string<SutType::capacity()>(TruncateToCapacity, add_value)).has_error(), Eq(false));
+            auto result_size =
+                strnlen(value, TestValues<SutType>::CAPACITY) + strnlen(add_value, TestValues<SutType>::CAPACITY);
+            EXPECT_THAT(sut->size(), result_size);
+            EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+            auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+            result.append(TruncateToCapacity, string<SutType::capacity()>(TruncateToCapacity, add_value));
+            EXPECT_THAT(sut->as_string(), Eq(result));
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, AppendInvalidContentToValidStringFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fddf4a56-c368-4ff0-8727-e732d6ebc87f");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto invalid_value : TestValues<SutType>::INVALID_CHARACTER_VALUES)
+        {
+            auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+            ASSERT_THAT(sut.has_error(), Eq(false));
+
+            EXPECT_THAT(sut->append(string<SutType::capacity()>(TruncateToCapacity, invalid_value)).has_error(),
+                        Eq(true));
+            EXPECT_THAT(sut->size(), strnlen(value, TestValues<SutType>::CAPACITY));
+            EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+            auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+            EXPECT_THAT(sut->as_string(), Eq(result));
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, AppendTooLongContentToValidStringFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b8616fbf-601d-43b9-b4a3-f6b96acdf555");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto invalid_value : TestValues<SutType>::TOO_LONG_CONTENT_VALUES)
+        {
+            auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+            ASSERT_THAT(sut.has_error(), Eq(false));
+
+            EXPECT_THAT(sut->append(string<SutType::capacity()>(TruncateToCapacity, invalid_value)).has_error(),
+                        Eq(true));
+            EXPECT_THAT(sut->size(), strnlen(value, TestValues<SutType>::CAPACITY));
+            EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+            auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+            EXPECT_THAT(sut->as_string(), Eq(result));
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, InsertValidContentToValidStringWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "56ea499f-5ac3-4ffe-abea-b56194cfd728");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto add_value : TestValues<SutType>::VALID_VALUES)
+        {
+            auto string_size = strnlen(value, TestValues<SutType>::CAPACITY);
+            for (uint64_t insert_position = 0; insert_position < string_size; ++insert_position)
+            {
+                auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+                ASSERT_THAT(sut.has_error(), Eq(false));
+
+                auto add_value_size = strnlen(add_value, TestValues<SutType>::CAPACITY);
+                EXPECT_THAT(sut->insert(insert_position,
+                                        string<SutType::capacity()>(TruncateToCapacity, add_value),
+                                        add_value_size)
+                                .has_error(),
+                            Eq(false));
+
+
+                auto result_size = strnlen(value, TestValues<SutType>::CAPACITY) + add_value_size;
+                EXPECT_THAT(sut->size(), result_size);
+                EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+                auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+                result.insert(
+                    insert_position, string<SutType::capacity()>(TruncateToCapacity, add_value), add_value_size);
+                EXPECT_THAT(sut->as_string(), Eq(result));
+            }
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, InsertInvalidContentToValidStringFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "35229fb8-e6e9-44d9-9d47-d00b71a4ce01");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto add_value : TestValues<SutType>::INVALID_CHARACTER_VALUES)
+        {
+            auto string_size = strnlen(value, TestValues<SutType>::CAPACITY);
+            for (uint64_t insert_position = 0; insert_position < string_size; ++insert_position)
+            {
+                auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+                ASSERT_THAT(sut.has_error(), Eq(false));
+
+                auto add_value_size = strnlen(add_value, TestValues<SutType>::CAPACITY);
+                EXPECT_THAT(sut->insert(insert_position,
+                                        string<SutType::capacity()>(TruncateToCapacity, add_value),
+                                        add_value_size)
+                                .has_error(),
+                            Eq(true));
+
+
+                auto result_size = strnlen(value, TestValues<SutType>::CAPACITY);
+                EXPECT_THAT(sut->size(), result_size);
+                EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+                auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+                EXPECT_THAT(sut->as_string(), Eq(result));
+            }
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, InsertTooLongContentToValidStringFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b6939126-a878-4d7f-9fea-c2b438226e65");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto add_value : TestValues<SutType>::TOO_LONG_CONTENT_VALUES)
+        {
+            auto string_size = strnlen(value, TestValues<SutType>::CAPACITY);
+            for (uint64_t insert_position = 0; insert_position < string_size; ++insert_position)
+            {
+                auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value));
+                ASSERT_THAT(sut.has_error(), Eq(false));
+
+                auto add_value_size = strnlen(add_value, TestValues<SutType>::CAPACITY);
+                EXPECT_THAT(sut->insert(insert_position,
+                                        string<SutType::capacity()>(TruncateToCapacity, add_value),
+                                        add_value_size)
+                                .has_error(),
+                            Eq(true));
+
+
+                auto result_size = strnlen(value, TestValues<SutType>::CAPACITY);
+                EXPECT_THAT(sut->size(), result_size);
+                EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+                auto result = string<SutType::capacity()>(TruncateToCapacity, value);
+                EXPECT_THAT(sut->as_string(), Eq(result));
+            }
+        }
+    }
+}
+
+
 } // namespace

@@ -132,7 +132,7 @@ inline expected<SemanticStringError>
 SemanticString<Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::append(
     const T& value) noexcept
 {
-    return insert(size() - 1, value, value.size());
+    return insert(size(), value, value.size());
 }
 
 template <uint64_t Capacity,
