@@ -74,7 +74,7 @@ TYPED_TEST(SemanticString_test, InitializeWithValidStringLiteralWorks)
 
 TYPED_TEST(SemanticString_test, InitializeWithValidStringValueWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "14483f4e-d556-4770-89df-84d873428eee");
+    ::testing::Test::RecordProperty("TEST_ID", "0100d764-628c-44ad-9af7-fe7a4540491a");
     using SutType = typename TestFixture::SutType;
 
     for (auto value : TestValues<SutType>::VALID_VALUES)
@@ -132,7 +132,7 @@ TYPED_TEST(SemanticString_test, InitializeWithTooLongContentFails)
 
 TYPED_TEST(SemanticString_test, AppendValidContentToValidStringWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "56ea499f-5ac3-4ffe-abea-b56194cfd728");
+    ::testing::Test::RecordProperty("TEST_ID", "0994fccc-5baa-4408-b17e-e2955439608d");
     using SutType = typename TestFixture::SutType;
 
     for (auto value : TestValues<SutType>::VALID_VALUES)
