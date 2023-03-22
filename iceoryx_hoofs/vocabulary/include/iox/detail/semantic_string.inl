@@ -1,5 +1,4 @@
-// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -153,7 +152,7 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
     if (!temp.insert(pos, str, count))
     {
         IOX_LOG(WARN) << "Unable to insert the value \"" << str
-                      << "\" to the semantic string since it would exceeds the maximum valid length of " << Capacity
+                      << "\" to the semantic string since it would exceed the maximum valid length of " << Capacity
                       << ".";
         return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
     }
