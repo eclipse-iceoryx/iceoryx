@@ -82,7 +82,7 @@ class SemanticString
     /// @param[in] value the value of the SemanticString
     /// @return expected either containing the new SemanticString or an error
     template <uint64_t N>
-    // avoid-c-arrays: we would like to assign string_literals, safe since it is known
+    // avoid-c-arrays: we would like to assign string literals, safe since it is known
     //                 at compile time.
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays, hicpp-explicit-conversions)
     static expected<Child, SemanticStringError> create(const char (&value)[N]) noexcept;
