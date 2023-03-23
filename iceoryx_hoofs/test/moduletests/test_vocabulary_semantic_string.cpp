@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/file_name.hpp"
+#include "iox/file_path.hpp"
 #include "iox/group_name.hpp"
 #include "iox/semantic_string.hpp"
 #include "iox/user_name.hpp"
@@ -127,6 +128,46 @@ const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{std::string(platform:
 // END: FileName
 ///////////////////
 
+///////////////////
+// START: FilePath
+///////////////////
+template <>
+const uint64_t TestValues<FilePath>::CAPACITY = platform::IOX_MAX_PATH_LENGTH;
+template <>
+const std::vector<std::string> TestValues<FilePath>::VALID_VALUES{{"file"},
+                                                                  {"another_file.bla"},
+                                                                  {"123.456"},
+                                                                  {".hidden_me"},
+                                                                  {"/some/file/path"},
+                                                                  {"./relative/path"},
+                                                                  {"another/../../relative/path"},
+                                                                  {"another/../...bla"},
+                                                                  {"not/yet/another/path/../fuu"}};
+template <>
+const std::vector<std::string> TestValues<FilePath>::INVALID_CHARACTER_VALUES{{"some-!user"},
+                                                                              {"*kasjd"},
+                                                                              {"$_fuuuas"},
+                                                                              {";'1'fuuuu"},
+                                                                              {"so*me/path/to/."},
+                                                                              {"/some/pa)th/to/."},
+                                                                              {"another/relative/pa]th/at/the/end/.."}};
+template <>
+const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_VALUES{
+    {""}, {"."}, {".."}, {"stop/with/relative/.."}, "another/relative/part/at/the/end/."};
+template <>
+const std::vector<std::string> TestValues<FilePath>::TOO_LONG_CONTENT_VALUES{
+    std::string(platform::IOX_MAX_PATH_LENGTH + 2, 'a')};
+template <>
+const std::string TestValues<FilePath>::GREATER_VALID_VALUE{"9-i-am-a-file"};
+template <>
+const std::string TestValues<FilePath>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
+template <>
+const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+///////////////////
+// END: FilePath
+///////////////////
+
+
 template <typename T>
 class SemanticString_test : public Test
 {
@@ -154,7 +195,7 @@ class SemanticString_test : public Test
     SutType smaller_value = SutType::create(smaller_value_str).expect("Failed to create test string.");
 };
 
-using Implementations = Types<UserName, FileName, GroupName>;
+using Implementations = Types<UserName, FileName, GroupName, FilePath>;
 
 TYPED_TEST_SUITE(SemanticString_test, Implementations, );
 
