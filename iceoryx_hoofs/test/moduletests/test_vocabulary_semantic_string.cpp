@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/file_name.hpp"
+#include "iox/group_name.hpp"
 #include "iox/semantic_string.hpp"
 #include "iox/user_name.hpp"
 #include "test.hpp"
@@ -76,6 +77,31 @@ const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_END{};
 ///////////////////
 
 ///////////////////
+// START: GroupName
+///////////////////
+template <>
+const uint64_t TestValues<GroupName>::CAPACITY = platform::MAX_USER_NAME_LENGTH;
+template <>
+const std::vector<std::string> TestValues<GroupName>::VALID_VALUES{{"some-user"}, {"user2"}};
+template <>
+const std::vector<std::string> TestValues<GroupName>::INVALID_CHARACTER_VALUES{
+    {"some-!user"}, {"*kasjd"}, {"_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+template <>
+const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{
+    {""}, {"-do-not-start-with-dash"}, {"5do-not-start-with-a-number"}};
+template <>
+const std::vector<std::string> TestValues<GroupName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
+template <>
+const std::string TestValues<GroupName>::GREATER_VALID_VALUE{"zebra-zusel"};
+template <>
+const std::string TestValues<GroupName>::SMALLER_VALID_VALUE{"alfons-alf"};
+template <>
+const std::string TestValues<GroupName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
+///////////////////
+// END: GroupName
+///////////////////
+
+///////////////////
 // START: FileName
 ///////////////////
 template <>
@@ -128,7 +154,7 @@ class SemanticString_test : public Test
     SutType smaller_value = SutType::create(smaller_value_str).expect("Failed to create test string.");
 };
 
-using Implementations = Types<UserName, FileName>;
+using Implementations = Types<UserName, FileName, GroupName>;
 
 TYPED_TEST_SUITE(SemanticString_test, Implementations, );
 

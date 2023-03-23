@@ -18,24 +18,19 @@
 #define IOX_HOOFS_POSIX_VOCABULARY_GROUP_NAME_HPP
 
 #include "iox/semantic_string.hpp"
+#include "iox/user_name.hpp"
 
 namespace iox
 {
-namespace details
+class GroupName : public SemanticString<GroupName,
+                                        platform::MAX_GROUP_NAME_LENGTH,
+                                        details::user_name_does_contain_invalid_content,
+                                        details::user_name_does_contain_invalid_characters>
 {
-bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
-bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
-} // namespace details
-
-class Path : public SemanticString<Path,
-                                   platform::MAX_GROUP_NAME_LENGTH,
-                                   details::group_name_does_contain_invalid_content,
-                                   details::group_name_does_contain_invalid_characters>
-{
-    using Parent = SemanticString<Path,
+    using Parent = SemanticString<GroupName,
                                   platform::MAX_GROUP_NAME_LENGTH,
-                                  details::group_name_does_contain_invalid_content,
-                                  details::group_name_does_contain_invalid_characters>;
+                                  details::user_name_does_contain_invalid_content,
+                                  details::user_name_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox
