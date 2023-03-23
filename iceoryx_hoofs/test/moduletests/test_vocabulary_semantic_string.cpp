@@ -157,7 +157,7 @@ TYPED_TEST(SemanticString_test, InitializeWithValidStringValueWorks)
     ::testing::Test::RecordProperty("TEST_ID", "0100d764-628c-44ad-9af7-fe7a4540491a");
     using SutType = typename TestFixture::SutType;
 
-    for (auto& value : TestValues<UserName>::VALID_VALUES)
+    for (const auto& value : TestValues<UserName>::VALID_VALUES)
     {
         auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
 
