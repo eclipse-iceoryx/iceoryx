@@ -17,6 +17,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/file_name.hpp"
 #include "iox/semantic_string.hpp"
 #include "iox/user_name.hpp"
 #include "test.hpp"
@@ -45,6 +46,9 @@ struct TestValues
     static const std::vector<std::string> INVALID_CONTENT_ADD_END;
 };
 
+///////////////////
+// START: UserName
+///////////////////
 template <>
 const uint64_t TestValues<UserName>::CAPACITY = platform::MAX_USER_NAME_LENGTH;
 template <>
@@ -67,6 +71,35 @@ template <>
 const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_BEGIN{"-bla", "81923"};
 template <>
 const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_END{};
+///////////////////
+// END: UserName
+///////////////////
+
+///////////////////
+// START: FileName
+///////////////////
+template <>
+const uint64_t TestValues<FileName>::CAPACITY = platform::IOX_MAX_FILENAME_LENGTH;
+template <>
+const std::vector<std::string> TestValues<FileName>::VALID_VALUES{
+    {"file"}, {"another_file.bla"}, {"123.456"}, {".hidden_me"}};
+template <>
+const std::vector<std::string> TestValues<FileName>::INVALID_CHARACTER_VALUES{
+    {"some-!user"}, {"*kasjd"}, {"$_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+template <>
+const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_VALUES{{""}, {"."}, {".."}};
+template <>
+const std::vector<std::string> TestValues<FileName>::TOO_LONG_CONTENT_VALUES{
+    std::string(platform::IOX_MAX_FILENAME_LENGTH + 2, 'a')};
+template <>
+const std::string TestValues<FileName>::GREATER_VALID_VALUE{"9-i-am-a-file"};
+template <>
+const std::string TestValues<FileName>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
+template <>
+const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_FILENAME_LENGTH, 'b')};
+///////////////////
+// END: FileName
+///////////////////
 
 template <typename T>
 class SemanticString_test : public Test
@@ -95,7 +128,7 @@ class SemanticString_test : public Test
     SutType smaller_value = SutType::create(smaller_value_str).expect("Failed to create test string.");
 };
 
-using Implementations = Types<UserName>;
+using Implementations = Types<UserName, FileName>;
 
 TYPED_TEST_SUITE(SemanticString_test, Implementations, );
 
