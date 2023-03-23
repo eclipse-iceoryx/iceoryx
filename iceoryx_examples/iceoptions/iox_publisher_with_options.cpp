@@ -48,7 +48,7 @@ int main()
 
     //  we allow the subscribers to block the publisher if they want to ensure that no samples are lost
     //! [too slow policy]
-    publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER;
+    publisherOptions.subscriberTooSlowPolicy = iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA;
     //! [too slow policy]
 
     //! [create publisher with options]
