@@ -41,6 +41,8 @@ struct TestValues
     static const std::string GREATER_VALID_VALUE;
     static const std::string SMALLER_VALID_VALUE;
     static const std::string MAX_CAPACITY_VALUE;
+    static const std::vector<std::string> INVALID_CONTENT_ADD_BEGIN;
+    static const std::vector<std::string> INVALID_CONTENT_ADD_END;
 };
 
 template <>
@@ -61,6 +63,10 @@ template <>
 const std::string TestValues<UserName>::SMALLER_VALID_VALUE{"alfons-alf"};
 template <>
 const std::string TestValues<UserName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
+template <>
+const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_BEGIN{"-bla", "81923"};
+template <>
+const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_END{};
 
 template <typename T>
 class SemanticString_test : public Test
@@ -249,6 +255,53 @@ TYPED_TEST(SemanticString_test, AppendInvalidCharactersToValidStringFails)
             auto result = sut->append(string<SutType::capacity()>(TruncateToCapacity, invalid_value.c_str()));
             ASSERT_TRUE(result.has_error());
             EXPECT_THAT(result.get_error(), Eq(SemanticStringError::ContainsInvalidCharacters));
+            EXPECT_THAT(sut->size(), value.size());
+            EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+            EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, GenerateInvalidContentWithAppend)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a416c7c6-eaff-4e5e-8945-fe9f2d06ee6d");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto& value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto& invalid_value : TestValues<SutType>::INVALID_CONTENT_ADD_END)
+        {
+            auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
+            ASSERT_THAT(sut.has_error(), Eq(false));
+
+            auto result = sut->append(string<SutType::capacity()>(TruncateToCapacity, invalid_value.c_str()));
+            ASSERT_TRUE(result.has_error());
+            EXPECT_THAT(result.get_error(), Eq(SemanticStringError::ContainsInvalidContent));
+            EXPECT_THAT(sut->size(), value.size());
+            EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
+
+            EXPECT_THAT(sut->as_string().c_str(), StrEq(value));
+        }
+    }
+}
+
+TYPED_TEST(SemanticString_test, GenerateInvalidContentWithInsert)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e7db87d3-2574-4b5f-9c3e-c103e05a6b46");
+    using SutType = typename TestFixture::SutType;
+
+    for (auto& value : TestValues<SutType>::VALID_VALUES)
+    {
+        for (auto& invalid_value : TestValues<SutType>::INVALID_CONTENT_ADD_BEGIN)
+        {
+            auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
+            ASSERT_THAT(sut.has_error(), Eq(false));
+
+            auto result = sut->insert(
+                0, string<SutType::capacity()>(TruncateToCapacity, invalid_value.c_str()), invalid_value.size());
+            ASSERT_TRUE(result.has_error());
+            EXPECT_THAT(result.get_error(), Eq(SemanticStringError::ContainsInvalidContent));
             EXPECT_THAT(sut->size(), value.size());
             EXPECT_THAT(sut->capacity(), Eq(TestValues<SutType>::CAPACITY));
 
