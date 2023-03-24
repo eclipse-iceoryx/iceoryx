@@ -22,42 +22,64 @@ namespace iox
 {
 namespace newtype
 {
-template <typename T>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+template <typename Derived, typename T>
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Arithmetic
 {
-  protected:
+    friend Derived operator+(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs);
+    }
+
+    friend Derived operator*(const T& lhs, const T& rhs) noexcept
+    {
+        return internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs);
+    }
+
     ~Arithmetic() = default;
 };
 
-template <typename T>
-auto operator+(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-{
-    return internal::newTypeAccessor(rhs) + internal::newTypeAccessor(lhs);
-}
 
-template <typename T>
-auto operator-(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-{
-    return internal::newTypeAccessor(rhs) - internal::newTypeAccessor(lhs);
-}
+// template <typename T>
+// auto operator-(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs);
+// }
 
-template <typename T>
-auto operator*(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-{
-    return internal::newTypeAccessor(rhs) * internal::newTypeAccessor(lhs);
-}
+// template <typename T>
+// auto operator/(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs);
+// }
 
-template <typename T>
-auto operator/(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-{
-    return internal::newTypeAccessor(rhs) / internal::newTypeAccessor(lhs);
-}
+// template <typename T>
+// auto operator/=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) /= internal::newTypeAccessor(rhs);
+// }
 
+// template <typename T>
+// auto operator*=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) *= internal::newTypeAccessor(rhs);
+// }
+
+// template <typename T>
+// auto operator+=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) += internal::newTypeAccessor(rhs);
+// }
+
+// template <typename T>
+// auto operator-=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
+// {
+//     return internal::newTypeAccessor(lhs) -= internal::newTypeAccessor(rhs);
+// }
 } // namespace newtype
 } // namespace iox
 

@@ -27,7 +27,8 @@
 
 namespace iox
 {
-struct segment_id_t : public NewType<uint64_t,
+struct segment_id_t : public NewType<segment_id_t,
+                                     uint64_t,
                                      newtype::DefaultConstructable,
                                      newtype::CopyConstructable,
                                      newtype::Convertable,

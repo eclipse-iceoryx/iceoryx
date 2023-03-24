@@ -75,8 +75,8 @@ namespace iox
 /// @endcode
 // AXIVION Next Construct AutosarC++19_03-A10.1.1 : Multiple inheritance needed to add several policies to NewType. The
 // Diamond-Problem cannot occur since the policy structs do not inherit.
-template <typename T, template <typename> class... Policies>
-class NewType : public Policies<NewType<T, Policies...>>...
+template <typename Derived, typename T, template <typename, typename> class... Policies>
+class NewType : public Policies<Derived, NewType<Derived, T, Policies...>>...
 {
   protected:
     /// 'ProtectedConstructor_t' is a compile time variable to select the correct constructors
@@ -102,7 +102,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 
   public:
     /// @brief the type of *this
-    using ThisType = NewType<T, Policies...>;
+    using ThisType = NewType<Derived, T, Policies...>;
     /// @brief the type of the underlying value
     using value_type = T;
 
@@ -163,7 +163,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 : macro is used to reduce boilerplate code for 'NewType'
 /// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
-    struct TypeName : public iox::NewType<Type, __VA_ARGS__>                                                           \
+    struct TypeName : public iox::NewType<TypeName, Type, __VA_ARGS__>                                                 \
     {                                                                                                                  \
         using ThisType::ThisType;                                                                                      \
         using ThisType::operator=;                                                                                     \

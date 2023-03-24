@@ -21,7 +21,7 @@ namespace iox
 {
 namespace newtype
 {
-template <typename>
+template <typename, typename>
 // AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
 // destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
 // prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this

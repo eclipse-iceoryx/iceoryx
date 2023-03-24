@@ -22,31 +22,33 @@ namespace iox
 {
 namespace newtype
 {
-template <typename T>
-// not required since a default'ed destructor does not define a destructor, hence the copy/move operations are
-// not deleted.
-// the only adaptation is that the dtor is protected to prohibit the user deleting the child type by
-// explicitly calling the destructor of the base type.
+template <typename Derived, typename T>
+// AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
+// destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
+// prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
+// is a marker struct that adds only the described property to the new type. Adding copy/move operations would
+// contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Decrementable
 {
+    template <typename U>
+    friend Derived operator--(U& rhs) noexcept
+    {
+        return Derived{internal::preDecrement(rhs)};
+    }
+
+    template <typename U>
+    friend Derived operator--(U& rhs, int) noexcept
+    {
+        auto value = internal::newTypeAccessor(rhs);
+        internal::preDecrement(rhs);
+        return Derived{value};
+    }
+
   protected:
     ~Decrementable() = default;
 };
 
-template <typename T>
-auto operator--(T& rhs) noexcept -> typename T::value_type
-{
-    return internal::preDecrement(rhs);
-}
-
-template <typename T>
-auto operator--(T& rhs, int) noexcept -> typename T::value_type
-{
-    auto value = internal::newTypeAccessor(rhs);
-    internal::preDecrement(rhs);
-    return value;
-}
 
 } // namespace newtype
 } // namespace iox
