@@ -55,11 +55,14 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/primitives/include
                                 ${PROJECT_SOURCE_DIR}/design/include
                                 ${PROJECT_SOURCE_DIR}/time/include
-                                ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${PROJECT_SOURCE_DIR}/buffer/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/functional/include
                                 ${PROJECT_SOURCE_DIR}/reporting/include
+
+                                ${PROJECT_SOURCE_DIR}/posix/time/include
+                                ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
+
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -71,19 +74,19 @@ iox_add_library(
                                 primitives/include/
                                 design/include/
                                 time/include/
-                                posix/time/include/
                                 buffer/include/
                                 filesystem/include/
                                 functional/include/
                                 reporting/include/
+
+                                posix/time/include/
+                                posix/vocabulary/include/
     FILES
         design/source/functional_interface.cpp
         filesystem/source/filesystem.cpp
         memory/source/bump_allocator.cpp
         memory/source/memory.cpp
         memory/source/relative_pointer_data.cpp
-        posix/time/source/adaptive_wait.cpp
-        posix/time/source/deadline_timer.cpp
         primitives/source/type_traits.cpp
         reporting/source/log/building_blocks/console_logger.cpp
         reporting/source/log/building_blocks/logger.cpp
@@ -109,6 +112,10 @@ iox_add_library(
         source/posix_wrapper/unix_domain_socket.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
+
+        posix/time/source/adaptive_wait.cpp
+        posix/time/source/deadline_timer.cpp
+        posix/vocabulary/source/user_name.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

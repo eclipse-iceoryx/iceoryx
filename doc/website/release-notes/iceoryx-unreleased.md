@@ -34,6 +34,8 @@
 - Implement BumpAllocator [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 - Expand cmake configuration options to enable reducing shared memory consumption. [\#1803](https://github.com/eclipse-iceoryx/iceoryx/issues/1803)
 - Implement PolymorphicHandler [\#1640](https://github.com/eclipse-iceoryx/iceoryx/issues/1640)
+- Implement SemanticString as base class for strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Implement UserName as strong string type to represent posix user names. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 
 **Bugfixes:**
 
