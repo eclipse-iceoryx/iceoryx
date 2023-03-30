@@ -18,6 +18,9 @@
 
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_file_provider.hpp"
+#include "iox/expected.hpp"
+
+#include <istream>
 
 namespace iox
 {
@@ -31,6 +34,9 @@ class TomlRouDiConfigFileProvider : public iox::roudi::RouDiConfigFileProvider
     TomlRouDiConfigFileProvider(iox::config::CmdLineArgs_t& cmdLineArgs) noexcept;
 
     iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> parse() noexcept override;
+
+    static iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+    parse(std::istream& stream) noexcept;
 };
 } // namespace config
 } // namespace iox

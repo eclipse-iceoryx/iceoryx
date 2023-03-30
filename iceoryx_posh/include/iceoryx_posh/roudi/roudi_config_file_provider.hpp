@@ -37,6 +37,7 @@ namespace roudi
 /// MEMPOOL_WITHOUT_CHUNK_COUNT - chunk count not specified for the mempool
 enum class RouDiConfigFileParseError
 {
+    FILE_OPEN_FAILED,
     NO_GENERAL_SECTION,
     INVALID_CONFIG_FILE_VERSION,
     NO_SEGMENTS,
@@ -48,7 +49,8 @@ enum class RouDiConfigFileParseError
     EXCEPTION_IN_PARSER
 };
 
-constexpr const char* ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"NO_GENERAL_SECTION",
+constexpr const char* ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"FILE_OPEN_FAILED",
+                                                                 "NO_GENERAL_SECTION",
                                                                  "INVALID_CONFIG_FILE_VERSION",
                                                                  "NO_SEGMENTS",
                                                                  "MAX_NUMBER_OF_SEGMENTS_EXCEEDED",
