@@ -14,11 +14,20 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
 
 #include "iceoryx/tests/posh/moduletests/test_input_path.hpp"
 #include "test.hpp"
+
+#if __cplusplus >= 201703L
+#include <filesystem>
+#endif
+
+#include <fstream>
+#include <string>
 
 namespace
 {
@@ -53,6 +62,56 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParseDefaultConfigIsSuccessful)
     auto result = sut.parse();
 
     EXPECT_FALSE(result.has_error());
+}
+
+TEST_F(RoudiConfigTomlFileProvider_test, InvalidPathResultsInError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ca2cc3bd-bf39-451c-9dc6-ae90ec0b8ab7");
+    iox::roudi::ConfigFilePathString_t invalidConfigFilePath{"/nowhere/to/find/config.toml"};
+    m_cmdLineArgs.configFilePath = invalidConfigFilePath;
+
+    iox::config::TomlRouDiConfigFileProvider sut(m_cmdLineArgs);
+
+    sut.parse()
+        .and_then([](const auto&) {
+            GTEST_FAIL() << "Expected 'RouDiConfigFileParseError::FILE_OPEN_FAILED' but got a config!";
+        })
+        .or_else(
+            [](const auto& error) { EXPECT_THAT(error, Eq(iox::roudi::RouDiConfigFileParseError::FILE_OPEN_FAILED)); });
+}
+
+TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "37f5a397-a289-4bc1-86a7-d95851a5ab47");
+
+#if __cplusplus < 201703L
+    GTEST_SKIP() << "The test uses std::filesystem which is only available with C++17";
+#else
+    auto tempFilePath = std::filesystem::temp_directory_path();
+    tempFilePath.append("test_roudi_config.toml");
+
+    std::fstream tempFile{tempFilePath, std::ios_base::trunc | std::ios_base::out};
+    ASSERT_TRUE(tempFile.is_open());
+    tempFile << R"([general]
+version = 1
+
+[[segment]]
+
+[[segment.mempool]]
+size = 128
+count = 1
+)";
+    tempFile.close();
+
+    m_cmdLineArgs.configFilePath = iox::roudi::ConfigFilePathString_t(iox::TruncateToCapacity, tempFilePath.c_str());
+
+    iox::config::TomlRouDiConfigFileProvider sut(m_cmdLineArgs);
+
+    sut.parse().and_then([](const auto&) { GTEST_SUCCEED() << "We got a config!"; }).or_else([](const auto& error) {
+        GTEST_FAIL() << "Expected a config but got error: "
+                     << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[static_cast<uint64_t>(error)];
+    });
+#endif
 }
 
 INSTANTIATE_TEST_SUITE_P(
