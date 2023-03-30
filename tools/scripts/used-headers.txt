@@ -39,9 +39,11 @@ cstdio
 cstdlib
 cstring
 ctime
+fstream
 initializer_list
 iomanip
 iostream
+istream
 limits
 map
 memory
