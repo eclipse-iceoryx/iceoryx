@@ -60,4 +60,3 @@ bool file_path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_
 }
 } // namespace details
 } // namespace iox
-

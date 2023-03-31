@@ -49,4 +49,3 @@ bool file_name_does_contain_invalid_content(const string<platform::IOX_MAX_FILEN
 }
 } // namespace details
 } // namespace iox
-

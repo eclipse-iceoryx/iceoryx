@@ -27,4 +27,3 @@ bool path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGT
 }
 } // namespace details
 } // namespace iox
-
