@@ -99,6 +99,10 @@ template <>
 const std::string TestValues<GroupName>::SMALLER_VALID_VALUE{"alfons-alf"};
 template <>
 const std::string TestValues<GroupName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
+template <>
+const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_ADD_BEGIN{"-fuu", "8number"};
+template <>
+const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_ADD_END{};
 ///////////////////
 // END: GroupName
 ///////////////////
@@ -125,6 +129,10 @@ template <>
 const std::string TestValues<FileName>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
 template <>
 const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_FILENAME_LENGTH, 'b')};
+template <>
+const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_ADD_BEGIN{};
+template <>
+const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_ADD_END{};
 ///////////////////
 // END: FileName
 ///////////////////
@@ -164,6 +172,10 @@ template <>
 const std::string TestValues<FilePath>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
 template <>
 const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+template <>
+const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_ADD_BEGIN{};
+template <>
+const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_ADD_END{};
 ///////////////////
 // END: FilePath
 ///////////////////
@@ -205,6 +217,10 @@ template <>
 const std::string TestValues<Path>::SMALLER_VALID_VALUE{"0.me.too.be.file/whoop/whoop"};
 template <>
 const std::string TestValues<Path>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+template <>
+const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_ADD_BEGIN{};
+template <>
+const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_ADD_END{};
 ///////////////////
 // END: Path
 ///////////////////
