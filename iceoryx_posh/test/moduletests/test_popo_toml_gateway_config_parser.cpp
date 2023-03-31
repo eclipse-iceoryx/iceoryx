@@ -141,7 +141,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     ASSERT_EQ(charactersValidity.second, result.has_error());
     if (!result.has_error())
     {
-        GatewayConfig config = result.value();
+        GatewayConfig& config = result.value();
         EXPECT_FALSE(config.m_configuredServices.empty());
     }
     else
@@ -223,7 +223,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithoutParameterTakeDefaultPathRet
     auto result = TomlGatewayConfigParser::parse();
     ASSERT_FALSE(result.has_error());
 
-    GatewayConfig config = result.value();
+    GatewayConfig& config = result.value();
     EXPECT_TRUE(config.m_configuredServices.empty());
 }
 
@@ -233,7 +233,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseWithEmptyPathReturnEmptyConfig)
     iox::roudi::ConfigFilePathString_t path = "";
 
     auto result = TomlGatewayConfigParser::parse(path);
-    GatewayConfig config = result.value();
+    GatewayConfig& config = result.value();
 
     EXPECT_FALSE(result.has_error());
     EXPECT_TRUE(config.m_configuredServices.empty());
@@ -333,7 +333,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFile
     CreateTmpTomlFile(toml);
 
     auto result = TomlGatewayConfigParser::parse(m_configFilePath);
-    GatewayConfig config = result.value();
+    GatewayConfig& config = result.value();
     EXPECT_FALSE(result.has_error());
     EXPECT_FALSE(config.m_configuredServices.empty());
     EXPECT_EQ(config.m_configuredServices.size(), 1);
@@ -359,7 +359,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, ParseValidConfigFileWithMaximumAllowedN
     CreateTmpTomlFile(toml);
 
     auto result = TomlGatewayConfigParser::parse(m_configFilePath);
-    GatewayConfig config = result.value();
+    GatewayConfig& config = result.value();
 
     EXPECT_EQ(config.m_configuredServices.size(), iox::MAX_GATEWAY_SERVICES);
     EXPECT_FALSE(result.has_error());

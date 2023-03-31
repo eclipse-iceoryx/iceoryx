@@ -22,6 +22,8 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
 
+#include <istream>
+
 namespace cpptoml
 {
 class table;
@@ -33,7 +35,7 @@ namespace config
 {
 enum TomlGatewayConfigParseError
 {
-    FILE_NOT_FOUND,
+    FILE_OPEN_FAILED,
     INCOMPLETE_CONFIGURATION,
     INCOMPLETE_SERVICE_DESCRIPTION,
     INVALID_SERVICE_DESCRIPTION,
@@ -41,7 +43,7 @@ enum TomlGatewayConfigParseError
     MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED
 };
 
-constexpr const char* TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"FILE_NOT_FOUND",
+constexpr const char* TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[] = {"FILE_OPEN_FAILED",
                                                                         "INCOMPLETE_CONFIGURATION",
                                                                         "INCOMPLETE_SERVICE_DESCRIPTION",
                                                                         "INVALID_SERVICE_DESCRIPTION",
@@ -65,7 +67,10 @@ class TomlGatewayConfigParser
     static expected<GatewayConfig, TomlGatewayConfigParseError>
     parse(const roudi::ConfigFilePathString_t& path = roudi::ConfigFilePathString_t(DEFAULT_CONFIG_FILE_PATH)) noexcept;
 
+    static expected<GatewayConfig, TomlGatewayConfigParseError> parse(std::istream& stream) noexcept;
+
   protected:
+    static expected<TomlGatewayConfigParseError> parse(std::istream& stream, GatewayConfig& config) noexcept;
     static expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
 
   private:
