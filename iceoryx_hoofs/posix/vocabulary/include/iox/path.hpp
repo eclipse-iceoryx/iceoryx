@@ -17,25 +17,25 @@
 #ifndef IOX_HOOFS_POSIX_VOCABULARY_PATH_HPP
 #define IOX_HOOFS_POSIX_VOCABULARY_PATH_HPP
 
+#include "iox/file_path.hpp"
 #include "iox/semantic_string.hpp"
 
 namespace iox
 {
 namespace details
 {
-bool path_does_contain_invalid_characters(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
 bool path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
 } // namespace details
 
 class Path : public SemanticString<Path,
                                    platform::IOX_MAX_PATH_LENGTH,
                                    details::path_does_contain_invalid_content,
-                                   details::path_does_contain_invalid_characters>
+                                   details::file_path_does_contain_invalid_characters>
 {
     using Parent = SemanticString<Path,
                                   platform::IOX_MAX_PATH_LENGTH,
                                   details::path_does_contain_invalid_content,
-                                  details::path_does_contain_invalid_characters>;
+                                  details::file_path_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox

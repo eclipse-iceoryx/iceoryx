@@ -20,6 +20,7 @@
 #include "iox/file_name.hpp"
 #include "iox/file_path.hpp"
 #include "iox/group_name.hpp"
+#include "iox/path.hpp"
 #include "iox/semantic_string.hpp"
 #include "iox/user_name.hpp"
 #include "test.hpp"
@@ -167,6 +168,47 @@ const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{std::string(platform:
 // END: FilePath
 ///////////////////
 
+///////////////////
+// START: Path
+///////////////////
+template <>
+const uint64_t TestValues<Path>::CAPACITY = platform::IOX_MAX_PATH_LENGTH;
+template <>
+const std::vector<std::string> TestValues<Path>::VALID_VALUES{{"file"},
+                                                              {"another_file.bla"},
+                                                              {"123.456"},
+                                                              {".hidden_me"},
+                                                              {"/some/file/path"},
+                                                              {"./relative/path"},
+                                                              {"another/../../relative/path"},
+                                                              {"another/../...bla"},
+                                                              {"not/yet/another/path/../fuu"},
+                                                              {"/slash/at/the/end/"},
+                                                              {"../relative/path/at/the/end/.."},
+                                                              "relative_path/at/end2/."};
+template <>
+const std::vector<std::string> TestValues<Path>::INVALID_CHARACTER_VALUES{
+    {"some-!user"},
+    {"*kasjd"},
+    {"$_fuuuas"},
+    {";'1'fuuuu"},
+    {"so*me/path/to/.*"},
+    {"another/relative/character]th/at/the/end/#$!*"}};
+template <>
+const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_VALUES{};
+template <>
+const std::vector<std::string> TestValues<Path>::TOO_LONG_CONTENT_VALUES{
+    std::string(platform::IOX_MAX_PATH_LENGTH + 2, 'a')};
+template <>
+const std::string TestValues<Path>::GREATER_VALID_VALUE{"9-i-am-a-file/blubb/di/whoop"};
+template <>
+const std::string TestValues<Path>::SMALLER_VALID_VALUE{"0.me.too.be.file/whoop/whoop"};
+template <>
+const std::string TestValues<Path>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
+///////////////////
+// END: Path
+///////////////////
+
 
 template <typename T>
 class SemanticString_test : public Test
@@ -195,7 +237,7 @@ class SemanticString_test : public Test
     SutType smaller_value = SutType::create(smaller_value_str).expect("Failed to create test string.");
 };
 
-using Implementations = Types<UserName, FileName, GroupName, FilePath>;
+using Implementations = Types<UserName, FileName, GroupName, FilePath, Path>;
 
 TYPED_TEST_SUITE(SemanticString_test, Implementations, );
 
