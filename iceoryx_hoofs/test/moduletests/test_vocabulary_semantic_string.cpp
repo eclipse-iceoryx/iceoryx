@@ -82,15 +82,15 @@ const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_END{};
 // START: GroupName
 ///////////////////
 template <>
-const uint64_t TestValues<GroupName>::CAPACITY = platform::MAX_USER_NAME_LENGTH;
+const uint64_t TestValues<GroupName>::CAPACITY = platform::MAX_GROUP_NAME_LENGTH;
 template <>
-const std::vector<std::string> TestValues<GroupName>::VALID_VALUES{{"some-user"}, {"user2"}};
+const std::vector<std::string> TestValues<GroupName>::VALID_VALUES{{"a-group"}, {"group2"}};
 template <>
 const std::vector<std::string> TestValues<GroupName>::INVALID_CHARACTER_VALUES{
-    {"some-!user"}, {"*kasjd"}, {"_fuuuas"}, {"asd/asd"}, {";'1'fuuuu"}, {"argh/"}, {"fuu/arg/bla"}};
+    {"se-!ur"}, {"*kad"}, {"_fus"}, {"a/sd"}, {";'1'fu"}, {"ah/"}, {"fuu/bla"}};
 template <>
 const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{
-    {""}, {"-do-not-start-with-dash"}, {"5do-not-start-with-a-number"}};
+    {""}, {"-no-dash"}, {"5no-number"}};
 template <>
 const std::vector<std::string> TestValues<GroupName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
 template <>
