@@ -39,7 +39,7 @@ using Implementations = Types<string<1>, string<15>, string<100>, string<1000>>;
 
 TYPED_TEST_SUITE(StdString_test, Implementations, );
 
-TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSize0ResultsInSize0)
+TYPED_TEST(StdString_test, STDStringToLossyStringConvConstrWithSize0ResultsInSize0)
 {
     ::testing::Test::RecordProperty("TEST_ID", "83e1b7b2-8487-4c71-ac86-f4d5d98c1918");
     using MyString = typename TestFixture::stringType;
@@ -51,7 +51,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSize0ResultsInSize0)
     EXPECT_THAT(fuu.c_str(), StrEq(""));
 }
 
-TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeSmallerCapaResultsInSizeSmallerCapa)
+TYPED_TEST(StdString_test, STDStringToLossyStringConvConstrWithSizeSmallerCapaResultsInSizeSmallerCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1bd6cd60-0487-4ba2-9e51-3a9297078454");
     using MyString = typename TestFixture::stringType;
@@ -63,7 +63,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeSmallerCapaResults
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
-TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeCapaResultsInSizeCapa)
+TYPED_TEST(StdString_test, STDStringToLossyStringConvConstrWithSizeCapaResultsInSizeCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "afa37f19-fde0-40ab-b1bd-10862f623ae7");
     using MyString = typename TestFixture::stringType;
@@ -75,7 +75,7 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeCapaResultsInSizeC
     EXPECT_THAT(fuu.c_str(), Eq(testString));
 }
 
-TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
+TYPED_TEST(StdString_test, STDStringToLossyStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
 {
     ::testing::Test::RecordProperty("TEST_ID", "67cba3f0-30ed-415d-8232-8e8b5898fe04");
     using MyString = typename TestFixture::stringType;
@@ -85,6 +85,65 @@ TYPED_TEST(StdString_test, STDStringToStringConvConstrWithSizeGreaterCapaResults
     EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
     EXPECT_THAT(fuu.c_str(), Eq(testString.substr(0U, STRINGCAP)));
+}
+
+TYPED_TEST(StdString_test, STDStringToOptionalStringConvConstrWithSize0ResultsInSize0)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "357f6fbf-7848-4ba7-9de6-dfbf185d8c4b");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString;
+    into<optional<MyString>>(testString)
+        .and_then([&](const auto& fuu) {
+            EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+            EXPECT_THAT(fuu.size(), Eq(0U));
+            EXPECT_THAT(fuu.c_str(), StrEq(""));
+        })
+        .or_else([&] { GTEST_FAIL() << "Expected successful string conversion!"; });
+}
+
+TYPED_TEST(StdString_test, STDStringToOptionalStringConvConstrWithSizeSmallerCapaResultsInSizeSmallerCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "964223ae-aa70-4bf9-ab22-f3761b211ce4");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP - 1U, 'M');
+    into<optional<MyString>>(testString)
+        .and_then([&](const auto& fuu) {
+            EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+            EXPECT_THAT(fuu.size(), Eq(STRINGCAP - 1U));
+            EXPECT_THAT(fuu.c_str(), Eq(testString));
+        })
+        .or_else([&] { GTEST_FAIL() << "Expected successful string conversion!"; });
+}
+
+TYPED_TEST(StdString_test, STDStringToOptionalStringConvConstrWithSizeCapaResultsInSizeCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dcfe0e07-4e3c-41a2-bf5f-c74497544701");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP, 'M');
+    into<optional<MyString>>(testString)
+        .and_then([&](const auto& fuu) {
+            EXPECT_THAT(fuu.capacity(), Eq(STRINGCAP));
+            EXPECT_THAT(fuu.size(), Eq(STRINGCAP));
+            EXPECT_THAT(fuu.c_str(), Eq(testString));
+        })
+        .or_else([&] { GTEST_FAIL() << "Expected successful string conversion!"; });
+}
+
+TYPED_TEST(StdString_test, STDStringToOptionalStringConvConstrWithSizeGreaterCapaResultsInSizeCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fd99374b-49ec-46a1-870a-52a13efdd283");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::string testString(STRINGCAP + 1U, 'M');
+    into<optional<MyString>>(testString)
+        .and_then([&](const auto& fuu) {
+            GTEST_FAIL() << "Expected string conversion from '" << testString << "' to fixed string with capacity '"
+                         << STRINGCAP << "' to fail but got '" << fuu << "'";
+        })
+        .or_else([&] { GTEST_SUCCEED() << "Size of source string exceeds capacity!"; });
 }
 
 TYPED_TEST(StdString_test, EmptyStringToSTDStringConvResultsInZeroSize)
