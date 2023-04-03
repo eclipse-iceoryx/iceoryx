@@ -19,10 +19,12 @@
 
 #include <iostream>
 
-#include <csetjmp>
 #include <csignal>
 #include <cstdio>
 #include <cstring>
+
+// NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
+#include <setjmp.h>
 
 namespace iox
 {
@@ -117,15 +119,31 @@ std::vector<std::string> TestingLogger::getLogMessages() noexcept
     return logger.m_loggerData->buffer;
 }
 
-std::jmp_buf sigsevJmpPoint;
+#if !defined(_WIN32)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) global variable is required as jmp target
+jmp_buf exitJmpBuffer;
 
-static void sigsegvHandler(int /*sig*/, siginfo_t*, void*)
+static void sigsegvHandler(int sig, siginfo_t*, void*)
 {
-    std::cout << "SIGSEGV\n" << std::flush;
+    switch (sig)
+    {
+    case SIGSEGV:
+        std::cout << "SIGSEGV\n" << std::flush;
+        break;
+    case SIGFPE:
+        std::cout << "SIGFPE\n" << std::flush;
+        break;
+    default:
+        std::cout << "signal: " << sig << "\n" << std::flush;
+        break;
+    }
     dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
 
-    std::longjmp(&sigsevJmpPoint[0], 1);
+    constexpr int JMP_VALUE{1};
+    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
+    longjmp(&exitJmpBuffer[0], JMP_VALUE);
 }
+#endif
 
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
@@ -138,9 +156,8 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
         std::abort();
     });
 
-    struct sigaction action
-    {
-    };
+#if !defined(_WIN32)
+    struct sigaction action = {};
     memset(&action, 0, sizeof(struct sigaction));
     sigemptyset(&action.sa_mask);
 
@@ -148,6 +165,8 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
     action.sa_sigaction = sigsegvHandler;
 
     sigaction(SIGSEGV, &action, nullptr);
+    sigaction(SIGFPE, &action, nullptr);
+#endif
 }
 
 void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
