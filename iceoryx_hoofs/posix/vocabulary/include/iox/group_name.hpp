@@ -28,6 +28,7 @@ bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP
 bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
 } // namespace details
 
+/// @brief Represents a POSIX group name
 class GroupName : public SemanticString<GroupName,
                                         platform::MAX_GROUP_NAME_LENGTH,
                                         details::group_name_does_contain_invalid_content,

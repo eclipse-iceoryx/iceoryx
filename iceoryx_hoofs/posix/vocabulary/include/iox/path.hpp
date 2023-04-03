@@ -27,6 +27,7 @@ namespace details
 bool path_does_contain_invalid_content(const string<platform::IOX_MAX_PATH_LENGTH>& value) noexcept;
 } // namespace details
 
+/// @brief Represents a path to a file or a directory.
 class Path : public SemanticString<Path,
                                    platform::IOX_MAX_PATH_LENGTH,
                                    details::path_does_contain_invalid_content,
