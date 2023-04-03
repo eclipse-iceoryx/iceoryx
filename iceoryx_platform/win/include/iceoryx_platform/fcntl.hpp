@@ -31,6 +31,9 @@
 #define O_WRONLY _O_WRONLY
 #define O_NONBLOCK 0x0
 
+#define F_GETFL 3
+#define F_SETFL 4
+
 int iox_open(const char* pathname, int flags, mode_t mode);
 
 int iox_fcntl2(int fd, int cmd);
