@@ -47,12 +47,16 @@ enum class FileSetOwnerError
 
 enum class FileSetPermissionError
 {
+    PermissionDenied,
+    ReadOnlyFilesystem,
+    UnknownError,
 };
 
 namespace details
 {
 expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept;
 expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept;
+expected<FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept;
 } // namespace details
 
 class Ownership

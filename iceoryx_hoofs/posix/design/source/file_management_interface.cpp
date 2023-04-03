@@ -80,6 +80,29 @@ expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const g
     return iox::success<>();
 }
 
+expected<FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept
+{
+    auto result = posix::posixCall(iox_fchmod)(fildes, perms.value()).failureReturnValue(-1).evaluate();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EPERM:
+            IOX_LOG(ERROR) << "Unable to adjust permissions due to insufficient permissions.";
+            return iox::error<FileSetPermissionError>(FileSetPermissionError::PermissionDenied);
+        case EROFS:
+            IOX_LOG(ERROR) << "Unable to adjust permissions since it is a read-only filesystem.";
+            return iox::error<FileSetPermissionError>(FileSetPermissionError::ReadOnlyFilesystem);
+        default:
+            IOX_LOG(ERROR) << "Unable to adjust permissions since an unknown error occurred.";
+            return iox::error<FileSetPermissionError>(FileSetPermissionError::UnknownError);
+        }
+    }
+
+    return iox::success<>();
+}
+
 } // namespace details
 
 uid_t Ownership::uid() const noexcept

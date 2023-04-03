@@ -62,6 +62,20 @@ inline expected<FileSetOwnerError> FileManagementInterface<Derived>::set_ownersh
 
     return iox::success<>();
 }
+
+template <typename Derived>
+inline expected<FileSetPermissionError>
+FileManagementInterface<Derived>::set_permissions(const access_rights permissions) noexcept
+{
+    const auto& derived_this = *static_cast<const Derived*>(this);
+    auto result = details::set_permissions(derived_this.getFileHandle(), permissions);
+    if (result.has_error())
+    {
+        return iox::error<FileSetPermissionError>(result.get_error());
+    }
+
+    return iox::success<>();
+}
 } // namespace iox
 
 #endif
