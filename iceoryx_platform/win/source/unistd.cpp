@@ -56,3 +56,8 @@ int iox_fchown(int fd, uid_t owner, gid_t group)
 {
     return 0;
 }
+
+gid_t getgid()
+{
+    return 0;
+}

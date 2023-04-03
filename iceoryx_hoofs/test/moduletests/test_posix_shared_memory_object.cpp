@@ -253,6 +253,7 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
     EXPECT_THAT(*sutValue2, Eq(8912));
 }
 
+#if !defined(_WIN32) && !defined(__APPLE__)
 TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a9859b5e-555b-4cff-b418-74168a9fd85a");
@@ -323,6 +324,7 @@ TEST_F(SharedMemoryObject_Test, SettingPermissionsWorks)
     ASSERT_FALSE(result.has_error());
     EXPECT_THAT(*result, Eq(perms::none));
 }
+#endif
 
 
 } // namespace
