@@ -37,6 +37,7 @@
 - Implement SemanticString as base class for strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 - Implement UserName as strong string type to represent posix user names. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 - Implement FileName, GroupName, Path, FilePath as strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Add string::unchecked_at to access character without bound checks. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 
 **Bugfixes:**
 

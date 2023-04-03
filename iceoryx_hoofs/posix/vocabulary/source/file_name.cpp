@@ -15,6 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/file_name.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {
@@ -27,12 +28,13 @@ bool file_name_does_contain_invalid_characters(const string<platform::IOX_MAX_FI
     for (uint64_t i{0}; i < valueSize; ++i)
     {
         // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
-        const char c{value[i]};
+        const char c{value.unchecked_at(i)};
 
-        const bool isSmallLetter{'a' <= c && c <= 'z'};
-        const bool isCapitalLetter{'A' <= c && c <= 'Z'};
-        const bool isNumber{'0' <= c && c <= '9'};
-        const bool isSpecialCharacter{c == '-' || c == '.' || c == ':' || c == '_'};
+        const bool isSmallLetter{internal::ASCII_A <= c && c <= internal::ASCII_Z};
+        const bool isCapitalLetter{internal::ASCII_CAPITAL_A <= c && c <= internal::ASCII_CAPITAL_Z};
+        const bool isNumber{internal::ASCII_0 <= c && c <= internal::ASCII_9};
+        const bool isSpecialCharacter{c == internal::ASCII_DASH || c == internal::ASCII_DOT
+                                      || c == internal::ASCII_COLON || c == internal::ASCII_UNDERSCORE};
 
         if ((!isSmallLetter && !isCapitalLetter) && (!isNumber && !isSpecialCharacter))
         {

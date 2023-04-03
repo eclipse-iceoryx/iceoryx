@@ -45,8 +45,8 @@ struct TestValues
     static const std::string GREATER_VALID_VALUE;
     static const std::string SMALLER_VALID_VALUE;
     static const std::string MAX_CAPACITY_VALUE;
-    static const std::vector<std::string> INVALID_CONTENT_ADD_BEGIN;
-    static const std::vector<std::string> INVALID_CONTENT_ADD_END;
+    static const std::vector<std::string> ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN;
+    static const std::vector<std::string> ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END;
 };
 
 ///////////////////
@@ -71,9 +71,10 @@ const std::string TestValues<UserName>::SMALLER_VALID_VALUE{"alfons-alf"};
 template <>
 const std::string TestValues<UserName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
 template <>
-const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_BEGIN{"-bla", "81923"};
+const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{"-bla",
+                                                                                                        "81923"};
 template <>
-const std::vector<std::string> TestValues<UserName>::INVALID_CONTENT_ADD_END{};
+const std::vector<std::string> TestValues<UserName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
 // END: UserName
 ///////////////////
@@ -99,9 +100,10 @@ const std::string TestValues<GroupName>::SMALLER_VALID_VALUE{"alfons-alf"};
 template <>
 const std::string TestValues<GroupName>::MAX_CAPACITY_VALUE{"all-glory-to-the-incredible-and-legendary-hypno-toad"};
 template <>
-const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_ADD_BEGIN{"-fuu", "8number"};
+const std::vector<std::string> TestValues<GroupName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{"-fuu",
+                                                                                                         "8number"};
 template <>
-const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_ADD_END{};
+const std::vector<std::string> TestValues<GroupName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
 // END: GroupName
 ///////////////////
@@ -129,9 +131,9 @@ const std::string TestValues<FileName>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
 template <>
 const std::string TestValues<FileName>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_FILENAME_LENGTH, 'b')};
 template <>
-const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_ADD_BEGIN{};
+const std::vector<std::string> TestValues<FileName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>
-const std::vector<std::string> TestValues<FileName>::INVALID_CONTENT_ADD_END{};
+const std::vector<std::string> TestValues<FileName>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
 // END: FileName
 ///////////////////
@@ -172,9 +174,9 @@ const std::string TestValues<FilePath>::SMALLER_VALID_VALUE{"0.me.too.be.file"};
 template <>
 const std::string TestValues<FilePath>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
 template <>
-const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_ADD_BEGIN{};
+const std::vector<std::string> TestValues<FilePath>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>
-const std::vector<std::string> TestValues<FilePath>::INVALID_CONTENT_ADD_END{};
+const std::vector<std::string> TestValues<FilePath>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
 // END: FilePath
 ///////////////////
@@ -217,9 +219,9 @@ const std::string TestValues<Path>::SMALLER_VALID_VALUE{"0.me.too.be.file/whoop/
 template <>
 const std::string TestValues<Path>::MAX_CAPACITY_VALUE{std::string(platform::IOX_MAX_PATH_LENGTH, 'b')};
 template <>
-const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_ADD_BEGIN{};
+const std::vector<std::string> TestValues<Path>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN{};
 template <>
-const std::vector<std::string> TestValues<Path>::INVALID_CONTENT_ADD_END{};
+const std::vector<std::string> TestValues<Path>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END{};
 ///////////////////
 // END: Path
 ///////////////////
@@ -427,7 +429,7 @@ TYPED_TEST(SemanticString_test, GenerateInvalidContentWithAppend)
 
     for (auto& value : TestValues<SutType>::VALID_VALUES)
     {
-        for (auto& invalid_value : TestValues<SutType>::INVALID_CONTENT_ADD_END)
+        for (auto& invalid_value : TestValues<SutType>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_END)
         {
             auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
             ASSERT_THAT(sut.has_error(), Eq(false));
@@ -450,7 +452,7 @@ TYPED_TEST(SemanticString_test, GenerateInvalidContentWithInsert)
 
     for (auto& value : TestValues<SutType>::VALID_VALUES)
     {
-        for (auto& invalid_value : TestValues<SutType>::INVALID_CONTENT_ADD_BEGIN)
+        for (auto& invalid_value : TestValues<SutType>::ADD_VALID_CHARS_TO_CREATE_INVALID_CONTENT_AT_BEGIN)
         {
             auto sut = SutType::create(string<SutType::capacity()>(TruncateToCapacity, value.c_str()));
             ASSERT_THAT(sut.has_error(), Eq(false));
