@@ -75,12 +75,12 @@ class Ownership
     gid_t gid() const noexcept;
 
     /// @brief Constructs a ownership object from a uid and a gid.
-    /// @returns If the user or group does not exist it returns `cxx::nullopt` otherwise an Ownership object
+    /// @returns If the user or group does not exist it returns 'cxx::nullopt' otherwise an Ownership object
     ///             with existing user and group
     static optional<Ownership> from_user_and_group(const uid_t uid, const gid_t gid) noexcept;
 
     /// @brief Constructs a ownership object from a user name and a group name.
-    /// @returns If the user or group does not exist it returns `cxx::nullopt` otherwise an Ownership object
+    /// @returns If the user or group does not exist it returns 'cxx::nullopt' otherwise an Ownership object
     ///             with existing user and group
     static optional<Ownership> from_user_and_group(const UserName& user_name, const GroupName& group_name) noexcept;
 
@@ -96,7 +96,7 @@ class Ownership
 
 /// @brief Abstract implementation to manage things common to all file descriptor
 ///        based constructs like ownership and permissions.
-/// @note Can be used by every class which provide the method `getFileHandle`
+/// @note Can be used by every class which provide the method 'getFileHandle'
 ///       via inheritance.
 /// @code
 ///   class MyResourceBasedOnFileDescriptor: public FileManagementInterface<MyResourceBasedOnFileDescriptor> {
@@ -109,21 +109,21 @@ template <typename Derived>
 struct FileManagementInterface
 {
     /// @brief Returns the owners of the underlying file descriptor.
-    /// @return On failure a `FileStatError` describing the error otherwise `Ownership`.
+    /// @return On failure a 'FileStatError' describing the error otherwise 'Ownership'.
     expected<Ownership, FileStatError> get_ownership() const noexcept;
 
     /// @brief Sets the owners of the underlying file descriptor.
     /// @param[in] owner the new owners of the file descriptor
-    /// @return On failure a `FileSetOwnerError` describing the error.
+    /// @return On failure a 'FileSetOwnerError' describing the error.
     expected<FileSetOwnerError> set_ownership(const Ownership owner) noexcept;
 
     /// @brief Returns the permissions of the underlying file descriptor.
-    /// @return On failure a `FileStatError` describing the error otherwise `access_rights`.
+    /// @return On failure a 'FileStatError' describing the error otherwise 'access_rights'.
     expected<access_rights, FileStatError> get_permissions() const noexcept;
 
     /// @brief Sets the permissions of the underlying file descriptor.
     /// @param[in] permissions the new permissions of the file descriptor
-    /// @return On failure a `FileSetPermissionError` describing the error.
+    /// @return On failure a 'FileSetPermissionError' describing the error.
     expected<FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
 };
 } // namespace iox
