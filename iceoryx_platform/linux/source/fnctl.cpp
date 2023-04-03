@@ -21,3 +21,13 @@ int iox_open(const char* pathname, int flags, mode_t mode)
 {
     return open(pathname, flags, mode);
 }
+
+int iox_fcntl2(int fd, int cmd)
+{
+    return fcntl(fd, cmd);
+}
+
+int iox_fcntl3(int fd, int cmd, int flags)
+{
+    return fcntl(fd, cmd, flags);
+}

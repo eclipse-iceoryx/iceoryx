@@ -33,4 +33,7 @@
 
 int iox_open(const char* pathname, int flags, mode_t mode);
 
+int iox_fcntl2(int fd, int cmd);
+int iox_fcntl3(int fd, int cmd, int flags);
+
 #endif // IOX_HOOFS_WIN_PLATFORM_FCNTL_HPP
