@@ -567,7 +567,7 @@ inline constexpr char& string<Capacity>::unchecked_at(const uint64_t pos) noexce
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication, safe since it's first
     // casted to a const type and then the const is removed
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<char&>(const_cast<const string<Capacity>*>(this)->at(pos));
+    return const_cast<char&>(const_cast<const string<Capacity>*>(this)->unchecked_at(pos));
 }
 
 template <uint64_t Capacity>
