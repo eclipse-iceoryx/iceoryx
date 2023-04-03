@@ -62,8 +62,8 @@ TEST_F(PosixCall_test, CallingFunctionWithSuccessReturnValue_GoodCase)
     constexpr int ERRNO_VALUE = 2;
 
     iox::posix::posixCall(testFunction)(RETURN_VALUE, ERRNO_VALUE)
-        .successReturnValue(RETURN_VALUE)
         .evaluate()
+        .successReturnValue(RETURN_VALUE)
         .and_then([&](auto& r) {
             EXPECT_THAT(r.value, Eq(RETURN_VALUE));
             EXPECT_THAT(r.errnum, Eq(ERRNO_VALUE));

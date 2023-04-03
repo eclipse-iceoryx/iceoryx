@@ -42,3 +42,11 @@ cc_binary(
         "//iceoryx_posh",
     ],
 )
+
+cc_binary(
+    name = "static_storage_example",
+    srcs = [
+        "static_storage_example.cpp",
+    ],
+    deps = ["//iceoryx_hoofs"],
+)
