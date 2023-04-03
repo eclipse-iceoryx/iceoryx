@@ -89,8 +89,7 @@ template <>
 const std::vector<std::string> TestValues<GroupName>::INVALID_CHARACTER_VALUES{
     {"se-!ur"}, {"*kad"}, {"_fus"}, {"a/sd"}, {";'1'fu"}, {"ah/"}, {"fuu/bla"}};
 template <>
-const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{
-    {""}, {"-no-dash"}, {"5no-number"}};
+const std::vector<std::string> TestValues<GroupName>::INVALID_CONTENT_VALUES{{""}, {"-no-dash"}, {"5no-number"}};
 template <>
 const std::vector<std::string> TestValues<GroupName>::TOO_LONG_CONTENT_VALUES{{"i-am-waaaaay-toooooooo-loooooooong"}};
 template <>
