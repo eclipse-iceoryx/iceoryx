@@ -28,6 +28,7 @@
 
 namespace iox
 {
+/// @brief Describes failures when acquiring details about a file.
 enum class FileStatError
 {
     IoFailure,
@@ -35,6 +36,7 @@ enum class FileStatError
     UnknownError,
 };
 
+/// @brief Describes failures when setting the owner of a file
 enum class FileSetOwnerError
 {
     IoFailure,
@@ -45,6 +47,7 @@ enum class FileSetOwnerError
     UnknownError,
 };
 
+/// @brief Describes failures when setting the permissions of a file
 enum class FileSetPermissionError
 {
     PermissionDenied,
@@ -59,13 +62,26 @@ expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const g
 expected<FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept;
 } // namespace details
 
+/// @brief Represents the POSIX owners (user and group) of a file.
 class Ownership
 {
   public:
+    /// @brief Acquire the user id
+    /// @returns uid
     uid_t uid() const noexcept;
+
+    /// @brief Acquire the group id
+    /// @returns gid
     gid_t gid() const noexcept;
 
+    /// @brief Constructs a ownership object from a uid and a gid.
+    /// @returns If the user or group does not exist it returns `cxx::nullopt` otherwise an Ownership object
+    ///             with existing user and group
     static optional<Ownership> from_user_and_group(const uid_t uid, const gid_t gid) noexcept;
+
+    /// @brief Constructs a ownership object from a user name and a group name.
+    /// @returns If the user or group does not exist it returns `cxx::nullopt` otherwise an Ownership object
+    ///             with existing user and group
     static optional<Ownership> from_user_and_group(const UserName& user_name, const GroupName& group_name) noexcept;
 
   private:
@@ -78,12 +94,36 @@ class Ownership
     gid_t m_gid{std::numeric_limits<gid_t>::max()};
 };
 
+/// @brief Abstract implementation to manage things common to all file descriptor
+///        based constructs like ownership and permissions.
+/// @note Can be used by every class which provide the method `getFileHandle`
+///       via inheritance.
+/// @code
+///   class MyResourceBasedOnFileDescriptor: public FileManagementInterface<MyResourceBasedOnFileDescriptor> {
+///     public:
+///       // must be implemented
+///       int getFileHandle() const noexcept;
+///   };
+/// @endcode
 template <typename Derived>
 struct FileManagementInterface
 {
+    /// @brief Returns the owners of the underlying file descriptor.
+    /// @return On failure a `FileStatError` describing the error otherwise `Ownership`.
     expected<Ownership, FileStatError> get_ownership() const noexcept;
+
+    /// @brief Sets the owners of the underlying file descriptor.
+    /// @param[in] owner the new owners of the file descriptor
+    /// @return On failure a `FileSetOwnerError` describing the error.
     expected<FileSetOwnerError> set_ownership(const Ownership owner) noexcept;
+
+    /// @brief Returns the permissions of the underlying file descriptor.
+    /// @return On failure a `FileStatError` describing the error otherwise `access_rights`.
     expected<access_rights, FileStatError> get_permissions() const noexcept;
+
+    /// @brief Sets the permissions of the underlying file descriptor.
+    /// @param[in] permissions the new permissions of the file descriptor
+    /// @return On failure a `FileSetPermissionError` describing the error.
     expected<FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
 };
 } // namespace iox
