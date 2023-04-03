@@ -49,6 +49,19 @@ inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::
     return iox::success<access_rights>(
         access_rights(static_cast<access_rights::value_type>(result->st_mode & ONLY_FILE_PERMISSIONS)));
 }
+
+template <typename Derived>
+inline expected<FileSetOwnerError> FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexcept
+{
+    const auto& derived_this = *static_cast<const Derived*>(this);
+    auto result = details::set_owner(derived_this.getFileHandle(), ownership.uid(), ownership.gid());
+    if (result.has_error())
+    {
+        return iox::error<FileSetOwnerError>(result.get_error());
+    }
+
+    return iox::success<>();
+}
 } // namespace iox
 
 #endif

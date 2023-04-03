@@ -78,7 +78,7 @@ template <typename Derived>
 struct FileManagementInterface
 {
     expected<Ownership, FileStatError> get_ownership() const noexcept;
-    expected<FileSetOwnerError> set_ownership(const Ownership& owner) noexcept;
+    expected<FileSetOwnerError> set_ownership(const Ownership owner) noexcept;
     expected<access_rights, FileStatError> get_permissions() const noexcept;
     expected<FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
 };
