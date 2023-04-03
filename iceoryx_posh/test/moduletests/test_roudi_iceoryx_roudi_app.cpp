@@ -17,11 +17,11 @@
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 #include "iceoryx_platform/getopt.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
+#include "iox/logging.hpp"
 
 #include "test.hpp"
 

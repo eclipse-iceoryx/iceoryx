@@ -18,7 +18,7 @@
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/unistd.hpp"
@@ -42,7 +42,7 @@ PosixShmMemoryProvider::~PosixShmMemoryProvider() noexcept
 {
     if (isAvailable())
     {
-        destroy().or_else([](auto) { LogWarn() << "failed to cleanup POSIX shared memory provider resources"; });
+        destroy().or_else([](auto) { IOX_LOG(WARN) << "failed to cleanup POSIX shared memory provider resources"; });
     }
 }
 

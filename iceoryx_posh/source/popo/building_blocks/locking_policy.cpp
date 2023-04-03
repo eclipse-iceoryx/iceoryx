@@ -17,7 +17,7 @@
 
 #include "iceoryx_posh/internal/popo/building_blocks/locking_policy.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -27,8 +27,9 @@ void ThreadSafePolicy::lock() const noexcept
 {
     if (!m_mutex.lock())
     {
-        LogFatal() << "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
-                      "was terminated or the resources were cleaned up by RouDi due to an unresponsive application.";
+        IOX_LOG(FATAL)
+            << "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
+               "was terminated or the resources were cleaned up by RouDi due to an unresponsive application.";
         errorHandler(PoshError::POPO__CHUNK_LOCKING_ERROR, ErrorLevel::FATAL);
     }
 }
@@ -37,8 +38,9 @@ void ThreadSafePolicy::unlock() const noexcept
 {
     if (!m_mutex.unlock())
     {
-        LogFatal() << "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
-                      "by RouDi due to an unresponsive application.";
+        IOX_LOG(FATAL)
+            << "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
+               "by RouDi due to an unresponsive application.";
         errorHandler(PoshError::POPO__CHUNK_UNLOCKING_ERROR, ErrorLevel::FATAL);
     }
 }

@@ -20,7 +20,7 @@
 #include "process_introspection.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 #include <chrono>
 
@@ -90,7 +90,7 @@ inline void ProcessIntrospection<PublisherPort>::addNode(const RuntimeName_t& ru
             {
                 if (*it_node == nodeName)
                 {
-                    LogWarn() << "Node " << nodeName.c_str() << " already registered";
+                    IOX_LOG(WARN) << "Node " << nodeName.c_str() << " already registered";
                     alreadyInList = true;
                 }
             }
@@ -102,7 +102,7 @@ inline void ProcessIntrospection<PublisherPort>::addNode(const RuntimeName_t& ru
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to register node " << nodeName.c_str() << " but the related process is not registered";
+        IOX_LOG(WARN) << "Trying to register node " << nodeName.c_str() << " but the related process is not registered";
     }
     m_processListNewData = true;
 }
@@ -131,13 +131,13 @@ inline void ProcessIntrospection<PublisherPort>::removeNode(const RuntimeName_t&
             }
             if (!removedFromList)
             {
-                LogWarn() << "Trying to remove node " << nodeName.c_str() << " but it was not registered";
+                IOX_LOG(WARN) << "Trying to remove node " << nodeName.c_str() << " but it was not registered";
             }
         }
     }
     if (!processFound)
     {
-        LogWarn() << "Trying to remove node " << nodeName.c_str() << " but the related process is not registered";
+        IOX_LOG(WARN) << "Trying to remove node " << nodeName.c_str() << " but the related process is not registered";
     }
     m_processListNewData = true;
 }

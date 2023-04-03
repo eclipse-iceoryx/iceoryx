@@ -20,11 +20,11 @@
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
 #include "iox/filesystem.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -68,12 +68,12 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
             .or_else([](auto& error) {
                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                 {
-                    LogFatal() << "Could not acquire lock, is RouDi still running?";
+                    IOX_LOG(FATAL) << "Could not acquire lock, is RouDi still running?";
                     errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING, iox::ErrorLevel::FATAL);
                 }
                 else
                 {
-                    LogFatal() << "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME;
+                    IOX_LOG(FATAL) << "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME;
                     errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK,
                                  iox::ErrorLevel::FATAL);
                 }

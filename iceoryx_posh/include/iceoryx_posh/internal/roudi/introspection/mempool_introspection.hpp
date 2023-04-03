@@ -18,11 +18,11 @@
 #define IOX_POSH_ROUDI_INTROSPECTION_MEMPOOL_INTROSPECTION_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/roudi/port_manager.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iox/function.hpp"
+#include "iox/logging.hpp"
 
 #include <cstdint>
 

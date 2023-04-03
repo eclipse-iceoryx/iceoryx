@@ -17,7 +17,7 @@
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 
 #include "iceoryx_dust/cxx/serialization.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -33,7 +33,7 @@ NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
 {
     if (!serialized.extract(m_name, m_nodeDeviceIdentifier))
     {
-        LogError() << "unable to create NodeProperty from serialized string " << serialized.toString();
+        IOX_LOG(ERROR) << "unable to create NodeProperty from serialized string " << serialized.toString();
     }
 }
 

@@ -18,9 +18,9 @@
 #ifndef IOX_POSH_POPO_SAMPLE_HPP
 #define IOX_POSH_POPO_SAMPLE_HPP
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/smart_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/logging.hpp"
 #include "iox/type_traits.hpp"
 #include "iox/unique_ptr.hpp"
 

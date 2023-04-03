@@ -21,8 +21,8 @@
 #include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iox/into.hpp"
+#include "iox/logging.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
@@ -44,13 +44,13 @@ TomlRouDiConfigFileProvider::TomlRouDiConfigFileProvider(config::CmdLineArgs_t& 
             cxx::FileReader configFile(defaultConfigFilePath, "", cxx::FileReader::ErrorMode::Ignore);
             if (configFile.isOpen())
             {
-                LogInfo() << "No config file provided. Using '" << defaultConfigFilePath << "'";
+                IOX_LOG(INFO) << "No config file provided. Using '" << defaultConfigFilePath << "'";
                 m_customConfigFilePath = defaultConfigFilePath;
             }
             else
             {
-                LogInfo() << "No config file provided and also not found at '" << defaultConfigFilePath
-                          << "'. Falling back to built-in config.";
+                IOX_LOG(INFO) << "No config file provided and also not found at '" << defaultConfigFilePath
+                              << "'. Falling back to built-in config.";
             }
         }
         else
@@ -80,8 +80,8 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
     {
         auto parserError = iox::roudi::RouDiConfigFileParseError::EXCEPTION_IN_PARSER;
         auto errorStringIndex = static_cast<uint64_t>(parserError);
-        LogWarn() << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
-                  << parserException.what();
+        IOX_LOG(WARN) << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
+                      << parserException.what();
 
         return iox::error<iox::roudi::RouDiConfigFileParseError>(parserError);
     }
