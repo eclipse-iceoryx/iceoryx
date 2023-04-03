@@ -115,7 +115,7 @@ iox_add_library(
         time/source/duration.cpp
         utility/source/unique_id.cpp
 
-        posix/design/source/access_management_interface.cpp
+        posix/design/source/file_management_interface.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         posix/vocabulary/source/file_name.cpp

@@ -31,5 +31,6 @@
 int ftruncate(int fildes, off_t length);
 long sysconf(int name);
 int iox_close(int fd);
+int iox_fchown(int fd, uid_t owner, gid_t group);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

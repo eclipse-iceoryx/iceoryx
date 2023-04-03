@@ -263,7 +263,7 @@ class access_rights final
 
   private:
     template <typename>
-    friend struct AccessManagementInterface;
+    friend struct FileManagementInterface;
     explicit constexpr access_rights(value_type value) noexcept
         : m_value(value)
     {

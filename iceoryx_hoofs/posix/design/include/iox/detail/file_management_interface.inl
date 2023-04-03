@@ -13,15 +13,15 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_INL
-#define IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_INL
+#ifndef IOX_HOOFS_POSIX_DESIGN_FILE_MANAGEMENT_INTERFACE_INL
+#define IOX_HOOFS_POSIX_DESIGN_FILE_MANAGEMENT_INTERFACE_INL
 
-#include "iox/access_management_interface.hpp"
+#include "iox/file_management_interface.hpp"
 
 namespace iox
 {
 template <typename Derived>
-inline expected<Ownership, FileStatError> AccessManagementInterface<Derived>::get_ownership() const noexcept
+inline expected<Ownership, FileStatError> FileManagementInterface<Derived>::get_ownership() const noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
     auto result = details::get_file_status(derived_this.getFileHandle());
@@ -34,7 +34,7 @@ inline expected<Ownership, FileStatError> AccessManagementInterface<Derived>::ge
 }
 
 template <typename Derived>
-inline expected<access_rights, FileStatError> AccessManagementInterface<Derived>::get_permissions() const noexcept
+inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::get_permissions() const noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
     auto result = details::get_file_status(derived_this.getFileHandle());

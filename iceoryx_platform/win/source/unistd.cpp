@@ -51,3 +51,8 @@ int iox_close(int fd)
     }
     return 0;
 }
+
+int iox_fchown(int fd, uid_t owner, gid_t group)
+{
+    return 0;
+}

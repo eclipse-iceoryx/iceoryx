@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_HPP
-#define IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_HPP
+#ifndef IOX_HOOFS_POSIX_DESIGN_FILE_MANAGEMENT_INTERFACE_HPP
+#define IOX_HOOFS_POSIX_DESIGN_FILE_MANAGEMENT_INTERFACE_HPP
 
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/types.hpp"
@@ -37,6 +37,12 @@ enum class FileStatError
 
 enum class FileSetOwnerError
 {
+    IoFailure,
+    Interrupt,
+    PermissionDenied,
+    ReadOnlyFilesystem,
+    InvalidUidOrGid,
+    UnknownError,
 };
 
 enum class FileSetPermissionError
@@ -46,7 +52,8 @@ enum class FileSetPermissionError
 namespace details
 {
 expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept;
-}
+expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept;
+} // namespace details
 
 class Ownership
 {
@@ -59,7 +66,7 @@ class Ownership
 
   private:
     template <typename>
-    friend struct AccessManagementInterface;
+    friend struct FileManagementInterface;
     Ownership(const uid_t uid, const gid_t gid) noexcept;
 
   private:
@@ -68,7 +75,7 @@ class Ownership
 };
 
 template <typename Derived>
-struct AccessManagementInterface
+struct FileManagementInterface
 {
     expected<Ownership, FileStatError> get_ownership() const noexcept;
     expected<FileSetOwnerError> set_ownership(const Ownership& owner) noexcept;
@@ -77,6 +84,6 @@ struct AccessManagementInterface
 };
 } // namespace iox
 
-#include "detail/access_management_interface.inl"
+#include "detail/file_management_interface.inl"
 
 #endif

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/access_management_interface.hpp"
+#include "iox/file_management_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
@@ -46,6 +46,40 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
 
     return iox::success<iox_stat>(file_status);
 }
+
+expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
+{
+    auto result = posix::posixCall(iox_fchown)(fildes, uid, gid).failureReturnValue(-1).evaluate();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EPERM:
+            IOX_LOG(ERROR) << "Unable to set owner due to insufficient permissions.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::PermissionDenied);
+        case EROFS:
+            IOX_LOG(ERROR) << "Unable to set owner since it is a read-only filesystem.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::ReadOnlyFilesystem);
+        case EINVAL:
+            IOX_LOG(ERROR) << "Unable to set owner since the uid " << uid << " or the gid " << gid
+                           << " are not supported by the OS implementation.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::InvalidUidOrGid);
+        case EIO:
+            IOX_LOG(ERROR) << "Unable to set owner due to an IO error.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::IoFailure);
+        case EINTR:
+            IOX_LOG(ERROR) << "Unable to set owner since an interrupt was received.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::Interrupt);
+        default:
+            IOX_LOG(ERROR) << "Unable to set owner since an unknown error occurred.";
+            return iox::error<FileSetOwnerError>(FileSetOwnerError::UnknownError);
+        }
+    }
+
+    return iox::success<>();
+}
+
 } // namespace details
 
 uid_t Ownership::uid() const noexcept
@@ -55,7 +89,7 @@ uid_t Ownership::uid() const noexcept
 
 gid_t Ownership::gid() const noexcept
 {
-    return m_uid;
+    return m_gid;
 }
 
 optional<Ownership> Ownership::from_user_and_group(const uid_t uid, const gid_t gid) noexcept
