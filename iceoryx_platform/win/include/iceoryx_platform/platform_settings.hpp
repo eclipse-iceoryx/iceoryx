@@ -43,8 +43,13 @@ constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
 constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
 
+#if __cplusplus >= 201703L
 template <typename C, typename... Cargs>
 using invoke_result = std::invoke_result<C, Cargs...>;
+#else
+template <typename C, typename... Cargs>
+using invoke_result = std::result_of<C(Cargs...)>;
+#endif
 
 namespace win32
 {
