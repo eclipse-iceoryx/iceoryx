@@ -22,15 +22,21 @@
 
 namespace iox
 {
+namespace details
+{
+bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
+bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept;
+} // namespace details
+
 class GroupName : public SemanticString<GroupName,
                                         platform::MAX_GROUP_NAME_LENGTH,
-                                        details::user_name_does_contain_invalid_content,
-                                        details::user_name_does_contain_invalid_characters>
+                                        details::group_name_does_contain_invalid_content,
+                                        details::group_name_does_contain_invalid_characters>
 {
     using Parent = SemanticString<GroupName,
                                   platform::MAX_GROUP_NAME_LENGTH,
-                                  details::user_name_does_contain_invalid_content,
-                                  details::user_name_does_contain_invalid_characters>;
+                                  details::group_name_does_contain_invalid_content,
+                                  details::group_name_does_contain_invalid_characters>;
     using Parent::Parent;
 };
 } // namespace iox
