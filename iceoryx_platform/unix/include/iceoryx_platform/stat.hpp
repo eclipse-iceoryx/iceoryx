@@ -19,4 +19,12 @@
 
 #include <sys/stat.h>
 
+using iox_stat = struct stat;
+
+inline int iox_fstat(int fildes, iox_stat* buf)
+{
+    return fstat(fildes, buf);
+}
+
+
 #endif // IOX_HOOFS_UNIX_PLATFORM_STAT_HPP

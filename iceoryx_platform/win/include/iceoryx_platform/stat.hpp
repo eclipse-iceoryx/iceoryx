@@ -31,4 +31,12 @@
 #define S_IXGRP 8
 #define S_IRWXO 9
 
+using iox_stat = struct _stat;
+
+inline int iox_fstat(int fildes, iox_stat* buf)
+{
+    return _fstat(fildes, buf);
+}
+
+
 #endif // IOX_HOOFS_WIN_PLATFORM_STAT_HPP
