@@ -16,6 +16,7 @@
 #ifndef IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_HPP
 #define IOX_HOOFS_POSIX_DESIGN_ACCESS_MANAGEMENT_INTERFACE_HPP
 
+#include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iox/expected.hpp"
 #include "iox/filesystem.hpp"
@@ -29,6 +30,9 @@ namespace iox
 {
 enum class FileStatError
 {
+    IoFailure,
+    FileTooLarge,
+    UnknownError,
 };
 
 enum class FileSetOwnerError
@@ -38,6 +42,11 @@ enum class FileSetOwnerError
 enum class FileSetPermissionError
 {
 };
+
+namespace details
+{
+expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept;
+}
 
 class Ownership
 {
@@ -49,6 +58,8 @@ class Ownership
     static optional<Ownership> from_user_and_group(const UserName& user_name, const GroupName& group_name) noexcept;
 
   private:
+    template <typename>
+    friend struct AccessManagementInterface;
     Ownership(const uid_t uid, const gid_t gid) noexcept;
 
   private:

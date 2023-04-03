@@ -16,9 +16,38 @@
 
 #include "iox/access_management_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 
 namespace iox
 {
+namespace details
+{
+expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
+{
+    iox_stat file_status = {};
+    auto result = posix::posixCall(iox_fstat)(fildes, &file_status).failureReturnValue(-1).evaluate();
+
+    if (result.has_error())
+    {
+        switch (result.get_error().errnum)
+        {
+        case EIO:
+            IOX_LOG(ERROR) << "Unable to acquire file status since an io failure occurred while reading.";
+            return iox::error<FileStatError>(FileStatError::IoFailure);
+        case EOVERFLOW:
+            IOX_LOG(ERROR) << "Unable to acquire file status since the file size cannot be represented by the "
+                              "corresponding structure.";
+            return iox::error<FileStatError>(FileStatError::FileTooLarge);
+        default:
+            IOX_LOG(ERROR) << "Unable to acquire file status due to an unknown failure";
+            return iox::error<FileStatError>(FileStatError::UnknownError);
+        }
+    }
+
+    return iox::success<iox_stat>(file_status);
+}
+} // namespace details
+
 uid_t Ownership::uid() const noexcept
 {
     return m_uid;
