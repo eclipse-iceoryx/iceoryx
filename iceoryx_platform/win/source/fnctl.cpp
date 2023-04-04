@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,4 +38,18 @@ int iox_open(const char* pathname, int flags, mode_t mode)
     }
 
     return HandleTranslator::getInstance().add(handle);
+}
+
+int iox_fcntl2(int, int)
+{
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    errno = ENOSYS;
+    return -1;
+}
+
+int iox_fcntl3(int, int, int)
+{
+    fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
+    errno = ENOSYS;
+    return -1;
 }

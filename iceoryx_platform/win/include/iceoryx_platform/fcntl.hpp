@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,12 @@
 #define O_WRONLY _O_WRONLY
 #define O_NONBLOCK 0x0
 
+#define F_GETFL 3
+#define F_SETFL 4
+
 int iox_open(const char* pathname, int flags, mode_t mode);
+
+int iox_fcntl2(int fd, int cmd);
+int iox_fcntl3(int fd, int cmd, int flags);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_FCNTL_HPP

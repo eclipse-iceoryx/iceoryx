@@ -1,4 +1,4 @@
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,4 +19,14 @@
 int iox_open(const char* pathname, int flags, mode_t mode)
 {
     return open(pathname, flags, mode);
+}
+
+int iox_fcntl2(int fd, int cmd)
+{
+    return fcntl(fd, cmd);
+}
+
+int iox_fcntl3(int fd, int cmd, int flags)
+{
+    return fcntl(fd, cmd, flags);
 }

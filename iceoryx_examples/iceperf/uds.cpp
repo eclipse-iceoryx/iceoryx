@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ void UDS::initFollower() noexcept
 void UDS::init() noexcept
 {
     // init subscriber
-    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM | SOCK_NONBLOCK, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdSubscriber = r.value; })
@@ -101,6 +101,28 @@ void UDS::init() noexcept
             std::cout << "socket error " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
         });
+
+    auto setNonBlocking = [&](int fd) {
+        int fdFlags{0};
+        iox::posix::posixCall(iox_fcntl2)(fd, F_GETFL)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .and_then([&](auto& r) { fdFlags = r.value; })
+            .or_else([](auto& r) {
+                std::cout << "error getting socket flags: " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
+
+        iox::posix::posixCall(iox_fcntl3)(fd, F_SETFL, fdFlags | O_NONBLOCK)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cout << "error setting socket O_NONBLOCK flag: " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
+    };
+
+    setNonBlocking(m_sockfdSubscriber);
 
     iox::posix::posixCall(iox_bind)(
         m_sockfdSubscriber, reinterpret_cast<struct sockaddr*>(&m_sockAddrSubscriber), sizeof(m_sockAddrSubscriber))
@@ -112,7 +134,7 @@ void UDS::init() noexcept
         });
 
     // init publisher
-    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM | SOCK_NONBLOCK, 0)
+    iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
         .failureReturnValue(ERROR_CODE)
         .evaluate()
         .and_then([this](auto& r) { m_sockfdPublisher = r.value; })
@@ -120,6 +142,8 @@ void UDS::init() noexcept
             std::cout << "socket error " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
         });
+
+    setNonBlocking(m_sockfdPublisher);
 }
 
 void UDS::waitForLeader() noexcept
