@@ -18,8 +18,8 @@
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -47,9 +47,9 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                 errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
             }
 
-            LogDebug() << "Application registered management segment "
-                       << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                       << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+            IOX_LOG(DEBUG) << "Application registered management segment "
+                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                           << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -91,9 +91,9 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
                 }
 
-                LogDebug() << "Application registered payload data segment "
-                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                           << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                IOX_LOG(DEBUG) << "Application registered payload data segment "
+                               << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                               << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })

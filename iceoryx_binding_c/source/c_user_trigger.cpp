@@ -17,6 +17,7 @@
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
 #include "iceoryx_posh/popo/user_trigger.hpp"
+#include "iox/logging.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -29,7 +30,7 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 {
     if (self == nullptr)
     {
-        LogWarn() << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
+        IOX_LOG(WARN) << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
         return nullptr;
     }
     auto* me = new UserTrigger();

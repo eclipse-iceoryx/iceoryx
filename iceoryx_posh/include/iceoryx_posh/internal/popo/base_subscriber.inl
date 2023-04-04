@@ -118,7 +118,7 @@ inline void BaseSubscriber<port_t>::enableState(iox::popo::TriggerHandle&& trigg
     case SubscriberState::HAS_DATA:
         if (m_trigger)
         {
-            LogWarn()
+            IOX_LOG(WARN)
                 << "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
                    "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                    "attaching it to the new one with SubscriberState::HAS_DATA. Best practice is to call detach first.";
@@ -167,7 +167,7 @@ inline void BaseSubscriber<port_t>::enableEvent(iox::popo::TriggerHandle&& trigg
     case SubscriberEvent::DATA_RECEIVED:
         if (m_trigger)
         {
-            LogWarn()
+            IOX_LOG(WARN)
                 << "The subscriber is already attached with either the SubscriberState::HAS_DATA or "
                    "SubscriberEvent::DATA_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
                    "attaching it to the new one with SubscriberEvent::DATA_RECEIVED. Best practice is to call detach "

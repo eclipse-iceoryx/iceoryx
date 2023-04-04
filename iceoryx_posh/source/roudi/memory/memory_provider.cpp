@@ -17,9 +17,9 @@
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/logging.hpp"
 #include "iox/memory.hpp"
 #include "iox/relative_pointer.hpp"
 
@@ -91,8 +91,8 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
     }
     m_segmentId = maybeSegmentId.value();
 
-    LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
-               << m_segmentId;
+    IOX_LOG(DEBUG) << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
+                   << m_segmentId;
 
     iox::BumpAllocator allocator(m_memory, m_size);
 

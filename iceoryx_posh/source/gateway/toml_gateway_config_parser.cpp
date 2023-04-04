@@ -18,8 +18,8 @@
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iox/into.hpp"
+#include "iox/logging.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
@@ -33,7 +33,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     // Set defaults if no path provided.
     if (path.size() == 0)
     {
-        LogWarn() << "Invalid file path provided. Falling back to built-in config.";
+        IOX_LOG(WARN) << "Invalid file path provided. Falling back to built-in config.";
         config.setDefaults();
         return iox::success<GatewayConfig>(config);
     }
@@ -42,11 +42,11 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     iox::cxx::FileReader configFile(into<std::string>(path), "", cxx::FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {
-        LogWarn() << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
+        IOX_LOG(WARN) << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
         return iox::success<GatewayConfig>(config);
     }
 
-    LogInfo() << "Using gateway config at: " << path;
+    IOX_LOG(INFO) << "Using gateway config at: " << path;
 
     std::shared_ptr<cpptoml::table> parsedToml{nullptr};
     try
@@ -58,8 +58,8 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     {
         auto parserError = iox::config::TomlGatewayConfigParseError::EXCEPTION_IN_PARSER;
         auto errorStringIndex = static_cast<uint64_t>(parserError);
-        LogWarn() << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
-                  << parserException.what();
+        IOX_LOG(WARN) << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[errorStringIndex] << ": "
+                      << parserException.what();
 
         return iox::error<iox::config::TomlGatewayConfigParseError>(parserError);
     }

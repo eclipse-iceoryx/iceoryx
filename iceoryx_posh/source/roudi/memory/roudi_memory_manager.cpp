@@ -17,8 +17,8 @@
 
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -49,7 +49,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemor
 
 RouDiMemoryManager::~RouDiMemoryManager() noexcept
 {
-    destroyMemory().or_else([](auto) { LogWarn() << "Failed to cleanup RouDiMemoryManager in destructor."; });
+    destroyMemory().or_else([](auto) { IOX_LOG(WARN) << "Failed to cleanup RouDiMemoryManager in destructor."; });
 }
 
 expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
@@ -73,8 +73,8 @@ expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() 
         auto result = memoryProvider->create();
         if (result.has_error())
         {
-            LogError() << "Could not create memory: MemoryProviderError = "
-                       << MemoryProvider::getErrorString(result.get_error());
+            IOX_LOG(ERROR) << "Could not create memory: MemoryProviderError = "
+                           << MemoryProvider::getErrorString(result.get_error());
             return error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
         }
     }
@@ -95,8 +95,8 @@ expected<RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexcept
         auto destructionResult = memoryProvider->destroy();
         if (destructionResult.has_error() && destructionResult.get_error() != MemoryProviderError::MEMORY_NOT_AVAILABLE)
         {
-            LogError() << "Could not destroy memory provider! Error: "
-                       << static_cast<uint64_t>(destructionResult.get_error());
+            IOX_LOG(ERROR) << "Could not destroy memory provider! Error: "
+                           << static_cast<uint64_t>(destructionResult.get_error());
             /// @note do not return on first error but try to cleanup the remaining resources
             if (!result.has_error())
             {

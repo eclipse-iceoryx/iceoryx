@@ -21,7 +21,7 @@
 
 #include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 // ================================================== Public ================================================== //
 

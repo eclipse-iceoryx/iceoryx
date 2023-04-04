@@ -58,7 +58,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
     {
         if (!m_RoudiIpcInterface.isInitialized() || !m_RoudiIpcInterface.ipcChannelMapsToFile())
         {
-            LogDebug() << "reopen RouDi's IPC channel!";
+            IOX_LOG(DEBUG) << "reopen RouDi's IPC channel!";
             m_RoudiIpcInterface.reopen();
             regState = RegState::WAIT_FOR_ROUDI;
         }
@@ -130,7 +130,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
     switch (regState)
     {
     case RegState::WAIT_FOR_ROUDI:
-        LogFatal() << "Timeout registering at RouDi. Is RouDi running?";
+        IOX_LOG(FATAL) << "Timeout registering at RouDi. Is RouDi running?";
         errorHandler(PoshError::IPC_INTERFACE__REG_ROUDI_NOT_AVAILABLE);
         break;
     case RegState::SEND_REGISTER_REQUEST:
@@ -163,13 +163,13 @@ bool IpcRuntimeInterface::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& 
 {
     if (!m_RoudiIpcInterface.send(msg))
     {
-        LogError() << "Could not send request via RouDi IPC channel interface.\n";
+        IOX_LOG(ERROR) << "Could not send request via RouDi IPC channel interface.\n";
         return false;
     }
 
     if (!m_AppIpcInterface->receive(answer))
     {
-        LogError() << "Could not receive request via App IPC channel interface.\n";
+        IOX_LOG(ERROR) << "Could not receive request via App IPC channel interface.\n";
         return false;
     }
 
@@ -191,13 +191,13 @@ void IpcRuntimeInterface::waitForRoudi(deadline_timer& timer) noexcept
 
         if (m_RoudiIpcInterface.isInitialized())
         {
-            LogDebug() << "RouDi IPC Channel found!";
+            IOX_LOG(DEBUG) << "RouDi IPC Channel found!";
             break;
         }
 
         if (printWaitingWarning)
         {
-            LogWarn() << "RouDi not found - waiting ...";
+            IOX_LOG(WARN) << "RouDi not found - waiting ...";
             printWaitingWarning = false;
             printFoundMessage = true;
         }
@@ -206,7 +206,7 @@ void IpcRuntimeInterface::waitForRoudi(deadline_timer& timer) noexcept
 
     if (printFoundMessage && m_RoudiIpcInterface.isInitialized())
     {
-        LogWarn() << "... RouDi found.";
+        IOX_LOG(WARN) << "... RouDi found.";
     }
 }
 
@@ -248,12 +248,12 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 }
                 else
                 {
-                    LogWarn() << "Received a REG_ACK with an outdated timestamp!";
+                    IOX_LOG(WARN) << "Received a REG_ACK with an outdated timestamp!";
                 }
             }
             else
             {
-                LogError() << "Wrong response received " << receiveBuffer.getMessage();
+                IOX_LOG(ERROR) << "Wrong response received " << receiveBuffer.getMessage();
             }
         }
     }

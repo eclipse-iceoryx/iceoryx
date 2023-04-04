@@ -22,6 +22,7 @@
 #include "iceoryx_binding_c/internal/cpp2c_service_description_translation.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/logging.hpp"
 
 
 using namespace iox;
@@ -41,7 +42,7 @@ void iox_pub_options_init(iox_pub_options_t* options)
 {
     if (options == nullptr)
     {
-        LogWarn() << "publisher options initialization skipped - null pointer provided";
+        IOX_LOG(WARN) << "publisher options initialization skipped - null pointer provided";
         return;
     }
 
@@ -67,7 +68,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
 {
     if (self == nullptr)
     {
-        LogWarn() << "publisher initialization skipped - null pointer provided for iox_pub_storage_t";
+        IOX_LOG(WARN) << "publisher initialization skipped - null pointer provided for iox_pub_storage_t";
         return nullptr;
     }
 
@@ -80,7 +81,7 @@ iox_pub_t iox_pub_init(iox_pub_storage_t* self,
         {
             // note that they may have been initialized but the initCheck
             // pattern overwritten afterwards, we cannot be sure but it is a misuse
-            LogFatal() << "publisher options may not have been initialized with iox_pub_options_init";
+            IOX_LOG(FATAL) << "publisher options may not have been initialized with iox_pub_options_init";
             errorHandler(CBindingError::BINDING_C__PUBLISHER_OPTIONS_NOT_INITIALIZED);
         }
         publisherOptions.historyCapacity = options->historyCapacity;
