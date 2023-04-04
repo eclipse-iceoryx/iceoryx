@@ -61,6 +61,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/reporting/include
 
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
+                                ${PROJECT_SOURCE_DIR}/posix/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
                                 ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
 
@@ -81,6 +82,7 @@ iox_add_library(
                                 reporting/include/
 
                                 posix/design/include/
+                                posix/filesystem/include/
                                 posix/time/include/
                                 posix/vocabulary/include/
     FILES
@@ -116,6 +118,7 @@ iox_add_library(
         utility/source/unique_id.cpp
 
         posix/design/source/file_management_interface.cpp
+        posix/filesystem/source/file.cpp
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         posix/vocabulary/source/file_name.cpp

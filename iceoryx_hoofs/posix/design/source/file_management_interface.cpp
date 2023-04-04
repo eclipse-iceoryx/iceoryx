@@ -138,6 +138,12 @@ optional<Ownership> Ownership::from_user_and_group(const UserName& user_name, co
     return Ownership(user.getID(), group.getID());
 }
 
+Ownership Ownership::from_process() noexcept
+{
+    return Ownership(posix::PosixUser::getUserOfCurrentProcess().getID(),
+                     posix::PosixGroup::getGroupOfCurrentProcess().getID());
+}
+
 Ownership::Ownership(const uid_t uid, const gid_t gid) noexcept
     : m_uid{uid}
     , m_gid{gid}

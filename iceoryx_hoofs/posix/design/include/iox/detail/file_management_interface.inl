@@ -76,6 +76,19 @@ FileManagementInterface<Derived>::set_permissions(const access_rights permission
 
     return iox::success<>();
 }
+
+template <typename Derived>
+inline expected<uint64_t, FileStatError> FileManagementInterface<Derived>::get_size() const noexcept
+{
+    const auto& derived_this = *static_cast<const Derived*>(this);
+    auto result = details::get_file_status(derived_this.getFileHandle());
+    if (result.has_error())
+    {
+        return iox::error<FileStatError>(result.get_error());
+    }
+
+    return iox::success<uint64_t>(result->st_size);
+}
 } // namespace iox
 
 #endif

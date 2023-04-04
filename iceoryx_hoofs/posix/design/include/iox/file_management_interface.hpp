@@ -84,6 +84,9 @@ class Ownership
     ///             with existing user and group
     static optional<Ownership> from_user_and_group(const UserName& user_name, const GroupName& group_name) noexcept;
 
+    /// @brief Returns the user and group owner of the current process.
+    static Ownership from_process() noexcept;
+
   private:
     template <typename>
     friend struct FileManagementInterface;
@@ -125,6 +128,10 @@ struct FileManagementInterface
     /// @param[in] permissions the new permissions of the file descriptor
     /// @return On failure a 'FileSetPermissionError' describing the error.
     expected<FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
+
+    /// @brief Returns the size of the corresponding file.
+    /// @return On failure a 'FileStatError' describing the error otherwise the size.
+    expected<uint64_t, FileStatError> get_size() const noexcept;
 };
 } // namespace iox
 
