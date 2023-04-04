@@ -29,6 +29,11 @@ int iox_access(const char* pathname, int mode)
     return _access(pathname, mode);
 }
 
+int iox_unlink(const char* pathname)
+{
+    return _unlink(pathname);
+}
+
 long sysconf(int name)
 {
     if (name == _SC_PAGESIZE)

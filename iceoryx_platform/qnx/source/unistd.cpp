@@ -31,3 +31,8 @@ int iox_access(const char* pathname, int mode)
 {
     return access(pathname, mode);
 }
+
+int iox_unlink(const char* pathname)
+{
+    return unlink(pathname);
+}

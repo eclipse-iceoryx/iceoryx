@@ -155,7 +155,45 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
     }
 }
 
-expected<FileRemoveError> File::remove(const FilePath& file) noexcept
+expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 {
+    auto result = posix::posixCall(iox_unlink)(file.as_string().c_str()).failureReturnValue(-1).evaluate();
+
+    if (!result.has_error())
+    {
+        return iox::success<bool>(true);
+    }
+
+    switch (result.get_error().errnum)
+    {
+    case ENOENT:
+        return iox::success<bool>(false);
+    case EPERM:
+        IOX_FALLTHROUGH
+    case EACCES:
+        IOX_LOG(ERROR) << "Unable to remove file due to insufficient permissions.";
+        return iox::error<FileRemoveError>(FileRemoveError::PermissionDenied);
+    case EBUSY:
+        IOX_LOG(ERROR) << "Unable to remove file since it is currently in use.";
+        return iox::error<FileRemoveError>(FileRemoveError::CurrentlyInUse);
+    case EIO:
+        IOX_LOG(ERROR) << "Unable to remove file due to an IO failure.";
+        return iox::error<FileRemoveError>(FileRemoveError::IoFailure);
+    case ELOOP:
+        IOX_LOG(ERROR) << "Unable to remove file due to too many symbolic links.";
+        return iox::error<FileRemoveError>(FileRemoveError::TooManySymbolicLinksEncountered);
+    case ENOMEM:
+        IOX_LOG(ERROR) << "Unable to remove file due to insufficient kernel memory.";
+        return iox::error<FileRemoveError>(FileRemoveError::InsufficientKernelMemory);
+    case EISDIR:
+        IOX_LOG(ERROR) << "Unable to remove file since it is a directory.";
+        return iox::error<FileRemoveError>(FileRemoveError::IsDirectory);
+    case EROFS:
+        IOX_LOG(ERROR) << "Unable to remove file since it resides on a read-only file system.";
+        return iox::error<FileRemoveError>(FileRemoveError::ReadOnlyFilesystem);
+    default:
+        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred.";
+        return iox::error<FileRemoveError>(FileRemoveError::UnknownError);
+    }
 }
 } // namespace iox

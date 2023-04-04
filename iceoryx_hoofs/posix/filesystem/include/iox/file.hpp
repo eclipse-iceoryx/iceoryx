@@ -62,6 +62,14 @@ enum class FileAccessError
 
 enum class FileRemoveError
 {
+    PermissionDenied,
+    CurrentlyInUse,
+    IoFailure,
+    TooManySymbolicLinksEncountered,
+    InsufficientKernelMemory,
+    IsDirectory,
+    ReadOnlyFilesystem,
+    UnknownError
 };
 
 class File : public FileManagementInterface<File>
@@ -78,7 +86,7 @@ class File : public FileManagementInterface<File>
     write_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
 
     static expected<bool, FileAccessError> does_exist(const FilePath& file) noexcept;
-    static expected<FileRemoveError> remove(const FilePath& file) noexcept;
+    static expected<bool, FileRemoveError> remove(const FilePath& file) noexcept;
 
   private:
     friend class FileBuilder;
