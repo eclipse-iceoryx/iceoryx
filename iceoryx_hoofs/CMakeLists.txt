@@ -115,6 +115,10 @@ iox_add_library(
 
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
+        posix/vocabulary/source/file_name.cpp
+        posix/vocabulary/source/file_path.cpp
+        posix/vocabulary/source/group_name.cpp
+        posix/vocabulary/source/path.cpp
         posix/vocabulary/source/user_name.cpp
 )
 

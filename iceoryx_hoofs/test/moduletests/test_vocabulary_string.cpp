@@ -3199,4 +3199,24 @@ TEST(stringTyped_test, CxxStringsAreIdentifiedCorrectly)
     EXPECT_TRUE(is_iox_string<iox::string<1>>::value);
     EXPECT_TRUE(is_iox_string<iox::string<10>>::value);
 }
+
+TYPED_TEST(stringTyped_test, UncheckedAtWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2197840d-af88-4fcd-9bb7-51a87d4bf10d");
+
+    for (uint64_t i = 0; i < this->testSubject.capacity(); ++i)
+    {
+        // add a b c in alternating fashion
+        EXPECT_THAT(this->testSubject.unsafe_append(static_cast<char>('a' + i % 3)), Eq(true));
+    }
+
+    for (uint64_t i = 0; i < this->testSubject.size(); ++i)
+    {
+        EXPECT_THAT(this->testSubject.unchecked_at(i), Eq(static_cast<char>('a' + i % 3)));
+        /// @NOLINTJUSTIFICATION we explicitly test the const version
+        /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        EXPECT_THAT(const_cast<const decltype(this->testSubject)&>(this->testSubject).unchecked_at(i),
+                    Eq(static_cast<char>('a' + i % 3)));
+    }
+}
 } // namespace

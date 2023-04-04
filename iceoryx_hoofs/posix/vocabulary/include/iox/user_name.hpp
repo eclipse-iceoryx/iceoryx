@@ -27,6 +27,7 @@ bool user_name_does_contain_invalid_characters(const string<platform::MAX_USER_N
 bool user_name_does_contain_invalid_content(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept;
 } // namespace details
 
+/// @brief Represents a POSIX user name
 class UserName : public SemanticString<UserName,
                                        platform::MAX_USER_NAME_LENGTH,
                                        details::user_name_does_contain_invalid_content,

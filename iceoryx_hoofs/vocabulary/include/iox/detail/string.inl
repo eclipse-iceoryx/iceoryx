@@ -562,6 +562,21 @@ inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noex
 }
 
 template <uint64_t Capacity>
+inline constexpr char& string<Capacity>::unchecked_at(const uint64_t pos) noexcept
+{
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const_cast to avoid code duplication, safe since it's first
+    // casted to a const type and then the const is removed
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<char&>(const_cast<const string<Capacity>*>(this)->unchecked_at(pos));
+}
+
+template <uint64_t Capacity>
+inline constexpr const char& string<Capacity>::unchecked_at(const uint64_t pos) const noexcept
+{
+    return m_rawstring[pos];
+}
+
+template <uint64_t Capacity>
 inline constexpr char& string<Capacity>::operator[](const uint64_t pos) noexcept
 {
     return at(pos);

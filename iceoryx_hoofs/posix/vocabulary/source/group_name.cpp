@@ -22,7 +22,7 @@ namespace iox
 {
 namespace details
 {
-bool user_name_does_contain_invalid_characters(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept
+bool group_name_does_contain_invalid_characters(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept
 {
     for (uint64_t i = 0; i < value.size(); ++i)
     {
@@ -42,9 +42,9 @@ bool user_name_does_contain_invalid_characters(const string<platform::MAX_USER_N
     return false;
 }
 
-bool user_name_does_contain_invalid_content(const string<platform::MAX_USER_NAME_LENGTH>& value) noexcept
+bool group_name_does_contain_invalid_content(const string<platform::MAX_GROUP_NAME_LENGTH>& value) noexcept
 {
-    // user name is not allowed to be empty
+    // group name is not allowed to be empty
     if (value.empty())
     {
         return true;
@@ -52,7 +52,7 @@ bool user_name_does_contain_invalid_content(const string<platform::MAX_USER_NAME
 
     // AXIVION Next Construct AutosarC++19_03-A3.9.1: Not used as an integer but as actual character
     const char c{value.unchecked_at(0)};
-    // a user name is not allowed to start with a number or dash
+    // a group name is not allowed to start with a number or dash
     return (c == internal::ASCII_DASH || (internal::ASCII_0 <= c && c <= internal::ASCII_9));
 }
 } // namespace details
