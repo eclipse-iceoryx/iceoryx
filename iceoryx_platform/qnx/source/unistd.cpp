@@ -26,3 +26,8 @@ int iox_fchown(int fd, uid_t owner, gid_t group)
 {
     return fchown(fd, owner, group);
 }
+
+int iox_access(const char* pathname, int mode)
+{
+    return access(pathname, mode);
+}

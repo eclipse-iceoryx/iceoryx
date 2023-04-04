@@ -118,4 +118,44 @@ expected<File, FileCreationError> FileBuilder::open() noexcept
 {
     return this->open_impl(true, posix::OpenMode::OPEN_EXISTING);
 }
+
+File::File(const int file_descriptor) noexcept
+    : m_file_descriptor{file_descriptor}
+{
+}
+
+expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
+{
+    auto result = posix::posixCall(iox_access)(file.as_string().c_str(), F_OK).failureReturnValue(-1).evaluate();
+
+    if (!result.has_error())
+    {
+        return iox::success<bool>(true);
+    }
+
+    switch (result.get_error().errnum)
+    {
+    case EACCES:
+        IOX_LOG(ERROR) << "Unable to determine if file exists due to insufficient permissions.";
+        return iox::error<FileAccessError>(FileAccessError::InsufficientPermissions);
+    case ENOENT:
+        return iox::success<bool>(false);
+    case ELOOP:
+        IOX_LOG(ERROR) << "Unable to determine if file exists due to too many symbolic links.";
+        return iox::error<FileAccessError>(FileAccessError::TooManySymbolicLinksEncountered);
+    case EIO:
+        IOX_LOG(ERROR) << "Unable to determine if file exists due to an IO failure.";
+        return iox::error<FileAccessError>(FileAccessError::IoFailure);
+    case ENOMEM:
+        IOX_LOG(ERROR) << "Unable to determine if file exists due insufficient kernel memory.";
+        return iox::error<FileAccessError>(FileAccessError::InsufficientKernelMemory);
+    default:
+        IOX_LOG(ERROR) << "Unable to determine if file exists since an unknown error occurred.";
+        return iox::error<FileAccessError>(FileAccessError::UnknownError);
+    }
+}
+
+expected<FileRemoveError> File::remove(const FilePath& file) noexcept
+{
+}
 } // namespace iox

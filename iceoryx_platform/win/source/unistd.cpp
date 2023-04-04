@@ -24,6 +24,11 @@ int ftruncate(int fildes, off_t length)
     return 0;
 }
 
+int iox_access(const char* pathname, int mode)
+{
+    return _access(pathname, mode);
+}
+
 long sysconf(int name)
 {
     if (name == _SC_PAGESIZE)

@@ -53,6 +53,11 @@ enum class FileWriteError
 
 enum class FileAccessError
 {
+    InsufficientPermissions,
+    TooManySymbolicLinksEncountered,
+    IoFailure,
+    InsufficientKernelMemory,
+    UnknownError
 };
 
 enum class FileRemoveError
@@ -80,7 +85,7 @@ class File : public FileManagementInterface<File>
     explicit File(const int file_descriptor) noexcept;
 
   private:
-    int file_descriptor{0};
+    int m_file_descriptor{0};
 };
 
 class FileBuilder
