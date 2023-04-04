@@ -1006,10 +1006,12 @@
     #include "iceoryx_dust/cxx/std_string_support.hpp"
 
     std::string myStdString("foo");
-    // std::string to iox::string
-    iox::string<3> myIoxString = iox::into<iox::lossy<iox::string<3>>>(myStdString);
+    // std::string to iox::string with truncation when source string exceeds capacity
+    auto myIoxString = iox::into<iox::lossy<iox::string<3>>>(myStdString); // returns a 'iox::string<3>'
+    // std::string to iox::string with fallible conversion when source string exceeds capacity
+    auto maybeMyIoxString = iox::into<iox::optional<iox::string<3>>>(myStdString); // returns a 'iox::optional<iox::string<3>>'
     // iox::string to std::string
-    std::string myConvertedIoxString = iox::into<std::string>(myIoxString);
+    auto myConvertedIoxString = iox::into<std::string>(myIoxString); // returns a 'std::string'
     ```
 
 44. In order to use the comparison or `operator<<` operators, `insert`, `find`, `unsafe_append` functions for

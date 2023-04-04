@@ -32,8 +32,22 @@ inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string&) 
     static_assert(always_false_v<std::string> && always_false_v<string<N>>, "\n \
         The conversion from 'std::string' to 'iox::string<N>' is potentially lossy!\n \
         This happens when the size of source string exceeds the capacity of the destination string!\n \
-        Please use 'iox::into<iox::lossy<iox::string<N>>>' which returns a 'iox::string<N>' and truncates the\n \
+        Please use either: \n \
+          - 'iox::into<iox::optional<iox::string<N>>>' which returns a 'iox::optional<iox::string<N>>'\n \
+            with a 'nullopt' if the size of the source string exceeds the capacity of the destination string\n \
+          - 'iox::into<iox::lossy<iox::string<N>>>' which returns a 'iox::string<N>' and truncates the\n \
             source string if its size exceeds the capacity of the destination string");
+}
+
+template <uint64_t N>
+inline optional<string<N>> FromImpl<std::string, optional<string<N>>>::fromImpl(const std::string& value) noexcept
+{
+    const auto stringLength = value.size();
+    if (stringLength <= N)
+    {
+        return string<N>(TruncateToCapacity, value.c_str(), stringLength);
+    }
+    return nullopt;
 }
 
 template <uint64_t N>
