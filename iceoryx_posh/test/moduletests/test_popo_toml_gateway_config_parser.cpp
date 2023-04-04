@@ -63,10 +63,10 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
     std::fstream tempFile{tempFilePath, std::ios_base::trunc | std::ios_base::out};
     ASSERT_TRUE(tempFile.is_open());
     tempFile << R"([[services]]
-    event = "dr"
-    instance = "dodo"
-    service = "dotter"
-)";
+        event = "dr"
+        instance = "dodo"
+        service = "dotter"
+    )";
     tempFile.close();
 
     iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.c_str()};
@@ -395,7 +395,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
 }
 
 constexpr const char* CONFIG_INVALID_SERVICE_DESCRIPTION = R"(
-[[services]]
+    [[services]]
     event = "這場考試_!*#:"
     instance = "這場考試_!*#:"
     service = "這場考試_!*#:"

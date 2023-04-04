@@ -82,14 +82,14 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
     std::fstream tempFile{tempFilePath, std::ios_base::trunc | std::ios_base::out};
     ASSERT_TRUE(tempFile.is_open());
     tempFile << R"([general]
-version = 1
+        version = 1
 
-[[segment]]
+        [[segment]]
 
-[[segment.mempool]]
-size = 128
-count = 1
-)";
+        [[segment.mempool]]
+        size = 128
+        count = 1
+    )";
     tempFile.close();
 
     cmdLineArgs.configFilePath = iox::roudi::ConfigFilePathString_t(iox::TruncateToCapacity, tempFilePath.c_str());
@@ -104,33 +104,33 @@ count = 1
 }
 
 constexpr const char* CONFIG_NO_GENERAL_SECTION = R"(
-[[segment]]
+    [[segment]]
 
-[[segment.mempool]]
-size = 128
-count = 10000
+    [[segment.mempool]]
+    size = 128
+    count = 10000
 )";
 
 constexpr const char* CONFIG_INVALID_CONFIG_FILE_VERSION = R"(
-[general]
-version = 0
+    [general]
+    version = 0
 
-[[segment]]
+    [[segment]]
 
-[[segment.mempool]]
-size = 128
-count = 10000
+    [[segment.mempool]]
+    size = 128
+    count = 10000
 )";
 
 constexpr const char* CONFIG_NO_SEGMENTS = R"(
-[general]
-version = 1
+    [general]
+    version = 1
 )";
 
 const std::string CONFIG_MAX_NUMBER_OF_SEGMENTS_EXCEEDED = [] {
     std::string config = R"(
-[general]
-version = 1
+    [general]
+    version = 1
 
 )";
     for (uint64_t i = 0; i <= iox::MAX_SHM_SEGMENTS + 1; ++i)
@@ -142,20 +142,20 @@ version = 1
 }();
 
 constexpr const char* CONFIG_SEGMENT_WITHOUT_MEMPOOL = R"(
-[general]
-version = 1
+    [general]
+    version = 1
 
-[[segment]]
+    [[segment]]
 )";
 
 const std::string CONFIG_MAX_NUMBER_OF_MEMPOOLS_PER_SEGMENT_EXCEEDED = [] {
     std::string config = R"(
-[general]
-version = 1
+        [general]
+        version = 1
 
-[[segment]]
+        [[segment]]
 
-)";
+    )";
     for (uint64_t i = 0; i <= iox::MAX_NUMBER_OF_MEMPOOLS + 1; ++i)
     {
         config.append("[[segment.mempool]]\n");
@@ -167,23 +167,23 @@ version = 1
 }();
 
 constexpr const char* CONFIG_MEMPOOL_WITHOUT_CHUNK_SIZE = R"(
-[general]
-version = 1
+    [general]
+    version = 1
 
-[[segment]]
+    [[segment]]
 
-[[segment.mempool]]
-count = 10000
+    [[segment.mempool]]
+    count = 10000
 )";
 
 constexpr const char* CONFIG_MEMPOOL_WITHOUT_CHUNK_COUNT = R"(
-[general]
-version = 1
+    [general]
+    version = 1
 
-[[segment]]
+    [[segment]]
 
-[[segment.mempool]]
-size = 128
+    [[segment.mempool]]
+    size = 128
 )";
 
 constexpr const char* CONFIG_EXCEPTION_IN_PARSER = R"(🐔)";
