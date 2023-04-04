@@ -27,6 +27,7 @@
 #include "iox/vector.hpp"
 
 #include <cpptoml.h>
+#include <fstream>
 #include <limits> // workaround for missing include in cpptoml.h
 #include <string>
 
@@ -69,12 +70,27 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
         defaultConfig.setDefaults();
         return iox::success<iox::RouDiConfig_t>(defaultConfig);
     }
-    auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
 
+    std::ifstream fileStream{m_customConfigFilePath.c_str()};
+    if (!fileStream.is_open())
+    {
+        IOX_LOG(ERROR) << "Could not open config file from path '" << m_customConfigFilePath << "'";
+        return iox::error<iox::roudi::RouDiConfigFileParseError>(
+            iox::roudi::RouDiConfigFileParseError::FILE_OPEN_FAILED);
+    }
+
+    return TomlRouDiConfigFileProvider::parse(fileStream);
+}
+
+
+iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError>
+TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
+{
     std::shared_ptr<cpptoml::table> parsedFile{nullptr};
     try
     {
-        parsedFile = cpptoml::parse_file(m_customConfigFilePath.c_str());
+        cpptoml::parser p{stream};
+        parsedFile = p.parse();
     }
     catch (const std::exception& parserException)
     {
@@ -111,6 +127,7 @@ iox::expected<iox::RouDiConfig_t, iox::roudi::RouDiConfigFileParseError> TomlRou
             iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED);
     }
 
+    auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
     iox::RouDiConfig_t parsedConfig;
     for (auto segment : *segments)
     {

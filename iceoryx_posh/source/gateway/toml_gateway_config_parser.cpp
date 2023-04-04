@@ -43,16 +43,50 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     if (!configFile.isOpen())
     {
         IOX_LOG(WARN) << "Gateway config file not found at: '" << path << "'. Falling back to built-in config.";
+        config.setDefaults();
         return iox::success<GatewayConfig>(config);
     }
 
     IOX_LOG(INFO) << "Using gateway config at: " << path;
 
+    std::ifstream fileStream{path.c_str()};
+    if (!fileStream.is_open())
+    {
+        IOX_LOG(ERROR) << "Could not open config file from path '" << path << "'";
+        return iox::error<iox::config::TomlGatewayConfigParseError>(
+            iox::config::TomlGatewayConfigParseError::FILE_OPEN_FAILED);
+    }
+
+    auto parseResult = TomlGatewayConfigParser::parse(fileStream, config);
+    if (parseResult.has_error())
+    {
+        return iox::error<iox::config::TomlGatewayConfigParseError>(parseResult.get_error());
+    }
+
+    return iox::success<GatewayConfig>(config);
+}
+
+iox::expected<iox::config::GatewayConfig, iox::config::TomlGatewayConfigParseError>
+iox::config::TomlGatewayConfigParser::parse(std::istream& stream) noexcept
+{
+    GatewayConfig config;
+    auto parseResult = TomlGatewayConfigParser::parse(stream, config);
+    if (parseResult.has_error())
+    {
+        return iox::error<iox::config::TomlGatewayConfigParseError>(parseResult.get_error());
+    }
+
+    return iox::success<GatewayConfig>(config);
+}
+
+iox::expected<iox::config::TomlGatewayConfigParseError>
+iox::config::TomlGatewayConfigParser::parse(std::istream& stream, GatewayConfig& config) noexcept
+{
     std::shared_ptr<cpptoml::table> parsedToml{nullptr};
     try
     {
-        // Load the file
-        parsedToml = cpptoml::parse_file(path.c_str());
+        cpptoml::parser p{stream};
+        parsedToml = p.parse();
     }
     catch (const std::exception& parserException)
     {
@@ -84,7 +118,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
         config.m_configuredServices.push_back(entry);
     }
 
-    return iox::success<GatewayConfig>(config);
+    return iox::success<>();
 }
 
 iox::expected<iox::config::TomlGatewayConfigParseError>

@@ -15,16 +15,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_cc//cc:defs.bzl", "cc_test")
-load("//bazel:configure_file.bzl", "configure_file")
-
-configure_file(
-    name = "test_input_path_hpp",
-    src = "moduletests/test_input_path.hpp.in",
-    out = "iceoryx/tests/posh/moduletests/test_input_path.hpp",
-    config = {
-        "POSH_TEST_INPUT_FILES_PATH": "iceoryx_posh/test/input/",
-    },
-)
 
 cc_test(
     name = "posh_moduletests",
@@ -34,7 +24,7 @@ cc_test(
         "mocks/*.hpp",
         "stubs/*.hpp",
         "*.hpp",
-    ]) + [":test_input_path_hpp"],
+    ]),
     data = glob(["input/**"]),
     includes = [
         ".",
