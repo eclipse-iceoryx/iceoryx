@@ -52,7 +52,7 @@ inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publish
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     return loanSample().and_then([&](auto& sample) {
-        c(sample.get(), std::forward<ArgTypes>(args)...);
+        c(new (sample.get()) T, std::forward<ArgTypes>(args)...);
         sample.publish();
     });
 }
@@ -61,7 +61,8 @@ template <typename T, typename H, typename BasePublisherType>
 inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
-        *sample.get() = val; // Copy assignment of value into sample's memory allocation.
+        new (sample.get()) T(val); // Placement new copy-construction of sample, avoid copy-assigment because there
+                                   // might not be an existing instance of T in the sample memory
         sample.publish();
     });
 }
