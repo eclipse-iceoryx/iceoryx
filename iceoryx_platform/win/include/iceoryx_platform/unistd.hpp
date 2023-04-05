@@ -45,6 +45,7 @@ int iox_access(const char* pathname, int mode);
 int iox_unlink(const char* pathname);
 iox_off_t iox_lseek(int fd, iox_off_t offset, int whence);
 iox_ssize_t iox_read(int fd, void* buf, size_t count);
+iox_ssize_t iox_write(int fd, const void* buf, size_t count);
 gid_t getgid();
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

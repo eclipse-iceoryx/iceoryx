@@ -47,3 +47,8 @@ iox_ssize_t iox_read(int fd, void* buf, size_t count)
 {
     return read(fd, buf, count);
 }
+
+iox_ssize_t iox_write(int fd, const void* buf, size_t count)
+{
+    return write(fd, buf, count);
+}

@@ -245,7 +245,7 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
 {
     if (set_offset(offset).has_error())
     {
-        IOX_LOG(ERROR) << "Unable to read file since the offset could not be set.";
+        IOX_LOG(ERROR) << "Unable to read from file since the offset could not be set.";
         return iox::error<FileReadError>(FileReadError::OffsetFailure);
     }
 
@@ -259,23 +259,73 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
     switch (result.get_error().errnum)
     {
     case EAGAIN:
-        IOX_LOG(ERROR) << "Unable to read file since the operation would block.";
+        IOX_LOG(ERROR) << "Unable to read from file since the operation would block.";
         return iox::error<FileReadError>(FileReadError::OperationWouldBlock);
     case EINTR:
-        IOX_LOG(ERROR) << "Unable to read file since an interrupt signal was received.";
+        IOX_LOG(ERROR) << "Unable to read from file since an interrupt signal was received.";
         return iox::error<FileReadError>(FileReadError::Interrupt);
     case EINVAL:
-        IOX_LOG(ERROR) << "Unable to read file since is unsuitable for reading.";
+        IOX_LOG(ERROR) << "Unable to read from file since is unsuitable for reading.";
         return iox::error<FileReadError>(FileReadError::FileUnsuitableForReading);
     case EIO:
-        IOX_LOG(ERROR) << "Unable to read file since an IO failure occurred.";
+        IOX_LOG(ERROR) << "Unable to read from file since an IO failure occurred.";
         return iox::error<FileReadError>(FileReadError::IoFailure);
     case EISDIR:
-        IOX_LOG(ERROR) << "Unable to read file since it is a directory.";
+        IOX_LOG(ERROR) << "Unable to read from file since it is a directory.";
         return iox::error<FileReadError>(FileReadError::IsDirectory);
     default:
-        IOX_LOG(ERROR) << "Unable to read file since an unknown error occurred.";
+        IOX_LOG(ERROR) << "Unable to read from file since an unknown error occurred.";
         return iox::error<FileReadError>(FileReadError::UnknownError);
+    }
+}
+
+expected<uint64_t, FileWriteError> File::write(uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+{
+    return write_at(0, buffer, buffer_len);
+}
+
+expected<uint64_t, FileWriteError>
+File::write_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+{
+    if (set_offset(offset).has_error())
+    {
+        IOX_LOG(ERROR) << "Unable to write to file since the offset could not be set.";
+        return iox::error<FileWriteError>(FileWriteError::OffsetFailure);
+    }
+
+    auto result = posix::posixCall(iox_write)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+
+    if (!result.has_error())
+    {
+        return iox::success<uint64_t>(result->value);
+    }
+
+    switch (result.get_error().errnum)
+    {
+    case EAGAIN:
+        IOX_LOG(ERROR) << "Unable to write to file since the operation would block.";
+        return iox::error<FileWriteError>(FileWriteError::OperationWouldBlock);
+    case EDQUOT:
+        IOX_LOG(ERROR) << "Unable to write to file since the users disk quota has been exhausted.";
+        return iox::error<FileWriteError>(FileWriteError::DiskQuotaExhausted);
+    case EFBIG:
+        IOX_LOG(ERROR) << "Unable to write to file since file size exceeds the maximum supported size.";
+        return iox::error<FileWriteError>(FileWriteError::FileSizeExceedsMaximumSupportedSize);
+    case EINTR:
+        IOX_LOG(ERROR) << "Unable to write to file since an interrupt signal occurred.";
+        return iox::error<FileWriteError>(FileWriteError::Interrupt);
+    case EINVAL:
+        IOX_LOG(ERROR) << "Unable to write to file since the file is unsuitable for writing.";
+        return iox::error<FileWriteError>(FileWriteError::FileUnsuitableForWriting);
+    case ENOSPC:
+        IOX_LOG(ERROR) << "Unable to write to file since there is no space left on target.";
+        return iox::error<FileWriteError>(FileWriteError::NoSpaceLeftOnDevice);
+    case EPERM:
+        IOX_LOG(ERROR) << "Unable to write to file since the operation was prevented by a file seal.";
+        return iox::error<FileWriteError>(FileWriteError::PreventedByFileSeal);
+    default:
+        IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred.";
+        return iox::error<FileWriteError>(FileWriteError::UnknownError);
     }
 }
 } // namespace iox

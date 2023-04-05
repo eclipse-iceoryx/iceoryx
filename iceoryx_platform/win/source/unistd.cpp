@@ -77,6 +77,11 @@ iox_ssize_t iox_read(int fd, void* buf, size_t count)
     return _read(fd, buf, count);
 }
 
+iox_ssize_t iox_write(int fd, const void* buf, size_t count)
+{
+    return _write(fd, buf, count);
+}
+
 gid_t getgid()
 {
     return 0;

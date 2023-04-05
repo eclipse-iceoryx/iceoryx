@@ -56,6 +56,16 @@ enum class FileReadError
 
 enum class FileWriteError
 {
+    OffsetFailure,
+    OperationWouldBlock,
+    DiskQuotaExhausted,
+    FileSizeExceedsMaximumSupportedSize,
+    Interrupt,
+    FileUnsuitableForWriting,
+    IoFailure,
+    NoSpaceLeftOnDevice,
+    PreventedByFileSeal,
+    UnknownError
 };
 
 enum class FileAccessError
@@ -97,8 +107,8 @@ class File : public FileManagementInterface<File>
     expected<uint64_t, FileReadError>
     read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
 
-    expected<uint64_t, FileReadError> write(uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
-    expected<uint64_t, FileReadError>
+    expected<uint64_t, FileWriteError> write(uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
+    expected<uint64_t, FileWriteError>
     write_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
 
     static expected<bool, FileAccessError> does_exist(const FilePath& file) noexcept;
