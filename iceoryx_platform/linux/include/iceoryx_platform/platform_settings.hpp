@@ -37,6 +37,7 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/'};
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 4096;
 constexpr const char IOX_UDS_SOCKET_PATH_PREFIX[] = "/tmp/";
 constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "/tmp/";
+constexpr const char IOX_TEMP_DIR[] = "/tmp/";
 
 constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
 constexpr uint64_t MAX_GROUP_NAME_LENGTH = 32;
