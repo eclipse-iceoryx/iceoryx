@@ -46,6 +46,12 @@ enum class FileCreationError
 enum class FileReadError
 {
     OffsetFailure,
+    Interrupt,
+    FileUnsuitableForReading,
+    IoFailure,
+    OperationWouldBlock,
+    IsDirectory,
+    UnknownError
 };
 
 enum class FileWriteError

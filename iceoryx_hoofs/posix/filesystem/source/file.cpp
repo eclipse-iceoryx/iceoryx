@@ -248,5 +248,34 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
         IOX_LOG(ERROR) << "Unable to read file since the offset could not be set.";
         return iox::error<FileReadError>(FileReadError::OffsetFailure);
     }
+
+    auto result = posix::posixCall(iox_read)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+
+    if (!result.has_error())
+    {
+        return iox::success<uint64_t>(result->value);
+    }
+
+    switch (result.get_error().errnum)
+    {
+    case EAGAIN:
+        IOX_LOG(ERROR) << "Unable to read file since the operation would block.";
+        return iox::error<FileReadError>(FileReadError::OperationWouldBlock);
+    case EINTR:
+        IOX_LOG(ERROR) << "Unable to read file since an interrupt signal was received.";
+        return iox::error<FileReadError>(FileReadError::Interrupt);
+    case EINVAL:
+        IOX_LOG(ERROR) << "Unable to read file since is unsuitable for reading.";
+        return iox::error<FileReadError>(FileReadError::FileUnsuitableForReading);
+    case EIO:
+        IOX_LOG(ERROR) << "Unable to read file since an IO failure occurred.";
+        return iox::error<FileReadError>(FileReadError::IoFailure);
+    case EISDIR:
+        IOX_LOG(ERROR) << "Unable to read file since it is a directory.";
+        return iox::error<FileReadError>(FileReadError::IsDirectory);
+    default:
+        IOX_LOG(ERROR) << "Unable to read file since an unknown error occurred.";
+        return iox::error<FileReadError>(FileReadError::UnknownError);
+    }
 }
 } // namespace iox

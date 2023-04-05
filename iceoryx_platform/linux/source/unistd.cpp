@@ -42,3 +42,8 @@ iox_off_t iox_lseek(int fd, iox_off_t offset, int whence)
 {
     return lseek(fd, offset, whence);
 }
+
+iox_ssize_t iox_read(int fd, void* buf, size_t count)
+{
+    return read(fd, buf, count);
+}
