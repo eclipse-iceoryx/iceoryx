@@ -67,6 +67,11 @@ int iox_fchown(int fd, uid_t owner, gid_t group)
     return 0;
 }
 
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence)
+{
+    return _lseek(fd, offset, whence);
+}
+
 gid_t getgid()
 {
     return 0;

@@ -45,6 +45,7 @@ enum class FileCreationError
 
 enum class FileReadError
 {
+    OffsetFailure,
 };
 
 enum class FileWriteError
@@ -72,6 +73,15 @@ enum class FileRemoveError
     UnknownError
 };
 
+enum class FileOffsetError
+{
+    FileOffsetOverflow,
+    OffsetBeyondFileLimits,
+    SeekingNotSupportedByFileType,
+    OffsetAtWrongPosition,
+    UnknownError,
+};
+
 class File : public FileManagementInterface<File>
 {
   public:
@@ -91,6 +101,8 @@ class File : public FileManagementInterface<File>
   private:
     friend class FileBuilder;
     explicit File(const int file_descriptor) noexcept;
+
+    expected<FileOffsetError> set_offset(const uint64_t offset) const noexcept;
 
   private:
     int m_file_descriptor{0};

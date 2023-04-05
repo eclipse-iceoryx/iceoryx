@@ -24,11 +24,13 @@
 #include <process.h>
 #include <vector>
 
+#define IOX_SEEK_SET SEEK_SET
 #define _SC_PAGESIZE 1
 #define STDERR_FILENO 2
 
 using uid_t = int;
 using gid_t = int;
+using iox_off_t = long;
 
 #define F_OK 0
 #define W_OK 2
@@ -40,6 +42,7 @@ int iox_close(int fd);
 int iox_fchown(int fd, uid_t owner, gid_t group);
 int iox_access(const char* pathname, int mode);
 int iox_unlink(const char* pathname);
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence);
 gid_t getgid();
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

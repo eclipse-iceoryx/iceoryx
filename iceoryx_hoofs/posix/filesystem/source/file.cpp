@@ -196,4 +196,57 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
         return iox::error<FileRemoveError>(FileRemoveError::UnknownError);
     }
 }
+
+expected<FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
+{
+    auto result = posix::posixCall(iox_lseek)(m_file_descriptor, static_cast<iox_off_t>(offset), IOX_SEEK_SET)
+                      .failureReturnValue(-1)
+                      .evaluate();
+
+    if (!result.has_error())
+    {
+        if (result->value == static_cast<iox_off_t>(offset))
+        {
+            return iox::success<>();
+        }
+
+        IOX_LOG(ERROR) << "Unable to set file offset position since it set to the wrong offset position.";
+        return iox::error<FileOffsetError>(FileOffsetError::OffsetAtWrongPosition);
+    }
+
+
+    switch (result.get_error().errnum)
+    {
+    case EINVAL:
+        IOX_FALLTHROUGH
+    case ENXIO:
+        IOX_LOG(ERROR) << "Unable to set file offset position since it beyond the file limits.";
+        return iox::error<FileOffsetError>(FileOffsetError::OffsetBeyondFileLimits);
+    case EOVERFLOW:
+        IOX_LOG(ERROR)
+            << "Unable to set file offset position since the file is too large and the offset would overflow.";
+        return iox::error<FileOffsetError>(FileOffsetError::FileOffsetOverflow);
+    case EPIPE:
+        IOX_LOG(ERROR) << "Unable to set file offset position since seeking is not supported by the file type.";
+        return iox::error<FileOffsetError>(FileOffsetError::SeekingNotSupportedByFileType);
+    default:
+        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred.";
+        return iox::error<FileOffsetError>(FileOffsetError::UnknownError);
+    }
+}
+
+expected<uint64_t, FileReadError> File::read(uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+{
+    return read_at(0, buffer, buffer_len);
+}
+
+expected<uint64_t, FileReadError>
+File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+{
+    if (set_offset(offset).has_error())
+    {
+        IOX_LOG(ERROR) << "Unable to read file since the offset could not be set.";
+        return iox::error<FileReadError>(FileReadError::OffsetFailure);
+    }
+}
 } // namespace iox

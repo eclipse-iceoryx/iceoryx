@@ -37,3 +37,8 @@ int iox_unlink(const char* pathname)
 {
     return unlink(pathname);
 }
+
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence)
+{
+    return lseek(fd, offset, whence);
+}
