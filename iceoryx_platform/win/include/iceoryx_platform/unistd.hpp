@@ -27,9 +27,14 @@
 #define _SC_PAGESIZE 1
 #define STDERR_FILENO 2
 
+using uid_t = int;
+using gid_t = int;
+
 
 int ftruncate(int fildes, off_t length);
 long sysconf(int name);
 int iox_close(int fd);
+int iox_fchown(int fd, uid_t owner, gid_t group);
+gid_t getgid();
 
 #endif // IOX_HOOFS_WIN_PLATFORM_UNISTD_HPP

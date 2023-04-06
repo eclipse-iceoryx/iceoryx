@@ -22,6 +22,7 @@
 #include "iceoryx_platform/stat.hpp"
 #include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 
@@ -51,7 +52,7 @@ class SharedMemoryObjectBuilder;
 
 /// @brief Creates a shared memory segment and maps it into the process space.
 ///        One can use optionally the allocator to acquire memory.
-class SharedMemoryObject
+class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
 {
   public:
     using Builder = SharedMemoryObjectBuilder;

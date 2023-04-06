@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iox/memory.hpp"
 #include "test.hpp"
 
@@ -251,4 +252,79 @@ TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
     EXPECT_THAT(*sutValue1, Eq(4557));
     EXPECT_THAT(*sutValue2, Eq(8912));
 }
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a9859b5e-555b-4cff-b418-74168a9fd85a");
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create();
+
+    auto owner = sut->get_ownership();
+    ASSERT_FALSE(owner.has_error());
+
+    EXPECT_THAT(owner->uid(), posix::PosixUser::getUserOfCurrentProcess().getID());
+    EXPECT_THAT(owner->gid(), posix::PosixGroup::getGroupOfCurrentProcess().getID());
+}
+
+TEST_F(SharedMemoryObject_Test, AcquiringPermissionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2b36bc3b-16a0-4c18-a1cb-6815812c6616");
+    const auto permissions = perms::owner_all | perms::group_write | perms::group_read | perms::others_exec;
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(permissions)
+                   .create();
+
+    auto sut_perm = sut->get_permissions();
+    ASSERT_FALSE(sut_perm.has_error());
+    EXPECT_THAT(*sut_perm, Eq(permissions));
+}
+
+TEST_F(SharedMemoryObject_Test, SettingOwnerWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "da85be28-7e21-4207-9077-698a2ec188d6");
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create();
+
+    auto owner = sut->get_ownership();
+    ASSERT_FALSE(owner.has_error());
+
+    // It is a slight stub test since we must be root to change the owner of a
+    // file. But changing the owner from self to self is legal.
+    ASSERT_FALSE(sut->set_ownership(*owner).has_error());
+}
+
+TEST_F(SharedMemoryObject_Test, SettingPermissionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "412abc8a-d1f8-4ceb-86db-f2790d2da58f");
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create();
+
+    ASSERT_FALSE(sut->set_permissions(perms::none).has_error());
+    auto result = sut->get_permissions();
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(perms::none));
+}
+#endif
+
+
 } // namespace

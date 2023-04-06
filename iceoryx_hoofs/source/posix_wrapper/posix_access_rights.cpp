@@ -58,7 +58,7 @@ bool PosixGroup::operator==(const PosixGroup& other) const noexcept
 
 PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
 {
-    return PosixGroup(getegid());
+    return PosixGroup(getgid());
 }
 
 optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept

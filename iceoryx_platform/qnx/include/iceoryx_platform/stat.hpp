@@ -19,4 +19,17 @@
 
 #include <sys/stat.h>
 
+using iox_stat = struct stat;
+using iox_mode_t = mode_t;
+
+inline int iox_fstat(int fildes, iox_stat* buf)
+{
+    return fstat(fildes, buf);
+}
+
+inline int iox_fchmod(int fildes, iox_mode_t mode)
+{
+    return fchmod(fildes, mode);
+}
+
 #endif // IOX_HOOFS_QNX_PLATFORM_STAT_HPP

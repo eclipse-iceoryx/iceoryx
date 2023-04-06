@@ -262,6 +262,8 @@ class access_rights final
     friend constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept;
 
   private:
+    template <typename>
+    friend struct FileManagementInterface;
     explicit constexpr access_rights(value_type value) noexcept
         : m_value(value)
     {

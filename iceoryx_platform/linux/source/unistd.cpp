@@ -22,3 +22,8 @@ int iox_close(int fd)
 {
     return close(fd);
 }
+
+int iox_fchown(int fd, uid_t owner, gid_t group)
+{
+    return fchown(fd, owner, group);
+}
