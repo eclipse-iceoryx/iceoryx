@@ -118,5 +118,53 @@ TEST_F(File_test, OpenOrCreateOpensExistingFile)
     ASSERT_FALSE(sut2.has_error());
 }
 
+TEST_F(File_test, OpenFileForReadingWithInsufficientPermissionFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "58843f37-0474-49b1-9228-207391346f70");
+    auto sut =
+        FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms::owner_write).create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
 
+    auto sut2 =
+        FileBuilder().open_mode(OpenMode::OPEN_EXISTING).access_mode(AccessMode::READ_ONLY).create(m_sut_file_path);
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::PermissionDenied));
+}
+
+TEST_F(File_test, OpenFileForReadWriteWithInsufficientPermissionFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "42525850-3c77-4661-98b1-68c0701893a5");
+    auto sut =
+        FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms::owner_read).create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
+
+    auto sut2 =
+        FileBuilder().open_mode(OpenMode::OPEN_EXISTING).access_mode(AccessMode::READ_WRITE).create(m_sut_file_path);
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::PermissionDenied));
+}
+
+TEST_F(File_test, AfterCreationTheFileExists)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "076f97da-d095-4349-abcc-0f7f28d9730f");
+
+    EXPECT_FALSE(File::does_exist(m_sut_file_path).value());
+    auto sut = FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).create(m_sut_file_path);
+    EXPECT_TRUE(File::does_exist(m_sut_file_path).value());
+}
+
+TEST_F(File_test, RemoveReturnsTrueWhenFileExist)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "64123a2d-4350-4969-80ce-d66e7433ed22");
+
+    auto sut = FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).create(m_sut_file_path);
+    EXPECT_TRUE(File::remove(m_sut_file_path).value());
+}
+
+TEST_F(File_test, RemoveReturnsFalseWhenFileDoesNotExist)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "aaed2102-288f-4a93-a2e9-db4a6cef825e");
+
+    EXPECT_FALSE(File::remove(m_sut_file_path).value());
+}
 } // namespace
