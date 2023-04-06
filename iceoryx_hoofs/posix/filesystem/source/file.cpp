@@ -21,41 +21,41 @@
 
 namespace iox
 {
-expected<File, FileCreationError> FileBuilder::create(const posix::OpenMode open_mode) noexcept
+expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noexcept
 {
-    switch (open_mode)
+    switch (m_open_mode)
     {
     case posix::OpenMode::OPEN_EXISTING:
     {
-        return this->open();
+        return this->open(name);
     }
     case posix::OpenMode::PURGE_AND_CREATE:
     {
-        File::remove(m_name);
+        File::remove(name);
         IOX_FALLTHROUGH
     }
     case posix::OpenMode::EXCLUSIVE_CREATE:
     {
-        return this->open_impl(true, posix::OpenMode::EXCLUSIVE_CREATE);
+        return this->open_impl(true, name);
     }
     case posix::OpenMode::OPEN_OR_CREATE:
     {
-        auto result = this->open_impl(false, posix::OpenMode::OPEN_EXISTING);
+        auto result = this->open_impl(false, name);
         if (!result.has_error() || result.get_error() != FileCreationError::DoesNotExist)
         {
             return result;
         }
 
-        return this->open_impl(true, posix::OpenMode::EXCLUSIVE_CREATE);
+        return this->open_impl(true, name);
     }
     }
 }
 
 expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_on_non_existing_file,
-                                                         const posix::OpenMode open_mode) noexcept
+                                                         const FilePath& name) noexcept
 {
-    auto result = posix::posixCall(iox_open)(m_name.as_string().c_str(),
-                                             posix::convertToOflags(m_access_mode, open_mode),
+    auto result = posix::posixCall(iox_open)(name.as_string().c_str(),
+                                             posix::convertToOflags(m_access_mode, m_open_mode),
                                              static_cast<iox_mode_t>(m_permissions.value()))
                       .failureReturnValue(-1)
                       .evaluate();
@@ -114,9 +114,9 @@ expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_
     return iox::success<File>(File(result->value));
 }
 
-expected<File, FileCreationError> FileBuilder::open() noexcept
+expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
 {
-    return this->open_impl(true, posix::OpenMode::OPEN_EXISTING);
+    return this->open_impl(true, name);
 }
 
 File::File(const int file_descriptor) noexcept
@@ -279,13 +279,13 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
     }
 }
 
-expected<uint64_t, FileWriteError> File::write(uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+expected<uint64_t, FileWriteError> File::write(const uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
     return write_at(0, buffer, buffer_len);
 }
 
 expected<uint64_t, FileWriteError>
-File::write_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
+File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
     if (set_offset(offset).has_error())
     {
@@ -327,5 +327,10 @@ File::write_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buff
         IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred.";
         return iox::error<FileWriteError>(FileWriteError::UnknownError);
     }
+}
+
+int File::get_file_handle() const noexcept
+{
+    return m_file_descriptor;
 }
 } // namespace iox
