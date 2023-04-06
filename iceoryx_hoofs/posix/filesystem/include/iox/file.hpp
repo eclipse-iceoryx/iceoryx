@@ -101,7 +101,7 @@ enum class FileOffsetError
 class File : public FileManagementInterface<File>
 {
   public:
-    int getFileHandle() const noexcept;
+    int get_file_handle() const noexcept;
 
     expected<uint64_t, FileReadError> read(uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
     expected<uint64_t, FileReadError>

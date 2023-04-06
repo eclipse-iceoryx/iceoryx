@@ -55,7 +55,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READWRITE);
     accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
 
-    if (!accessController.writePermissionsToFile(m_sharedMemoryObject.getFileHandle()))
+    if (!accessController.writePermissionsToFile(m_sharedMemoryObject.get_file_handle()))
     {
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }

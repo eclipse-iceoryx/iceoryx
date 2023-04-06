@@ -71,7 +71,7 @@ class MePooSegment_test : public Test
             remove("/tmp/roudi_segment_test");
         }
 
-        int getFileHandle()
+        int get_file_handle()
         {
             return filehandle;
         }

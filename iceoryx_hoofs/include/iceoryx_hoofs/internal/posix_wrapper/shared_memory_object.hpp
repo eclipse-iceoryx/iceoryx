@@ -74,7 +74,7 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     uint64_t getSizeInBytes() const noexcept;
 
     /// @brief Returns the underlying file handle of the shared memory
-    int getFileHandle() const noexcept;
+    int get_file_handle() const noexcept;
 
     /// @brief True if the shared memory has the ownership. False if an already
     ///        existing shared memory was opened.
