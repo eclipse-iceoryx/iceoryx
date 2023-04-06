@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,7 +53,7 @@ inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publish
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     return loanSample().and_then([&](auto& sample) {
-        c(sample.get(), std::forward<ArgTypes>(args)...);
+        c(new (sample.get()) T, std::forward<ArgTypes>(args)...);
         sample.publish();
     });
 }
@@ -61,7 +62,8 @@ template <typename T, typename H, typename BasePublisherType>
 inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
-        *sample.get() = val; // Copy assignment of value into sample's memory allocation.
+        new (sample.get()) T(val); // Placement new copy-construction of sample, avoid copy-assigment because there
+                                   // might not be an existing instance of T in the sample memory
         sample.publish();
     });
 }
