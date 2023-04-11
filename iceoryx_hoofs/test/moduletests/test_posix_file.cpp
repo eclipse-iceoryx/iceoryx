@@ -45,7 +45,7 @@ struct File_test : public Test
 
     void SetUp() override
     {
-        File::remove(m_sut_file_path);
+        IOX_DISCARD_RESULT(File::remove(m_sut_file_path));
     }
 };
 

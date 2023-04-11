@@ -28,8 +28,13 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
     case posix::OpenMode::OPEN_EXISTING:
         return this->open(name);
     case posix::OpenMode::PURGE_AND_CREATE:
-        File::remove(name);
-        IOX_FALLTHROUGH
+        if (File::remove(name).has_error())
+        {
+            IOX_LOG(ERROR) << "Unable to purge and open file \"" << name.as_string()
+                           << "\" since the file could not be removed";
+            return iox::error<FileCreationError>(FileCreationError::CannotBePurged);
+        }
+        IOX_FALLTHROUGH;
     case posix::OpenMode::EXCLUSIVE_CREATE:
         return this->open_impl(true, name);
     case posix::OpenMode::OPEN_OR_CREATE:
@@ -41,6 +46,10 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
 
         return this->open_impl(true, name);
     }
+
+    // can never be reached since all cases are handled in the above switch
+    // statement
+    return iox::error<FileCreationError>(FileCreationError::UnknownError);
 }
 
 expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_on_non_existing_file,
@@ -221,7 +230,7 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
     case ENOENT:
         return iox::success<bool>(false);
     case EPERM:
-        IOX_FALLTHROUGH
+        IOX_FALLTHROUGH;
     case EACCES:
         IOX_LOG(ERROR) << "Unable to remove file due to insufficient permissions.";
         return iox::error<FileRemoveError>(FileRemoveError::PermissionDenied);
@@ -270,7 +279,7 @@ expected<FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
     switch (result.get_error().errnum)
     {
     case EINVAL:
-        IOX_FALLTHROUGH
+        IOX_FALLTHROUGH;
     case ENXIO:
         IOX_LOG(ERROR) << "Unable to set file offset position since it beyond the file limits.";
         return iox::error<FileOffsetError>(FileOffsetError::OffsetBeyondFileLimits);
@@ -311,7 +320,7 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
 
     if (!result.has_error())
     {
-        return iox::success<uint64_t>(result->value);
+        return iox::success<uint64_t>(static_cast<uint64_t>(result->value));
     }
 
     switch (result.get_error().errnum)
@@ -361,7 +370,7 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
 
     if (!result.has_error())
     {
-        return iox::success<uint64_t>(result->value);
+        return iox::success<uint64_t>(static_cast<uint64_t>(result->value));
     }
 
     switch (result.get_error().errnum)

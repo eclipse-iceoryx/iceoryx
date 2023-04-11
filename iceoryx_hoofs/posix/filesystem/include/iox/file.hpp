@@ -39,6 +39,7 @@ enum class FileCreationError
     InsufficientMemory,
     FileTooLarge,
     CurrentlyInUse,
+    CannotBePurged,
     UnknownError
 };
 

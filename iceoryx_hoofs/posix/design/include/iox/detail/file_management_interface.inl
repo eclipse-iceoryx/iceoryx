@@ -87,7 +87,7 @@ inline expected<uint64_t, FileStatError> FileManagementInterface<Derived>::get_s
         return iox::error<FileStatError>(result.get_error());
     }
 
-    return iox::success<uint64_t>(result->st_size);
+    return iox::success<uint64_t>(static_cast<uint64_t>(result->st_size));
 }
 } // namespace iox
 
