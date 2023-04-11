@@ -25,7 +25,6 @@
 
 namespace iox
 {
-
 enum class FileCreationError
 {
     PermissionDenied,

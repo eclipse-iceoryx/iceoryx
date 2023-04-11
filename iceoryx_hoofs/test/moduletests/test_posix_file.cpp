@@ -302,4 +302,74 @@ TEST_F(File_test, ReadingWithOutOfBoundsOffsetReadsNothing)
     ASSERT_FALSE(read.has_error());
     EXPECT_THAT(*read, Eq(0));
 }
+
+TEST_F(File_test, WritingIntoAReadOnlyFileFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "dba3d6b3-c09b-4bbe-acb4-22f20abdc9b9");
+
+    const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
+    auto sut = FileBuilder()
+                   .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .access_mode(posix::AccessMode::READ_ONLY)
+                   .create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
+
+    auto result = sut->write(test_content.data(), test_content.size());
+    ASSERT_TRUE(result.has_error());
+    EXPECT_THAT(result.get_error(), Eq(FileWriteError::NotOpenedForWriting));
+}
+
+TEST_F(File_test, WriteAtOverridesContent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6b8de48f-a7cf-489e-bc66-95e92ddcb082");
+
+    const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
+    auto sut = FileBuilder()
+                   .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .access_mode(posix::AccessMode::READ_WRITE)
+                   .create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
+
+    auto result = sut->write(test_content.data(), test_content.size());
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(test_content.size()));
+
+    result = sut->write_at(2, test_content.data(), test_content.size());
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(test_content.size()));
+
+    std::array<uint8_t, 10> read_content{0};
+    auto read = sut->read(read_content.data(), read_content.size());
+
+    ASSERT_FALSE(read.has_error());
+    EXPECT_THAT(*read, Eq(6));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{122, 190, 122, 190, 100, 101, 0, 0, 0, 0}));
+}
+
+TEST_F(File_test, WriteWithOutOfBoundsOffsetAddsZerosInBetween)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c27e2ce3-e100-4c86-b414-8b59415a6ea8");
+
+    const std::array<uint8_t, 2> test_content{240, 250};
+    auto sut = FileBuilder()
+                   .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .access_mode(posix::AccessMode::READ_WRITE)
+                   .create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
+
+    auto result = sut->write(test_content.data(), test_content.size());
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(test_content.size()));
+
+    result = sut->write_at(4, test_content.data(), test_content.size());
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(test_content.size()));
+
+    std::array<uint8_t, 10> read_content{0};
+    auto read = sut->read(read_content.data(), read_content.size());
+
+    ASSERT_FALSE(read.has_error());
+    EXPECT_THAT(*read, Eq(6));
+    EXPECT_THAT(read_content, Eq(std::array<uint8_t, 10>{240, 250, 0, 0, 240, 250, 0, 0, 0, 0}));
+}
 } // namespace
