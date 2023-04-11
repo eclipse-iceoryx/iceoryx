@@ -25,7 +25,8 @@ namespace posix
 enum class AccessMode : uint64_t
 {
     READ_ONLY = 0U,
-    READ_WRITE = 1U
+    READ_WRITE = 1U,
+    WRITE_ONLY = 2U
 };
 
 /// @brief describes how the shared memory is opened or created

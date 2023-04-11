@@ -62,7 +62,7 @@ expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_
 
     if (!result.has_error())
     {
-        return iox::success<File>(File(result.value().value));
+        return iox::success<File>(File(result.value().value, m_access_mode));
     }
 
     switch (result.get_error().errnum)
@@ -111,7 +111,7 @@ expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_
         return iox::error<FileCreationError>(FileCreationError::UnknownError);
     }
 
-    return iox::success<File>(File(result->value));
+    return iox::success<File>(File(result->value, m_access_mode));
 }
 
 expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
@@ -119,9 +119,66 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
     return this->open_impl(true, name);
 }
 
-File::File(const int file_descriptor) noexcept
+File::File(const int file_descriptor, const posix::AccessMode access_mode) noexcept
     : m_file_descriptor{file_descriptor}
+    , m_access_mode{access_mode}
 {
+}
+
+File::File(File&& rhs) noexcept
+    : m_file_descriptor{rhs.m_file_descriptor}
+    , m_access_mode{rhs.m_access_mode}
+{
+    rhs.m_file_descriptor = INVALID_FILE_DESCRIPTOR;
+}
+
+File& File::operator=(File&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        close_fd();
+        m_file_descriptor = rhs.m_file_descriptor;
+        m_access_mode = rhs.m_access_mode;
+        rhs.m_file_descriptor = INVALID_FILE_DESCRIPTOR;
+    }
+
+    return *this;
+}
+
+File::~File() noexcept
+{
+    close_fd();
+}
+
+void File::close_fd() noexcept
+{
+    if (m_file_descriptor == INVALID_FILE_DESCRIPTOR)
+    {
+        return;
+    }
+
+    auto result = posix::posixCall(iox_close)(m_file_descriptor).failureReturnValue(-1).evaluate();
+    m_file_descriptor = INVALID_FILE_DESCRIPTOR;
+
+    if (!result.has_error())
+    {
+        return;
+    }
+
+    switch (result.get_error().errnum)
+    {
+    case EBADF:
+        IOX_LOG(FATAL) << "This should never happen! Unable to close file since the file descriptor is invalid.";
+        break;
+    case EINTR:
+        IOX_LOG(FATAL) << "This should never happen! Unable to close file since an interrupt signal was received.";
+        break;
+    case EIO:
+        IOX_LOG(FATAL) << "This should never happen! Unable to close file due to an IO failure.";
+        break;
+    }
+
+    cxx::EnsuresWithMsg(false, "Unable to close file descriptor due to a corrupted file descriptor.");
 }
 
 expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
@@ -157,7 +214,10 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 
 expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 {
-    auto result = posix::posixCall(iox_unlink)(file.as_string().c_str()).failureReturnValue(-1).evaluate();
+    auto result = posix::posixCall(iox_unlink)(file.as_string().c_str())
+                      .failureReturnValue(-1)
+                      .suppressErrorMessagesForErrnos(ENOENT)
+                      .evaluate();
 
     if (!result.has_error())
     {
@@ -243,6 +303,12 @@ expected<uint64_t, FileReadError> File::read(uint8_t* const buffer, const uint64
 expected<uint64_t, FileReadError>
 File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
+    if (m_access_mode == posix::AccessMode::WRITE_ONLY)
+    {
+        IOX_LOG(ERROR) << "Unable to read from file since it is opened for writing only.";
+        return iox::error<FileReadError>(FileReadError::NotOpenedForReading);
+    }
+
     if (set_offset(offset).has_error())
     {
         IOX_LOG(ERROR) << "Unable to read from file since the offset could not be set.";
@@ -287,6 +353,12 @@ expected<uint64_t, FileWriteError> File::write(const uint8_t* const buffer, cons
 expected<uint64_t, FileWriteError>
 File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
+    if (m_access_mode == posix::AccessMode::READ_ONLY)
+    {
+        IOX_LOG(ERROR) << "Unable to write to file since it is opened for reading only.";
+        return iox::error<FileWriteError>(FileWriteError::NotOpenedForWriting);
+    }
+
     if (set_offset(offset).has_error())
     {
         IOX_LOG(ERROR) << "Unable to write to file since the offset could not be set.";

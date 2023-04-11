@@ -50,6 +50,7 @@ enum class FileReadError
     IoFailure,
     OperationWouldBlock,
     IsDirectory,
+    NotOpenedForReading,
     UnknownError
 };
 
@@ -64,6 +65,7 @@ enum class FileWriteError
     IoFailure,
     NoSpaceLeftOnDevice,
     PreventedByFileSeal,
+    NotOpenedForWriting,
     UnknownError
 };
 
@@ -100,6 +102,13 @@ enum class FileOffsetError
 class File : public FileManagementInterface<File>
 {
   public:
+    File(const File&) noexcept = delete;
+    File& operator=(const File&) noexcept = delete;
+
+    File(File&& rhs) noexcept;
+    File& operator=(File&& rhs) noexcept;
+    ~File() noexcept;
+
     int get_file_handle() const noexcept;
 
     expected<uint64_t, FileReadError> read(uint8_t* const buffer, const uint64_t buffer_len) const noexcept;
@@ -115,12 +124,16 @@ class File : public FileManagementInterface<File>
 
   private:
     friend class FileBuilder;
-    explicit File(const int file_descriptor) noexcept;
+    explicit File(const int file_descriptor, const posix::AccessMode access_mode) noexcept;
+    void close_fd() noexcept;
 
     expected<FileOffsetError> set_offset(const uint64_t offset) const noexcept;
 
   private:
-    int m_file_descriptor{0};
+    static constexpr int INVALID_FILE_DESCRIPTOR{-1};
+
+    int m_file_descriptor{INVALID_FILE_DESCRIPTOR};
+    posix::AccessMode m_access_mode{posix::AccessMode::READ_ONLY};
 };
 
 class FileBuilder

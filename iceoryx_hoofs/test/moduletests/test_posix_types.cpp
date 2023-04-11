@@ -31,6 +31,7 @@ TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
     ::testing::Test::RecordProperty("TEST_ID", "9eb74e8c-7498-4400-9248-92aa6bd15142");
     EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY), Eq(O_RDONLY));
     EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE), Eq(O_RDWR));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY), Eq(O_WRONLY));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE), Eq(0U));
 }
 
@@ -64,6 +65,12 @@ TEST(TypesTest, ConvertToOflagFromAccessAndOpenModeWorks)
     EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, OpenMode::OPEN_EXISTING), Eq(O_RDWR));
     EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE, INVALID_OPEN_MODE), Eq(O_RDWR));
 
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::EXCLUSIVE_CREATE), Eq(O_WRONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::PURGE_AND_CREATE), Eq(O_WRONLY | O_CREAT | O_EXCL));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::OPEN_OR_CREATE), Eq(O_WRONLY | O_CREAT));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, OpenMode::OPEN_EXISTING), Eq(O_WRONLY));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY, INVALID_OPEN_MODE), Eq(O_WRONLY));
+
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::EXCLUSIVE_CREATE), Eq(O_CREAT | O_EXCL));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE, OpenMode::PURGE_AND_CREATE), Eq(O_CREAT | O_EXCL));
     // NOLINTEND(hicpp-signed-bitwise)
@@ -87,6 +94,7 @@ TEST(TypesTest, AccessModeAsStringLiteral)
     ::testing::Test::RecordProperty("TEST_ID", "c5a09ee7-df2c-4a28-929c-7de743f1e423");
     EXPECT_THAT(asStringLiteral(AccessMode::READ_ONLY), StrEq("AccessMode::READ_ONLY"));
     EXPECT_THAT(asStringLiteral(AccessMode::READ_WRITE), StrEq("AccessMode::READ_WRITE"));
+    EXPECT_THAT(asStringLiteral(AccessMode::WRITE_ONLY), StrEq("AccessMode::WRITE_ONLY"));
     EXPECT_THAT(asStringLiteral(INVALID_ACCESS_MODE), StrEq("AccessMode::UNDEFINED_VALUE"));
 }
 } // namespace

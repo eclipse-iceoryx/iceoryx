@@ -30,6 +30,8 @@ int convertToOflags(const AccessMode accessMode) noexcept
         return O_RDONLY;
     case AccessMode::READ_WRITE:
         return O_RDWR;
+    case AccessMode::WRITE_ONLY:
+        return O_WRONLY;
     }
 
     IOX_LOG(ERROR) << "Unable to convert to O_ flag since an undefined iox::posix::AccessMode was provided";
