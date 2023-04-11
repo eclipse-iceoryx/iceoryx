@@ -71,6 +71,9 @@ class smart_lock
         T* operator->() noexcept;
         const T* operator->() const noexcept;
 
+        T& operator*() noexcept;
+        const T& operator*() const noexcept;
+
       private:
         T& base;
         MutexType& lock;
