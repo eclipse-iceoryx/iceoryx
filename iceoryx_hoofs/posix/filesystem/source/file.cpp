@@ -17,6 +17,7 @@
 #include "iox/file.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/attributes.hpp"
+#include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 
 namespace iox

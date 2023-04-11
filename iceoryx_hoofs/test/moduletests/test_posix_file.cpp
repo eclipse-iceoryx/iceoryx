@@ -39,7 +39,7 @@ struct File_test : public Test
 {
     FilePath m_sut_file_path = [] {
         auto path = Path::create(platform::IOX_TEMP_DIR).expect("invalid temp dir");
-        path.append("test-file").expect("invalid file name");
+        path.append(iox::string<10>(TruncateToCapacity, "test-file")).expect("invalid file name");
         return FilePath::create(path.as_string()).expect("invalid file path");
     }();
 

@@ -50,7 +50,7 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
         return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
     }
 
-    auto str = string<Capacity>(TruncateToCapacity, value);
+    string<Capacity> str{TruncateToCapacity, value};
 
     if (DoesContainInvalidCharacterCall(str))
     {
