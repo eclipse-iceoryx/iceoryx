@@ -26,20 +26,13 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
     switch (m_open_mode)
     {
     case posix::OpenMode::OPEN_EXISTING:
-    {
         return this->open(name);
-    }
     case posix::OpenMode::PURGE_AND_CREATE:
-    {
         File::remove(name);
         IOX_FALLTHROUGH
-    }
     case posix::OpenMode::EXCLUSIVE_CREATE:
-    {
         return this->open_impl(true, name);
-    }
     case posix::OpenMode::OPEN_OR_CREATE:
-    {
         auto result = this->open_impl(false, name);
         if (!result.has_error() || result.get_error() != FileCreationError::DoesNotExist)
         {
@@ -47,7 +40,6 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
         }
 
         return this->open_impl(true, name);
-    }
     }
 }
 

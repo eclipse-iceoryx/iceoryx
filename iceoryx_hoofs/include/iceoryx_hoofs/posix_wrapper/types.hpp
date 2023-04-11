@@ -58,6 +58,10 @@ int convertToOflags(const AccessMode accessMode) noexcept;
 /// @param[in] openMode the openMode which should be converted
 int convertToOflags(const OpenMode openMode) noexcept;
 
+/// @brief converts the AccessMode into the corresponding PROT_** flags.
+/// @param[in] accessMode the accessMode which should be converted
+int convertToProtFlags(const AccessMode accessMode) noexcept;
+
 /// @brief converts the AccessMode and OpenMode into the corresponding O_** flags
 /// @param[in] accessMode the accessMode which should be converted
 /// @param[in] openMode the openMode which should be converted

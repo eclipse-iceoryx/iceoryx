@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/mman.hpp"
 #include "test.hpp"
 
 namespace
@@ -33,6 +34,15 @@ TEST(TypesTest, ConvertToOflagFromAccessModeWorks)
     EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE), Eq(O_RDWR));
     EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY), Eq(O_WRONLY));
     EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE), Eq(0U));
+}
+
+TEST(TypesTest, ConvertToProtflagFromAccessModeWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7a5c699e-16e6-471f-80b6-a325644e60d3");
+    EXPECT_THAT(convertToOflags(AccessMode::READ_ONLY), Eq(PROT_READ));
+    EXPECT_THAT(convertToOflags(AccessMode::READ_WRITE), Eq(PROT_READ | PROT_WRITE));
+    EXPECT_THAT(convertToOflags(AccessMode::WRITE_ONLY), Eq(PROT_WRITE));
+    EXPECT_THAT(convertToOflags(INVALID_ACCESS_MODE), Eq(PROT_NONE));
 }
 
 TEST(TypesTest, ConvertToOflagFromOpenModeWorks)

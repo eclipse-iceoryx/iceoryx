@@ -28,22 +28,11 @@ namespace posix
 {
 expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 {
-    int32_t l_memoryProtection{PROT_NONE};
-    switch (m_accessMode)
-    {
-    case AccessMode::READ_ONLY:
-        l_memoryProtection = PROT_READ;
-        break;
-    case AccessMode::READ_WRITE:
-        // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
-        l_memoryProtection = PROT_READ | PROT_WRITE;
-        break;
-    }
     // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
                                   m_length,
-                                  l_memoryProtection,
+                                  convertToProtFlags(m_accessMode),
                                   static_cast<int32_t>(m_flags),
                                   m_fileDescriptor,
                                   m_offset)
