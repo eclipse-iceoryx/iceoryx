@@ -39,6 +39,7 @@
 - Implement FileName, GroupName, Path, FilePath as strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 - Add string::unchecked_at to access character without bound checks. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
 - Add posix::FileManagementInterface to offer common operations like ownership/permission handling to all file descriptor based constructs. [\#1952](https://github.com/eclipse-iceoryx/iceoryx/issues/1952)
+- Implement dereference operator for smart_lock::Proxy [\#1966](https://github.com/eclipse-iceoryx/iceoryx/issues/1966)
 
 **Bugfixes:**
 
