@@ -50,7 +50,18 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
         return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
     }
 
+
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: pre-processor is required for setting gcc diagnostics, since gcc 8 incorrectly warns here about out of bo
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.7.1: see rule 'A16.0.1' above
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     string<Capacity> str{TruncateToCapacity, value};
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic pop
+#endif
+
 
     if (DoesContainInvalidCharacterCall(str))
     {
