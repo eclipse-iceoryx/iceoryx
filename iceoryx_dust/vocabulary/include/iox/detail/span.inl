@@ -13,10 +13,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_SPAN_INL
-#define IOX_DUST_CXX_SPAN_INL
+#ifndef IOX_DUST_VOCABULARY_SPAN_INL
+#define IOX_DUST_VOCABULARY_SPAN_INL
 
-#include "iceoryx_dust/cxx/span.hpp"
+#include "iox/span.hpp"
 
 namespace iox
 {
@@ -290,4 +290,4 @@ constexpr auto make_span(Container&& container) noexcept
 
 } // namespace iox
 
-#endif  // IOX_DUST_CXX_SPAN_INL
+#endif  // IOX_DUST_VOCABULARY_SPAN_INL

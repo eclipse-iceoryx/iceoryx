@@ -13,12 +13,12 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_SPAN_HPP
-#define IOX_DUST_CXX_SPAN_HPP
+#ifndef IOX_DUST_VOCABULARY_SPAN_HPP
+#define IOX_DUST_VOCABULARY_SPAN_HPP
 
-#include "iceoryx_dust/cxx/span_iterator.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/detail/span_iterator.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <algorithm>
@@ -430,6 +430,6 @@ class span : public internal::span_storage<Extent>
 
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/span.inl"
+#include "iox/detail/span.inl"
 
-#endif // IOX_DUST_CXX_SPAN_HPP
+#endif // IOX_DUST_VOCABULARY_SPAN_HPP

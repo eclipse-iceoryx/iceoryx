@@ -13,8 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_SPAN_ITERATOR_HPP
-#define IOX_DUST_CXX_SPAN_ITERATOR_HPP
+#ifndef IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
+#define IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 
 #include <iterator> // for reverse_iterator, distance, random_access_...
 
@@ -206,4 +206,4 @@ class span_iterator
 };
 } // namespace iox
 
-#endif // IOX_DUST_CXX_SPAN_ITERATOR_HPP
+#endif // IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
