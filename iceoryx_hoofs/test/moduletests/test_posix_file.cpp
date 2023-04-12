@@ -37,11 +37,23 @@ using namespace iox::units::duration_literals;
 
 struct File_test : public Test
 {
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: pre-processor is required for setting gcc diagnostics, since gcc 8 incorrectly warns here about out of bounds array access
+// AXIVION DISABLE STYLE AutosarC++19_03-A16.7.1: see rule 'A16.0.1' above
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
     FilePath m_sut_file_path = [] {
         auto path = Path::create(platform::IOX_TEMP_DIR).expect("invalid temp dir");
         path.append(iox::string<10>(TruncateToCapacity, "test-file")).expect("invalid file name");
         return FilePath::create(path.as_string()).expect("invalid file path");
     }();
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic pop
+#endif
+    // AXIVION ENABLE STYLE AutosarC++19_03-A16.7.1
+    // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
+
 
     void SetUp() override
     {
