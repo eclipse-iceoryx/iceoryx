@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -195,6 +195,11 @@ class IOX_NO_DISCARD expected<ErrorType> final : public FunctionalInterface<expe
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(const success<void>) noexcept;
 
+    /// @brief Creates an expected which is signaling success. This mirrors the c'tor for the 'expected' with a
+    /// 'ValueType'.
+    /// @param[in] in_place_t compile time variable to distinguish between constructors with certain behavior
+    explicit expected(in_place_t) noexcept;
+
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
     /// @param[in] errorValue error value which will be stored in the expected
@@ -276,6 +281,14 @@ class IOX_NO_DISCARD expected<ValueType, ErrorType> final
     /// @note The move c'tor does not explicitly invalidate the moved-from object but relies on the move c'tor of
     /// ValueType or ErrorType to correctly invalidate the stored object
     expected(expected&& rhs) noexcept;
+
+    /// @brief Creates an expected which is signaling success and perfectly forwards
+    ///        the args to the constructor of ValueType
+    /// @tparam Targs is the template parameter pack for the perfectly forwarded arguments
+    /// @param[in] in_place_t compile time variable to distinguish between constructors with certain behavior
+    /// @param[in] args... arguments which will be forwarded to the 'ValueType' constructor
+    template <typename... Targs>
+    explicit expected(in_place_t, Targs&&... args) noexcept;
 
     /// @brief calls the destructor of the success value or error value - depending on what
     ///         is stored in the expected
