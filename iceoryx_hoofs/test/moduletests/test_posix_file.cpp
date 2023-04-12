@@ -74,7 +74,8 @@ TEST_F(File_test, CreatingWithPermissionsWorks)
     ::testing::Test::RecordProperty("TEST_ID", "fe16936a-2a10-4128-be56-01158943e251");
 
     const auto perms = perms::owner_read | perms::group_exec;
-    FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms).create(m_sut_file_path);
+    ASSERT_FALSE(
+        FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms).create(m_sut_file_path).has_error());
 
     auto sut = FileBuilder().open_mode(OpenMode::OPEN_EXISTING).create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -89,6 +90,7 @@ TEST_F(File_test, PurgeAndCreateRemovesExistingFile)
     {
         auto sut = FileBuilder()
                        .open_mode(OpenMode::PURGE_AND_CREATE)
+                       .permissions(perms::owner_write | perms::owner_read)
                        .access_mode(posix::AccessMode::READ_WRITE)
                        .create(m_sut_file_path);
         EXPECT_FALSE(sut.has_error());
@@ -153,8 +155,11 @@ TEST_F(File_test, OpenOrCreateOpensExistingFile)
 TEST_F(File_test, OpenFileForReadingWithInsufficientPermissionFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "58843f37-0474-49b1-9228-207391346f70");
-    auto sut =
-        FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms::owner_write).create(m_sut_file_path);
+    auto sut = FileBuilder()
+                   .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write)
+                   .access_mode(AccessMode::WRITE_ONLY)
+                   .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
 
     auto sut2 =
@@ -207,6 +212,7 @@ TEST_F(File_test, ReadAndWriteToFileWorks)
     const std::array<uint8_t, 8> test_content{12, 14, 18, 19, 22, 90, 200, 1};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write | perms::owner_read)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -228,6 +234,7 @@ TEST_F(File_test, ReadingOfAWriteOnlyFileFails)
 
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write)
                    .access_mode(posix::AccessMode::WRITE_ONLY)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -245,6 +252,7 @@ TEST_F(File_test, ReadingWithSmallerBufferSizeWorks)
     const std::array<uint8_t, 8> test_content{112, 114, 118, 119, 122, 190, 100, 101};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write | perms::owner_read)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -268,6 +276,7 @@ TEST_F(File_test, ReadingWithLargerBufferSizeWorks)
     const std::array<uint8_t, 2> test_content{212, 214};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write | perms::owner_read)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -291,6 +300,7 @@ TEST_F(File_test, ReadingWithOffsetWorks)
     const std::array<uint8_t, 8> test_content{112, 114, 118, 119, 122, 190, 100, 101};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write | perms::owner_read)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -314,6 +324,7 @@ TEST_F(File_test, ReadingWithOutOfBoundsOffsetReadsNothing)
     const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_write | perms::owner_read)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -336,6 +347,7 @@ TEST_F(File_test, WritingIntoAReadOnlyFileFails)
     const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_read)
                    .access_mode(posix::AccessMode::READ_ONLY)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -352,6 +364,7 @@ TEST_F(File_test, WriteAtOverridesContent)
     const std::array<uint8_t, 4> test_content{122, 190, 100, 101};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_read | perms::owner_write)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -379,6 +392,7 @@ TEST_F(File_test, WriteWithOutOfBoundsOffsetAddsZerosInBetween)
     const std::array<uint8_t, 2> test_content{240, 250};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_read | perms::owner_write)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -406,6 +420,7 @@ TEST_F(File_test, MoveConstructedFileWorks)
     const std::array<uint8_t, 2> test_content{242, 252};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_read | perms::owner_write)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -431,6 +446,7 @@ TEST_F(File_test, MoveAssignedFileWorks)
     const std::array<uint8_t, 2> test_content{244, 254};
     auto sut = FileBuilder()
                    .open_mode(OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_read | perms::owner_write)
                    .access_mode(posix::AccessMode::READ_WRITE)
                    .create(m_sut_file_path);
     ASSERT_FALSE(sut.has_error());
@@ -442,6 +458,7 @@ TEST_F(File_test, MoveAssignedFileWorks)
     File sut2{std::move(sut.value())};
     auto sut3 = FileBuilder()
                     .open_mode(OpenMode::OPEN_EXISTING)
+                    .permissions(perms::owner_read)
                     .access_mode(posix::AccessMode::READ_ONLY)
                     .create(m_sut_file_path);
     ASSERT_FALSE(sut3.has_error());
