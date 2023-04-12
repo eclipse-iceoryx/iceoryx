@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/logging.hpp"
 #include "iox/relative_pointer.hpp"
 
@@ -59,8 +60,8 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, m_sharedMemoryObject.getBumpAllocator());
-    m_sharedMemoryObject.finalizeAllocation();
+    BumpAllocator allocator(m_sharedMemoryObject.getBaseAddress(), m_sharedMemoryObject.getSizeInBytes());
+    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, allocator);
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>

@@ -64,22 +64,6 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     SharedMemoryObject& operator=(SharedMemoryObject&&) noexcept = default;
     ~SharedMemoryObject() noexcept = default;
 
-    /// @brief allocates memory inside the shared memory with a provided size and
-    ///        alignment
-    /// @param[in] size the size of the memory inside the shared memory
-    /// @param[in] alignment the alignment of the memory
-    /// @return an expected containing a pointer to a memory address with the requested size and alignment on success,
-    /// an expected containing SharedMemoryAllocationError if finalizeAllocation was called before or not enough memory
-    /// is available
-    cxx::expected<void*, SharedMemoryAllocationError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
-
-    /// @brief After this call the user cannot allocate memory inside the SharedMemoryObject
-    ///        anymore. This ensures that memory is only allocated in the startup phase.
-    void finalizeAllocation() noexcept;
-
-    /// @brief Returns the reference to the underlying allocator
-    BumpAllocator& getBumpAllocator() noexcept;
-
     /// @brief Returns start- or base-address of the shared memory.
     const void* getBaseAddress() const noexcept;
 
@@ -100,18 +84,13 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(SharedMemory&& sharedMemory,
-                       MemoryMap&& memoryMap,
-                       BumpAllocator&& allocator,
-                       const uint64_t memorySizeInBytes) noexcept;
+    SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap, const uint64_t memorySizeInBytes) noexcept;
 
   private:
     uint64_t m_memorySizeInBytes;
 
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
-    BumpAllocator m_allocator;
-    bool m_allocationFinalized{false};
 };
 
 class SharedMemoryObjectBuilder
