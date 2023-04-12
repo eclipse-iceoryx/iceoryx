@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,18 +18,16 @@
 #define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
 #include "iox/algorithm.hpp"
-#include "iox/detail//newtype/decrementable.hpp"
-#include "iox/detail//newtype/incrementable.hpp"
 #include "iox/detail/newtype/arithmetic.hpp"
 #include "iox/detail/newtype/assignment.hpp"
 #include "iox/detail/newtype/comparable.hpp"
 #include "iox/detail/newtype/constructor.hpp"
 #include "iox/detail/newtype/convertable.hpp"
+#include "iox/detail/newtype/decrementable.hpp"
+#include "iox/detail/newtype/incrementable.hpp"
 #include "iox/detail/newtype/internal.hpp"
 #include "iox/detail/newtype/protected_constructor.hpp"
 #include "iox/detail/newtype/sortable.hpp"
-
-#include <type_traits>
 
 namespace iox
 {

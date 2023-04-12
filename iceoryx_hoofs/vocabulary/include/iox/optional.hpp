@@ -21,8 +21,6 @@
 #include "iox/functional_interface.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
-#include <optional>
-
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
 

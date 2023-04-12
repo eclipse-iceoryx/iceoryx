@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ struct Decrementable
     }
 
     template <typename U>
+    // Rule DCL21-CPP is deprecated
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
     friend Derived operator--(U& rhs, int) noexcept
     {
         auto value = internal::newTypeAccessor(rhs);

@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,53 +33,47 @@ struct Arithmetic
 {
     friend Derived operator+(const T& lhs, const T& rhs) noexcept
     {
-        return internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs);
+        return Derived{internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs)};
     }
 
     friend Derived operator*(const T& lhs, const T& rhs) noexcept
     {
-        return internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs);
+        return Derived{internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs)};
+    }
+    friend Derived operator-(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator/(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator/=(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) /= internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator*=(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) *= internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator+=(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) += internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator-=(const T& rhs, const T& lhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) -= internal::newTypeAccessor(rhs)};
     }
 
     ~Arithmetic() = default;
 };
 
 
-// template <typename T>
-// auto operator-(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs);
-// }
-
-// template <typename T>
-// auto operator/(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs);
-// }
-
-// template <typename T>
-// auto operator/=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) /= internal::newTypeAccessor(rhs);
-// }
-
-// template <typename T>
-// auto operator*=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) *= internal::newTypeAccessor(rhs);
-// }
-
-// template <typename T>
-// auto operator+=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) += internal::newTypeAccessor(rhs);
-// }
-
-// template <typename T>
-// auto operator-=(const T& rhs, const T& lhs) noexcept -> typename T::value_type
-// {
-//     return internal::newTypeAccessor(lhs) -= internal::newTypeAccessor(rhs);
-// }
 } // namespace newtype
 } // namespace iox
 

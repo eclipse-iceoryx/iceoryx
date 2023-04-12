@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,18 +31,20 @@ template <typename Derived, typename T>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Incrementable
 {
-    template<typename U>
-    friend auto operator++(U& rhs) noexcept -> typename U::value_type
+    template <typename U>
+    friend Derived operator++(U& rhs) noexcept
     {
-        return internal::preIncrement(rhs);
+        return Derived{internal::preIncrement(rhs)};
     }
 
-    template<typename U>
-    friend auto operator++(U& rhs, int) noexcept -> typename U::value_type
+    template <typename U>
+    // Rule DCL21-CPP is deprecated
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    friend Derived operator++(U& rhs, int) noexcept
     {
         auto value = internal::newTypeAccessor(rhs);
         internal::preIncrement(rhs);
-        return value;
+        return Derived{value};
     }
 
   protected:

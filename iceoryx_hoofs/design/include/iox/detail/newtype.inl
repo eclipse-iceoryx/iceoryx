@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,9 +108,6 @@ inline NewType<Derived, T, Policies...>& NewType<Derived, T, Policies...>::opera
                   "This type is not assignable by value move, please add the newtype::AssignByValueMove policy.");
     return *this;
 }
-
-/// @todo iox-#1554 Should operators + - * / ++ -- be added here with a static_assert for nicer error message (not done
-/// for Sortable)?
 
 template <typename Derived, typename T, template <typename, typename> class... Policies>
 inline NewType<Derived, T, Policies...>::operator T() const noexcept
