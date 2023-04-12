@@ -69,6 +69,20 @@ TEST_F(File_test, CreatingFileWorks)
     EXPECT_FALSE(sut.has_error());
 }
 
+TEST_F(File_test, CreatingWithPermissionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fe16936a-2a10-4128-be56-01158943e251");
+
+    const auto perms = perms::owner_read | perms::group_exec;
+    FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).permissions(perms).create(m_sut_file_path);
+
+    auto sut = FileBuilder().open_mode(OpenMode::OPEN_EXISTING).create(m_sut_file_path);
+    ASSERT_FALSE(sut.has_error());
+    auto read_perms = sut->get_permissions().expect("failed to get permissions");
+
+    EXPECT_THAT(perms, Eq(read_perms));
+}
+
 TEST_F(File_test, PurgeAndCreateRemovesExistingFile)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f11e3aae-2e63-468f-b58a-22aeeedbd7fc");
