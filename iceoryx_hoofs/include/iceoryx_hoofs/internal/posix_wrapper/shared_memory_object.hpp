@@ -37,6 +37,8 @@ enum class SharedMemoryObjectError
 {
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
+    UNABLE_TO_VERIFY_MEMORY_SIZE,
+    SMALLER_THAN_MIN_REQUESTED_SIZE,
     INTERNAL_LOGIC_FAILURE,
 };
 
@@ -80,14 +82,12 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap, const uint64_t memorySizeInBytes) noexcept;
+    SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept;
 
     friend struct FileManagementInterface<SharedMemoryObject>;
     int get_file_handle() const noexcept;
 
   private:
-    uint64_t m_memorySizeInBytes;
-
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
 };
