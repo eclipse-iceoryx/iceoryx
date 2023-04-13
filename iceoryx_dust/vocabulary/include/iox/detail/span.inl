@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@
 
 namespace iox
 {
-template <class C>
-inline constexpr auto size(const C& c) -> decltype(c.size())
+template <class Container>
+inline constexpr auto size(const Container& container) -> decltype(container.size())
 {
-    return c.size();
+    return container.size();
 }
 
 template <typename T, uint64_t Extent>
@@ -184,10 +184,10 @@ inline constexpr T& span<T, Extent>::back() const noexcept
 }
 
 template <typename T, uint64_t Extent>
-inline constexpr T& span<T, Extent>::operator[](uint64_t idx) const noexcept
+inline constexpr T& span<T, Extent>::operator[](uint64_t index) const noexcept
 {
-    iox::ConstexprCheckTrue(idx < size());
-    return *(data() + idx);
+    iox::ConstexprCheckTrue(index < size());
+    return *(data() + index);
 }
 
 template <typename T, uint64_t Extent>

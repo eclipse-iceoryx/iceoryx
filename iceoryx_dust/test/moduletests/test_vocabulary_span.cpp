@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,153 +25,217 @@ namespace
 using namespace ::testing;
 using namespace iox;
 
-class span_test : public Test
-{
-  public:
-    void SetUp() override
-    {
-    }
-
-    void TearDown() override
-    {
-    }
-};
-
-TEST_F(span_test, NewSpanCreatedWithTheDefaultConstructor)
+TEST(span_test, NewDynSpanCreatedWithTheDefaultConstructorHasEqualSizeAndDataPtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6a0589e2-b2fb-4f81-8082-6d3ea411e659");
-    span<int> dyn_span;
-    EXPECT_EQ(nullptr, dyn_span.data());
-    EXPECT_EQ(0u, dyn_span.size());
+    span<int> dyn_sut;
 
-    constexpr span<int, 0> static_span;
-    static_assert(nullptr == static_span.data(), "");
-    static_assert(0u == static_span.size(), "");
+    EXPECT_EQ(nullptr, dyn_sut.data());
+    EXPECT_TRUE(dyn_sut.empty());
 }
 
-TEST_F(span_test, NewSpanFromIterator)
+TEST(span_test, NewStaticSpanCreatedWithTheDefaultConstructorHasEqualSizeAndDataPtr)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "92de7ff5-d03e-41ae-bfdd-893892381b24");
-    constexpr int* kNull = nullptr;
-    constexpr span<int> empty_span(kNull, 0);
-    EXPECT_TRUE(empty_span.empty());
-    EXPECT_EQ(nullptr, empty_span.data());
+    ::testing::Test::RecordProperty("TEST_ID", "05c15f4f-e337-466e-a672-4d65b34bff7d");
+    constexpr span<int, 0> static_sut;
 
+    static_assert(nullptr == static_sut.data(), "Data must be 'nullptr'");
+    static_assert(static_sut.empty(), "Sut must be empty");
+}
+
+TEST(span_test, NewEmptySpanCreatedFromIteratorContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "59980664-c94f-4bb5-bc9d-adeac630746e");
+    constexpr int* kNull = nullptr;
+
+    constexpr span<int> empty_sut(kNull, 0);
+
+    ASSERT_TRUE(empty_sut.empty());
+    EXPECT_EQ(nullptr, empty_sut.data());
+}
+
+TEST(span_test, NewDynSpanCreatedFromIteratorContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "05db30c2-e13d-4116-ba05-668b30ba4a23");
     std::vector<int> vector = {1, 1, 2, 3, 5, 8};
 
-    span<int> dyn_span(vector.begin(), vector.size());
-    EXPECT_EQ(vector.data(), dyn_span.data());
-    EXPECT_EQ(vector.size(), dyn_span.size());
+    span<int> dyn_sut(vector.begin(), vector.size());
 
-    for (size_t i = 0; i < dyn_span.size(); ++i)
-        EXPECT_EQ(vector[i], dyn_span[i]);
-
-    span<int, 6> static_span(vector.begin(), vector.size());
-    EXPECT_EQ(vector.data(), static_span.data());
-    EXPECT_EQ(vector.size(), static_span.size());
-
-    for (size_t i = 0; i < static_span.size(); ++i)
-        EXPECT_EQ(vector[i], static_span[i]);
+    EXPECT_EQ(vector.data(), dyn_sut.data());
+    EXPECT_EQ(vector.size(), dyn_sut.size());
+    for (size_t i = 0; i < dyn_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], dyn_sut[i]);
+    }
 }
 
-TEST_F(span_test, NewSpanCreatedFromContainer)
+TEST(span_test, NewStaticSpanCreatedFromIteratorContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fdc6a3fe-3971-4326-b6b2-1967afbc9726");
+    std::vector<int> vector = {8, 2, 2, 4, 5, 8};
+
+    span<int, 6> static_sut(vector.begin(), vector.size());
+
+    EXPECT_EQ(vector.data(), static_sut.data());
+    EXPECT_EQ(vector.size(), static_sut.size());
+
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, NewConstSpanCreatedFromContainerContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "593aa3b6-9937-469d-991d-9e682110727e");
+    std::vector<int> vector = {6, 7, 2, 8, 9, 2};
+
+    span<const int> const_sut(vector);
+
+    EXPECT_EQ(vector.data(), const_sut.data());
+    EXPECT_EQ(vector.size(), const_sut.size());
+    for (size_t i = 0; i < const_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], const_sut[i]);
+    }
+}
+
+TEST(span_test, NewDynSpanCreatedFromContainerContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b85bc77-2d3b-4a89-b86a-d5c75a4f3c49");
     std::vector<int> vector = {1, 1, 2, 3, 5, 8};
 
-    span<const int> const_span(vector);
-    EXPECT_EQ(vector.data(), const_span.data());
-    EXPECT_EQ(vector.size(), const_span.size());
+    span<int> dyn_sut(vector);
 
-    for (size_t i = 0; i < const_span.size(); ++i)
-        EXPECT_EQ(vector[i], const_span[i]);
-
-    span<int> dyn_span(vector);
-    EXPECT_EQ(vector.data(), dyn_span.data());
-    EXPECT_EQ(vector.size(), dyn_span.size());
-
-    for (size_t i = 0; i < dyn_span.size(); ++i)
-        EXPECT_EQ(vector[i], dyn_span[i]);
-
-    span<int, 6> static_span(vector.data(), vector.size());
-    EXPECT_EQ(vector.data(), static_span.data());
-    EXPECT_EQ(vector.size(), static_span.size());
-
-    for (size_t i = 0; i < static_span.size(); ++i)
-        EXPECT_EQ(vector[i], static_span[i]);
+    ASSERT_EQ(vector.data(), dyn_sut.data());
+    ASSERT_EQ(vector.size(), dyn_sut.size());
+    for (size_t i = 0; i < dyn_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], dyn_sut[i]);
+    }
 }
 
-TEST_F(span_test, NewSpanCreatedFromArray)
+TEST(span_test, NewStaticSpanCreatedFromContainerContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3a5f3675-2365-4966-ae78-2035bac45db0");
+    std::vector<int> vector = {1, 1, 13, 3, 5, 8};
+
+    span<int, 6> static_sut(vector.data(), vector.size());
+
+    ASSERT_EQ(vector.data(), static_sut.data());
+    ASSERT_EQ(vector.size(), static_sut.size());
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, NewConstSpanCreatedFromArrayContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bbbd4ce2-30ea-4b32-86e3-aa7d0a1184d8");
-    int array[] = {5, 4, 3, 2, 1};
+    int array[] = {5, 41, 3, 2, 1};
 
-    span<const int> const_span(array);
-    EXPECT_EQ(array, const_span.data());
-    EXPECT_EQ(iox::size(array), const_span.size());
-    for (size_t i = 0; i < const_span.size(); ++i)
-        EXPECT_EQ(array[i], const_span[i]);
+    span<const int> const_sut(array);
 
-    span<int> dyn_span(array);
-    EXPECT_EQ(array, dyn_span.data());
-    EXPECT_EQ(iox::size(array), dyn_span.size());
-    for (size_t i = 0; i < dyn_span.size(); ++i)
-        EXPECT_EQ(array[i], dyn_span[i]);
+    ASSERT_EQ(array, const_sut.data());
+    ASSERT_EQ(iox::size(array), const_sut.size());
+    for (size_t i = 0; i < const_sut.size(); ++i)
+    {
+        EXPECT_EQ(array[i], const_sut[i]);
+    }
+}
+TEST(span_test, NewDynSpanCreatedFromArrayContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3bd35b66-2cf7-42bc-b7b8-5344ac92d8fa");
+    int array[] = {5, 24, 3, 22, 1};
 
-    span<int, iox::size(array)> static_span(array);
-    EXPECT_EQ(array, static_span.data());
-    EXPECT_EQ(iox::size(array), static_span.size());
-    for (size_t i = 0; i < static_span.size(); ++i)
-        EXPECT_EQ(array[i], static_span[i]);
+    span<int> dyn_sut(array);
+
+    ASSERT_EQ(array, dyn_sut.data());
+    ASSERT_EQ(iox::size(array), dyn_sut.size());
+    for (size_t i = 0; i < dyn_sut.size(); ++i)
+    {
+        EXPECT_EQ(array[i], dyn_sut[i]);
+    }
+}
+TEST(span_test, NewStaticSpanCreatedFromArrayContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3dfae2a7-d6eb-4961-a600-0e5d6738c283");
+    int array[] = {5, 4, 3, 32, 1};
+
+    span<int, iox::size(array)> static_sut(array);
+
+    ASSERT_EQ(array, static_sut.data());
+    ASSERT_EQ(iox::size(array), static_sut.size());
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(array[i], static_sut[i]);
+    }
 }
 
-TEST_F(span_test, NewSpanCreatedFromConstexprArray)
+TEST(span_test, NewDynSpanCreatedFromConstexprArrayContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ec9c31c-b97f-43a3-9669-3bdff3a82b9e");
     static constexpr int arr[] = {5, 4, 3, 2, 1};
 
-    constexpr span<const int> dyn_span(arr);
-    static_assert(arr == dyn_span.data(), "");
-    static_assert(iox::size(arr) == dyn_span.size(), "");
+    constexpr span<const int> dyn_sut(arr);
 
-    static_assert(arr[0] == dyn_span[0], "");
-    static_assert(arr[1] == dyn_span[1], "");
-    static_assert(arr[2] == dyn_span[2], "");
-    static_assert(arr[3] == dyn_span[3], "");
-    static_assert(arr[4] == dyn_span[4], "");
-
-    constexpr span<const int, iox::size(arr)> static_span(arr);
-    static_assert(arr == static_span.data(), "");
-    static_assert(iox::size(arr) == static_span.size(), "");
-
-    static_assert(arr[0] == static_span[0], "");
-    static_assert(arr[1] == static_span[1], "");
-    static_assert(arr[2] == static_span[2], "");
-    static_assert(arr[3] == static_span[3], "");
-    static_assert(arr[4] == static_span[4], "");
+    static_assert(arr == dyn_sut.data(), "Data needs to point to array");
+    static_assert(iox::size(arr) == dyn_sut.size(), "Size needs to be the same as array size");
+    static_assert(arr[0] == dyn_sut[0], "Values need to be the same");
+    static_assert(arr[1] == dyn_sut[1], "Values need to be the same");
+    static_assert(arr[2] == dyn_sut[2], "Values need to be the same");
+    static_assert(arr[3] == dyn_sut[3], "Values need to be the same");
+    static_assert(arr[4] == dyn_sut[4], "Values need to be the same");
 }
 
-TEST_F(span_test, NewSpanFromConstContainer)
+TEST(span_test, NewStaticSpanCreatedFromConstexprArrayContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e9aa537e-4d6b-48d1-bb04-b621a2d14df6");
+    static constexpr int arr[] = {55, 44, 33, 22, 11};
+
+    constexpr span<const int, iox::size(arr)> static_sut(arr);
+
+    static_assert(arr == static_sut.data(), "Data needs to point to array");
+    static_assert(iox::size(arr) == static_sut.size(), "Size needs to be the same as array size");
+    static_assert(arr[0] == static_sut[0], "Values need to be the same");
+    static_assert(arr[1] == static_sut[1], "Values need to be the same");
+    static_assert(arr[2] == static_sut[2], "Values need to be the same");
+    static_assert(arr[3] == static_sut[3], "Values need to be the same");
+    static_assert(arr[4] == static_sut[4], "Values need to be the same");
+}
+
+TEST(span_test, NewConstSpanFromConstContainerContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4358e397-c82b-45f7-a75f-8d0b1cf03667");
     const std::vector<int> vector = {1, 1, 2, 3, 5, 8};
 
-    span<const int> const_span(vector);
-    EXPECT_EQ(vector.data(), const_span.data());
-    EXPECT_EQ(vector.size(), const_span.size());
+    span<const int> const_sut(vector);
 
-    for (size_t i = 0; i < const_span.size(); ++i)
-        EXPECT_EQ(vector[i], const_span[i]);
-
-    span<const int, 6> static_span(vector.data(), vector.size());
-    EXPECT_EQ(vector.data(), static_span.data());
-    EXPECT_EQ(vector.size(), static_span.size());
-
-    for (size_t i = 0; i < static_span.size(); ++i)
-        EXPECT_EQ(vector[i], static_span[i]);
+    ASSERT_EQ(vector.data(), const_sut.data());
+    ASSERT_EQ(vector.size(), const_sut.size());
+    for (size_t i = 0; i < const_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], const_sut[i]);
+    }
 }
 
-TEST_F(span_test, NewSpanFromConstIoxCxxVector)
+TEST(span_test, NewStaticSpanFromConstContainerContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "28f85385-3bdb-4bd1-ad40-2bebe399ac08");
+    const std::vector<int> vector = {1, 1, 2, 3, 5, 8};
+
+    span<const int, 6> static_sut(vector.data(), vector.size());
+
+    ASSERT_EQ(vector.data(), static_sut.data());
+    ASSERT_EQ(vector.size(), static_sut.size());
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, NewConstSpanFromConstIoxVectorContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a7b1177b-0db5-44b8-bacd-b75d25c3a448");
     constexpr uint64_t CAPACITY{6U};
@@ -180,24 +244,40 @@ TEST_F(span_test, NewSpanFromConstIoxCxxVector)
     vector[2] = 2;
     vector[3] = 3;
     vector[4] = 5;
-    vector[5] = 8;
+    vector[5] = 7;
 
-    span<const int> const_span(vector);
-    EXPECT_EQ(vector.data(), const_span.data());
-    EXPECT_EQ(vector.size(), const_span.size());
+    span<const int> const_sut(vector);
 
-    for (size_t i = 0; i < const_span.size(); ++i)
-        EXPECT_EQ(vector[i], const_span[i]);
-
-    span<const int, 6> static_span(vector.data(), vector.size());
-    EXPECT_EQ(vector.data(), static_span.data());
-    EXPECT_EQ(vector.size(), static_span.size());
-
-    for (size_t i = 0; i < static_span.size(); ++i)
-        EXPECT_EQ(vector[i], static_span[i]);
+    ASSERT_EQ(vector.data(), const_sut.data());
+    ASSERT_EQ(vector.size(), const_sut.size());
+    for (size_t i = 0; i < const_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], const_sut[i]);
+    }
 }
 
-TEST_F(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
+TEST(span_test, NewStaticSpanFromConstIoxVectorContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "af1bdb48-4cae-4c7d-a830-a098d84fb1aa");
+    constexpr uint64_t CAPACITY{6U};
+    constexpr int DEFAULT_VALUE{1};
+    iox::vector<int, CAPACITY> vector(CAPACITY, DEFAULT_VALUE);
+    vector[2] = 22;
+    vector[3] = 33;
+    vector[4] = 55;
+    vector[5] = 77;
+
+    span<const int, 6> static_sut(vector.data(), vector.size());
+
+    ASSERT_EQ(vector.data(), static_sut.data());
+    ASSERT_EQ(vector.size(), static_sut.size());
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57b2f67f-79c1-4c1e-a305-f4665283c474");
     static constexpr int arr[] = {1, 6, 1, 8, 0};
@@ -205,32 +285,33 @@ TEST_F(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
     static_assert(&arr[0] == &span.front(), "span.front() does not refer to the same element as arr[0]");
 }
 
-TEST_F(span_test, CheckConstexprIterOfSpan)
+TEST(span_test, CheckConstexprIterOfSpan)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8764fcfb-27df-4f39-b8cd-56bf881db382");
     static constexpr int arr[] = {1, 6, 1, 8, 0};
     constexpr span<const int> span(arr);
 
-    static_assert(1 == span.begin()[0], "");
-    static_assert(1 == *(span.begin() += 0), "");
-    static_assert(6 == *(span.begin() += 1), "");
+    static_assert(1 == span.begin()[0], "First element needs to be '1'");
+    static_assert(1 == *(span.begin() += 0), "First element needs to be '1'");
+    static_assert(6 == *(span.begin() += 1), "Second element needs to be '6'");
 
-    static_assert(1 == *((span.begin() + 1) -= 1), "");
-    static_assert(6 == *((span.begin() + 1) -= 0), "");
+    static_assert(1 == *((span.begin() + 1) -= 1), "First element needs to be '1'");
+    static_assert(6 == *((span.begin() + 1) -= 0), "Second element needs to be '6'");
 }
 
-TEST_F(span_test, GetSpanDataAsWritableBytes)
+TEST(span_test, GetSpanDataAsWritableBytes)
 {
     ::testing::Test::RecordProperty("TEST_ID", "73ed24f9-c2ea-467a-b64e-e53e97247e8d");
-    std::vector<int> vec = {1, 1, 2, 3, 5, 8};
-    span<int> mutable_span(vec);
-    span<uint8_t> writable_bytes_span = as_writable_bytes(mutable_span);
-    EXPECT_EQ(reinterpret_cast<uint8_t*>(vec.data()), writable_bytes_span.data());
-    EXPECT_EQ(sizeof(int) * vec.size(), writable_bytes_span.size());
-    EXPECT_EQ(writable_bytes_span.size(), writable_bytes_span.size_bytes());
+    std::vector<int> vec = {1, 41, 2, 3, 5, 85};
 
+    span<int> mutable_sut(vec);
+    span<uint8_t> writable_bytes_sut = as_writable_bytes(mutable_sut);
+
+    EXPECT_EQ(reinterpret_cast<uint8_t*>(vec.data()), writable_bytes_sut.data());
+    EXPECT_EQ(sizeof(int) * vec.size(), writable_bytes_sut.size());
+    EXPECT_EQ(writable_bytes_sut.size(), writable_bytes_sut.size_bytes());
     // Set the first entry of vec to zero while writing through the span.
-    std::fill(writable_bytes_span.data(), writable_bytes_span.data() + sizeof(int), 0);
+    std::fill(writable_bytes_sut.data(), writable_bytes_sut.data() + sizeof(int), 0);
     EXPECT_EQ(0, vec[0]);
 }
 

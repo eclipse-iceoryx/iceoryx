@@ -43,6 +43,7 @@ fstream
 initializer_list
 iomanip
 iostream
+istream
 limits
 map
 memory

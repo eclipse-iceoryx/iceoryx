@@ -167,13 +167,13 @@ struct conjunction : std::true_type
 {
 };
 
-template <class _Arg>
-struct conjunction<_Arg> : _Arg
+template <class Arg>
+struct conjunction<Arg> : Arg
 {
 };
 
-template <class _Arg, class... _Args>
-struct conjunction<_Arg, _Args...> : std::conditional_t<!bool(_Arg::value), _Arg, conjunction<_Args...>>
+template <class Arg, class... Args>
+struct conjunction<Arg, Args...> : std::conditional_t<!bool(Arg::value), Arg, conjunction<Args...>>
 {
 };
 
@@ -216,6 +216,7 @@ template <typename T>
 using is_not_c_array_t = iox::negation<is_c_array_t<T>>;
 
 template <typename From, typename To>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 using is_convertible_t = std::is_convertible<From (*)[], To (*)[]>;
 
 template <typename Iter>
@@ -223,6 +224,12 @@ using iter_reference_t = decltype(*std::declval<Iter&>());
 
 template <typename Iter, typename T>
 using iter_has_convertible_ref_type_t = iox::is_convertible_t<std::remove_reference_t<iter_reference_t<Iter>>, T>;
+
+/// @brief Helper template from C++17
+/// @tparam From Source type
+/// @tparam To Destination type
+template <class From, class To>
+constexpr bool is_convertible_v = std::is_convertible<From, To>::value;
 
 //////////////////
 /// BEGIN TypeInfo
