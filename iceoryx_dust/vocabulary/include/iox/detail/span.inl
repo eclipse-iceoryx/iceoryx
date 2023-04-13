@@ -100,14 +100,14 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::first() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    static_assert(Extent != DYNAMIC_EXTENT || Count <= size());
+    static_assert(Extent != DYNAMIC_EXTENT || Count <= size(), "Count must not exeed size");
     return {data(), Count};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::first(uint64_t count) const noexcept
 {
-    static_assert(count <= size());
+    static_assert(count <= size(), "");
     return {data(), count};
 }
 
@@ -116,14 +116,14 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::last() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    static_assert(Extent != DYNAMIC_EXTENT || Count <= size());
+    static_assert(Extent != DYNAMIC_EXTENT || Count <= size(), "Count must not exeed size");
     return {data() + (size() - Count), Count};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::last(uint64_t count) const noexcept
 {
-    static_assert(count <= size());
+    static_assert(count <= size(), "Count must not exeed size");
     return {data() + (size() - count), count};
 }
 
@@ -135,16 +135,17 @@ span<T, Extent>::subspan() const noexcept
 {
     static_assert(Offset <= Extent, "Offset must not exceed Extent");
     static_assert(Count == DYNAMIC_EXTENT || Count <= Extent - Offset, "Count must not exceed Extent - Offset");
-    static_assert(Extent != DYNAMIC_EXTENT || Offset <= size());
-    static_assert(Extent != DYNAMIC_EXTENT || Count == DYNAMIC_EXTENT || Count <= size() - Offset);
+    static_assert(Extent != DYNAMIC_EXTENT || Offset <= size(), "Offset must not exeed size");
+    static_assert(Extent != DYNAMIC_EXTENT || Count == DYNAMIC_EXTENT || Count <= size() - Offset,
+                  "Count must not exeed size - Offset");
     return {data() + Offset, Count != DYNAMIC_EXTENT ? Count : size() - Offset};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::subspan(uint64_t offset, uint64_t count) const noexcept
 {
-    static_assert(offset <= size());
-    static_assert(count == DYNAMIC_EXTENT || count <= size() - offset);
+    static_assert(offset <= size(), "Offset must not exeed size");
+    static_assert(count == DYNAMIC_EXTENT || count <= size() - offset, "Count must not exeed size - offset");
     return {data() + offset, count != DYNAMIC_EXTENT ? count : size() - offset};
 }
 
@@ -178,7 +179,7 @@ template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::back() const noexcept
 {
     static_assert(Extent == DYNAMIC_EXTENT || Extent > 0, "Extent must not be 0");
-    static_assert(Extent != DYNAMIC_EXTENT || !empty());
+    static_assert(Extent != DYNAMIC_EXTENT || !empty(), "Span must not be empty");
     return *(data() + size() - 1);
 }
 
@@ -248,7 +249,7 @@ constexpr auto make_span(It it, uint64_t size) noexcept
 template <int&... ArgBarrier,
           typename It,
           typename End,
-          typename = std::enable_if_t<!iox::IS_CONVERTIBLE_V<End, uint64_t>>>
+          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
 constexpr auto make_span(It it, End end) noexcept
 {
     using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
@@ -274,7 +275,7 @@ template <uint64_t N,
           int&... ArgBarrier,
           typename It,
           typename End,
-          typename = std::enable_if_t<!iox::IS_CONVERTIBLE_V<End, uint64_t>>>
+          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
 constexpr auto make_span(It it, End end) noexcept
 {
     using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
@@ -290,4 +291,4 @@ constexpr auto make_span(Container&& container) noexcept
 
 } // namespace iox
 
-#endif  // IOX_DUST_VOCABULARY_SPAN_INL
+#endif // IOX_DUST_VOCABULARY_SPAN_INL

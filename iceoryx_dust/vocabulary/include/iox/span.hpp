@@ -34,8 +34,9 @@ namespace iox
 // constants
 constexpr uint64_t DYNAMIC_EXTENT = std::numeric_limits<uint64_t>::max();
 
+/// @todo Move this to type traits
 template <class From, class To>
-constexpr bool IS_CONVERTIBLE_V = std::is_convertible<From, To>::value;
+constexpr bool is_convertible_v = std::is_convertible<From, To>::value;
 
 // Implementation of C++17 std::size() and std::data()
 
