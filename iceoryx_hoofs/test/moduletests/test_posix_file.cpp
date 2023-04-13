@@ -69,6 +69,7 @@ TEST_F(File_test, CreatingFileWorks)
     EXPECT_FALSE(sut.has_error());
 }
 
+#ifndef _WIN32
 TEST_F(File_test, CreatingWithPermissionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe16936a-2a10-4128-be56-01158943e251");
@@ -83,6 +84,7 @@ TEST_F(File_test, CreatingWithPermissionsWorks)
 
     EXPECT_THAT(perms, Eq(read_perms));
 }
+#endif
 
 TEST_F(File_test, PurgeAndCreateRemovesExistingFile)
 {
@@ -152,6 +154,7 @@ TEST_F(File_test, OpenOrCreateOpensExistingFile)
     ASSERT_FALSE(sut2.has_error());
 }
 
+#ifndef _WIN32
 TEST_F(File_test, OpenFileForReadingWithInsufficientPermissionFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "58843f37-0474-49b1-9228-207391346f70");
@@ -180,6 +183,7 @@ TEST_F(File_test, OpenFileForReadWriteWithInsufficientPermissionFails)
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::PermissionDenied));
 }
+#endif
 
 TEST_F(File_test, AfterCreationTheFileExists)
 {
@@ -194,7 +198,10 @@ TEST_F(File_test, RemoveReturnsTrueWhenFileExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "64123a2d-4350-4969-80ce-d66e7433ed22");
 
-    auto sut = FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).create(m_sut_file_path);
+    {
+        EXPECT_FALSE(FileBuilder().open_mode(OpenMode::PURGE_AND_CREATE).create(m_sut_file_path).has_error());
+    }
+
     EXPECT_TRUE(File::remove(m_sut_file_path).value());
 }
 
@@ -228,6 +235,7 @@ TEST_F(File_test, ReadAndWriteToFileWorks)
     EXPECT_THAT(read_content, Eq(test_content));
 }
 
+#ifndef _WIN32
 TEST_F(File_test, ReadingOfAWriteOnlyFileFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4a404243-33fb-4c28-9e7b-58980f6918a3");
@@ -244,6 +252,7 @@ TEST_F(File_test, ReadingOfAWriteOnlyFileFails)
     ASSERT_TRUE(read.has_error());
     EXPECT_THAT(read.get_error(), Eq(FileReadError::NotOpenedForReading));
 }
+#endif
 
 TEST_F(File_test, ReadingWithSmallerBufferSizeWorks)
 {
@@ -340,6 +349,7 @@ TEST_F(File_test, ReadingWithOutOfBoundsOffsetReadsNothing)
     EXPECT_THAT(*read, Eq(0));
 }
 
+#ifndef _WIN32
 TEST_F(File_test, WritingIntoAReadOnlyFileFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "dba3d6b3-c09b-4bbe-acb4-22f20abdc9b9");
@@ -356,6 +366,7 @@ TEST_F(File_test, WritingIntoAReadOnlyFileFails)
     ASSERT_TRUE(result.has_error());
     EXPECT_THAT(result.get_error(), Eq(FileWriteError::NotOpenedForWriting));
 }
+#endif
 
 TEST_F(File_test, WriteAtOverridesContent)
 {

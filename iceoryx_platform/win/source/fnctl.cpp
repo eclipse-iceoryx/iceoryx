@@ -14,30 +14,18 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <io.h>
+
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 int iox_open(const char* pathname, int flags, mode_t mode)
 {
-    auto handle = Win32Call(CreateFileA,
-                            pathname,
-                            GENERIC_WRITE,
-                            0,
-                            static_cast<LPSECURITY_ATTRIBUTES>(NULL),
-                            CREATE_ALWAYS,
-                            FILE_ATTRIBUTE_NORMAL,
-                            static_cast<HANDLE>(NULL))
-                      .value;
-
-    if (handle == INVALID_HANDLE_VALUE)
-    {
-        fprintf(stderr, "unable to create file \"%s\"\n", pathname);
-        errno = EWOULDBLOCK;
-        return -1;
-    }
-
-    return HandleTranslator::getInstance().add(handle);
+    int fd;
+    _sopen_s(&fd, pathname, flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+    return fd;
 }
 
 int iox_fcntl2(int, int)

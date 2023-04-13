@@ -18,6 +18,7 @@
 #define IOX_HOOFS_WIN_PLATFORM_STAT_HPP
 
 #include <io.h>
+#include <limits>
 #include <sys/stat.h>
 
 #define S_IRUSR 0
@@ -36,7 +37,9 @@ using iox_mode_t = int;
 
 inline int iox_fstat(int fildes, iox_stat* buf)
 {
-    return _fstat(fildes, buf);
+    int ret_val = _fstat(fildes, buf);
+    buf->st_mode = std::numeric_limits<decltype(buf->st_mode)>::max();
+    return ret_val;
 }
 
 inline int iox_fchmod(int fildes, iox_mode_t mode)
