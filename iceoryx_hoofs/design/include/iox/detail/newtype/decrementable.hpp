@@ -33,16 +33,14 @@ struct Decrementable
 {
     friend Derived operator--(T& self) noexcept
     {
-        return Derived{internal::preDecrement(self)};
+        return Derived{--internal::newTypeRefAccessor(self)};
     }
 
     // Rule DCL21-CPP is deprecated
     // NOLINTNEXTLINE(cert-dcl21-cpp)
     friend Derived operator--(T& self, int) noexcept
     {
-        auto value = internal::newTypeAccessor(self);
-        internal::preDecrement(self);
-        return Derived{value};
+        return Derived{internal::newTypeRefAccessor(self)--};
     }
 
   protected:

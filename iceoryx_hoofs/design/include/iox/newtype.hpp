@@ -125,10 +125,7 @@ class NewType : public Policies<Derived, NewType<Derived, T, Policies...>>...
     friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
 
     template <typename Type>
-    friend typename Type::value_type newtype::internal::preIncrement(Type&) noexcept;
-
-    template <typename Type>
-    friend typename Type::value_type newtype::internal::preDecrement(Type&) noexcept;
+    friend typename Type::value_type& newtype::internal::newTypeRefAccessor(Type&) noexcept;
 
   private:
     T m_value;

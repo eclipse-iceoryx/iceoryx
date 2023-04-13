@@ -51,6 +51,7 @@ struct Arithmetic
         return Derived{internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs)};
     }
 
+  protected:
     ~Arithmetic() = default;
 };
 

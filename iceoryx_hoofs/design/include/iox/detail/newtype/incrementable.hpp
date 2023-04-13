@@ -33,16 +33,14 @@ struct Incrementable
 {
     friend Derived operator++(T& self) noexcept
     {
-        return Derived{internal::preIncrement(self)};
+        return Derived{++internal::newTypeRefAccessor(self)};
     }
 
     // Rule DCL21-CPP is deprecated
     // NOLINTNEXTLINE(cert-dcl21-cpp)
     friend Derived operator++(T& self, int) noexcept
     {
-        auto value = internal::newTypeAccessor(self);
-        internal::preIncrement(self);
-        return Derived{value};
+        return Derived{internal::newTypeRefAccessor(self)++};
     }
 
   protected:
