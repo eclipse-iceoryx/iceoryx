@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_NEWTYPE_DECREMENTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_DECREMENTABLE_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP
 #include "iox/detail/newtype/internal.hpp"
 
 namespace iox
@@ -31,19 +31,17 @@ template <typename Derived, typename T>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Decrementable
 {
-    template <typename U>
-    friend Derived operator--(U& rhs) noexcept
+    friend Derived operator--(T& self) noexcept
     {
-        return Derived{internal::preDecrement(rhs)};
+        return Derived{internal::preDecrement(self)};
     }
 
-    template <typename U>
     // Rule DCL21-CPP is deprecated
     // NOLINTNEXTLINE(cert-dcl21-cpp)
-    friend Derived operator--(U& rhs, int) noexcept
+    friend Derived operator--(T& self, int) noexcept
     {
-        auto value = internal::newTypeAccessor(rhs);
-        internal::preDecrement(rhs);
+        auto value = internal::newTypeAccessor(self);
+        internal::preDecrement(self);
         return Derived{value};
     }
 
@@ -56,4 +54,4 @@ struct Decrementable
 } // namespace iox
 
 
-#endif // IOX_HOOFS_CXX_NEWTYPE_DECREMENTABLE_HPP
+#endif // IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP

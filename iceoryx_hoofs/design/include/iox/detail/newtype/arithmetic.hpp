@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_NEWTYPE_ARITHMETIC_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_ARITHMETIC_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_ARITHMETIC_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_ARITHMETIC_HPP
 #include "iox/detail/newtype/internal.hpp"
 
 namespace iox
@@ -36,38 +36,19 @@ struct Arithmetic
         return Derived{internal::newTypeAccessor(lhs) + internal::newTypeAccessor(rhs)};
     }
 
-    friend Derived operator*(const T& lhs, const T& rhs) noexcept
-    {
-        return Derived{internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs)};
-    }
-    friend Derived operator-(const T& rhs, const T& lhs) noexcept
+    friend Derived operator-(const T& lhs, const T& rhs) noexcept
     {
         return Derived{internal::newTypeAccessor(lhs) - internal::newTypeAccessor(rhs)};
     }
 
-    friend Derived operator/(const T& rhs, const T& lhs) noexcept
+    friend Derived operator*(const T& lhs, const T& rhs) noexcept
+    {
+        return Derived{internal::newTypeAccessor(lhs) * internal::newTypeAccessor(rhs)};
+    }
+
+    friend Derived operator/(const T& lhs, const T& rhs) noexcept
     {
         return Derived{internal::newTypeAccessor(lhs) / internal::newTypeAccessor(rhs)};
-    }
-
-    friend Derived operator/=(const T& rhs, const T& lhs) noexcept
-    {
-        return Derived{internal::newTypeAccessor(lhs) /= internal::newTypeAccessor(rhs)};
-    }
-
-    friend Derived operator*=(const T& rhs, const T& lhs) noexcept
-    {
-        return Derived{internal::newTypeAccessor(lhs) *= internal::newTypeAccessor(rhs)};
-    }
-
-    friend Derived operator+=(const T& rhs, const T& lhs) noexcept
-    {
-        return Derived{internal::newTypeAccessor(lhs) += internal::newTypeAccessor(rhs)};
-    }
-
-    friend Derived operator-=(const T& rhs, const T& lhs) noexcept
-    {
-        return Derived{internal::newTypeAccessor(lhs) -= internal::newTypeAccessor(rhs)};
     }
 
     ~Arithmetic() = default;
@@ -78,4 +59,4 @@ struct Arithmetic
 } // namespace iox
 
 
-#endif // IOX_HOOFS_CXX_NEWTYPE_ARITHMETIC_HPP
+#endif // IOX_HOOFS_DESIGN_NEWTYPE_ARITHMETIC_HPP

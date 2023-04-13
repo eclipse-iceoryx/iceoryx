@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_NEWTYPE_INCREMENTABLE_HPP
-#define IOX_HOOFS_CXX_NEWTYPE_INCREMENTABLE_HPP
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_INCREMENTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_INCREMENTABLE_HPP
 #include "iox/detail/newtype/internal.hpp"
 
 namespace iox
@@ -31,19 +31,17 @@ template <typename Derived, typename T>
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
 struct Incrementable
 {
-    template <typename U>
-    friend Derived operator++(U& rhs) noexcept
+    friend Derived operator++(T& self) noexcept
     {
-        return Derived{internal::preIncrement(rhs)};
+        return Derived{internal::preIncrement(self)};
     }
 
-    template <typename U>
     // Rule DCL21-CPP is deprecated
     // NOLINTNEXTLINE(cert-dcl21-cpp)
-    friend Derived operator++(U& rhs, int) noexcept
+    friend Derived operator++(T& self, int) noexcept
     {
-        auto value = internal::newTypeAccessor(rhs);
-        internal::preIncrement(rhs);
+        auto value = internal::newTypeAccessor(self);
+        internal::preIncrement(self);
         return Derived{value};
     }
 
@@ -54,4 +52,4 @@ struct Incrementable
 } // namespace iox
 
 
-#endif // IOX_HOOFS_CXX_NEWTYPE_INCREMENTABLE_HPP
+#endif // IOX_HOOFS_DESIGN_NEWTYPE_INCREMENTABLE_HPP

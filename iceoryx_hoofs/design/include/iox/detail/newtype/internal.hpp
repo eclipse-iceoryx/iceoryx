@@ -42,15 +42,13 @@ inline typename T::value_type newTypeAccessor(const T& b) noexcept
 template <typename T>
 inline typename T::value_type preIncrement(T& b) noexcept
 {
-    ++b.m_value;
-    return b.m_value;
+    return ++b.m_value;
 }
 
 template <typename T>
 inline typename T::value_type preDecrement(T& b) noexcept
 {
-    --b.m_value;
-    return b.m_value;
+    return --b.m_value;
 }
 
 } // namespace internal

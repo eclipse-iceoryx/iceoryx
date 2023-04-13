@@ -267,7 +267,7 @@ TEST(NewType, CreatingNewTypeWithMacroWorks)
     EXPECT_FALSE(a == b);
 }
 
-TEST(NewType, NewTypeIsIncrementable)
+TEST(NewType, NewTypeIsPreIncrementable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6d03b24b-fc72-409b-aa2a-f19228ff152c");
     IOX_NEW_TYPE(SutType,
@@ -281,13 +281,29 @@ TEST(NewType, NewTypeIsIncrementable)
     constexpr uint64_t START_VALUE{42};
     SutType a{START_VALUE};
     SutType pre{++a};
-    SutType post{a++};
     EXPECT_THAT(pre, Eq(SutType{START_VALUE + 1}));
-    EXPECT_THAT(post, Eq(SutType{START_VALUE + 1}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE + 2}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE + 1}));
 }
 
-TEST(NewType, NewTypeIsDecrementable)
+TEST(NewType, NewTypeIsPostIncrementable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c6b273bc-ef1a-43f0-b98f-d247b19e50f3");
+    IOX_NEW_TYPE(SutType,
+                 uint64_t,
+                 newtype::MoveConstructable,
+                 newtype::CopyConstructable,
+                 newtype::Comparable,
+                 newtype::Incrementable,
+                 newtype::ConstructByValueCopy);
+
+    constexpr uint64_t START_VALUE{42};
+    SutType a{START_VALUE};
+    SutType post{a++};
+    EXPECT_THAT(post, Eq(SutType{START_VALUE}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE + 1}));
+}
+
+TEST(NewType, NewTypeIsPreDecrementable)
 {
     ::testing::Test::RecordProperty("TEST_ID", "27262c86-2509-4c55-8bff-a37337e79b67");
     IOX_NEW_TYPE(SutType,
@@ -301,10 +317,26 @@ TEST(NewType, NewTypeIsDecrementable)
     constexpr uint64_t START_VALUE{24};
     SutType a{START_VALUE};
     SutType pre{--a};
-    SutType post{a--};
     EXPECT_THAT(pre, Eq(SutType{START_VALUE - 1}));
-    EXPECT_THAT(post, Eq(SutType{START_VALUE - 1}));
-    EXPECT_THAT(a, Eq(SutType{START_VALUE - 2}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE - 1}));
+}
+
+TEST(NewType, NewTypeIsPostDecrementable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "48e52551-6c7e-441d-a755-9f233607b5c8");
+    IOX_NEW_TYPE(SutType,
+                 uint64_t,
+                 newtype::MoveConstructable,
+                 newtype::CopyConstructable,
+                 newtype::Comparable,
+                 newtype::Decrementable,
+                 newtype::ConstructByValueCopy);
+
+    constexpr uint64_t START_VALUE{24};
+    SutType a{START_VALUE};
+    SutType post{a--};
+    EXPECT_THAT(post, Eq(SutType{START_VALUE}));
+    EXPECT_THAT(a, Eq(SutType{START_VALUE - 1}));
 }
 
 TEST(NewType, NewTypeCanBeAdded)
@@ -354,11 +386,12 @@ TEST(NewType, NewTypeCanBeMultiplied)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType b{START_VALUE};
+    constexpr uint64_t START_VALUE1{42};
+    constexpr uint64_t START_VALUE2{24};
+    SutType a{START_VALUE1};
+    SutType b{START_VALUE2};
     SutType c{a * b};
-    EXPECT_THAT(c, Eq(SutType{START_VALUE * START_VALUE}));
+    EXPECT_THAT(c, Eq(SutType{START_VALUE1 * START_VALUE2}));
 }
 
 TEST(NewType, NewTypeCanBeDivided)
@@ -372,11 +405,12 @@ TEST(NewType, NewTypeCanBeDivided)
                  newtype::Arithmetic,
                  newtype::ConstructByValueCopy);
 
-    constexpr uint64_t START_VALUE{42};
-    SutType a{START_VALUE};
-    SutType b{START_VALUE};
+    constexpr uint64_t START_VALUE1{42};
+    constexpr uint64_t START_VALUE2{24};
+    SutType a{START_VALUE1};
+    SutType b{START_VALUE2};
     SutType c{a / b};
-    EXPECT_THAT(c, Eq(SutType{START_VALUE / START_VALUE}));
+    EXPECT_THAT(c, Eq(SutType{START_VALUE1 / START_VALUE2}));
 }
 
 } // namespace
