@@ -19,6 +19,7 @@
 #include "iceoryx_platform/attributes.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/stdio.hpp"
 #include "iox/filesystem.hpp"
 
 namespace iox
@@ -243,7 +244,7 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 
 expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 {
-    auto result = posix::posixCall(iox_unlink)(file.as_string().c_str())
+    auto result = posix::posixCall(iox_remove)(file.as_string().c_str())
                       .failureReturnValue(-1)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
