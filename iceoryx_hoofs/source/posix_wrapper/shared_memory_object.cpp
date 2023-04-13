@@ -96,7 +96,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     auto memoryMap = MemoryMapBuilder()
                          .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
                          .length(m_memorySizeInBytes)
-                         .fileDescriptor(sharedMemory->getHandle())
+                         .fileDescriptor(sharedMemory->get_file_handle())
                          .accessMode(m_accessMode)
                          .flags(MemoryMapFlags::SHARE_CHANGES)
                          .offset(0)
@@ -172,14 +172,9 @@ void* SharedMemoryObject::getBaseAddress() noexcept
     return m_memoryMap.getBaseAddress();
 }
 
-uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
-{
-    return m_memorySizeInBytes;
-}
-
 int32_t SharedMemoryObject::get_file_handle() const noexcept
 {
-    return m_sharedMemory.getHandle();
+    return m_sharedMemory.get_file_handle();
 }
 
 int32_t SharedMemoryObject::getFileHandle() const noexcept

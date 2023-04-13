@@ -123,19 +123,19 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 
     auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
-    int handle = sut->getHandle();
+    int handle = sut->get_file_handle();
     {
         iox::posix::SharedMemory sut2(std::move(*sut));
-        EXPECT_THAT(handle, Eq(sut2.getHandle()));
+        EXPECT_THAT(handle, Eq(sut2.get_file_handle()));
     }
 }
 
-TEST_F(SharedMemory_Test, getHandleOfValidObject)
+TEST_F(SharedMemory_Test, get_file_handleOfValidObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fec2518-70f7-412b-8be2-3174e6ada050");
     auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
@@ -168,7 +168,7 @@ TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
     auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
@@ -187,7 +187,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
     auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 
 // Windows does not support this since the named semaphore is automatically deleted
@@ -202,7 +202,7 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
     auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
 }
 #endif
 
@@ -213,7 +213,7 @@ TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_TRUE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
     }
 }
 
@@ -226,7 +226,7 @@ TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
     }
 }
 
@@ -239,7 +239,7 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->get_file_handle(), Ne(SharedMemory::INVALID_HANDLE));
     }
 }
 

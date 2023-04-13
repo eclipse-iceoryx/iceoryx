@@ -20,6 +20,7 @@
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
@@ -55,7 +56,7 @@ enum class SharedMemoryError
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
 ///        to gain access to the created/opened shared memory
-class SharedMemory
+class SharedMemory : public FileManagementInterface<SharedMemory>
 {
   public:
     static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
@@ -69,7 +70,7 @@ class SharedMemory
     ~SharedMemory() noexcept;
 
     /// @brief returns the file handle of the shared memory
-    int32_t getHandle() const noexcept;
+    int32_t get_file_handle() const noexcept;
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class

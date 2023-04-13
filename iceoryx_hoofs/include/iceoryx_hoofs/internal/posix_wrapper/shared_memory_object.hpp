@@ -70,9 +70,6 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     /// @brief Returns start- or base-address of the shared memory.
     void* getBaseAddress() noexcept;
 
-    /// @brief Returns the size of the shared memory
-    uint64_t getSizeInBytes() const noexcept;
-
     /// @brief Returns the underlying file handle of the shared memory
     int getFileHandle() const noexcept;
 

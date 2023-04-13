@@ -67,11 +67,12 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                 // process
                 if (!foundInWriterGroup)
                 {
-                    mappingContainer.emplace_back(segment.getWriterGroup().getName(),
-                                                  segment.getSharedMemoryObject().getBaseAddress(),
-                                                  segment.getSharedMemoryObject().getSizeInBytes(),
-                                                  true,
-                                                  segment.getSegmentId());
+                    mappingContainer.emplace_back(
+                        segment.getWriterGroup().getName(),
+                        segment.getSharedMemoryObject().getBaseAddress(),
+                        segment.getSharedMemoryObject().get_size().expect("failed to get SHM size"),
+                        true,
+                        segment.getSegmentId());
                     foundInWriterGroup = true;
                 }
                 else
@@ -93,11 +94,12 @@ SegmentManager<SegmentType>::getSegmentMappings(const posix::PosixUser& user) no
                        return mapping.m_startAddress == segment.getSharedMemoryObject().getBaseAddress();
                    }) == mappingContainer.end())
             {
-                mappingContainer.emplace_back(segment.getWriterGroup().getName(),
-                                              segment.getSharedMemoryObject().getBaseAddress(),
-                                              segment.getSharedMemoryObject().getSizeInBytes(),
-                                              false,
-                                              segment.getSegmentId());
+                mappingContainer.emplace_back(
+                    segment.getWriterGroup().getName(),
+                    segment.getSharedMemoryObject().getBaseAddress(),
+                    segment.getSharedMemoryObject().get_size().expect("Failed to get SHM size."),
+                    false,
+                    segment.getSegmentId());
             }
         }
     }
