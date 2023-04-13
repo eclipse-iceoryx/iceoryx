@@ -123,7 +123,7 @@ std::vector<std::string> TestingLogger::getLogMessages() noexcept
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) global variable is required as jmp target
 jmp_buf exitJmpBuffer;
 
-static void sigsegvHandler(int sig, siginfo_t*, void*)
+static void sigHandler(int sig, siginfo_t*, void*)
 {
     switch (sig)
     {
@@ -162,7 +162,7 @@ void LogPrinter::OnTestStart(const ::testing::TestInfo&)
     sigemptyset(&action.sa_mask);
 
     action.sa_flags = SA_NODEFER;
-    action.sa_sigaction = sigsegvHandler;
+    action.sa_sigaction = sigHandler;
 
     sigaction(SIGSEGV, &action, nullptr);
     sigaction(SIGFPE, &action, nullptr);
