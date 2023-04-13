@@ -16,6 +16,7 @@
 
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
+#include "iox/bump_allocator.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/into.hpp"
@@ -109,7 +110,9 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    auto allocationResult = m_sharedMemory->allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
+    BumpAllocator allocator(m_sharedMemory->getBaseAddress(), m_sharedMemory->getSizeInBytes());
+
+    auto allocationResult = allocator.allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
     if (allocationResult.has_error())
     {
         std::cerr << "Unable to allocate memory for named pipe \"" << name << "\"" << std::endl;

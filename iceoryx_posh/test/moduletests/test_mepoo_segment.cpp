@@ -71,20 +71,6 @@ class MePooSegment_test : public Test
             remove("/tmp/roudi_segment_test");
         }
 
-        iox::BumpAllocator& getBumpAllocator()
-        {
-            return *allocator;
-        }
-
-        void finalizeAllocation()
-        {
-        }
-
-        void* allocate(const uint64_t, const uint64_t = 0)
-        {
-            return nullptr;
-        }
-
         int getFileHandle()
         {
             return filehandle;
@@ -95,16 +81,15 @@ class MePooSegment_test : public Test
             return m_memorySizeInBytes;
         }
 
-        void* getBaseAddress() const
+        void* getBaseAddress()
         {
-            return m_baseAddressHint;
+            return &memory[0];
         }
 
         uint64_t m_memorySizeInBytes{0};
         void* m_baseAddressHint{nullptr};
         static constexpr int MEM_SIZE = 100000;
         char memory[MEM_SIZE];
-        std::shared_ptr<iox::BumpAllocator> allocator{new iox::BumpAllocator(memory, MEM_SIZE)};
         int filehandle;
         static createFct createVerificator;
     };

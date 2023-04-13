@@ -61,10 +61,7 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
              .openMode(m_openMode)
              .permissions(SHM_MEMORY_PERMISSIONS)
              .create()
-             .and_then([this](auto& sharedMemoryObject) {
-                 sharedMemoryObject.finalizeAllocation();
-                 m_shmObject.emplace(std::move(sharedMemoryObject));
-             }))
+             .and_then([this](auto& sharedMemoryObject) { m_shmObject.emplace(std::move(sharedMemoryObject)); }))
     {
         return error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
