@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,8 @@ constexpr InvalidPortId_t InvalidPortId = InvalidPortId_t();
 ///        subscriber pattern where samples are exchanged over network via a third party middleware.
 ///        The unique RouDi id must be set manually when RouDi is started and it must be ensured to be unique for a
 ///        given instance for this feature to be used to its full extend.
-class UniquePortId : public NewType<uint64_t,
+class UniquePortId : public NewType<UniquePortId,
+                                    uint64_t,
                                     newtype::ProtectedConstructByValueCopy,
                                     newtype::Comparable,
                                     newtype::Sortable,

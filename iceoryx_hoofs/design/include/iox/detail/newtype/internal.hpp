@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 
 namespace iox
 {
-template <typename, template <typename> class...>
+template <typename, typename, template <typename, typename> class...>
 class NewType;
 namespace newtype
 {
@@ -38,6 +38,13 @@ inline typename T::value_type newTypeAccessor(const T& b) noexcept
 {
     return b.m_value;
 }
+
+template <typename T>
+inline typename T::value_type& newTypeRefAccessor(T& b) noexcept
+{
+    return b.m_value;
+}
+
 } // namespace internal
 } // namespace newtype
 } // namespace iox

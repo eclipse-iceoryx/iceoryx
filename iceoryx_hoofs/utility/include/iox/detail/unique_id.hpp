@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ namespace iox
 /// @brief Unique IDs within a process starting with 1. Monotonic increasing IDs are
 /// created with each call to the constructor. The IDs are copy/move constructible/assignable,
 /// comparable, sortable and convertable to the underlying value type.
-class UniqueId : public NewType<uint64_t,
+class UniqueId : public NewType<UniqueId,
+                                uint64_t,
                                 newtype::ProtectedConstructByValueCopy,
                                 newtype::Comparable,
                                 newtype::Sortable,

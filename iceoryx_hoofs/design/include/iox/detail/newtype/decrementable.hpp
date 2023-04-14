@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,50 +13,43 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
-#define IOX_HOOFS_DESIGN_NEWTYPE_SORTABLE_HPP
 
+#ifndef IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP
+#define IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP
 #include "iox/detail/newtype/internal.hpp"
 
 namespace iox
 {
 namespace newtype
 {
-template <typename, typename T>
+template <typename Derived, typename T>
 // AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
 // destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
 // prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
 // is a marker struct that adds only the described property to the new type. Adding copy/move operations would
 // contradict the purpose.
 // NOLINTNEXTLINE(cppcoreguidelines-special-member-functions, hicpp-special-member-functions)
-struct Sortable
+struct Decrementable
 {
-    friend bool operator<=(const T& lhs, const T& rhs) noexcept
+    friend Derived operator--(T& self) noexcept
     {
-        return internal::newTypeAccessor(lhs) <= internal::newTypeAccessor(rhs);
+        return Derived{--internal::newTypeRefAccessor(self)};
     }
 
-    friend bool operator<(const T& lhs, const T& rhs) noexcept
+    // Rule DCL21-CPP is deprecated
+    // NOLINTNEXTLINE(cert-dcl21-cpp)
+    friend Derived operator--(T& self, int) noexcept
     {
-        return internal::newTypeAccessor(lhs) < internal::newTypeAccessor(rhs);
-    }
-
-    friend bool operator>(const T& lhs, const T& rhs) noexcept
-    {
-        return internal::newTypeAccessor(lhs) > internal::newTypeAccessor(rhs);
-    }
-
-    friend bool operator>=(const T& lhs, const T& rhs) noexcept
-    {
-        return internal::newTypeAccessor(lhs) >= internal::newTypeAccessor(rhs);
+        return Derived{internal::newTypeRefAccessor(self)--};
     }
 
   protected:
-    ~Sortable() = default;
+    ~Decrementable() = default;
 };
+
 
 } // namespace newtype
 } // namespace iox
 
 
-#endif
+#endif // IOX_HOOFS_DESIGN_NEWTYPE_DECREMENTABLE_HPP

@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@
 #define IOX_HOOFS_DESIGN_NEWTYPE_HPP
 
 #include "iox/algorithm.hpp"
+#include "iox/detail/newtype/arithmetic.hpp"
 #include "iox/detail/newtype/assignment.hpp"
 #include "iox/detail/newtype/comparable.hpp"
 #include "iox/detail/newtype/constructor.hpp"
 #include "iox/detail/newtype/convertable.hpp"
+#include "iox/detail/newtype/decrementable.hpp"
+#include "iox/detail/newtype/incrementable.hpp"
 #include "iox/detail/newtype/internal.hpp"
 #include "iox/detail/newtype/protected_constructor.hpp"
 #include "iox/detail/newtype/sortable.hpp"
@@ -70,8 +73,8 @@ namespace iox
 /// @endcode
 // AXIVION Next Construct AutosarC++19_03-A10.1.1 : Multiple inheritance needed to add several policies to NewType. The
 // Diamond-Problem cannot occur since the policy structs do not inherit.
-template <typename T, template <typename> class... Policies>
-class NewType : public Policies<NewType<T, Policies...>>...
+template <typename Derived, typename T, template <typename, typename> class... Policies>
+class NewType : public Policies<Derived, NewType<Derived, T, Policies...>>...
 {
   protected:
     /// 'ProtectedConstructor_t' is a compile time variable to select the correct constructors
@@ -97,7 +100,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 
   public:
     /// @brief the type of *this
-    using ThisType = NewType<T, Policies...>;
+    using ThisType = NewType<Derived, T, Policies...>;
     /// @brief the type of the underlying value
     using value_type = T;
 
@@ -120,6 +123,9 @@ class NewType : public Policies<NewType<T, Policies...>>...
 
     template <typename Type>
     friend typename Type::value_type newtype::internal::newTypeAccessor(const Type&) noexcept;
+
+    template <typename Type>
+    friend typename Type::value_type& newtype::internal::newTypeRefAccessor(Type&) noexcept;
 
   private:
     T m_value;
@@ -152,7 +158,7 @@ class NewType : public Policies<NewType<T, Policies...>>...
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 : macro is used to reduce boilerplate code for 'NewType'
 /// @NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define IOX_NEW_TYPE(TypeName, Type, ...)                                                                              \
-    struct TypeName : public iox::NewType<Type, __VA_ARGS__>                                                           \
+    struct TypeName : public iox::NewType<TypeName, Type, __VA_ARGS__>                                                 \
     {                                                                                                                  \
         using ThisType::ThisType;                                                                                      \
         using ThisType::operator=;                                                                                     \

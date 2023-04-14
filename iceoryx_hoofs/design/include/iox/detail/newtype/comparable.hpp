@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ namespace iox
 {
 namespace newtype
 {
-template <typename T>
+template <typename, typename T>
 // AXIVION Next Construct AutosarC++19_03-A12.0.1 : Not required since a default'ed destructor does not define a
 // destructor, hence the copy/move operations are not deleted. The only adaptation is that the dtor is protected to
 // prohibit the user deleting the child type by explicitly calling the destructor of the base type. Additionally, this
