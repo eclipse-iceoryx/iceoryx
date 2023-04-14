@@ -25,6 +25,7 @@ using iox_off_t = off_t;
 using iox_ssize_t = ssize_t;
 
 int iox_close(int fd);
+int iox_ext_close(int fd);
 int iox_fchown(int fd, uid_t owner, gid_t group);
 int iox_access(const char* pathname, int mode);
 int iox_unlink(const char* pathname);

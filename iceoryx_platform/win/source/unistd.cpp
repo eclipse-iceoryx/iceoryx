@@ -50,6 +50,23 @@ int iox_close(int fd)
     return _close(fd);
 }
 
+int iox_ext_close(int fd)
+{
+    HANDLE handle = HandleTranslator::getInstance().get(fd);
+    if (handle == nullptr)
+    {
+        return 0;
+    }
+
+    auto success = Win32Call(CloseHandle, handle).value;
+    HandleTranslator::getInstance().remove(fd);
+    if (success == 0)
+    {
+        return -1;
+    }
+    return 0;
+}
+
 int iox_fchown(int fd, uid_t owner, gid_t group)
 {
     return 0;

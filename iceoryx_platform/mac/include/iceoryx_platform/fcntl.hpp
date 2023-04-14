@@ -20,6 +20,7 @@
 #include <fcntl.h>
 
 int iox_open(const char* pathname, int flags, mode_t mode);
+int iox_ext_open(const char* pathname, int flags, mode_t mode);
 
 int iox_fcntl2(int fd, int cmd);
 int iox_fcntl3(int fd, int cmd, int flags);

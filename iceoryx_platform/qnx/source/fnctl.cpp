@@ -21,6 +21,11 @@ int iox_open(const char* pathname, int flags, mode_t mode)
     return open(pathname, flags, mode);
 }
 
+int iox_ext_open(const char* pathname, int flags, mode_t mode)
+{
+    return open(pathname, flags, mode);
+}
+
 int iox_fcntl2(int fd, int cmd)
 {
     return fcntl(fd, cmd);

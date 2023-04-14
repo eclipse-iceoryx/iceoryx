@@ -28,6 +28,28 @@ int iox_open(const char* pathname, int flags, mode_t mode)
     return fd;
 }
 
+int iox_ext_open(const char* pathname, int flags, mode_t mode)
+{
+    auto handle = Win32Call(CreateFileA,
+                            pathname,
+                            GENERIC_WRITE,
+                            0,
+                            static_cast<LPSECURITY_ATTRIBUTES>(NULL),
+                            CREATE_ALWAYS,
+                            FILE_ATTRIBUTE_NORMAL,
+                            static_cast<HANDLE>(NULL))
+                      .value;
+
+    if (handle == INVALID_HANDLE_VALUE)
+    {
+        fprintf(stderr, "unable to create file \"%s\"\n", pathname);
+        errno = EWOULDBLOCK;
+        return -1;
+    }
+
+    return HandleTranslator::getInstance().add(handle);
+}
+
 int iox_fcntl2(int, int)
 {
     fprintf(stderr, "%s is not implemented in windows!\n", __PRETTY_FUNCTION__);
