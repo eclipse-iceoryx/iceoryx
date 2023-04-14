@@ -16,6 +16,8 @@
 
 #include "iceoryx_platform/mman.hpp"
 
+#include <unistd.h>
+
 // NOLINTNEXTLINE(readability-identifier-naming)
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
@@ -26,4 +28,9 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
 int iox_shm_unlink(const char* name)
 {
     return shm_unlink(name);
+}
+
+int iox_shm_close(int fd)
+{
+    return close(fd);
 }

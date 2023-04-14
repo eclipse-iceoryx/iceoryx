@@ -132,7 +132,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         {
             printError();
 
-            posixCall(iox_close)(sharedMemoryFileHandle)
+            posixCall(iox_shm_close)(sharedMemoryFileHandle)
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto& r) {

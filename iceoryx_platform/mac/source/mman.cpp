@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <sys/shm.h>
+#include <unistd.h>
 
 int iox_shm_open(const char* name, int oflag, mode_t mode)
 {
@@ -36,4 +37,9 @@ int iox_shm_unlink(const char* name)
         errno = ENOENT;
     }
     return state;
+}
+
+int iox_shm_close(int fd)
+{
+    return close(fd);
 }
