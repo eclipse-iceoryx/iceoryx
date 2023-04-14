@@ -27,14 +27,6 @@ inline constexpr auto size(const Container& container) -> decltype(container.siz
 }
 
 template <typename T, uint64_t Extent>
-inline constexpr span<T, Extent>::span() noexcept
-    : span_storage_t(0)
-    , m_data(nullptr)
-{
-    static_assert(Extent == DYNAMIC_EXTENT || Extent == 0, "Invalid Extent");
-}
-
-template <typename T, uint64_t Extent>
 template <typename It>
 inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
     : span_storage_t(count)

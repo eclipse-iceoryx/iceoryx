@@ -248,9 +248,7 @@ class span : public internal::span_storage<Extent>
 
     // constructors, copy, assignment, and destructor
 
-    /// @brief Constructs an empty span whose data() == nullptr and size() == 0.
-    /// @todo remove this c'tor
-    constexpr span() noexcept;
+    constexpr span() noexcept = delete;
 
     /// @brief Constructs a span that is a view over the range [first, first + count);
     /// @tparam It Type of the iterator

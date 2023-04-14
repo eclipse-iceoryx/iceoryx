@@ -25,24 +25,6 @@ namespace
 using namespace ::testing;
 using namespace iox;
 
-TEST(span_test, NewDynSpanCreatedWithTheDefaultConstructorHasEqualSizeAndDataPtr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6a0589e2-b2fb-4f81-8082-6d3ea411e659");
-    span<int> dyn_sut;
-
-    EXPECT_EQ(nullptr, dyn_sut.data());
-    EXPECT_TRUE(dyn_sut.empty());
-}
-
-TEST(span_test, NewStaticSpanCreatedWithTheDefaultConstructorHasEqualSizeAndDataPtr)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "05c15f4f-e337-466e-a672-4d65b34bff7d");
-    constexpr span<int, 0> static_sut;
-
-    static_assert(nullptr == static_sut.data(), "Data must be 'nullptr'");
-    static_assert(static_sut.empty(), "Sut must be empty");
-}
-
 TEST(span_test, NewEmptySpanCreatedFromIteratorContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "59980664-c94f-4bb5-bc9d-adeac630746e");
