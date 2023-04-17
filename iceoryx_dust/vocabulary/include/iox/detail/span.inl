@@ -125,6 +125,25 @@ inline constexpr span<T, Extent>::span(const span<U, OtherExtent>& other)
 }
 
 template <typename T, uint64_t Extent>
+inline constexpr span<T, Extent>::span(span&& other) noexcept
+    : span_storage_t(std::move(other))
+{
+    *this = std::move(other);
+}
+
+template <typename T, uint64_t Extent>
+inline constexpr span<T, Extent>& span<T, Extent>::operator=(span&& other) noexcept
+{
+    if (this != &other)
+    {
+        span_storage_t::operator=(std::move(other));
+        m_data = other.m_data;
+        other.m_data = nullptr;
+    }
+    return *this;
+}
+
+template <typename T, uint64_t Extent>
 template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::first() const noexcept
 {
@@ -254,14 +273,14 @@ constexpr uint64_t span<T, Extent>::extent;
 
 // object representation
 template <typename T, uint64_t X>
-span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
+inline span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
 }
 
-template <typename T, uint64_t X, typename = std::enable_if_t<!std::is_const<T>::value>>
-span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
+template <typename T, uint64_t X, typename>
+inline span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
 {
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};

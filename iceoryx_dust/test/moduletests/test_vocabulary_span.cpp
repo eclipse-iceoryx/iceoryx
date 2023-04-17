@@ -315,7 +315,7 @@ TEST(span_test, CheckConstexprIterOfSpan)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8764fcfb-27df-4f39-b8cd-56bf881db382");
     static constexpr int arr[] = {1, 6, 1, 8, 0};
-    constexpr span<const int> span(arr);
+    IOX_MAYBE_UNUSED constexpr span<const int> span(arr);
 
     // Explicitly not use EXPECT_TRUE here to be able to execute the test case during compile-time
     // 'static_assert' is not possible as not being supported with GCC5

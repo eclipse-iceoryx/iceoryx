@@ -193,8 +193,26 @@ struct span_storage<DYNAMIC_EXTENT>
         return m_size;
     }
 
+    span_storage(const span_storage& other) noexcept = default;
+    span_storage& operator=(const span_storage& other) noexcept = default;
+
+    span_storage(span_storage&& other) noexcept
+    {
+        *this = std::move(other);
+    }
+    span_storage& operator=(span_storage&& other) noexcept
+    {
+        if (this != &other)
+        {
+            m_size = other.m_size;
+            other.m_size = 0;
+        }
+        return *this;
+    }
+    ~span_storage() noexcept = default;
+
   private:
-    uint64_t m_size;
+    uint64_t m_size{0};
 };
 
 template <typename T>
@@ -319,10 +337,11 @@ class span : public detail::span_storage<Extent>
               typename = detail::enable_if_conversion_allowed_t<U, OtherExtent, T, Extent>>
     constexpr explicit span(const span<U, OtherExtent>& other);
 
-    constexpr span& operator=(const span& other) noexcept = default;
+    constexpr span& operator=(const span&) noexcept = default;
 
-    constexpr span(span&&) noexcept = delete;
-    span& operator=(span&&) noexcept = delete;
+    constexpr span(span&& other) noexcept;
+    constexpr span& operator=(span&& other) noexcept;
+
     ~span() noexcept = default;
 
     // subviews
@@ -418,6 +437,12 @@ class span : public detail::span_storage<Extent>
   private:
     T* m_data;
 };
+
+template <typename T, uint64_t X>
+span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept;
+
+template <typename T, uint64_t X, typename = std::enable_if_t<!std::is_const<T>::value>>
+span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept;
 
 } // namespace iox
 
