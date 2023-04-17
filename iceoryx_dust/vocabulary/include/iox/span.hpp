@@ -80,6 +80,7 @@ constexpr auto data(const Container& container) -> decltype(container.data());
 /// @param array An array of arbitrary type
 /// @return Returns array
 template <typename T, std::uint64_t N>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 constexpr T* data(T (&array)[N]) noexcept;
 
 /// @brief Returns a pointer to the block of memory containing the elements of the range.
@@ -104,7 +105,7 @@ struct extent_impl : size_constant<DYNAMIC_EXTENT>
 };
 
 template <typename T, uint64_t N>
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 struct extent_impl<T[N]> : size_constant<N>
 {
 };
@@ -265,8 +266,10 @@ class span : public detail::span_storage<Extent>
     /// std::data(arr)
     /// @tparam N implicit size of the array
     /// @param array used to construct the span
+    // // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     template <uint64_t N, typename = detail::enable_if_compatible_array_t<T (&)[N], T, Extent>>
     constexpr explicit span(T (&array)[N]) noexcept;
+    // // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 
     /// @brief Constructs a span that is a view over the uninitialized array; the resulting span has size() == N and
     /// data() == std::data(arr)
@@ -318,6 +321,8 @@ class span : public detail::span_storage<Extent>
 
     constexpr span& operator=(const span& other) noexcept = default;
 
+    constexpr span(span&&) noexcept = delete;
+    span& operator=(span&&) noexcept = delete;
     ~span() noexcept = default;
 
     // subviews

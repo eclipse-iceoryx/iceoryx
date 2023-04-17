@@ -149,7 +149,6 @@ template <bool B>
 using bool_constant = std::integral_constant<bool, B>;
 
 /// @brief Implementation of C++17 negation
-/// @tparam B
 template <class B>
 struct negation : bool_constant<!bool(B::value)>
 {

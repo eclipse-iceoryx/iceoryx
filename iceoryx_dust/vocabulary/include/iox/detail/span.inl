@@ -27,6 +27,7 @@ inline constexpr auto size(const Container& container) -> decltype(container.siz
 }
 
 template <typename T, std::uint64_t N>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 inline constexpr std::uint64_t size(const T (&)[N]) noexcept
 {
     return N;
@@ -51,6 +52,7 @@ inline constexpr auto data(const Container& container) -> decltype(container.dat
 }
 
 template <typename T, std::uint64_t N>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 inline constexpr T* data(T (&array)[N]) noexcept
 {
     return array;
