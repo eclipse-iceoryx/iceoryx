@@ -441,6 +441,7 @@ TEST_F(File_test, MoveConstructedFileWorks)
     EXPECT_THAT(*result, Eq(test_content.size()));
 
     File sut2{std::move(sut.value())};
+    EXPECT_THAT(sut->get_file_handle(), -1);
 
     std::array<uint8_t, 3> read_content{0};
     auto read = sut2.read(read_content.data(), read_content.size());
@@ -475,6 +476,7 @@ TEST_F(File_test, MoveAssignedFileWorks)
     ASSERT_FALSE(sut3.has_error());
 
     sut2 = std::move(sut3.value());
+    EXPECT_THAT(sut3->get_file_handle(), -1);
 
     std::array<uint8_t, 3> read_content{0};
     auto read = sut2.read(read_content.data(), read_content.size());

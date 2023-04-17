@@ -117,7 +117,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
         IOX_LOG(ERROR) << "Unable to create file since it already exists.";
         return iox::error<FileCreationError>(FileCreationError::AlreadyExists);
     default:
-        IOX_LOG(ERROR) << "Unable to open/create file due to insufficient permissions (" << result.get_error().errnum
+        IOX_LOG(ERROR) << "Unable to open/create file since an unknown error occurred (" << result.get_error().errnum
                        << ").";
         return iox::error<FileCreationError>(FileCreationError::UnknownError);
     }
@@ -290,13 +290,13 @@ expected<FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
     case EINVAL:
         IOX_FALLTHROUGH;
     case ENXIO:
-        IOX_LOG(ERROR) << "Unable to set file offset position since it beyond the file limits.";
+        IOX_LOG(ERROR) << "Unable to set file offset position since it is beyond the file limits.";
         return iox::error<FileOffsetError>(FileOffsetError::OffsetBeyondFileLimits);
     case EOVERFLOW:
         IOX_LOG(ERROR)
             << "Unable to set file offset position since the file is too large and the offset would overflow.";
         return iox::error<FileOffsetError>(FileOffsetError::FileOffsetOverflow);
-    case EPIPE:
+    case ESPIPE:
         IOX_LOG(ERROR) << "Unable to set file offset position since seeking is not supported by the file type.";
         return iox::error<FileOffsetError>(FileOffsetError::SeekingNotSupportedByFileType);
     default:
@@ -342,7 +342,7 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
         IOX_LOG(ERROR) << "Unable to read from file since an interrupt signal was received.";
         return iox::error<FileReadError>(FileReadError::Interrupt);
     case EINVAL:
-        IOX_LOG(ERROR) << "Unable to read from file since is unsuitable for reading.";
+        IOX_LOG(ERROR) << "Unable to read from file since it is unsuitable for reading.";
         return iox::error<FileReadError>(FileReadError::FileUnsuitableForReading);
     case EIO:
         IOX_LOG(ERROR) << "Unable to read from file since an IO failure occurred.";
@@ -407,6 +407,9 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
     case EPERM:
         IOX_LOG(ERROR) << "Unable to write to file since the operation was prevented by a file seal.";
         return iox::error<FileWriteError>(FileWriteError::PreventedByFileSeal);
+    case EIO:
+        IOX_LOG(ERROR) << "Unable to write to file since an IO failure occurred.";
+        return iox::error<FileWriteError>(FileWriteError::IoFailure);
     default:
         IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred (" << result.get_error().errnum
                        << ").";

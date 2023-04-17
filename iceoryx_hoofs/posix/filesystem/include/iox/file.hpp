@@ -187,10 +187,6 @@ class FileBuilder
   public:
     expected<File, FileCreationError> create(const FilePath& name) noexcept;
     expected<File, FileCreationError> open(const FilePath& name) noexcept;
-
-  private:
-    expected<File, FileCreationError> open_impl(const bool print_error_on_non_existing_file,
-                                                const FilePath& name) noexcept;
 };
 } // namespace iox
 

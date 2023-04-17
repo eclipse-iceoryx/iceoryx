@@ -99,7 +99,7 @@ class Ownership
 
 /// @brief Abstract implementation to manage things common to all file descriptor
 ///        based constructs like ownership and permissions.
-/// @note Can be used by every class which provide the method 'get_file_handle'
+/// @note Can be used by every class which provides the method 'get_file_handle'
 ///       via inheritance.
 /// @code
 ///   class MyResourceBasedOnFileDescriptor: public FileManagementInterface<MyResourceBasedOnFileDescriptor> {
