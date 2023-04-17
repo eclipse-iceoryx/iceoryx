@@ -105,7 +105,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     if (*real_size < m_memorySizeInBytes)
     {
         printErrorDetails();
-        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since it does not fulfill the size requirements.";
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
+                       << " was requested but the object has only a size of " << *real_size;
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::SMALLER_THAN_MIN_REQUESTED_SIZE);
     }
 

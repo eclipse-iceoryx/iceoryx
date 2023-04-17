@@ -100,6 +100,9 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
     }
 }
 
+// does not work on windows since the file mapping has always the dynamic max size when acquiring
+// the file mapping size informations with GetFileSize
+#if !defined(_WIN32)
 TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanRequestedSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb58b45e-8366-42ae-bd30-8d7415791dd4");
@@ -122,6 +125,7 @@ TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanReques
     ASSERT_TRUE(sut2.has_error());
     EXPECT_THAT(sut2.get_error(), Eq(posix::SharedMemoryObjectError::SMALLER_THAN_MIN_REQUESTED_SIZE));
 }
+#endif
 
 TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
 {
@@ -151,7 +155,7 @@ TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
                     .create()
                     .expect("failed to create sut");
 
-    ASSERT_THAT(*sut2.get_size(), Eq(MEMORY_SIZE * sizeof(uint64_t)));
+    ASSERT_THAT(*sut2.get_size(), Ge(MEMORY_SIZE * sizeof(uint64_t)));
 
     auto* data_ptr2 = static_cast<uint64_t*>(sut2.getBaseAddress());
 
