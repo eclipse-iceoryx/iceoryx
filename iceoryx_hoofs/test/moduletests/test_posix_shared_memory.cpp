@@ -76,7 +76,7 @@ class SharedMemory_Test : public Test
 
         return std::unique_ptr<int, std::function<void(int*)>>(new int(result->value), [=](const int* fd) {
             cleanupSharedMemory(name);
-            iox_close(*fd);
+            iox_shm_close(*fd);
             delete fd;
         });
     }
