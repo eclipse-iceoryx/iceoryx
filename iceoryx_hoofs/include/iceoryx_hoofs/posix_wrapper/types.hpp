@@ -25,7 +25,8 @@ namespace posix
 enum class AccessMode : uint64_t
 {
     READ_ONLY = 0U,
-    READ_WRITE = 1U
+    READ_WRITE = 1U,
+    WRITE_ONLY = 2U
 };
 
 /// @brief describes how the shared memory is opened or created
@@ -56,6 +57,10 @@ int convertToOflags(const AccessMode accessMode) noexcept;
 /// @brief converts the OpenMode into the corresponding O_** flags.
 /// @param[in] openMode the openMode which should be converted
 int convertToOflags(const OpenMode openMode) noexcept;
+
+/// @brief converts the AccessMode into the corresponding PROT_** flags.
+/// @param[in] accessMode the accessMode which should be converted
+int convertToProtFlags(const AccessMode accessMode) noexcept;
 
 /// @brief converts the AccessMode and OpenMode into the corresponding O_** flags
 /// @param[in] accessMode the accessMode which should be converted

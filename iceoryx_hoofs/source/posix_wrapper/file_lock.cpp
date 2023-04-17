@@ -57,9 +57,9 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
     fileLockPath.unsafe_append(m_name);
     fileLockPath.unsafe_append(FileLock::LOCK_FILE_SUFFIX);
 
-    auto openCall = posixCall(iox_open)(fileLockPath.c_str(),
-                                        convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
-                                        m_permission.value())
+    auto openCall = posixCall(iox_ext_open)(fileLockPath.c_str(),
+                                            convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
+                                            m_permission.value())
                         .failureReturnValue(-1)
                         .evaluate();
 
@@ -76,13 +76,13 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (lockCall.has_error())
     {
-        posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(iox_ext_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
             IOX_LOG(ERROR) << "Unable to close file lock \"" << fileLockPath
                            << "\" in error related cleanup during initialization.";
         });
 
-        //  possible errors in iox_close() are masked and we inform the user about the actual error
+        //  possible errors in iox_ext_close() are masked and we inform the user about the actual error
         return error<FileLockError>(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
     }
 
@@ -142,7 +142,7 @@ expected<FileLockError> FileLock::closeFileDescriptor() noexcept
                 IOX_LOG(ERROR) << "Unable to unlock the file lock \"" << m_fileLockPath << "\"";
             });
 
-        posixCall(iox_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(iox_ext_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
             IOX_LOG(ERROR) << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"";

@@ -2,6 +2,7 @@
 arpa/inet.h
 climits
 cstdint
+cstdio
 dlfcn.h
 errno.h
 fcntl.h

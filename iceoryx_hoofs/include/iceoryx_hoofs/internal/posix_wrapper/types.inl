@@ -47,6 +47,8 @@ inline constexpr const char* asStringLiteral(const AccessMode mode) noexcept
         return "AccessMode::READ_ONLY";
     case AccessMode::READ_WRITE:
         return "AccessMode::READ_WRITE";
+    case AccessMode::WRITE_ONLY:
+        return "AccessMode::WRITE_ONLY";
     }
 
     return "AccessMode::UNDEFINED_VALUE";

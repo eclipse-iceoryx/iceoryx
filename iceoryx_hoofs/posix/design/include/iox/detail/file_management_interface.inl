@@ -24,7 +24,7 @@ template <typename Derived>
 inline expected<Ownership, FileStatError> FileManagementInterface<Derived>::get_ownership() const noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
-    auto result = details::get_file_status(derived_this.getFileHandle());
+    auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
         return iox::error<FileStatError>(result.get_error());
@@ -37,7 +37,7 @@ template <typename Derived>
 inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::get_permissions() const noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
-    auto result = details::get_file_status(derived_this.getFileHandle());
+    auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
         return iox::error<FileStatError>(result.get_error());
@@ -54,7 +54,7 @@ template <typename Derived>
 inline expected<FileSetOwnerError> FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
-    auto result = details::set_owner(derived_this.getFileHandle(), ownership.uid(), ownership.gid());
+    auto result = details::set_owner(derived_this.get_file_handle(), ownership.uid(), ownership.gid());
     if (result.has_error())
     {
         return iox::error<FileSetOwnerError>(result.get_error());
@@ -68,13 +68,26 @@ inline expected<FileSetPermissionError>
 FileManagementInterface<Derived>::set_permissions(const access_rights permissions) noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
-    auto result = details::set_permissions(derived_this.getFileHandle(), permissions);
+    auto result = details::set_permissions(derived_this.get_file_handle(), permissions);
     if (result.has_error())
     {
         return iox::error<FileSetPermissionError>(result.get_error());
     }
 
     return iox::success<>();
+}
+
+template <typename Derived>
+inline expected<uint64_t, FileStatError> FileManagementInterface<Derived>::get_size() const noexcept
+{
+    const auto& derived_this = *static_cast<const Derived*>(this);
+    auto result = details::get_file_status(derived_this.get_file_handle());
+    if (result.has_error())
+    {
+        return iox::error<FileStatError>(result.get_error());
+    }
+
+    return iox::success<uint64_t>(static_cast<uint64_t>(result->st_size));
 }
 } // namespace iox
 

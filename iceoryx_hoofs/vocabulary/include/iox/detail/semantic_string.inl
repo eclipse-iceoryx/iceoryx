@@ -18,6 +18,7 @@
 
 #include "iox/logging.hpp"
 #include "iox/semantic_string.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -49,7 +50,7 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
         return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
     }
 
-    auto str = string<Capacity>(TruncateToCapacity, value);
+    string<Capacity> str{TruncateToCapacity, value};
 
     if (DoesContainInvalidCharacterCall(str))
     {
@@ -136,7 +137,7 @@ inline expected<SemanticStringError>
 SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::append(
     const T& value) noexcept
 {
-    return insert(size(), value, value.size());
+    return insert(size(), value, internal::GetSize<T>::call(value));
 }
 
 template <typename Child,

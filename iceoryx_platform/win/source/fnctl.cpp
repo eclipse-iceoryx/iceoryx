@@ -14,11 +14,21 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include <io.h>
+
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
+#include "iceoryx_platform/windows.hpp"
 
 int iox_open(const char* pathname, int flags, mode_t mode)
+{
+    int fd;
+    _sopen_s(&fd, pathname, flags, _SH_DENYNO, _S_IREAD | _S_IWRITE);
+    return fd;
+}
+
+int iox_ext_open(const char* pathname, int flags, mode_t mode)
 {
     auto handle = Win32Call(CreateFileA,
                             pathname,

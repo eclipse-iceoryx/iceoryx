@@ -21,5 +21,6 @@
 
 int iox_shm_open(const char* name, int oflag, mode_t mode);
 int iox_shm_unlink(const char* name);
+int iox_shm_close(int fd);
 
 #endif // IOX_HOOFS_UNIX_PLATFORM_MMAN_HPP

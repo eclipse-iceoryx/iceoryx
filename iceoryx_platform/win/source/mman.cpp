@@ -172,3 +172,20 @@ int iox_shm_unlink(const char* name)
     errno = ENOENT;
     return -1;
 }
+
+int iox_shm_close(int fd)
+{
+    HANDLE handle = HandleTranslator::getInstance().get(fd);
+    if (handle == nullptr)
+    {
+        return 0;
+    }
+
+    auto success = Win32Call(CloseHandle, handle).value;
+    HandleTranslator::getInstance().remove(fd);
+    if (success == 0)
+    {
+        return -1;
+    }
+    return 0;
+}

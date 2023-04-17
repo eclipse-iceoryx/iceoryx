@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,13 +13,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
-#define IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
+#ifndef IOX_HOOFS_MAC_PLATFORM_STDIO_HPP
+#define IOX_HOOFS_MAC_PLATFORM_STDIO_HPP
 
-#include <sys/mman.h>
+#include <cstdio>
 
-int iox_shm_open(const char* name, int oflag, mode_t mode);
-int iox_shm_unlink(const char* name);
-int iox_shm_close(int fd);
+int iox_remove(const char* pathname)
+{
+    return remove(pathname);
+}
 
-#endif // IOX_HOOFS_LINUX_PLATFORM_MMAN_HPP
+#endif

@@ -80,11 +80,13 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     ///        existing shared memory was opened.
     bool hasOwnership() const noexcept;
 
-
     friend class SharedMemoryObjectBuilder;
 
   private:
     SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap, const uint64_t memorySizeInBytes) noexcept;
+
+    friend struct FileManagementInterface<SharedMemoryObject>;
+    int get_file_handle() const noexcept;
 
   private:
     uint64_t m_memorySizeInBytes;

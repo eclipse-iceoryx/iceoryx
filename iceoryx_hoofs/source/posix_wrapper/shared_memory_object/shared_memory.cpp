@@ -132,7 +132,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         {
             printError();
 
-            posixCall(iox_close)(sharedMemoryFileHandle)
+            posixCall(iox_shm_close)(sharedMemoryFileHandle)
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto& r) {
@@ -248,10 +248,11 @@ bool SharedMemory::close() noexcept
 {
     if (m_handle != INVALID_HANDLE)
     {
-        auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
-            IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
-                           << r.getHumanReadableErrnum();
-        });
+        auto call =
+            posixCall(iox_shm_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
+                IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
+                               << r.getHumanReadableErrnum();
+            });
 
         m_handle = INVALID_HANDLE;
         return !call.has_error();

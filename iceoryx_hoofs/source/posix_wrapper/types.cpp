@@ -16,6 +16,7 @@
 
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
+#include "iceoryx_platform/mman.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -30,6 +31,8 @@ int convertToOflags(const AccessMode accessMode) noexcept
         return O_RDONLY;
     case AccessMode::READ_WRITE:
         return O_RDWR;
+    case AccessMode::WRITE_ONLY:
+        return O_WRONLY;
     }
 
     IOX_LOG(ERROR) << "Unable to convert to O_ flag since an undefined iox::posix::AccessMode was provided";
@@ -55,6 +58,24 @@ int convertToOflags(const OpenMode openMode) noexcept
     IOX_LOG(ERROR) << "Unable to convert to O_ flag since an undefined iox::posix::OpenMode was provided";
     return 0;
 }
+
+int convertToProtFlags(const AccessMode accessMode) noexcept
+{
+    switch (accessMode)
+    {
+    case AccessMode::READ_ONLY:
+        return PROT_READ;
+    case AccessMode::READ_WRITE:
+        // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
+        return PROT_READ | PROT_WRITE;
+    case AccessMode::WRITE_ONLY:
+        return PROT_WRITE;
+    }
+
+    IOX_LOG(ERROR) << "Unable to convert to PROT_ flag since an undefined iox::posix::AccessMode was provided";
+    return PROT_NONE;
+}
+
 
 int convertToOflags(const AccessMode accessMode, const OpenMode openMode) noexcept
 {
