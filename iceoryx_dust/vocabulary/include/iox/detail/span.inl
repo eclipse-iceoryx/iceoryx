@@ -228,58 +228,6 @@ span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writabl
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
 }
-
-// helpers for creation of a span.
-template <int&... ArgBarrier, typename It>
-constexpr auto make_span(It it, uint64_t size) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t>(it, size);
-}
-
-template <int&... ArgBarrier,
-          typename It,
-          typename End,
-          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
-constexpr auto make_span(It it, End end) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t>(it, end);
-}
-
-template <int&... ArgBarrier, typename Container>
-constexpr auto make_span(Container&& container) noexcept
-{
-    using RemovePtr_t = std::remove_pointer_t<decltype(data(std::declval<Container>()))>;
-    using Extent = internal::extent_t<Container>;
-    return span<RemovePtr_t, Extent::value>(std::forward<Container>(container));
-}
-
-template <uint64_t N, int&... ArgBarrier, typename It>
-constexpr auto make_span(It it, uint64_t size) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t, N>(it, size);
-}
-
-template <uint64_t N,
-          int&... ArgBarrier,
-          typename It,
-          typename End,
-          typename = std::enable_if_t<!iox::is_convertible_v<End, uint64_t>>>
-constexpr auto make_span(It it, End end) noexcept
-{
-    using RemoveRef_t = std::remove_reference_t<iox::iter_reference_t<It>>;
-    return span<RemoveRef_t, N>(it, end);
-}
-
-template <uint64_t N, int&... ArgBarrier, typename Container>
-constexpr auto make_span(Container&& container) noexcept
-{
-    using RemovePtr_t = std::remove_pointer_t<decltype(data(std::declval<Container>()))>;
-    return span<RemovePtr_t, N>(data(container), size(container));
-}
-
 } // namespace iox
 
 #endif // IOX_DUST_VOCABULARY_SPAN_INL
