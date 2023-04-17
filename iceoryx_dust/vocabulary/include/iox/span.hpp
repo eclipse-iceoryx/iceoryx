@@ -17,11 +17,12 @@
 #define IOX_DUST_VOCABULARY_SPAN_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iox/detail/span_iterator.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <cstdio>
 #include <limits>

@@ -273,12 +273,14 @@ TEST(span_test, CheckConstexprIterOfSpan)
     static constexpr int arr[] = {1, 6, 1, 8, 0};
     constexpr span<const int> span(arr);
 
-    static_assert(1 == span.begin()[0], "First element needs to be '1'");
-    static_assert(1 == *(span.begin() += 0), "First element needs to be '1'");
-    static_assert(6 == *(span.begin() += 1), "Second element needs to be '6'");
+    // Explicitly not use EXPECT_TRUE here to be able to execute the test case during compile-time
+    // 'static_assert' is not possible as not being supported with GCC5
+    assert(1 == span.begin()[0]);      // First element needs to be '1'
+    assert(1 == *(span.begin() += 0)); // First element needs to be '1'
+    assert(6 == *(span.begin() += 1)); // Second element needs to be '6'
 
-    static_assert(1 == *((span.begin() + 1) -= 1), "First element needs to be '1'");
-    static_assert(6 == *((span.begin() + 1) -= 0), "Second element needs to be '6'");
+    assert(1 == *((span.begin() + 1) -= 1)); // First element needs to be '1'
+    assert(6 == *((span.begin() + 1) -= 0)); // Second element needs to be '6'
 }
 
 TEST(span_test, GetSpanDataAsWritableBytes)

@@ -32,7 +32,7 @@ inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
     : span_storage_t(count)
     , m_data(internal::to_address(first))
 {
-    iox::ConstexprCheckTrue(Extent == DYNAMIC_EXTENT || Extent == count);
+    assert(Extent == DYNAMIC_EXTENT || Extent == count);
 }
 
 template <typename T, uint64_t Extent>
@@ -40,8 +40,7 @@ template <typename It, typename End, typename>
 inline constexpr span<T, Extent>::span(It begin, End end) noexcept
     : span(begin, static_cast<uint64_t>(end - begin))
 {
-    // check for non negative result
-    static_assert(begin <= end, "");
+    static_assert(begin <= end, "begin shall not be smaller than end");
 }
 
 template <typename T, uint64_t Extent>
@@ -163,7 +162,7 @@ template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::front() const noexcept
 {
     static_assert(Extent == DYNAMIC_EXTENT || Extent > 0, "Extent must not be 0");
-    iox::ConstexprCheckTrue(Extent != DYNAMIC_EXTENT || !empty());
+    assert(Extent != DYNAMIC_EXTENT || !empty());
     return *data();
 }
 
@@ -178,7 +177,7 @@ inline constexpr T& span<T, Extent>::back() const noexcept
 template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::operator[](uint64_t index) const noexcept
 {
-    iox::ConstexprCheckTrue(index < size());
+    assert(index < size());
     return *(data() + index);
 }
 

@@ -16,17 +16,13 @@
 #ifndef IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 #define IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 
-#include <iterator> // for reverse_iterator, distance, random_access_...
-
 #include "iceoryx_hoofs/cxx/requires.hpp"
+
+#include <iterator> // for reverse_iterator, distance, random_access_...
+#include <cassert>
 
 namespace iox
 {
-/// @todo Replace this with 'if constexpr(..)' when moving to C++17
-inline constexpr bool ConstexprCheckTrue(bool condition)
-{
-    return condition || false;
-}
 
 template <typename T>
 class span_iterator
@@ -64,21 +60,21 @@ class span_iterator
 
     constexpr reference operator*() const noexcept
     {
-        ConstexprCheckTrue(m_begin && m_end);
-        ConstexprCheckTrue(m_begin <= m_current && m_current < m_end);
+        assert(m_begin && m_end);
+        assert(m_begin <= m_current && m_current < m_end);
         return *m_current;
     }
 
     constexpr pointer operator->() const noexcept
     {
-        ConstexprCheckTrue(m_begin && m_end);
-        ConstexprCheckTrue(m_begin <= m_current && m_current < m_end);
+        assert(m_begin && m_end);
+        assert(m_begin <= m_current && m_current < m_end);
         return m_current;
     }
     constexpr span_iterator& operator++() noexcept
     {
-        ConstexprCheckTrue(m_begin && m_current && m_end);
-        ConstexprCheckTrue(m_current < m_end);
+        assert(m_begin && m_current && m_end);
+        assert(m_current < m_end);
 
         ++m_current;
         return *this;
@@ -93,8 +89,8 @@ class span_iterator
 
     constexpr span_iterator& operator--() noexcept
     {
-        ConstexprCheckTrue(m_begin && m_end);
-        ConstexprCheckTrue(m_begin < m_current);
+        assert(m_begin && m_end);
+        assert(m_begin < m_current);
         --m_current;
         return *this;
     }
@@ -110,15 +106,15 @@ class span_iterator
     {
         if (n != 0)
         {
-            ConstexprCheckTrue(m_begin && m_current && m_end);
+            assert(m_begin && m_current && m_end);
         }
         if (n > 0)
         {
-            ConstexprCheckTrue(m_end - m_current >= n);
+            assert(m_end - m_current >= n);
         }
         if (n < 0)
         {
-            ConstexprCheckTrue(m_current - m_begin >= -n);
+            assert(m_current - m_begin >= -n);
         }
 
         m_current += n;
@@ -141,15 +137,15 @@ class span_iterator
     {
         if (n != 0)
         {
-            ConstexprCheckTrue(m_begin && m_current && m_end);
+            assert(m_begin && m_current && m_end);
         }
         if (n > 0)
         {
-            ConstexprCheckTrue(m_current - m_begin >= n);
+            assert(m_current - m_begin >= n);
         }
         if (n < 0)
         {
-            ConstexprCheckTrue(m_end - m_current >= -n);
+            assert(m_end - m_current >= -n);
         }
         m_current -= n;
         return *this;
@@ -165,7 +161,7 @@ class span_iterator
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
     constexpr difference_type operator-(const span_iterator<Type2>& rhs) const noexcept
     {
-        ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
+        assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current - rhs.m_current;
     }
 
@@ -177,7 +173,7 @@ class span_iterator
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
     constexpr bool operator==(const span_iterator<Type2>& rhs) const noexcept
     {
-        ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
+        assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current == rhs.m_current;
     }
 
@@ -190,7 +186,7 @@ class span_iterator
     template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
     constexpr bool operator<(const span_iterator<Type2>& rhs) const noexcept
     {
-        ConstexprCheckTrue(m_begin == rhs.m_begin && m_end == rhs.m_end);
+        assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current < rhs.m_current;
     }
 
