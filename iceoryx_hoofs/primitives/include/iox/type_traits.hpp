@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include "iceoryx_platform/platform_settings.hpp"
-#include "iox/uninitialized_array.hpp"
 
 namespace iox
 {
@@ -195,19 +194,6 @@ struct remove_cvref
 // - https://wg21.link/meta.type.synop#lib:remove_cvref_t
 template <typename T>
 using remove_cvref_t = typename remove_cvref<T>::type_t;
-
-template <typename T>
-struct is_iox_array : std::false_type
-{
-};
-
-template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
-struct is_iox_array<iox::UninitializedArray<T, N, Buffer>> : std::true_type
-{
-};
-
-template <typename T>
-using is_not_iox_array_t = iox::negation<is_iox_array<std::decay_t<T>>>;
 
 template <typename T>
 using is_c_array_t = std::is_array<std::remove_reference_t<T>>;

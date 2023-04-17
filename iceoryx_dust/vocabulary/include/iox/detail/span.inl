@@ -26,11 +26,47 @@ inline constexpr auto size(const Container& container) -> decltype(container.siz
     return container.size();
 }
 
+template <typename T, std::uint64_t N>
+inline constexpr std::uint64_t size(const T (&)[N]) noexcept
+{
+    return N;
+}
+
+template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+inline constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept
+{
+    return N;
+}
+
+template <typename Container>
+inline constexpr auto data(Container& container) -> decltype(container.data())
+{
+    return container.data();
+}
+
+template <typename Container>
+inline constexpr auto data(const Container& container) -> decltype(container.data())
+{
+    return container.data();
+}
+
+template <typename T, std::uint64_t N>
+inline constexpr T* data(T (&array)[N]) noexcept
+{
+    return array;
+}
+
+template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+inline constexpr T* data(UninitializedArray<T, N, Buffer>& uninit_array) noexcept
+{
+    return uninit_array.begin();
+}
+
 template <typename T, uint64_t Extent>
 template <typename It>
 inline constexpr span<T, Extent>::span(It first, uint64_t count) noexcept
     : span_storage_t(count)
-    , m_data(internal::to_address(first))
+    , m_data(detail::to_address(first))
 {
     assert(Extent == DYNAMIC_EXTENT || Extent == count);
 }
