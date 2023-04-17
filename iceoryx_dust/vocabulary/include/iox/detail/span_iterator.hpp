@@ -16,10 +16,8 @@
 #ifndef IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 #define IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 
-#include "iceoryx_hoofs/cxx/requires.hpp"
-
-#include <iterator> // for reverse_iterator, distance, random_access_...
 #include <cassert>
+#include <iterator> // for reverse_iterator, distance, random_access_...
 
 namespace iox
 {
