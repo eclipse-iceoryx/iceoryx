@@ -26,37 +26,20 @@ namespace iox
 {
 expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noexcept
 {
-    switch (m_open_mode)
+    if (m_open_mode == posix::OpenMode::PURGE_AND_CREATE)
     {
-    case posix::OpenMode::OPEN_EXISTING:
-        return this->open(name);
-    case posix::OpenMode::PURGE_AND_CREATE:
         if (File::remove(name).has_error())
         {
             IOX_LOG(ERROR) << "Unable to purge and open file \"" << name.as_string()
                            << "\" since the file could not be removed";
             return iox::error<FileCreationError>(FileCreationError::CannotBePurged);
         }
-        IOX_FALLTHROUGH;
-    case posix::OpenMode::EXCLUSIVE_CREATE:
-        return this->open_impl(true, name);
-    case posix::OpenMode::OPEN_OR_CREATE:
-        auto result = this->open_impl(false, name);
-        if (!result.has_error() || result.get_error() != FileCreationError::DoesNotExist)
-        {
-            return result;
-        }
-
-        return this->open_impl(true, name);
     }
 
-    // can never be reached since all cases are handled in the above switch
-    // statement
-    return iox::error<FileCreationError>(FileCreationError::UnknownError);
+    return this->open(name);
 }
 
-expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_on_non_existing_file,
-                                                         const FilePath& name) noexcept
+expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
 {
     auto result = posix::posixCall(iox_open)(name.as_string().c_str(),
                                              posix::convertToOflags(m_access_mode, m_open_mode),
@@ -119,10 +102,7 @@ expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_
         IOX_LOG(ERROR) << "Unable to open/create file since the system limit of open file descriptors was reached.";
         return iox::error<FileCreationError>(FileCreationError::SystemLimitOfOpenFileDescriptorsReached);
     case ENOENT:
-        if (print_error_on_non_existing_file)
-        {
-            IOX_LOG(ERROR) << "Unable to open file since the file does not exist.";
-        }
+        IOX_LOG(ERROR) << "Unable to open file since the file does not exist.";
         return iox::error<FileCreationError>(FileCreationError::DoesNotExist);
     case ENOMEM:
         IOX_LOG(ERROR) << "Unable to open/create file due to insufficient memory.";
@@ -137,16 +117,10 @@ expected<File, FileCreationError> FileBuilder::open_impl(const bool print_error_
         IOX_LOG(ERROR) << "Unable to create file since it already exists.";
         return iox::error<FileCreationError>(FileCreationError::AlreadyExists);
     default:
-        IOX_LOG(ERROR) << "Unable to open/create file due to insufficient permissions.";
+        IOX_LOG(ERROR) << "Unable to open/create file due to insufficient permissions (" << result.get_error().errnum
+                       << ").";
         return iox::error<FileCreationError>(FileCreationError::UnknownError);
     }
-
-    return iox::success<File>(File(result->value, m_access_mode));
-}
-
-expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
-{
-    return this->open_impl(true, name);
 }
 
 File::File(const int file_descriptor, const posix::AccessMode access_mode) noexcept
@@ -206,6 +180,10 @@ void File::close_fd() noexcept
     case EIO:
         IOX_LOG(FATAL) << "This should never happen! Unable to close file due to an IO failure.";
         break;
+    default:
+        IOX_LOG(FATAL) << "This should never happen! Unable to close file due to an unknown error ("
+                       << result.get_error().errnum << ").";
+        break;
     }
 
     cxx::EnsuresWithMsg(false, "Unable to close file descriptor due to a corrupted file descriptor.");
@@ -237,7 +215,8 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
         IOX_LOG(ERROR) << "Unable to determine if file exists due insufficient kernel memory.";
         return iox::error<FileAccessError>(FileAccessError::InsufficientKernelMemory);
     default:
-        IOX_LOG(ERROR) << "Unable to determine if file exists since an unknown error occurred.";
+        IOX_LOG(ERROR) << "Unable to determine if file exists since an unknown error occurred ("
+                       << result.get_error().errnum << ").";
         return iox::error<FileAccessError>(FileAccessError::UnknownError);
     }
 }
@@ -282,7 +261,8 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
         IOX_LOG(ERROR) << "Unable to remove file since it resides on a read-only file system.";
         return iox::error<FileRemoveError>(FileRemoveError::ReadOnlyFilesystem);
     default:
-        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred.";
+        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred (" << result.get_error().errnum
+                       << ").";
         return iox::error<FileRemoveError>(FileRemoveError::UnknownError);
     }
 }
@@ -320,7 +300,8 @@ expected<FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
         IOX_LOG(ERROR) << "Unable to set file offset position since seeking is not supported by the file type.";
         return iox::error<FileOffsetError>(FileOffsetError::SeekingNotSupportedByFileType);
     default:
-        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred.";
+        IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred (" << result.get_error().errnum
+                       << ").";
         return iox::error<FileOffsetError>(FileOffsetError::UnknownError);
     }
 }
@@ -370,7 +351,8 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
         IOX_LOG(ERROR) << "Unable to read from file since it is a directory.";
         return iox::error<FileReadError>(FileReadError::IsDirectory);
     default:
-        IOX_LOG(ERROR) << "Unable to read from file since an unknown error occurred.";
+        IOX_LOG(ERROR) << "Unable to read from file since an unknown error occurred (" << result.get_error().errnum
+                       << ").";
         return iox::error<FileReadError>(FileReadError::UnknownError);
     }
 }
@@ -426,7 +408,8 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
         IOX_LOG(ERROR) << "Unable to write to file since the operation was prevented by a file seal.";
         return iox::error<FileWriteError>(FileWriteError::PreventedByFileSeal);
     default:
-        IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred.";
+        IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred (" << result.get_error().errnum
+                       << ").";
         return iox::error<FileWriteError>(FileWriteError::UnknownError);
     }
 }
