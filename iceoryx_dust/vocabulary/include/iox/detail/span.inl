@@ -20,7 +20,7 @@
 
 namespace iox
 {
-template <class Container>
+template <typename Container>
 inline constexpr auto size(const Container& container) -> decltype(container.size())
 {
     return container.size();
@@ -52,15 +52,15 @@ inline constexpr span<T, Extent>::span(
 }
 
 template <typename T, uint64_t Extent>
-template <typename U, uint64_t N, typename>
-inline constexpr span<T, Extent>::span(iox::UninitializedArray<U, N>& array) noexcept
+template <typename U, uint64_t N, template <typename, uint64_t> class Buffer, typename>
+inline constexpr span<T, Extent>::span(iox::UninitializedArray<U, N, Buffer>& array) noexcept
     : span(iox::data(array), N)
 {
 }
 
 template <typename T, uint64_t Extent>
-template <typename U, uint64_t N, typename>
-inline constexpr span<T, Extent>::span(const iox::UninitializedArray<U, N>& array) noexcept
+template <typename U, uint64_t N, template <typename, uint64_t> class Buffer, typename>
+inline constexpr span<T, Extent>::span(const iox::UninitializedArray<U, N, Buffer>& array) noexcept
     : span(iox::data(array), N)
 {
 }
@@ -211,7 +211,7 @@ inline constexpr std::reverse_iterator<iox::span_iterator<T>> span<T, Extent>::r
     return reverse_iterator{begin()};
 }
 
-template <class T, uint64_t Extent>
+template <typename T, uint64_t Extent>
 constexpr uint64_t span<T, Extent>::extent;
 
 // object representation

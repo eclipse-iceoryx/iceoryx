@@ -201,8 +201,8 @@ struct is_iox_array : std::false_type
 {
 };
 
-template <typename T, uint64_t N>
-struct is_iox_array<iox::UninitializedArray<T, N>> : std::true_type
+template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
+struct is_iox_array<iox::UninitializedArray<T, N, Buffer>> : std::true_type
 {
 };
 

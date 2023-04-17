@@ -40,7 +40,7 @@ constexpr uint64_t DYNAMIC_EXTENT = std::numeric_limits<uint64_t>::max();
 /// @tparam C Type of the container
 /// @param c A container or view with a size member function
 /// @return The size of c
-template <class Container>
+template <typename Container>
 constexpr auto size(const Container& container) -> decltype(container.size());
 
 /// @brief Returns N
@@ -48,8 +48,19 @@ constexpr auto size(const Container& container) -> decltype(container.size());
 /// @tparam N Size of the array
 /// @param An array
 /// @return Size of the array
-template <class T, std::uint64_t N>
+template <typename T, std::uint64_t N>
 constexpr std::uint64_t size(const T (&)[N]) noexcept
+{
+    return N;
+}
+
+/// @brief Returns N
+/// @tparam T Type of the iox::UninitializedArray
+/// @tparam N Size of the iox::UninitializedArray
+/// @param An iox::UninitializedArray
+/// @return Size of the iox::UninitializedArray
+template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept
 {
     return N;
 }
@@ -58,7 +69,7 @@ constexpr std::uint64_t size(const T (&)[N]) noexcept
 /// @tparam C Type of the container
 /// @param c A container or view with a data() member function
 /// @return Returns c.data()
-template <class Container>
+template <typename Container>
 constexpr auto data(Container& container) -> decltype(container.data())
 {
     return container.data();
@@ -68,7 +79,7 @@ constexpr auto data(Container& container) -> decltype(container.data())
 /// @tparam C Type of the container
 /// @param c A container or view with a data() member function
 /// @return Returns c.data()
-template <class Container>
+template <typename Container>
 constexpr auto data(const Container& container) -> decltype(container.data())
 {
     return container.data();
@@ -79,17 +90,28 @@ constexpr auto data(const Container& container) -> decltype(container.data())
 /// @tparam N Size of the array
 /// @param array An array of arbitrary type
 /// @return Returns array
-template <class T, std::uint64_t N>
+template <typename T, std::uint64_t N>
 constexpr T* data(T (&array)[N]) noexcept
 {
     return array;
 }
 
 /// @brief Returns a pointer to the block of memory containing the elements of the range.
+/// @tparam T Type of the iox::UninitializedArray
+/// @tparam N Size of the iox::UninitializedArray
+/// @param array An iox::UninitializedArray of arbitrary type
+/// @return Returns iox::UninitializedArray
+template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+constexpr T* data(UninitializedArray<T, N, Buffer>& uninit_array) noexcept
+{
+    return uninit_array.begin();
+}
+
+/// @brief Returns a pointer to the block of memory containing the elements of the range.
 /// @tparam E
 /// @param il An initilizer list
 /// @return return il.begin()
-template <class E>
+template <typename E>
 constexpr const E* data(std::initializer_list<E> il) noexcept
 {
     return il.begin();
@@ -280,18 +302,23 @@ class span : public internal::span_storage<Extent>
     /// @param array uninitialized array used to create the span
     template <typename U,
               uint64_t N,
-              typename = internal::enable_if_compatible_array_t<iox::UninitializedArray<U, N>&, T, Extent>>
-    constexpr explicit span(iox::UninitializedArray<U, N>& array) noexcept;
+              template <typename, uint64_t>
+              class Buffer,
+              typename = internal::enable_if_compatible_array_t<iox::UninitializedArray<U, N, Buffer>&, T, Extent>>
+    constexpr explicit span(iox::UninitializedArray<U, N, Buffer>& array) noexcept;
 
     /// @brief Constructs a span that is a view over a const uninitialized array; the resulting span has size() == N and
     /// data() == std::data(arr)
     /// @tparam U implicit element type stored in the uninitialized array
     /// @tparam N implicit capacity of the uninitialized array
     /// @param array const uninitialized array used to create the span
-    template <typename U,
-              uint64_t N,
-              typename = internal::enable_if_compatible_array_t<const iox::UninitializedArray<U, N>&, T, Extent>>
-    constexpr explicit span(const iox::UninitializedArray<U, N>& array) noexcept;
+    template <
+        typename U,
+        uint64_t N,
+        template <typename, uint64_t>
+        class Buffer,
+        typename = internal::enable_if_compatible_array_t<const iox::UninitializedArray<U, N, Buffer>&, T, Extent>>
+    constexpr explicit span(const iox::UninitializedArray<U, N, Buffer>& array) noexcept;
 
     /// @brief Convert from container (with std::size() and std::data() to iox::span)
     /// @tparam Container Type of passed container

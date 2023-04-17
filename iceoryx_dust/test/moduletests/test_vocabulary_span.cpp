@@ -217,7 +217,7 @@ TEST(span_test, NewStaticSpanFromConstContainerContainsSameData)
     }
 }
 
-TEST(span_test, NewConstSpanFromConstIoxVectorContainsSameData)
+TEST(span_test, NewConstSpanFromIoxVectorContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a7b1177b-0db5-44b8-bacd-b75d25c3a448");
     constexpr uint64_t CAPACITY{6U};
@@ -256,6 +256,50 @@ TEST(span_test, NewStaticSpanFromConstIoxVectorContainsSameData)
     for (size_t i = 0; i < static_sut.size(); ++i)
     {
         EXPECT_EQ(vector[i], static_sut[i]);
+    }
+}
+
+TEST(span_test, NewConstSpanFromConstIoxUninitializedArrayContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "86ee3995-4267-4650-b1c4-4db8f5cf154b");
+    constexpr uint64_t CAPACITY{6U};
+    iox::UninitializedArray<int, CAPACITY> uninitializedArray;
+    uninitializedArray[0] = 60;
+    uninitializedArray[1] = 41;
+    uninitializedArray[2] = 21;
+    uninitializedArray[3] = 32;
+    uninitializedArray[4] = 53;
+    uninitializedArray[5] = 74;
+
+    span<const int> const_sut(uninitializedArray);
+
+    ASSERT_EQ(uninitializedArray.begin(), const_sut.data());
+    ASSERT_EQ(uninitializedArray.capacity(), const_sut.size());
+    for (size_t i = 0; i < const_sut.size(); ++i)
+    {
+        EXPECT_EQ(uninitializedArray[i], const_sut[i]);
+    }
+}
+
+TEST(span_test, NewStaticSpanFromConstIoxUninitializedArrayContainsSameData)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c6a3f7d2-dbab-4c9f-a405-6ee2cc3f4457");
+    constexpr uint64_t CAPACITY{6U};
+    iox::UninitializedArray<int, CAPACITY> uninitializedArray;
+    uninitializedArray[0] = 66;
+    uninitializedArray[1] = 44;
+    uninitializedArray[2] = 22;
+    uninitializedArray[3] = 33;
+    uninitializedArray[4] = 55;
+    uninitializedArray[5] = 77;
+
+    span<const int, 6> static_sut(uninitializedArray.begin(), uninitializedArray.capacity());
+
+    ASSERT_EQ(uninitializedArray.begin(), static_sut.data());
+    ASSERT_EQ(uninitializedArray.capacity(), static_sut.size());
+    for (size_t i = 0; i < static_sut.size(); ++i)
+    {
+        EXPECT_EQ(uninitializedArray[i], static_sut[i]);
     }
 }
 
