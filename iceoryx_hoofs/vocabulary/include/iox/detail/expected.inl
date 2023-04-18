@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -98,6 +98,13 @@ inline expected<ValueType, ErrorType>::expected(error<ErrorType>&& errorValue) n
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::expected(expected<ValueType, ErrorType>&& rhs) noexcept
     : m_store{std::move(rhs.m_store)}
+{
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename... Targs>
+inline expected<ValueType, ErrorType>::expected(in_place_t, Targs&&... args) noexcept
+    : m_store(in_place_index<VALUE_INDEX>(), std::forward<Targs>(args)...)
 {
 }
 
@@ -265,6 +272,11 @@ inline expected<ErrorType>::expected(const success<void>) noexcept
 }
 
 template <typename ErrorType>
+inline expected<ErrorType>::expected(in_place_t) noexcept
+{
+}
+
+template <typename ErrorType>
 inline expected<ErrorType>::expected(expected<ErrorType>&& rhs) noexcept
     : m_store(std::move(rhs.m_store))
 {
@@ -292,6 +304,7 @@ inline expected<ErrorType>::expected(error<ErrorType>&& errorValue) noexcept
     : m_store(in_place_index<ERROR_INDEX>(), std::move(errorValue.value))
 {
 }
+
 // AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: Required for Windows due to MSVC deficiencies
 #if defined(_WIN32)
 template <typename ErrorType>

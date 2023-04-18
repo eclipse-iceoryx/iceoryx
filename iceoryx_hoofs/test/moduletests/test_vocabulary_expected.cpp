@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -475,6 +475,22 @@ TEST_F(expected_test, ErrorTypeOnlyMoveAssignmentLeadsToMovedSource)
     EXPECT_FALSE(sutDestination.get_error().m_moved);
     EXPECT_EQ(sutDestination.get_error().m_a, A);
     EXPECT_EQ(sutDestination.get_error().m_b, B);
+}
+
+TEST_F(expected_test, CreateFromInPlaceTypeLeadsToValidErrorOnlySut)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "91a8ad7f-4843-4bd9-a56b-0561ae6b56cb");
+    expected<TestError> sut{in_place};
+    ASSERT_THAT(sut.has_error(), Eq(false));
+}
+
+TEST_F(expected_test, CreateFromInPlaceTypeLeadsToValidSut)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3a527c62-aaea-44ae-9b99-027c19d032b5");
+    constexpr int VALUE = 42;
+    expected<int, TestError> sut{in_place, VALUE};
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    EXPECT_THAT(sut.value(), Eq(VALUE));
 }
 
 TEST_F(expected_test, CreateFromEmptySuccessTypeLeadsToValidSut)
