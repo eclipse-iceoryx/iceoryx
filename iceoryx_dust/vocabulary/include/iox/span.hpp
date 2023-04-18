@@ -19,6 +19,7 @@
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/detail/span_iterator.hpp"
 #include "iox/detail/uninitialized_array_type_traits.hpp"
+#include "iox/size.hpp"
 #include "iox/type_traits.hpp"
 #include "iox/uninitialized_array.hpp"
 
@@ -35,42 +36,19 @@ namespace iox
 // constants
 constexpr uint64_t DYNAMIC_EXTENT = std::numeric_limits<uint64_t>::max();
 
-// Implementation of C++17 std::size() and std::data()
-
-/// @brief Returns c.size(), converted to the return type if necessary.
-/// @tparam C Type of the container
-/// @param c A container or view with a size member function
-/// @return The size of c
-template <typename Container>
-constexpr auto size(const Container& container) -> decltype(container.size());
-
-/// @brief Returns N
-/// @tparam T Type of the array
-/// @tparam N Size of the array
-/// @param An array
-/// @return Size of the array
-template <typename T, std::uint64_t N>
-constexpr std::uint64_t size(const T (&)[N]) noexcept;
-
-/// @brief Returns N
-/// @tparam T Type of the iox::UninitializedArray
-/// @tparam N Size of the iox::UninitializedArray
-/// @param An iox::UninitializedArray
-/// @return Size of the iox::UninitializedArray
-template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
-constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept;
+// Specialization/ implementation of C++17's std::size() and std::data()
 
 /// @brief Returns a pointer to the block of memory containing the elements of the range.
-/// @tparam C Type of the container
-/// @param c A container or view with a data() member function
-/// @return Returns c.data()
+/// @tparam Container Type of the container
+/// @param container A container or view with a data() member function
+/// @return Returns container.data()
 template <typename Container>
 constexpr auto data(Container& container) -> decltype(container.data());
 
 /// @brief Returns a pointer to the block of memory containing the elements of the range.
-/// @tparam C Type of the container
-/// @param c A container or view with a data() member function
-/// @return Returns c.data()
+/// @tparam Container Type of the container
+/// @param container A container or view with a data() member function
+/// @return Returns container.data()
 template <typename Container>
 constexpr auto data(const Container& container) -> decltype(container.data());
 
@@ -97,26 +75,26 @@ class span;
 namespace detail
 {
 template <uint64_t I>
-using size_constant = std::integral_constant<uint64_t, I>;
+using span_size_constant = std::integral_constant<uint64_t, I>;
 
 template <typename T>
-struct extent_impl : size_constant<DYNAMIC_EXTENT>
+struct extent_impl : span_size_constant<DYNAMIC_EXTENT>
 {
 };
 
 template <typename T, uint64_t N>
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-struct extent_impl<T[N]> : size_constant<N>
+struct extent_impl<T[N]> : span_size_constant<N>
 {
 };
 
 template <typename T, uint64_t N>
-struct extent_impl<iox::UninitializedArray<T, N>> : size_constant<N>
+struct extent_impl<iox::UninitializedArray<T, N>> : span_size_constant<N>
 {
 };
 
 template <typename T, uint64_t N>
-struct extent_impl<iox::span<T, N>> : size_constant<N>
+struct extent_impl<iox::span<T, N>> : span_size_constant<N>
 {
 };
 
@@ -128,8 +106,8 @@ struct is_span : std::false_type
 {
 };
 
-template <typename T, uint64_t Extent_t>
-struct is_span<span<T, Extent_t>> : std::true_type
+template <typename T, uint64_t Extent>
+struct is_span<span<T, Extent>> : std::true_type
 {
 };
 
@@ -284,10 +262,10 @@ class span : public detail::span_storage<Extent>
     /// std::data(arr)
     /// @tparam N implicit size of the array
     /// @param array used to construct the span
-    // // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTBEGIN(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     template <uint64_t N, typename = detail::enable_if_compatible_array_t<T (&)[N], T, Extent>>
     constexpr explicit span(T (&array)[N]) noexcept;
-    // // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+    // NOLINTEND(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 
     /// @brief Constructs a span that is a view over the uninitialized array; the resulting span has size() == N and
     /// data() == std::data(arr)

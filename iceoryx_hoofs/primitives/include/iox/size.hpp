@@ -21,6 +21,16 @@
 
 namespace iox
 {
+/// @brief Returns container.size(), converted to the return type if necessary.
+/// @tparam Container Type of the container
+/// @param container A container or view with a size member function
+/// @return The size of container
+template <typename Container>
+constexpr auto size(const Container& container) -> decltype(container.size())
+{
+    return container.size();
+}
+
 /// @brief Get the capacity of a C array at compile time
 /// @code
 /// constexpr uint32_t FOO[42]{};

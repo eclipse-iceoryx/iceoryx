@@ -133,6 +133,14 @@ class UninitializedArray final
     Buffer<ElementType, Capacity> m_buffer;
 };
 
+/// @brief Returns N
+/// @tparam T Type of the iox::UninitializedArray
+/// @tparam N Size of the iox::UninitializedArray
+/// @param An iox::UninitializedArray
+/// @return Size of the iox::UninitializedArray
+template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept;
+
 } // namespace iox
 
 #include "iox/detail/uninitialized_array.inl"

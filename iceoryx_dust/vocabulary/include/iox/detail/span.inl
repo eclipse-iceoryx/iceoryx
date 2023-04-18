@@ -21,25 +21,6 @@
 namespace iox
 {
 template <typename Container>
-inline constexpr auto size(const Container& container) -> decltype(container.size())
-{
-    return container.size();
-}
-
-template <typename T, std::uint64_t N>
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-inline constexpr std::uint64_t size(const T (&)[N]) noexcept
-{
-    return N;
-}
-
-template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
-inline constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept
-{
-    return N;
-}
-
-template <typename Container>
 inline constexpr auto data(Container& container) -> decltype(container.data())
 {
     return container.data();
