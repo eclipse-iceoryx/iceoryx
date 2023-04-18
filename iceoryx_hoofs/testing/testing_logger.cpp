@@ -19,6 +19,13 @@
 
 #include <iostream>
 
+#include <csignal>
+#include <cstdio>
+#include <cstring>
+
+// NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
+#include <setjmp.h>
+
 namespace iox
 {
 namespace testing
@@ -112,15 +119,54 @@ std::vector<std::string> TestingLogger::getLogMessages() noexcept
     return logger.m_loggerData->buffer;
 }
 
+#if !defined(_WIN32)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables) global variable is required as jmp target
+jmp_buf exitJmpBuffer;
+
+static void sigHandler(int sig, siginfo_t*, void*)
+{
+    switch (sig)
+    {
+    case SIGSEGV:
+        std::cout << "SIGSEGV\n" << std::flush;
+        break;
+    case SIGFPE:
+        std::cout << "SIGFPE\n" << std::flush;
+        break;
+    default:
+        std::cout << "signal: " << sig << "\n" << std::flush;
+        break;
+    }
+    dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
+
+    constexpr int JMP_VALUE{1};
+    // NOLINTNEXTLINE(cert-err52-cpp) exception cannot be used and longjmp/setjmp is a working fallback
+    longjmp(&exitJmpBuffer[0], JMP_VALUE);
+}
+#endif
+
 void LogPrinter::OnTestStart(const ::testing::TestInfo&)
 {
     dynamic_cast<TestingLogger&>(log::Logger::get()).clearLogBuffer();
     TestingLogger::setLogLevel(log::LogLevel::TRACE);
 
-    /// @todo iox-#1755 register signal handler for sigterm to flush to logger;
-    /// there might be tests to register a handler itself and when this is
-    /// done at each start of the test only the tests who use their
-    /// own signal handler are affected and don't get an log output on termination
+    std::set_terminate([]() {
+        std::cout << "Terminate called\n" << std::flush;
+        dynamic_cast<TestingLogger&>(log::Logger::get()).printLogBuffer();
+        std::abort();
+    });
+
+#if !defined(_WIN32)
+    struct sigaction action = {};
+    memset(&action, 0, sizeof(struct sigaction));
+    sigemptyset(&action.sa_mask);
+
+    action.sa_flags = SA_NODEFER;
+    action.sa_sigaction = sigHandler;
+
+    sigaction(SIGSEGV, &action, nullptr);
+    sigaction(SIGFPE, &action, nullptr);
+#endif
 }
 
 void LogPrinter::OnTestPartResult(const ::testing::TestPartResult& result)
