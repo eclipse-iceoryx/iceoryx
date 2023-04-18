@@ -57,7 +57,7 @@ constexpr auto data(const Container& container) -> decltype(container.data());
 /// @tparam N Size of the array
 /// @param array An array of arbitrary type
 /// @return Returns array
-template <typename T, std::uint64_t N>
+template <typename T, uint64_t N>
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 constexpr T* data(T (&array)[N]) noexcept;
 
@@ -66,7 +66,7 @@ constexpr T* data(T (&array)[N]) noexcept;
 /// @tparam N Size of the iox::UninitializedArray
 /// @param array An iox::UninitializedArray of arbitrary type
 /// @return Returns iox::UninitializedArray
-template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
 constexpr T* data(UninitializedArray<T, N, Buffer>& uninit_array) noexcept;
 
 template <typename T, uint64_t Extent = DYNAMIC_EXTENT>
@@ -221,7 +221,7 @@ constexpr auto to_address(const Ptr& p, None...) noexcept
 ///         members: a pointer to T and a size. A span with static extent may have only one member: a pointer to T.
 ///         http://eel.is/c++draft/views contains the latest C++20 draft
 /// @tparam T - element type; must be a complete object type that is not an abstract class type
-/// @tparam Extent - the number of elements in the sequence, or std::dynamic_extent if dynamic
+/// @tparam Extent - the number of elements in the sequence, or 'iox::DYNAMIC_EXTENT' if dynamic
 template <typename T, uint64_t Extent>
 class span : public detail::span_storage<Extent>
 {

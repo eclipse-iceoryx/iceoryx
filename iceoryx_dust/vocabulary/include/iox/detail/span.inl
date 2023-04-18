@@ -32,14 +32,14 @@ inline constexpr auto data(const Container& container) -> decltype(container.dat
     return container.data();
 }
 
-template <typename T, std::uint64_t N>
+template <typename T, uint64_t N>
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
 inline constexpr T* data(T (&array)[N]) noexcept
 {
     return array;
 }
 
-template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
+template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
 inline constexpr T* data(UninitializedArray<T, N, Buffer>& uninit_array) noexcept
 {
     return uninit_array.begin();

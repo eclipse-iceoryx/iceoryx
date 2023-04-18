@@ -78,8 +78,8 @@ UninitializedArray<ElementType, Capacity, Buffer>::end() const noexcept
     return &operator[](0) + Capacity;
 }
 
-template <typename T, std::uint64_t N, template <typename, uint64_t> class Buffer>
-inline constexpr std::uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept
+template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
+inline constexpr uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept
 {
     return N;
 }
