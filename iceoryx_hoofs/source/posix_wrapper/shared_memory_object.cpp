@@ -93,8 +93,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
-    const auto real_size = sharedMemory->get_size();
-    if (!real_size)
+    const auto realSizeResult = sharedMemory->get_size();
+    if (!realSizeResult)
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
@@ -102,18 +102,19 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
     }
 
-    if (*real_size < m_memorySizeInBytes)
+    const auto realSize = *realSizeResult;
+    if (realSize < m_memorySizeInBytes)
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
-                       << " was requested but the object has only a size of " << *real_size;
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::SMALLER_THAN_MIN_REQUESTED_SIZE);
+                       << " was requested but the object has only a size of " << realSize;
+        return error<SharedMemoryObjectError>(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
     }
 
     auto memoryMap = MemoryMapBuilder()
                          .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
-                         .length(*real_size)
-                         .fileDescriptor(sharedMemory->get_file_handle())
+                         .length(realSize)
+                         .fileDescriptor(sharedMemory->getHandle())
                          .accessMode(m_accessMode)
                          .flags(MemoryMapFlags::SHARE_CHANGES)
                          .offset(0)
@@ -187,19 +188,17 @@ void* SharedMemoryObject::getBaseAddress() noexcept
 
 int32_t SharedMemoryObject::get_file_handle() const noexcept
 {
-    return m_sharedMemory.get_file_handle();
+    return m_sharedMemory.getHandle();
 }
 
 int32_t SharedMemoryObject::getFileHandle() const noexcept
 {
-    return m_sharedMemory.get_file_handle();
+    return m_sharedMemory.getHandle();
 }
 
 bool SharedMemoryObject::hasOwnership() const noexcept
 {
     return m_sharedMemory.hasOwnership();
 }
-
-
 } // namespace posix
 } // namespace iox

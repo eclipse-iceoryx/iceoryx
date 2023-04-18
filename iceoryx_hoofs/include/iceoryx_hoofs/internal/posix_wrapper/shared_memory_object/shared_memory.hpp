@@ -70,7 +70,7 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     ~SharedMemory() noexcept;
 
     /// @brief returns the file handle of the shared memory
-    int32_t get_file_handle() const noexcept;
+    int32_t getHandle() const noexcept;
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class
@@ -96,6 +96,9 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     void reset() noexcept;
 
     static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
+
+    friend struct FileManagementInterface<SharedMemory>;
+    int32_t get_file_handle() const noexcept;
 
     Name_t m_name;
     int m_handle{INVALID_HANDLE};
