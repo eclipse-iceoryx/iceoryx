@@ -24,7 +24,7 @@ namespace iox
 {
 
 template <typename T>
-class span_iterator
+class span_iterator final
 {
   public:
     using iterator_category = std::random_access_iterator_tag;
@@ -33,23 +33,24 @@ class span_iterator
     using pointer = T*;
     using reference = T&;
 
-    constexpr span_iterator() = default;
     constexpr span_iterator(const span_iterator& other) = default;
     constexpr span_iterator(span_iterator&& other) noexcept = default;
     constexpr span_iterator& operator=(const span_iterator& other) = default;
     constexpr span_iterator& operator=(span_iterator&& other) noexcept = default;
     ~span_iterator() = default;
 
-    constexpr span_iterator(pointer start, const pointer end)
+    constexpr span_iterator(pointer start, const pointer end) noexcept
         : span_iterator(start, end, start)
     {
     }
 
-    constexpr span_iterator(const pointer begin, const pointer end, pointer current)
+    constexpr span_iterator(const pointer begin, const pointer end, pointer current) noexcept
         : m_begin(begin)
         , m_end(end)
         , m_current(current)
     {
+        assert(m_begin <= m_end);
+        assert(m_begin <= m_current && m_current < m_end);
     }
 
     explicit constexpr operator span_iterator<const T>() const noexcept
@@ -107,15 +108,16 @@ class span_iterator
 
     constexpr span_iterator& operator+=(const difference_type n) noexcept
     {
-        if (n != 0)
+        if (n == 0)
         {
-            assert(m_begin && m_current && m_end);
+            return *this;
         }
+        assert(m_begin && m_current && m_end);
         if (n > 0)
         {
             assert(m_end - m_current >= n);
         }
-        if (n < 0)
+        else
         {
             assert(m_current - m_begin >= -n);
         }
@@ -138,15 +140,16 @@ class span_iterator
 
     constexpr span_iterator& operator-=(const difference_type n) noexcept
     {
-        if (n != 0)
+        if (n == 0)
         {
-            assert(m_begin && m_current && m_end);
+            return *this;
         }
+        assert(m_begin && m_current && m_end);
         if (n > 0)
         {
             assert(m_current - m_begin >= n);
         }
-        if (n < 0)
+        else
         {
             assert(m_end - m_current >= -n);
         }
@@ -161,8 +164,8 @@ class span_iterator
         return ret;
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr difference_type operator-(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr difference_type operator-(const span_iterator<OtherType>& rhs) const noexcept
     {
         assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current - rhs.m_current;
@@ -173,40 +176,40 @@ class span_iterator
         return *(*this + n);
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator==(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator==(const span_iterator<OtherType>& rhs) const noexcept
     {
         assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current == rhs.m_current;
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator!=(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator!=(const span_iterator<OtherType>& rhs) const noexcept
     {
         return !(*this == rhs);
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator<(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator<(const span_iterator<OtherType>& rhs) const noexcept
     {
         assert(m_begin == rhs.m_begin && m_end == rhs.m_end);
         return m_current < rhs.m_current;
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator>(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator>(const span_iterator<OtherType>& rhs) const noexcept
     {
         return rhs < *this;
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator<=(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator<=(const span_iterator<OtherType>& rhs) const noexcept
     {
         return !(rhs < *this);
     }
 
-    template <class Type2, std::enable_if_t<std::is_same<std::remove_cv_t<Type2>, value_type>::value, int> = 0>
-    constexpr bool operator>=(const span_iterator<Type2>& rhs) const noexcept
+    template <class OtherType, std::enable_if_t<std::is_same<std::remove_cv_t<OtherType>, value_type>::value, int> = 0>
+    constexpr bool operator>=(const span_iterator<OtherType>& rhs) const noexcept
     {
         return !(*this < rhs);
     }

@@ -29,8 +29,6 @@
 #include <cstdio>
 #include <limits>
 
-using namespace std;
-
 namespace iox
 {
 // constants
@@ -173,20 +171,8 @@ struct span_storage<DYNAMIC_EXTENT>
 
     span_storage(const span_storage& other) noexcept = default;
     span_storage& operator=(const span_storage& other) noexcept = default;
-
-    span_storage(span_storage&& other) noexcept
-    {
-        *this = std::move(other);
-    }
-    span_storage& operator=(span_storage&& other) noexcept
-    {
-        if (this != &other)
-        {
-            m_size = other.m_size;
-            other.m_size = 0;
-        }
-        return *this;
-    }
+    span_storage(span_storage&& other) noexcept = default;
+    span_storage& operator=(span_storage&& other) noexcept = default;
     ~span_storage() noexcept = default;
 
   private:
@@ -223,7 +209,7 @@ constexpr auto to_address(const Ptr& p, None...) noexcept
 /// @tparam T - element type; must be a complete object type that is not an abstract class type
 /// @tparam Extent - the number of elements in the sequence, or 'iox::DYNAMIC_EXTENT' if dynamic
 template <typename T, uint64_t Extent>
-class span : public detail::span_storage<Extent>
+class span final : public detail::span_storage<Extent>
 {
   private:
     using span_storage_t = detail::span_storage<Extent>;

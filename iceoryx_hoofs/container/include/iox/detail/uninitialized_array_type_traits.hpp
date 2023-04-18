@@ -26,16 +26,21 @@ template <typename ElementType, uint64_t Capacity, template <typename, uint64_t>
 class UninitializedArray;
 
 /// @brief struct to check whether an argument is a iox::UninitializedArray
+/// @tparam T Type which should be checked
 template <typename T>
 struct is_iox_array : std::false_type
 {
 };
-
+/// @brief struct to check whether an argument is a iox::UninitializedArray
+/// @tparam T Type which should be checked
+/// @tparam N Size of the iox::UninitializedArray
+/// @tparam Buffer Type of the buffer of the iox::UninitializedArray
 template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
 struct is_iox_array<iox::UninitializedArray<T, N, Buffer>> : std::true_type
 {
 };
-
+/// @brief struct to check whether an argument is not a iox::UninitializedArray
+/// @tparam T Type which should be checked
 template <typename T>
 using is_not_iox_array_t = iox::negation<is_iox_array<std::decay_t<T>>>;
 

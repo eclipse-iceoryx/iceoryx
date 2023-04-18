@@ -39,7 +39,8 @@ TEST(span_test, NewEmptySpanCreatedFromIteratorContainsSameData)
 TEST(span_test, NewDynSpanCreatedFromIteratorContainsSameData)
 {
     ::testing::Test::RecordProperty("TEST_ID", "05db30c2-e13d-4116-ba05-668b30ba4a23");
-    std::vector<int> vector = {1, 1, 2, 3, 5, 8};
+    const std::vector<int> expected_data = {1, 1, 2, 3, 5, 8};
+    std::vector<int> vector = expected_data;
 
     span<int> dyn_sut(vector.begin(), vector.size());
 

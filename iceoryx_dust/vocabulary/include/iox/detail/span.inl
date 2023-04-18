@@ -59,7 +59,7 @@ template <typename It, typename End, typename>
 inline constexpr span<T, Extent>::span(It begin, End end) noexcept
     : span(begin, static_cast<uint64_t>(end - begin))
 {
-    static_assert(begin <= end, "begin shall not be smaller than end");
+    assert(begin == nullptr || end == nullptr || begin <= end);
 }
 
 template <typename T, uint64_t Extent>
@@ -129,14 +129,14 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::first() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    static_assert(Extent != DYNAMIC_EXTENT || Count <= size(), "Count must not exeed size");
+    assert(Extent != DYNAMIC_EXTENT || Count <= size());
     return {data(), Count};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::first(uint64_t count) const noexcept
 {
-    static_assert(count <= size(), "");
+    assert(count <= size());
     return {data(), count};
 }
 
@@ -145,14 +145,14 @@ template <uint64_t Count>
 inline constexpr span<T, Count> span<T, Extent>::last() const noexcept
 {
     static_assert(Count <= Extent, "Count must not exceed Extent");
-    static_assert(Extent != DYNAMIC_EXTENT || Count <= size(), "Count must not exeed size");
+    assert(Extent != DYNAMIC_EXTENT || Count <= size());
     return {data() + (size() - Count), Count};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::last(uint64_t count) const noexcept
 {
-    static_assert(count <= size(), "Count must not exeed size");
+    assert(count <= size());
     return {data() + (size() - count), count};
 }
 
@@ -164,17 +164,16 @@ span<T, Extent>::subspan() const noexcept
 {
     static_assert(Offset <= Extent, "Offset must not exceed Extent");
     static_assert(Count == DYNAMIC_EXTENT || Count <= Extent - Offset, "Count must not exceed Extent - Offset");
-    static_assert(Extent != DYNAMIC_EXTENT || Offset <= size(), "Offset must not exeed size");
-    static_assert(Extent != DYNAMIC_EXTENT || Count == DYNAMIC_EXTENT || Count <= size() - Offset,
-                  "Count must not exeed size - Offset");
+    assert(Extent != DYNAMIC_EXTENT || Offset <= size());
+    assert(Extent != DYNAMIC_EXTENT || Count == DYNAMIC_EXTENT || Count <= size() - Offset);
     return {data() + Offset, Count != DYNAMIC_EXTENT ? Count : size() - Offset};
 }
 
 template <typename T, uint64_t Extent>
 inline constexpr span<T, DYNAMIC_EXTENT> span<T, Extent>::subspan(uint64_t offset, uint64_t count) const noexcept
 {
-    static_assert(offset <= size(), "Offset must not exeed size");
-    static_assert(count == DYNAMIC_EXTENT || count <= size() - offset, "Count must not exeed size - offset");
+    assert(offset <= size());
+    assert(count == DYNAMIC_EXTENT || count <= size() - offset);
     return {data() + offset, count != DYNAMIC_EXTENT ? count : size() - offset};
 }
 
@@ -208,7 +207,7 @@ template <typename T, uint64_t Extent>
 inline constexpr T& span<T, Extent>::back() const noexcept
 {
     static_assert(Extent == DYNAMIC_EXTENT || Extent > 0, "Extent must not be 0");
-    static_assert(Extent != DYNAMIC_EXTENT || !empty(), "Span must not be empty");
+    assert(Extent != DYNAMIC_EXTENT || !empty());
     return *(data() + size() - 1);
 }
 
@@ -256,6 +255,8 @@ constexpr uint64_t span<T, Extent>::extent;
 template <typename T, uint64_t X>
 inline span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_bytes(span<T, X> s) noexcept
 {
+    static_assert(X == DYNAMIC_EXTENT || sizeof(T) < std::numeric_limits<uint64_t>::max() / X,
+                  "Potential overflow when calculating the size of as_bytes");
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<const uint8_t*>(s.data()), s.size_bytes()};
 }
@@ -263,6 +264,8 @@ inline span<const uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X
 template <typename T, uint64_t X, typename>
 inline span<uint8_t, (X == DYNAMIC_EXTENT ? DYNAMIC_EXTENT : sizeof(T) * X)> as_writable_bytes(span<T, X> s) noexcept
 {
+    static_assert(X == DYNAMIC_EXTENT || sizeof(T) < std::numeric_limits<uint64_t>::max() / X,
+                  "Potential overflow when calculating the size of as_writable_bytes");
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
     return {reinterpret_cast<uint8_t*>(s.data()), s.size_bytes()};
 }
