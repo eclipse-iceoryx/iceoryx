@@ -16,6 +16,7 @@
 
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
+#include "iceoryx_platform/mman.hpp"
 
 int iox_fstat(int fildes, iox_stat* buf)
 {
@@ -27,7 +28,14 @@ int iox_fstat(int fildes, iox_stat* buf)
         return ret_val;
     }
 
-    buf->st_size = GetFileSize(handle, NULL);
+    auto size = internal_iox_shm_get_size(fildes);
+    if (size != -1)
+    {
+        buf->st_size = size;
+        return 0;
+    }
+
+    buf->st_size = Win32Call(GetFileSize, (HANDLE)handle, (LPDWORD)NULL).value;
     return 0;
 }
 

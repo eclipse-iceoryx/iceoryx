@@ -20,10 +20,12 @@
 #include "iceoryx_platform/win32_errorHandling.hpp"
 
 #include <iostream>
+#include <map>
 #include <mutex>
 #include <set>
 #include <string>
 
+static std::map<int, std::string> handle2segment;
 static std::set<std::string> openedSharedMemorySegments;
 static std::mutex openedSharedMemorySegmentsMutex;
 
@@ -92,7 +94,7 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
                   << ", [always assume read, write, execute for everyone] mode = " << mode << ")" << std::endl;
     };
 
-
+    bool hasCreatedShm = false;
     if (oflag & O_CREAT)
     {
         // we do not yet support ACL and rights for data partitions in windows
@@ -127,6 +129,8 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
             }
             return HandleTranslator::INVALID_LINUX_FD;
         }
+
+        hasCreatedShm = true;
     }
     else
     {
@@ -152,15 +156,29 @@ int iox_shm_open(const char* name, int oflag, mode_t mode)
         }
     }
 
+    int fd = HandleTranslator::getInstance().add(sharedMemoryHandle);
     {
         std::lock_guard<std::mutex> lock(openedSharedMemorySegmentsMutex);
         openedSharedMemorySegments.insert(name);
+        handle2segment[fd] = name;
     }
-    return HandleTranslator::getInstance().add(sharedMemoryHandle);
+
+    if (hasCreatedShm)
+    {
+        internal_iox_shm_set_size(fd, 0);
+    }
+    return fd;
+}
+
+std::string shm_state_file_name(const std::string& name)
+{
+    return std::string("C:/Windows/Temp") + name + ".shm_state";
 }
 
 int iox_shm_unlink(const char* name)
 {
+    DeleteFile(static_cast<LPCTSTR>(shm_state_file_name(name).c_str()));
+
     std::lock_guard<std::mutex> lock(openedSharedMemorySegmentsMutex);
     auto iter = openedSharedMemorySegments.find(name);
     if (iter != openedSharedMemorySegments.end())
@@ -181,6 +199,12 @@ int iox_shm_close(int fd)
         return 0;
     }
 
+    auto iter = handle2segment.find(fd);
+    if (iter != handle2segment.end())
+    {
+        handle2segment.erase(iter);
+    }
+
     auto success = Win32Call(CloseHandle, handle).value;
     HandleTranslator::getInstance().remove(fd);
     if (success == 0)
@@ -188,4 +212,46 @@ int iox_shm_close(int fd)
         return -1;
     }
     return 0;
+}
+
+void internal_iox_shm_set_size(int fd, off_t length)
+{
+    auto iter = handle2segment.find(fd);
+    if (iter == handle2segment.end())
+    {
+        std::cerr << "Unable to set shared memory size since the file descriptor is invalid." << std::endl;
+        return;
+    }
+
+    std::string name = shm_state_file_name(iter->second);
+    FILE* shm_state = fopen(name.c_str(), "wb");
+    if (shm_state == NULL)
+    {
+        std::cerr << "Unable create shared memory state file \"" << name << "\"" << std::endl;
+        return;
+    }
+    uint64_t shm_size = length;
+    fwrite(&shm_size, sizeof(uint64_t), 1, shm_state);
+    fclose(shm_state);
+}
+
+off_t internal_iox_shm_get_size(int fd)
+{
+    auto iter = handle2segment.find(fd);
+    if (iter == handle2segment.end())
+    {
+        return -1;
+    }
+
+    std::string name = shm_state_file_name(iter->second);
+    FILE* shm_state = fopen(name.c_str(), "rb");
+    if (shm_state == NULL)
+    {
+        return -1;
+    }
+
+    uint64_t shm_size = 0;
+    fread(&shm_size, sizeof(uint64_t), 1, shm_state);
+    fclose(shm_state);
+    return shm_size;
 }
