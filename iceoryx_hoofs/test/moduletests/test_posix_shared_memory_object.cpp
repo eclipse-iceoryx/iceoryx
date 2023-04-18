@@ -100,6 +100,68 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
     }
 }
 
+TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanRequestedSize)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bb58b45e-8366-42ae-bd30-8d7415791dd4");
+    const uint64_t MEMORY_SIZE = 8192;
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(1)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create()
+                   .expect("failed to create sut");
+
+    auto sut2 = iox::posix::SharedMemoryObjectBuilder()
+                    .name("shmAllocate")
+                    .memorySizeInBytes(MEMORY_SIZE)
+                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
+                    .create();
+
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.get_error(), Eq(posix::SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE));
+}
+
+TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0c8b41eb-74fd-4796-9e5e-fe6707f3c46c");
+    const uint64_t MEMORY_SIZE = 1024;
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(MEMORY_SIZE * sizeof(uint64_t))
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create()
+                   .expect("failed to create sut");
+
+    auto* data_ptr = static_cast<uint64_t*>(sut.getBaseAddress());
+
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
+    {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        data_ptr[i] = i * 2 + 1;
+    }
+
+    auto sut2 = iox::posix::SharedMemoryObjectBuilder()
+                    .name("shmAllocate")
+                    .memorySizeInBytes(1)
+                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
+                    .create()
+                    .expect("failed to create sut");
+
+    ASSERT_THAT(*sut2.get_size(), Ge(MEMORY_SIZE * sizeof(uint64_t)));
+
+    auto* data_ptr2 = static_cast<uint64_t*>(sut2.getBaseAddress());
+
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
+    {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        EXPECT_THAT(data_ptr2[i], Eq(i * 2 + 1));
+    }
+}
+
 #if !defined(_WIN32) && !defined(__APPLE__)
 TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
 {

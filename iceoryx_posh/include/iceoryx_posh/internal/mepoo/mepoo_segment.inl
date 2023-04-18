@@ -60,7 +60,8 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-    BumpAllocator allocator(m_sharedMemoryObject.getBaseAddress(), m_sharedMemoryObject.getSizeInBytes());
+    BumpAllocator allocator(m_sharedMemoryObject.getBaseAddress(),
+                            m_sharedMemoryObject.get_size().expect("Failed to get SHM size."));
     m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, allocator);
 }
 
@@ -77,8 +78,9 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
-                auto maybeSegmentId = iox::UntypedRelativePointer::registerPtr(sharedMemoryObject.getBaseAddress(),
-                                                                               sharedMemoryObject.getSizeInBytes());
+                auto maybeSegmentId = iox::UntypedRelativePointer::registerPtr(
+                    sharedMemoryObject.getBaseAddress(),
+                    sharedMemoryObject.get_size().expect("Failed to get SHM size"));
                 if (!maybeSegmentId.has_value())
                 {
                     errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);
@@ -87,7 +89,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
 
                 IOX_LOG(DEBUG) << "Roudi registered payload data segment "
                                << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                               << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
+                               << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
+                               << m_segmentId;
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());

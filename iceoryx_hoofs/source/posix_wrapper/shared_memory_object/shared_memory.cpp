@@ -205,6 +205,11 @@ int32_t SharedMemory::getHandle() const noexcept
     return m_handle;
 }
 
+int32_t SharedMemory::get_file_handle() const noexcept
+{
+    return m_handle;
+}
+
 bool SharedMemory::hasOwnership() const noexcept
 {
     return m_hasOwnership;

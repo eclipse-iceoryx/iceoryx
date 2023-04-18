@@ -110,7 +110,8 @@ NamedPipe::NamedPipe(const IpcChannelName_t& name,
         return;
     }
 
-    BumpAllocator allocator(m_sharedMemory->getBaseAddress(), m_sharedMemory->getSizeInBytes());
+    BumpAllocator allocator(m_sharedMemory->getBaseAddress(),
+                            m_sharedMemory->get_size().expect("failed to acquire shm size"));
 
     auto allocationResult = allocator.allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
     if (allocationResult.has_error())

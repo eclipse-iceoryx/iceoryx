@@ -76,9 +76,9 @@ class MePooSegment_test : public Test
             return filehandle;
         }
 
-        uint64_t getSizeInBytes() const
+        iox::expected<uint64_t, iox::FileStatError> get_size() const
         {
-            return m_memorySizeInBytes;
+            return iox::success<uint64_t>(m_memorySizeInBytes);
         }
 
         void* getBaseAddress()
@@ -187,7 +187,7 @@ TEST_F(MePooSegment_test, GetSharedMemoryObject)
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
         MePooSegment_test::SharedMemoryObject_MOCK::createFct();
 
-    EXPECT_THAT(sut.getSharedMemoryObject().getSizeInBytes(), Eq(memorySizeInBytes));
+    EXPECT_THAT(sut.getSharedMemoryObject().get_size().expect("Failed to get SHM size"), Eq(memorySizeInBytes));
 }
 
 TEST_F(MePooSegment_test, GetReaderGroup)

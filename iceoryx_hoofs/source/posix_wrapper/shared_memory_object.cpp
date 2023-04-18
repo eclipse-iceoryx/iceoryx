@@ -82,8 +82,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                             .name(m_name)
                             .accessMode(m_accessMode)
                             .openMode(m_openMode)
-                            .filePermissions(m_permissions)
                             .size(m_memorySizeInBytes)
+                            .filePermissions(m_permissions)
                             .create();
 
     if (!sharedMemory)
@@ -93,9 +93,27 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         return error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
+    const auto realSizeResult = sharedMemory->get_size();
+    if (!realSizeResult)
+    {
+        printErrorDetails();
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
+                          "underlying object.";
+        return error<SharedMemoryObjectError>(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
+    }
+
+    const auto realSize = *realSizeResult;
+    if (realSize < m_memorySizeInBytes)
+    {
+        printErrorDetails();
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
+                       << " was requested but the object has only a size of " << realSize;
+        return error<SharedMemoryObjectError>(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
+    }
+
     auto memoryMap = MemoryMapBuilder()
                          .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
-                         .length(m_memorySizeInBytes)
+                         .length(realSize)
                          .fileDescriptor(sharedMemory->getHandle())
                          .accessMode(m_accessMode)
                          .flags(MemoryMapFlags::SHARE_CHANGES)
@@ -149,15 +167,11 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                        << "]";
     }
 
-    return success<SharedMemoryObject>(
-        SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap), m_memorySizeInBytes));
+    return success<SharedMemoryObject>(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
 }
 
-SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
-                                       MemoryMap&& memoryMap,
-                                       const uint64_t memorySizeInBytes) noexcept
-    : m_memorySizeInBytes(memorySizeInBytes)
-    , m_sharedMemory(std::move(sharedMemory))
+SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept
+    : m_sharedMemory(std::move(sharedMemory))
     , m_memoryMap(std::move(memoryMap))
 {
 }
@@ -170,11 +184,6 @@ const void* SharedMemoryObject::getBaseAddress() const noexcept
 void* SharedMemoryObject::getBaseAddress() noexcept
 {
     return m_memoryMap.getBaseAddress();
-}
-
-uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
-{
-    return m_memorySizeInBytes;
 }
 
 int32_t SharedMemoryObject::get_file_handle() const noexcept
@@ -191,7 +200,5 @@ bool SharedMemoryObject::hasOwnership() const noexcept
 {
     return m_sharedMemory.hasOwnership();
 }
-
-
 } // namespace posix
 } // namespace iox

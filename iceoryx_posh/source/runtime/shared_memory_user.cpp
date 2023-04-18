@@ -40,7 +40,9 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
             auto registeredSuccessfully = UntypedRelativePointer::registerPtrWithId(
-                segment_id_t{segmentId}, sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                segment_id_t{segmentId},
+                sharedMemoryObject.getBaseAddress(),
+                sharedMemoryObject.get_size().expect("Failed to acquire SHM size."));
 
             if (!registeredSuccessfully)
             {
@@ -49,7 +51,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
 
             IOX_LOG(DEBUG) << "Application registered management segment "
                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                           << sharedMemoryObject.getSizeInBytes() << " to id " << segmentId;
+                           << sharedMemoryObject.get_size().expect("Failed to acquire SHM size.") << " to id "
+                           << segmentId;
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -81,10 +84,10 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_SEGMENT_COUNT_OVERFLOW);
                 }
 
-                auto registeredSuccessfully =
-                    UntypedRelativePointer::registerPtrWithId(segment_id_t{segment.m_segmentId},
-                                                              sharedMemoryObject.getBaseAddress(),
-                                                              sharedMemoryObject.getSizeInBytes());
+                auto registeredSuccessfully = UntypedRelativePointer::registerPtrWithId(
+                    segment_id_t{segment.m_segmentId},
+                    sharedMemoryObject.getBaseAddress(),
+                    sharedMemoryObject.get_size().expect("Failed to get SHM size."));
 
                 if (!registeredSuccessfully)
                 {
@@ -93,7 +96,8 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
 
                 IOX_LOG(DEBUG) << "Application registered payload data segment "
                                << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                               << sharedMemoryObject.getSizeInBytes() << " to id " << segment.m_segmentId;
+                               << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
+                               << segment.m_segmentId;
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })
