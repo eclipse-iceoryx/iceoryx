@@ -30,7 +30,7 @@ The part of the custom implementation that defines the actions on reported error
 ### Error Code
 
 Some error code that is unique for each error module. It is recommended that it corresponds only 
-to the type of error (i.e. out-of-memory error) only and not the location.
+to the type of error (e.g. out-of-memory error) and not the location.
 
 ### Error
 
@@ -78,7 +78,7 @@ All of them must be supported by the custom implementation and all of them abort
 changed).
 
 Furthermore the custom implementation may define additional kinds of errors, specifically non-fatal errors.
-For non-fatal errors the execution continues afer reporting, so they should be used when the
+For non-fatal errors the execution continues after reporting, so they should be used when the
 circumstances allow recovery from the error.
 
 ### Panic
@@ -100,7 +100,7 @@ enum class Code
 
 and the custom implementation defines a non-fatal `RUNTIME_ERROR`.
 
-Then we may use the following functions
+The functions described in the following subsections may be used to report errors.
 
 ### Panic
 
@@ -153,8 +153,8 @@ IOX_REPORT_IF(x<0, Code::OutOfBounds, RUNTIME_ERROR)
 
 ### Assert That a Condition Holds
 
-Similarly we can conditionally check whether a condition does not hold and report a fatal error in
-the case that it does not
+Similarly we can conditionally check whether a condition does hold and report a fatal error in
+the case that it does not hold
 
 ```cpp
 int x;
@@ -163,13 +163,13 @@ IOX_REQUIRE(x>=0, Code::OutOfBounds)
 ```
 
 The condition is required to hold and this requirement is always checked.
-If the condition does not hold, panic is invoked and the executon stops.
+If the condition does not hold, panic is invoked and the execution stops.
 
 This should be used for conditions that may not hold on the correct path, e.g. for error cases.
 It should not be used for assumptions that have to be true in correct code 
 (use `IOX_ASSUME` or `IOX_PRECONDITION` for this).
 
-Note it that no condition can generally be enforced in the sense that it must be true and no checking is required.
+Note that no condition can generally be enforced in the sense that it must be true and no checking is required.
 
 ## Using the API to Check Contracts and Assumptions
 
@@ -196,21 +196,16 @@ IOX_PRECONDITION(x>=0, "precondition violation message")
 
 is used to verify assumptions **BEFORE** any logic in the function body is executed. Technically copy
 constructors may run before any condition can be checked, and there is also the possibility of
-reordering if the following code does not depend on the condition at all. This is a limitation of
-the language and cannot be avoided.
+reordering if the following code does not depend on the condition at all. 
+This is not a problem since any reordering is not allowed to affect the observable result. 
+Specifically it cannot affect the value of the precondition itself as this would change the
+observable behaviour.
 
 In case of violation, the violation and a (potentially empty) message are forwarded to the backend,
 panic is invoked and execution stops.
 
 The verification can be optionally disabled, and hence this also documents assumptions of the
 function itself.
-
-Use
-
-```cpp
-IOX_PRECONDITION(x>=0, "")
-```
-if there is no message.
 
 ### Checking Assumptions
 
@@ -232,16 +227,9 @@ check postconditions.
 It should not be used at the start of a function body and instead replaced with a precondition check
 in this case.
 
-Use
-
-```cpp
-IOX_ASSUME(x>=0, "")
-```
-if there is no message.
-
 ### Marking Unreachable Code
 
-It is also possible to explcitly state that code is supposed to be unreachable.
+It is also possible to explicitly state that code is supposed to be unreachable.
 ```cpp
 if(condition) {
     // Reachable code that does something
@@ -255,12 +243,13 @@ if(condition) {
 
 If checking for unreachable code at runtime is enabled and `IOX_UNREACHABLE` is reached, 
 `panic` will be invoked and the program aborts. Stating that specific code cannot be reached is
-a specific assumption and any violation is considered a bug (hence checking can be optionally
-disabled).
+a specific assumption and any violation is considered a bug. Defensive programming, i.e. checking
+for conditions that are not supposed to happen in a correct implementations, naturally creates
+unreachable code.
 
-This has advantages for test coverage as the compiler and other tools that rely on the compiler (say
-for coverage) are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
-As a consequnece, branches with `IOX_UNREACHABLE` do not necessarily lead to a return statement.
+Marking unreachable code like this has advantages for test coverage as the compiler and other tools 
+that rely on the compiler (sayfor coverage) are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
+As a consequence, branches with `IOX_UNREACHABLE` do not necessarily lead to a return statement.
 
 ### Summary
 
@@ -270,7 +259,7 @@ code, these can be disabled.
 
 ## Examples
 
-The following examples show how non-fatal and fatal errors cane be signaled.
+The following examples show how non-fatal and fatal errors can be signaled.
 
 ## Recoverable Errors
 
@@ -323,22 +312,22 @@ expected<int, Code> algorithm(int x)
         // create an exception like custom error
         auto e = error<CustomError>(SomeError, "additional error info");
         // report e directly
-        IOX_REPORT_FATAL(e, RUNTIME_ERROR);
+        IOX_REPORT(e, RUNTIME_ERROR);
         return e;
     }
     return 42;
 }
 
-expected<int, E> identity()
+expected<int, E> resultOrError(int x)
 {
-    auto result = algorithm();
+    auto result = algorithm(x);
 
     if(result.has_error())
     {
         // transform the error and propagate it
         return into<error<E>>(result.get_error());
     }
-    // no error, return identity
+    // no error, return result
     return *result;
 };
 ```
@@ -359,9 +348,9 @@ int algorithm(int x)
     return 42;
 }
 
-int identity()
+int resultOrAbort(int x)
 {
-    auto result = algorithm();
+    auto result = algorithm(x);
 
     // if a result was returned, we know that no error has occured
     return result;
@@ -386,7 +375,7 @@ backend implementation.
 
 ### Basics
 
-The overall implementation concepts allows customizationof the implementation level and a provides 
+The overall implementation concepts allow customization of the implementation level and provide
 a default implementation.
 
 Everything related to error reporting is located in the corresponding folder `error_reporting`.
@@ -395,13 +384,14 @@ Since the main API is stateless, there is no need for classes. Everything direct
 
 These are
 
-1. `api.h`: the reporting API to be used
+1. `api.hpp`: the reporting API to be used
 2. `configuration.hpp`: the default configuration (compile time flags)
 3. `error_forwarding.hpp`: forwarding to the custom implementation
 4. `error_kind.hpp`: mandatory error categories
 5. `error_logging.hpp`: logging related definitions
-6. `location.hpp`: source location related definitions
+6. `source_location.hpp`: source location related definitions
 7. `types.hpp`: auxiliary types
+8. `errors.hpp` : supported error types and related free functions
 
 All the files focus on singular aspects to allow fine-grained inclusion.
 All definitions have to reside in `iox::err`, which is considered a private (detail) namespace 
@@ -414,30 +404,33 @@ interface `error_reporting.hpp`.
 
 Apart from implementing the error reporting interface, a custom implementation does not have to follow 
 a specific structure. However, it cannot depend on anything that intends to use the error 
-reporting itself. It can override or extend some definitions and it is encouraged to use the same 
-file names as in the mandatory absics. For example `custom/error_kind.hpp` specifies additional 
+reporting itself. This especially is important if e.g. another communication mechanism such as a 
+socket is used to report the errors. In this case, the socket implementation cannot use the error
+reporting as this would create a circular dependency.
+
+A custom implementation can override or extend some definitions and it is encouraged to use the same 
+file names as in the mandatory basics. For example `custom/error_kind.hpp` specifies additional 
 error kinds (apart from the mandatory fatal errors).
 
-The main purpose of thec ustom implementation is to define the actions to take for each error.
+The main purpose of the custom implementation is to define the actions to take for each error.
+Extension of existing definitions is possible by either changing the default implementation 
+or providing an additional custom implementation and ensure that it is used by all modules.
 
 ### Default Implementation
 
 The default implementation in `custom/default` allows switching between a `DefaultHandler` 
 and a `TestHandler` at runtime.
-The latter is used in testing to verify that an error occured when the it is expected.
+The latter is used in testing to verify that an error occurred when it is expected.
 
 The `DefaultHandler` is deployed outside of tests and provides minimal logging information.
+
+The default implementation does not depend on any code that uses the error reporting.
 
 ### Testing
 
 All testing related definitions are located in `iceoryx_hoofs/testing/error_reporting`.
 These are the definition of `TestHandler` in `test_error_handler.hpp` and auxiliary functions in
 `test_support.hpp` to be used in tests to verify errors. The latter can be extended as required.
-
-### Custom Implementation
-
-Extension of existing definitions is possible by either changing the default implementation 
-or providing an additional custom implementation and ensure that it is used by all modules.
 
 ### Modules
 
@@ -453,4 +446,4 @@ Replacing the previous error handling is supposed to happen by
 
 1. Adapting the error definitions for `iceoryx_hoofs` in `modules/hoofs/errors.hpp`
 2. Introducing a similar folder structure for `iceoryx_posh`
-3. Replacing occurences of the previous error handler call (including `cxx::Expects`)
+3. Replacing occurrences of the previous error handler call (including `cxx::Expects`)

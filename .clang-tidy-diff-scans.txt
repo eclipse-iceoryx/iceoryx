@@ -27,8 +27,8 @@
 
 ./iceoryx_hoofs/include/error_reporting/**/*
 ./iceoryx_hoofs/source/error_reporting/**/*
-./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp
-./iceoryx_hoofs/testing/error_reporting/test_error_handler.cpp
+./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/error_reporting/*
+./iceoryx_hoofs/testing/error_reporting/*
 
 ./iceoryx_hoofs/posix/**/*
 
