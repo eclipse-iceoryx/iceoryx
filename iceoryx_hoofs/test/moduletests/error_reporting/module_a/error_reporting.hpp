@@ -24,6 +24,6 @@
 
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
-#include "iceoryx_hoofs/error_reporting/api.hpp"
+#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
 
 #endif

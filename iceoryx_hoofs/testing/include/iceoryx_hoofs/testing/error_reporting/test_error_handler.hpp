@@ -23,7 +23,6 @@
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
-#include <algorithm>
 #include <atomic>
 #include <vector>
 

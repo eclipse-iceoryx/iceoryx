@@ -40,7 +40,7 @@ using MyCodeA = module_a::errors::Code;
 using MyErrorB = module_b::errors::Error;
 using MyCodeB = module_b::errors::Code;
 
-class ErrorReportingApi_test : public Test
+class ErrorReportingMacroApi_test : public Test
 {
   public:
     void SetUp() override
@@ -54,7 +54,7 @@ class ErrorReportingApi_test : public Test
     }
 };
 
-TEST_F(ErrorReportingApi_test, panicWithoutMessage)
+TEST_F(ErrorReportingMacroApi_test, panicWithoutMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a55f00f1-c89d-4d4d-90ea-6ca510ad3942");
     auto f = []() { IOX_PANIC(""); };
@@ -64,7 +64,7 @@ TEST_F(ErrorReportingApi_test, panicWithoutMessage)
     EXPECT_PANIC();
 }
 
-TEST_F(ErrorReportingApi_test, panicWithMessage)
+TEST_F(ErrorReportingMacroApi_test, panicWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "cfbaf43b-de11-4858-ab86-ae3ae3fac2fe");
     auto f = []() { IOX_PANIC("message"); };
@@ -74,18 +74,29 @@ TEST_F(ErrorReportingApi_test, panicWithMessage)
     EXPECT_PANIC();
 }
 
-TEST_F(ErrorReportingApi_test, reportNonFatal)
+TEST_F(ErrorReportingMacroApi_test, reportNonFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "408a30b5-2764-4792-a5c6-97bff74f8902");
     auto f = []() { IOX_REPORT(MyCodeA::OutOfBounds, RUNTIME_ERROR); };
 
     runInTestThread(f);
 
-    EXPECT_NO_PANIC(); // but also not IOX_OK as there is an error!
+    EXPECT_NO_PANIC(); // but also not OK as there is an error!
     EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, reportFatal)
+TEST_F(ErrorReportingMacroApi_test, reportExplicitFatal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "99693536-4034-4f8d-8870-1e2e68c9ec9d");
+    auto f = []() { IOX_REPORT(MyCodeA::OutOfMemory, FATAL); };
+
+    runInTestThread(f);
+
+    EXPECT_PANIC();
+    EXPECT_ERROR(MyCodeA::OutOfMemory);
+}
+
+TEST_F(ErrorReportingMacroApi_test, reportFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a65c28fb-8cf6-4b9b-96b9-079ee9cb6b88");
     auto f = []() { IOX_REPORT_FATAL(MyCodeA::OutOfBounds); };
@@ -93,11 +104,10 @@ TEST_F(ErrorReportingApi_test, reportFatal)
     runInTestThread(f);
 
     EXPECT_PANIC();
-
     EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, reportConditionalError)
+TEST_F(ErrorReportingMacroApi_test, reportConditionalError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d95fe843-5e1b-422f-bd15-a791b639b43e");
     auto f = []() { IOX_REPORT_IF(true, MyCodeA::OutOfBounds, RUNTIME_ERROR); };
@@ -107,27 +117,37 @@ TEST_F(ErrorReportingApi_test, reportConditionalError)
     EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, reportConditionalNoError)
+TEST_F(ErrorReportingMacroApi_test, reportConditionalFatalError)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c69e3a0d-4c0b-4f4e-bb25-66485bc551b9");
+    auto f = []() { IOX_REPORT_IF(true, MyCodeA::OutOfMemory, FATAL); };
+
+    runInTestThread(f);
+
+    EXPECT_ERROR(MyCodeA::OutOfMemory);
+}
+
+TEST_F(ErrorReportingMacroApi_test, reportConditionalNoError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9d9d6464-4586-4382-8d5f-38f3795af791");
     auto f = []() { IOX_REPORT_IF(false, MyCodeA::Unknown, RUNTIME_ERROR); };
 
     runInTestThread(f);
 
-    EXPECT_IOX_OK();
+    EXPECT_OK();
 }
 
-TEST_F(ErrorReportingApi_test, requireConditionSatisfied)
+TEST_F(ErrorReportingMacroApi_test, requireConditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "3c684878-20f8-426f-bb8b-7576b567d04f");
     auto f = []() { IOX_REQUIRE(true, MyCodeA::OutOfBounds); };
 
     runInTestThread(f);
 
-    EXPECT_IOX_OK();
+    EXPECT_OK();
 }
 
-TEST_F(ErrorReportingApi_test, requireConditionNotSatisfied)
+TEST_F(ErrorReportingMacroApi_test, requireConditionNotSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fb62d315-8854-401b-82af-6161ae45a34e");
     auto f = []() { IOX_REQUIRE(false, MyCodeA::OutOfBounds); };
@@ -138,17 +158,17 @@ TEST_F(ErrorReportingApi_test, requireConditionNotSatisfied)
     EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionSatisfied)
+TEST_F(ErrorReportingMacroApi_test, checkPreconditionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb6e2122-7c57-4657-9567-ecb63e26a3ed");
     auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
 
     runInTestThread(f, 1);
 
-    EXPECT_IOX_OK();
+    EXPECT_OK();
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionViolated)
+TEST_F(ErrorReportingMacroApi_test, checkPreconditionViolated)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b2d27f6d-d0c7-405a-afbf-bf8a72661b20");
     auto f = [](int x) { IOX_PRECONDITION(x > 0, ""); };
@@ -161,17 +181,17 @@ TEST_F(ErrorReportingApi_test, checkPreconditionViolated)
     EXPECT_PRECONDITION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionSatisfied)
+TEST_F(ErrorReportingMacroApi_test, checkAssumptionSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a76ce780-3387-4ae8-8e4c-c96bdb8aa753");
     auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
 
     runInTestThread(f, 1);
 
-    EXPECT_IOX_OK();
+    EXPECT_OK();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfied)
+TEST_F(ErrorReportingMacroApi_test, checkAssumptionNotSatisfied)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9ee71bd3-9004-4950-8441-25e98cf8409c");
     auto f = [](int x) { IOX_ASSUME(x > 0, ""); };
@@ -182,7 +202,7 @@ TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfied)
     EXPECT_ASSUMPTION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkPreconditionNotSatisfiedWithMessage)
+TEST_F(ErrorReportingMacroApi_test, checkPreconditionNotSatisfiedWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "18d5b9a6-2d60-478e-8c50-d044a3672290");
 
@@ -194,7 +214,7 @@ TEST_F(ErrorReportingApi_test, checkPreconditionNotSatisfiedWithMessage)
     EXPECT_PRECONDITION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfiedWithMessage)
+TEST_F(ErrorReportingMacroApi_test, checkAssumptionNotSatisfiedWithMessage)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b416674a-5861-4ab7-947b-0bd0af2f627b");
     auto f = [](int x) { IOX_ASSUME(x > 0, "some message"); };
@@ -205,7 +225,7 @@ TEST_F(ErrorReportingApi_test, checkAssumptionNotSatisfiedWithMessage)
     EXPECT_ASSUMPTION_VIOLATION();
 }
 
-TEST_F(ErrorReportingApi_test, reportErrorsFromDifferentModules)
+TEST_F(ErrorReportingMacroApi_test, reportErrorsFromDifferentModules)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5bc53c41-4e4b-466e-b706-603ed5a3d0cf");
     auto f = []() {
@@ -220,7 +240,7 @@ TEST_F(ErrorReportingApi_test, reportErrorsFromDifferentModules)
     EXPECT_ERROR(MyCodeB::OutOfMemory);
 }
 
-TEST_F(ErrorReportingApi_test, distinguishErrorsFromDifferentModules)
+TEST_F(ErrorReportingMacroApi_test, distinguishErrorsFromDifferentModules)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f9547051-2ff7-477b-8144-e58995ff8366");
     auto f = []() { IOX_REPORT(MyCodeA::OutOfBounds, RUNTIME_ERROR); };
@@ -235,7 +255,7 @@ TEST_F(ErrorReportingApi_test, distinguishErrorsFromDifferentModules)
     EXPECT_FALSE(hasError(MyCodeB::OutOfBounds));
 }
 
-TEST_F(ErrorReportingApi_test, reportErrorsAndViolations)
+TEST_F(ErrorReportingMacroApi_test, reportErrorsAndViolations)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b70331d9-f8ce-4be9-94f1-6d9505bad1d5");
     auto f = []() {
@@ -252,7 +272,7 @@ TEST_F(ErrorReportingApi_test, reportErrorsAndViolations)
     EXPECT_ERROR(MyCodeB::OutOfMemory);
 }
 
-TEST_F(ErrorReportingApi_test, panicAtUnreachableCode)
+TEST_F(ErrorReportingMacroApi_test, panicAtUnreachableCode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "54e84082-42eb-4fd3-af30-2647f9616719");
     auto f = []() { IOX_UNREACHABLE(); };

@@ -28,7 +28,7 @@ namespace iox
 namespace err
 {
 
-// The non-fatal errors kinds can all be defined here.
+// The non-fatal error kinds can all be defined here.
 
 struct RuntimeErrorKind
 {

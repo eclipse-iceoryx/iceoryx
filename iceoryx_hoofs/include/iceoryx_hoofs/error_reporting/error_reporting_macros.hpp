@@ -45,6 +45,7 @@
     {                                                                                                                  \
         iox::err::forwardPanic(CURRENT_SOURCE_LOCATION, message);                                                      \
     } while (false)
+
 /// @brief report error of some kind
 /// @param error error object (or code)
 /// @param kind kind of error
@@ -113,7 +114,7 @@
         }                                                                                                              \
     } while (false)
 
-/// @brief if enabled: report (fatal) assumption violation if expr evaluates to false
+/// @brief if enabled: report fatal assumption violation if expr evaluates to false
 /// @note for conditions that should not happen with correct use
 /// @param expr boolean expression that must hold
 /// @param message message to be forwarded in case of violation
@@ -132,7 +133,7 @@
 #define IOX_UNREACHABLE()                                                                                              \
     do                                                                                                                 \
     {                                                                                                                  \
-        iox::err::panic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");                 \
+        iox::err::forwardPanic(CURRENT_SOURCE_LOCATION, "Reached code that was supposed to be unreachable.");          \
     } while (false)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)

@@ -101,7 +101,7 @@ TYPED_TEST(RegularType_test, moveAssignmentWorks)
     EXPECT_EQ(movedTo, copy);
 }
 
-TYPED_TEST(RegularType_test, equalityComparisonWorks)
+TYPED_TEST(RegularType_test, equalComparisonWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f6474ff1-b202-43c3-ae1b-de26a20bffcd");
 
@@ -115,7 +115,7 @@ TYPED_TEST(RegularType_test, equalityComparisonWorks)
     EXPECT_FALSE(this->sut == different);
 }
 
-TYPED_TEST(RegularType_test, unequalityComparisonWorks)
+TYPED_TEST(RegularType_test, unequalComparisonWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "941b75b6-6627-40aa-aac2-689686430107");
 

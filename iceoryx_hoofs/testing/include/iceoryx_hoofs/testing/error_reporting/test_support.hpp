@@ -53,7 +53,7 @@ bool hasError();
 /// @brief indicates whether the test error handler registered a precondition violation
 bool hasPreconditionViolation();
 
-/// @brief indicates whether the test error handler registered a precondition violation
+/// @brief indicates whether the test error handler registered an assumption violation
 bool hasAssumptionViolation();
 
 /// @brief indicates whether the test error handler registered  violation (there are only two kinds).
@@ -111,7 +111,7 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) macro required for source location in tests
 
-#define ASSERT_IOX_OK() ASSERT_TRUE(iox::testing::isInNormalState())
+#define ASSERT_OK() ASSERT_TRUE(iox::testing::isInNormalState())
 
 #define ASSERT_NO_PANIC() ASSERT_FALSE(iox::testing::hasPanicked())
 
@@ -120,8 +120,6 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 #define ASSERT_ERROR(code) ASSERT_TRUE(iox::testing::hasError(code))
 
 #define ASSERT_NO_ERROR() ASSERT_FALSE(iox::testing::hasError())
-
-#define EXPECT_NO_PANIC() EXPECT_FALSE(iox::testing::hasPanicked())
 
 #define ASSERT_VIOLATION()                                                                                             \
     ASSERT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
@@ -135,7 +133,9 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 // EXPECT_* continues with test if the check fails.
 
-#define EXPECT_IOX_OK() EXPECT_TRUE(iox::testing::isInNormalState())
+#define EXPECT_OK() EXPECT_TRUE(iox::testing::isInNormalState())
+
+#define EXPECT_NO_PANIC() EXPECT_FALSE(iox::testing::hasPanicked())
 
 #define EXPECT_PANIC() EXPECT_TRUE(iox::testing::hasPanicked())
 

@@ -44,12 +44,10 @@ class DefaultErrorHandler : public ErrorHandlerInterface
     void onPanic() override;
 
     /// @brief Defines the reaction on error.
-    /// @param location the location of the error
     /// @param desc error descriptor
     void onReportError(ErrorDescriptor desc) override;
 
-    /// @brief Defines the reaction onviolation.
-    /// @param location the location of the violation
+    /// @brief Defines the reaction on violation.
     /// @param desc error descriptor
     void onReportViolation(ErrorDescriptor desc) override;
 };

@@ -384,7 +384,7 @@ Since the main API is stateless, there is no need for classes. Everything direct
 
 These are
 
-1. `api.hpp`: the reporting API to be used
+1. `error_reporting_macros.hpp`: the reporting macro API to be used
 2. `configuration.hpp`: the default configuration (compile time flags)
 3. `error_forwarding.hpp`: forwarding to the custom implementation
 4. `error_kind.hpp`: mandatory error categories

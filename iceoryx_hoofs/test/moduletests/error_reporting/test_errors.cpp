@@ -165,6 +165,16 @@ TYPED_TEST(ErrorType_test, toCodeWorks)
     EXPECT_EQ(code, this->sut.code());
 }
 
+// cannot be tested with the typed test ErrorType_test
+TEST(ErrorCode_test, toCodeWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "408c6c10-a4ce-4c7e-b9f4-e8f8c7033fa0");
+
+    ErrorCode sut(73);
+    ErrorCode code = toCode(sut);
+    EXPECT_EQ(code, sut);
+}
+
 TYPED_TEST(ErrorType_test, toModuleWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "231406c4-43ef-4e0f-91cf-09779bbb2327");

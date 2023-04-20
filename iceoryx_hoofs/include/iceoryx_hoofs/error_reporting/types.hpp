@@ -60,6 +60,11 @@ struct ModuleId
 
     static constexpr type ANY{0};
 
+    // User module ids should be larger or equal than this to avoid conflicts
+    // with internal modules.
+    // All lower values are reserved.
+    static constexpr type USER_MODULE_BASE{0x100};
+
     constexpr explicit ModuleId(uint32_t value = ANY)
         : value(value)
     {
