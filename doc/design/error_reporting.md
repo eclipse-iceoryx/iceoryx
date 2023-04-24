@@ -214,9 +214,11 @@ Checking assumptions is similar to checking preconditions, but can happen anywhe
 ```cpp
 int f(int x)
 {
-IOX_ASSUME(x>=0, "assumption violation message")
+    // some computation
+    int y = g(x);
 
-// ...
+    IOX_ASSUME(y>=0, "assumption violation message")
+    // proceed assuming that y>=0 holds
 }
 ```
 
@@ -241,14 +243,13 @@ if(condition) {
 }
 ```
 
-If checking for unreachable code at runtime is enabled and `IOX_UNREACHABLE` is reached, 
-`panic` will be invoked and the program aborts. Stating that specific code cannot be reached is
-a specific assumption and any violation is considered a bug. Defensive programming, i.e. checking
-for conditions that are not supposed to happen in a correct implementations, naturally creates
-unreachable code.
+If `IOX_UNREACHABLE` is reached during execution, `panic` will be invoked and the program aborts. 
+Stating that specific code cannot be reached is a specific assumption and any violation 
+is considered a bug. Defensive programming, i.e. checking for conditions that are not supposed 
+to happen in a correct implementation, naturally creates unreachable code.
 
 Marking unreachable code like this has advantages for test coverage as the compiler and other tools 
-that rely on the compiler (sayfor coverage) are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
+that rely on the compiler are aware of the `noreturn` guarantee of `IOX_UNREACHABLE`.
 As a consequence, branches with `IOX_UNREACHABLE` do not necessarily lead to a return statement.
 
 ### Summary
