@@ -65,7 +65,8 @@ enum class Interfaces : uint16_t
     INTERFACE_END
 };
 
-constexpr const char* INTERFACE_NAMES[] = {"INTERNAL", "ESOC", "SOMEIP", "AMQP", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
+constexpr const char* INTERFACE_NAMES[] = {
+    "INTERNAL", "ESOC", "SOMEIP", "AMQP", "MQTT", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
 
 /// @brief Scope of a service description
 enum class Scope : uint16_t
