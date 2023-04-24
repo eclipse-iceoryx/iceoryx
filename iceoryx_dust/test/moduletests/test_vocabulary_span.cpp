@@ -312,20 +312,38 @@ TEST(span_test, CheckFrontOfSpanIfItReturnsTheElementAtIndex0)
     static_assert(&arr[0] == &span.front(), "span.front() does not refer to the same element as arr[0]");
 }
 
+TEST(span_test, CheckIterOfSpan)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4760addf-87f1-46c2-901a-63cf4de3a6ea");
+    static constexpr int arr[] = {1, 6, 1, 8, 0};
+    IOX_MAYBE_UNUSED constexpr span<const int> span(arr);
+
+    EXPECT_TRUE(1 == span.begin()[0]);      // First element needs to be '1'
+    EXPECT_TRUE(1 == *(span.begin() += 0)); // First element needs to be '1'
+    EXPECT_TRUE(6 == *(span.begin() += 1)); // Second element needs to be '6'
+
+    EXPECT_TRUE(1 == *((span.begin() + 1) -= 1)); // First element needs to be '1'
+    EXPECT_TRUE(6 == *((span.begin() + 1) -= 0)); // Second element needs to be '6'
+}
+
 TEST(span_test, CheckConstexprIterOfSpan)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8764fcfb-27df-4f39-b8cd-56bf881db382");
+#ifdef __GNUC__
+    GTEST_SKIP() << "Some GCC versions (especially with address sanitizer) break the 'constexpr' therefore this test "
+                    "can only be run with clang!";
+#else
     static constexpr int arr[] = {1, 6, 1, 8, 0};
     IOX_MAYBE_UNUSED constexpr span<const int> span(arr);
 
     // Explicitly not use EXPECT_TRUE here to be able to execute the test case during compile-time
-    // 'static_assert' is not possible as not being supported with GCC5
-    assert(1 == span.begin()[0]);      // First element needs to be '1'
-    assert(1 == *(span.begin() += 0)); // First element needs to be '1'
-    assert(6 == *(span.begin() += 1)); // Second element needs to be '6'
+    static_assert(1 == span.begin()[0], "First element needs to be '1'");
+    static_assert(1 == *(span.begin() += 0), "First element needs to be '1'");
+    static_assert(6 == *(span.begin() += 1), "Second element needs to be '6'");
 
-    assert(1 == *((span.begin() + 1) -= 1)); // First element needs to be '1'
-    assert(6 == *((span.begin() + 1) -= 0)); // Second element needs to be '6'
+    static_assert(1 == *((span.begin() + 1) -= 1), "First element needs to be '1'");
+    static_assert(6 == *((span.begin() + 1) -= 0), "Second element needs to be '6'");
+#endif
 }
 
 TEST(span_test, GetSpanDataAsWritableBytes)
