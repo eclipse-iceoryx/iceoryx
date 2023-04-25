@@ -37,11 +37,26 @@ enum class Code : ErrorCode::type
     OutOfBounds = 21
 };
 
+inline const char* asStringLiteral(Code code)
+{
+    switch (code)
+    {
+    case Code::Unknown:
+        return "Unknown";
+    case Code::OutOfMemory:
+        return "OutOfMemory";
+    case Code::OutOfBounds:
+        return "OutOfBounds";
+    }
+    // unreachable
+    return "unknown error";
+}
+
 class Error
 {
   public:
     constexpr explicit Error(Code code = Code::Unknown)
-        : m_code(static_cast<ErrorCode::type>(code))
+        : m_code(code)
     {
     }
 
@@ -50,13 +65,23 @@ class Error
         return MODULE_ID;
     }
 
+    static const char* moduleName()
+    {
+        return "Module A";
+    }
+
     ErrorCode code() const
     {
-        return static_cast<ErrorCode>(m_code);
+        return ErrorCode(static_cast<ErrorCode::type>(m_code));
+    }
+
+    const char* name() const
+    {
+        return asStringLiteral(m_code);
     }
 
   protected:
-    ErrorCode m_code;
+    Code m_code;
 };
 
 } // namespace errors
@@ -78,6 +103,20 @@ inline module_a::errors::Error toError(module_a::errors::Code code)
 inline ModuleId toModule(module_a::errors::Code)
 {
     return module_a::errors::MODULE_ID;
+}
+
+// Specialize to provide concrete error names
+template <>
+inline const char* toModuleName<module_a::errors::Error>(const module_a::errors::Error& error)
+{
+    return error.moduleName();
+}
+
+// Specialize to provide concrete module names
+template <>
+inline const char* toErrorName<module_a::errors::Error>(const module_a::errors::Error& error)
+{
+    return error.name();
 }
 
 } // namespace err

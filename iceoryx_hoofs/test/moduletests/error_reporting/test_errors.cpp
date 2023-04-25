@@ -20,6 +20,9 @@
 #include "iceoryx_hoofs/error_reporting/errors.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 
+#include "module_a/errors.hpp"
+#include "module_b/errors.hpp"
+
 namespace
 {
 
@@ -31,6 +34,10 @@ constexpr ErrorCode CODE2{21};
 constexpr ModuleId ID1{666};
 constexpr ModuleId ID2{999};
 constexpr ModuleId ANY_ID{ModuleId::ANY};
+
+struct Unknown
+{
+};
 
 template <typename T>
 class ErrorType_test : public Test
@@ -211,6 +218,62 @@ TEST(Violation_test, createAssumptionWorks)
     auto exp = Violation{ErrorCode{ErrorCode::ASSUMPTION_VIOLATION}, ANY_ID};
 
     EXPECT_EQ(sut, exp);
+}
+
+TEST(ErrorNameTranslation_test, unknownErrorTranslatesToUnknownErrorString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5abfe6d6-67ca-4373-9779-9c76a13f2718");
+
+    Unknown error;
+    const char* result = toErrorName(error);
+    EXPECT_EQ(result, iox::err::UNKNOWN_ERROR_NAME);
+}
+
+TEST(ErrorNameTranslation_test, knownErrorTranslatesToCorrectErrorString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "26f3e6bb-2d85-47f6-995b-6ca48425e710");
+
+    using ErrorA = module_a::errors::Error;
+    using CodeA = module_a::errors::Code;
+
+    ErrorA errorA(CodeA::OutOfMemory);
+    const char* resultA = toErrorName(errorA);
+    EXPECT_EQ(resultA, errorA.name());
+
+    using ErrorB = module_b::errors::Error;
+    using CodeB = module_b::errors::Code;
+
+    ErrorB errorB(CodeB::OutOfMemory);
+    const char* resultB = toErrorName(errorB);
+    EXPECT_EQ(resultB, errorB.name());
+}
+
+TEST(ErrorNameTranslation_test, unknownModuleTranslatesToUnknownModuleString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4769cdc6-dc6f-4f8a-8771-bc74d3a499c9");
+
+    Unknown module;
+    const char* result = toModuleName(module);
+    EXPECT_EQ(result, iox::err::UNKNOWN_MODULE_NAME);
+}
+
+TEST(ErrorNameTranslation_test, knownModuleTranslatesToCorrectModuleString)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "88036900-c9e0-4a07-86fd-411f2273bbf6");
+
+    using Error = module_a::errors::Error;
+    using Code = module_a::errors::Code;
+
+    Error error(Code::OutOfMemory);
+    const char* resultA = toModuleName(error);
+    EXPECT_EQ(resultA, error.moduleName());
+
+    using ErrorB = module_b::errors::Error;
+    using CodeB = module_b::errors::Code;
+
+    ErrorB errorB(CodeB::OutOfMemory);
+    const char* resultB = toModuleName(errorB);
+    EXPECT_EQ(resultB, errorB.moduleName());
 }
 
 } // namespace

@@ -73,7 +73,11 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG(location) << " Error " << code.value << " in module " << module.value;
+    auto moduleName = toModuleName(error);
+    auto errorName = toErrorName(error);
+
+    IOX_ERROR_INTERNAL_LOG(location) << ": " << errorName << " (code " << code.value << ") in module " << moduleName
+                                     << " (id " << module.value << ")";
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }
@@ -88,7 +92,11 @@ inline void report(const SourceLocation& location, iox::err::FatalKind kind, con
 {
     auto code = toCode(error);
     auto module = toModule(error);
-    IOX_ERROR_INTERNAL_LOG_FATAL(location) << kind.name << " " << code.value << " in module " << module.value;
+    auto moduleName = toModuleName(error);
+    auto errorName = toErrorName(error);
+
+    IOX_ERROR_INTERNAL_LOG_FATAL(location) << ": " << kind.name << " " << errorName << " (code " << code.value
+                                           << ") in module " << moduleName << " (id " << module.value << ")";
     auto& h = ErrorHandler::get();
     h.onReportError(ErrorDescriptor(location, code, module));
 }

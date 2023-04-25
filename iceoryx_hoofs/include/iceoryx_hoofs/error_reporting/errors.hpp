@@ -26,6 +26,9 @@ namespace iox
 namespace err
 {
 
+static constexpr const char* UNKNOWN_MODULE_NAME = "unknown module";
+static constexpr const char* UNKNOWN_ERROR_NAME = "unknown error";
+
 // We expect an error to have the following interface
 // 1. ErrorCode code() const
 // 2. ModuleId module() const
@@ -106,6 +109,18 @@ template <class Error>
 inline ModuleId toModule(const Error& error)
 {
     return error.module();
+}
+
+template <class Error>
+inline const char* toModuleName(const Error&)
+{
+    return UNKNOWN_MODULE_NAME;
+}
+
+template <class Error>
+inline const char* toErrorName(const Error&)
+{
+    return UNKNOWN_ERROR_NAME;
 }
 
 } // namespace err
