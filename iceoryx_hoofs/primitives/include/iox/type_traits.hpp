@@ -22,7 +22,6 @@
 #include <type_traits>
 
 #include "iceoryx_platform/platform_settings.hpp"
-#include "iox/attributes.hpp"
 
 namespace iox
 {
@@ -144,6 +143,78 @@ struct is_char_array<char[N]> : std::true_type
 /// @brief Maps a sequence of any types to the type void
 template <typename...>
 using void_t = void;
+
+/// @brief Implementation C++17 bool_constant helper
+template <bool B>
+using bool_constant = std::integral_constant<bool, B>;
+
+/// @brief Implementation of C++17 negation
+template <class B>
+struct negation : bool_constant<!bool(B::value)>
+{
+};
+
+template <bool...>
+struct bool_pack
+{
+};
+
+/// @brief Implementation of C++17 std::conjunction
+template <class...>
+struct conjunction : std::true_type
+{
+};
+
+template <class Arg>
+struct conjunction<Arg> : Arg
+{
+};
+
+template <class Arg, class... Args>
+struct conjunction<Arg, Args...> : std::conditional_t<!bool(Arg::value), Arg, conjunction<Args...>>
+{
+};
+
+/// @brief Implementation of C++20's std::remove_cvref.
+//
+// References:
+// - https://en.cppreference.com/w/cpp/types/remove_cvref
+// - https://wg21.link/meta.trans.other#lib:remove_cvref
+template <typename T>
+struct remove_cvref
+{
+    using type_t = std::remove_cv_t<std::remove_reference_t<T>>;
+};
+
+/// @brief Implementation of C++20's std::remove_cvref_t.
+//
+// References:
+// - https://en.cppreference.com/w/cpp/types/remove_cvref
+// - https://wg21.link/meta.type.synop#lib:remove_cvref_t
+template <typename T>
+using remove_cvref_t = typename remove_cvref<T>::type_t;
+
+template <typename T>
+using is_c_array_t = std::is_array<std::remove_reference_t<T>>;
+
+template <typename T>
+using is_not_c_array_t = iox::negation<is_c_array_t<T>>;
+
+template <typename From, typename To>
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
+using is_convertible_t = std::is_convertible<From (*)[], To (*)[]>;
+
+template <typename Iter>
+using iter_reference_t = decltype(*std::declval<Iter&>());
+
+template <typename Iter, typename T>
+using iter_has_convertible_ref_type_t = iox::is_convertible_t<std::remove_reference_t<iter_reference_t<Iter>>, T>;
+
+/// @brief Helper template from C++17
+/// @tparam From Source type
+/// @tparam To Destination type
+template <class From, class To>
+constexpr bool is_convertible_v = std::is_convertible<From, To>::value;
 
 //////////////////
 /// BEGIN TypeInfo

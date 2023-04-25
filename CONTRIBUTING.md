@@ -325,7 +325,7 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 
 | Ruleset name | Github issue label | Priority |
 |---|---|---|
-| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/standards/adaptive/19-11/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
+| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/standards/R22-11/AP/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
 | [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
 
