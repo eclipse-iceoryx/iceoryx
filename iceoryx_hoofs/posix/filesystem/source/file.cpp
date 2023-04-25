@@ -267,7 +267,7 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
     }
 }
 
-expected<FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
+expected<void, FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
 {
     auto result = posix::posixCall(iox_lseek)(m_file_descriptor, static_cast<iox_off_t>(offset), IOX_SEEK_SET)
                       .failureReturnValue(-1)

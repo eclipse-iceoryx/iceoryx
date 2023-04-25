@@ -22,7 +22,7 @@ namespace iox
 {
 namespace posix
 {
-expected<SemaphoreError>
+expected<void, SemaphoreError>
 UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept
 {
     if (m_initialValue > IOX_SEM_VALUE_MAX)

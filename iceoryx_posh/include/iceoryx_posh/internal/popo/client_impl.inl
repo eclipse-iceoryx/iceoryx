@@ -62,7 +62,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loan(
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
+expected<void, ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
     // take the ownership of the chunk from the Request to transfer it to 'sendRequest'
     auto payload = request.release();

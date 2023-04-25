@@ -79,7 +79,7 @@ iox::config::TomlGatewayConfigParser::parse(std::istream& stream) noexcept
     return iox::success<GatewayConfig>(config);
 }
 
-iox::expected<iox::config::TomlGatewayConfigParseError>
+iox::expected<void, iox::config::TomlGatewayConfigParseError>
 iox::config::TomlGatewayConfigParser::parse(std::istream& stream, GatewayConfig& config) noexcept
 {
     std::shared_ptr<cpptoml::table> parsedToml{nullptr};
@@ -121,7 +121,7 @@ iox::config::TomlGatewayConfigParser::parse(std::istream& stream, GatewayConfig&
     return iox::success<>();
 }
 
-iox::expected<iox::config::TomlGatewayConfigParseError>
+iox::expected<void, iox::config::TomlGatewayConfigParseError>
 iox::config::TomlGatewayConfigParser::validate(const cpptoml::table& parsedToml) noexcept
 {
     // Check for expected fields

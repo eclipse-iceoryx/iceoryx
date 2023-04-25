@@ -182,7 +182,7 @@ IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t&
     return channelName;
 }
 
-expected<IpcChannelError> NamedPipe::destroy() noexcept
+expected<void, IpcChannelError> NamedPipe::destroy() noexcept
 {
     if (m_isInitialized)
     {
@@ -209,7 +209,7 @@ expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t
     return success<bool>(*result);
 }
 
-expected<IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
+expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
 {
     if (!m_isInitialized)
     {
@@ -233,7 +233,7 @@ expected<IpcChannelError> NamedPipe::trySend(const std::string& message) const n
     return error<IpcChannelError>(IpcChannelError::TIMEOUT);
 }
 
-expected<IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
+expected<void, IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
     if (!m_isInitialized)
     {
@@ -252,8 +252,8 @@ expected<IpcChannelError> NamedPipe::send(const std::string& message) const noex
     return success<>();
 }
 
-expected<IpcChannelError> NamedPipe::timedSend(const std::string& message,
-                                               const units::Duration& timeout) const noexcept
+expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
+                                                     const units::Duration& timeout) const noexcept
 {
     if (!m_isInitialized)
     {

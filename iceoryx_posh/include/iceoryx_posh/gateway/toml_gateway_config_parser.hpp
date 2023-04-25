@@ -70,8 +70,8 @@ class TomlGatewayConfigParser
     static expected<GatewayConfig, TomlGatewayConfigParseError> parse(std::istream& stream) noexcept;
 
   protected:
-    static expected<TomlGatewayConfigParseError> parse(std::istream& stream, GatewayConfig& config) noexcept;
-    static expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
+    static expected<void, TomlGatewayConfigParseError> parse(std::istream& stream, GatewayConfig& config) noexcept;
+    static expected<void, TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept;
 
   private:
     static bool hasInvalidCharacter(const std::string& s) noexcept;

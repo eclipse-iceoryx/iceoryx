@@ -51,7 +51,7 @@ class SemaphoreInterfaceTest : public Test
         ASSERT_TRUE(SutFactory::create(sut, 0U));
     }
 
-    iox::expected<iox::posix::SemaphoreError> createSutWithInitialValue(const uint32_t value)
+    iox::expected<void, iox::posix::SemaphoreError> createSutWithInitialValue(const uint32_t value)
     {
         sut.reset();
         return SutFactory::create(sut, value);
@@ -76,7 +76,7 @@ constexpr iox::units::Duration SemaphoreInterfaceTest<T>::TIMING_TEST_WAIT_TIME;
 struct UnnamedSemaphoreTest
 {
     using SutType = iox::optional<iox::posix::UnnamedSemaphore>;
-    static iox::expected<iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    static iox::expected<void, iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
     {
         return iox::posix::UnnamedSemaphoreBuilder()
             .initialValue(initialValue)
@@ -88,7 +88,7 @@ struct UnnamedSemaphoreTest
 struct NamedSemaphoreTest
 {
     using SutType = iox::optional<iox::posix::NamedSemaphore>;
-    static iox::expected<iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
+    static iox::expected<void, iox::posix::SemaphoreError> create(SutType& sut, const uint32_t initialValue)
     {
         return iox::posix::NamedSemaphoreBuilder()
             .initialValue(initialValue)

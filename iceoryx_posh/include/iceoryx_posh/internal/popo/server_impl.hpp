@@ -69,7 +69,7 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
     /// @brief Sends the given Response and then releases its loan.
     /// @param response to send.
     /// @return Error if sending was not successful
-    expected<ServerSendError> send(Response<Res>&& response) noexcept override;
+    expected<void, ServerSendError> send(Response<Res>&& response) noexcept override;
 
   protected:
     using BaseServerT::port;

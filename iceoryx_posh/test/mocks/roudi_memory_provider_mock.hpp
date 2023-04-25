@@ -58,7 +58,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
 #pragma GCC diagnostic pop
 #endif
 
-    iox::expected<iox::roudi::MemoryProviderError> destroyMemory() noexcept override
+    iox::expected<void, iox::roudi::MemoryProviderError> destroyMemory() noexcept override
     {
         if (m_mockCallsEnabled)
         {

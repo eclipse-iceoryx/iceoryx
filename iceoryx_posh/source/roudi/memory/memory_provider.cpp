@@ -32,7 +32,7 @@ MemoryProvider::~MemoryProvider() noexcept
     // destroy has to be called manually from outside, since it calls a pure virtual function
 }
 
-expected<MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept
+expected<void, MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept
 {
     if (isAvailable())
     {
@@ -46,7 +46,7 @@ expected<MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBloc
     return error<MemoryProviderError>(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
 }
 
-expected<MemoryProviderError> MemoryProvider::create() noexcept
+expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 {
     if (m_memoryBlocks.empty())
     {
@@ -109,7 +109,7 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
     return success<void>();
 }
 
-expected<MemoryProviderError> MemoryProvider::destroy() noexcept
+expected<void, MemoryProviderError> MemoryProvider::destroy() noexcept
 {
     if (!isAvailable())
     {

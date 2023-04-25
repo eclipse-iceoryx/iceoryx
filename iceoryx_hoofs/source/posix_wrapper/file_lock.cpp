@@ -127,7 +127,7 @@ FileLock::~FileLock() noexcept
     }
 }
 
-expected<FileLockError> FileLock::closeFileDescriptor() noexcept
+expected<void, FileLockError> FileLock::closeFileDescriptor() noexcept
 {
     if (m_fd != INVALID_FD)
     {

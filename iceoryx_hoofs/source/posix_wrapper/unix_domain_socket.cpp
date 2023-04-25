@@ -168,7 +168,7 @@ expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPre
     return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
 }
 
-expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
@@ -198,7 +198,7 @@ expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
     return success<>();
 }
 
-expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_isInitialized)
     {
@@ -208,15 +208,15 @@ expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
     return success<void>();
 }
 
-expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
+expected<void, IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                      const units::Duration& timeout) const noexcept
+expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                            const units::Duration& timeout) const noexcept
 {
     if (msg.size() > m_maxMessageSize)
     {
@@ -296,7 +296,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
     return success<std::string>(&message[0]);
 }
 
-expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 {
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));

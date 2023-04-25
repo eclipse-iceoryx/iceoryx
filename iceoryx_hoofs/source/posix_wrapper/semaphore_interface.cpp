@@ -53,7 +53,7 @@ iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 }
 
 template <typename SemaphoreChild>
-expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
+expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
 {
     auto result = posixCall(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
 
@@ -98,7 +98,7 @@ expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noe
 }
 
 template <typename SemaphoreChild>
-expected<SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
+expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
 {
     auto result = posixCall(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
 

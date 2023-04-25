@@ -51,8 +51,8 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
     return ThreadName_t(TruncateToCapacity, &tempName[0]);
 }
 
-expected<ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThread,
-                                            const Thread::callable_t& callable) noexcept
+expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThread,
+                                                  const Thread::callable_t& callable) noexcept
 {
     uninitializedThread.emplace(m_name, callable);
 

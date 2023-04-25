@@ -133,7 +133,7 @@ template <typename Child,
           DoesContainInvalidContent<Capacity> DoesContainInvalidContentCall,
           DoesContainInvalidCharacter<Capacity> DoesContainInvalidCharacterCall>
 template <typename T>
-inline expected<SemanticStringError>
+inline expected<void, SemanticStringError>
 SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::append(
     const T& value) noexcept
 {
@@ -145,7 +145,7 @@ template <typename Child,
           DoesContainInvalidContent<Capacity> DoesContainInvalidContentCall,
           DoesContainInvalidCharacter<Capacity> DoesContainInvalidCharacterCall>
 template <typename T>
-inline expected<SemanticStringError>
+inline expected<void, SemanticStringError>
 SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::insert(
     const uint64_t pos, const T& str, const uint64_t count) noexcept
 {

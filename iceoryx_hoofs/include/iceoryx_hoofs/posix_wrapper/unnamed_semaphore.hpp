@@ -65,7 +65,7 @@ class UnnamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
-    expected<SemaphoreError> create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
+    expected<void, SemaphoreError> create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix
 } // namespace iox

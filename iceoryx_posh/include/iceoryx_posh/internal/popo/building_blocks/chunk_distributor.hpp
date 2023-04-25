@@ -81,13 +81,13 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
-                                                const uint64_t requestedHistory = 0U) noexcept;
+    expected<void, ChunkDistributorError> tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
+                                                      const uint64_t requestedHistory = 0U) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    expected<void, ChunkDistributorError> tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
@@ -108,7 +108,7 @@ class ChunkDistributor
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
     /// @param[in] chunk is the SharedChunk to be delivered
     /// @return ChunkDistributorError if the queue was not found
-    expected<ChunkDistributorError>
+    expected<void, ChunkDistributorError>
     deliverToQueue(const UniqueId uniqueQueueId, const uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept;
 
     /// @brief Lookup for the index of a queue with a specific iox::UniqueId

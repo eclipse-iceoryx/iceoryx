@@ -24,7 +24,7 @@ namespace popo
 {
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
-inline expected<ListenerError>
+inline expected<void, ListenerError>
 ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
                                     const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
@@ -49,7 +49,7 @@ ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
 
 template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
-inline expected<ListenerError> ListenerImpl<Capacity>::attachEvent(
+inline expected<void, ListenerError> ListenerImpl<Capacity>::attachEvent(
     T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)

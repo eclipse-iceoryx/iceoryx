@@ -25,7 +25,7 @@ namespace popo
 {
 template <typename T>
 template <typename S, typename>
-inline expected<ServerSendError> Response<T>::send() noexcept
+inline expected<void, ServerSendError> Response<T>::send() noexcept
 {
     if (BaseType::m_members.smartChunkUniquePtr)
     {

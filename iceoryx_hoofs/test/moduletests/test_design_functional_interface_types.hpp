@@ -97,7 +97,7 @@ struct ExpectedErrorFactory
 {
     using error_t = uint64_t;
 
-    using Type = iox::expected<error_t>;
+    using Type = iox::expected<void, error_t>;
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;

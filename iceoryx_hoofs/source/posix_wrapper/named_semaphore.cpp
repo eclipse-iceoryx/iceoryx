@@ -29,7 +29,7 @@ static string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const 
     return nameWithSlash;
 }
 
-static expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
+static expected<void, SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
 {
     auto result = posixCall(iox_sem_unlink)(createNameWithSlash(name).c_str())
                       .failureReturnValue(-1)
@@ -101,11 +101,11 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 ///                     before this function and provide the result but this would increase code complexity
 ///                     even further. The cognitive complexity results from the expanded log macro
 /// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
-static expected<SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
-                                                const NamedSemaphore::Name_t& name,
-                                                const OpenMode openMode,
-                                                const access_rights permissions,
-                                                const uint32_t initialValue) noexcept
+static expected<void, SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
+                                                      const NamedSemaphore::Name_t& name,
+                                                      const OpenMode openMode,
+                                                      const access_rights permissions,
+                                                      const uint32_t initialValue) noexcept
 {
     auto result = posixCall(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
                                               convertToOflags(openMode),
@@ -151,7 +151,7 @@ static expected<SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninit
     return success<>();
 }
 
-expected<SemaphoreError>
+expected<void, SemaphoreError>
 // NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
 // results from the expanded log macro
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)

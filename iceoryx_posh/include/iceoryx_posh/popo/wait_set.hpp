@@ -86,10 +86,11 @@ class WaitSet
               typename EventType,
               typename ContextDataType = popo::internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    expected<WaitSetError> attachEvent(T& eventOrigin,
-                                       const EventType eventType,
-                                       const uint64_t notificationId = 0U,
-                                       const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
+    expected<void, WaitSetError>
+    attachEvent(T& eventOrigin,
+                const EventType eventType,
+                const uint64_t notificationId = 0U,
+                const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
@@ -101,9 +102,9 @@ class WaitSet
               typename EventType,
               typename ContextDataType = popo::internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<EventType>::value, void>>
-    expected<WaitSetError> attachEvent(T& eventOrigin,
-                                       const EventType eventType,
-                                       const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, WaitSetError> attachEvent(T& eventOrigin,
+                                             const EventType eventType,
+                                             const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
@@ -112,9 +113,10 @@ class WaitSet
     /// @param[in] notificationId an arbitrary user defined id for the event
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, typename ContextDataType = popo::internal::NoType_t>
-    expected<WaitSetError> attachEvent(T& eventOrigin,
-                                       const uint64_t notificationId = 0U,
-                                       const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
+    expected<void, WaitSetError>
+    attachEvent(T& eventOrigin,
+                const uint64_t notificationId = 0U,
+                const NotificationCallback<T, ContextDataType>& eventCallback = {}) noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional
@@ -122,8 +124,8 @@ class WaitSet
     /// @param[in] eventOrigin the class from which the event originates.
     /// @param[in] eventCallback a callback which should be assigned to the event
     template <typename T, typename ContextDataType = popo::internal::NoType_t>
-    expected<WaitSetError> attachEvent(T& eventOrigin,
-                                       const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, WaitSetError> attachEvent(T& eventOrigin,
+                                             const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -136,10 +138,11 @@ class WaitSet
               typename StateType,
               typename ContextDataType = popo::internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<StateType>::value>>
-    expected<WaitSetError> attachState(T& stateOrigin,
-                                       const StateType stateType,
-                                       const uint64_t id = 0U,
-                                       const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
+    expected<void, WaitSetError>
+    attachState(T& stateOrigin,
+                const StateType stateType,
+                const uint64_t id = 0U,
+                const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -151,9 +154,9 @@ class WaitSet
               typename StateType,
               typename ContextDataType = popo::internal::NoType_t,
               typename = std::enable_if_t<std::is_enum<StateType>::value, void>>
-    expected<WaitSetError> attachState(T& stateOrigin,
-                                       const StateType stateType,
-                                       const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
+    expected<void, WaitSetError> attachState(T& stateOrigin,
+                                             const StateType stateType,
+                                             const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -162,9 +165,10 @@ class WaitSet
     /// @param[in] id an arbitrary user defined id for the state
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T, typename ContextDataType = popo::internal::NoType_t>
-    expected<WaitSetError> attachState(T& stateOrigin,
-                                       const uint64_t id = 0U,
-                                       const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
+    expected<void, WaitSetError>
+    attachState(T& stateOrigin,
+                const uint64_t id = 0U,
+                const NotificationCallback<T, ContextDataType>& stateCallback = {}) noexcept;
 
     /// @brief attaches a state of a given class to the WaitSet.
     /// @note attachState does not take ownership of callback in the underlying stateCallback or the optional
@@ -172,8 +176,8 @@ class WaitSet
     /// @param[in] stateOrigin the class from which the state originates.
     /// @param[in] stateCallback a callback which should be assigned to the state
     template <typename T, typename ContextDataType = popo::internal::NoType_t>
-    expected<WaitSetError> attachState(T& stateOrigin,
-                                       const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
+    expected<void, WaitSetError> attachState(T& stateOrigin,
+                                             const NotificationCallback<T, ContextDataType>& stateCallback) noexcept;
 
     /// @brief detaches an event from the WaitSet
     /// @param[in] eventOrigin the origin of the event that should be detached

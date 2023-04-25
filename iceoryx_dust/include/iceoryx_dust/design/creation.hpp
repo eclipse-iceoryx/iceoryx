@@ -125,7 +125,7 @@ class Creation
     /// @return returns an expected which either contains the object in a valid
     ///         constructed state or an error value stating why the construction failed.
     template <typename... Targs>
-    static iox::expected<ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept;
+    static iox::expected<void, ErrorType> placementCreate(void* const memory, Targs&&... args) noexcept;
 
     Creation() noexcept = default;
     Creation(Creation&& rhs) noexcept;

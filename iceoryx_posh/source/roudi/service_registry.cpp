@@ -26,8 +26,8 @@ ServiceRegistry::ServiceDescriptionEntry::ServiceDescriptionEntry(const capro::S
 {
 }
 
-expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
-                                                      ReferenceCounter_t ServiceDescriptionEntry::*count)
+expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescription& serviceDescription,
+                                                            ReferenceCounter_t ServiceDescriptionEntry::*count)
 {
     auto index = findIndex(serviceDescription);
     if (index != NO_INDEX)
@@ -76,13 +76,13 @@ expected<ServiceRegistry::Error> ServiceRegistry::add(const capro::ServiceDescri
     return error<Error>(Error::SERVICE_REGISTRY_FULL);
 }
 
-expected<ServiceRegistry::Error>
+expected<void, ServiceRegistry::Error>
 ServiceRegistry::addPublisher(const capro::ServiceDescription& serviceDescription) noexcept
 {
     return add(serviceDescription, &ServiceDescriptionEntry::publisherCount);
 }
 
-expected<ServiceRegistry::Error>
+expected<void, ServiceRegistry::Error>
 ServiceRegistry::addServer(const capro::ServiceDescription& serviceDescription) noexcept
 {
     return add(serviceDescription, &ServiceDescriptionEntry::serverCount);

@@ -32,7 +32,7 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
     });
 }
 
-expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept
+expected<void, RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept
 {
     auto result = m_memoryManager.createAndAnnounceMemory();
     auto portPool = m_portPoolBlock.portPool();
@@ -43,7 +43,7 @@ expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMe
     return result;
 }
 
-expected<RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory() noexcept
+expected<void, RouDiMemoryManagerError> IceOryxRouDiMemoryManager::destroyMemory() noexcept
 {
     return m_memoryManager.destroyMemory();
 }

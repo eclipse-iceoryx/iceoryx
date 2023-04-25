@@ -58,7 +58,7 @@ TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5038ae30-2f09-4f7b-81e4-a7f5bc1b3db4");
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::CLIENT_NOT_AVAILABLE};
-    const iox::expected<ServerSendError> mockSendResult = iox::error<ServerSendError>{SERVER_SEND_ERROR};
+    const iox::expected<void, ServerSendError> mockSendResult = iox::error<ServerSendError>{SERVER_SEND_ERROR};
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(mockSendResult));
 
     auto sendResult = sutProducer.send();

@@ -36,7 +36,7 @@ using namespace iox::posix;
 using namespace iox::units::duration_literals;
 using namespace iox::units;
 
-using sendCall_t = std::function<expected<IpcChannelError>(const std::string&)>;
+using sendCall_t = std::function<expected<void, IpcChannelError>(const std::string&)>;
 using receiveCall_t = std::function<expected<std::string, IpcChannelError>()>;
 
 // NOLINTJUSTIFICATION used only for test purposes

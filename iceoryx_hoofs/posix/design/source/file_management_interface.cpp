@@ -47,7 +47,7 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
     return iox::success<iox_stat>(file_status);
 }
 
-expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
+expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
 {
     auto result = posix::posixCall(iox_fchown)(fildes, uid, gid).failureReturnValue(-1).evaluate();
 
@@ -80,7 +80,7 @@ expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const g
     return iox::success<>();
 }
 
-expected<FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept
+expected<void, FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept
 {
     auto result = posix::posixCall(iox_fchmod)(fildes, perms.value()).failureReturnValue(-1).evaluate();
 

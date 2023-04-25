@@ -145,7 +145,7 @@ class ServerPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     /// @return ServerSendError if sending was not successful
-    expected<ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
+    expected<void, ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
     void offer() noexcept;

@@ -51,7 +51,8 @@ inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::
 }
 
 template <typename Derived>
-inline expected<FileSetOwnerError> FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexcept
+inline expected<void, FileSetOwnerError>
+FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);
     auto result = details::set_owner(derived_this.get_file_handle(), ownership.uid(), ownership.gid());
@@ -64,7 +65,7 @@ inline expected<FileSetOwnerError> FileManagementInterface<Derived>::set_ownersh
 }
 
 template <typename Derived>
-inline expected<FileSetPermissionError>
+inline expected<void, FileSetPermissionError>
 FileManagementInterface<Derived>::set_permissions(const access_rights permissions) noexcept
 {
     const auto& derived_this = *static_cast<const Derived*>(this);

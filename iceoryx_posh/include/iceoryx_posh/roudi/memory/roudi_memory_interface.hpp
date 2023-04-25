@@ -48,11 +48,11 @@ class RouDiMemoryInterface
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    virtual expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
+    virtual expected<void, RouDiMemoryManagerError> createAndAnnounceMemory() noexcept = 0;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    virtual expected<RouDiMemoryManagerError> destroyMemory() noexcept = 0;
+    virtual expected<void, RouDiMemoryManagerError> destroyMemory() noexcept = 0;
 
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
     virtual optional<PortPool*> portPool() noexcept = 0;

@@ -45,7 +45,7 @@ ChunkDistributor<ChunkDistributorDataType>::getMembers() noexcept
 }
 
 template <typename ChunkDistributorDataType>
-inline expected<ChunkDistributorError>
+inline expected<void, ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
                                                         const uint64_t requestedHistory) noexcept
 {
@@ -98,7 +98,7 @@ ChunkDistributor<ChunkDistributorDataType>::tryAddQueue(not_null<ChunkQueueData_
 }
 
 template <typename ChunkDistributorDataType>
-inline expected<ChunkDistributorError>
+inline expected<void, ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept
 {
     typename MemberType_t::LockGuard_t lock(*getMembers());
@@ -225,7 +225,7 @@ inline bool ChunkDistributor<ChunkDistributorDataType>::pushToQueue(not_null<Chu
 }
 
 template <typename ChunkDistributorDataType>
-inline expected<ChunkDistributorError>
+inline expected<void, ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const UniqueId uniqueQueueId,
                                                            const uint32_t lastKnownQueueIndex,
                                                            mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept

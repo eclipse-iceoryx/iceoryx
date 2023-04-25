@@ -64,8 +64,8 @@ Creation<DerivedClass, ErrorType>::verify(DerivedClass&& newObject) noexcept
 
 template <typename DerivedClass, typename ErrorType>
 template <typename... Targs>
-inline iox::expected<ErrorType> Creation<DerivedClass, ErrorType>::placementCreate(void* const memory,
-                                                                                   Targs&&... args) noexcept
+inline iox::expected<void, ErrorType> Creation<DerivedClass, ErrorType>::placementCreate(void* const memory,
+                                                                                         Targs&&... args) noexcept
 {
     auto newClass = static_cast<DerivedClass*>(memory);
     new (newClass) DerivedClass(std::forward<Targs>(args)...);

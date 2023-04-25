@@ -67,7 +67,7 @@ void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
 }
 
-expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
+expected<void, ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
 {
     if (requestHeader == nullptr)
     {

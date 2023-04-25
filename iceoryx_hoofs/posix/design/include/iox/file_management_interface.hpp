@@ -58,8 +58,8 @@ enum class FileSetPermissionError
 namespace details
 {
 expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept;
-expected<FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept;
-expected<FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept;
+expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept;
+expected<void, FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept;
 } // namespace details
 
 /// @brief Represents the POSIX owners (user and group) of a file.
@@ -118,7 +118,7 @@ struct FileManagementInterface
     /// @brief Sets the owners of the underlying file descriptor.
     /// @param[in] owner the new owners of the file descriptor
     /// @return On failure a 'FileSetOwnerError' describing the error.
-    expected<FileSetOwnerError> set_ownership(const Ownership owner) noexcept;
+    expected<void, FileSetOwnerError> set_ownership(const Ownership owner) noexcept;
 
     /// @brief Returns the permissions of the underlying file descriptor.
     /// @return On failure a 'FileStatError' describing the error otherwise 'access_rights'.
@@ -127,7 +127,7 @@ struct FileManagementInterface
     /// @brief Sets the permissions of the underlying file descriptor.
     /// @param[in] permissions the new permissions of the file descriptor
     /// @return On failure a 'FileSetPermissionError' describing the error.
-    expected<FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
+    expected<void, FileSetPermissionError> set_permissions(const access_rights permissions) noexcept;
 
     /// @brief Returns the size of the corresponding file.
     /// @return On failure a 'FileStatError' describing the error otherwise the size.

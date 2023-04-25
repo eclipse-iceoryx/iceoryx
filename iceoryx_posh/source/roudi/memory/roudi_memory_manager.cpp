@@ -52,7 +52,7 @@ RouDiMemoryManager::~RouDiMemoryManager() noexcept
     destroyMemory().or_else([](auto) { IOX_LOG(WARN) << "Failed to cleanup RouDiMemoryManager in destructor."; });
 }
 
-expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
+expected<void, RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
 {
     if (m_memoryProvider.push_back(memoryProvider))
     {
@@ -61,7 +61,7 @@ expected<RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryPr
     return error<RouDiMemoryManagerError>(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED);
 }
 
-expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() noexcept
+expected<void, RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() noexcept
 {
     if (m_memoryProvider.empty())
     {
@@ -87,9 +87,9 @@ expected<RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMemory() 
     return success<>();
 }
 
-expected<RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexcept
+expected<void, RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noexcept
 {
-    expected<RouDiMemoryManagerError> result = success<void>();
+    expected<void, RouDiMemoryManagerError> result = success<void>();
     for (auto memoryProvider : m_memoryProvider)
     {
         auto destructionResult = memoryProvider->destroy();

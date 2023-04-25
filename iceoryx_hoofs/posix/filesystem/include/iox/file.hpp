@@ -164,7 +164,7 @@ class File : public FileManagementInterface<File>
     explicit File(const int file_descriptor, const posix::AccessMode access_mode) noexcept;
     void close_fd() noexcept;
 
-    expected<FileOffsetError> set_offset(const uint64_t offset) const noexcept;
+    expected<void, FileOffsetError> set_offset(const uint64_t offset) const noexcept;
 
   private:
     static constexpr int INVALID_FILE_DESCRIPTOR{-1};

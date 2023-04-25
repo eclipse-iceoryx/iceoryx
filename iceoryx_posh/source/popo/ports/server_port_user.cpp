@@ -122,7 +122,7 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
 }
 
-expected<ServerSendError> ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
+expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* const responseHeader) noexcept
 {
     if (responseHeader == nullptr)
     {

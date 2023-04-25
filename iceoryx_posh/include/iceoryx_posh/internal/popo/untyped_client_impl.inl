@@ -60,7 +60,7 @@ void UntypedClientImpl<BaseClientT>::releaseRequest(void* const requestPayload) 
 }
 
 template <typename BaseClientT>
-expected<ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
+expected<void, ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const requestPayload) noexcept
 {
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
     if (chunkHeader == nullptr)

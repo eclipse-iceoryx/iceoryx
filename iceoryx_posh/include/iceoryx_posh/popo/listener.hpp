@@ -126,9 +126,9 @@ class ListenerImpl
               typename EventType,
               typename ContextDataType,
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    expected<ListenerError> attachEvent(T& eventOrigin,
-                                        const EventType eventType,
-                                        const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, ListenerError> attachEvent(T& eventOrigin,
+                                              const EventType eventType,
+                                              const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
     ///        the corresponding callback which will be called when the event occurs.
@@ -141,8 +141,8 @@ class ListenerImpl
     /// with iox::popo::createNotificationCallback
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T, typename ContextDataType>
-    expected<ListenerError> attachEvent(T& eventOrigin,
-                                        const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, ListenerError> attachEvent(T& eventOrigin,
+                                              const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin

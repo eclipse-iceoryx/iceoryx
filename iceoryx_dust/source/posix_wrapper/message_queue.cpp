@@ -154,7 +154,7 @@ expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelNam
     return success<bool>(mqCall->errnum != ENOENT);
 }
 
-expected<IpcChannelError> MessageQueue::destroy() noexcept
+expected<void, IpcChannelError> MessageQueue::destroy() noexcept
 {
     if (m_mqDescriptor != INVALID_DESCRIPTOR)
     {
@@ -177,7 +177,7 @@ expected<IpcChannelError> MessageQueue::destroy() noexcept
     return success<void>();
 }
 
-expected<IpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
+expected<void, IpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
 {
     const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
@@ -248,7 +248,7 @@ expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name
     return success<mqd_t>(mqCall->value);
 }
 
-expected<IpcChannelError> MessageQueue::close() noexcept
+expected<void, IpcChannelError> MessageQueue::close() noexcept
 {
     auto mqCall = posixCall(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
 
@@ -260,7 +260,7 @@ expected<IpcChannelError> MessageQueue::close() noexcept
     return success<void>();
 }
 
-expected<IpcChannelError> MessageQueue::unlink() noexcept
+expected<void, IpcChannelError> MessageQueue::unlink() noexcept
 {
     if (m_channelSide == IpcChannelSide::CLIENT)
     {
@@ -302,7 +302,8 @@ expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::D
     return success<std::string>(std::string(&(message[0])));
 }
 
-expected<IpcChannelError> MessageQueue::timedSend(const std::string& msg, const units::Duration& timeout) const noexcept
+expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
+                                                        const units::Duration& timeout) const noexcept
 {
     const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))

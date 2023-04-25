@@ -50,7 +50,7 @@ struct MutexAttributes
         }
     }
 
-    expected<MutexCreationError> init() noexcept
+    expected<void, MutexCreationError> init() noexcept
     {
         m_attributes.emplace();
         auto result = posixCall(pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
@@ -71,7 +71,7 @@ struct MutexAttributes
         return success<>();
     }
 
-    expected<MutexCreationError> enableIpcSupport(const bool enableIpcSupport) noexcept
+    expected<void, MutexCreationError> enableIpcSupport(const bool enableIpcSupport) noexcept
     {
         auto result =
             posixCall(pthread_mutexattr_setpshared)(
@@ -96,7 +96,7 @@ struct MutexAttributes
         return success<>();
     }
 
-    expected<MutexCreationError> setType(const MutexType mutexType) noexcept
+    expected<void, MutexCreationError> setType(const MutexType mutexType) noexcept
     {
         auto result = posixCall(pthread_mutexattr_settype)(&*m_attributes, static_cast<int>(mutexType))
                           .returnValueMatchesErrno()
@@ -110,7 +110,7 @@ struct MutexAttributes
         return success<>();
     }
 
-    expected<MutexCreationError> setProtocol(const MutexPriorityInheritance priorityInheritance)
+    expected<void, MutexCreationError> setProtocol(const MutexPriorityInheritance priorityInheritance)
     {
         auto result = posixCall(pthread_mutexattr_setprotocol)(&*m_attributes, static_cast<int>(priorityInheritance))
                           .returnValueMatchesErrno()
@@ -138,7 +138,7 @@ struct MutexAttributes
         return success<>();
     }
 
-    expected<MutexCreationError> setPrioCeiling(const int32_t priorityCeiling) noexcept
+    expected<void, MutexCreationError> setPrioCeiling(const int32_t priorityCeiling) noexcept
     {
         auto result = posixCall(pthread_mutexattr_setprioceiling)(&*m_attributes, static_cast<int>(priorityCeiling))
                           .returnValueMatchesErrno()
@@ -169,7 +169,8 @@ struct MutexAttributes
         return success<>();
     }
 
-    expected<MutexCreationError> setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
+    expected<void, MutexCreationError>
+    setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
     {
         auto result = posixCall(pthread_mutexattr_setrobust)(&*m_attributes, static_cast<int>(behavior))
                           .returnValueMatchesErrno()
@@ -187,8 +188,8 @@ struct MutexAttributes
     optional<pthread_mutexattr_t> m_attributes;
 };
 
-expected<MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
-                                             const pthread_mutexattr_t* const attributes) noexcept
+expected<void, MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
+                                                   const pthread_mutexattr_t* const attributes) noexcept
 {
     auto initResult = posixCall(pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
     if (initResult.has_error())
@@ -215,7 +216,7 @@ expected<MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
     return success<>();
 }
 
-expected<MutexCreationError> MutexBuilder::create(optional<mutex>& uninitializedMutex) noexcept
+expected<void, MutexCreationError> MutexBuilder::create(optional<mutex>& uninitializedMutex) noexcept
 {
     if (uninitializedMutex.has_value())
     {
@@ -341,7 +342,7 @@ void mutex::make_consistent() noexcept
     }
 }
 
-expected<MutexLockError> mutex::lock() noexcept
+expected<void, MutexLockError> mutex::lock() noexcept
 {
     auto result = posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
@@ -374,7 +375,7 @@ expected<MutexLockError> mutex::lock() noexcept
     return success<>();
 }
 
-expected<MutexUnlockError> mutex::unlock() noexcept
+expected<void, MutexUnlockError> mutex::unlock() noexcept
 {
     auto result = posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())

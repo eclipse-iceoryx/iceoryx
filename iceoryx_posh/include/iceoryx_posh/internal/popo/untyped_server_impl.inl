@@ -73,7 +73,7 @@ expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const Requ
 }
 
 template <typename BaseServerT>
-expected<ServerSendError> UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
+expected<void, ServerSendError> UntypedServerImpl<BaseServerT>::send(void* const responsePayload) noexcept
 {
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
     if (chunkHeader == nullptr)

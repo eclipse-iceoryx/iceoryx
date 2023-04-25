@@ -145,7 +145,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const function_
 }
 
 template <typename channel_t, typename gateway_t>
-inline expected<GatewayError>
+inline expected<void, GatewayError>
 GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.getScopeGuard();

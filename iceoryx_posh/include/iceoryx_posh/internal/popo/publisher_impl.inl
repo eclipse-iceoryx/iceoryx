@@ -43,8 +43,8 @@ inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher
 
 template <typename T, typename H, typename BasePublisherType>
 template <typename Callable, typename... ArgTypes>
-inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c,
-                                                                                         ArgTypes... args) noexcept
+inline expected<void, AllocationError>
+PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c, ArgTypes... args) noexcept
 {
     static_assert(is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
@@ -59,7 +59,7 @@ inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publish
 }
 
 template <typename T, typename H, typename BasePublisherType>
-inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
+inline expected<void, AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
         new (sample.get()) T(val); // Placement new copy-construction of sample, avoid copy-assigment because there

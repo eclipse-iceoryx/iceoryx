@@ -75,7 +75,7 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
     return success<void*>(baseAddress);
 }
 
-expected<MemoryProviderError> PosixShmMemoryProvider::destroyMemory() noexcept
+expected<void, MemoryProviderError> PosixShmMemoryProvider::destroyMemory() noexcept
 {
     m_shmObject.reset();
     return success<void>();

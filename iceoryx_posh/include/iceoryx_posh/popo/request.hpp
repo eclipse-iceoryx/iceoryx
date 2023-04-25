@@ -55,7 +55,7 @@ class Request
     /// release ownership to it.
     /// @details Only available for client (non-const type T)
     template <typename S = T, typename = ForClientOnly<S, T>>
-    expected<ClientSendError> send() noexcept;
+    expected<void, ClientSendError> send() noexcept;
 
     /// @brief Retrieve the request-header of the underlying memory chunk loaned to the sample.
     /// @return The request-header of the underlying memory chunk.

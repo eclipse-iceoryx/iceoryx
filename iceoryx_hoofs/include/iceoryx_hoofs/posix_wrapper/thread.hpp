@@ -99,7 +99,8 @@ class ThreadBuilder
     /// @param[in] uninitializedThread is an iox::optional where the thread is stored
     /// @param[in] callable is the callable that is invoked by the thread
     /// @return an error describing the failure or success
-    expected<ThreadError> create(optional<Thread>& uninitializedThread, const Thread::callable_t& callable) noexcept;
+    expected<void, ThreadError> create(optional<Thread>& uninitializedThread,
+                                       const Thread::callable_t& callable) noexcept;
 };
 
 } // namespace posix
