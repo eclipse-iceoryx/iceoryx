@@ -146,10 +146,10 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(Targs&&... 
     UnixDomainSocket newObject{std::forward<Targs>(args)...};
     if (!newObject.m_isInitialized)
     {
-        return iox::error<IpcChannelError>(newObject.m_errorValue);
+        return err(newObject.m_errorValue);
     }
 
-    return iox::success<UnixDomainSocket>(std::move(newObject));
+    return ok(std::move(newObject));
 }
 
 } // namespace posix

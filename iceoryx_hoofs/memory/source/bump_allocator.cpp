@@ -39,7 +39,7 @@ expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size,
     if (size == 0)
     {
         IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
-        return error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
+        return err(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
     }
 
     const uint64_t currentAddress{m_startAddress + m_currentPosition};
@@ -62,10 +62,10 @@ expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size,
         IOX_LOG(WARN) << "Trying to allocate additional " << size << " bytes in the memory of capacity " << m_length
                       << " when there are already " << alignedPosition << " aligned bytes in use.\n Only "
                       << m_length - alignedPosition << " bytes left.";
-        return error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
+        return err(BumpAllocatorError::OUT_OF_MEMORY);
     }
 
-    return success<void*>(allocation);
+    return ok(allocation);
 }
 
 void BumpAllocator::deallocate() noexcept

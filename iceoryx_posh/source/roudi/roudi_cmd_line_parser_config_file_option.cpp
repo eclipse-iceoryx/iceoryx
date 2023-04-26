@@ -46,7 +46,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv);
             if (result.has_error())
             {
-                return error<CmdLineParserResult>(result.get_error());
+                return err(result.get_error());
             }
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
@@ -72,7 +72,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
             if (result.has_error())
             {
-                return error<CmdLineParserResult>(result.get_error());
+                return err(result.get_error());
             }
         }
         };
@@ -82,13 +82,13 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             break;
         }
     }
-    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                m_logLevel,
-                                                m_compatibilityCheckLevel,
-                                                m_processKillDelay,
-                                                m_uniqueRouDiId,
-                                                m_run,
-                                                m_customConfigFilePath});
+    return ok(CmdLineArgs_t{m_monitoringMode,
+                            m_logLevel,
+                            m_compatibilityCheckLevel,
+                            m_processKillDelay,
+                            m_uniqueRouDiId,
+                            m_run,
+                            m_customConfigFilePath});
 }
 
 } // namespace config

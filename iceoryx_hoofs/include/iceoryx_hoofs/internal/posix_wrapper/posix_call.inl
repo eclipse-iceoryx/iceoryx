@@ -184,7 +184,7 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
 {
     if (m_details.hasSuccess || m_details.hasIgnoredErrno)
     {
-        return iox::success<PosixCallResult<ReturnType>>(m_details.result);
+        return ok<PosixCallResult<ReturnType>>(m_details.result);
     }
 
     if (!m_details.hasSilentErrno)
@@ -194,7 +194,7 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
                        << m_details.result.getHumanReadableErrnum();
     }
 
-    return iox::error<PosixCallResult<ReturnType>>(m_details.result);
+    return err<PosixCallResult<ReturnType>>(m_details.result);
 }
 
 } // namespace posix

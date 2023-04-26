@@ -33,18 +33,18 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
         {
         case EIO:
             IOX_LOG(ERROR) << "Unable to acquire file status since an io failure occurred while reading.";
-            return iox::error<FileStatError>(FileStatError::IoFailure);
+            return err(FileStatError::IoFailure);
         case EOVERFLOW:
             IOX_LOG(ERROR) << "Unable to acquire file status since the file size cannot be represented by the "
                               "corresponding structure.";
-            return iox::error<FileStatError>(FileStatError::FileTooLarge);
+            return err(FileStatError::FileTooLarge);
         default:
             IOX_LOG(ERROR) << "Unable to acquire file status due to an unknown failure";
-            return iox::error<FileStatError>(FileStatError::UnknownError);
+            return err(FileStatError::UnknownError);
         }
     }
 
-    return iox::success<iox_stat>(file_status);
+    return ok(file_status);
 }
 
 expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
@@ -57,27 +57,27 @@ expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, c
         {
         case EPERM:
             IOX_LOG(ERROR) << "Unable to set owner due to insufficient permissions.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::PermissionDenied);
+            return err(FileSetOwnerError::PermissionDenied);
         case EROFS:
             IOX_LOG(ERROR) << "Unable to set owner since it is a read-only filesystem.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::ReadOnlyFilesystem);
+            return err(FileSetOwnerError::ReadOnlyFilesystem);
         case EINVAL:
             IOX_LOG(ERROR) << "Unable to set owner since the uid " << uid << " or the gid " << gid
                            << " are not supported by the OS implementation.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::InvalidUidOrGid);
+            return err(FileSetOwnerError::InvalidUidOrGid);
         case EIO:
             IOX_LOG(ERROR) << "Unable to set owner due to an IO error.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::IoFailure);
+            return err(FileSetOwnerError::IoFailure);
         case EINTR:
             IOX_LOG(ERROR) << "Unable to set owner since an interrupt was received.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::Interrupt);
+            return err(FileSetOwnerError::Interrupt);
         default:
             IOX_LOG(ERROR) << "Unable to set owner since an unknown error occurred.";
-            return iox::error<FileSetOwnerError>(FileSetOwnerError::UnknownError);
+            return err(FileSetOwnerError::UnknownError);
         }
     }
 
-    return iox::success<>();
+    return ok();
 }
 
 expected<void, FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept
@@ -90,17 +90,17 @@ expected<void, FileSetPermissionError> set_permissions(const int fildes, const a
         {
         case EPERM:
             IOX_LOG(ERROR) << "Unable to adjust permissions due to insufficient permissions.";
-            return iox::error<FileSetPermissionError>(FileSetPermissionError::PermissionDenied);
+            return err(FileSetPermissionError::PermissionDenied);
         case EROFS:
             IOX_LOG(ERROR) << "Unable to adjust permissions since it is a read-only filesystem.";
-            return iox::error<FileSetPermissionError>(FileSetPermissionError::ReadOnlyFilesystem);
+            return err(FileSetPermissionError::ReadOnlyFilesystem);
         default:
             IOX_LOG(ERROR) << "Unable to adjust permissions since an unknown error occurred.";
-            return iox::error<FileSetPermissionError>(FileSetPermissionError::UnknownError);
+            return err(FileSetPermissionError::UnknownError);
         }
     }
 
-    return iox::success<>();
+    return ok();
 }
 
 } // namespace details

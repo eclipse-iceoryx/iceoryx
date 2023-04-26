@@ -37,7 +37,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
         ((*entry).*count)++;
-        return success<>();
+        return ok();
     }
 
     // entry does not exist, find a free slot if it exists
@@ -50,7 +50,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
         m_freeIndex = NO_INDEX;
-        return success<>();
+        return ok();
     }
 
     // search from start
@@ -60,7 +60,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         {
             entry.emplace(serviceDescription);
             (*entry).*count = 1U;
-            return success<>();
+            return ok();
         }
     }
 
@@ -70,10 +70,10 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         auto& entry = m_serviceDescriptions.back();
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
-        return success<>();
+        return ok();
     }
 
-    return error<Error>(Error::SERVICE_REGISTRY_FULL);
+    return err(Error::SERVICE_REGISTRY_FULL);
 }
 
 expected<void, ServiceRegistry::Error>

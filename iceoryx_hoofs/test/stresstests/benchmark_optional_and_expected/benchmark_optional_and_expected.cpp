@@ -137,10 +137,10 @@ iox::expected<uint64_t, uint64_t> complexErrorValueExpectedImpl()
 
     if (mod >= 4)
     {
-        return iox::error<uint64_t>(mod);
+        return iox::err(mod);
     }
 
-    return iox::success<uint64_t>(mod);
+    return iox::ok(mod);
 }
 
 void complexErrorValueExpected()
@@ -190,13 +190,13 @@ iox::expected<T, uint64_t> largeObjectPopExpectedImpl()
 
     if (globalCounter % 3 == 0)
     {
-        return iox::error<uint64_t>(globalCounter);
+        return iox::err(globalCounter);
     }
 
     T returnValue;
     returnValue.value = globalCounter;
 
-    return iox::success<T>(returnValue);
+    return iox::ok(returnValue);
 }
 
 template <typename T>

@@ -38,12 +38,12 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
     iox::expected<void*, MemoryProviderError> createMemory(const uint64_t size IOX_MAYBE_UNUSED,
                                                            const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
     {
-        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
+        return iox::err(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
 
     iox::expected<void, MemoryProviderError> destroyMemory() noexcept override
     {
-        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
+        return iox::err(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
     }
 };
 

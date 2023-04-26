@@ -42,7 +42,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
     auto result = port().getRequest();
     if (result.has_error())
     {
-        return error<ServerRequestResult>(result.get_error());
+        return err(result.get_error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -50,7 +50,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return success<Request<const Req>>(Request<const Req>{std::move(request)});
+    return ok(Request<const Req>{std::move(request)});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
@@ -61,7 +61,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     auto result = port().allocateResponse(requestHeader, sizeof(Res), alignof(Res));
     if (result.has_error())
     {
-        return error<AllocationError>(result.get_error());
+        return err(result.get_error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
@@ -69,7 +69,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return success<Response<Res>>(Response<Res>{std::move(response), *this});
+    return ok(Response<Res>{std::move(response), *this});
 }
 
 template <typename Req, typename Res, typename BaseServerT>

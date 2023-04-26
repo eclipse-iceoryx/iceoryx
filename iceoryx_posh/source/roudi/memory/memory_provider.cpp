@@ -36,26 +36,26 @@ expected<void, MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<Memo
 {
     if (isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return err(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     if (m_memoryBlocks.push_back(memoryBlock))
     {
-        return success<void>();
+        return ok();
     }
-    return error<MemoryProviderError>(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
+    return err(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
 }
 
 expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 {
     if (m_memoryBlocks.empty())
     {
-        return error<MemoryProviderError>(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
+        return err(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
     }
 
     if (isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return err(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     uint64_t totalSize = 0u;
@@ -78,7 +78,7 @@ expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 
     if (memoryResult.has_error())
     {
-        return error<MemoryProviderError>(memoryResult.get_error());
+        return err(memoryResult.get_error());
     }
 
     m_memory = memoryResult.value();
@@ -101,19 +101,19 @@ expected<void, MemoryProviderError> MemoryProvider::create() noexcept
         auto allocationResult = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
         if (allocationResult.has_error())
         {
-            return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
+            return err(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
         }
         memoryBlock->m_memory = allocationResult.value();
     }
 
-    return success<void>();
+    return ok();
 }
 
 expected<void, MemoryProviderError> MemoryProvider::destroy() noexcept
 {
     if (!isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
+        return err(MemoryProviderError::MEMORY_NOT_AVAILABLE);
     }
 
     for (auto* memoryBlock : m_memoryBlocks)

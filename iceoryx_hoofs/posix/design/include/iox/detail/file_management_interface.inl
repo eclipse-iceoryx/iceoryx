@@ -27,10 +27,10 @@ inline expected<Ownership, FileStatError> FileManagementInterface<Derived>::get_
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return iox::error<FileStatError>(result.get_error());
+        return err(result.get_error());
     }
 
-    return iox::success<Ownership>(Ownership(result->st_uid, result->st_gid));
+    return ok(Ownership(result->st_uid, result->st_gid));
 }
 
 template <typename Derived>
@@ -40,14 +40,13 @@ inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return iox::error<FileStatError>(result.get_error());
+        return err(result.get_error());
     }
 
     // st_mode also contains the file type, since we only would like to acquire the permissions
     // we have to remove the file type
     constexpr uint16_t ONLY_FILE_PERMISSIONS = 0777;
-    return iox::success<access_rights>(
-        access_rights(static_cast<access_rights::value_type>(result->st_mode & ONLY_FILE_PERMISSIONS)));
+    return ok(access_rights(static_cast<access_rights::value_type>(result->st_mode & ONLY_FILE_PERMISSIONS)));
 }
 
 template <typename Derived>
@@ -58,10 +57,10 @@ FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexc
     auto result = details::set_owner(derived_this.get_file_handle(), ownership.uid(), ownership.gid());
     if (result.has_error())
     {
-        return iox::error<FileSetOwnerError>(result.get_error());
+        return err(result.get_error());
     }
 
-    return iox::success<>();
+    return ok();
 }
 
 template <typename Derived>
@@ -72,10 +71,10 @@ FileManagementInterface<Derived>::set_permissions(const access_rights permission
     auto result = details::set_permissions(derived_this.get_file_handle(), permissions);
     if (result.has_error())
     {
-        return iox::error<FileSetPermissionError>(result.get_error());
+        return err(result.get_error());
     }
 
-    return iox::success<>();
+    return ok();
 }
 
 template <typename Derived>
@@ -85,10 +84,10 @@ inline expected<uint64_t, FileStatError> FileManagementInterface<Derived>::get_s
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return iox::error<FileStatError>(result.get_error());
+        return err(result.get_error());
     }
 
-    return iox::success<uint64_t>(static_cast<uint64_t>(result->st_size));
+    return ok(static_cast<uint64_t>(result->st_size));
 }
 } // namespace iox
 

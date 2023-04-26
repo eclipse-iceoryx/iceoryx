@@ -78,7 +78,7 @@ class MePooSegment_test : public Test
 
         iox::expected<uint64_t, iox::FileStatError> get_size() const
         {
-            return iox::success<uint64_t>(m_memorySizeInBytes);
+            return iox::ok(m_memorySizeInBytes);
         }
 
         void* getBaseAddress()
@@ -111,13 +111,12 @@ class MePooSegment_test : public Test
       public:
         iox::expected<SharedMemoryObject_MOCK, SharedMemoryObjectError> create() noexcept
         {
-            return iox::success<SharedMemoryObject_MOCK>(
-                SharedMemoryObject_MOCK(m_name,
-                                        m_memorySizeInBytes,
-                                        m_accessMode,
-                                        m_openMode,
-                                        (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
-                                        m_permissions));
+            return iox::ok(SharedMemoryObject_MOCK(m_name,
+                                                   m_memorySizeInBytes,
+                                                   m_accessMode,
+                                                   m_openMode,
+                                                   (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
+                                                   m_permissions));
         }
     };
 

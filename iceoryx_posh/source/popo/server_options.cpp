@@ -50,13 +50,13 @@ ServerOptions::deserialize(const cxx::Serialization& serialized) noexcept
         || requestQueueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA)
         || clientTooSlowPolicy > static_cast<ClientTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
-        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     serverOptions.requestQueueFullPolicy = static_cast<QueueFullPolicy>(requestQueueFullPolicy);
     serverOptions.clientTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(clientTooSlowPolicy);
 
-    return success<ServerOptions>(serverOptions);
+    return ok(serverOptions);
 }
 
 bool ServerOptions::operator==(const ServerOptions& rhs) const noexcept

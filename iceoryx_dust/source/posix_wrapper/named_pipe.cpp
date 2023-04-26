@@ -195,7 +195,7 @@ expected<void, IpcChannelError> NamedPipe::destroy() noexcept
         m_sharedMemory.reset();
         m_data = nullptr;
     }
-    return success<>();
+    return ok();
 }
 
 expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
@@ -203,22 +203,22 @@ expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t
     auto result = SharedMemory::unlinkIfExist(convertName(NAMED_PIPE_PREFIX, name));
     if (result.has_error())
     {
-        return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    return success<bool>(*result);
+    return ok(*result);
 }
 
 expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
     auto result = m_data->sendSemaphore().tryWait();
@@ -228,28 +228,28 @@ expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) c
     {
         IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
         cxx::Expects(!m_data->receiveSemaphore().post().has_error());
-        return success<>();
+        return ok();
     }
-    return error<IpcChannelError>(IpcChannelError::TIMEOUT);
+    return err(IpcChannelError::TIMEOUT);
 }
 
 expected<void, IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
     cxx::Expects(!m_data->sendSemaphore().wait().has_error());
     IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
     cxx::Expects(!m_data->receiveSemaphore().post().has_error());
 
-    return success<>();
+    return ok();
 }
 
 expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
@@ -257,12 +257,12 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
     auto result = m_data->sendSemaphore().timedWait(timeout);
@@ -272,16 +272,16 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
     {
         IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
         cxx::Expects(!m_data->receiveSemaphore().post().has_error());
-        return success<>();
+        return ok();
     }
-    return error<IpcChannelError>(IpcChannelError::TIMEOUT);
+    return err(IpcChannelError::TIMEOUT);
 }
 
 expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     cxx::Expects(!m_data->receiveSemaphore().wait().has_error());
@@ -289,16 +289,16 @@ expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
     if (message.has_value())
     {
         cxx::Expects(!m_data->sendSemaphore().post().has_error());
-        return success<std::string>(message->c_str());
+        return ok<std::string>(message->c_str());
     }
-    return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
 }
 
 expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     auto result = m_data->receiveSemaphore().tryWait();
@@ -310,19 +310,19 @@ expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
         if (message.has_value())
         {
             cxx::Expects(!m_data->sendSemaphore().post().has_error());
-            return success<std::string>(message->c_str());
+            return ok<std::string>(message->c_str());
         }
-        return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    return error<IpcChannelError>(IpcChannelError::TIMEOUT);
+    return err(IpcChannelError::TIMEOUT);
 }
 
 expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
 {
     if (!m_isInitialized)
     {
-        return error<IpcChannelError>(IpcChannelError::NOT_INITIALIZED);
+        return err(IpcChannelError::NOT_INITIALIZED);
     }
 
     auto result = m_data->receiveSemaphore().timedWait(timeout);
@@ -334,11 +334,11 @@ expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Dura
         if (message.has_value())
         {
             cxx::Expects(!m_data->sendSemaphore().post().has_error());
-            return success<std::string>(message->c_str());
+            return ok<std::string>(message->c_str());
         }
-        return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
-    return error<IpcChannelError>(IpcChannelError::TIMEOUT);
+    return err(IpcChannelError::TIMEOUT);
 }
 
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init) semaphores are initalized via placementCreate call

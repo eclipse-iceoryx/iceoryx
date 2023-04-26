@@ -43,10 +43,10 @@ expected<void*, AllocationError> UntypedClientImpl<BaseClientT>::loan(const uint
     auto allocationResult = port().allocateRequest(payloadSize, payloadAlignment);
     if (allocationResult.has_error())
     {
-        return error<AllocationError>(allocationResult.get_error());
+        return err(allocationResult.get_error());
     }
 
-    return success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
+    return ok(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
 }
 
 template <typename BaseClientT>
@@ -65,7 +65,7 @@ expected<void, ClientSendError> UntypedClientImpl<BaseClientT>::send(void* const
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(requestPayload);
     if (chunkHeader == nullptr)
     {
-        return error<ClientSendError>(ClientSendError::INVALID_REQUEST);
+        return err(ClientSendError::INVALID_REQUEST);
     }
 
     return port().sendRequest(static_cast<RequestHeader*>(chunkHeader->userHeader()));
@@ -77,10 +77,10 @@ expected<const void*, ChunkReceiveResult> UntypedClientImpl<BaseClientT>::take()
     auto responseResult = port().getResponse();
     if (responseResult.has_error())
     {
-        return error<ChunkReceiveResult>(responseResult.get_error());
+        return err(responseResult.get_error());
     }
 
-    return success<const void*>(mepoo::ChunkHeader::fromUserHeader(responseResult.value())->userPayload());
+    return ok(mepoo::ChunkHeader::fromUserHeader(responseResult.value())->userPayload());
 }
 
 template <typename BaseClientT>

@@ -38,13 +38,13 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
     if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.";
-        return error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+        return err(FileLockError::INVALID_FILE_NAME);
     }
 
     if (!isValidPathToDirectory(m_path))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
-        return error<FileLockError>(FileLockError::INVALID_PATH);
+        return err(FileLockError::INVALID_PATH);
     }
 
     FileLock::FilePath_t fileLockPath = m_path;
@@ -65,7 +65,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (openCall.has_error())
     {
-        return error<FileLockError>(FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
+        return err(FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
     }
 
     auto fileDescriptor = openCall.value().value;
@@ -83,10 +83,10 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
         });
 
         //  possible errors in iox_ext_close() are masked and we inform the user about the actual error
-        return error<FileLockError>(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
+        return err(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
     }
 
-    return success<FileLock>(FileLock(fileDescriptor, fileLockPath));
+    return ok(FileLock(fileDescriptor, fileLockPath));
 }
 
 FileLock::FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept
@@ -156,10 +156,10 @@ expected<void, FileLockError> FileLock::closeFileDescriptor() noexcept
 
         if (cleanupFailed)
         {
-            return error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
+            return err(FileLockError::INTERNAL_LOGIC_ERROR);
         }
     }
-    return success<>();
+    return ok();
 }
 
 void FileLock::invalidate() noexcept

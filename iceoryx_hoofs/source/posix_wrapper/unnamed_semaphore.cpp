@@ -29,7 +29,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
     {
         IOX_LOG(ERROR) << "The unnamed semaphore initial value of " << m_initialValue
                        << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
-        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return err(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
     uninitializedSemaphore.emplace();
@@ -59,7 +59,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
         }
     }
 
-    return success<>();
+    return ok();
 }
 
 UnnamedSemaphore::~UnnamedSemaphore() noexcept

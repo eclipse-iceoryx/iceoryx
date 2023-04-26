@@ -99,8 +99,8 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     expected<void, IpcChannelError> close() noexcept;
     expected<void, IpcChannelError> unlink() noexcept;
-    error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
-    static error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
+    IpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
+    static IpcChannelError errnoToEnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
     static expected<IpcChannelName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
     expected<void, IpcChannelError> destroy() noexcept;
 

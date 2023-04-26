@@ -32,7 +32,7 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
         {
             IOX_LOG(ERROR) << "Unable to purge and open file \"" << name.as_string()
                            << "\" since the file could not be removed";
-            return iox::error<FileCreationError>(FileCreationError::CannotBePurged);
+            return err(FileCreationError::CannotBePurged);
         }
     }
 
@@ -54,7 +54,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
         if (perms.has_error())
         {
             IOX_LOG(ERROR) << "Unable to acquire the permissions of the file.";
-            return iox::error<FileCreationError>(FileCreationError::PermissionDenied);
+            return err(FileCreationError::PermissionDenied);
         }
 
         if (m_access_mode == posix::AccessMode::READ_ONLY || m_access_mode == posix::AccessMode::READ_WRITE)
@@ -62,7 +62,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             if ((perms->value() & perms::owner_read.value()) == 0)
             {
                 IOX_LOG(ERROR) << "Unable to open/create file due to insufficient read permissions.";
-                return iox::error<FileCreationError>(FileCreationError::PermissionDenied);
+                return err(FileCreationError::PermissionDenied);
             }
         }
 
@@ -71,55 +71,55 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             if ((perms->value() & perms::owner_write.value()) == 0)
             {
                 IOX_LOG(ERROR) << "Unable to open/create file due to insufficient write permissions.";
-                return iox::error<FileCreationError>(FileCreationError::PermissionDenied);
+                return err(FileCreationError::PermissionDenied);
             }
         }
 
-        return iox::success<File>(std::move(file));
+        return ok(std::move(file));
     }
 
     switch (result.get_error().errnum)
     {
     case EACCES:
         IOX_LOG(ERROR) << "Unable to open/create file due to insufficient permissions.";
-        return iox::error<FileCreationError>(FileCreationError::PermissionDenied);
+        return err(FileCreationError::PermissionDenied);
     case EPERM:
         IOX_LOG(ERROR) << "Unable to open/create file due to insufficient permissions.";
-        return iox::error<FileCreationError>(FileCreationError::PermissionDenied);
+        return err(FileCreationError::PermissionDenied);
     case EINTR:
         IOX_LOG(ERROR) << "Unable to open/create file since an interrupt signal was received.";
-        return iox::error<FileCreationError>(FileCreationError::Interrupt);
+        return err(FileCreationError::Interrupt);
     case EISDIR:
         IOX_LOG(ERROR) << "Unable to open/create file since it is actually a directory.";
-        return iox::error<FileCreationError>(FileCreationError::IsDirectory);
+        return err(FileCreationError::IsDirectory);
     case ELOOP:
         IOX_LOG(ERROR) << "Unable to open/create file since too many symbolic links were encountered.";
-        return iox::error<FileCreationError>(FileCreationError::TooManySymbolicLinksEncountered);
+        return err(FileCreationError::TooManySymbolicLinksEncountered);
     case EMFILE:
         IOX_LOG(ERROR) << "Unable to open/create file since the process limit of open file descriptors was reached.";
-        return iox::error<FileCreationError>(FileCreationError::ProcessLimitOfOpenFileDescriptorsReached);
+        return err(FileCreationError::ProcessLimitOfOpenFileDescriptorsReached);
     case ENFILE:
         IOX_LOG(ERROR) << "Unable to open/create file since the system limit of open file descriptors was reached.";
-        return iox::error<FileCreationError>(FileCreationError::SystemLimitOfOpenFileDescriptorsReached);
+        return err(FileCreationError::SystemLimitOfOpenFileDescriptorsReached);
     case ENOENT:
         IOX_LOG(ERROR) << "Unable to open file since the file does not exist.";
-        return iox::error<FileCreationError>(FileCreationError::DoesNotExist);
+        return err(FileCreationError::DoesNotExist);
     case ENOMEM:
         IOX_LOG(ERROR) << "Unable to open/create file due to insufficient memory.";
-        return iox::error<FileCreationError>(FileCreationError::InsufficientMemory);
+        return err(FileCreationError::InsufficientMemory);
     case EOVERFLOW:
         IOX_LOG(ERROR) << "Unable to open/create file since it is too large.";
-        return iox::error<FileCreationError>(FileCreationError::FileTooLarge);
+        return err(FileCreationError::FileTooLarge);
     case ETXTBSY:
         IOX_LOG(ERROR) << "Unable to open/create file since it is currently in use.";
-        return iox::error<FileCreationError>(FileCreationError::CurrentlyInUse);
+        return err(FileCreationError::CurrentlyInUse);
     case EEXIST:
         IOX_LOG(ERROR) << "Unable to create file since it already exists.";
-        return iox::error<FileCreationError>(FileCreationError::AlreadyExists);
+        return err(FileCreationError::AlreadyExists);
     default:
         IOX_LOG(ERROR) << "Unable to open/create file since an unknown error occurred (" << result.get_error().errnum
                        << ").";
-        return iox::error<FileCreationError>(FileCreationError::UnknownError);
+        return err(FileCreationError::UnknownError);
     }
 }
 
@@ -195,29 +195,29 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 
     if (!result.has_error())
     {
-        return iox::success<bool>(true);
+        return ok(true);
     }
 
     switch (result.get_error().errnum)
     {
     case EACCES:
         IOX_LOG(ERROR) << "Unable to determine if file exists due to insufficient permissions.";
-        return iox::error<FileAccessError>(FileAccessError::InsufficientPermissions);
+        return err(FileAccessError::InsufficientPermissions);
     case ENOENT:
-        return iox::success<bool>(false);
+        return ok(false);
     case ELOOP:
         IOX_LOG(ERROR) << "Unable to determine if file exists due to too many symbolic links.";
-        return iox::error<FileAccessError>(FileAccessError::TooManySymbolicLinksEncountered);
+        return err(FileAccessError::TooManySymbolicLinksEncountered);
     case EIO:
         IOX_LOG(ERROR) << "Unable to determine if file exists due to an IO failure.";
-        return iox::error<FileAccessError>(FileAccessError::IoFailure);
+        return err(FileAccessError::IoFailure);
     case ENOMEM:
         IOX_LOG(ERROR) << "Unable to determine if file exists due insufficient kernel memory.";
-        return iox::error<FileAccessError>(FileAccessError::InsufficientKernelMemory);
+        return err(FileAccessError::InsufficientKernelMemory);
     default:
         IOX_LOG(ERROR) << "Unable to determine if file exists since an unknown error occurred ("
                        << result.get_error().errnum << ").";
-        return iox::error<FileAccessError>(FileAccessError::UnknownError);
+        return err(FileAccessError::UnknownError);
     }
 }
 
@@ -230,40 +230,40 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 
     if (!result.has_error())
     {
-        return iox::success<bool>(true);
+        return ok(true);
     }
 
     switch (result.get_error().errnum)
     {
     case ENOENT:
-        return iox::success<bool>(false);
+        return ok(false);
     case EPERM:
         IOX_FALLTHROUGH;
     case EACCES:
         IOX_LOG(ERROR) << "Unable to remove file due to insufficient permissions.";
-        return iox::error<FileRemoveError>(FileRemoveError::PermissionDenied);
+        return err(FileRemoveError::PermissionDenied);
     case EBUSY:
         IOX_LOG(ERROR) << "Unable to remove file since it is currently in use.";
-        return iox::error<FileRemoveError>(FileRemoveError::CurrentlyInUse);
+        return err(FileRemoveError::CurrentlyInUse);
     case EIO:
         IOX_LOG(ERROR) << "Unable to remove file due to an IO failure.";
-        return iox::error<FileRemoveError>(FileRemoveError::IoFailure);
+        return err(FileRemoveError::IoFailure);
     case ELOOP:
         IOX_LOG(ERROR) << "Unable to remove file due to too many symbolic links.";
-        return iox::error<FileRemoveError>(FileRemoveError::TooManySymbolicLinksEncountered);
+        return err(FileRemoveError::TooManySymbolicLinksEncountered);
     case ENOMEM:
         IOX_LOG(ERROR) << "Unable to remove file due to insufficient kernel memory.";
-        return iox::error<FileRemoveError>(FileRemoveError::InsufficientKernelMemory);
+        return err(FileRemoveError::InsufficientKernelMemory);
     case EISDIR:
         IOX_LOG(ERROR) << "Unable to remove file since it is a directory.";
-        return iox::error<FileRemoveError>(FileRemoveError::IsDirectory);
+        return err(FileRemoveError::IsDirectory);
     case EROFS:
         IOX_LOG(ERROR) << "Unable to remove file since it resides on a read-only file system.";
-        return iox::error<FileRemoveError>(FileRemoveError::ReadOnlyFilesystem);
+        return err(FileRemoveError::ReadOnlyFilesystem);
     default:
         IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred (" << result.get_error().errnum
                        << ").";
-        return iox::error<FileRemoveError>(FileRemoveError::UnknownError);
+        return err(FileRemoveError::UnknownError);
     }
 }
 
@@ -277,11 +277,11 @@ expected<void, FileOffsetError> File::set_offset(const uint64_t offset) const no
     {
         if (result->value == static_cast<iox_off_t>(offset))
         {
-            return iox::success<>();
+            return ok();
         }
 
         IOX_LOG(ERROR) << "Unable to set file offset position since it set to the wrong offset position.";
-        return iox::error<FileOffsetError>(FileOffsetError::OffsetAtWrongPosition);
+        return err(FileOffsetError::OffsetAtWrongPosition);
     }
 
 
@@ -291,18 +291,18 @@ expected<void, FileOffsetError> File::set_offset(const uint64_t offset) const no
         IOX_FALLTHROUGH;
     case ENXIO:
         IOX_LOG(ERROR) << "Unable to set file offset position since it is beyond the file limits.";
-        return iox::error<FileOffsetError>(FileOffsetError::OffsetBeyondFileLimits);
+        return err(FileOffsetError::OffsetBeyondFileLimits);
     case EOVERFLOW:
         IOX_LOG(ERROR)
             << "Unable to set file offset position since the file is too large and the offset would overflow.";
-        return iox::error<FileOffsetError>(FileOffsetError::FileOffsetOverflow);
+        return err(FileOffsetError::FileOffsetOverflow);
     case ESPIPE:
         IOX_LOG(ERROR) << "Unable to set file offset position since seeking is not supported by the file type.";
-        return iox::error<FileOffsetError>(FileOffsetError::SeekingNotSupportedByFileType);
+        return err(FileOffsetError::SeekingNotSupportedByFileType);
     default:
         IOX_LOG(ERROR) << "Unable to remove file since an unknown error occurred (" << result.get_error().errnum
                        << ").";
-        return iox::error<FileOffsetError>(FileOffsetError::UnknownError);
+        return err(FileOffsetError::UnknownError);
     }
 }
 
@@ -317,43 +317,43 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
     if (m_access_mode == posix::AccessMode::WRITE_ONLY)
     {
         IOX_LOG(ERROR) << "Unable to read from file since it is opened for writing only.";
-        return iox::error<FileReadError>(FileReadError::NotOpenedForReading);
+        return err(FileReadError::NotOpenedForReading);
     }
 
     if (set_offset(offset).has_error())
     {
         IOX_LOG(ERROR) << "Unable to read from file since the offset could not be set.";
-        return iox::error<FileReadError>(FileReadError::OffsetFailure);
+        return err(FileReadError::OffsetFailure);
     }
 
     auto result = posix::posixCall(iox_read)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {
-        return iox::success<uint64_t>(static_cast<uint64_t>(result->value));
+        return ok(static_cast<uint64_t>(result->value));
     }
 
     switch (result.get_error().errnum)
     {
     case EAGAIN:
         IOX_LOG(ERROR) << "Unable to read from file since the operation would block.";
-        return iox::error<FileReadError>(FileReadError::OperationWouldBlock);
+        return err(FileReadError::OperationWouldBlock);
     case EINTR:
         IOX_LOG(ERROR) << "Unable to read from file since an interrupt signal was received.";
-        return iox::error<FileReadError>(FileReadError::Interrupt);
+        return err(FileReadError::Interrupt);
     case EINVAL:
         IOX_LOG(ERROR) << "Unable to read from file since it is unsuitable for reading.";
-        return iox::error<FileReadError>(FileReadError::FileUnsuitableForReading);
+        return err(FileReadError::FileUnsuitableForReading);
     case EIO:
         IOX_LOG(ERROR) << "Unable to read from file since an IO failure occurred.";
-        return iox::error<FileReadError>(FileReadError::IoFailure);
+        return err(FileReadError::IoFailure);
     case EISDIR:
         IOX_LOG(ERROR) << "Unable to read from file since it is a directory.";
-        return iox::error<FileReadError>(FileReadError::IsDirectory);
+        return err(FileReadError::IsDirectory);
     default:
         IOX_LOG(ERROR) << "Unable to read from file since an unknown error occurred (" << result.get_error().errnum
                        << ").";
-        return iox::error<FileReadError>(FileReadError::UnknownError);
+        return err(FileReadError::UnknownError);
     }
 }
 
@@ -368,52 +368,52 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
     if (m_access_mode == posix::AccessMode::READ_ONLY)
     {
         IOX_LOG(ERROR) << "Unable to write to file since it is opened for reading only.";
-        return iox::error<FileWriteError>(FileWriteError::NotOpenedForWriting);
+        return err(FileWriteError::NotOpenedForWriting);
     }
 
     if (set_offset(offset).has_error())
     {
         IOX_LOG(ERROR) << "Unable to write to file since the offset could not be set.";
-        return iox::error<FileWriteError>(FileWriteError::OffsetFailure);
+        return err(FileWriteError::OffsetFailure);
     }
 
     auto result = posix::posixCall(iox_write)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {
-        return iox::success<uint64_t>(static_cast<uint64_t>(result->value));
+        return ok(static_cast<uint64_t>(result->value));
     }
 
     switch (result.get_error().errnum)
     {
     case EAGAIN:
         IOX_LOG(ERROR) << "Unable to write to file since the operation would block.";
-        return iox::error<FileWriteError>(FileWriteError::OperationWouldBlock);
+        return err(FileWriteError::OperationWouldBlock);
     case EDQUOT:
         IOX_LOG(ERROR) << "Unable to write to file since the users disk quota has been exhausted.";
-        return iox::error<FileWriteError>(FileWriteError::DiskQuotaExhausted);
+        return err(FileWriteError::DiskQuotaExhausted);
     case EFBIG:
         IOX_LOG(ERROR) << "Unable to write to file since file size exceeds the maximum supported size.";
-        return iox::error<FileWriteError>(FileWriteError::FileSizeExceedsMaximumSupportedSize);
+        return err(FileWriteError::FileSizeExceedsMaximumSupportedSize);
     case EINTR:
         IOX_LOG(ERROR) << "Unable to write to file since an interrupt signal occurred.";
-        return iox::error<FileWriteError>(FileWriteError::Interrupt);
+        return err(FileWriteError::Interrupt);
     case EINVAL:
         IOX_LOG(ERROR) << "Unable to write to file since the file is unsuitable for writing.";
-        return iox::error<FileWriteError>(FileWriteError::FileUnsuitableForWriting);
+        return err(FileWriteError::FileUnsuitableForWriting);
     case ENOSPC:
         IOX_LOG(ERROR) << "Unable to write to file since there is no space left on target.";
-        return iox::error<FileWriteError>(FileWriteError::NoSpaceLeftOnDevice);
+        return err(FileWriteError::NoSpaceLeftOnDevice);
     case EPERM:
         IOX_LOG(ERROR) << "Unable to write to file since the operation was prevented by a file seal.";
-        return iox::error<FileWriteError>(FileWriteError::PreventedByFileSeal);
+        return err(FileWriteError::PreventedByFileSeal);
     case EIO:
         IOX_LOG(ERROR) << "Unable to write to file since an IO failure occurred.";
-        return iox::error<FileWriteError>(FileWriteError::IoFailure);
+        return err(FileWriteError::IoFailure);
     default:
         IOX_LOG(ERROR) << "Unable to write to file since an unknown error has occurred (" << result.get_error().errnum
                        << ").";
-        return iox::error<FileWriteError>(FileWriteError::UnknownError);
+        return err(FileWriteError::UnknownError);
     }
 }
 

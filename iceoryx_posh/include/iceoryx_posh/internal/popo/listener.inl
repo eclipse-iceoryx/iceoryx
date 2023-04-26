@@ -30,7 +30,7 @@ ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return err(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -54,7 +54,7 @@ inline expected<void, ListenerError> ListenerImpl<Capacity>::attachEvent(
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return err(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -134,19 +134,19 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
-            return error<ListenerError>(ListenerError::EVENT_ALREADY_ATTACHED);
+            return err(ListenerError::EVENT_ALREADY_ATTACHED);
         }
     }
 
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
     {
-        return error<ListenerError>(ListenerError::LISTENER_FULL);
+        return err(ListenerError::LISTENER_FULL);
     }
 
     m_events[index]->init(
         index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
-    return success<uint32_t>(index);
+    return ok(index);
 }
 
 template <uint64_t Capacity>

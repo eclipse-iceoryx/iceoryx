@@ -42,10 +42,10 @@ expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::take(
     auto requestResult = port().getRequest();
     if (requestResult.has_error())
     {
-        return error<ServerRequestResult>(requestResult.get_error());
+        return err(requestResult.get_error());
     }
 
-    return success<const void*>(mepoo::ChunkHeader::fromUserHeader(requestResult.value())->userPayload());
+    return ok(mepoo::ChunkHeader::fromUserHeader(requestResult.value())->userPayload());
 }
 
 template <typename BaseServerT>
@@ -66,10 +66,10 @@ expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const Requ
     auto allocationResult = port().allocateResponse(requestHeader, payloadSize, payloadAlignment);
     if (allocationResult.has_error())
     {
-        return error<AllocationError>(allocationResult.get_error());
+        return err(allocationResult.get_error());
     }
 
-    return success<void*>(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
+    return ok(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());
 }
 
 template <typename BaseServerT>
@@ -78,7 +78,7 @@ expected<void, ServerSendError> UntypedServerImpl<BaseServerT>::send(void* const
     auto* chunkHeader = mepoo::ChunkHeader::fromUserPayload(responsePayload);
     if (chunkHeader == nullptr)
     {
-        return error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
+        return err(ServerSendError::INVALID_RESPONSE);
     }
 
     return port().sendResponse(static_cast<ResponseHeader*>(chunkHeader->userHeader()));

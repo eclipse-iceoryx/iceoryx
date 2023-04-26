@@ -138,8 +138,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
     ::testing::Test::RecordProperty("TEST_ID", "5e3c00e1-bd7c-49bf-adaf-f0d83cd4ab99");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::success<const iox::mepoo::ChunkHeader*>(
-            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+        .WillOnce(Return(ByMove(iox::ok(const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
     // ===== Verify ===== //
@@ -153,8 +152,7 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     ::testing::Test::RecordProperty("TEST_ID", "ff175cb2-ad97-4ba9-ab32-cd73618b0b8b");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::error<iox::popo::ChunkReceiveResult>(
-            iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
+        .WillOnce(Return(ByMove(iox::err(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
     // ===== Verify ===== //

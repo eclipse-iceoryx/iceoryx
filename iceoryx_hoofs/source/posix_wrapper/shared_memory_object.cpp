@@ -90,7 +90,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
+        return err(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
     const auto realSizeResult = sharedMemory->get_size();
@@ -99,7 +99,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
                           "underlying object.";
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
+        return err(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
     }
 
     const auto realSize = *realSizeResult;
@@ -108,7 +108,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
                        << " was requested but the object has only a size of " << realSize;
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
+        return err(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
     }
 
     auto memoryMap = MemoryMapBuilder()
@@ -124,7 +124,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Failed to map created shared memory into process!";
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
+        return err(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
     if (sharedMemory->hasOwnership())
@@ -141,7 +141,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
             {
                 printErrorDetails();
                 IOX_LOG(ERROR) << "Failed to temporarily override SIGBUS to safely zero the shared memory";
-                return error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
+                return err(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
             // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be used signal safe in
@@ -167,7 +167,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                        << "]";
     }
 
-    return success<SharedMemoryObject>(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
+    return ok(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
 }
 
 SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept

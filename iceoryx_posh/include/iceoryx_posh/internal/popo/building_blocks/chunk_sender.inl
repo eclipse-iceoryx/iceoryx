@@ -109,7 +109,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
+        return err(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
@@ -128,11 +128,11 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             lastChunkChunkHeader->~ChunkHeader();
             new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             lastChunkChunkHeader->setOriginId(originId);
-            return success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
+            return ok(lastChunkChunkHeader);
         }
         else
         {
-            return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+            return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -150,19 +150,19 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             {
                 // END of critical section
                 chunk.getChunkHeader()->setOriginId(originId);
-                return success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
+                return ok(chunk.getChunkHeader());
             }
             else
             {
                 // release the allocated chunk
                 chunk = nullptr;
-                return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+                return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
             }
         }
         else
         {
             /// @todo iox-#1012 use error<E2>::from(E1); once available
-            return error<AllocationError>(into<AllocationError>(getChunkResult.get_error()));
+            return err(into<AllocationError>(getChunkResult.get_error()));
         }
     }
 }

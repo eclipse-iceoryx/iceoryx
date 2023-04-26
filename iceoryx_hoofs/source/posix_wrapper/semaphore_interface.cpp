@@ -26,24 +26,24 @@ namespace posix
 {
 namespace internal
 {
-error<SemaphoreError> createErrorFromErrno(const int32_t errnum) noexcept
+SemaphoreError errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EINVAL:
         IOX_LOG(ERROR) << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
-        return error<SemaphoreError>(SemaphoreError::INVALID_SEMAPHORE_HANDLE);
+        return SemaphoreError::INVALID_SEMAPHORE_HANDLE;
     case EOVERFLOW:
         IOX_LOG(ERROR) << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
-        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return SemaphoreError::SEMAPHORE_OVERFLOW;
     case EINTR:
         IOX_LOG(ERROR) << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
-        return error<SemaphoreError>(SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER);
+        return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
         IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
         break;
     }
-    return error<SemaphoreError>(SemaphoreError::UNDEFINED);
+    return SemaphoreError::UNDEFINED;
 }
 
 template <typename SemaphoreChild>
@@ -59,10 +59,10 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexce
 
     if (result.has_error())
     {
-        return createErrorFromErrno(result.get_error().errnum);
+        return err(errnoToEnum(result.get_error().errnum));
     }
 
-    return success<>();
+    return ok();
 }
 
 template <typename SemaphoreChild>
@@ -77,11 +77,10 @@ SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) no
 
     if (result.has_error())
     {
-        return createErrorFromErrno(result.get_error().errnum);
+        return err(errnoToEnum(result.get_error().errnum));
     }
 
-    return success<SemaphoreWaitState>((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT
-                                                                            : SemaphoreWaitState::NO_TIMEOUT);
+    return ok((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT : SemaphoreWaitState::NO_TIMEOUT);
 }
 
 template <typename SemaphoreChild>
@@ -91,10 +90,10 @@ expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noe
 
     if (result.has_error())
     {
-        return createErrorFromErrno(result.get_error().errnum);
+        return err(errnoToEnum(result.get_error().errnum));
     }
 
-    return success<bool>(result.value().errnum != EAGAIN);
+    return ok(result.value().errnum != EAGAIN);
 }
 
 template <typename SemaphoreChild>
@@ -104,10 +103,10 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexce
 
     if (result.has_error())
     {
-        return createErrorFromErrno(result.get_error().errnum);
+        return err(errnoToEnum(result.get_error().errnum));
     }
 
-    return success<>();
+    return ok();
 }
 
 template class SemaphoreInterface<UnnamedSemaphore>;

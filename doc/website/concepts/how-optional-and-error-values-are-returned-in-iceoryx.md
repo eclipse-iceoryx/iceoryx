@@ -85,7 +85,7 @@ For more information on how it is used for error handling see
 Assume we have `E` as an error type, then we can create a value
 
 ```cpp
-iox::expected<int, E> result(iox::success<int>(73));
+iox::expected<int, E> result(iox::ok(73));
 ```
 
 and use the value or handle a potential error
@@ -106,7 +106,7 @@ else
 If we need an error value, we set
 
 ```cpp
-result = iox::error<E>(errorCode);
+result = iox::err(errorCode);
 ```
 
 which assumes that `E` can be constructed from an `errorCode`.

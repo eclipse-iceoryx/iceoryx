@@ -66,13 +66,13 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescripti
                                                            std::forward<const IceoryxPubSubOptions&>(options));
     if (rawIceoryxTerminalPtr == nullptr)
     {
-        return error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
+        return err(ChannelError::OBJECT_POOL_FULL);
     }
     auto rawExternalTerminalPtr = s_externalTerminals.create(
         service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
     if (rawExternalTerminalPtr == nullptr)
     {
-        return error<ChannelError>(ChannelError::OBJECT_POOL_FULL);
+        return err(ChannelError::OBJECT_POOL_FULL);
     }
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
@@ -81,7 +81,7 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescripti
     auto externalTerminalPtr =
         ExternalTerminalPtr(rawExternalTerminalPtr, [](ExternalTerminal* const p) { s_externalTerminals.free(p); });
 
-    return success<Channel>(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
+    return ok(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
 }
 
 template <typename IceoryxTerminal, typename ExternalTerminal>

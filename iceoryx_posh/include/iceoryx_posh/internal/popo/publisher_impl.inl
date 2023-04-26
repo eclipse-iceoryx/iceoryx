@@ -76,11 +76,11 @@ inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher
     auto result = port().tryAllocateChunk(sizeof(T), alignof(T), USER_HEADER_SIZE, alignof(H));
     if (result.has_error())
     {
-        return error<AllocationError>(result.get_error());
+        return err(result.get_error());
     }
     else
     {
-        return success<Sample<T, H>>(convertChunkHeaderToSample(result.value()));
+        return ok(convertChunkHeaderToSample(result.value()));
     }
 }
 

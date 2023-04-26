@@ -54,14 +54,14 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     if (m_name.empty())
     {
         IOX_LOG(ERROR) << "No shared memory name specified!";
-        return error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
+        return err(SharedMemoryError::EMPTY_NAME);
     }
 
     if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
                        << "\" is not a valid file name";
-        return error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
+        return err(SharedMemoryError::INVALID_FILE_NAME);
     }
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
@@ -73,7 +73,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     {
         IOX_LOG(ERROR) << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
                        << "Initializing a new file requires write access";
-        return error<SharedMemoryError>(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
+        return err(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
     }
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
@@ -117,7 +117,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
             if (result.has_error())
             {
                 printError();
-                return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+                return err(SharedMemory::errnoToEnum(result.get_error().errnum));
             }
         }
         sharedMemoryFileHandle = result->value;
@@ -148,11 +148,11 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+            return err(SharedMemory::errnoToEnum(result.get_error().errnum));
         }
     }
 
-    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+    return ok(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
 SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
@@ -226,10 +226,10 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
 
     if (!result.has_error())
     {
-        return success<bool>(result->errnum != ENOENT);
+        return ok(result->errnum != ENOENT);
     }
 
-    return error<SharedMemoryError>(errnoToEnum(result.get_error().errnum));
+    return err(errnoToEnum(result.get_error().errnum));
 }
 
 bool SharedMemory::unlink() noexcept

@@ -65,7 +65,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeWorks)
                                  USER_PAYLOAD_ALIGNMENT,
                                  iox::CHUNK_NO_USER_HEADER_SIZE,
                                  iox::CHUNK_NO_USER_HEADER_ALIGNMENT))
-        .WillOnce(Return(ByMove(iox::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+        .WillOnce(Return(ByMove(iox::ok(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result = sut.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT);
     // ===== Verify ===== //
@@ -85,7 +85,7 @@ TEST_F(UntypedPublisherTest, LoansChunkWithRequestedSizeAndUserHeaderWorks)
     constexpr uint32_t USER_HEADER_ALIGNMENT = alignof(TestUserHeader);
     EXPECT_CALL(portMockWithUserHeader,
                 tryAllocateChunk(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT))
-        .WillOnce(Return(ByMove(iox::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+        .WillOnce(Return(ByMove(iox::ok(chunkMock.chunkHeader()))));
     // ===== Test ===== //
     auto result =
         sutWithUserHeader.loan(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
@@ -99,8 +99,7 @@ TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
     ::testing::Test::RecordProperty("TEST_ID", "b609f96e-ea08-46b2-9b72-d162a8273cb5");
     constexpr uint32_t ALLOCATION_SIZE = 17U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
-        .WillOnce(
-            Return(ByMove(iox::error<iox::popo::AllocationError>(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
+        .WillOnce(Return(ByMove(iox::err(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS))));
     // ===== Test ===== //
     auto result = sut.loan(ALLOCATION_SIZE);
     // ===== Verify ===== //
@@ -114,7 +113,7 @@ TEST_F(UntypedPublisherTest, ReleaseDelegatesCallToPort)
     ::testing::Test::RecordProperty("TEST_ID", "e114b083-10c7-403e-a841-a04487a5f1e0");
     constexpr uint32_t ALLOCATION_SIZE = 7U;
     EXPECT_CALL(portMock, tryAllocateChunk(ALLOCATION_SIZE, _, _, _))
-        .WillOnce(Return(ByMove(iox::success<iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader()))));
+        .WillOnce(Return(ByMove(iox::ok(chunkMock.chunkHeader()))));
 
     auto result = sut.loan(ALLOCATION_SIZE);
     ASSERT_FALSE(result.has_error());

@@ -115,7 +115,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
     {
         if (currentTrigger && currentTrigger->isLogicalEqualTo(&eventOrigin, originType, originTypeHash))
         {
-            return error<WaitSetError>(WaitSetError::ALREADY_ATTACHED);
+            return err(WaitSetError::ALREADY_ATTACHED);
         }
     }
 
@@ -123,7 +123,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
     auto index = m_indexRepository.pop();
     if (!index)
     {
-        return error<WaitSetError>(WaitSetError::WAIT_SET_FULL);
+        return err(WaitSetError::WAIT_SET_FULL);
     }
 
 
@@ -151,7 +151,7 @@ WaitSet<Capacity>::attachImpl(T& eventOrigin,
                                        originTypeHash);
     }
 
-    return success<uint64_t>(*index);
+    return ok(*index);
 }
 
 template <uint64_t Capacity>

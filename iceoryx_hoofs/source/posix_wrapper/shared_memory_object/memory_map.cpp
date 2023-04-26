@@ -45,7 +45,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 
     if (result)
     {
-        return success<MemoryMap>(MemoryMap(result.value().value, m_length));
+        return ok(MemoryMap(result.value().value, m_length));
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
@@ -56,7 +56,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                    << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
                    << ", offset = " << iox::log::hex(m_offset) << " ]";
     std::cerr.setf(flags);
-    return error<MemoryMapError>(MemoryMap::errnoToEnum(result.get_error().errnum));
+    return err(MemoryMap::errnoToEnum(result.get_error().errnum));
 }
 
 MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept

@@ -155,7 +155,7 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
         IOX_LOG(ERROR) << "Request publisher got invalid response!";
-        return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
+        return err(IpcMessageErrorType::REQUEST_PUBLISHER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
     {
@@ -169,8 +169,7 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
             UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
-            return success<PublisherPortUserType::MemberType_t*>(
-                reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
+            return ok(reinterpret_cast<PublisherPortUserType::MemberType_t*>(ptr));
         }
     }
     else if (receiveBuffer.getNumberOfElements() == 2U)
@@ -180,12 +179,12 @@ PoshRuntimeImpl::requestPublisherFromRoudi(const IpcMessage& sendBuffer) noexcep
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
             IOX_LOG(ERROR) << "Request publisher received no valid publisher port from RouDi.";
-            return error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
+            return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
     IOX_LOG(ERROR) << "Request publisher got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE);
+    return err(IpcMessageErrorType::REQUEST_PUBLISHER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 SubscriberPortUserType::MemberType_t*
@@ -266,7 +265,7 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
         IOX_LOG(ERROR) << "Request subscriber got invalid response!";
-        return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE);
+        return err(IpcMessageErrorType::REQUEST_SUBSCRIBER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
     {
@@ -279,8 +278,7 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
             UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
-            return success<SubscriberPortUserType::MemberType_t*>(
-                reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
+            return ok(reinterpret_cast<SubscriberPortUserType::MemberType_t*>(ptr));
         }
     }
     else if (receiveBuffer.getNumberOfElements() == 2U)
@@ -291,12 +289,12 @@ PoshRuntimeImpl::requestSubscriberFromRoudi(const IpcMessage& sendBuffer) noexce
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
             IOX_LOG(ERROR) << "Request subscriber received no valid subscriber port from RouDi.";
-            return error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
+            return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
     IOX_LOG(ERROR) << "Request subscriber got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE);
+    return err(IpcMessageErrorType::REQUEST_SUBSCRIBER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const capro::ServiceDescription& service,
@@ -370,7 +368,7 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
         IOX_LOG(ERROR) << "Request client got invalid response!";
-        return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE);
+        return err(IpcMessageErrorType::REQUEST_CLIENT_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
     {
@@ -383,8 +381,7 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
             UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
-            return success<popo::ClientPortUser::MemberType_t*>(
-                reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
+            return ok(reinterpret_cast<popo::ClientPortUser::MemberType_t*>(ptr));
         }
     }
     else if (receiveBuffer.getNumberOfElements() == 2U)
@@ -394,13 +391,13 @@ PoshRuntimeImpl::requestClientFromRoudi(const IpcMessage& sendBuffer) noexcept
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
             IOX_LOG(ERROR) << "Request client received no valid client port from RouDi.";
-            return error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
+            return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
 
     IOX_LOG(ERROR) << "Request client got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE);
+    return err(IpcMessageErrorType::REQUEST_CLIENT_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const capro::ServiceDescription& service,
@@ -474,7 +471,7 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
         IOX_LOG(ERROR) << "Request server got invalid response!";
-        return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE);
+        return err(IpcMessageErrorType::REQUEST_SERVER_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
     {
@@ -487,8 +484,7 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
             UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
-            return success<popo::ServerPortUser::MemberType_t*>(
-                reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
+            return ok(reinterpret_cast<popo::ServerPortUser::MemberType_t*>(ptr));
         }
     }
     else if (receiveBuffer.getNumberOfElements() == 2U)
@@ -498,12 +494,12 @@ PoshRuntimeImpl::requestServerFromRoudi(const IpcMessage& sendBuffer) noexcept
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
             IOX_LOG(ERROR) << "Request server received no valid server port from RouDi.";
-            return error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
+            return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
     IOX_LOG(ERROR) << "Request server got wrong response from IPC channel :'" << receiveBuffer.getMessage() << "'";
-    return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE);
+    return err(IpcMessageErrorType::REQUEST_SERVER_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::InterfacePortData* PoshRuntimeImpl::getMiddlewareInterface(const capro::Interfaces interface,
@@ -582,7 +578,7 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
     if (sendRequestToRouDi(sendBuffer, receiveBuffer) == false)
     {
         IOX_LOG(ERROR) << "Request condition variable got invalid response!";
-        return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE);
+        return err(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_INVALID_RESPONSE);
     }
     else if (receiveBuffer.getNumberOfElements() == 3U)
     {
@@ -595,7 +591,7 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
             UntypedRelativePointer::offset_t offset{0U};
             cxx::convert::fromString(receiveBuffer.getElementAtIndex(1U).c_str(), offset);
             auto ptr = UntypedRelativePointer::getPtr(segment_id_t{segmentId}, offset);
-            return success<popo::ConditionVariableData*>(reinterpret_cast<popo::ConditionVariableData*>(ptr));
+            return ok(reinterpret_cast<popo::ConditionVariableData*>(ptr));
         }
     }
     else if (receiveBuffer.getNumberOfElements() == 2U)
@@ -605,13 +601,13 @@ PoshRuntimeImpl::requestConditionVariableFromRoudi(const IpcMessage& sendBuffer)
         if (stringToIpcMessageType(IpcMessage1.c_str()) == IpcMessageType::ERROR)
         {
             IOX_LOG(ERROR) << "Request condition variable received no valid condition variable port from RouDi.";
-            return error<IpcMessageErrorType>(stringToIpcMessageErrorType(IpcMessage2.c_str()));
+            return err(stringToIpcMessageErrorType(IpcMessage2.c_str()));
         }
     }
 
     IOX_LOG(ERROR) << "Request condition variable got wrong response from IPC channel :'" << receiveBuffer.getMessage()
                    << "'";
-    return error<IpcMessageErrorType>(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE);
+    return err(IpcMessageErrorType::REQUEST_CONDITION_VARIABLE_WRONG_IPC_MESSAGE_RESPONSE);
 }
 
 popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() noexcept

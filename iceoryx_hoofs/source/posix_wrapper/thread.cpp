@@ -67,10 +67,10 @@ expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitialize
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
-        return error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
+        return err(Thread::errnoToEnum(createResult.get_error().errnum));
     }
 
-    return success<>();
+    return ok();
 }
 
 Thread::Thread(const ThreadName_t& name, const callable_t& callable) noexcept

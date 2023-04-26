@@ -46,13 +46,13 @@ expected<const RequestHeader*, ServerRequestResult> ServerPortUser::getRequest()
     {
         if (!isOffered())
         {
-            return error<ServerRequestResult>(ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
+            return err(ServerRequestResult::NO_PENDING_REQUESTS_AND_SERVER_DOES_NOT_OFFER);
         }
         /// @todo iox-#1012 use error<E2>::from(E1); once available
-        return error<ServerRequestResult>(into<ServerRequestResult>(getChunkResult.get_error()));
+        return err(into<ServerRequestResult>(getChunkResult.get_error()));
     }
 
-    return success<const RequestHeader*>(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));
+    return ok(static_cast<const RequestHeader*>(getChunkResult.value()->userHeader()));
 }
 
 void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
@@ -90,7 +90,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 {
     if (requestHeader == nullptr)
     {
-        return error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER);
+        return err(AllocationError::INVALID_PARAMETER_FOR_REQUEST_HEADER);
     }
 
     auto allocateResult = m_chunkSender.tryAllocate(
@@ -98,7 +98,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
 
     if (allocateResult.has_error())
     {
-        return error<AllocationError>(allocateResult.get_error());
+        return err(allocateResult.get_error());
     }
 
     auto* responseHeader =
@@ -106,7 +106,7 @@ ServerPortUser::allocateResponse(const RequestHeader* const requestHeader,
                                                                   requestHeader->m_lastKnownClientQueueIndex,
                                                                   requestHeader->getSequenceId());
 
-    return success<ResponseHeader*>(responseHeader);
+    return ok(responseHeader);
 }
 
 void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept
@@ -128,7 +128,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
     {
         IOX_LOG(FATAL) << "Provided ResponseHeader is a nullptr";
         errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
-        return error<ServerSendError>(ServerSendError::INVALID_RESPONSE);
+        return err(ServerSendError::INVALID_RESPONSE);
     }
 
     const auto offerRequested = getMembers()->m_offeringRequested.load(std::memory_order_relaxed);
@@ -136,7 +136,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
     {
         releaseResponse(responseHeader);
         IOX_LOG(WARN) << "Try to send response without having offered!";
-        return error<ServerSendError>(ServerSendError::NOT_OFFERED);
+        return err(ServerSendError::NOT_OFFERED);
     }
 
     bool responseSent{false};
@@ -151,10 +151,10 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
     if (!responseSent)
     {
         IOX_LOG(WARN) << "Could not deliver to client! Client not available anymore!";
-        return error<ServerSendError>(ServerSendError::CLIENT_NOT_AVAILABLE);
+        return err(ServerSendError::CLIENT_NOT_AVAILABLE);
     }
 
-    return success<void>();
+    return ok();
 }
 
 void ServerPortUser::offer() noexcept
