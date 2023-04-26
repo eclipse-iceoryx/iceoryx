@@ -28,12 +28,86 @@ struct unexpect_t
 };
 constexpr unexpect_t unexpect{};
 
-/// @brief forward declaration required for 'compare_expected_value'
-template <typename ValueType, typename ErrorType>
-class expected;
+/// @brief helper trait for SFINEA to disable specific functions for 'void' value type
+/// @tparam T type to be checked for 'void'
+template <typename T>
+using enable_if_non_void_t = typename std::enable_if<!std::is_void<T>::value, T>::type;
+
+/// @brief helper trait for SFINEA to disable specific functions for non 'void' value type
+/// @tparam T type to be checked for 'void'
+template <typename T>
+using enable_if_void_t = typename std::enable_if<std::is_void<T>::value, T>::type;
+
+/// @brief helper trait for SFINEA to disable specific functions for lvalue references
+/// @tparam T type to be checked for lvalue reference
+template <typename T>
+using enable_if_not_lvalue_referece_t = typename std::enable_if<!std::is_lvalue_reference<T>::value, T>::type;
 
 namespace detail
 {
+/// @brief helper struct to create an expected which is signalling success more easily
+template <typename T = void>
+struct success
+{
+    // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
+    // available for delegation
+    explicit success(const T& t) noexcept
+        : value(t)
+    {
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
+    template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
+    explicit success(T&& t) noexcept
+        : value(std::forward<T>(t))
+    {
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : Intentional behavior. 'success' is not intended to be used with a type which throws
+    template <typename... Targs>
+    explicit success(Targs&&... args) noexcept
+        : value(std::forward<Targs>(args)...)
+    {
+    }
+
+    T value;
+};
+
+/// @brief helper struct to handle 'void' value type specialization
+template <>
+struct success<void>
+{
+    // dummy value
+    bool value{true};
+};
+
+/// @brief helper struct to create an expected which is signalling an error more easily
+template <typename T>
+struct error
+{
+    // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
+    // available for delegation
+    explicit error(const T& t) noexcept
+        : value(t)
+    {
+    }
+
+    // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
+    template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
+    explicit error(T&& t) noexcept
+        : value(std::forward<T>(t))
+    {
+    }
+
+    template <typename... Targs>
+    explicit error(Targs&&... args) noexcept
+        : value(std::forward<Targs>(args)...)
+    {
+    }
+
+    T value;
+};
+
 /// @brief helper class to be able to handle 'void' value type specialization
 template <typename ValueType, typename ErrorType>
 class expected_storage
@@ -90,6 +164,7 @@ class expected_storage
     iox::variant<ValueType, ErrorType> data;
 };
 
+/// @brief helper struct to handle 'void' value type specialization
 template <typename ErrorType>
 class expected_storage<void, ErrorType>
 {
@@ -156,6 +231,7 @@ struct compare_expected_value
     }
 };
 
+/// @brief helper struct to handle 'void' value type specialization
 template <typename E>
 struct compare_expected_value<void, E>
 {
