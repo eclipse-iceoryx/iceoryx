@@ -85,17 +85,6 @@ TEST_F(ErrorReportingMacroApi_test, reportNonFatal)
     EXPECT_ERROR(MyCodeA::OutOfBounds);
 }
 
-TEST_F(ErrorReportingMacroApi_test, reportExplicitFatal)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "99693536-4034-4f8d-8870-1e2e68c9ec9d");
-    auto f = []() { IOX_REPORT(MyCodeA::OutOfMemory, FATAL); };
-
-    runInTestThread(f);
-
-    EXPECT_PANIC();
-    EXPECT_ERROR(MyCodeA::OutOfMemory);
-}
-
 TEST_F(ErrorReportingMacroApi_test, reportFatal)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a65c28fb-8cf6-4b9b-96b9-079ee9cb6b88");
@@ -120,10 +109,11 @@ TEST_F(ErrorReportingMacroApi_test, reportConditionalError)
 TEST_F(ErrorReportingMacroApi_test, reportConditionalFatalError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c69e3a0d-4c0b-4f4e-bb25-66485bc551b9");
-    auto f = []() { IOX_REPORT_IF(true, MyCodeA::OutOfMemory, FATAL); };
+    auto f = []() { IOX_REPORT_FATAL_IF(true, MyCodeA::OutOfMemory); };
 
     runInTestThread(f);
 
+    EXPECT_PANIC();
     EXPECT_ERROR(MyCodeA::OutOfMemory);
 }
 

@@ -116,9 +116,9 @@ Even if there is no message to be provided, it has to be called with an empty me
 technical limitation from macro usage (required for location) as it is not allowed to have empty variadic
 macros.
 
-### Report an Error
+### Report a Non-fatal Error
 
-To report an error the error code (later to be extended to error objects) has to be provided
+To report a non-fatal error the error code (later to be extended to error objects) has to be provided
 
 ```cpp
 IOX_REPORT(Code::OutOfMemory, RUNTIME_ERROR);
@@ -148,10 +148,16 @@ Conditionally reporting an error if some condition holds is useful for more comp
 ```cpp
 int x;
 // ...
-IOX_REPORT_IF(x<0, Code::OutOfBounds, RUNTIME_ERROR)
+IOX_REPORT_IF(x<0, Code::OutOfBounds, RUNTIME_ERROR);
 ```
 
-### Assert That a Condition Holds
+Fatal errors can be conditionally reported in a similar way.
+
+```cpp
+IOX_REPORT_FATAL_IF(x<0, Code::OutOfBounds);
+```
+
+### Require That a Condition Holds
 
 Similarly we can conditionally check whether a condition does hold and report a fatal error in
 the case that it does not hold
@@ -159,7 +165,7 @@ the case that it does not hold
 ```cpp
 int x;
 // ...
-IOX_REQUIRE(x>=0, Code::OutOfBounds)
+IOX_REQUIRE(x>=0, Code::OutOfBounds);
 ```
 
 The condition is required to hold and this requirement is always checked.
@@ -188,7 +194,7 @@ A precondition check
 ```cpp
 int f(int x)
 {
-IOX_PRECONDITION(x>=0, "precondition violation message")
+IOX_PRECONDITION(x>=0, "precondition violation message");
 
 // ...
 }
@@ -217,7 +223,7 @@ int f(int x)
     // some computation
     int y = g(x);
 
-    IOX_ASSUME(y>=0, "assumption violation message")
+    IOX_ASSUME(y>=0, "assumption violation message");
     // proceed assuming that y>=0 holds
 }
 ```

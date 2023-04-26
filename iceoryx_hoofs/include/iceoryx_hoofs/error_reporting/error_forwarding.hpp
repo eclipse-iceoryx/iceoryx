@@ -23,6 +23,7 @@
 // to establish connection to the custom implementation
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
+#include <type_traits>
 #include <utility>
 
 namespace iox
@@ -50,6 +51,9 @@ template <typename Message>
 template <typename Error, typename Kind>
 [[noreturn]] inline void forwardFatalError(Error&& error, Kind&& kind, const SourceLocation& location)
 {
+    using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
+    static_assert(IsFatal<K>::value, "Must forward a fatal error!");
+
     report(location, std::forward<Kind>(kind), std::forward<Error>(error));
     panic(location);
     abort();
@@ -62,6 +66,9 @@ template <typename Error, typename Kind>
 template <typename Error, typename Kind>
 inline void forwardNonFatalError(Error&& error, Kind&& kind, const SourceLocation& location)
 {
+    using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
+    static_assert(!IsFatal<K>::value, "Must forward a non-fatal error!");
+
     report(location, std::forward<Kind>(kind), std::forward<Error>(error));
 }
 
@@ -73,6 +80,9 @@ inline void forwardNonFatalError(Error&& error, Kind&& kind, const SourceLocatio
 template <typename Error, typename Kind, typename Message>
 [[noreturn]] inline void forwardFatalError(Error&& error, Kind&& kind, const SourceLocation& location, Message&& msg)
 {
+    using K = typename std::remove_const<typename std::remove_reference<Kind>::type>::type;
+    static_assert(IsFatal<K>::value, "Must forward a fatal error!");
+
     report(location, std::forward<Kind>(kind), std::forward<Error>(error), std::forward<Message>(msg));
     panic(location);
     abort();

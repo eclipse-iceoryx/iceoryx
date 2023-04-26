@@ -36,7 +36,6 @@
 // Note: once source location becomes available without macro usage this could (and arguably should)
 // be transformed into a function API.
 
-
 /// @brief calls panic handler and does not return
 /// @param message message to be forwarded
 /// @note could actually throw if desired without breaking control flow asssumptions
@@ -46,43 +45,46 @@
         iox::err::forwardPanic(CURRENT_SOURCE_LOCATION, message);                                                      \
     } while (false)
 
-/// @brief report error of some kind
+/// @brief report error of some non-fatal kind
 /// @param error error object (or code)
-/// @param kind kind of error
+/// @param kind kind of error, must be non-fatal
 #define IOX_REPORT(error, kind)                                                                                        \
     do                                                                                                                 \
     {                                                                                                                  \
-        if (iox::err::isFatal(kind))                                                                                   \
-        {                                                                                                              \
-            iox::err::forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                      \
-        }                                                                                                              \
-        else                                                                                                           \
-        {                                                                                                              \
-            iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                   \
-        }                                                                                                              \
+        iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                       \
     } while (false)
 
 /// @brief report fatal error
 /// @param error error object (or code)
-#define IOX_REPORT_FATAL(error) IOX_REPORT(error, FATAL)
+#define IOX_REPORT_FATAL(error)                                                                                        \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        iox::err::forwardFatalError(iox::err::toError(error), FATAL, CURRENT_SOURCE_LOCATION);                         \
+    } while (false)
+#endif
 
-/// @brief report error of some kind if expr evaluates to true
+/// @brief report error of some non-fatal kind if expr evaluates to true
 /// @param expr boolean expression
 /// @param error error object (or code)
-/// @param kind kind of error
+/// @param kind kind of error, must be non-fatal
 #define IOX_REPORT_IF(expr, error, kind)                                                                               \
     do                                                                                                                 \
     {                                                                                                                  \
         if (expr)                                                                                                      \
         {                                                                                                              \
-            if (iox::err::isFatal(kind))                                                                               \
-            {                                                                                                          \
-                iox::err::forwardFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                  \
-            }                                                                                                          \
-            else                                                                                                       \
-            {                                                                                                          \
-                iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);               \
-            }                                                                                                          \
+            iox::err::forwardNonFatalError(iox::err::toError(error), kind, CURRENT_SOURCE_LOCATION);                   \
+        }                                                                                                              \
+    } while (false)
+
+/// @brief report fatal error if expr evaluates to true
+/// @param expr boolean expression
+/// @param error error object (or code)
+#define IOX_REPORT_FATAL_IF(expr, error)                                                                               \
+    do                                                                                                                 \
+    {                                                                                                                  \
+        if (expr)                                                                                                      \
+        {                                                                                                              \
+            iox::err::forwardFatalError(iox::err::toError(error), FATAL, CURRENT_SOURCE_LOCATION);                     \
         }                                                                                                              \
     } while (false)
 
@@ -90,7 +92,7 @@
 /// @note for conditions that may actually happen during correct use
 /// @param expr boolean expression that must hold
 /// @param error error object (or code)
-#define IOX_REQUIRE(expr, error) IOX_REPORT_IF(!(expr), error, FATAL)
+#define IOX_REQUIRE(expr, error) IOX_REPORT_FATAL_IF(!(expr), error)
 
 //************************************************************************************************
 //* For documentation of intent, defensive programming and debugging
@@ -137,5 +139,3 @@
     } while (false)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
-
-#endif
