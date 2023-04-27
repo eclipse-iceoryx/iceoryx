@@ -325,6 +325,77 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToMovedSource)
     EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
+TEST_F(expected_test, CreateWithOkFreeFunktionWithVoidValueTypeIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6d582b25-1c7d-4519-837c-55d151b324ff");
+    expected<void, TestError> sut = ok();
+    ASSERT_THAT(sut.has_error(), Eq(false));
+}
+
+TEST_F(expected_test, CreateWithOkFreeFunktionByCopyIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d3c24c27-432d-4a4b-8d55-6e723bc88c46");
+    constexpr int VALUE = 111;
+    expected<int, TestError> sut = ok(VALUE);
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    EXPECT_THAT(sut.value(), Eq(VALUE));
+}
+
+TEST_F(expected_test, CreateWithOkFreeFunktionByMoveIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b1320e1f-3613-4085-8125-fc95d584681c");
+    constexpr int A{44};
+    constexpr int B{55};
+    NonTrivialTestClass value{A, B};
+    expected<NonTrivialTestClass, TestError> sut = ok(std::move(value));
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    EXPECT_THAT(sut.value().m_a, Eq(A));
+    EXPECT_THAT(sut.value().m_b, Eq(B));
+}
+
+TEST_F(expected_test, CreateWithOkFreeFunktionByForwardingIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a3d41181-f4ad-4431-9441-7dfaeb8d6f7f");
+    constexpr int A{44};
+    constexpr int B{55};
+    expected<NonTrivialTestClass, TestError> sut = ok<NonTrivialTestClass>(A, B);
+    ASSERT_THAT(sut.has_error(), Eq(false));
+    EXPECT_THAT(sut.value().m_a, Eq(A));
+    EXPECT_THAT(sut.value().m_b, Eq(B));
+}
+
+TEST_F(expected_test, CreateWithErrFreeFunktionByCopyIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bb641919-e319-4e9c-af67-e1e8d5dab682");
+    constexpr TestError ERROR = TestError::ERROR1;
+    expected<int, TestError> sut = err(ERROR);
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    EXPECT_THAT(sut.get_error(), Eq(ERROR));
+}
+
+TEST_F(expected_test, CreateWithErrFreeFunktionByMoveIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f99af97a-16b2-41e6-a808-2d58bfe0fc57");
+    constexpr int A{666};
+    constexpr int B{73};
+    NonTrivialTestClass error{A, B};
+    expected<int, NonTrivialTestClass> sut = err(std::move(error));
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    EXPECT_THAT(sut.get_error().m_a, Eq(A));
+    EXPECT_THAT(sut.get_error().m_b, Eq(B));
+}
+
+TEST_F(expected_test, CreateWithErrFreeFunktionByForwardingIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "08411afa-e1d3-4a28-9680-f89796f86340");
+    constexpr int A{44};
+    constexpr int B{55};
+    expected<int, NonTrivialTestClass> sut = err<NonTrivialTestClass>(A, B);
+    ASSERT_THAT(sut.has_error(), Eq(true));
+    EXPECT_THAT(sut.get_error().m_a, Eq(A));
+    EXPECT_THAT(sut.get_error().m_b, Eq(B));
+}
+
 TEST_F(expected_test, BoolOperatorReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f1e30651-a0e9-4c73-b2bf-57f36fc7eddf");
