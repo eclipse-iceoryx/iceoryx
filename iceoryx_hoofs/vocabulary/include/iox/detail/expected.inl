@@ -22,67 +22,67 @@
 namespace iox
 {
 template <typename T, typename>
-detail::success<void> ok()
+detail::ok<void> ok()
 {
-    return detail::success<void>{};
+    return detail::ok<void>{};
 }
 
 template <typename T, typename>
-detail::success<T> ok(const T& value)
+detail::ok<T> ok(const T& value)
 {
-    return detail::success<T>{value};
+    return detail::ok<T>{value};
 }
 
 template <typename T, typename, typename>
-detail::success<T> ok(T&& value)
+detail::ok<T> ok(T&& value)
 {
-    return detail::success<T>{std::forward<T>(value)};
+    return detail::ok<T>{std::forward<T>(value)};
 }
 
 template <typename T, typename... Targs, typename>
-detail::success<T> ok(Targs&&... args)
+detail::ok<T> ok(Targs&&... args)
 {
-    return detail::success<T>{std::forward<Targs>(args)...};
+    return detail::ok<T>{std::forward<Targs>(args)...};
 }
 
 template <typename T>
-detail::error<T> err(const T& value)
+detail::err<T> err(const T& value)
 {
-    return detail::error<T>{value};
+    return detail::err<T>{value};
 }
 
 template <typename T, typename>
-detail::error<T> err(T&& value)
+detail::err<T> err(T&& value)
 {
-    return detail::error<T>{std::forward<T>(value)};
+    return detail::err<T>{std::forward<T>(value)};
 }
 
 template <typename T, typename... Targs>
-detail::error<T> err(Targs&&... args)
+detail::err<T> err(Targs&&... args)
 {
-    return detail::error<T>{std::forward<Targs>(args)...};
+    return detail::err<T>{std::forward<Targs>(args)...};
 }
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(const detail::success<ValueType>& successValue) noexcept
+inline expected<ValueType, ErrorType>::expected(const detail::ok<ValueType>& successValue) noexcept
     : m_store(in_place, successValue.value)
 {
 }
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(detail::success<ValueType>&& successValue) noexcept
+inline expected<ValueType, ErrorType>::expected(detail::ok<ValueType>&& successValue) noexcept
     : m_store(in_place, std::move(successValue.value))
 {
 }
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(const detail::error<ErrorType>& errorValue) noexcept
+inline expected<ValueType, ErrorType>::expected(const detail::err<ErrorType>& errorValue) noexcept
     : m_store(unexpect, errorValue.value)
 {
 }
 
 template <typename ValueType, typename ErrorType>
-inline expected<ValueType, ErrorType>::expected(detail::error<ErrorType>&& errorValue) noexcept
+inline expected<ValueType, ErrorType>::expected(detail::err<ErrorType>&& errorValue) noexcept
     : m_store(unexpect, std::move(errorValue.value))
 {
 }

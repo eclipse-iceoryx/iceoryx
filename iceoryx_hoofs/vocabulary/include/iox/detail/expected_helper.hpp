@@ -47,25 +47,25 @@ namespace detail
 {
 /// @brief helper struct to create an expected which is signalling success more easily
 template <typename T = void>
-struct success
+struct ok
 {
     // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
     // available for delegation
-    explicit success(const T& t) noexcept
+    explicit ok(const T& t) noexcept
         : value(t)
     {
     }
 
     // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
     template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
-    explicit success(T&& t) noexcept
+    explicit ok(T&& t) noexcept
         : value(std::forward<T>(t))
     {
     }
 
-    // AXIVION Next Construct AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : Intentional behavior. 'success' is not intended to be used with a type which throws
+    // AXIVION Next Construct AutosarC++19_03-A15.4.2, FaultDetection-NoexceptViolations : Intentional behavior. 'ok' is not intended to be used with a type which throws
     template <typename... Targs>
-    explicit success(Targs&&... args) noexcept
+    explicit ok(Targs&&... args) noexcept
         : value(std::forward<Targs>(args)...)
     {
     }
@@ -75,7 +75,7 @@ struct success
 
 /// @brief helper struct to handle 'void' value type specialization
 template <>
-struct success<void>
+struct ok<void>
 {
     // dummy value
     bool value{true};
@@ -83,24 +83,24 @@ struct success<void>
 
 /// @brief helper struct to create an expected which is signalling an error more easily
 template <typename T>
-struct error
+struct err
 {
     // AXIVION Next Construct AutosarC++19_03-A12.1.5 : This is a false positive since there is no fitting constructor
     // available for delegation
-    explicit error(const T& t) noexcept
+    explicit err(const T& t) noexcept
         : value(t)
     {
     }
 
     // AXIVION Next Construct AutosarC++19_03-A18.9.2 : For universal references std::forward must be used
     template <typename U = T, typename = enable_if_not_lvalue_referece_t<U>>
-    explicit error(T&& t) noexcept
+    explicit err(T&& t) noexcept
         : value(std::forward<T>(t))
     {
     }
 
     template <typename... Targs>
-    explicit error(Targs&&... args) noexcept
+    explicit err(Targs&&... args) noexcept
         : value(std::forward<Targs>(args)...)
     {
     }

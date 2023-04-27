@@ -27,10 +27,10 @@
 namespace iox
 {
 template <typename T = void>
-using success = detail::success<T>;
+using success = detail::ok<T>;
 
 template <typename T>
-using error = detail::error<T>;
+using error = detail::err<T>;
 
 /// @brief convenience function to create an 'expected' with a 'void' value type
 /// @param T helper template parameter for SFINEA
@@ -41,7 +41,7 @@ using error = detail::error<T>;
 ///     }
 /// @endcode
 template <typename T = void, typename = enable_if_void_t<T>>
-detail::success<void> ok();
+detail::ok<void> ok();
 
 /// @brief convenience function to create an 'expected' with a value type by copy
 /// @param T value type for the 'expected'
@@ -52,7 +52,7 @@ detail::success<void> ok();
 ///     }
 /// @endcode
 template <typename T, typename = enable_if_non_void_t<T>>
-detail::success<T> ok(const T& value);
+detail::ok<T> ok(const T& value);
 
 /// @brief convenience function to create an 'expected' with a value type by move
 /// @param T value type for the 'expected'
@@ -65,7 +65,7 @@ detail::success<T> ok(const T& value);
 ///     }
 /// @endcode
 template <typename T, typename = enable_if_non_void_t<T>, typename = enable_if_not_lvalue_referece_t<T>>
-detail::success<T> ok(T&& value);
+detail::ok<T> ok(T&& value);
 
 /// @brief convenience function to create an 'expected' with a value type by argument forwarding
 /// @param T value type for the 'expected'
@@ -76,7 +76,7 @@ detail::success<T> ok(T&& value);
 ///     }
 /// @endcode
 template <typename T, typename... Targs, typename = enable_if_non_void_t<T>>
-detail::success<T> ok(Targs&&... args);
+detail::ok<T> ok(Targs&&... args);
 
 /// @brief convenience function to create an 'expected' with an error type by copy
 /// @param T error type for the 'expected'
@@ -87,7 +87,7 @@ detail::success<T> ok(Targs&&... args);
 ///     }
 /// @endcode
 template <typename T>
-detail::error<T> err(const T& value);
+detail::err<T> err(const T& value);
 
 /// @brief convenience function to create an 'expected' with an error type by move
 /// @param T error type for the 'expected'
@@ -100,7 +100,7 @@ detail::error<T> err(const T& value);
 ///     }
 /// @endcode
 template <typename T, typename = enable_if_not_lvalue_referece_t<T>>
-detail::error<T> err(T&& value);
+detail::err<T> err(T&& value);
 
 /// @brief convenience function to create an 'expected' with an error type by argument forwarding
 /// @param T error type for the 'expected'
@@ -111,7 +111,7 @@ detail::error<T> err(T&& value);
 ///     }
 /// @endcode
 template <typename T, typename... Targs>
-detail::error<T> err(Targs&&... args);
+detail::err<T> err(Targs&&... args);
 
 /// @brief Implementation of the C++23 expected class which can contain an error or a success value
 /// @param ValueType type of the value which can be stored in the expected
@@ -171,7 +171,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     // we would like to use 'return ok(myValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    expected(const detail::success<ValueType>& successValue) noexcept;
+    expected(const detail::ok<ValueType>& successValue) noexcept;
 
     /// @brief  constructs an expected which is signaling success and uses the value
     ///         provided by successValue to move construct its success value
@@ -180,7 +180,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     // we would like to use 'return ok(myValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    expected(detail::success<ValueType>&& successValue) noexcept;
+    expected(detail::ok<ValueType>&& successValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
@@ -189,7 +189,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     // we would like to use 'return err(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    expected(const detail::error<ErrorType>& errorValue) noexcept;
+    expected(const detail::err<ErrorType>& errorValue) noexcept;
 
     /// @brief  constructs an expected which is signaling an error and stores the
     ///         error value provided by errorValue
@@ -198,7 +198,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     // we would like to use 'return err(myErrorValue)' with an implicit
     // conversion to return an expected easily
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
-    expected(detail::error<ErrorType>&& errorValue) noexcept;
+    expected(detail::err<ErrorType>&& errorValue) noexcept;
 
     /// @brief  creates an expected which is signaling success and perfectly forwards
     ///         the args to the constructor of ValueType
