@@ -120,20 +120,6 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
 }
 
 template <typename ValueType, typename ErrorType>
-template <typename... Targs>
-inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_value(Targs&&... args) noexcept
-{
-    return expected{in_place, std::forward<Targs>(args)...};
-}
-
-template <typename ValueType, typename ErrorType>
-template <typename... Targs>
-inline expected<ValueType, ErrorType> expected<ValueType, ErrorType>::create_error(Targs&&... args) noexcept
-{
-    return expected{unexpect, std::forward<Targs>(args)...};
-}
-
-template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::operator bool() const noexcept
 {
     return !has_error();

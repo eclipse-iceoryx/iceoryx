@@ -208,20 +208,6 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     // NOLINTNEXTLINE(hicpp-explicit-conversions)
     expected(detail::err<ErrorType>&& errorValue) noexcept;
 
-    /// @brief  creates an expected which is signaling success and perfectly forwards
-    ///         the args to the constructor of ValueType
-    /// @param[in] args... arguments which will be forwarded to the ValueType constructor
-    /// @return expected signalling success
-    template <typename... Targs>
-    static expected create_value(Targs&&... args) noexcept;
-
-    /// @brief  creates an expected which is signaling an error and perfectly forwards
-    ///         the args to the constructor of ErrorType
-    /// @param[in] args... arguments which will be forwarded to the ErrorType constructor
-    /// @return expected signalling error
-    template <typename... Targs>
-    static expected create_error(Targs&&... args) noexcept;
-
     // AXIVION Next Construct AutosarC++19_03-A13.5.3: Implementation is inspired from std::expected
     /// @brief  returns true if the expected does not contain an error otherwise false
     /// @return bool which contains true if the expected contains an error
