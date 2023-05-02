@@ -33,7 +33,7 @@ template <typename T>
 using error = detail::err<T>;
 
 /// @brief convenience function to create an 'expected' with a 'void' value type
-/// @param T helper template parameter for SFINEA
+/// @tparam T helper template parameter for SFINEA
 /// @code
 ///     expected<void, uint64_t> callMe() {
 ///         //...
@@ -44,7 +44,8 @@ template <typename T = void, typename = enable_if_void_t<T>>
 detail::ok<void> ok();
 
 /// @brief convenience function to create an 'expected' with a value type by copy
-/// @param T value type for the 'expected'
+/// @tparam T value type for the 'expected'
+/// @param[in] value is the value for the 'expected'
 /// @code
 ///     expected<bool, uint64_t> callMe() {
 ///         //...
@@ -55,7 +56,8 @@ template <typename T, typename = enable_if_non_void_t<T>>
 detail::ok<T> ok(const T& value);
 
 /// @brief convenience function to create an 'expected' with a value type by move
-/// @param T value type for the 'expected'
+/// @tparam T value type for the 'expected'
+/// @param[in] value is the value for the 'expected'
 /// @code
 ///     expected<MyClass, uint64_t> callMe() {
 ///         //...
@@ -68,7 +70,9 @@ template <typename T, typename = enable_if_non_void_t<T>, typename = enable_if_n
 detail::ok<T> ok(T&& value);
 
 /// @brief convenience function to create an 'expected' with a value type by argument forwarding
-/// @param T value type for the 'expected'
+/// @tparam T value type for the 'expected'
+/// @tparam Targs types for the constructor of the value type
+/// @param[in] args... arguments which will be perfectly forwarded to the value type constructor
 /// @code
 ///     expected<SomeClass, uint64_t> callMe() {
 ///         //...
@@ -79,7 +83,8 @@ template <typename T, typename... Targs, typename = enable_if_non_void_t<T>>
 detail::ok<T> ok(Targs&&... args);
 
 /// @brief convenience function to create an 'expected' with an error type by copy
-/// @param T error type for the 'expected'
+/// @tparam T error type for the 'expected'
+/// @param[in] error is the error for the 'expected'
 /// @code
 ///     expected<bool, uint64_t> callMe() {
 ///         //...
@@ -87,10 +92,11 @@ detail::ok<T> ok(Targs&&... args);
 ///     }
 /// @endcode
 template <typename T>
-detail::err<T> err(const T& value);
+detail::err<T> err(const T& error);
 
 /// @brief convenience function to create an 'expected' with an error type by move
-/// @param T error type for the 'expected'
+/// @tparam T error type for the 'expected'
+/// @param[in] error is the error for the 'expected'
 /// @code
 ///     expected<bool, MyError> callMe() {
 ///         //...
@@ -100,10 +106,12 @@ detail::err<T> err(const T& value);
 ///     }
 /// @endcode
 template <typename T, typename = enable_if_not_lvalue_referece_t<T>>
-detail::err<T> err(T&& value);
+detail::err<T> err(T&& error);
 
 /// @brief convenience function to create an 'expected' with an error type by argument forwarding
-/// @param T error type for the 'expected'
+/// @tparam T error type for the 'expected'
+/// @tparam Targs types for the constructor of the error type
+/// @param[in] args... arguments which will be perfectly forwarded to the error type constructor
 /// @code
 ///     expected<bool, SomeError> callMe() {
 ///         //...

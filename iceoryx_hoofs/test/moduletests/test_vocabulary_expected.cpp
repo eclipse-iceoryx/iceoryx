@@ -325,14 +325,14 @@ TEST_F(expected_test, CreateWithErrorAndMoveAssignmentLeadsToMovedSource)
     EXPECT_EQ(sutDestination.get_error().m_b, B);
 }
 
-TEST_F(expected_test, CreateWithOkFreeFunktionWithVoidValueTypeIsSuccessful)
+TEST_F(expected_test, CreateWithOkFreeFunctionWithVoidValueTypeIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6d582b25-1c7d-4519-837c-55d151b324ff");
     expected<void, TestError> sut = ok();
     ASSERT_THAT(sut.has_error(), Eq(false));
 }
 
-TEST_F(expected_test, CreateWithOkFreeFunktionByCopyIsSuccessful)
+TEST_F(expected_test, CreateWithOkFreeFunctionByCopyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d3c24c27-432d-4a4b-8d55-6e723bc88c46");
     constexpr int VALUE = 111;
@@ -341,7 +341,7 @@ TEST_F(expected_test, CreateWithOkFreeFunktionByCopyIsSuccessful)
     EXPECT_THAT(sut.value(), Eq(VALUE));
 }
 
-TEST_F(expected_test, CreateWithOkFreeFunktionByMoveIsSuccessful)
+TEST_F(expected_test, CreateWithOkFreeFunctionByMoveIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b1320e1f-3613-4085-8125-fc95d584681c");
     constexpr int A{44};
@@ -353,7 +353,7 @@ TEST_F(expected_test, CreateWithOkFreeFunktionByMoveIsSuccessful)
     EXPECT_THAT(sut.value().m_b, Eq(B));
 }
 
-TEST_F(expected_test, CreateWithOkFreeFunktionByForwardingIsSuccessful)
+TEST_F(expected_test, CreateWithOkFreeFunctionByForwardingIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a3d41181-f4ad-4431-9441-7dfaeb8d6f7f");
     constexpr int A{44};
@@ -364,7 +364,7 @@ TEST_F(expected_test, CreateWithOkFreeFunktionByForwardingIsSuccessful)
     EXPECT_THAT(sut.value().m_b, Eq(B));
 }
 
-TEST_F(expected_test, CreateWithErrFreeFunktionByCopyIsSuccessful)
+TEST_F(expected_test, CreateWithErrFreeFunctionByCopyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb641919-e319-4e9c-af67-e1e8d5dab682");
     constexpr TestError ERROR = TestError::ERROR1;
@@ -373,7 +373,7 @@ TEST_F(expected_test, CreateWithErrFreeFunktionByCopyIsSuccessful)
     EXPECT_THAT(sut.get_error(), Eq(ERROR));
 }
 
-TEST_F(expected_test, CreateWithErrFreeFunktionByMoveIsSuccessful)
+TEST_F(expected_test, CreateWithErrFreeFunctionByMoveIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f99af97a-16b2-41e6-a808-2d58bfe0fc57");
     constexpr int A{666};
@@ -385,7 +385,7 @@ TEST_F(expected_test, CreateWithErrFreeFunktionByMoveIsSuccessful)
     EXPECT_THAT(sut.get_error().m_b, Eq(B));
 }
 
-TEST_F(expected_test, CreateWithErrFreeFunktionByForwardingIsSuccessful)
+TEST_F(expected_test, CreateWithErrFreeFunctionByForwardingIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "08411afa-e1d3-4a28-9680-f89796f86340");
     constexpr int A{44};

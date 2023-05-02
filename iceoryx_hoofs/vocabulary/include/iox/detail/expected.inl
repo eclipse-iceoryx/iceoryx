@@ -46,15 +46,15 @@ detail::ok<T> ok(Targs&&... args)
 }
 
 template <typename T>
-detail::err<T> err(const T& value)
+detail::err<T> err(const T& error)
 {
-    return detail::err<T>{value};
+    return detail::err<T>{error};
 }
 
 template <typename T, typename>
-detail::err<T> err(T&& value)
+detail::err<T> err(T&& error)
 {
-    return detail::err<T>{std::forward<T>(value)};
+    return detail::err<T>{std::forward<T>(error)};
 }
 
 template <typename T, typename... Targs>
