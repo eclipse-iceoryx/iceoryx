@@ -253,28 +253,35 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     /// @deprecated use 'error' instead of 'get_error'
     ErrorType&& get_error() && noexcept;
 
-    /// @brief  returns a reference to the contained success value, if the expected
+    /// @brief  returns a lvalue reference to the contained success value, if the expected
     ///         does not contain a success value the error handler is called
     /// @tparam U helper template parameter for SFINEA
-    /// @return reference to the internally contained value
+    /// @return lvalue reference to the internally contained value
     /// @note this only works for non void ValueTypes
     template <typename U = ValueType>
     enable_if_non_void_t<U>& value() & noexcept;
 
-    /// @brief  returns a const reference to the contained success value, if the expected
+    /// @brief  returns a const lvalue reference to the contained success value, if the expected
     ///         does not contain a success value the error handler is called
     /// @tparam U helper template parameter for SFINEA
-    /// @return const reference to the internally contained value
+    /// @return const lvalue reference to the internally contained value
     /// @note this only works for non void ValueTypes
     template <typename U = ValueType>
     const enable_if_non_void_t<U>& value() const& noexcept;
 
-    /// @brief  returns a reference to the contained success value, if the expected
+    /// @brief  returns a rvalue reference to the contained success value, if the expected
     ///         does not contain a success value the error handler is called
     /// @tparam U helper template parameter for SFINEA
     /// @return rvalue reference to the internally contained value
     template <typename U = ValueType>
     enable_if_non_void_t<U>&& value() && noexcept;
+
+    /// @brief  returns a const rvalue reference to the contained success value, if the expected
+    ///         does not contain a success value the error handler is called
+    /// @tparam U helper template parameter for SFINEA
+    /// @return const rvalue reference to the internally contained value
+    template <typename U = ValueType>
+    const enable_if_non_void_t<U>&& value() const&& noexcept;
 
     /// @brief dereferencing operator which returns a reference to the contained
     ///         success value. if the expected contains an error the error handler is called
@@ -354,6 +361,11 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     friend constexpr bool ::iox::operator==(const expected<T, E>&, const expected<T, E>&) noexcept;
 
   private:
+    template <typename U = ValueType>
+    enable_if_non_void_t<U>& value_checked() & noexcept;
+    template <typename U = ValueType>
+    const enable_if_non_void_t<U>& value_checked() const& noexcept;
+
     ErrorType& error_checked() & noexcept;
     const ErrorType& error_checked() const& noexcept;
 

@@ -242,8 +242,8 @@ TEST_F(expected_test, CreateRValueAndGetErrorResultsInCorrectError)
 TEST_F(expected_test, CreateConstRValueAndGetErrorResultsInCorrectError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "936bb9c0-2559-4716-ba03-d5b927fff40f");
-    constexpr int VALUE_A = 131;
-    constexpr int VALUE_B = 121;
+    constexpr int VALUE_A = 123;
+    constexpr int VALUE_B = 122;
     using SutType = expected<int, TestClass>;
     auto sut = static_cast<const SutType&&>(SutType(unexpect, VALUE_A, VALUE_B)).error();
     EXPECT_THAT(sut.m_a, Eq(VALUE_A));
@@ -253,8 +253,8 @@ TEST_F(expected_test, CreateConstRValueAndGetErrorResultsInCorrectError)
 TEST_F(expected_test, CreateLValueAndGetErrorResultsInCorrectError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a167d79e-9c50-45d8-afb8-5a4cc2f3da1b");
-    constexpr int VALUE_A = 131;
-    constexpr int VALUE_B = 121;
+    constexpr int VALUE_A = 133;
+    constexpr int VALUE_B = 112;
     auto sut = expected<int, TestClass>(unexpect, VALUE_A, VALUE_B);
     EXPECT_THAT(sut.error().m_a, Eq(VALUE_A));
     EXPECT_THAT(sut.error().m_b, Eq(VALUE_B));
@@ -263,11 +263,52 @@ TEST_F(expected_test, CreateLValueAndGetErrorResultsInCorrectError)
 TEST_F(expected_test, ConstCreateLValueAndGetErrorResultsInCorrectError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e56063ea-8b7c-4d47-a898-fe609ea3b283");
-    constexpr int VALUE_A = 131;
-    constexpr int VALUE_B = 121;
+    constexpr int VALUE_A = 112;
+    constexpr int VALUE_B = 211;
     const auto sut = expected<int, TestClass>(unexpect, VALUE_A, VALUE_B);
     EXPECT_THAT(sut.error().m_a, Eq(VALUE_A));
     EXPECT_THAT(sut.error().m_b, Eq(VALUE_B));
+}
+
+TEST_F(expected_test, CreateRValueAndGetValueResultsInCorrectValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fb5a3954-50de-419a-b29d-635d068fcb84");
+    constexpr int VALUE_A = 141;
+    constexpr int VALUE_B = 131;
+    auto sut = expected<TestClass, TestError>(in_place, VALUE_A, VALUE_B).value();
+    EXPECT_THAT(sut.m_a, Eq(VALUE_A));
+    EXPECT_THAT(sut.m_b, Eq(VALUE_B));
+}
+
+TEST_F(expected_test, CreateConstRValueAndGetValueResultsInCorrectValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4af92b14-3b70-4ddd-8589-991abe3c8571");
+    constexpr int VALUE_A = 144;
+    constexpr int VALUE_B = 113;
+    using SutType = expected<TestClass, TestError>;
+    auto sut = static_cast<const SutType&&>(SutType(in_place, VALUE_A, VALUE_B)).value();
+    EXPECT_THAT(sut.m_a, Eq(VALUE_A));
+    EXPECT_THAT(sut.m_b, Eq(VALUE_B));
+}
+
+TEST_F(expected_test, CreateLValueAndGetValueResultsInCorrectValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5adabab2-3329-47bf-bfb7-fe8aa98eacc2");
+    constexpr int VALUE_A = 114;
+    constexpr int VALUE_B = 311;
+    auto sut = expected<TestClass, TestError>(in_place, VALUE_A, VALUE_B);
+    EXPECT_THAT(sut.value().m_a, Eq(VALUE_A));
+    EXPECT_THAT(sut.value().m_b, Eq(VALUE_B));
+}
+
+TEST_F(expected_test, ConstCreateLValueAndGetValueResultsInCorrectValue)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e33c2d23-7914-4ba7-a8ee-37e3c91c4a74");
+    constexpr int VALUE_A = 411;
+    constexpr int VALUE_B = 133;
+    const auto sut = expected<TestClass, TestError>(in_place, VALUE_A, VALUE_B);
+    EXPECT_THAT(sut.value().m_a, Eq(VALUE_A));
+    EXPECT_THAT(sut.value().m_b, Eq(VALUE_B));
 }
 
 TEST_F(expected_test, CreateWithValueAndMoveCtorLeadsToMovedSource)

@@ -196,14 +196,7 @@ inline const ErrorType& expected<ValueType, ErrorType>::get_error() const& noexc
 
 template <typename ValueType, typename ErrorType>
 template <typename U>
-inline enable_if_non_void_t<U>&& expected<ValueType, ErrorType>::value() && noexcept
-{
-    return std::move(value());
-}
-
-template <typename ValueType, typename ErrorType>
-template <typename U>
-inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value() const& noexcept
+inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value_checked() const& noexcept
 {
     cxx::ExpectsWithMsg(!has_error(), "Trying to access a value but an error is stored!");
     return m_store.value_unchecked();
@@ -211,18 +204,46 @@ inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value() co
 
 template <typename ValueType, typename ErrorType>
 template <typename U>
-inline enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value() & noexcept
+inline enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value_checked() & noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : const cast to avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
-    return const_cast<ValueType&>(const_cast<const expected<ValueType, ErrorType>*>(this)->value());
+    return const_cast<ValueType&>(const_cast<const expected<ValueType, ErrorType>*>(this)->value_checked());
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename U>
+inline enable_if_non_void_t<U>&& expected<ValueType, ErrorType>::value() && noexcept
+{
+    return std::move(value_checked());
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename U>
+inline const enable_if_non_void_t<U>&& expected<ValueType, ErrorType>::value() const&& noexcept
+{
+    return std::move(value_checked());
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename U>
+inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value() const& noexcept
+{
+    return value_checked();
+}
+
+template <typename ValueType, typename ErrorType>
+template <typename U>
+inline enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value() & noexcept
+{
+    return value_checked();
 }
 
 template <typename ValueType, typename ErrorType>
 template <typename U>
 inline enable_if_non_void_t<U>* expected<ValueType, ErrorType>::operator->() noexcept
 {
-    return &value();
+    return &value_checked();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -239,7 +260,7 @@ template <typename ValueType, typename ErrorType>
 template <typename U>
 inline enable_if_non_void_t<U>& expected<ValueType, ErrorType>::operator*() noexcept
 {
-    return value();
+    return value_checked();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -270,7 +291,7 @@ inline optional<enable_if_non_void_t<U>> expected<ValueType, ErrorType>::to_opti
     optional<enable_if_non_void_t<U>> returnValue;
     if (!has_error())
     {
-        returnValue.emplace(value());
+        returnValue.emplace(m_store.value_unchecked());
     }
     return returnValue;
 }
