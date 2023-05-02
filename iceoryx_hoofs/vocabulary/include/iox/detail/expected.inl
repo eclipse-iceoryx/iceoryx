@@ -126,6 +126,12 @@ inline expected<ValueType, ErrorType>::operator bool() const noexcept
 }
 
 template <typename ValueType, typename ErrorType>
+inline bool expected<ValueType, ErrorType>::has_value() const noexcept
+{
+    return m_store.has_value();
+}
+
+template <typename ValueType, typename ErrorType>
 inline bool expected<ValueType, ErrorType>::has_error() const noexcept
 {
     return m_store.has_error();
