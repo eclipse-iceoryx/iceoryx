@@ -256,7 +256,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
             getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
         ASSERT_TRUE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
+        EXPECT_THAT(publisherPortDataResult.error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
     }
 }
 
@@ -272,7 +272,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
             service, iox::popo::PublisherOptions(), runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         ASSERT_TRUE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
+        EXPECT_THAT(publisherPortDataResult.error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
     }
 }
 
@@ -321,7 +321,7 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
     if (IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY)
     {
         ASSERT_TRUE(acquirePublisherPortResult.has_error());
-        EXPECT_THAT(acquirePublisherPortResult.get_error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
+        EXPECT_THAT(acquirePublisherPortResult.error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
         EXPECT_TRUE(detectedError.has_value());
     }
     else
@@ -383,7 +383,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
         auto subscriberPortDataResult =
             m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, runtimeName1, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(subscriberPortDataResult.get_error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
+        EXPECT_THAT(subscriberPortDataResult.error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
     }
 }
 
@@ -641,7 +641,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
         auto conditionVariableResult = m_portManager->acquireConditionVariableData("AnotherToad");
         EXPECT_TRUE(conditionVariableResult.has_error());
         EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(conditionVariableResult.get_error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
+        EXPECT_THAT(conditionVariableResult.error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
     }
 }
 
@@ -715,7 +715,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
     auto nodeResult = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
     EXPECT_THAT(nodeResult.has_error(), Eq(true));
     EXPECT_THAT(errorHandlerCalled, Eq(true));
-    EXPECT_THAT(nodeResult.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
+    EXPECT_THAT(nodeResult.error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
 }
 
 TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)

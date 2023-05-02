@@ -46,7 +46,7 @@ expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const 
 
     if (allocateResult.has_error())
     {
-        return err(allocateResult.get_error());
+        return err(allocateResult.error());
     }
 
     auto* requestHeader = new (allocateResult.value()->userHeader())
@@ -121,7 +121,7 @@ expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResponse(
 
     if (getChunkResult.has_error())
     {
-        return err(getChunkResult.get_error());
+        return err(getChunkResult.error());
     }
 
     return ok(static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));

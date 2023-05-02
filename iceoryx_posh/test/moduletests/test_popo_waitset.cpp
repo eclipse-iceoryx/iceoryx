@@ -706,7 +706,7 @@ TEST_F(WaitSet_test, AttachingSameEventTwiceResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
 }
@@ -719,7 +719,7 @@ TEST_F(WaitSet_test, AttachingSameStateTwiceResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
 }
@@ -732,7 +732,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithNonNullIdTwiceResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
 }
@@ -745,7 +745,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithNonNullIdTwiceResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
 }
@@ -759,7 +759,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithDifferentIdResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
@@ -771,7 +771,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
@@ -918,7 +918,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithEnumFails)
 
     auto result = m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_THAT(SimpleEventClass::m_simpleEvent1, Eq(SimpleEvent1::EVENT1));
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
@@ -970,7 +970,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithEnumFails)
 
     auto result = m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_THAT(SimpleEventClass::m_simpleState1, Eq(SimpleState1::STATE1));
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());

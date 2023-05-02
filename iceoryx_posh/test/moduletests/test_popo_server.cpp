@@ -96,7 +96,7 @@ TEST_F(Server_test, TakeCallsUnderlyingPortWithErrorResult)
 
     auto takeResult = sut.take();
     ASSERT_TRUE(takeResult.has_error());
-    EXPECT_THAT(takeResult.get_error(), Eq(SERVER_REQUEST_RESULT));
+    EXPECT_THAT(takeResult.error(), Eq(SERVER_REQUEST_RESULT));
 }
 
 TEST_F(Server_test, LoanCallsUnderlyingPortWithSuccessResult)
@@ -145,7 +145,7 @@ TEST_F(Server_test, LoanCallsUnderlyingPortWithErrorResult)
 
     auto loanResult = sut.loan(request);
     ASSERT_TRUE(loanResult.has_error());
-    EXPECT_THAT(loanResult.get_error(), Eq(ALLOCATION_ERROR));
+    EXPECT_THAT(loanResult.error(), Eq(ALLOCATION_ERROR));
 
     EXPECT_CALL(sut.mockPort, releaseRequest(requestMock.userHeader())).Times(1);
 }

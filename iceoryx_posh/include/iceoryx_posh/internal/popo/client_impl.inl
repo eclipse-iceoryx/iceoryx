@@ -42,7 +42,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanU
     auto result = port().allocateRequest(sizeof(Req), alignof(Req));
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -76,7 +76,7 @@ expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClien
     auto result = port().getResponse();
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();

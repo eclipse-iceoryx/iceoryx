@@ -121,7 +121,7 @@ TYPED_TEST(SemaphoreInterfaceTest, InitialValueExceedingMaxSupportedValueFails)
     auto result = this->createSutWithInitialValue(INITIAL_VALUE);
 
     ASSERT_THAT(result.has_error(), Eq(true));
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+    EXPECT_THAT(result.error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
@@ -140,7 +140,7 @@ TYPED_TEST(SemaphoreInterfaceTest, PostWithMaxSemaphoreValueLeadsToOverflow)
 
     auto result = this->sut->post();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
+    EXPECT_THAT(result.error(), Eq(iox::posix::SemaphoreError::SEMAPHORE_OVERFLOW));
 }
 
 TYPED_TEST(SemaphoreInterfaceTest, PostIncreasesSemaphoreValue)

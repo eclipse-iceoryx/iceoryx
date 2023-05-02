@@ -37,7 +37,7 @@ inline expected<Sample<const T, const H>, ChunkReceiveResult> SubscriberImpl<T, 
     auto result = BaseSubscriberType::takeChunk();
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     auto userPayloadPtr = static_cast<const T*>(result.value()->userPayload());
     auto samplePtr = iox::unique_ptr<const T>(userPayloadPtr, [this](const T* userPayload) {

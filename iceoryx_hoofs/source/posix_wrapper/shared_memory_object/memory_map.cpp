@@ -56,7 +56,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                    << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
                    << ", offset = " << iox::log::hex(m_offset) << " ]";
     std::cerr.setf(flags);
-    return err(MemoryMap::errnoToEnum(result.get_error().errnum));
+    return err(MemoryMap::errnoToEnum(result.error().errnum));
 }
 
 MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
@@ -177,7 +177,7 @@ bool MemoryMap::destroy() noexcept
 
         if (unmapResult.has_error())
         {
-            errnoToEnum(unmapResult.get_error().errnum);
+            errnoToEnum(unmapResult.error().errnum);
             IOX_LOG(ERROR) << "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
                            << ", size = " << m_length << " ]";
             return false;

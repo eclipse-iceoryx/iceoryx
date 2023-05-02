@@ -364,7 +364,7 @@ TEST_F(Listener_test, AttachWithoutEnumOneMoreThanCapacityFails)
                                      createNotificationCallback(Listener_test::triggerCallback<0U>));
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::LISTENER_FULL));
+    EXPECT_THAT(result.error(), Eq(ListenerError::LISTENER_FULL));
 }
 
 TEST_F(Listener_test, AttachingWithEnumIfEnoughSpaceAvailableWorks)
@@ -393,7 +393,7 @@ TEST_F(Listener_test, AttachWithEnumOneMoreThanCapacityFails)
                                      createNotificationCallback(Listener_test::triggerCallback<0U>));
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::LISTENER_FULL));
+    EXPECT_THAT(result.error(), Eq(ListenerError::LISTENER_FULL));
 }
 
 TEST_F(Listener_test, DetachMakesSpaceForAnotherAttachWithEventEnum)
@@ -453,7 +453,7 @@ TEST_F(Listener_test, OverridingAlreadyAttachedEventWithEnumFails)
                                      SimpleEvent::StoepselBachelorParty,
                                      createNotificationCallback(Listener_test::triggerCallback<0U>));
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(Listener_test, OverridingAlreadyAttachedEventWithoutEnumFails)
@@ -465,7 +465,7 @@ TEST_F(Listener_test, OverridingAlreadyAttachedEventWithoutEnumFails)
     auto result =
         m_sut->attachEvent(m_simpleEvents[0U], createNotificationCallback(Listener_test::triggerCallback<0U>));
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(ListenerError::EVENT_ALREADY_ATTACHED));
 }
 
 TEST_F(Listener_test, AttachingSameClassWithTwoDifferentEventsWorks)
@@ -493,7 +493,7 @@ TEST_F(Listener_test, AttachingNullptrCallbackFails)
 
     auto result = m_sut->attachEvent(m_simpleEvents[0U], empty_callback);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
+    EXPECT_THAT(result.error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
 }
 
 TEST_F(Listener_test, AttachingNullptrCallbackWithEventFails)
@@ -505,7 +505,7 @@ TEST_F(Listener_test, AttachingNullptrCallbackWithEventFails)
 
     auto result = m_sut->attachEvent(m_simpleEvents[0U], SimpleEvent::StoepselBachelorParty, empty_callback);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
+    EXPECT_THAT(result.error(), Eq(ListenerError::EMPTY_EVENT_CALLBACK));
 }
 
 TEST_F(Listener_test, DetachingSameClassWithDifferentEventEnumChangesNothing)

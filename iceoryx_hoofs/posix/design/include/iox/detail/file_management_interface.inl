@@ -27,7 +27,7 @@ inline expected<Ownership, FileStatError> FileManagementInterface<Derived>::get_
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
 
     return ok(Ownership(result->st_uid, result->st_gid));
@@ -40,7 +40,7 @@ inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
 
     // st_mode also contains the file type, since we only would like to acquire the permissions
@@ -57,7 +57,7 @@ FileManagementInterface<Derived>::set_ownership(const Ownership ownership) noexc
     auto result = details::set_owner(derived_this.get_file_handle(), ownership.uid(), ownership.gid());
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
 
     return ok();
@@ -71,7 +71,7 @@ FileManagementInterface<Derived>::set_permissions(const access_rights permission
     auto result = details::set_permissions(derived_this.get_file_handle(), permissions);
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
 
     return ok();
@@ -84,7 +84,7 @@ inline expected<uint64_t, FileStatError> FileManagementInterface<Derived>::get_s
     auto result = details::get_file_status(derived_this.get_file_handle());
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
 
     return ok(static_cast<uint64_t>(result->st_size));

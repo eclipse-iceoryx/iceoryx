@@ -231,7 +231,7 @@ inline Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor& call
     if (!derivedThis)
     {
         const auto callback = static_cast<or_else_callback_t>(callable);
-        callback(derivedThis.get_error());
+        callback(derivedThis.error());
     }
 
     return derivedThis;
@@ -256,7 +256,7 @@ inline const Derived& OrElseWithValue<Derived, ErrorType>::or_else(const Functor
     if (!derivedThis)
     {
         auto callback = static_cast<const_or_else_callback_t>(callable);
-        callback(derivedThis.get_error());
+        callback(derivedThis.error());
     }
 
     return derivedThis;

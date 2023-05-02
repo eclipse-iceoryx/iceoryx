@@ -29,7 +29,7 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EIO:
             IOX_LOG(ERROR) << "Unable to acquire file status since an io failure occurred while reading.";
@@ -53,7 +53,7 @@ expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, c
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EPERM:
             IOX_LOG(ERROR) << "Unable to set owner due to insufficient permissions.";
@@ -86,7 +86,7 @@ expected<void, FileSetPermissionError> set_permissions(const int fildes, const a
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EPERM:
             IOX_LOG(ERROR) << "Unable to adjust permissions due to insufficient permissions.";

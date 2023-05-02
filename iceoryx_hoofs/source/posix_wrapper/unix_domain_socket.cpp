@@ -193,7 +193,7 @@ expected<void, IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 
             return ok();
         }
-        return err(convertErrnoToIpcChannelError(closeCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(closeCall.error().errnum));
     }
     return ok();
 }
@@ -237,7 +237,7 @@ expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& m
 
     if (setsockoptCall.has_error())
     {
-        return err(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(setsockoptCall.error().errnum));
     }
     auto sendCall = posixCall(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                         .failureReturnValue(ERROR_CODE)
@@ -245,7 +245,7 @@ expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& m
 
     if (sendCall.has_error())
     {
-        return err(convertErrnoToIpcChannelError(sendCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(sendCall.error().errnum));
     }
     return ok();
 }
@@ -277,7 +277,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
 
     if (setsockoptCall.has_error())
     {
-        return err(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(setsockoptCall.error().errnum));
     }
     // NOLINTJUSTIFICATION needed for recvfrom
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -291,7 +291,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
 
     if (recvCall.has_error())
     {
-        return err(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(recvCall.error().errnum));
     }
     return ok<std::string>(&message[0]);
 }
@@ -322,7 +322,7 @@ expected<void, IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 
     if (socketCall.has_error())
     {
-        return err(convertErrnoToIpcChannelError(socketCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(socketCall.error().errnum));
     }
 
     if (IpcChannelSide::SERVER == m_channelSide)
@@ -344,7 +344,7 @@ expected<void, IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
             IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return err(convertErrnoToIpcChannelError(bindCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(bindCall.error().errnum));
     }
     // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
     // is created and server not present)
@@ -362,7 +362,7 @@ expected<void, IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
             IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return err(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(connectCall.error().errnum));
     }
     return ok();
 }

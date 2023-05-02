@@ -1009,7 +1009,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingClient)
             ASSERT_THAT(sendResult.has_error(), Eq(expectError));
             if (expectError)
             {
-                EXPECT_THAT(sendResult.get_error(), Eq(iox::popo::ClientSendError::SERVER_NOT_AVAILABLE));
+                EXPECT_THAT(sendResult.error(), Eq(iox::popo::ClientSendError::SERVER_NOT_AVAILABLE));
             }
         };
 
@@ -1088,7 +1088,7 @@ TEST_F(PoshRuntime_test, ShutdownUnblocksBlockingServer)
             ASSERT_THAT(sendResult.has_error(), Eq(expectError));
             if (expectError)
             {
-                EXPECT_THAT(sendResult.get_error(), Eq(iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE));
+                EXPECT_THAT(sendResult.error(), Eq(iox::popo::ServerSendError::CLIENT_NOT_AVAILABLE));
             }
         };
 

@@ -149,7 +149,7 @@ iox_AllocationResult iox_pub_loan_aligned_chunk_with_user_header(iox_pub_t const
                       .and_then([&userPayload](ChunkHeader* h) { *userPayload = h->userPayload(); });
     if (result.has_error())
     {
-        return cpp2c::allocationResult(result.get_error());
+        return cpp2c::allocationResult(result.error());
     }
 
     return AllocationResult_SUCCESS;

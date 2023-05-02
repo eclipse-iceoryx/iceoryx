@@ -78,7 +78,7 @@ expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 
     if (memoryResult.has_error())
     {
-        return err(memoryResult.get_error());
+        return err(memoryResult.error());
     }
 
     m_memory = memoryResult.value();

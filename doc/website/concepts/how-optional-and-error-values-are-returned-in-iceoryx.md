@@ -98,7 +98,7 @@ if (!result.has_error())
 }
 else
 {
-    auto error = result.get_error();
+    auto error = result.error();
     // handle the error
 }
 ```

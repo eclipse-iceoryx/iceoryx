@@ -207,7 +207,7 @@ TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFa
 
     auto result = this->sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
+    EXPECT_THAT(result.error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)

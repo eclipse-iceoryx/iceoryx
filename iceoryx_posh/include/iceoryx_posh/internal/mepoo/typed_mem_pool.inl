@@ -68,7 +68,7 @@ inline expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObje
     auto chunkManagement = acquireChunkManagementPointer();
     if (chunkManagement.has_error())
     {
-        return err(chunkManagement.get_error());
+        return err(chunkManagement.error());
     }
 
     auto newObject = SharedPointer<T>::create(SharedChunk(*chunkManagement), std::forward<Targs>(args)...);
@@ -91,13 +91,13 @@ TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
     auto chunkManagement = acquireChunkManagementPointer();
     if (chunkManagement.has_error())
     {
-        return err<errorType_t>(in_place_index<0>(), chunkManagement.get_error());
+        return err<errorType_t>(in_place_index<0>(), chunkManagement.error());
     }
 
     auto newObject = T::create(std::forward<Targs>(args)...);
     if (newObject.has_error())
     {
-        return err<errorType_t>(in_place_index<1>(), newObject.get_error());
+        return err<errorType_t>(in_place_index<1>(), newObject.error());
     }
 
     auto sharedPointer = SharedPointer<T>::create(SharedChunk(*chunkManagement), std::move(*newObject));

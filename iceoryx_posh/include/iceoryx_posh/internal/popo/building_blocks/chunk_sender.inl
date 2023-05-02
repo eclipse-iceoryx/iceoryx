@@ -162,7 +162,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         else
         {
             /// @todo iox-#1012 use error<E2>::from(E1); once available
-            return err(into<AllocationError>(getChunkResult.get_error()));
+            return err(into<AllocationError>(getChunkResult.error()));
         }
     }
 }

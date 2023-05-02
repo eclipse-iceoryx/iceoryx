@@ -56,7 +56,7 @@ struct MutexAttributes
         auto result = posixCall(pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOMEM:
                 IOX_LOG(ERROR) << "Not enough memory to initialize required mutex attributes";
@@ -80,7 +80,7 @@ struct MutexAttributes
                 .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOTSUP:
                 IOX_LOG(ERROR) << "The platform does not support shared mutex (inter process mutex)";
@@ -117,7 +117,7 @@ struct MutexAttributes
                           .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOSYS:
                 IOX_LOG(ERROR) << "The system does not support mutex priorities";
@@ -145,7 +145,7 @@ struct MutexAttributes
                           .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case EPERM:
                 IOX_LOG(ERROR) << "Insufficient permissions to set the mutex priority ceiling.";
@@ -194,7 +194,7 @@ expected<void, MutexCreationError> initializeMutex(pthread_mutex_t* const handle
     auto initResult = posixCall(pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
     if (initResult.has_error())
     {
-        switch (initResult.get_error().errnum)
+        switch (initResult.error().errnum)
         {
         case EAGAIN:
             IOX_LOG(ERROR) << "Not enough resources to initialize another mutex.";
@@ -314,7 +314,7 @@ mutex::~mutex() noexcept
 
         if (destroyCall.has_error())
         {
-            switch (destroyCall.get_error().errnum)
+            switch (destroyCall.error().errnum)
             {
             case EBUSY:
                 IOX_LOG(ERROR) << "Tried to remove a locked mutex which failed. The mutex handle is now leaked and "
@@ -347,7 +347,7 @@ expected<void, MutexLockError> mutex::lock() noexcept
     auto result = posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EINVAL:
             IOX_LOG(ERROR)
@@ -380,7 +380,7 @@ expected<void, MutexUnlockError> mutex::unlock() noexcept
     auto result = posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EPERM:
             IOX_LOG(ERROR) << "The mutex is not owned by the current thread. The mutex must be unlocked by the same "
@@ -402,7 +402,7 @@ expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EAGAIN:
             IOX_LOG(ERROR) << "Maximum number of recursive locks exceeded.";

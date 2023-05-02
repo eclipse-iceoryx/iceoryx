@@ -37,7 +37,7 @@ static expected<void, SemaphoreError> unlink(const NamedSemaphore::Name_t& name)
                       .evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "You don't have permission to remove the semaphore \"" << name << "\"";
@@ -63,7 +63,7 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "Insufficient permissions to open semaphore \"" << name << "\".";
@@ -116,7 +116,7 @@ static expected<void, SemaphoreError> createSemaphore(optional<NamedSemaphore>& 
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "Insufficient permissions to create semaphore \"" << name << "\".";

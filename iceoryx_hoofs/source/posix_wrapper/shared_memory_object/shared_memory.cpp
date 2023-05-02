@@ -103,7 +103,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         {
             // if it was not possible to create the shm exclusively someone else has the
             // ownership and we just try to open it
-            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
+            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.error().errnum == EEXIST)
             {
                 hasOwnership = false;
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
@@ -117,7 +117,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
             if (result.has_error())
             {
                 printError();
-                return err(SharedMemory::errnoToEnum(result.get_error().errnum));
+                return err(SharedMemory::errnoToEnum(result.error().errnum));
             }
         }
         sharedMemoryFileHandle = result->value;
@@ -148,7 +148,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return err(SharedMemory::errnoToEnum(result.get_error().errnum));
+            return err(SharedMemory::errnoToEnum(result.error().errnum));
         }
     }
 
@@ -229,7 +229,7 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
         return ok(result->errnum != ENOENT);
     }
 
-    return err(errnoToEnum(result.get_error().errnum));
+    return err(errnoToEnum(result.error().errnum));
 }
 
 bool SharedMemory::unlink() noexcept

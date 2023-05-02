@@ -105,7 +105,7 @@ PoshRuntimeImpl::getMiddlewarePublisher(const capro::ServiceDescription& service
     auto maybePublisher = requestPublisherFromRoudi(sendBuffer);
     if (maybePublisher.has_error())
     {
-        switch (maybePublisher.get_error())
+        switch (maybePublisher.error())
         {
         case IpcMessageErrorType::NO_UNIQUE_CREATED:
             IOX_LOG(WARN) << "Service '" << service << "' already in use by another process.";
@@ -230,7 +230,7 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
 
     if (maybeSubscriber.has_error())
     {
-        switch (maybeSubscriber.get_error())
+        switch (maybeSubscriber.error())
         {
         case IpcMessageErrorType::SUBSCRIBER_LIST_FULL:
             IOX_LOG(WARN) << "Service '" << service
@@ -325,7 +325,7 @@ popo::ClientPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareClient(const c
     auto maybeClient = requestClientFromRoudi(sendBuffer);
     if (maybeClient.has_error())
     {
-        switch (maybeClient.get_error())
+        switch (maybeClient.error())
         {
         case IpcMessageErrorType::CLIENT_LIST_FULL:
             IOX_LOG(WARN) << "Could not create client with service description '" << service
@@ -428,7 +428,7 @@ popo::ServerPortUser::MemberType_t* PoshRuntimeImpl::getMiddlewareServer(const c
     auto maybeServer = requestServerFromRoudi(sendBuffer);
     if (maybeServer.has_error())
     {
-        switch (maybeServer.get_error())
+        switch (maybeServer.error())
         {
         case IpcMessageErrorType::SERVER_LIST_FULL:
             IOX_LOG(WARN) << "Could not create server with service description '" << service
@@ -618,7 +618,7 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
     auto maybeConditionVariable = requestConditionVariableFromRoudi(sendBuffer);
     if (maybeConditionVariable.has_error())
     {
-        switch (maybeConditionVariable.get_error())
+        switch (maybeConditionVariable.error())
         {
         case IpcMessageErrorType::CONDITION_VARIABLE_LIST_FULL:
             IOX_LOG(WARN) << "Could not create condition variable as we are out of memory for condition variables.";

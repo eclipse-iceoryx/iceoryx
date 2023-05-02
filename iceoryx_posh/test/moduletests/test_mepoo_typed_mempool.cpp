@@ -95,6 +95,6 @@ TEST_F(TypedMemPool_test, OutOfChunksErrorWhenFull)
     EXPECT_FALSE(object3.has_error());
 
     EXPECT_THAT(object4.has_error(), Eq(true));
-    EXPECT_THAT(object4.get_error(), Eq(TypedMemPoolError::OutOfChunks));
+    EXPECT_THAT(object4.error(), Eq(TypedMemPoolError::OutOfChunks));
 }
 } // namespace

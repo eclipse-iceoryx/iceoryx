@@ -74,7 +74,7 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMem
         if (result.has_error())
         {
             IOX_LOG(ERROR) << "Could not create memory: MemoryProviderError = "
-                           << MemoryProvider::getErrorString(result.get_error());
+                           << MemoryProvider::getErrorString(result.error());
             return err(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
         }
     }
@@ -93,10 +93,10 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noex
     for (auto memoryProvider : m_memoryProvider)
     {
         auto destructionResult = memoryProvider->destroy();
-        if (destructionResult.has_error() && destructionResult.get_error() != MemoryProviderError::MEMORY_NOT_AVAILABLE)
+        if (destructionResult.has_error() && destructionResult.error() != MemoryProviderError::MEMORY_NOT_AVAILABLE)
         {
             IOX_LOG(ERROR) << "Could not destroy memory provider! Error: "
-                           << static_cast<uint64_t>(destructionResult.get_error());
+                           << static_cast<uint64_t>(destructionResult.error());
             /// @note do not return on first error but try to cleanup the remaining resources
             if (!result.has_error())
             {

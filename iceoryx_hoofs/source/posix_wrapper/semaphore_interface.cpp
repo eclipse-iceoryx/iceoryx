@@ -59,7 +59,7 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexce
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.get_error().errnum));
+        return err(errnoToEnum(result.error().errnum));
     }
 
     return ok();
@@ -77,7 +77,7 @@ SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) no
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.get_error().errnum));
+        return err(errnoToEnum(result.error().errnum));
     }
 
     return ok((result.value().errnum == ETIMEDOUT) ? SemaphoreWaitState::TIMEOUT : SemaphoreWaitState::NO_TIMEOUT);
@@ -90,7 +90,7 @@ expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noe
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.get_error().errnum));
+        return err(errnoToEnum(result.error().errnum));
     }
 
     return ok(result.value().errnum != EAGAIN);
@@ -103,7 +103,7 @@ expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexce
 
     if (result.has_error())
     {
-        return err(errnoToEnum(result.get_error().errnum));
+        return err(errnoToEnum(result.error().errnum));
     }
 
     return ok();

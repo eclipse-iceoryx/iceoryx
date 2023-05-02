@@ -87,7 +87,7 @@ TEST_F(UntypedClient_test, LoanCallsUnderlyingPortWithErrorResult)
 
     auto loanResult = sut.loan(PAYLOAD_SIZE, PAYLOAD_ALIGNMENT);
     ASSERT_TRUE(loanResult.has_error());
-    EXPECT_THAT(loanResult.get_error(), Eq(ALLOCATION_ERROR));
+    EXPECT_THAT(loanResult.error(), Eq(ALLOCATION_ERROR));
 }
 
 TEST_F(UntypedClient_test, ReleaseRequestWithValidPayloadPointerCallsUnderlyingPort)
@@ -155,7 +155,7 @@ TEST_F(UntypedClient_test, TakeCallsUnderlyingPortWithErrorResult)
 
     auto takeResult = sut.take();
     ASSERT_TRUE(takeResult.has_error());
-    EXPECT_THAT(takeResult.get_error(), Eq(CHUNK_RECEIVE_RESULT));
+    EXPECT_THAT(takeResult.error(), Eq(CHUNK_RECEIVE_RESULT));
 }
 
 TEST_F(UntypedClient_test, ReleaseResponseWithValidPayloadPointerCallsUnderlyingPort)

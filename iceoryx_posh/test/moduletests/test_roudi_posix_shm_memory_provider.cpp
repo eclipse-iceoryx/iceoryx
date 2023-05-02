@@ -112,7 +112,7 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
 
     auto expectFailed = sut.create();
     ASSERT_THAT(expectFailed.has_error(), Eq(true));
-    ASSERT_THAT(expectFailed.get_error(), Eq(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE));
+    ASSERT_THAT(expectFailed.error(), Eq(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE));
 
     EXPECT_THAT(shmExists(), Eq(false));
 }

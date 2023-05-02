@@ -49,7 +49,7 @@ int main()
         }
         else
         {
-            auto error = loanResult.get_error();
+            auto error = loanResult.error();
             // Do something with error
             std::cerr << "Unable to loan sample, error: " << error << std::endl;
         }

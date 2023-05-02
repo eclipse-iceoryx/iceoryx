@@ -103,7 +103,7 @@ In case an error occurred during loaning, we need to handle it:
 ```cpp
 else
 {
-    auto error = loanResult.get_error();
+    auto error = loanResult.error();
     // Do something with error
     std::cerr << "Unable to loan sample, error code: " << error << std::endl;
 }
@@ -162,7 +162,7 @@ In case an error occurred during taking, we need to handle it:
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][error]-->
 ```cpp
-if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+if (takeResult.error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
 {
     std::cout << "No chunk available." << std::endl;
 }

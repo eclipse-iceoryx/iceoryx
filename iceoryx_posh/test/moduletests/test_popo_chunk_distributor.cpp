@@ -183,7 +183,7 @@ TYPED_TEST(ChunkDistributor_test, QueueOverflow)
     auto queueData = this->getChunkQueueData();
     auto ret = sut.tryAddQueue(queueData.get());
     EXPECT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW));
+    EXPECT_THAT(ret.error(), Eq(iox::popo::ChunkDistributorError::QUEUE_CONTAINER_OVERFLOW));
     EXPECT_TRUE(errorHandlerCalled);
 }
 
@@ -212,7 +212,7 @@ TYPED_TEST(ChunkDistributor_test, RemovingNonExistingQueueChangesNothing)
     auto queueData2 = this->getChunkQueueData();
     auto ret = sut.tryRemoveQueue(queueData2.get());
     EXPECT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(iox::popo::ChunkDistributorError::QUEUE_NOT_IN_CONTAINER));
+    EXPECT_THAT(ret.error(), Eq(iox::popo::ChunkDistributorError::QUEUE_NOT_IN_CONTAINER));
     EXPECT_THAT(sut.hasStoredQueues(), Eq(true));
 }
 

@@ -490,7 +490,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
 
                 std::string error;
-                switch (maybePublisher.get_error())
+                switch (maybePublisher.error())
                 {
                 case PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS:
                 {

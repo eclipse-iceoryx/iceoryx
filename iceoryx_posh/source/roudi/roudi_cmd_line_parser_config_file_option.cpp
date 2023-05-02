@@ -46,7 +46,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv);
             if (result.has_error())
             {
-                return err(result.get_error());
+                return err(result.error());
             }
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
@@ -72,7 +72,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
             if (result.has_error())
             {
-                return err(result.get_error());
+                return err(result.error());
             }
         }
         };

@@ -67,7 +67,7 @@ expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitialize
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
-        return err(Thread::errnoToEnum(createResult.get_error().errnum));
+        return err(Thread::errnoToEnum(createResult.error().errnum));
     }
 
     return ok();
@@ -88,7 +88,7 @@ Thread::~Thread() noexcept
         auto joinResult = posixCall(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
-            switch (joinResult.get_error().errnum)
+            switch (joinResult.error().errnum)
             {
             case EDEADLK:
                 IOX_LOG(ERROR) << "A deadlock was detected when attempting to join the thread.";

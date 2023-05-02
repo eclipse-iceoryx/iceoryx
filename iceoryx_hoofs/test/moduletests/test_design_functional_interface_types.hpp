@@ -142,7 +142,7 @@ struct ExpectedErrorFactory
 ///            Another value which can be compared to usedTestValue and is not equal to it
 ///
 ///     Class with error:
-///        A class with a get_error method requires additionally:
+///        A class with a error method requires additionally:
 ///        * using error_t = ;
 ///            Type alias of the error type
 ///

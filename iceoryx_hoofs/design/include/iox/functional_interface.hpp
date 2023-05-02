@@ -42,7 +42,7 @@ struct HasGetErrorMethod : std::false_type
 };
 
 template <typename Derived>
-struct HasGetErrorMethod<Derived, void_t<decltype(std::declval<Derived>().get_error())>> : std::true_type
+struct HasGetErrorMethod<Derived, void_t<decltype(std::declval<Derived>().error())>> : std::true_type
 {
 };
 
@@ -422,7 +422,7 @@ struct FunctionalInterfaceImpl<Derived, void, ErrorType>
 ///        When the class has a value method the method
 ///          * value_or
 ///        is added and and_then provides a reference in the callback to the underlying value.
-///        When the class has a get_error method the or_else method has a parameter to access
+///        When the class has a error method the or_else method has a parameter to access
 ///        a reference to the underlying error.
 ///
 /// @note When inheriting from this type one does not have to write additional unit tests.

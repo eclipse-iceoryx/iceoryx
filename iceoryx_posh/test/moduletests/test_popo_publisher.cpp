@@ -243,7 +243,7 @@ TEST_F(PublisherTest, LoanFailsAndForwardsAllocationErrorsToCaller)
     auto result = sut.loan();
     // ===== Verify ===== //
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.get_error());
+    EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.error());
     // ===== Cleanup ===== //
 }
 

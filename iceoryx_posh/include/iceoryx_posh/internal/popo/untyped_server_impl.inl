@@ -42,7 +42,7 @@ expected<const void*, ServerRequestResult> UntypedServerImpl<BaseServerT>::take(
     auto requestResult = port().getRequest();
     if (requestResult.has_error())
     {
-        return err(requestResult.get_error());
+        return err(requestResult.error());
     }
 
     return ok(mepoo::ChunkHeader::fromUserHeader(requestResult.value())->userPayload());
@@ -66,7 +66,7 @@ expected<void*, AllocationError> UntypedServerImpl<BaseServerT>::loan(const Requ
     auto allocationResult = port().allocateResponse(requestHeader, payloadSize, payloadAlignment);
     if (allocationResult.has_error())
     {
-        return err(allocationResult.get_error());
+        return err(allocationResult.error());
     }
 
     return ok(mepoo::ChunkHeader::fromUserHeader(allocationResult.value())->userPayload());

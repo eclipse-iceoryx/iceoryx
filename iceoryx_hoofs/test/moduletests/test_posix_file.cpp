@@ -115,7 +115,7 @@ TEST_F(File_test, CreatingExclusivelyTwiceFails)
 
     auto sut2 = FileBuilder().open_mode(OpenMode::EXCLUSIVE_CREATE).create(m_sut_file_path);
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::AlreadyExists));
+    EXPECT_THAT(sut2.error(), Eq(FileCreationError::AlreadyExists));
 }
 
 TEST_F(File_test, OpeningExistingFileWorks)
@@ -133,7 +133,7 @@ TEST_F(File_test, OpeningNonExistingFileFails)
     auto sut = FileBuilder().open_mode(OpenMode::OPEN_EXISTING).create(m_sut_file_path);
 
     ASSERT_TRUE(sut.has_error());
-    EXPECT_THAT(sut.get_error(), Eq(FileCreationError::DoesNotExist));
+    EXPECT_THAT(sut.error(), Eq(FileCreationError::DoesNotExist));
 }
 
 TEST_F(File_test, OpenOrCreateCreatesNonExistingFile)
@@ -168,7 +168,7 @@ TEST_F(File_test, OpenFileForReadingWithInsufficientPermissionFails)
     auto sut2 =
         FileBuilder().open_mode(OpenMode::OPEN_EXISTING).access_mode(AccessMode::READ_ONLY).create(m_sut_file_path);
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::PermissionDenied));
+    EXPECT_THAT(sut2.error(), Eq(FileCreationError::PermissionDenied));
 }
 
 TEST_F(File_test, OpenFileForReadWriteWithInsufficientPermissionFails)
@@ -181,7 +181,7 @@ TEST_F(File_test, OpenFileForReadWriteWithInsufficientPermissionFails)
     auto sut2 =
         FileBuilder().open_mode(OpenMode::OPEN_EXISTING).access_mode(AccessMode::READ_WRITE).create(m_sut_file_path);
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileCreationError::PermissionDenied));
+    EXPECT_THAT(sut2.error(), Eq(FileCreationError::PermissionDenied));
 }
 #endif
 
@@ -250,7 +250,7 @@ TEST_F(File_test, ReadingOfAWriteOnlyFileFails)
     std::array<uint8_t, 8> read_content{0};
     auto read = sut->read(read_content.data(), read_content.size());
     ASSERT_TRUE(read.has_error());
-    EXPECT_THAT(read.get_error(), Eq(FileReadError::NotOpenedForReading));
+    EXPECT_THAT(read.error(), Eq(FileReadError::NotOpenedForReading));
 }
 #endif
 
@@ -364,7 +364,7 @@ TEST_F(File_test, WritingIntoAReadOnlyFileFails)
 
     auto result = sut->write(test_content.data(), test_content.size());
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(FileWriteError::NotOpenedForWriting));
+    EXPECT_THAT(result.error(), Eq(FileWriteError::NotOpenedForWriting));
 }
 #endif
 

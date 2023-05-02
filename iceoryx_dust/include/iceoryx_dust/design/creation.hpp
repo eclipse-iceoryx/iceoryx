@@ -77,7 +77,7 @@ namespace DesignPattern
 ///
 ///   // if the system resource is movable
 ///   auto resource = MyResourceAbstraction::Create(123);
-///   if ( resource.has_error() && resource.get_error() == MyResourceAbstractionError::ResourceNotAvailable )
+///   if ( resource.has_error() && resource.error() == MyResourceAbstractionError::ResourceNotAvailable )
 ///     // perform error handling
 ///   else
 ///     // perform some work

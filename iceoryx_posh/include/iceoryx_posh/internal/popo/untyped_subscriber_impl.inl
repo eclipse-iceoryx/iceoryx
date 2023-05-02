@@ -37,7 +37,7 @@ inline expected<const void*, ChunkReceiveResult> UntypedSubscriberImpl<BaseSubsc
     auto result = BaseSubscriber::takeChunk();
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     return ok(result.value()->userPayload());
 }

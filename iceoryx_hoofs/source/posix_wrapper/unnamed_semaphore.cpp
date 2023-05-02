@@ -45,7 +45,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
         uninitializedSemaphore.value().m_destroyHandle = false;
         uninitializedSemaphore.reset();
 
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EINVAL:
             IOX_LOG(ERROR) << "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX;
@@ -69,7 +69,7 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
         auto result = posixCall(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case EINVAL:
                 IOX_LOG(ERROR) << "The semaphore handle was no longer valid. This can indicate a corrupted system.";

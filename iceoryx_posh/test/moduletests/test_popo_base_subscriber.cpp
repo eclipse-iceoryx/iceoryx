@@ -157,7 +157,7 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     auto result = sut.takeChunk();
     // ===== Verify ===== //
     ASSERT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.get_error());
+    EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.error());
     // ===== Cleanup ===== //
 }
 

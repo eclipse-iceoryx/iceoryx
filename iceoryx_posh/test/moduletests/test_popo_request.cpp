@@ -64,7 +64,7 @@ TEST_F(Request_test, SendCallsInterfaceMockWithErrorResult)
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(CLIENT_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(CLIENT_SEND_ERROR));
     EXPECT_FALSE(sutProducer);
 }
 
@@ -86,7 +86,7 @@ TEST_F(Request_test, SendingAlreadySentRequestCallsErrorHandler)
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(CLIENT_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(CLIENT_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_REQUEST));
@@ -108,7 +108,7 @@ TEST_F(Request_test, SendingMovedRequestCallsErrorHandler)
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(CLIENT_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(CLIENT_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_REQUEST));

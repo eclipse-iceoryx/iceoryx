@@ -63,7 +63,7 @@ TEST_F(FileLock_test, EmptyNameLeadsToError)
 
     auto sut2 = iox::posix::FileLockBuilder().name("").create();
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
+    EXPECT_THAT(sut2.error(), Eq(FileLockError::INVALID_FILE_NAME));
 }
 
 TEST_F(FileLock_test, InvalidNameLeadsToError)
@@ -72,7 +72,7 @@ TEST_F(FileLock_test, InvalidNameLeadsToError)
 
     auto sut2 = iox::posix::FileLockBuilder().name("///").create();
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_FILE_NAME));
+    EXPECT_THAT(sut2.error(), Eq(FileLockError::INVALID_FILE_NAME));
 }
 
 TEST_F(FileLock_test, InvalidPathLeadsToError)
@@ -81,7 +81,7 @@ TEST_F(FileLock_test, InvalidPathLeadsToError)
 
     auto sut2 = iox::posix::FileLockBuilder().name("woho").path(".....").create();
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::INVALID_PATH));
+    EXPECT_THAT(sut2.error(), Eq(FileLockError::INVALID_PATH));
 }
 
 TEST_F(FileLock_test, MaxStringWorks)
@@ -117,7 +117,7 @@ TEST_F(FileLock_test, CreatingSameFileLockAgainFails)
     ::testing::Test::RecordProperty("TEST_ID", "ed3af1c8-4a84-4d4f-a267-c4a80481dc42");
     auto sut2 = iox::posix::FileLockBuilder().name(TEST_NAME).create();
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
+    EXPECT_THAT(sut2.error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
 
 TEST_F(FileLock_test, MoveCtorTransfersLock)
@@ -126,7 +126,7 @@ TEST_F(FileLock_test, MoveCtorTransfersLock)
     auto movedSut{std::move(m_sut.value())};
     auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).create();
     ASSERT_TRUE(anotherLock.has_error());
-    EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
+    EXPECT_THAT(anotherLock.error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
 
 TEST_F(FileLock_test, MoveAssignTransfersLock)
@@ -135,7 +135,7 @@ TEST_F(FileLock_test, MoveAssignTransfersLock)
     auto movedSut = std::move(m_sut.value());
     auto anotherLock = iox::posix::FileLockBuilder().name(TEST_NAME).permission(iox::perms::owner_all).create();
     ASSERT_TRUE(anotherLock.has_error());
-    EXPECT_THAT(anotherLock.get_error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
+    EXPECT_THAT(anotherLock.error(), Eq(FileLockError::LOCKED_BY_OTHER_PROCESS));
 }
 } // namespace
 #endif

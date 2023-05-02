@@ -181,7 +181,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsOnDeadlock)
     EXPECT_FALSE(sut->lock().has_error());
     auto result = sut->lock();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexLockError::DEADLOCK_CONDITION));
+    EXPECT_THAT(result.error(), Eq(iox::posix::MutexLockError::DEADLOCK_CONDITION));
 
     EXPECT_FALSE(sut->unlock().has_error());
 }
@@ -198,7 +198,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenSameThreadTriesToUnlockIt
 
     auto result = sut->unlock();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
+    EXPECT_THAT(result.error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
 }
 
 TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnlock)
@@ -212,7 +212,7 @@ TEST_F(Mutex_test, MutexWithDeadlockDetectionsFailsWhenAnotherThreadTriesToUnloc
     std::thread t([&] {
         auto result = sut->unlock();
         ASSERT_TRUE(result.has_error());
-        EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
+        EXPECT_THAT(result.error(), Eq(iox::posix::MutexUnlockError::NOT_OWNED_BY_THREAD));
     });
     t.join();
     EXPECT_FALSE(sut->unlock().has_error());
@@ -237,7 +237,7 @@ TEST_F(Mutex_test,
 
     auto result = sut->try_lock();
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(),
+    EXPECT_THAT(result.error(),
                 iox::posix::MutexTryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
     sut->make_consistent();
     EXPECT_FALSE(sut->unlock().has_error());
@@ -272,6 +272,6 @@ TEST_F(Mutex_test, InitializingMutexTwiceResultsInError)
     auto result = iox::posix::MutexBuilder().create(sutRecursive);
 
     ASSERT_THAT(result.has_error(), Eq(true));
-    EXPECT_THAT(result.get_error(), Eq(iox::posix::MutexCreationError::MUTEX_ALREADY_INITIALIZED));
+    EXPECT_THAT(result.error(), Eq(iox::posix::MutexCreationError::MUTEX_ALREADY_INITIALIZED));
 }
 } // namespace

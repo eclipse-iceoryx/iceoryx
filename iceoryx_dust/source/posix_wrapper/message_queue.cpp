@@ -92,7 +92,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
         else
         {
             this->m_isInitialized = false;
-            this->m_errorValue = openResult.get_error();
+            this->m_errorValue = openResult.error();
         }
     }
 }
@@ -149,7 +149,7 @@ expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelNam
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(*sanitizedIpcChannelName, mqCall.get_error().errnum));
+        return err(errnoToEnum(*sanitizedIpcChannelName, mqCall.error().errnum));
     }
     return ok(mqCall->errnum != ENOENT);
 }
@@ -190,7 +190,7 @@ expected<void, IpcChannelError> MessageQueue::send(const std::string& msg) const
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     return ok();
@@ -208,7 +208,7 @@ expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     return ok(std::string(&(message[0])));
@@ -242,7 +242,7 @@ expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     return ok<mqd_t>(mqCall->value);
@@ -254,7 +254,7 @@ expected<void, IpcChannelError> MessageQueue::close() noexcept
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     return ok();
@@ -270,7 +270,7 @@ expected<void, IpcChannelError> MessageQueue::unlink() noexcept
     auto mqCall = posixCall(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     return ok();
@@ -291,7 +291,7 @@ expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::D
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     if (mqCall->errnum == TIMEOUT_ERRNO)
@@ -323,7 +323,7 @@ expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
 
     if (mqCall.has_error())
     {
-        return err(errnoToEnum(mqCall.get_error().errnum));
+        return err(errnoToEnum(mqCall.error().errnum));
     }
 
     if (mqCall->errnum == TIMEOUT_ERRNO)

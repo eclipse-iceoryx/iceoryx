@@ -48,7 +48,7 @@ UntypedPublisherImpl<BasePublisherType>::loan(const uint32_t userPayloadSize,
     auto result = port().tryAllocateChunk(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     else
     {

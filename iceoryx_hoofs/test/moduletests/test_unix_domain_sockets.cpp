@@ -129,7 +129,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameLeadsToInvalidChannelNameErro
     ::testing::Test::RecordProperty("TEST_ID", "bdc1e253-2750-4b07-a528-83ca50246b29");
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, "");
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidChannelNameError)
@@ -137,7 +137,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
     ::testing::Test::RecordProperty("TEST_ID", "97793649-ac88-4e73-a0bc-602dca302746");
     auto ret = UnixDomainSocket::unlinkIfExists("");
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
@@ -152,7 +152,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
     }
     auto ret = UnixDomainSocket::unlinkIfExists(longSocketName);
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.get_error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
@@ -183,7 +183,7 @@ void sendOnServerLeadsToError(const sendCall_t& send)
     std::string message{"Foo"};
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
+    EXPECT_THAT(result.error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
 }
 
 TEST_F(UnixDomainSocket_test, TimedSendOnServerLeadsToError)
@@ -375,7 +375,7 @@ void unableToSendTooLongMessage(const sendCall_t& send)
     std::string message(UnixDomainSocket::MAX_MESSAGE_SIZE + 1, 'x');
     auto result = send(message);
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), IpcChannelError::MESSAGE_TOO_LONG);
+    EXPECT_EQ(result.error(), IpcChannelError::MESSAGE_TOO_LONG);
 }
 
 TEST_F(UnixDomainSocket_test, UnableToSendTooLongMessageWithSend)
@@ -396,7 +396,7 @@ void receivingOnClientLeadsToError(const receiveCall_t& receive)
 {
     auto result = receive();
     EXPECT_TRUE(result.has_error());
-    ASSERT_THAT(result.get_error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
+    ASSERT_THAT(result.error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
 }
 
 TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithReceive)
@@ -421,7 +421,7 @@ TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocks, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(end - start >= WAIT_IN_MS);
 
     TIMING_TEST_ASSERT_TRUE(msg.has_error());
-    TIMING_TEST_EXPECT_TRUE(msg.get_error() == IpcChannelError::TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(msg.error() == IpcChannelError::TIMEOUT);
 })
 
 TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived, Repeat(5), [&] {

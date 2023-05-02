@@ -65,7 +65,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (openCall.has_error())
     {
-        return err(FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
+        return err(FileLock::convertErrnoToFileLockError(openCall.error().errnum, fileLockPath));
     }
 
     auto fileDescriptor = openCall.value().value;
@@ -83,7 +83,7 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
         });
 
         //  possible errors in iox_ext_close() are masked and we inform the user about the actual error
-        return err(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
+        return err(FileLock::convertErrnoToFileLockError(lockCall.error().errnum, fileLockPath));
     }
 
     return ok(FileLock(fileDescriptor, fileLockPath));

@@ -104,7 +104,7 @@ TEST_F(UntypedPublisherTest, LoanFailsIfPortCannotSatisfyAllocationRequest)
     auto result = sut.loan(ALLOCATION_SIZE);
     // ===== Verify ===== //
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.get_error());
+    EXPECT_EQ(iox::popo::AllocationError::RUNNING_OUT_OF_CHUNKS, result.error());
     // ===== Cleanup ===== //
 }
 

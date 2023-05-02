@@ -59,7 +59,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     auto parseResult = TomlGatewayConfigParser::parse(fileStream, config);
     if (parseResult.has_error())
     {
-        return iox::err(parseResult.get_error());
+        return iox::err(parseResult.error());
     }
 
     return iox::ok(config);
@@ -72,7 +72,7 @@ iox::config::TomlGatewayConfigParser::parse(std::istream& stream) noexcept
     auto parseResult = TomlGatewayConfigParser::parse(stream, config);
     if (parseResult.has_error())
     {
-        return iox::err(parseResult.get_error());
+        return iox::err(parseResult.error());
     }
 
     return iox::ok(config);
@@ -100,7 +100,7 @@ iox::config::TomlGatewayConfigParser::parse(std::istream& stream, GatewayConfig&
     auto result = validate(*parsedToml);
     if (result.has_error())
     {
-        return iox::err(result.get_error());
+        return iox::err(result.error());
     }
 
     // Prepare config object

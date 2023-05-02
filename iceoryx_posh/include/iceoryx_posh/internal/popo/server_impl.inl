@@ -42,7 +42,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
     auto result = port().getRequest();
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -61,7 +61,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     auto result = port().allocateResponse(requestHeader, sizeof(Res), alignof(Res));
     if (result.has_error())
     {
-        return err(result.get_error());
+        return err(result.error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();

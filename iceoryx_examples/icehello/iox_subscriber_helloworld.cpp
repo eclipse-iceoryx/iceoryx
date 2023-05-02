@@ -48,7 +48,7 @@ int main()
         else
         {
             //! [error]
-            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+            if (takeResult.error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
             {
                 std::cout << "No chunk available." << std::endl;
             }
