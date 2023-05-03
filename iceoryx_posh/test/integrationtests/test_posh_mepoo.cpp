@@ -313,7 +313,7 @@ class Mepoo_IntegrationTest : public Test
                                             m_roudiEnv->InterOpWait();
                                         });
 
-            if (!allocationResult.has_error())
+            if (allocationResult.has_value())
             {
                 hasRunAsExpected &= !expectedAllocationError.has_value();
                 EXPECT_FALSE(expectedAllocationError.has_value());

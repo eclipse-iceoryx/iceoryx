@@ -53,7 +53,7 @@ int main()
         auto loanResult = publisher.loan();
         //! [loan]
         //! [publish]
-        if (!loanResult.has_error())
+        if (loanResult.has_value())
         {
             auto& sample = loanResult.value();
             // Sample can be held until ready to publish

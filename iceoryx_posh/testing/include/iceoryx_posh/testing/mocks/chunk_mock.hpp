@@ -43,7 +43,7 @@ class ChunkMock
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(
             userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
 
-        iox::cxx::Ensures(!chunkSettingsResult.has_error() && "Invalid parameter for ChunkMock");
+        iox::cxx::EnsuresWithMsg(chunkSettingsResult.has_value(), "Invalid parameter for ChunkMock");
         auto& chunkSettings = chunkSettingsResult.value();
         auto chunkSize = chunkSettings.requiredChunkSize();
 

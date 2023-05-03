@@ -122,7 +122,7 @@ expected<ValueType, ErrorType>::operator=(expected<ValueType, ErrorType>&& rhs) 
 template <typename ValueType, typename ErrorType>
 inline expected<ValueType, ErrorType>::operator bool() const noexcept
 {
-    return !has_error();
+    return has_value();
 }
 
 template <typename ValueType, typename ErrorType>
@@ -198,7 +198,7 @@ template <typename ValueType, typename ErrorType>
 template <typename U>
 inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value_checked() const& noexcept
 {
-    cxx::ExpectsWithMsg(!has_error(), "Trying to access a value but an error is stored!");
+    cxx::ExpectsWithMsg(has_value(), "Trying to access a value but an error is stored!");
     return m_store.value_unchecked();
 }
 
@@ -289,7 +289,7 @@ template <typename U>
 inline optional<enable_if_non_void_t<U>> expected<ValueType, ErrorType>::to_optional() const noexcept
 {
     optional<enable_if_non_void_t<U>> returnValue;
-    if (!has_error())
+    if (has_value())
     {
         returnValue.emplace(m_store.value_unchecked());
     }

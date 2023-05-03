@@ -141,28 +141,26 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         // get a new chunk
         auto getChunkResult = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
-        if (!getChunkResult.has_error())
-        {
-            auto& chunk = getChunkResult.value();
-
-            // if the application allocated too much chunks, return no more chunks
-            if (getMembers()->m_chunksInUse.insert(chunk))
-            {
-                // END of critical section
-                chunk.getChunkHeader()->setOriginId(originId);
-                return ok(chunk.getChunkHeader());
-            }
-            else
-            {
-                // release the allocated chunk
-                chunk = nullptr;
-                return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
-            }
-        }
-        else
+        if (getChunkResult.has_error())
         {
             /// @todo iox-#1012 use error<E2>::from(E1); once available
             return err(into<AllocationError>(getChunkResult.error()));
+        }
+
+        auto& chunk = getChunkResult.value();
+
+        // if the application allocated too much chunks, return no more chunks
+        if (getMembers()->m_chunksInUse.insert(chunk))
+        {
+            // END of critical section
+            chunk.getChunkHeader()->setOriginId(originId);
+            return ok(chunk.getChunkHeader());
+        }
+        else
+        {
+            // release the allocated chunk
+            chunk = nullptr;
+            return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
 }

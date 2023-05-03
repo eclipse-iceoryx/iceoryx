@@ -86,7 +86,7 @@ If loaning was successful, we assign the incremented counter to all three values
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][publish]-->
 ```cpp
-if (!loanResult.has_error())
+if (loanResult.has_value())
 {
     auto& sample = loanResult.value();
     // Sample can be held until ready to publish
@@ -152,7 +152,7 @@ Inside the `while` loop, we take the sample from shared memory and print it if w
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][receive]-->
 ```cpp
 auto takeResult = subscriber.take();
-if (!takeResult.has_error())
+if (takeResult.has_value())
 {
     std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
 }

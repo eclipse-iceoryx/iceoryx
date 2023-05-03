@@ -160,12 +160,12 @@ expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPre
 
     auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
 
-    if (!unlinkCall.has_error())
+    if (unlinkCall.has_error())
     {
-        // ENOENT is set if this socket is not known
-        return ok(unlinkCall->errnum != ENOENT);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
-    return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    // ENOENT is set if this socket is not known
+    return ok(unlinkCall->errnum != ENOENT);
 }
 
 expected<void, IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept

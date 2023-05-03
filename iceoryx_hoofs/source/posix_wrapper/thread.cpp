@@ -63,7 +63,7 @@ expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitialize
             &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
             .successReturnValue(0)
             .evaluate();
-    uninitializedThread->m_isThreadConstructed = !createResult.has_error();
+    uninitializedThread->m_isThreadConstructed = createResult.has_value();
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();

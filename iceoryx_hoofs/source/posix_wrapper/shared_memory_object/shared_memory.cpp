@@ -224,12 +224,12 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
                       .ignoreErrnos(ENOENT)
                       .evaluate();
 
-    if (!result.has_error())
+    if (result.has_error())
     {
-        return ok(result->errnum != ENOENT);
+        return err(errnoToEnum(result.error().errnum));
     }
 
-    return err(errnoToEnum(result.error().errnum));
+    return ok(result->errnum != ENOENT);
 }
 
 bool SharedMemory::unlink() noexcept

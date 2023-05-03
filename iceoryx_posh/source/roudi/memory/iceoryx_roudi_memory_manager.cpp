@@ -36,7 +36,7 @@ expected<void, RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnno
 {
     auto result = m_memoryManager.createAndAnnounceMemory();
     auto portPool = m_portPoolBlock.portPool();
-    if (!result.has_error() && portPool.has_value())
+    if (result.has_value() && portPool.has_value())
     {
         m_portPool.emplace(*portPool.value());
     }

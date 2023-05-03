@@ -49,11 +49,11 @@ class UsedChunkList_test : public Test
         constexpr uint32_t USER_PAYLOAD_SIZE{32U};
         auto chunkSettingsResult =
             iox::mepoo::ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        iox::cxx::Ensures(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(!getChunkResult.has_error());
+        iox::cxx::Ensures(getChunkResult.has_value());
         return getChunkResult.value();
     }
 

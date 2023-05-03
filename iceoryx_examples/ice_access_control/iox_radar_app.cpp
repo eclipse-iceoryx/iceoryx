@@ -38,7 +38,7 @@ int main()
 
         // Retrieve a sample from shared memory
         auto loanResult = publisher.loan();
-        if (!loanResult.has_error())
+        if (loanResult.has_value())
         {
             auto& sample = loanResult.value();
             // Sample can be held until ready to publish

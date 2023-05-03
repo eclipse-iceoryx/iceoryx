@@ -39,7 +39,7 @@ int main()
     {
         auto takeResult = subscriber.take();
 
-        if (!takeResult.has_error())
+        if (takeResult.has_value())
         {
             publisher.loan().and_then([&](auto& sample) {
                 sample->x = 2 * takeResult.value()->x;

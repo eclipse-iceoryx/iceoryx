@@ -419,7 +419,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
             auto maybeSubscriber =
                 m_portManager.acquireSubscriberPortData(service, subscriberOptions, name, portConfigInfo);
 
-            if (!maybeSubscriber.has_error())
+            if (maybeSubscriber.has_value())
             {
                 // send SubscriberPort to app as a serialized relative pointer
                 auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, maybeSubscriber.value());
@@ -471,7 +471,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
             auto maybePublisher = m_portManager.acquirePublisherPortData(
                 service, publisherOptions, name, &segmentInfo.m_memoryManager.value().get(), portConfigInfo);
 
-            if (!maybePublisher.has_error())
+            if (maybePublisher.has_value())
             {
                 // send PublisherPort to app as a serialized relative pointer
                 auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, maybePublisher.value());

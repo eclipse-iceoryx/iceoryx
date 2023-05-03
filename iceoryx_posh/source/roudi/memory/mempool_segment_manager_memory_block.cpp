@@ -51,7 +51,7 @@ void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(not_null<void*> memory)
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
-    cxx::Expects(!allocationResult.has_error());
+    cxx::Expects(allocationResult.has_value());
     auto* segmentManager = allocationResult.value();
     m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
 }

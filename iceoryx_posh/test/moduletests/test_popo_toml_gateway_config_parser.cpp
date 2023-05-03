@@ -141,7 +141,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_EQ(charactersValidity.second, result.has_error());
-    if (!result.has_error())
+    if (result.has_value())
     {
         GatewayConfig& config = result.value();
         EXPECT_FALSE(config.m_configuredServices.empty());

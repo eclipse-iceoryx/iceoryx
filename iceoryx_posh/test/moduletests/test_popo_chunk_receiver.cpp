@@ -64,11 +64,11 @@ class ChunkReceiver_test : public Test
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
-        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        iox::cxx::Ensures(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(!getChunkResult.has_error());
+        iox::cxx::Ensures(getChunkResult.has_value());
         return getChunkResult.value();
     }
 

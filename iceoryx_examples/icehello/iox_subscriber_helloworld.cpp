@@ -40,7 +40,7 @@ int main()
     {
         //! [receive]
         auto takeResult = subscriber.take();
-        if (!takeResult.has_error())
+        if (takeResult.has_value())
         {
             std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
         }

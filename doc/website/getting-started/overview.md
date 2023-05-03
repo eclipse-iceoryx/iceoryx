@@ -41,7 +41,7 @@ Now we can use the publisher to send the data.
 
 ```cpp
 auto result = publisher.loan();
-if(!result.has_error())
+if(result.has_value())
 {
     auto& sample = result.value();
     sample->counter = 30;
@@ -66,7 +66,7 @@ iox::popo::Subscriber<CounterTopic> subscriber({"Group", "Instance", "CounterTop
 ```
 
 Now we can use the subscriber to receive data. For simplicity, we assume that we periodically check for new data. It
-is also possible to explicitly wait for data using the [WaitSet](../../../iceoryx_examples/waitset/README.md) or 
+is also possible to explicitly wait for data using the [WaitSet](../../../iceoryx_examples/waitset/README.md) or
 the [Listener](../../../iceoryx_examples/callbacks/README.md). The code to receive the data is the same, the only difference is the way we wake up before checking for data.
 
 ```cpp
@@ -76,7 +76,7 @@ while (keepRunning)
 
     auto result = subscriber.take();
 
-    if(!result.has_error())
+    if(result.has_value())
     {
         auto& sample = result.value();
         uint32_t counter = sample->counter;

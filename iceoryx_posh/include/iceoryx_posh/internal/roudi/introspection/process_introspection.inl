@@ -175,7 +175,7 @@ inline void ProcessIntrospection<PublisherPort>::send() noexcept
                                                                   alignof(ProcessIntrospectionFieldTopic),
                                                                   CHUNK_NO_USER_HEADER_SIZE,
                                                                   CHUNK_NO_USER_HEADER_ALIGNMENT);
-        if (!maybeChunkHeader.has_error())
+        if (maybeChunkHeader.has_value())
         {
             auto sample = static_cast<ProcessIntrospectionFieldTopic*>(maybeChunkHeader.value()->userPayload());
             new (sample) ProcessIntrospectionFieldTopic;
