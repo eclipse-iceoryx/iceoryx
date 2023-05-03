@@ -62,7 +62,7 @@ if [[ "$SCOPE" == "hook"* ]]; then
         done
     fi
 elif [[ "$SCOPE" == "full"* ]]; then
-    git ls-files | grep -E "\.md"| xargs markdownlint --output ./markdownlint.log --config ./.markdownlint.yaml
+    git ls-files | grep -E "\.md"| xargs markdownlint --output ./markdownlint.log --config ./.markdownlint.yaml --fix
 elif [[ "$SCOPE" == "check"* ]]; then
-    git ls-files | grep -E "\.md"| xargs markdownlint --output ./markdownlint.log --config ./.markdownlint.yaml
+    git ls-files | grep -E "\.md"| xargs markdownlint --output ./markdownlint.log --config ./.markdownlint.yaml --fix
 fi
