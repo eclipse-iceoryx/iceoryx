@@ -54,9 +54,10 @@ if [[ "$SCOPE" == "hook"* ]]; then
         echo "${md_files}" | sed 's/^/\ -\ /g'
         echo
 
+        git ls-files | grep -E "\.md"| xargs markdownlint --output ./markdownlint.log --config ./.markdownlint.yaml --fix
+
         for file in $md_files ; do
             if [ -f "$file" ]; then
-                $MARKDOWNLINT_CMD --output ./markdownlint.log --config ./.markdownlint.yaml "${file}"
                 git add "${file}"
             fi
         done
