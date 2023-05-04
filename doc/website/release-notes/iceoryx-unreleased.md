@@ -1135,3 +1135,12 @@
     // after
     return iox::err(MyCustomError::ERROR_CODE);
     ```
+
+51. `expected::get_error` is deprecated in favour of `expected::error`
+
+    ```cpp
+    // before
+    auto e = exp.get_error();
+
+    // after
+    auto e = exp.error();
