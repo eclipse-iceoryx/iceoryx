@@ -15,17 +15,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_binding_c/internal/cpp2c_enum_translation.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_roudi.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
+#include <cstdint>
 
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox;
 using namespace iox::cxx;
+using namespace iox::testing;
 
 extern "C" {
 #include "iceoryx_binding_c/server.h"
@@ -507,15 +511,192 @@ TEST_F(iox_server_test, SendWorks)
     iox_server_deinit(sut);
 }
 
-TEST_F(iox_server_test, SendWithNullptrReturnsError)
+TEST_F(iox_server_test, InitServerOptionsWithNullptrFails)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "af538f0b-ce37-48d2-8940-28d39d7a411e");
+    ::testing::Test::RecordProperty("TEST_ID", "eaf125c5-213f-4dd5-9a0b-5e6303e5f1d9");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_options_init(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, IsServerOptionsInitializedWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f4c1d882-7e67-468b-b284-adf6b470b446");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_options_is_initialized(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, InitServerWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fee79cac-1ccc-42d0-8bf8-33aa8a0f104e");
+    iox_server_options_t options;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_init(nullptr, SERVICE, INSTANCE, EVENT, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_init(&sutStorage, nullptr, INSTANCE, EVENT, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_init(&sutStorage, SERVICE, nullptr, EVENT, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_server_init(&sutStorage, SERVICE, INSTANCE, nullptr, nullptr); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, &options); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, DeinitServerWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1ea0c1d-729f-467d-943e-b4df61c93b56");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_deinit(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerTakeRequestWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cda6a6f4-f2f2-4784-a0e5-5772908ecbb5");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    constexpr int64_t REQUEST_VALUE = 64461001;
+    receiveRequest(REQUEST_VALUE);
+
+    const void* payload;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_take_request(nullptr, &payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_take_request(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(sut);
+}
+
+TEST_F(iox_server_test, ServerReleaseRequestWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a560ee20-abfb-46f8-b10c-2f88e6b48c01");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    iox_server_offer(sut);
+    constexpr int64_t REQUEST_VALUE = 64461001;
+    receiveRequest(REQUEST_VALUE);
+
+    const void* payload;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_release_request(nullptr, &payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_release_request(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(sut);
+}
+
+TEST_F(iox_server_test, LoanAlignedResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1bcf9ef-f3b2-4cff-8628-5b174647e8cd");
     prepareServerInit();
     iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
     connectClient();
+    receiveRequest();
 
-    EXPECT_THAT(iox_server_send(sut, nullptr), Eq(ServerSendResult_INVALID_RESPONSE));
+    const void* requestPayload;
+    EXPECT_THAT(iox_server_take_request(sut, &requestPayload), Eq(ServerRequestResult_SUCCESS));
 
+    void* payload = nullptr;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_server_loan_aligned_response(nullptr, requestPayload, &payload, sizeof(int64_t), 10); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_server_loan_aligned_response(sut, nullptr, &payload, sizeof(int64_t), 10); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] { iox_server_loan_aligned_response(sut, requestPayload, nullptr, sizeof(int64_t), 10); },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
     iox_server_deinit(sut);
 }
+
+TEST_F(iox_server_test, ServerSendWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e5732923-9877-44ea-b56b-9ef01a513723");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest();
+
+    void* payload = nullptr;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_send(nullptr, payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_send(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(sut);
+}
+
+TEST_F(iox_server_test, ServerReleaseResponseWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3e5fe461-2e1b-4c9e-927a-ca5eb9707a2d");
+    prepareServerInit();
+    iox_server_t sut = iox_server_init(&sutStorage, SERVICE, INSTANCE, EVENT, nullptr);
+    connectClient();
+    receiveRequest();
+
+    void* payload = nullptr;
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_release_response(nullptr, payload); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_release_response(sut, nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    iox_server_deinit(sut);
+}
+
+TEST_F(iox_server_test, ServerGetServiceDescriptionWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a01b7aaa-79b8-49bb-b440-bca9bb2f15e3");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_get_service_description(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerOfferWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b95f2ebc-fe87-4ade-83b2-51d9faf6e8d7");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_offer(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerStopOfferWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e9ca8373-ce2a-4429-8cea-1cfd58bc9c00");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_stop_offer(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, IsServerOfferedWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "34430915-fa84-4824-893b-efbc7b2642e7");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_is_offered(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerHasClientsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "72d48f68-392c-405e-8561-1ab44489387b");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_has_clients(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerHasRequestsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "919b78a5-5eb7-4d70-99e5-1756ec48fa50");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_has_requests(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerHasMissedRequestsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7b98029b-edfd-4d88-b3f8-66cc9d5dd1c4");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_has_missed_requests(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
+TEST_F(iox_server_test, ServerReleaseQueuedRequestsWithNullptrFails)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bc61edf0-0eea-4ba2-aaa3-eccb6a5ace27");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox_server_release_queued_requests(nullptr); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
+
 } // namespace

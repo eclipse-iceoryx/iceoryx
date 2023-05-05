@@ -83,6 +83,7 @@
 - Alias `invoke_result` to correct implementation based on C++ version [\#1934](https://github.com/eclipse-iceoryx/iceoryx/issues/1934)
 - Fix undefined behaviour in `publishCopyOf` and `publishResultOf` [\#1963](https://github.com/eclipse-iceoryx/iceoryx/issues/1963)
 - ServiceDescription `Interfaces` and `INTERFACE_NAMES` do not match [\#1977](https://github.com/eclipse-iceoryx/iceoryx/issues/1977)
+- Implement and test nullptr check in c binding [\#1106](https://github.com/eclipse-iceoryx/iceoryx/issues/1106)
 
 **Refactoring:**
 
