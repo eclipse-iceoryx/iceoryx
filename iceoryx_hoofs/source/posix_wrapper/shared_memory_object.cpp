@@ -186,12 +186,12 @@ void* SharedMemoryObject::getBaseAddress() noexcept
     return m_memoryMap.getBaseAddress();
 }
 
-int SharedMemoryObject::get_file_handle() const noexcept
+sharedMemoryHandle_t SharedMemoryObject::get_file_handle() const noexcept
 {
     return m_sharedMemory.getHandle();
 }
 
-int SharedMemoryObject::getFileHandle() const noexcept
+sharedMemoryHandle_t SharedMemoryObject::getFileHandle() const noexcept
 {
     return m_sharedMemory.getHandle();
 }

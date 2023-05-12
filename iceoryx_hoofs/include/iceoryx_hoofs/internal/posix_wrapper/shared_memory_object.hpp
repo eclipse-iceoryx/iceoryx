@@ -73,7 +73,7 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     void* getBaseAddress() noexcept;
 
     /// @brief Returns the underlying file handle of the shared memory
-    int getFileHandle() const noexcept;
+    sharedMemoryHandle_t getFileHandle() const noexcept;
 
     /// @brief True if the shared memory has the ownership. False if an already
     ///        existing shared memory was opened.
@@ -85,7 +85,7 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept;
 
     friend struct FileManagementInterface<SharedMemoryObject>;
-    int get_file_handle() const noexcept;
+    sharedMemoryHandle_t get_file_handle() const noexcept;
 
   private:
     SharedMemory m_sharedMemory;
