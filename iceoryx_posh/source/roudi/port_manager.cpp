@@ -508,7 +508,8 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
         // they do not have the same interface otherwise we have cyclic connections in gateways
         if (publisherInterface != capro::Interfaces::INTERNAL && publisherInterface == messageInterface)
         {
-            break;
+            //iox-#1908
+            continue;
         }
 
         if (isCompatiblePubSub(publisherPort, subscriberSource))
@@ -546,7 +547,8 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
         // they do not have the same interface otherwise we have cyclic connections in gateways
         if (subscriberInterface != capro::Interfaces::INTERNAL && subscriberInterface == messageInterface)
         {
-            break;
+            //iox-#1908
+            continue;
         }
 
         if (isCompatiblePubSub(publisherSource, subscriberPort))
