@@ -508,7 +508,7 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
         // they do not have the same interface otherwise we have cyclic connections in gateways
         if (publisherInterface != capro::Interfaces::INTERNAL && publisherInterface == messageInterface)
         {
-            //iox-#1908
+            // iox-#1908
             continue;
         }
 
@@ -547,7 +547,7 @@ void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& me
         // they do not have the same interface otherwise we have cyclic connections in gateways
         if (subscriberInterface != capro::Interfaces::INTERNAL && subscriberInterface == messageInterface)
         {
-            //iox-#1908
+            // iox-#1908
             continue;
         }
 
