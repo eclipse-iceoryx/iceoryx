@@ -25,7 +25,7 @@
 // 2. Include the custom reporting implementation
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
 
-// 3. Include the error reporting API
-#include "iceoryx_hoofs/error_reporting/api.hpp"
+// 3. Include the error reporting macro API
+#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
 
 #endif

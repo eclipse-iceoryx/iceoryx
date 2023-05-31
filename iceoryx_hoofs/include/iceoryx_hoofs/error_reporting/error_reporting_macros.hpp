@@ -14,11 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_ERROR_REPORTING_API_HPP
-#define IOX_HOOFS_ERROR_REPORTING_API_HPP
+#ifndef IOX_HOOFS_ERROR_REPORTING_ERROR_REPORTING_MACROS_HPP
+#define IOX_HOOFS_ERROR_REPORTING_ERROR_REPORTING_MACROS_HPP
 
 #include "iceoryx_hoofs/error_reporting/configuration.hpp"
-#include "iceoryx_hoofs/error_reporting/custom/error_kind.hpp"
 #include "iceoryx_hoofs/error_reporting/error_forwarding.hpp"
 
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
@@ -131,6 +130,7 @@
                                         message);                                                                      \
         }                                                                                                              \
     } while (false)
+
 /// @brief panic if control flow reaches this code at runtime
 #define IOX_UNREACHABLE()                                                                                              \
     do                                                                                                                 \
