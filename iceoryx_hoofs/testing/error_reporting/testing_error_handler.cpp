@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
 #include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iceoryx_hoofs/error_reporting/types.hpp"
 

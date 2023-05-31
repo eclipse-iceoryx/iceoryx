@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_ERROR_HANDLER_HPP
-#define IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_ERROR_HANDLER_HPP
+#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_ERROR_HANDLER_HPP
+#define IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_ERROR_HANDLER_HPP
 
 #include "iceoryx_hoofs/error_reporting/custom/default/error_handler_interface.hpp"
 #include "iceoryx_hoofs/error_reporting/error_logging.hpp"

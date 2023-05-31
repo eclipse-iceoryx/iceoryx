@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_SUPPORT_HPP
-#define IOX_HOOFS_TESTING_ERROR_REPORTING_TEST_SUPPORT_HPP
+#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TESING_SUPPORT_HPP
+#define IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_SUPPORT_HPP
 
 #include <gtest/gtest.h>
 
 #include "iceoryx_hoofs/error_reporting/custom/default/error_handler.hpp"
-#include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
 #include "iox/static_lifetime_guard.hpp"
 
 #include <thread>
@@ -72,8 +72,7 @@ inline void testContext(Function&& testFunction, Args&&... args)
 
     if (buf == nullptr)
     {
-        // should not fail with correct usage
-        GTEST_FAIL();
+        GTEST_FAIL() << "This should not fail! Incorrect usage!";
     };
 
     // setjmp must be called in a stackframe that still exists when longjmp is called
@@ -111,47 +110,47 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 // NOLINTBEGIN(cppcoreguidelines-macro-usage) macro required for source location in tests
 
-#define ASSERT_OK() ASSERT_TRUE(iox::testing::isInNormalState())
+#define IOX_TESTING_ASSERT_OK() ASSERT_TRUE(iox::testing::isInNormalState())
 
-#define ASSERT_NO_PANIC() ASSERT_FALSE(iox::testing::hasPanicked())
+#define IOX_TESTING_ASSERT_NO_PANIC() ASSERT_FALSE(iox::testing::hasPanicked())
 
-#define ASSERT_PANIC() ASSERT_TRUE(iox::testing::hasPanicked())
+#define IOX_TESTING_ASSERT_PANIC() ASSERT_TRUE(iox::testing::hasPanicked())
 
-#define ASSERT_ERROR(code) ASSERT_TRUE(iox::testing::hasError(code))
+#define IOX_TESTING_ASSERT_ERROR(code) ASSERT_TRUE(iox::testing::hasError(code))
 
-#define ASSERT_NO_ERROR() ASSERT_FALSE(iox::testing::hasError())
+#define IOX_TESTING_ASSERT_NO_ERROR() ASSERT_FALSE(iox::testing::hasError())
 
-#define ASSERT_VIOLATION()                                                                                             \
+#define IOX_TESTING_ASSERT_VIOLATION()                                                                                             \
     ASSERT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define ASSERT_NO_VIOLATION()                                                                                          \
+#define IOX_TESTING_ASSERT_NO_VIOLATION()                                                                                          \
     ASSERT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define ASSERT_PRECONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasPreconditionViolation())
+#define IOX_TESTING_ASSERT_PRECONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasPreconditionViolation())
 
-#define ASSERT_ASSUMPTION_VIOLATION() ASSERT_TRUE(iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_ASSERT_ASSUMPTION_VIOLATION() ASSERT_TRUE(iox::testing::hasAssumptionViolation())
 
 // EXPECT_* continues with test if the check fails.
 
-#define EXPECT_OK() EXPECT_TRUE(iox::testing::isInNormalState())
+#define IOX_TESTING_EXPECT_OK() EXPECT_TRUE(iox::testing::isInNormalState())
 
-#define EXPECT_NO_PANIC() EXPECT_FALSE(iox::testing::hasPanicked())
+#define IOX_TESTING_EXPECT_NO_PANIC() EXPECT_FALSE(iox::testing::hasPanicked())
 
-#define EXPECT_PANIC() EXPECT_TRUE(iox::testing::hasPanicked())
+#define IOX_TESTING_EXPECT_PANIC() EXPECT_TRUE(iox::testing::hasPanicked())
 
-#define EXPECT_ERROR(code) EXPECT_TRUE(iox::testing::hasError(code))
+#define IOX_TESTING_EXPECT_ERROR(code) EXPECT_TRUE(iox::testing::hasError(code))
 
-#define EXPECT_NO_ERROR() EXPECT_FALSE(iox::testing::hasError())
+#define IOX_TESTING_EXPECT_NO_ERROR() EXPECT_FALSE(iox::testing::hasError())
 
-#define EXPECT_VIOLATION()                                                                                             \
+#define IOX_TESTING_EXPECT_VIOLATION()                                                                                             \
     EXPECT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define EXPECT_NO_VIOLATION()                                                                                          \
+#define IOX_TESTING_EXPECT_NO_VIOLATION()                                                                                          \
     EXPECT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define EXPECT_PRECONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasPreconditionViolation())
+#define IOX_TESTING_EXPECT_PRECONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasPreconditionViolation())
 
-#define EXPECT_ASSUMPTION_VIOLATION() EXPECT_TRUE(iox::testing::hasAssumptionViolation())
+#define IOX_TESTING_EXPECT_ASSUMPTION_VIOLATION() EXPECT_TRUE(iox::testing::hasAssumptionViolation())
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 

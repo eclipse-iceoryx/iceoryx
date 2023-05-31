@@ -23,7 +23,7 @@
 #include <gtest/gtest.h>
 
 #include "iceoryx_hoofs/error_reporting/custom/error_reporting.hpp"
-#include "iceoryx_hoofs/testing/error_reporting/test_support.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 #include "module_a/errors.hpp"
 
@@ -61,7 +61,7 @@ TEST_F(ErrorReporting_test, panicWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_PANIC();
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 TEST_F(ErrorReporting_test, panicWithLocationWorks)
@@ -72,7 +72,7 @@ TEST_F(ErrorReporting_test, panicWithLocationWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_PANIC();
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 TEST_F(ErrorReporting_test, panicWithMessageWorks)
@@ -83,7 +83,7 @@ TEST_F(ErrorReporting_test, panicWithMessageWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_PANIC();
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
@@ -94,8 +94,8 @@ TEST_F(ErrorReporting_test, reportNonFatalErrorWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_NO_PANIC();
-    EXPECT_ERROR(CODE);
+    IOX_TESTING_EXPECT_NO_PANIC();
+    IOX_TESTING_EXPECT_ERROR(CODE);
 }
 
 TEST_F(ErrorReporting_test, reportFatalErrorWorks)
@@ -109,7 +109,7 @@ TEST_F(ErrorReporting_test, reportFatalErrorWorks)
     // panic is not required at this level as we cannot trust the custom API to enforce it
     // While we could also call panic in the custom API, there should only be one decison point
     // for it at a higher level
-    EXPECT_ERROR(CODE);
+    IOX_TESTING_EXPECT_ERROR(CODE);
 }
 
 TEST_F(ErrorReporting_test, reportPreconditionViolatonWorks)
@@ -123,7 +123,7 @@ TEST_F(ErrorReporting_test, reportPreconditionViolatonWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_PRECONDITION_VIOLATION();
+    IOX_TESTING_EXPECT_PRECONDITION_VIOLATION();
 }
 
 // the message is printed but otherwise lost, so we cannot check for it
@@ -138,7 +138,7 @@ TEST_F(ErrorReporting_test, reportPreconditionViolatonWithMessageWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_PRECONDITION_VIOLATION();
+    IOX_TESTING_EXPECT_PRECONDITION_VIOLATION();
 }
 
 TEST_F(ErrorReporting_test, reportAssumptionViolatonWorks)
@@ -152,7 +152,7 @@ TEST_F(ErrorReporting_test, reportAssumptionViolatonWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_ASSUMPTION_VIOLATION();
+    IOX_TESTING_EXPECT_ASSUMPTION_VIOLATION();
 }
 
 // the message is printed but otherwise lost, so we cannot check for it
@@ -167,7 +167,7 @@ TEST_F(ErrorReporting_test, reportAssumptionViolatonWithMessageWorks)
 
     iox::testing::runInTestThread(f);
 
-    EXPECT_ASSUMPTION_VIOLATION();
+    IOX_TESTING_EXPECT_ASSUMPTION_VIOLATION();
 }
 
 } // namespace

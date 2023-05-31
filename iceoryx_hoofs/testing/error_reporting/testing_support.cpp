@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/testing/error_reporting/test_support.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 namespace iox
 {

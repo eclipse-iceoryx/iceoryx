@@ -20,7 +20,7 @@
 #include <gtest/gtest.h>
 
 #include "iceoryx_hoofs/error_reporting/source_location.hpp"
-#include "iceoryx_hoofs/testing/error_reporting/test_error_handler.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_error_handler.hpp"
 
 // NOLINTNEXTLINE(hicpp-deprecated-headers) required to work on some platforms
 #include <setjmp.h>

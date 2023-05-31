@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
-#include "iceoryx_hoofs/testing/error_reporting/test_support.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 
 #include "test.hpp"
 
