@@ -23,7 +23,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 /// @brief Defines the default reaction of dynamic error handling.
@@ -52,7 +52,7 @@ class DefaultErrorHandler : public ErrorHandlerInterface
     void onReportViolation(ErrorDescriptor desc) override;
 };
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TESING_SUPPORT_HPP
+#ifndef IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_SUPPORT_HPP
 #define IOX_HOOFS_TESTING_ERROR_REPORTING_TESTING_SUPPORT_HPP
 
 #include <gtest/gtest.h>
@@ -40,7 +40,7 @@ using ErrorHandler = iox::StaticLifetimeGuard<iox::testing::TestErrorHandler>;
 template <typename Code>
 inline bool hasError(Code&& code)
 {
-    auto e = iox::err::toError(std::forward<Code>(code));
+    auto e = iox::er::toError(std::forward<Code>(code));
     return ErrorHandler::instance().hasError(e.code(), e.module());
 }
 
@@ -120,10 +120,10 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_ASSERT_NO_ERROR() ASSERT_FALSE(iox::testing::hasError())
 
-#define IOX_TESTING_ASSERT_VIOLATION()                                                                                             \
+#define IOX_TESTING_ASSERT_VIOLATION()                                                                                 \
     ASSERT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define IOX_TESTING_ASSERT_NO_VIOLATION()                                                                                          \
+#define IOX_TESTING_ASSERT_NO_VIOLATION()                                                                              \
     ASSERT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
 #define IOX_TESTING_ASSERT_PRECONDITION_VIOLATION() ASSERT_TRUE(iox::testing::hasPreconditionViolation())
@@ -142,10 +142,10 @@ inline void runInTestThread(Function&& testFunction, Args&&... args)
 
 #define IOX_TESTING_EXPECT_NO_ERROR() EXPECT_FALSE(iox::testing::hasError())
 
-#define IOX_TESTING_EXPECT_VIOLATION()                                                                                             \
+#define IOX_TESTING_EXPECT_VIOLATION()                                                                                 \
     EXPECT_TRUE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
-#define IOX_TESTING_EXPECT_NO_VIOLATION()                                                                                          \
+#define IOX_TESTING_EXPECT_NO_VIOLATION()                                                                              \
     EXPECT_FALSE(iox::testing::hasPreconditionViolation() || iox::testing::hasAssumptionViolation())
 
 #define IOX_TESTING_EXPECT_PRECONDITION_VIOLATION() EXPECT_TRUE(iox::testing::hasPreconditionViolation())

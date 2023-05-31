@@ -18,7 +18,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 void DefaultErrorHandler::onPanic()
 {
@@ -32,5 +32,5 @@ void DefaultErrorHandler::onReportViolation(ErrorDescriptor)
 {
 }
 
-} // namespace err
+} // namespace er
 } // namespace iox

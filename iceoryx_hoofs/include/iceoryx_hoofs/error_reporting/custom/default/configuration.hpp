@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // Specialize to change the checks (and other options if needed) at compile time.
@@ -34,7 +34,7 @@ struct ConfigurationParameters<ConfigurationTag>
     static constexpr bool CHECK_ASSUMPTIONS{true};
 };
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

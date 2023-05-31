@@ -28,9 +28,9 @@ namespace iox
 namespace hoofs_errors
 {
 
-using ModuleId = iox::err::ModuleId;
+using ModuleId = iox::er::ModuleId;
 
-enum class Code : iox::err::ErrorCode::type
+enum class Code : iox::er::ErrorCode::type
 {
     Unknown = 0
 };
@@ -39,7 +39,7 @@ class Error
 {
   public:
     explicit Error(Code code = Code::Unknown)
-        : m_code(static_cast<iox::err::ErrorCode::type>(code))
+        : m_code(static_cast<iox::er::ErrorCode::type>(code))
     {
     }
 
@@ -48,7 +48,7 @@ class Error
         return MODULE_ID;
     }
 
-    iox::err::ErrorCode code() const
+    iox::er::ErrorCode code() const
     {
         return m_code;
     }
@@ -62,7 +62,7 @@ class Error
     static constexpr ModuleId MODULE_ID{1};
 
   protected:
-    iox::err::ErrorCode m_code;
+    iox::er::ErrorCode m_code;
 
     /// @todo iox-#1032 Incomplete and not used yet, use a robust compile time mechanism to define names
     /// in integration follow up
@@ -75,7 +75,7 @@ class Error
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 inline hoofs_errors::Error toError(hoofs_errors::Code code)
@@ -88,7 +88,7 @@ inline ModuleId toModule(hoofs_errors::Code)
     return hoofs_errors::Error::MODULE_ID;
 }
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

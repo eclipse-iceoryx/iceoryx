@@ -31,7 +31,7 @@ namespace
 {
 
 using namespace ::testing;
-using namespace iox::err;
+using namespace iox::er;
 
 constexpr auto CODE{module_a::errors::Code::OutOfBounds};
 constexpr module_a::errors::Error ERROR{CODE};

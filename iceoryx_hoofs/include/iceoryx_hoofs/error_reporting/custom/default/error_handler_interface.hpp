@@ -23,7 +23,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 /// @brief Contains all required information about the error.
 /// Can be extended as needed without breaking the interface.
@@ -65,7 +65,7 @@ class ErrorHandlerInterface
     virtual void onReportViolation(ErrorDescriptor desc) = 0;
 };
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

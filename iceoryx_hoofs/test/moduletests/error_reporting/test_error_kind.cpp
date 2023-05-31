@@ -24,7 +24,7 @@ namespace
 {
 
 using namespace ::testing;
-using namespace iox::err;
+using namespace iox::er;
 
 // check the type traits of the error kinds
 

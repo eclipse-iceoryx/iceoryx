@@ -22,7 +22,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::err;
+using namespace iox::er;
 
 template <typename T>
 class RegularType_test : public Test

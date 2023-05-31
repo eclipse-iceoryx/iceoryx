@@ -27,7 +27,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // The static reporting interface that must be defined to at least do nothing.
@@ -88,7 +88,7 @@ inline void report(const SourceLocation& location, Kind, const Error& error)
 // Here the logging is subtly different and does not easily allow to factor out common parts.
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::FatalKind kind, const Error& error)
+inline void report(const SourceLocation& location, iox::er::FatalKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -102,7 +102,7 @@ inline void report(const SourceLocation& location, iox::err::FatalKind kind, con
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::PreconditionViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -112,7 +112,7 @@ inline void report(const SourceLocation& location, iox::err::PreconditionViolati
 }
 
 template <class Error>
-inline void report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, const Error& error)
+inline void report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -123,7 +123,7 @@ inline void report(const SourceLocation& location, iox::err::AssumptionViolation
 
 template <class Error, class Message>
 inline void
-report(const SourceLocation& location, iox::err::PreconditionViolationKind kind, const Error& error, Message&& msg)
+report(const SourceLocation& location, iox::er::PreconditionViolationKind kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -134,7 +134,7 @@ report(const SourceLocation& location, iox::err::PreconditionViolationKind kind,
 
 template <class Error, class Message>
 inline void
-report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, const Error& error, Message&& msg)
+report(const SourceLocation& location, iox::er::AssumptionViolationKind kind, const Error& error, Message&& msg)
 {
     auto code = toCode(error);
     auto module = toModule(error);
@@ -143,7 +143,7 @@ report(const SourceLocation& location, iox::err::AssumptionViolationKind kind, c
     h.onReportViolation(ErrorDescriptor(location, code, module));
 }
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

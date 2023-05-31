@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
     iox::testing::TestingLogger::init();
 
     iox::testing::ErrorHandler handler;
-    iox::err::ErrorHandler::set(handler);
+    iox::er::ErrorHandler::set(handler);
 
     g_argc = argc;
     g_argv = argv;

@@ -19,7 +19,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 struct SourceLocation
 {
@@ -35,12 +35,12 @@ struct SourceLocation
     const char* function{nullptr};
 };
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage) macro is required for use of location intrinsics (__FILE__ etc.)
 #define CURRENT_SOURCE_LOCATION                                                                                        \
-    iox::err::SourceLocation                                                                                           \
+    iox::er::SourceLocation                                                                                            \
     {                                                                                                                  \
         __FILE__, __LINE__, static_cast<const char*>(__FUNCTION__)                                                     \
     } // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)

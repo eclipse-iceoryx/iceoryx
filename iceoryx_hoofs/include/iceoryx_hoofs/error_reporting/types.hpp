@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // These are lightweight regular read/write types that do not require encapsulation (no invariants
@@ -81,7 +81,7 @@ struct ModuleId
     }
 };
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

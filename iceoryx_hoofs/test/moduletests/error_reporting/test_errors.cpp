@@ -27,7 +27,7 @@ namespace
 {
 
 using namespace ::testing;
-using namespace iox::err;
+using namespace iox::er;
 
 constexpr ErrorCode CODE1{73};
 constexpr ErrorCode CODE2{21};
@@ -226,7 +226,7 @@ TEST(ErrorNameTranslation_test, unknownErrorTranslatesToUnknownErrorString)
 
     Unknown error;
     const char* result = toErrorName(error);
-    EXPECT_EQ(result, iox::err::UNKNOWN_ERROR_NAME);
+    EXPECT_EQ(result, iox::er::UNKNOWN_ERROR_NAME);
 }
 
 TEST(ErrorNameTranslation_test, knownErrorTranslatesToCorrectErrorString)
@@ -254,7 +254,7 @@ TEST(ErrorNameTranslation_test, unknownModuleTranslatesToUnknownModuleString)
 
     Unknown module;
     const char* result = toModuleName(module);
-    EXPECT_EQ(result, iox::err::UNKNOWN_MODULE_NAME);
+    EXPECT_EQ(result, iox::er::UNKNOWN_MODULE_NAME);
 }
 
 TEST(ErrorNameTranslation_test, knownModuleTranslatesToCorrectModuleString)

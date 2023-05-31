@@ -28,7 +28,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 // This is lightweight and only exists to hide some complexity that would otherwise be part of the
 // macro API.
@@ -88,7 +88,7 @@ template <typename Error, typename Kind, typename Message>
     abort();
 }
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

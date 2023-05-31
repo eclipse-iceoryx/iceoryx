@@ -33,13 +33,13 @@ bool hasError()
 
 bool hasPreconditionViolation()
 {
-    auto code = iox::err::ErrorCode{iox::err::ErrorCode::PRECONDITION_VIOLATION};
+    auto code = iox::er::ErrorCode{iox::er::ErrorCode::PRECONDITION_VIOLATION};
     return ErrorHandler::instance().hasViolation(code);
 }
 
 bool hasAssumptionViolation()
 {
-    auto code = iox::err::ErrorCode{iox::err::ErrorCode::ASSUMPTION_VIOLATION};
+    auto code = iox::er::ErrorCode{iox::er::ErrorCode::ASSUMPTION_VIOLATION};
     return ErrorHandler::instance().hasViolation(code);
 }
 

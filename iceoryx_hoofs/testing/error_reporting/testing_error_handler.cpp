@@ -28,7 +28,7 @@ namespace iox
 namespace testing
 {
 
-using namespace iox::err;
+using namespace iox::er;
 
 TestErrorHandler::TestErrorHandler()
     : m_jump(&m_jumpBuffer)
@@ -41,13 +41,13 @@ void TestErrorHandler::onPanic()
     jump();
 }
 
-void TestErrorHandler::onReportError(err::ErrorDescriptor desc)
+void TestErrorHandler::onReportError(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_errors.push_back(desc);
 }
 
-void TestErrorHandler::onReportViolation(err::ErrorDescriptor desc)
+void TestErrorHandler::onReportViolation(er::ErrorDescriptor desc)
 {
     std::lock_guard<std::mutex> g(m_mutex);
     m_violations.push_back(desc);
@@ -73,9 +73,9 @@ bool TestErrorHandler::hasError() const
     return !m_errors.empty();
 }
 
-bool TestErrorHandler::hasError(ErrorCode code, iox::err::ModuleId module) const
+bool TestErrorHandler::hasError(ErrorCode code, iox::er::ModuleId module) const
 {
-    constexpr iox::err::ModuleId ANY_MODULE{iox::err::ModuleId::ANY};
+    constexpr iox::er::ModuleId ANY_MODULE{iox::er::ModuleId::ANY};
     std::lock_guard<std::mutex> g(m_mutex);
     for (auto desc : m_errors)
     {

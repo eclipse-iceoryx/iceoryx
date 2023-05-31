@@ -21,7 +21,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // Tag types for mandatory fatal error categories that always exist.
@@ -105,7 +105,7 @@ constexpr PreconditionViolationKind PRECONDITION_VIOLATION;
 // indicates a bug (contract breach by callee)
 constexpr AssumptionViolationKind ASSUMPTION_VIOLATION;
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

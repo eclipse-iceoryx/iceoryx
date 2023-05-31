@@ -38,7 +38,7 @@ namespace testing
 {
 
 /// @brief Defines the test reaction of dynamic error handling.
-class TestErrorHandler : public iox::err::ErrorHandlerInterface
+class TestErrorHandler : public iox::er::ErrorHandlerInterface
 {
   public:
     TestErrorHandler();
@@ -54,11 +54,11 @@ class TestErrorHandler : public iox::err::ErrorHandlerInterface
 
     /// @brief Defines the reaction on error.
     /// @param desc error descriptor
-    void onReportError(err::ErrorDescriptor desc) override;
+    void onReportError(er::ErrorDescriptor desc) override;
 
     /// @brief Defines the reaction on violation.
     /// @param desc error descriptor
-    void onReportViolation(err::ErrorDescriptor desc) override;
+    void onReportViolation(er::ErrorDescriptor desc) override;
 
     /// @brief Indicates whether there was a panic call previously.
     /// @return true if there was a panic call, false otherwise
@@ -71,11 +71,11 @@ class TestErrorHandler : public iox::err::ErrorHandlerInterface
     bool hasError() const;
 
     /// @brief Indicates whether a specific error occurred previously.
-    bool hasError(iox::err::ErrorCode code, iox::err::ModuleId module = iox::err::ModuleId()) const;
+    bool hasError(iox::er::ErrorCode code, iox::er::ModuleId module = iox::er::ModuleId()) const;
 
     /// @brief Indicates whether a assumption violation occurred previously.
     /// @note We do not track module id for violations.
-    bool hasViolation(iox::err::ErrorCode code) const;
+    bool hasViolation(iox::er::ErrorCode code) const;
 
     /// @brief Prepare a jump and return jump buffer
     /// @return pointer to jump buffer if successful, nullptr otherwise
@@ -90,10 +90,10 @@ class TestErrorHandler : public iox::err::ErrorHandlerInterface
 
     mutable std::mutex m_mutex;
     std::atomic<bool> m_panicked{false};
-    std::vector<err::ErrorDescriptor> m_errors;
+    std::vector<er::ErrorDescriptor> m_errors;
 
     // we track violations separately (leads to simple search)
-    std::vector<err::ErrorDescriptor> m_violations;
+    std::vector<er::ErrorDescriptor> m_violations;
 
     // if we would like to support concurrent jumps it gets very tricky
     // and we would need multiple jump buffers

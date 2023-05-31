@@ -260,15 +260,16 @@ enum class Color {
     Blue
 };
 
-void handleColor(Color color) {
+int handleColor(Color color) {
 
     switch(color) {
-        case Color:Red { handleRed(); }
+        case Color::Red : { return handleRed(); }
 
-        case Color:Blue { handleBlue(); }
+        case Color::Blue : { return handleBlue(); }
     }
     // The switch statement is exhaustive and hence this code cannot be reached.
     IOX_UNREACHABLE();
+    // No return statement required due to noreturn guarantee.
 }
 ```
 

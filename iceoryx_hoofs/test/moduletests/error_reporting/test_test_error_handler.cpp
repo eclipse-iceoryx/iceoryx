@@ -29,9 +29,9 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::err;
+using namespace iox::er;
 using namespace iox::testing;
-using iox::err::ErrorDescriptor;
+using iox::er::ErrorDescriptor;
 
 constexpr ErrorCode CODE1{73};
 constexpr ErrorCode CODE2{37};

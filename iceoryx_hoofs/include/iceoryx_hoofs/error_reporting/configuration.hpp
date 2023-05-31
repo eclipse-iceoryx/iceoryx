@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // tag type that can be used to override the configuration in a custom implementation
@@ -46,7 +46,7 @@ struct ConfigurationParameters
 // used by the API to obtain the compile time parameters
 using Configuration = ConfigurationParameters<ConfigurationTag>;
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

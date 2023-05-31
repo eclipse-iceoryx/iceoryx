@@ -25,14 +25,14 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 using ErrorHandler = iox::PolymorphicHandler<ErrorHandlerInterface, DefaultErrorHandler>;
 
 using DefaultErrorHandlerGuard = iox::StaticLifetimeGuard<DefaultErrorHandler>;
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

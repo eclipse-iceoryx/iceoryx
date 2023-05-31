@@ -23,7 +23,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 static constexpr const char* UNKNOWN_MODULE_NAME = "unknown module";
@@ -123,7 +123,7 @@ inline const char* toErrorName(const Error&)
     return UNKNOWN_ERROR_NAME;
 }
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif

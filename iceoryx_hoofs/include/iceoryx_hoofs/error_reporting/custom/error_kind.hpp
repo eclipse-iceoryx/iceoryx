@@ -25,7 +25,7 @@
 
 namespace iox
 {
-namespace err
+namespace er
 {
 
 // The non-fatal error kinds can all be defined here.
@@ -37,7 +37,7 @@ struct RuntimeErrorKind
 
 constexpr RuntimeErrorKind RUNTIME_ERROR{};
 
-} // namespace err
+} // namespace er
 } // namespace iox
 
 #endif
