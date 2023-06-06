@@ -63,7 +63,7 @@ ENUM iox_ListenerResult iox_listener_attach_subscriber_event(iox_listener_t cons
                           NotificationCallback<cpp2c_Subscriber, popo::internal::NoType_t>{callback, nullptr});
     if (result.has_error())
     {
-        return cpp2c::listenerResult(result.get_error());
+        return cpp2c::listenerResult(result.error());
     }
     return ListenerResult_SUCCESS;
 }
@@ -85,7 +85,7 @@ iox_listener_attach_subscriber_event_with_context_data(iox_listener_t const self
                                     NotificationCallback<cpp2c_Subscriber, void>{callback, contextData});
     if (result.has_error())
     {
-        return cpp2c::listenerResult(result.get_error());
+        return cpp2c::listenerResult(result.error());
     }
     return ListenerResult_SUCCESS;
 }
@@ -102,7 +102,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event(iox_listener_t co
         self->attachEvent(*userTrigger, NotificationCallback<UserTrigger, popo::internal::NoType_t>{callback, nullptr});
     if (result.has_error())
     {
-        return cpp2c::listenerResult(result.get_error());
+        return cpp2c::listenerResult(result.error());
     }
     return ListenerResult_SUCCESS;
 }
@@ -125,7 +125,7 @@ ENUM iox_ListenerResult iox_listener_attach_user_trigger_event_with_context_data
     auto result = self->attachEvent(*userTrigger, NotificationCallback<UserTrigger, void>{callback, contextData});
     if (result.has_error())
     {
-        return cpp2c::listenerResult(result.get_error());
+        return cpp2c::listenerResult(result.error());
     }
     return ListenerResult_SUCCESS;
 }
@@ -175,8 +175,7 @@ iox_ListenerResult iox_listener_attach_client_event(iox_listener_t const self,
         *client,
         c2cpp::clientEvent(clientEvent),
         NotificationCallback<std::remove_pointer_t<iox_client_t>, popo::internal::NoType_t>{callback, nullptr});
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listener_t const self,
@@ -194,8 +193,7 @@ iox_ListenerResult iox_listener_attach_client_event_with_context_data(iox_listen
         self->attachEvent(*client,
                           c2cpp::clientEvent(clientEvent),
                           NotificationCallback<std::remove_pointer_t<iox_client_t>, void>{callback, contextData});
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 void iox_listener_detach_client_event(iox_listener_t const self,
@@ -222,8 +220,7 @@ iox_ListenerResult iox_listener_attach_server_event(iox_listener_t const self,
         *server,
         c2cpp::serverEvent(serverEvent),
         NotificationCallback<std::remove_pointer_t<iox_server_t>, popo::internal::NoType_t>{callback, nullptr});
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listener_t const self,
@@ -241,8 +238,7 @@ iox_ListenerResult iox_listener_attach_server_event_with_context_data(iox_listen
         self->attachEvent(*server,
                           c2cpp::serverEvent(serverEvent),
                           NotificationCallback<std::remove_pointer_t<iox_server_t>, void>{callback, contextData});
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 void iox_listener_detach_server_event(iox_listener_t const self,
@@ -270,8 +266,7 @@ iox_listener_attach_service_discovery_event(iox_listener_t const self,
                           c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
                           NotificationCallback<ServiceDiscovery, popo::internal::NoType_t>{callback, nullptr});
 
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data(
@@ -290,8 +285,7 @@ iox_ListenerResult iox_listener_attach_service_discovery_event_with_context_data
                                     c2cpp::serviceDiscoveryEvent(serviceDiscoveryEvent),
                                     NotificationCallback<ServiceDiscovery, void>{callback, contextData});
 
-    return (result.has_error()) ? cpp2c::listenerResult(result.get_error())
-                                : iox_ListenerResult::ListenerResult_SUCCESS;
+    return (result.has_error()) ? cpp2c::listenerResult(result.error()) : iox_ListenerResult::ListenerResult_SUCCESS;
 }
 
 void iox_listener_detach_service_discovery_event(iox_listener_t const self,

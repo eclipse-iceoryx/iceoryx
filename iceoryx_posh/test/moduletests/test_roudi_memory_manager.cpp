@@ -67,7 +67,7 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateAndAnnounceMemoryWithoutMemoryProvi
     ::testing::Test::RecordProperty("TEST_ID", "8048cd15-3786-4eaf-9c26-e1cd6dce753c");
     auto expectError = sut.createAndAnnounceMemory();
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT));
+    EXPECT_THAT(expectError.error(), Eq(RouDiMemoryManagerError::NO_MEMORY_PROVIDER_PRESENT));
 }
 
 TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderSucceeds)
@@ -103,7 +103,7 @@ TEST_F(RouDiMemoryManager_Test, CallingCreateMemoryWithMemoryProviderError)
 
     // If no memory block is added to memory provider, Create and Announce Memory will return a error
     ASSERT_THAT(sut.createAndAnnounceMemory().has_error(), Eq(true));
-    EXPECT_THAT(sut.createAndAnnounceMemory().get_error(), Eq(RouDiMemoryManagerError::MEMORY_CREATION_FAILED));
+    EXPECT_THAT(sut.createAndAnnounceMemory().error(), Eq(RouDiMemoryManagerError::MEMORY_CREATION_FAILED));
 
     ASSERT_FALSE(sut.destroyMemory().has_error());
 }
@@ -141,7 +141,7 @@ TEST_F(RouDiMemoryManager_Test, AddMemoryProviderExceedsCapacity)
 
     auto expectError = sutExhausting.addMemoryProvider(&memoryProvider[iox::MAX_NUMBER_OF_MEMORY_PROVIDER]);
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED));
+    EXPECT_THAT(expectError.error(), Eq(RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED));
 }
 
 TEST_F(RouDiMemoryManager_Test, OperatorTest)

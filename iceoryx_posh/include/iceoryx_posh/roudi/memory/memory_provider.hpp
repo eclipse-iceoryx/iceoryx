@@ -84,12 +84,12 @@ class MemoryProvider
     /// @param [in] memoryBlock is a pointer to a user defined MemoryBlock
     /// @return an MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED error if no further memory blocks can be added,
     /// otherwise success
-    expected<MemoryProviderError> addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept;
+    expected<void, MemoryProviderError> addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept;
 
     /// @brief With this call the memory requested by the MemoryBlocks need to be created. The function should be called
     /// from a MemoryManager which handles one or more MemoryProvider
     /// @return an MemoryProviderError if memory allocation was not successful, otherwise success
-    expected<MemoryProviderError> create() noexcept;
+    expected<void, MemoryProviderError> create() noexcept;
 
     /// @brief This function announces the availability of the memory to the MemoryBlocks. The function should be called
     /// from a MemoryManager which handles one or more MemoryProvider
@@ -99,7 +99,7 @@ class MemoryProvider
     /// requested to handle this appropriately, e.g. call the destructor of the underlying type. The
     /// function should be called from a MemoryManager which handles one or more MemoryProvider
     /// @return an error if memory destruction was not successful, otherwise success
-    expected<MemoryProviderError> destroy() noexcept;
+    expected<void, MemoryProviderError> destroy() noexcept;
 
     /// @brief This function provides the base address of the created memory
     /// @return an optional pointer to the base address of the created memory if the memory is available, otherwise a
@@ -137,7 +137,7 @@ class MemoryProvider
     /// @brief This function needs to be implemented to free the actual memory, e.g. in case of POSIX SHM, shm_unlink
     /// and munmap would need to be called in the implementation of this function
     /// @return a MemoryProviderError if the destruction failed, otherwise success
-    virtual expected<MemoryProviderError> destroyMemory() noexcept = 0;
+    virtual expected<void, MemoryProviderError> destroyMemory() noexcept = 0;
 
     static const char* getErrorString(const MemoryProviderError error) noexcept;
 

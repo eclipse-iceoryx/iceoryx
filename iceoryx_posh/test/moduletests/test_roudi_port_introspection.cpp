@@ -165,8 +165,7 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
     bool chunkWasSent = false;
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillOnce(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillOnce(Return(ByMove(iox::ok(chunk.get()->chunkHeader()))));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))
         .WillOnce(Invoke([&](iox::mepoo::ChunkHeader* const) { chunkWasSent = true; }));
@@ -229,9 +228,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
+    iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunkResult =
+        iox::ok(chunk.get()->chunkHeader());
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillRepeatedly(Return(tryAllocateChunkResult));
 
     bool chunkWasSent = false;
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))
@@ -361,9 +361,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
+    iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunkResult =
+        iox::ok(chunk.get()->chunkHeader());
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillRepeatedly(Return(tryAllocateChunkResult));
 
     bool chunkWasSent = false;
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))

@@ -86,14 +86,14 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
         || service.getInstanceIDString() == capro::IdString_t(TruncateToCapacity, "*")
         || service.getEventIDString() == capro::IdString_t(TruncateToCapacity, "*"))
     {
-        return error<GatewayError>(GatewayError::UNSUPPORTED_SERVICE_TYPE);
+        return err(GatewayError::UNSUPPORTED_SERVICE_TYPE);
     }
 
     // Return existing channel if one for the service already exists, otherwise create a new one
     auto existingChannel = findChannel(service);
     if (existingChannel.has_value())
     {
-        return success<channel_t>(existingChannel.value());
+        return ok(existingChannel.value());
     }
     else
     {
@@ -105,13 +105,13 @@ GatewayGeneric<channel_t, gateway_t>::addChannel(const capro::ServiceDescription
                                         options);
         if (result.has_error())
         {
-            return error<GatewayError>(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
+            return err(GatewayError::UNSUCCESSFUL_CHANNEL_CREATION);
         }
         else
         {
             auto channel = result.value();
             m_channels->push_back(channel);
-            return success<channel_t>(channel);
+            return ok(channel);
         }
     }
 }
@@ -145,7 +145,7 @@ inline void GatewayGeneric<channel_t, gateway_t>::forEachChannel(const function_
 }
 
 template <typename channel_t, typename gateway_t>
-inline expected<GatewayError>
+inline expected<void, GatewayError>
 GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescription& service) noexcept
 {
     auto guardedVector = this->m_channels.getScopeGuard();
@@ -155,11 +155,11 @@ GatewayGeneric<channel_t, gateway_t>::discardChannel(const capro::ServiceDescrip
     if (channel != guardedVector->end())
     {
         guardedVector->erase(channel);
-        return success<void>();
+        return ok();
     }
     else
     {
-        return error<GatewayError>(GatewayError::NONEXISTANT_CHANNEL);
+        return err(GatewayError::NONEXISTANT_CHANNEL);
     }
 }
 

@@ -120,7 +120,7 @@ TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanReques
                     .create();
 
     ASSERT_TRUE(sut2.has_error());
-    EXPECT_THAT(sut2.get_error(), Eq(posix::SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE));
+    EXPECT_THAT(sut2.error(), Eq(posix::SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE));
 }
 
 TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)

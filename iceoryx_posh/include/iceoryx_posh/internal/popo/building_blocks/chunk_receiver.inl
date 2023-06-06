@@ -81,17 +81,16 @@ inline expected<const mepoo::ChunkHeader*, ChunkReceiveResult> ChunkReceiver<Chu
         // if the application holds too many chunks, don't provide more
         if (getMembers()->m_chunksInUse.insert(sharedChunk))
         {
-            return success<const mepoo::ChunkHeader*>(
-                const_cast<const mepoo::ChunkHeader*>(sharedChunk.getChunkHeader()));
+            return ok(const_cast<const mepoo::ChunkHeader*>(sharedChunk.getChunkHeader()));
         }
         else
         {
             // release the chunk
             sharedChunk = nullptr;
-            return error<ChunkReceiveResult>(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
+            return err(ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL);
         }
     }
-    return error<ChunkReceiveResult>(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+    return err(ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
 template <typename ChunkReceiverDataType>

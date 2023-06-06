@@ -85,6 +85,7 @@
 - Fix undefined behaviour in `publishCopyOf` and `publishResultOf` [\#1963](https://github.com/eclipse-iceoryx/iceoryx/issues/1963)
 - ServiceDescription `Interfaces` and `INTERFACE_NAMES` do not match [\#1977](https://github.com/eclipse-iceoryx/iceoryx/issues/1977)
 - Implement and test nullptr check in c binding [\#1106](https://github.com/eclipse-iceoryx/iceoryx/issues/1106)
+- Fix `expected<void, Error>` is unusable due to `final` [\#1976](https://github.com/eclipse-iceoryx/iceoryx/issues/1976)
 
 **Refactoring:**
 
@@ -137,6 +138,7 @@
 - Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
 - Move `std::chrono` dependency to `iceoryx_dust` [\#536](https://github.com/eclipse-iceoryx/iceoryx/issues/536)
 - Move `std::string` dependency from `iox::string` to `std_string_support.hpp` in `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
+- Better align `iox::expected` with `std::expected` [\#1969](https://github.com/eclipse-iceoryx/iceoryx/issues/1969)
 
 **Workflow:**
 
@@ -1080,23 +1082,66 @@
 47. Renaming `byte_t` to `byte`
 
     ```cpp
-    //before
+    // before
     iox::byte_t m_size;
 
-    //after
+    // after
     iox::byte m_size;
     ```
 
 48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
 
     ```cpp
-    //before
+    // before
     std::chrono::milliseconds chronoDuration = 1_ms;
     iox::units::Duration ioxDuration(chronoDuration);
 
-    //after
+    // after
     #include "iceoryx_dust/cxx/std_chrono_support.hpp"
 
     std::chrono::milliseconds chronoDuration = 1_ms;
     iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};
     ```
+
+49. Replace error only `expected<E>` with `void` value type `expected<void, E>`
+
+    ```cpp
+    // before
+    iox::expected<MyCustomError> foo();
+
+    // after
+    iox::expected<void, MyCustomError> foo();
+    ```
+
+50. `iox::success` and `iox::error` are deprecated in favour of `ok` and `err` free functions
+
+    ```cpp
+    // before
+    return iox::success<void>();
+
+    // after
+    return iox::ok();
+
+
+    // before
+    return iox::success<bool>(true);
+
+    // after
+    return iox::ok(true);
+
+
+    // before
+    return iox::error<MyCustomError>(MyCustomError::ERROR_CODE);
+
+    // after
+    return iox::err(MyCustomError::ERROR_CODE);
+    ```
+
+51. `expected::get_error` is deprecated in favour of `expected::error`
+
+    ```cpp
+    // before
+    auto e = exp.get_error();
+
+    // after
+    auto e = exp.error();

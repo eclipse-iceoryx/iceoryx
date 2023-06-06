@@ -60,7 +60,7 @@ class UntypedClientImpl : public BaseClientT
     /// @brief Sends the provided memory chunk as request to the server.
     /// @param requestPayload Pointer to the payload of the allocated shared memory chunk.
     /// @return Error if sending was not successful
-    expected<ClientSendError> send(void* const requestPayload) noexcept;
+    expected<void, ClientSendError> send(void* const requestPayload) noexcept;
 
     /// @brief Take the response chunk from the top of the receive queue.
     /// @return The payload pointer of the request chunk taken.

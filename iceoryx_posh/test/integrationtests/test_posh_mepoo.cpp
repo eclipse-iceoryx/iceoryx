@@ -313,7 +313,7 @@ class Mepoo_IntegrationTest : public Test
                                             m_roudiEnv->InterOpWait();
                                         });
 
-            if (!allocationResult.has_error())
+            if (allocationResult.has_value())
             {
                 hasRunAsExpected &= !expectedAllocationError.has_value();
                 EXPECT_FALSE(expectedAllocationError.has_value());
@@ -321,15 +321,15 @@ class Mepoo_IntegrationTest : public Test
             else if (!expectedAllocationError.has_value())
             {
                 hasRunAsExpected = false;
-                std::cout << "Did not expect an error but got: " << static_cast<uint32_t>(allocationResult.get_error())
+                std::cout << "Did not expect an error but got: " << static_cast<uint32_t>(allocationResult.error())
                           << std::endl;
                 EXPECT_TRUE(hasRunAsExpected);
             }
-            else if (allocationResult.get_error() != expectedAllocationError.value())
+            else if (allocationResult.error() != expectedAllocationError.value())
             {
                 hasRunAsExpected = false;
                 std::cout << "Expected error: " << static_cast<uint32_t>(expectedAllocationError.value()) << std::endl;
-                std::cout << "But got: " << static_cast<uint32_t>(allocationResult.get_error()) << std::endl;
+                std::cout << "But got: " << static_cast<uint32_t>(allocationResult.error()) << std::endl;
                 EXPECT_TRUE(hasRunAsExpected);
             }
         }

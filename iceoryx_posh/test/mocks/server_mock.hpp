@@ -63,7 +63,7 @@ class MockServerPortUser : public MockBasePort
                 (const iox::popo::RequestHeader* const, const uint32_t, const uint32_t),
                 (noexcept));
     MOCK_METHOD(void, releaseResponse, (const iox::popo::ResponseHeader* const), (noexcept));
-    MOCK_METHOD(iox::expected<iox::popo::ServerSendError>,
+    MOCK_METHOD((iox::expected<void, iox::popo::ServerSendError>),
                 sendResponse,
                 (iox::popo::ResponseHeader* const),
                 (noexcept));

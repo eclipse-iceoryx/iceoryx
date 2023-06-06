@@ -51,7 +51,7 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
 {
     if (alignment > internal::pageSize())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
+        return err(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE);
     }
 
     if (!posix::SharedMemoryObjectBuilder()
@@ -63,22 +63,22 @@ expected<void*, MemoryProviderError> PosixShmMemoryProvider::createMemory(const 
              .create()
              .and_then([this](auto& sharedMemoryObject) { m_shmObject.emplace(std::move(sharedMemoryObject)); }))
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
+        return err(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
 
     auto baseAddress = m_shmObject->getBaseAddress();
     if (baseAddress == nullptr)
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
+        return err(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
 
-    return success<void*>(baseAddress);
+    return ok(baseAddress);
 }
 
-expected<MemoryProviderError> PosixShmMemoryProvider::destroyMemory() noexcept
+expected<void, MemoryProviderError> PosixShmMemoryProvider::destroyMemory() noexcept
 {
     m_shmObject.reset();
-    return success<void>();
+    return ok();
 }
 
 } // namespace roudi

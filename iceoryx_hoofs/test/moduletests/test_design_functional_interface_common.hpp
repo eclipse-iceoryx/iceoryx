@@ -51,7 +51,7 @@ class FunctionalInterface_test : public testing::Test
 };
 
 /// @brief This types is used for testing the functional interface in the case
-///        of a value and a get_error method
+///        of a 'value' and a 'error' method
 struct GenericValueError : public iox::FunctionalInterface<GenericValueError, int, int>
 {
     using value_t = int;
@@ -69,10 +69,10 @@ struct GenericValueError : public iox::FunctionalInterface<GenericValueError, in
     value_t&& value() && noexcept;
     const value_t&& value() const&& noexcept;
 
-    error_t& get_error() & noexcept;
-    const error_t& get_error() const& noexcept;
-    error_t&& get_error() && noexcept;
-    const error_t&& get_error() const&& noexcept;
+    error_t& error() & noexcept;
+    const error_t& error() const& noexcept;
+    error_t&& error() && noexcept;
+    const error_t&& error() const&& noexcept;
 
     value_t m_value = 0;
     error_t m_error = 0;

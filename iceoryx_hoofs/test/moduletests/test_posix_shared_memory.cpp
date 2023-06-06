@@ -261,7 +261,7 @@ TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
                    .create();
 
     ASSERT_TRUE(sut.has_error());
-    ASSERT_THAT(sut.get_error(), Eq(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
+    ASSERT_THAT(sut.error(), Eq(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
 }
 
 

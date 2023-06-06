@@ -135,7 +135,7 @@ class GatewayGeneric : public gateway_t
     /// @param service The service whose channels hiould be discarded.
     /// @return an empty expected on success, otherwise an error
     ///
-    expected<GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
+    expected<void, GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
 
   private:
     ConcurrentChannelVector m_channels;

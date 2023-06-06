@@ -220,7 +220,7 @@ TEST_P(RoudiConfigTomlFileProvider_test, ParseMalformedInputFileCausesError)
     auto result = iox::config::TomlRouDiConfigFileProvider::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(expectedErrorCode, result.get_error());
+    EXPECT_EQ(expectedErrorCode, result.error());
 }
 
 } // namespace

@@ -24,13 +24,13 @@ namespace popo
 {
 template <uint64_t Capacity>
 template <typename T, typename ContextDataType>
-inline expected<ListenerError>
+inline expected<void, ListenerError>
 ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
                                     const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return err(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -49,12 +49,12 @@ ListenerImpl<Capacity>::attachEvent(T& eventOrigin,
 
 template <uint64_t Capacity>
 template <typename T, typename EventType, typename ContextDataType, typename>
-inline expected<ListenerError> ListenerImpl<Capacity>::attachEvent(
+inline expected<void, ListenerError> ListenerImpl<Capacity>::attachEvent(
     T& eventOrigin, const EventType eventType, const NotificationCallback<T, ContextDataType>& eventCallback) noexcept
 {
     if (eventCallback.m_callback == nullptr)
     {
-        return error<ListenerError>(ListenerError::EMPTY_EVENT_CALLBACK);
+        return err(ListenerError::EMPTY_EVENT_CALLBACK);
     }
 
     return addEvent(&eventOrigin,
@@ -134,19 +134,19 @@ ListenerImpl<Capacity>::addEvent(void* const origin,
     {
         if (m_events[i]->isEqualTo(origin, eventType, eventTypeHash))
         {
-            return error<ListenerError>(ListenerError::EVENT_ALREADY_ATTACHED);
+            return err(ListenerError::EVENT_ALREADY_ATTACHED);
         }
     }
 
     uint32_t index = 0U;
     if (!m_indexManager.pop(index))
     {
-        return error<ListenerError>(ListenerError::LISTENER_FULL);
+        return err(ListenerError::LISTENER_FULL);
     }
 
     m_events[index]->init(
         index, origin, userType, eventType, eventTypeHash, callback, translationCallback, invalidationCallback);
-    return success<uint32_t>(index);
+    return ok(index);
 }
 
 template <uint64_t Capacity>

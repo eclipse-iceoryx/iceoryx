@@ -46,11 +46,11 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept override;
+    expected<void, RouDiMemoryManagerError> createAndAnnounceMemory() noexcept override;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    expected<RouDiMemoryManagerError> destroyMemory() noexcept override;
+    expected<void, RouDiMemoryManagerError> destroyMemory() noexcept override;
 
     const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept override;
     optional<PortPool*> portPool() noexcept override;

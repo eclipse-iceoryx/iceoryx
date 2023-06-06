@@ -106,7 +106,7 @@ class FileLock
     void invalidate() noexcept;
 
     static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
-    expected<FileLockError> closeFileDescriptor() noexcept;
+    expected<void, FileLockError> closeFileDescriptor() noexcept;
 };
 
 class FileLockBuilder

@@ -945,7 +945,7 @@ void verifyEntry(const Arguments& options, const OptionName_t& entry, const opti
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 
@@ -972,7 +972,7 @@ void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, con
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 
@@ -999,7 +999,7 @@ void verifyEntry<double>(const Arguments& options, const OptionName_t& entry, co
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 

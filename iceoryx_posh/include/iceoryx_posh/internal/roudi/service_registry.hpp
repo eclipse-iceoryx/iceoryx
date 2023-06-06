@@ -59,7 +59,7 @@ class ServiceRegistry
     /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in expected
-    expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
+    expected<void, Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given publisher service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -69,7 +69,7 @@ class ServiceRegistry
     /// @brief Adds a given server service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in expected
-    expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
+    expected<void, Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given server service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -113,8 +113,8 @@ class ServiceRegistry
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
 
-    expected<Error> add(const capro::ServiceDescription& serviceDescription,
-                        ReferenceCounter_t ServiceDescriptionEntry::*count);
+    expected<void, Error> add(const capro::ServiceDescription& serviceDescription,
+                              ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
 
 } // namespace roudi

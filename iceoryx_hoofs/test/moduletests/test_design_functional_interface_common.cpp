@@ -57,17 +57,17 @@ const GenericValueError::value_t&& GenericValueError::value() const&& noexcept
     return std::move(m_value);
 }
 
-GenericValueError::error_t& GenericValueError::get_error() & noexcept
+GenericValueError::error_t& GenericValueError::error() & noexcept
 {
     return m_error;
 }
 
-const GenericValueError::error_t& GenericValueError::get_error() const& noexcept
+const GenericValueError::error_t& GenericValueError::error() const& noexcept
 {
     return m_error;
 }
 
-GenericValueError::error_t&& GenericValueError::get_error() && noexcept
+GenericValueError::error_t&& GenericValueError::error() && noexcept
 {
     // we must use std::move otherwise m_value is not converted into a rvalue
     // which would lead to a compile failure
@@ -75,7 +75,7 @@ GenericValueError::error_t&& GenericValueError::get_error() && noexcept
     return std::move(m_error);
 }
 
-const GenericValueError::error_t&& GenericValueError::get_error() const&& noexcept
+const GenericValueError::error_t&& GenericValueError::error() const&& noexcept
 {
     // we must use std::move otherwise m_value is not converted into a rvalue
     // which would lead to a compile failure

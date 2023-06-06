@@ -46,11 +46,11 @@ PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful
         || subscriberTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
-        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     publisherOptions.subscriberTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(subscriberTooSlowPolicy);
-    return success<PublisherOptions>(publisherOptions);
+    return ok(publisherOptions);
 }
 } // namespace popo
 } // namespace iox

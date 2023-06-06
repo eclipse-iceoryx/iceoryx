@@ -60,12 +60,12 @@ class SemaphoreInterface
     /// @brief Increments the semaphore by one
     /// @return Fails when the value of the semaphore overflows or when the
     ///         semaphore was removed from outside the process
-    expected<SemaphoreError> post() noexcept;
+    expected<void, SemaphoreError> post() noexcept;
 
     /// @brief Decrements the semaphore by one. When the semaphore value is zero
     ///        it blocks until the semaphore value is greater zero
     /// @return Fails when semaphore was removed from outside the process
-    expected<SemaphoreError> wait() noexcept;
+    expected<void, SemaphoreError> wait() noexcept;
 
     /// @brief Tries to decrement the semaphore by one. When the semaphore value is zero
     ///        it returns false otherwise it returns true and decrement the value by one.

@@ -54,7 +54,7 @@ void MemPoolCollectionMemoryBlock::onMemoryAvailable(not_null<void*> memory) noe
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::MemoryManager), alignof(mepoo::MemoryManager));
-    cxx::Expects(!allocationResult.has_error());
+    cxx::Expects(allocationResult.has_value());
     auto* memoryManager = allocationResult.value();
     m_memoryManager = new (memoryManager) mepoo::MemoryManager;
 

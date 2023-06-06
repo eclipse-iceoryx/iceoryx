@@ -71,7 +71,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
-    expected<IpcChannelError> send(const std::string& msg) const noexcept;
+    expected<void, IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @todo iox-#1693 zero copy receive with receive(iox::string&); iox::string would be the buffer for mq_receive
 
@@ -85,7 +85,7 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief try to send a message to the queue for a given timeout duration using std::string
-    expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    expected<void, IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
     static expected<bool, IpcChannelError> isOutdated() noexcept;
 
@@ -97,12 +97,12 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
 
     expected<mqd_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
 
-    expected<IpcChannelError> close() noexcept;
-    expected<IpcChannelError> unlink() noexcept;
-    error<IpcChannelError> createErrorFromErrnum(const int32_t errnum) const noexcept;
-    static error<IpcChannelError> createErrorFromErrnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
+    expected<void, IpcChannelError> close() noexcept;
+    expected<void, IpcChannelError> unlink() noexcept;
+    IpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
+    static IpcChannelError errnoToEnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
     static expected<IpcChannelName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
-    expected<IpcChannelError> destroy() noexcept;
+    expected<void, IpcChannelError> destroy() noexcept;
 
   private:
     IpcChannelName_t m_name;

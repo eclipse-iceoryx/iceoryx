@@ -66,7 +66,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @param val Value to copy.
     /// @return Error if unable to allocate memory to loan.
     ///
-    expected<AllocationError> publishCopyOf(const T& val) noexcept;
+    expected<void, AllocationError> publishCopyOf(const T& val) noexcept;
     ///
     /// @brief publishResultOf Loan a sample from memory, execute the provided callable to write to it, then publish it.
     /// @param c Callable with the signature void(T*, ArgTypes...) that write's it's result to T*.
@@ -74,7 +74,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @return Error if unable to allocate memory to loan.
     ///
     template <typename Callable, typename... ArgTypes>
-    expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+    expected<void, AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
   protected:
     using BasePublisherType::port;

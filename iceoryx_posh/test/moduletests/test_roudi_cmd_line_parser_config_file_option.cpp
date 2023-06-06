@@ -125,7 +125,7 @@ TEST_F(CmdLineParserConfigFileOption_test, WrongOptionLeadsUnkownOptionResult)
     auto result = sut.parse(NUMBER_OF_ARGS, args);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), CmdLineParserResult::UNKNOWN_OPTION_USED);
+    EXPECT_EQ(result.error(), CmdLineParserResult::UNKNOWN_OPTION_USED);
 }
 
 TEST_F(CmdLineParserConfigFileOption_test, UniqueIdOptionLeadsCallingCmdLineParserParseReturningNoError)

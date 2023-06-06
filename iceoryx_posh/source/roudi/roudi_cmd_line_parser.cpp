@@ -204,7 +204,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             // CmdLineParser did not understand the parameters, don't run
             m_run = false;
-            return error<CmdLineParserResult>(CmdLineParserResult::UNKNOWN_OPTION_USED);
+            return err(CmdLineParserResult::UNKNOWN_OPTION_USED);
         }
         };
 
@@ -213,13 +213,13 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         }
     }
-    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                m_logLevel,
-                                                m_compatibilityCheckLevel,
-                                                m_processKillDelay,
-                                                m_uniqueRouDiId,
-                                                m_run,
-                                                iox::roudi::ConfigFilePathString_t("")});
+    return ok(CmdLineArgs_t{m_monitoringMode,
+                            m_logLevel,
+                            m_compatibilityCheckLevel,
+                            m_processKillDelay,
+                            m_uniqueRouDiId,
+                            m_run,
+                            iox::roudi::ConfigFilePathString_t("")});
 } // namespace roudi
 } // namespace config
 } // namespace iox

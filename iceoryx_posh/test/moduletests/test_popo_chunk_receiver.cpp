@@ -64,11 +64,11 @@ class ChunkReceiver_test : public Test
     iox::mepoo::SharedChunk getChunkFromMemoryManager()
     {
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(DummySample), alignof(DummySample));
-        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        iox::cxx::Ensures(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(!getChunkResult.has_error());
+        iox::cxx::Ensures(getChunkResult.has_value());
         return getChunkResult.value();
     }
 
@@ -100,7 +100,7 @@ TEST_F(ChunkReceiver_test, getNoChunkFromEmptyQueue)
     ::testing::Test::RecordProperty("TEST_ID", "27846f97-8882-408f-9de3-f74c0aa7e0d8");
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
     ASSERT_TRUE(maybeChunkHeader.has_error());
-    EXPECT_EQ(maybeChunkHeader.get_error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
+    EXPECT_EQ(maybeChunkHeader.error(), iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE);
 }
 
 TEST_F(ChunkReceiver_test, getAndReleaseOneChunk)
@@ -181,7 +181,7 @@ TEST_F(ChunkReceiver_test, getTooMuchWithoutRelease)
 
     auto maybeChunkHeader = m_chunkReceiver.tryGet();
     ASSERT_TRUE(maybeChunkHeader.has_error());
-    EXPECT_THAT(maybeChunkHeader.get_error(), Eq(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
+    EXPECT_THAT(maybeChunkHeader.error(), Eq(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL));
 }
 
 TEST_F(ChunkReceiver_test, releaseInvalidChunk)

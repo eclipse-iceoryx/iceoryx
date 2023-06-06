@@ -115,7 +115,7 @@ class SemanticString
     /// @param[in] value the value which should be added
     /// @return on failure the error inside the expected describes the failure
     template <typename T>
-    expected<SemanticStringError> append(const T& value) noexcept;
+    expected<void, SemanticStringError> append(const T& value) noexcept;
 
     /// @brief Inserts another string into the SemanticString. If the value contains
     ///        invalid characters or the result would end up in invalid content
@@ -125,7 +125,7 @@ class SemanticString
     /// @param[in] count how many characters of str shall be inserted
     /// @return on failure the error inside the expected describes the failure
     template <typename T>
-    expected<SemanticStringError> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
+    expected<void, SemanticStringError> insert(const uint64_t pos, const T& str, const uint64_t count) noexcept;
 
     /// @brief checks if another SemanticString is equal to this string
     /// @param [in] rhs the other SemanticString

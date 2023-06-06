@@ -88,7 +88,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
 
     if (aclInitCall.has_error())
     {
-        return error<AccessControllerError>(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
+        return err(AccessControllerError::COULD_NOT_ALLOCATE_NEW_ACL);
     }
 
     // define how to free the memory (custom deleter for the smart pointer)
@@ -100,7 +100,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
         cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
-    return success<smartAclPointer_t>(aclInitCall->value, freeACL);
+    return ok<smartAclPointer_t>(aclInitCall->value, freeACL);
 }
 
 bool AccessController::addUserPermission(const Permission permission, const PosixUser::userName_t& name) noexcept

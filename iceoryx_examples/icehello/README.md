@@ -86,7 +86,7 @@ If loaning was successful, we assign the incremented counter to all three values
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][publish]-->
 ```cpp
-if (!loanResult.has_error())
+if (loanResult.has_value())
 {
     auto& sample = loanResult.value();
     // Sample can be held until ready to publish
@@ -103,7 +103,7 @@ In case an error occurred during loaning, we need to handle it:
 ```cpp
 else
 {
-    auto error = loanResult.get_error();
+    auto error = loanResult.error();
     // Do something with error
     std::cerr << "Unable to loan sample, error code: " << error << std::endl;
 }
@@ -152,7 +152,7 @@ Inside the `while` loop, we take the sample from shared memory and print it if w
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][receive]-->
 ```cpp
 auto takeResult = subscriber.take();
-if (!takeResult.has_error())
+if (takeResult.has_value())
 {
     std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
 }
@@ -162,7 +162,7 @@ In case an error occurred during taking, we need to handle it:
 
 <!--[geoffrey][iceoryx_examples/icehello/iox_subscriber_helloworld.cpp][error]-->
 ```cpp
-if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+if (takeResult.error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
 {
     std::cout << "No chunk available." << std::endl;
 }

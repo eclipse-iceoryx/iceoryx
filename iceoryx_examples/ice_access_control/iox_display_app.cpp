@@ -39,7 +39,7 @@ int main()
     {
         auto takeResult = subscriber.take();
 
-        if (!takeResult.has_error())
+        if (takeResult.has_value())
         {
             publisher.loan().and_then([&](auto& sample) {
                 sample->x = 2 * takeResult.value()->x;
@@ -51,7 +51,7 @@ int main()
         }
         else
         {
-            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+            if (takeResult.error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
             {
                 std::cout << "No chunk available." << std::endl;
             }

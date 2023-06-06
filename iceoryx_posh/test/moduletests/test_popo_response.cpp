@@ -34,7 +34,7 @@ class Response_test : public ResponseTestCase, public Test
 TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "70361e1e-78ea-48a2-bd5c-679d604e5da4");
-    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::success<void>()));
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::ok()));
 
     auto sendResult = sutProducer.send();
 
@@ -45,7 +45,7 @@ TEST_F(Response_test, SendCallsInterfaceMockWithSuccessResult)
 TEST_F(Response_test, SendOnMoveDestinationCallsInterfaceMockWithSuccessResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b86b5884-0319-4819-8bfa-186ac629cd27");
-    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::success<void>()));
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::ok()));
 
     auto movedSut = std::move(sutProducer);
     auto sendResult = movedSut.send();
@@ -58,13 +58,13 @@ TEST_F(Response_test, SendCallsInterfaceMockWithErrorResult)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5038ae30-2f09-4f7b-81e4-a7f5bc1b3db4");
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::CLIENT_NOT_AVAILABLE};
-    const iox::expected<ServerSendError> mockSendResult = iox::error<ServerSendError>{SERVER_SEND_ERROR};
+    const iox::expected<void, ServerSendError> mockSendResult = iox::err(SERVER_SEND_ERROR);
     EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(mockSendResult));
 
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(SERVER_SEND_ERROR));
     EXPECT_FALSE(sutProducer);
 }
 
@@ -72,7 +72,7 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "45e592d2-69d9-47cf-8cdf-b1bdf8592947");
     constexpr ServerSendError SERVER_SEND_ERROR{ServerSendError::INVALID_RESPONSE};
-    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::success<void>()));
+    EXPECT_CALL(mockInterface, mockSend(_)).WillOnce(Return(iox::ok()));
 
     EXPECT_FALSE(sutProducer.send().has_error());
 
@@ -86,7 +86,7 @@ TEST_F(Response_test, SendingAlreadySentResponseCallsErrorHandler)
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));
@@ -108,7 +108,7 @@ TEST_F(Response_test, SendingMovedResponseCallsErrorHandler)
     auto sendResult = sutProducer.send();
 
     ASSERT_TRUE(sendResult.has_error());
-    EXPECT_THAT(sendResult.get_error(), Eq(SERVER_SEND_ERROR));
+    EXPECT_THAT(sendResult.error(), Eq(SERVER_SEND_ERROR));
 
     ASSERT_TRUE(detectedError.has_value());
     EXPECT_THAT(detectedError.value(), Eq(iox::PoshError::POSH__SENDING_EMPTY_RESPONSE));

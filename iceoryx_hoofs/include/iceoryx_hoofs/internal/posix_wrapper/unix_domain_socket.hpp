@@ -88,13 +88,13 @@ class UnixDomainSocket
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
-    expected<IpcChannelError> send(const std::string& msg) const noexcept;
+    expected<void, IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
     /// @param msg to send
     /// @param timout for the send operation
     /// @return IpcChannelError if error occured
-    expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    expected<void, IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
     /// @brief receive message using std::string.
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
@@ -117,13 +117,13 @@ class UnixDomainSocket
                      const size_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    expected<IpcChannelError> destroy() noexcept;
+    expected<void, IpcChannelError> destroy() noexcept;
 
-    expected<IpcChannelError> initalizeSocket() noexcept;
+    expected<void, IpcChannelError> initalizeSocket() noexcept;
 
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
 
-    expected<IpcChannelError> closeFileDescriptor() noexcept;
+    expected<void, IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
     static constexpr int32_t ERROR_CODE = -1;
@@ -146,10 +146,10 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(Targs&&... 
     UnixDomainSocket newObject{std::forward<Targs>(args)...};
     if (!newObject.m_isInitialized)
     {
-        return iox::error<IpcChannelError>(newObject.m_errorValue);
+        return err(newObject.m_errorValue);
     }
 
-    return iox::success<UnixDomainSocket>(std::move(newObject));
+    return ok(std::move(newObject));
 }
 
 } // namespace posix

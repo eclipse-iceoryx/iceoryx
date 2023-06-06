@@ -97,7 +97,7 @@ struct ExpectedErrorFactory
 {
     using error_t = uint64_t;
 
-    using Type = iox::expected<error_t>;
+    using Type = iox::expected<void, error_t>;
 
     static constexpr bool EXPECT_AND_THEN_WITH_VALUE = false;
     static constexpr bool EXPECT_OR_ELSE_WITH_VALUE = true;
@@ -142,7 +142,7 @@ struct ExpectedErrorFactory
 ///            Another value which can be compared to usedTestValue and is not equal to it
 ///
 ///     Class with error:
-///        A class with a get_error method requires additionally:
+///        A class with a error method requires additionally:
 ///        * using error_t = ;
 ///            Type alias of the error type
 ///

@@ -49,13 +49,13 @@ expected<popo::InterfacePortData*, PortPoolError> PortPool::addInterfacePort(con
     if (m_portPoolData->m_interfacePortMembers.hasFreeSpace())
     {
         auto interfacePortData = m_portPoolData->m_interfacePortMembers.insert(runtimeName, interface);
-        return success<popo::InterfacePortData*>(interfacePortData);
+        return ok(interfacePortData);
     }
     else
     {
         IOX_LOG(WARN) << "Out of interface ports! Requested by runtime '" << runtimeName << "'";
         errorHandler(PoshError::PORT_POOL__INTERFACELIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::INTERFACE_PORT_LIST_FULL);
+        return err(PortPoolError::INTERFACE_PORT_LIST_FULL);
     }
 }
 
@@ -66,14 +66,14 @@ expected<runtime::NodeData*, PortPoolError> PortPool::addNodeData(const RuntimeN
     if (m_portPoolData->m_nodeMembers.hasFreeSpace())
     {
         auto nodeData = m_portPoolData->m_nodeMembers.insert(runtimeName, nodeName, nodeDeviceIdentifier);
-        return success<runtime::NodeData*>(nodeData);
+        return ok(nodeData);
     }
     else
     {
         IOX_LOG(WARN) << "Out of node data! Requested by runtime '" << runtimeName << "' and node name '" << nodeName
                       << "'";
         errorHandler(PoshError::PORT_POOL__NODELIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::NODE_DATA_LIST_FULL);
+        return err(PortPoolError::NODE_DATA_LIST_FULL);
     }
 }
 
@@ -83,13 +83,13 @@ PortPool::addConditionVariableData(const RuntimeName_t& runtimeName) noexcept
     if (m_portPoolData->m_conditionVariableMembers.hasFreeSpace())
     {
         auto conditionVariableData = m_portPoolData->m_conditionVariableMembers.insert(runtimeName);
-        return success<popo::ConditionVariableData*>(conditionVariableData);
+        return ok(conditionVariableData);
     }
     else
     {
         IOX_LOG(WARN) << "Out of condition variables! Requested by runtime '" << runtimeName << "'";
         errorHandler(PoshError::PORT_POOL__CONDITION_VARIABLE_LIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
+        return err(PortPoolError::CONDITION_VARIABLE_LIST_FULL);
     }
 }
 
@@ -129,14 +129,14 @@ PortPool::addPublisherPort(const capro::ServiceDescription& serviceDescription,
     {
         auto publisherPortData = m_portPoolData->m_publisherPortMembers.insert(
             serviceDescription, runtimeName, memoryManager, publisherOptions, memoryInfo);
-        return success<PublisherPortRouDiType::MemberType_t*>(publisherPortData);
+        return ok(publisherPortData);
     }
     else
     {
         IOX_LOG(WARN) << "Out of publisher ports! Requested by runtime '" << runtimeName
                       << "' and with service description '" << serviceDescription << "'";
         errorHandler(PoshError::PORT_POOL__PUBLISHERLIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::PUBLISHER_PORT_LIST_FULL);
+        return err(PortPoolError::PUBLISHER_PORT_LIST_FULL);
     }
 }
 
@@ -151,14 +151,14 @@ PortPool::addSubscriberPort(const capro::ServiceDescription& serviceDescription,
         auto subscriberPortData = constructSubscriber<iox::build::CommunicationPolicy>(
             serviceDescription, runtimeName, subscriberOptions, memoryInfo);
 
-        return success<SubscriberPortType::MemberType_t*>(subscriberPortData);
+        return ok(subscriberPortData);
     }
     else
     {
         IOX_LOG(WARN) << "Out of subscriber ports! Requested by runtime '" << runtimeName
                       << "' and with service description '" << serviceDescription << "'";
         errorHandler(PoshError::PORT_POOL__SUBSCRIBERLIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
+        return err(PortPoolError::SUBSCRIBER_PORT_LIST_FULL);
     }
 }
 
@@ -184,12 +184,12 @@ PortPool::addClientPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN) << "Out of client ports! Requested by runtime '" << runtimeName
                       << "' and with service description '" << serviceDescription << "'";
         errorHandler(PoshError::PORT_POOL__CLIENTLIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::CLIENT_PORT_LIST_FULL);
+        return err(PortPoolError::CLIENT_PORT_LIST_FULL);
     }
 
     auto clientPortData = m_portPoolData->m_clientPortMembers.insert(
         serviceDescription, runtimeName, clientOptions, memoryManager, memoryInfo);
-    return success<popo::ClientPortData*>(clientPortData);
+    return ok(clientPortData);
 }
 
 expected<popo::ServerPortData*, PortPoolError>
@@ -204,12 +204,12 @@ PortPool::addServerPort(const capro::ServiceDescription& serviceDescription,
         IOX_LOG(WARN) << "Out of server ports! Requested by runtime '" << runtimeName
                       << "' and with service description '" << serviceDescription << "'";
         errorHandler(PoshError::PORT_POOL__SERVERLIST_OVERFLOW, ErrorLevel::MODERATE);
-        return error<PortPoolError>(PortPoolError::SERVER_PORT_LIST_FULL);
+        return err(PortPoolError::SERVER_PORT_LIST_FULL);
     }
 
     auto serverPortData = m_portPoolData->m_serverPortMembers.insert(
         serviceDescription, runtimeName, serverOptions, memoryManager, memoryInfo);
-    return success<popo::ServerPortData*>(serverPortData);
+    return ok(serverPortData);
 }
 
 void PortPool::removePublisherPort(const PublisherPortRouDiType::MemberType_t* const portData) noexcept

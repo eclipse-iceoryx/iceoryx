@@ -91,7 +91,7 @@ class ClientPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] requestHeader, pointer to the RequestHeader to send
     /// @return ClientSendError if sending was not successful
-    expected<ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
+    expected<void, ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
 
     /// @brief try to connect to the server Caution: There can be delays between calling connect and a change
     /// in the connection state

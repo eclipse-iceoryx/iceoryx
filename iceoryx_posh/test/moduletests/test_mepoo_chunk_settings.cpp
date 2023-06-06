@@ -129,7 +129,7 @@ TEST(ChunkSettings_test, NoCustomUserPayloadAlignmentAndTooLargeUserPayload_Fail
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
 }
 
 TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
@@ -144,7 +144,7 @@ TEST(ChunkSettings_test, CustomUserPayloadAlignmentAndTooLargeUserPayload_Fails)
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
 }
 
 TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
@@ -159,7 +159,7 @@ TEST(ChunkSettings_test, UserHeaderAndTooLargeUserPayload_Fails)
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE));
 }
 
 // END EXCEEDING CHUNK SIZE TESTS
@@ -178,7 +178,7 @@ TEST(ChunkSettings_test, UserPayloadAlignmentNotPowerOfTwo_Fails)
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
 }
 
 TEST(ChunkSettings_test, UserHeaderAlignmentNotPowerOfTwo_Fails)
@@ -193,7 +193,7 @@ TEST(ChunkSettings_test, UserHeaderAlignmentNotPowerOfTwo_Fails)
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO));
 }
 
 TEST(ChunkSettings_test, UserHeaderAlignmentLargerThanChunkHeaderAlignment_Fails)
@@ -208,7 +208,7 @@ TEST(ChunkSettings_test, UserHeaderAlignmentLargerThanChunkHeaderAlignment_Fails
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT));
 }
 
 TEST(ChunkSettings_test, UserHeaderSizeNotMultipleOfAlignment_Fails)
@@ -223,7 +223,7 @@ TEST(ChunkSettings_test, UserHeaderSizeNotMultipleOfAlignment_Fails)
         ChunkSettings::create(USER_PAYLOAD_SIZE, USER_PAYLOAD_ALIGNMENT, USER_HEADER_SIZE, USER_HEADER_ALIGNMENT);
 
     ASSERT_TRUE(sutResult.has_error());
-    EXPECT_THAT(sutResult.get_error(), Eq(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT));
+    EXPECT_THAT(sutResult.error(), Eq(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT));
 }
 
 // END INVALID USER-HEADER AND USER-PAYLOAD ALIGNMENT TESTS

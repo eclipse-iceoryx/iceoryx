@@ -58,7 +58,7 @@ class PosixShmMemoryProvider : public MemoryProvider
 
     /// @copydoc MemoryProvider::destroyMemory
     /// @note This closes and unmaps a POSIX shared memory
-    expected<MemoryProviderError> destroyMemory() noexcept;
+    expected<void, MemoryProviderError> destroyMemory() noexcept;
 
   private:
     ShmName_t m_shmName;

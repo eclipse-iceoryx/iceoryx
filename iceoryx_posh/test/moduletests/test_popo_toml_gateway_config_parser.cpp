@@ -119,7 +119,7 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedInServiceDescription
     ASSERT_EQ(charactersValidity.second, result.has_error());
     if (result.has_error())
     {
-        EXPECT_EQ(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.error());
     }
 }
 
@@ -141,14 +141,14 @@ TEST_P(TomlGatewayConfigParserSuiteTest, CheckCharactersUsedForServiceDescriptio
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_EQ(charactersValidity.second, result.has_error());
-    if (!result.has_error())
+    if (result.has_value())
     {
         GatewayConfig& config = result.value();
         EXPECT_FALSE(config.m_configuredServices.empty());
     }
     else
     {
-        EXPECT_EQ(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.get_error());
+        EXPECT_EQ(TomlGatewayConfigParseError::INVALID_SERVICE_DESCRIPTION, result.error());
     }
 }
 
@@ -166,7 +166,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServiceNameInServiceDescriptionReturn
 
     auto result = StubbedTomlGatewayConfigParser::validate(*toml);
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoInstanceNameInServiceDescriptionReturnIncompleteServiceDescriptionError)
@@ -183,7 +183,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoInstanceNameInServiceDescriptionRetur
 
     auto result = StubbedTomlGatewayConfigParser::validate(*toml);
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoEventNameInServiceDescriptionReturnIncompleteServiceDescriptionError)
@@ -200,7 +200,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoEventNameInServiceDescriptionReturnIn
 
     auto result = StubbedTomlGatewayConfigParser::validate(*toml);
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfigurationError)
@@ -211,7 +211,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest, NoServicesInConfigReturnIncompleteConfi
     auto result = iox::config::StubbedTomlGatewayConfigParser::validate(*toml);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.error());
 }
 
 /// @note Without argument the iceoryx default config in /etc/iceoryx/gateway_config.toml is used. Then this
@@ -256,7 +256,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest,
@@ -274,7 +274,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest,
@@ -292,7 +292,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_SERVICE_DESCRIPTION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest,
@@ -305,7 +305,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.get_error());
+    EXPECT_EQ(TomlGatewayConfigParseError::INCOMPLETE_CONFIGURATION, result.error());
 }
 
 TEST_F(TomlGatewayConfigParserSuiteTest, DuplicatedServicesDescriptionInTomlFileReturnOnlyOneEntry)
@@ -391,7 +391,7 @@ TEST_F(TomlGatewayConfigParserSuiteTest,
     auto result = TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.get_error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
+    EXPECT_EQ(result.error(), MAXIMUM_NUMBER_OF_ENTRIES_EXCEEDED);
 }
 
 constexpr const char* CONFIG_INVALID_SERVICE_DESCRIPTION = R"(
@@ -423,7 +423,7 @@ TEST_P(TomlGatewayConfigParserTest, ParseMalformedInputFileCausesError)
     auto result = iox::config::TomlGatewayConfigParser::parse(stream);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(expectedErrorCode, result.get_error());
+    EXPECT_EQ(expectedErrorCode, result.error());
 }
 
 #endif // not defined QNX

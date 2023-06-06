@@ -48,19 +48,19 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32
 
     if (!isPowerOfTwo(adjustedUserPayloadAlignment) || !isPowerOfTwo(adjustedUserHeaderAlignment))
     {
-        return error<ChunkSettings::Error>(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
+        return err(ChunkSettings::Error::ALIGNMENT_NOT_POWER_OF_TWO);
     }
 
     if (adjustedUserHeaderAlignment > alignof(ChunkHeader))
     {
         // for ease of calculation, the alignment of the user-header is restricted to not exceed the alignment of the
         // ChunkHeader
-        return error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
+        return err(ChunkSettings::Error::USER_HEADER_ALIGNMENT_EXCEEDS_CHUNK_HEADER_ALIGNMENT);
     }
 
     if (userHeaderSize % adjustedUserHeaderAlignment != 0U)
     {
-        return error<ChunkSettings::Error>(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
+        return err(ChunkSettings::Error::USER_HEADER_SIZE_NOT_MULTIPLE_OF_ITS_ALIGNMENT);
     }
 
     uint64_t requiredChunkSize =
@@ -68,14 +68,14 @@ expected<ChunkSettings, ChunkSettings::Error> ChunkSettings::create(const uint32
 
     if (requiredChunkSize > std::numeric_limits<uint32_t>::max())
     {
-        return error<ChunkSettings::Error>(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
+        return err(ChunkSettings::Error::REQUIRED_CHUNK_SIZE_EXCEEDS_MAX_CHUNK_SIZE);
     }
 
-    return success<ChunkSettings>(ChunkSettings{userPayloadSize,
-                                                adjustedUserPayloadAlignment,
-                                                userHeaderSize,
-                                                adjustedUserHeaderAlignment,
-                                                static_cast<uint32_t>(requiredChunkSize)});
+    return ok(ChunkSettings{userPayloadSize,
+                            adjustedUserPayloadAlignment,
+                            userHeaderSize,
+                            adjustedUserHeaderAlignment,
+                            static_cast<uint32_t>(requiredChunkSize)});
 }
 uint64_t ChunkSettings::calculateRequiredChunkSize(const uint32_t userPayloadSize,
                                                    const uint32_t userPayloadAlignment,

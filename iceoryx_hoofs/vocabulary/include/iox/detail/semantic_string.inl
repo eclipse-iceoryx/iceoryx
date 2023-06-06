@@ -47,7 +47,7 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
     {
         IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
                        << "\" exceeds the maximum valid length of " << Capacity << ".";
-        return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
+        return err(SemanticStringError::ExceedsMaximumLength);
     }
 
     string<Capacity> str{TruncateToCapacity, value};
@@ -56,17 +56,17 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
     {
         IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
                        << "\" contains invalid characters";
-        return iox::error<SemanticStringError>(SemanticStringError::ContainsInvalidCharacters);
+        return err(SemanticStringError::ContainsInvalidCharacters);
     }
 
     if (DoesContainInvalidContentCall(str))
     {
         IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
                        << "\" contains invalid content";
-        return iox::error<SemanticStringError>(SemanticStringError::ContainsInvalidContent);
+        return err(SemanticStringError::ContainsInvalidContent);
     }
 
-    return iox::success<Child>(Child(str));
+    return ok(Child(str));
 }
 
 template <typename Child,
@@ -133,7 +133,7 @@ template <typename Child,
           DoesContainInvalidContent<Capacity> DoesContainInvalidContentCall,
           DoesContainInvalidCharacter<Capacity> DoesContainInvalidCharacterCall>
 template <typename T>
-inline expected<SemanticStringError>
+inline expected<void, SemanticStringError>
 SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::append(
     const T& value) noexcept
 {
@@ -145,7 +145,7 @@ template <typename Child,
           DoesContainInvalidContent<Capacity> DoesContainInvalidContentCall,
           DoesContainInvalidCharacter<Capacity> DoesContainInvalidCharacterCall>
 template <typename T>
-inline expected<SemanticStringError>
+inline expected<void, SemanticStringError>
 SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvalidCharacterCall>::insert(
     const uint64_t pos, const T& str, const uint64_t count) noexcept
 {
@@ -155,25 +155,25 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
         IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
                        << "\" to the semantic string since it would exceed the maximum valid length of " << Capacity
                        << ".";
-        return iox::error<SemanticStringError>(SemanticStringError::ExceedsMaximumLength);
+        return err(SemanticStringError::ExceedsMaximumLength);
     }
 
     if (DoesContainInvalidCharacterCall(temp))
     {
         IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
                        << "\" to the semantic string since it contains invalid characters.";
-        return iox::error<SemanticStringError>(SemanticStringError::ContainsInvalidCharacters);
+        return err(SemanticStringError::ContainsInvalidCharacters);
     }
 
     if (DoesContainInvalidContentCall(str))
     {
         IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
                        << "\" to the semantic string since it would lead to invalid content.";
-        return iox::error<SemanticStringError>(SemanticStringError::ContainsInvalidContent);
+        return err(SemanticStringError::ContainsInvalidContent);
     }
 
     m_data = temp;
-    return iox::success<>();
+    return ok();
 }
 
 template <typename Child,

@@ -38,12 +38,12 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
     iox::expected<void*, MemoryProviderError> createMemory(const uint64_t size IOX_MAYBE_UNUSED,
                                                            const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
     {
-        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_CREATION_FAILED);
+        return iox::err(MemoryProviderError::MEMORY_CREATION_FAILED);
     }
 
-    iox::expected<MemoryProviderError> destroyMemory() noexcept override
+    iox::expected<void, MemoryProviderError> destroyMemory() noexcept override
     {
-        return iox::error<MemoryProviderError>(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
+        return iox::err(MemoryProviderError::MEMORY_DESTRUCTION_FAILED);
     }
 };
 
@@ -66,7 +66,7 @@ class MemoryProvider_Test : public Test
     static constexpr uint64_t COMMON_SETUP_MEMORY_SIZE{16};
     static constexpr uint64_t COMMON_SETUP_MEMORY_ALIGNMENT{8};
 
-    iox::expected<MemoryProviderError> commonSetup()
+    iox::expected<void, MemoryProviderError> commonSetup()
     {
         EXPECT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
         EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(COMMON_SETUP_MEMORY_SIZE));
@@ -153,7 +153,7 @@ TEST_F(MemoryProvider_Test, AddMemoryBlockExceedsCapacity)
 
     auto expectError = sut.addMemoryBlock(&memoryBlocks[iox::MAX_NUMBER_OF_MEMORY_BLOCKS_PER_MEMORY_PROVIDER]);
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED));
 }
 
 TEST_F(MemoryProvider_Test, CreateWithoutMemoryBlock)
@@ -162,7 +162,7 @@ TEST_F(MemoryProvider_Test, CreateWithoutMemoryBlock)
     EXPECT_CALL(sut, createMemoryMock(_, _)).Times(0);
     auto expectError = sut.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT));
 
     EXPECT_THAT(sut.isAvailable(), Eq(false));
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(false));
@@ -191,7 +191,7 @@ TEST_F(MemoryProvider_Test, CreationFailed)
 
     auto expectError = sutFailure.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_CREATION_FAILED));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::MEMORY_CREATION_FAILED));
 
     EXPECT_THAT(sut.isAvailable(), Eq(false));
     EXPECT_THAT(sut.isAvailableAnnounced(), Eq(false));
@@ -243,7 +243,7 @@ TEST_F(MemoryProvider_Test, AddMemoryBlockAfterCreation)
 
     auto expectError = sut.addMemoryBlock(&memoryBlock2);
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
 }
 
 TEST_F(MemoryProvider_Test, MultipleCreates)
@@ -253,7 +253,7 @@ TEST_F(MemoryProvider_Test, MultipleCreates)
 
     auto expectError = sut.create();
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::MEMORY_ALREADY_CREATED));
 }
 
 TEST_F(MemoryProvider_Test, MultipleAnnouncesAreSuppressed)
@@ -277,7 +277,7 @@ TEST_F(MemoryProvider_Test, MultipleDestroys)
 
     auto expectError = sut.destroy();
     ASSERT_THAT(expectError.has_error(), Eq(true));
-    EXPECT_THAT(expectError.get_error(), Eq(MemoryProviderError::MEMORY_NOT_AVAILABLE));
+    EXPECT_THAT(expectError.error(), Eq(MemoryProviderError::MEMORY_NOT_AVAILABLE));
 }
 
 TEST_F(MemoryProvider_Test, IntialBaseAddressValueIsUnset)

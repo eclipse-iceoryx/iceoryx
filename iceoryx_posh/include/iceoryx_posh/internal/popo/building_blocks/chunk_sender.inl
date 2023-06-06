@@ -109,7 +109,7 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         mepoo::ChunkSettings::create(userPayloadSize, userPayloadAlignment, userHeaderSize, userHeaderAlignment);
     if (chunkSettingsResult.has_error())
     {
-        return error<AllocationError>(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
+        return err(AllocationError::INVALID_PARAMETER_FOR_USER_PAYLOAD_OR_USER_HEADER);
     }
 
     const auto& chunkSettings = chunkSettingsResult.value();
@@ -128,11 +128,11 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
             lastChunkChunkHeader->~ChunkHeader();
             new (lastChunkChunkHeader) mepoo::ChunkHeader(chunkSize, chunkSettings);
             lastChunkChunkHeader->setOriginId(originId);
-            return success<mepoo::ChunkHeader*>(lastChunkChunkHeader);
+            return ok(lastChunkChunkHeader);
         }
         else
         {
-            return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
+            return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
     else
@@ -141,28 +141,26 @@ ChunkSender<ChunkSenderDataType>::tryAllocate(const UniquePortId originId,
         // get a new chunk
         auto getChunkResult = getMembers()->m_memoryMgr->getChunk(chunkSettings);
 
-        if (!getChunkResult.has_error())
+        if (getChunkResult.has_error())
         {
-            auto& chunk = getChunkResult.value();
+            /// @todo iox-#1012 use error<E2>::from(E1); once available
+            return err(into<AllocationError>(getChunkResult.error()));
+        }
 
-            // if the application allocated too much chunks, return no more chunks
-            if (getMembers()->m_chunksInUse.insert(chunk))
-            {
-                // END of critical section
-                chunk.getChunkHeader()->setOriginId(originId);
-                return success<mepoo::ChunkHeader*>(chunk.getChunkHeader());
-            }
-            else
-            {
-                // release the allocated chunk
-                chunk = nullptr;
-                return error<AllocationError>(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
-            }
+        auto& chunk = getChunkResult.value();
+
+        // if the application allocated too much chunks, return no more chunks
+        if (getMembers()->m_chunksInUse.insert(chunk))
+        {
+            // END of critical section
+            chunk.getChunkHeader()->setOriginId(originId);
+            return ok(chunk.getChunkHeader());
         }
         else
         {
-            /// @todo iox-#1012 use error<E2>::from(E1); once available
-            return error<AllocationError>(into<AllocationError>(getChunkResult.get_error()));
+            // release the allocated chunk
+            chunk = nullptr;
+            return err(AllocationError::TOO_MANY_CHUNKS_ALLOCATED_IN_PARALLEL);
         }
     }
 }
