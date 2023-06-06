@@ -114,6 +114,7 @@ iox_add_library(
         source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
+        source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
 

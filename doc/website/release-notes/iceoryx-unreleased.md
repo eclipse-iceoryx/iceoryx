@@ -42,6 +42,7 @@
 - Implement dereference operator for smart_lock::Proxy [\#1966](https://github.com/eclipse-iceoryx/iceoryx/issues/1966)
 - `NewType` supports arithmetic operations and loops [\#1554](https://github.com/eclipse-iceoryx/iceoryx/issues/1554)
 - Add `iox::span` [\#180](https://github.com/eclipse-iceoryx/iceoryx/issues/180)
+- Implement custom error reporting API [\#1032](https://github.com/eclipse-iceoryx/iceoryx/issues/1032)
 
 **Bugfixes:**
 

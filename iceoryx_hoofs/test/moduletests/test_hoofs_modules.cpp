@@ -17,6 +17,8 @@
 
 #include "iceoryx_hoofs/testing/testing_logger.hpp"
 
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
+
 #include "test.hpp"
 
 using namespace ::testing;
@@ -31,6 +33,9 @@ int main(int argc, char* argv[])
     ::testing::InitGoogleTest(&argc, argv);
 
     iox::testing::TestingLogger::init();
+
+    iox::testing::ErrorHandler handler;
+    iox::er::ErrorHandler::set(handler);
 
     g_argc = argc;
     g_argv = argv;
