@@ -19,8 +19,8 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_TIME_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_TIME_HPP
 
-#include <time.h>
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/time.h"
+#include <time.h>
 
 #endif // IOX_HOOFS_FREERTOS_PLATFORM_TIME_HPP

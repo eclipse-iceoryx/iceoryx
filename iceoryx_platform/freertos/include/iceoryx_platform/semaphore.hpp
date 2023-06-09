@@ -19,9 +19,9 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_SEMAPHORE_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_SEMAPHORE_HPP
 
-#include <time.h>
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/semaphore.h"
+#include <time.h>
 
 #define SEM_FAILED nullptr
 #define IOX_SEM_FAILED SEM_FAILED

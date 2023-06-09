@@ -24,74 +24,75 @@
 #include <FreeRTOS_POSIX.h>
 
 /* For setsockopt(2) */
-#define SOL_SOCKET      1
+#define SOL_SOCKET 1
 
-#define SO_DEBUG        1
-#define SO_REUSEADDR    2
-#define SO_TYPE         3
-#define SO_ERROR        4
-#define SO_DONTROUTE    5
-#define SO_BROADCAST    6
-#define SO_SNDBUF       7
-#define SO_RCVBUF       8
-#define SO_SNDBUFFORCE  32
-#define SO_RCVBUFFORCE  33
-#define SO_KEEPALIVE    9
-#define SO_OOBINLINE    10
-#define SO_NO_CHECK     11
-#define SO_PRIORITY     12
-#define SO_LINGER       13
-#define SO_BSDCOMPAT    14
-#define SO_REUSEPORT    15
-#define SO_PASSCRED     16
-#define SO_PEERCRED     17
-#define SO_RCVLOWAT     18
-#define SO_SNDLOWAT     19
-#define SO_RCVTIMEO     20
-#define SO_SNDTIMEO     21
+#define SO_DEBUG 1
+#define SO_REUSEADDR 2
+#define SO_TYPE 3
+#define SO_ERROR 4
+#define SO_DONTROUTE 5
+#define SO_BROADCAST 6
+#define SO_SNDBUF 7
+#define SO_RCVBUF 8
+#define SO_SNDBUFFORCE 32
+#define SO_RCVBUFFORCE 33
+#define SO_KEEPALIVE 9
+#define SO_OOBINLINE 10
+#define SO_NO_CHECK 11
+#define SO_PRIORITY 12
+#define SO_LINGER 13
+#define SO_BSDCOMPAT 14
+#define SO_REUSEPORT 15
+#define SO_PASSCRED 16
+#define SO_PEERCRED 17
+#define SO_RCVLOWAT 18
+#define SO_SNDLOWAT 19
+#define SO_RCVTIMEO 20
+#define SO_SNDTIMEO 21
 
-#define AF_LOCAL        1
+#define AF_LOCAL 1
 
 /* Types of sockets.  */
 enum __socket_type
 {
-  SOCK_STREAM = 1,              /* Sequenced, reliable, connection-based
-                                   byte streams.  */
+    SOCK_STREAM = 1, /* Sequenced, reliable, connection-based
+                        byte streams.  */
 #define SOCK_STREAM SOCK_STREAM
-  SOCK_DGRAM = 2,               /* Connectionless, unreliable datagrams
-                                   of fixed maximum length.  */
+    SOCK_DGRAM = 2, /* Connectionless, unreliable datagrams
+                       of fixed maximum length.  */
 #define SOCK_DGRAM SOCK_DGRAM
-  SOCK_RAW = 3,                 /* Raw protocol interface.  */
+    SOCK_RAW = 3, /* Raw protocol interface.  */
 #define SOCK_RAW SOCK_RAW
-  SOCK_RDM = 4,                 /* Reliably-delivered messages.  */
+    SOCK_RDM = 4, /* Reliably-delivered messages.  */
 #define SOCK_RDM SOCK_RDM
-  SOCK_SEQPACKET = 5,           /* Sequenced, reliable, connection-based,
-                                   datagrams of fixed maximum length.  */
+    SOCK_SEQPACKET = 5, /* Sequenced, reliable, connection-based,
+                           datagrams of fixed maximum length.  */
 #define SOCK_SEQPACKET SOCK_SEQPACKET
-  SOCK_DCCP = 6,                /* Datagram Congestion Control Protocol.  */
+    SOCK_DCCP = 6, /* Datagram Congestion Control Protocol.  */
 #define SOCK_DCCP SOCK_DCCP
-  SOCK_PACKET = 10,             /* Linux specific way of getting packets
-                                   at the dev level.  For writing rarp and
-                                   other similar things on the user level. */
+    SOCK_PACKET = 10, /* Linux specific way of getting packets
+                         at the dev level.  For writing rarp and
+                         other similar things on the user level. */
 #define SOCK_PACKET SOCK_PACKET
 
-  /* Flags to be ORed into the type parameter of socket and socketpair and
-     used for the flags parameter of paccept.  */
+    /* Flags to be ORed into the type parameter of socket and socketpair and
+       used for the flags parameter of paccept.  */
 
-  SOCK_CLOEXEC = 02000000,      /* Atomically set close-on-exec flag for the
-                                   new descriptor(s).  */
+    SOCK_CLOEXEC = 02000000, /* Atomically set close-on-exec flag for the
+                                new descriptor(s).  */
 #define SOCK_CLOEXEC SOCK_CLOEXEC
-  SOCK_NONBLOCK = 00004000      /* Atomically mark descriptor(s) as
-                                   non-blocking.  */
+    SOCK_NONBLOCK = 00004000 /* Atomically mark descriptor(s) as
+                                non-blocking.  */
 #define SOCK_NONBLOCK SOCK_NONBLOCK
 };
 
-using sa_family_t = int; 
-typedef  uint32_t __socklen_t;
+using sa_family_t = int;
+typedef uint32_t __socklen_t;
 typedef __socklen_t socklen_t;
-struct sockaddr_un {
-  sa_family_t sun_family;               /* AF_UNIX */
-  char        sun_path[108];            /* Pathname */
+struct sockaddr_un
+{
+    sa_family_t sun_family; /* AF_UNIX */
+    char sun_path[108];     /* Pathname */
 };
 int iox_bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
 int iox_socket(int domain, int type, int protocol);

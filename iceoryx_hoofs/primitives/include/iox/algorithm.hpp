@@ -150,7 +150,8 @@ struct BestFittingTypeImpl<true, true, false>
 template <uint64_t Value>
 struct BestFittingType
 {
-// gcc warns here that the uint8_t test for BestFittingType<256> is always true... which is correct, but we need it for portability anyway
+// gcc warns here that the uint8_t test for BestFittingType<256> is always true... which is correct, but we need it for
+// portability anyway
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"

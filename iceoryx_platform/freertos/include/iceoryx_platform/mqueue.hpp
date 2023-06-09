@@ -19,9 +19,9 @@
 #ifndef IOX_HOOFS_FREERTOS_PLATFORM_MQUEUE_HPP
 #define IOX_HOOFS_FREERTOS_PLATFORM_MQUEUE_HPP
 
-#include "sys/types.h"
 #include "FreeRTOS_POSIX.h"
 #include "FreeRTOS_POSIX/mqueue.h"
+#include "sys/types.h"
 
 mqd_t iox_mq_open2(const char* name, int oflag);
 mqd_t iox_mq_open4(const char* name, int oflag, mode_t mode, struct mq_attr* attr);

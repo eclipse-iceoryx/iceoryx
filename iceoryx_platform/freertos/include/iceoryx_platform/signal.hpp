@@ -26,14 +26,14 @@
 
 #include <sys/types.h>
 
-#define SIGHUP   1
-#define SIGINT   2
-#define SIGABRT  6
-#define SIGBUS   7
+#define SIGHUP 1
+#define SIGINT 2
+#define SIGABRT 6
+#define SIGBUS 7
 #define SIGTERM 15
 
-#define SIGKILL  9
-#define SIGTERM  15
+#define SIGKILL 9
+#define SIGTERM 15
 
 using siginfo_t = int;
 

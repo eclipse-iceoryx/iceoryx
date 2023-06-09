@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/mman.hpp"
+#include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/shm_file.hpp"
 
 #include "FreeRTOS.h"

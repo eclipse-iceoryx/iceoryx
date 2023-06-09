@@ -22,8 +22,13 @@
 
 #define SCHED_FIFO 1
 
-inline int sched_get_priority_max(int) { return 0;}
-inline int sched_get_priority_min(int) { return 0;}
+inline int sched_get_priority_max(int)
+{
+    return 0;
+}
+inline int sched_get_priority_min(int)
+{
+    return 0;
+}
 
 #endif
-
