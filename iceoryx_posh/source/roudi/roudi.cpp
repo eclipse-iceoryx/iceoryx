@@ -164,6 +164,7 @@ void RouDi::processRuntimeMessages() noexcept
     runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
 
     IOX_LOG(INFO) << "RouDi is ready for clients";
+    fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
     while (m_runHandleRuntimeMessageThread)
     {
