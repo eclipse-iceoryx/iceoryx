@@ -110,9 +110,9 @@ void subscriber()
 
 int main()
 {
-    // set the log level to error to see the essence of the example
+    // set the log level to info to to have the output for launch_testing
     //! [log level]
-    iox::log::Logger::init(iox::log::LogLevel::ERROR);
+    iox::log::Logger::init(iox::log::LogLevel::INFO);
     //! [log level]
 
     //! [roudi config]
