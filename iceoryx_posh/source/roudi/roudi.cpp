@@ -163,8 +163,8 @@ void RouDi::processRuntimeMessages() noexcept
 {
     runtime::IpcInterfaceCreator roudiIpcInterface{IPC_CHANNEL_ROUDI_NAME};
 
-    // the logger is intentionally not used, to ensure that this message is always printed
-    std::cout << "RouDi is ready for clients" << std::endl;
+    IOX_LOG(INFO) << "RouDi is ready for clients";
+    fflush(stdout); // explicitly flush 'stdout' for 'launch_testing'
 
     while (m_runHandleRuntimeMessageThread)
     {

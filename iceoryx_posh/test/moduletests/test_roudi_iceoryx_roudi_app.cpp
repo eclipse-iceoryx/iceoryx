@@ -99,7 +99,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorIsSuccessful)
     IceoryxRoudiApp_Child roudi(cmdLineArgs.value(), iox::RouDiConfig_t().setDefaults());
 
     EXPECT_TRUE(roudi.getVariableRun());
-    EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::WARN);
+    EXPECT_EQ(roudi.getLogLevel(), iox::log::LogLevel::INFO);
     EXPECT_EQ(roudi.getMonitoringMode(), roudi::MonitoringMode::OFF);
 }
 
