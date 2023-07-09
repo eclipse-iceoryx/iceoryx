@@ -9,7 +9,7 @@ runs:
         sudo add-apt-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-15 main"
         sudo apt-get update
         sudo apt-get install -y libacl1-dev libncurses5-dev
-        sudo apt-get install -y clang-format-15 clang-tidy-15 clang-tools-15 clang-15
+        sudo apt-get install -y clang-format-15 clang-tidy-15 clang-tools-15 clang-15 lld
         sudo rm /usr/bin/clang
         sudo rm /usr/bin/clang++
         sudo rm /usr/bin/clang-tidy
