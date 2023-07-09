@@ -150,7 +150,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: pre-flight-check
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install iceoryx dependencies and clang-tidy
+        uses: ./.github/actions/install-iceoryx-deps-and-clang
       - run: ./tools/ci/build-test-ubuntu-bazel.sh
 
   coverage-and-docs:
