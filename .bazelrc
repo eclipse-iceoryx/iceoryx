@@ -13,3 +13,12 @@ build:asan --linkopt="-fsanitize=address"
 
 # asan clang
 build:clang_asan --config=clang --config=asan
+
+# usan gcc
+build:usan --cxxopt="-fsanitize=undefined"
+build:usan --cxxopt="-fno-omit-frame-pointer"
+build:usan --cxxopt="-g" --cxxopt="-O2" --strip=never
+build:usan --linkopt="-fsanitize=undefined"
+
+# usan clang
+build:clang_usan --config=clang --config=usan
