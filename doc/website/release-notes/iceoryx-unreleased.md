@@ -6,6 +6,7 @@
 
 **Features:**
 
+- Add bazel asan, usan, tsan build config [#1547](https://github.com/eclipse-iceoryx/iceoryx/issues/1547)
 - Add bazel clang build config [#1998](https://github.com/eclipse-iceoryx/iceoryx/issues/1998)
 - Add `command_line.hpp` which contains a macro builder to parse command line arguments quickly and safely [#1067](https://github.com/eclipse-iceoryx/iceoryx/issues/1067)
 - optional inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)

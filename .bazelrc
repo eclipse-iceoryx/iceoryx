@@ -4,3 +4,30 @@ build --cxxopt="-std=c++14"
 build:clang --action_env=BAZEL_COMPILER=clang
 build:clang --action_env=CC=clang --action_env=CXX=clang++
 build:clang --linkopt=-fuse-ld=lld
+
+# asan gcc
+build:asan --cxxopt="-fsanitize=address"
+build:asan --cxxopt="-fno-omit-frame-pointer"
+build:asan --cxxopt="-g" --cxxopt="-O2" --strip=never
+build:asan --linkopt="-fsanitize=address"
+
+# asan clang
+build:clang_asan --config=clang --config=asan
+
+# usan gcc
+build:usan --cxxopt="-fsanitize=undefined"
+build:usan --cxxopt="-fno-omit-frame-pointer"
+build:usan --cxxopt="-g" --cxxopt="-O2" --strip=never
+build:usan --linkopt="-fsanitize=undefined"
+
+# usan clang
+build:clang_usan --config=clang --config=usan
+
+# tsan gcc
+build:tsan --cxxopt="-fsanitize=thread"
+build:tsan --cxxopt="-fno-omit-frame-pointer"
+build:tsan --cxxopt="-g" --cxxopt="-O2" --strip=never
+build:tsan --linkopt="-fsanitize=thread"
+
+# tsan clang
+build:clang_tsan --config=clang --config=tsan
