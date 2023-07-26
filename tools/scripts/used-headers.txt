@@ -1,7 +1,6 @@
 # QNX platform / libc headers
 arpa/inet.h
 climits
-csignal
 cstdint
 cstdio
 dlfcn.h
@@ -35,7 +34,6 @@ cassert
 chrono
 cmath
 cpptoml.h
-csignal
 cstdint
 cstdio
 cstdlib
