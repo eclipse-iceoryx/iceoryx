@@ -80,7 +80,7 @@ if [[ "$SCOPE" == "check" ]]; then
     echo "Comparing the used system headers against the list.."
     diff $CURRENTLY_USED_HEADERS $USELIST
     if [ $? -eq 1 ]; then
-        echo "Mismatch of expected and found headers. Please check the diff above and remove/add the header in 'tools/used-headers.txt'!"
+        echo "Mismatch of expected and found headers. Please check the diff above and remove/add the header in 'tools/scripts/used-headers.txt'!"
         exit 1
     fi
     echo "No header divergence found!"

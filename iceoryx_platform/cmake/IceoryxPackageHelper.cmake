@@ -1,6 +1,7 @@
 # Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 # Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 # Copyright (c) 2021 by Timo Röhling. All rights reserved.
+# Copyright (c) 2023 by NXP. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -276,7 +277,8 @@ Macro(iox_add_library)
         PUBLIC_INCLUDES PRIVATE_INCLUDES
         PUBLIC_LIBS_LINUX PRIVATE_LIBS_LINUX PUBLIC_LIBS_QNX PRIVATE_LIBS_QNX
         PUBLIC_LIBS_UNIX PRIVATE_LIBS_UNIX PUBLIC_LIBS_WIN32 PRIVATE_LIBS_WIN32
-        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE EXPORT_INCLUDE_DIRS)
+        PUBLIC_LIBS_APPLE PRIVATE_LIBS_APPLE PUBLIC_LIBS_FREERTOS PRIVATE_LIBS_FREERTOS
+        EXPORT_INCLUDE_DIRS)
     cmake_parse_arguments(IOX "${switches}" "${arguments}" "${multiArguments}" ${ARGN} )
 
     if ( NOT IOX_NO_PACKAGE_SETUP )
@@ -344,6 +346,10 @@ Macro(iox_add_library)
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_UNIX} PRIVATE ${IOX_PRIVATE_LIBS_UNIX})
     elseif ( WIN32 )
         target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_WIN32} PRIVATE ${IOX_PRIVATE_LIBS_WIN32})
+    elseif ( FREERTOS )
+        target_link_libraries(${IOX_TARGET} PUBLIC ${IOX_PUBLIC_LIBS_FREERTOS} PRIVATE ${IOX_PRIVATE_LIBS_FREERTOS})
+        # PIC can cause NULL function pointers on bare metal since there is no dynamic linker...
+        set_target_properties( ${IOX_TARGET} PROPERTIES POSITION_INDEPENDENT_CODE OFF )
     endif ( LINUX )
 
     # @todo iox-#1287 lasting fix for rpath without implicit posh dependencies and auto lib detection

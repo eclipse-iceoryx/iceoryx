@@ -77,9 +77,9 @@ inline constexpr bool doesContainValue(const T) noexcept
     return false;
 }
 
-template <typename T, typename... ValueList>
+template <typename T1, typename T2, typename... ValueList>
 inline constexpr bool
-doesContainValue(const T value, const T firstValueListEntry, const ValueList... remainingValueListEntries) noexcept
+doesContainValue(const T1 value, const T2 firstValueListEntry, const ValueList... remainingValueListEntries) noexcept
 {
     // AXIVION Next Line AutosarC++19_03-M6.2.2 : intentional check for exact equality
     return (value == firstValueListEntry) ? true : doesContainValue(value, remainingValueListEntries...);

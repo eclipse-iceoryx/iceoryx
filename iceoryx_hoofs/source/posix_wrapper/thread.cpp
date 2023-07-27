@@ -22,7 +22,7 @@ namespace iox
 {
 namespace posix
 {
-void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
+void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through iox::string
@@ -32,7 +32,7 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
     });
 }
 
-ThreadName_t getThreadName(iox_pthread_t thread) noexcept
+ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
 {
     // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)

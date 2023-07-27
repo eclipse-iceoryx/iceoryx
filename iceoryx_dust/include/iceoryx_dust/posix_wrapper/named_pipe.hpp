@@ -17,6 +17,7 @@
 #define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 
 #include "iceoryx_dust/design/creation.hpp"
+#include "iceoryx_dust/iceoryx_dust_deployment.hpp"
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
@@ -39,8 +40,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
   public:
     // no system restrictions at all, except available memory. MAX_MESSAGE_SIZE and MAX_NUMBER_OF_MESSAGES can be
     // increased as long as there is enough memory available
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 4096U;
-    static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = 10U;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = build::IOX_MAX_NAMED_PIPE_MESSAGE_SIZE;
+    static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = build::IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES;
     static_assert(MAX_NUMBER_OF_MESSAGES < IOX_SEM_VALUE_MAX,
                   "The maximum number of supported messages must be less than the maximum allowed semaphore value");
 

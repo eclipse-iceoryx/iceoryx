@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,6 +49,8 @@ namespace iox
 namespace platform
 {
 #if defined(_WIN32)
+using IoxIpcChannelType = iox::posix::NamedPipe;
+#elif defined(__FREERTOS__)
 using IoxIpcChannelType = iox::posix::NamedPipe;
 #else
 using IoxIpcChannelType = iox::posix::UnixDomainSocket;

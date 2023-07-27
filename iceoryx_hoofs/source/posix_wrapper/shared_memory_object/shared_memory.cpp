@@ -77,7 +77,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     }
 
     // the mask will be applied to the permissions, therefore we need to set it to 0
-    int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
+    shm_handle_t sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
     {
         ScopeGuard umaskGuard([&] { umask(umaskSaved); });
@@ -155,7 +155,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     return ok(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
-SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
+SharedMemory::SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept
     : m_name{name}
     , m_handle{handle}
     , m_hasOwnership{hasOwnership}
@@ -200,12 +200,12 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     return *this;
 }
 
-int32_t SharedMemory::getHandle() const noexcept
+shm_handle_t SharedMemory::getHandle() const noexcept
 {
     return m_handle;
 }
 
-int32_t SharedMemory::get_file_handle() const noexcept
+shm_handle_t SharedMemory::get_file_handle() const noexcept
 {
     return m_handle;
 }

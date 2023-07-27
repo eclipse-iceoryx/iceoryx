@@ -28,7 +28,6 @@
 #include "iox/vector.hpp"
 
 #include <chrono>
-#include <csignal>
 #include <thread>
 
 using namespace iox::units::duration_literals;

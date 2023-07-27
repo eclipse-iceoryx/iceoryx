@@ -71,7 +71,7 @@ class MePooSegment_test : public Test
             remove("/tmp/roudi_segment_test");
         }
 
-        int getFileHandle()
+        shm_handle_t getFileHandle()
         {
             return filehandle;
         }
@@ -90,7 +90,7 @@ class MePooSegment_test : public Test
         void* m_baseAddressHint{nullptr};
         static constexpr int MEM_SIZE = 100000;
         char memory[MEM_SIZE];
-        int filehandle;
+        shm_handle_t filehandle;
         static createFct createVerificator;
     };
 

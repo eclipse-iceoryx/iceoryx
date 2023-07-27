@@ -52,6 +52,9 @@ enum class SharedMemoryError
     UNKNOWN_ERROR
 };
 
+/// @brief Shared memory file descriptor type
+using shm_handle_t = int;
+
 /// @brief Creates a bare metal shared memory object with the posix functions
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
@@ -70,7 +73,7 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     ~SharedMemory() noexcept;
 
     /// @brief returns the file handle of the shared memory
-    int32_t getHandle() const noexcept;
+    shm_handle_t getHandle() const noexcept;
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class
@@ -88,7 +91,7 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     friend class SharedMemoryBuilder;
 
   private:
-    SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept;
+    SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept;
 
     bool unlink() noexcept;
     bool close() noexcept;
@@ -98,10 +101,10 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
     friend struct FileManagementInterface<SharedMemory>;
-    int32_t get_file_handle() const noexcept;
+    shm_handle_t get_file_handle() const noexcept;
 
     Name_t m_name;
-    int m_handle{INVALID_HANDLE};
+    shm_handle_t m_handle{INVALID_HANDLE};
     bool m_hasOwnership{false};
 };
 

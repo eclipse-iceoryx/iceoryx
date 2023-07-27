@@ -93,7 +93,7 @@ class Ownership
     Ownership(const uid_t uid, const gid_t gid) noexcept;
 
   private:
-    uid_t m_uid{std::numeric_limits<pid_t>::max()};
+    uid_t m_uid{std::numeric_limits<uid_t>::max()};
     gid_t m_gid{std::numeric_limits<gid_t>::max()};
 };
 

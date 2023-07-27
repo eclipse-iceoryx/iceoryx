@@ -108,13 +108,13 @@ class UnixDomainSocket
   private:
     UnixDomainSocket(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
-                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
                      const IpcChannelSide channelSide,
-                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
     expected<void, IpcChannelError> destroy() noexcept;
@@ -136,7 +136,7 @@ class UnixDomainSocket
     IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
     int32_t m_sockfd{INVALID_FD};
     sockaddr_un m_sockAddr{};
-    size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+    uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
 
 

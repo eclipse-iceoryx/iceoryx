@@ -34,7 +34,6 @@ cassert
 chrono
 cmath
 cpptoml.h
-csignal
 cstdint
 cstdio
 cstdlib

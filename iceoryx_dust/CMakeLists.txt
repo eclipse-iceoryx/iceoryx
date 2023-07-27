@@ -27,6 +27,8 @@ include(IceoryxPackageHelper)
 include(IceoryxPlatform)
 include(IceoryxPlatformSettings)
 
+include(cmake/IceoryxDustDeployment.cmake)
+
 if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
     option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
 endif()
@@ -46,6 +48,7 @@ iox_add_library(
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
+                                ${CMAKE_BINARY_DIR}/generated/iceoryx/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 vocabulary/include/
@@ -59,6 +62,22 @@ iox_add_library(
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/signal_watcher.cpp
         source/posix_wrapper/message_queue.cpp
+)
+
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"
+  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_dust/iceoryx_dust_deployment.hpp" @ONLY)
+
+install(
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_dust_deployment.hpp
+    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    COMPONENT dev
+)
+
+# install deployment file to make posh config accessible by other packages
+install(
+    FILES
+        cmake/IceoryxDustDeployment.cmake
+    DESTINATION ${DESTINATION_CONFIGDIR}
 )
 
 #
