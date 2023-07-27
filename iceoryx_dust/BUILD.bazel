@@ -33,7 +33,7 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"] + glob(["vocabulary/**"])) + [,
+    hdrs = glob(["include/**"] + glob(["vocabulary/**"])) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
