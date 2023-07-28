@@ -49,6 +49,8 @@ jobs:
         with:
           path: .lycheecache
           key: cache-lychee-all-branches
+          # the cache will not be updated and therefore needs to be recreated after 7 days
+          retention-days: 7
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.5.4
