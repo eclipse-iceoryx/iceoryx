@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_CLIENT_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
@@ -43,16 +42,16 @@ enum class ClientSendError
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(const ClientSendError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ClientSendError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ClientSendError value) noexcept;
 
 /// @brief The ClientPortUser provides the API for accessing a client port from the user side. The client port
@@ -92,7 +91,7 @@ class ClientPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] requestHeader, pointer to the RequestHeader to send
     /// @return ClientSendError if sending was not successful
-    expected<ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
+    expected<void, ClientSendError> sendRequest(RequestHeader* const requestHeader) noexcept;
 
     /// @brief try to connect to the server Caution: There can be delays between calling connect and a change
     /// in the connection state

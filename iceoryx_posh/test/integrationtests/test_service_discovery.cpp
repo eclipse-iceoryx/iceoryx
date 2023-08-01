@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -506,8 +505,8 @@ class ServiceDiscoveryFindService_test : public ServiceDiscoveryBase_test
     static constexpr uint32_t MAX_PUBLISHERS = iox::MAX_PUBLISHERS;
     static constexpr uint32_t MAX_SERVERS = iox::MAX_SERVERS;
 
-    iox::cxx::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
-    iox::cxx::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
+    iox::vector<iox::popo::UntypedPublisher, MAX_PUBLISHERS> publishers;
+    iox::vector<iox::popo::UntypedServer, MAX_SERVERS> servers;
 
     ReferenceDiscovery publisherDiscovery{MessagingPattern::PUB_SUB};
     ReferenceDiscovery serverDiscovery{MessagingPattern::REQ_RES};
@@ -624,7 +623,7 @@ using string_t = iox::capro::IdString_t;
 
 string_t randomString(uint64_t size = string_t::capacity())
 {
-    // deliberately contains no `0` (need to exclude some char)
+    // deliberately contains no '0' (need to exclude some char)
     static const char chars[] = "123456789"
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                 "abcdefghijklmnopqrstuvwxyz";

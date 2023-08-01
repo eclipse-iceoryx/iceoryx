@@ -42,7 +42,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanU
     auto result = port().allocateRequest(sizeof(Req), alignof(Req));
     if (result.has_error())
     {
-        return error<AllocationError>(result.get_error());
+        return err(result.error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -50,7 +50,7 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loanU
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return success<Request<Req>>(Request<Req>{std::move(request), *this});
+    return ok(Request<Req>{std::move(request), *this});
 }
 
 template <typename Req, typename Res, typename BaseClientT>
@@ -62,9 +62,9 @@ expected<Request<Req>, AllocationError> ClientImpl<Req, Res, BaseClientT>::loan(
 }
 
 template <typename Req, typename Res, typename BaseClientT>
-expected<ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
+expected<void, ClientSendError> ClientImpl<Req, Res, BaseClientT>::send(Request<Req>&& request) noexcept
 {
-    // take the ownership of the chunk from the Request to transfer it to `sendRequest`
+    // take the ownership of the chunk from the Request to transfer it to 'sendRequest'
     auto payload = request.release();
     auto* requestHeader = static_cast<RequestHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     return port().sendRequest(requestHeader);
@@ -76,7 +76,7 @@ expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClien
     auto result = port().getResponse();
     if (result.has_error())
     {
-        return error<ChunkReceiveResult>(result.get_error());
+        return err(result.error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
@@ -84,7 +84,7 @@ expected<Response<const Res>, ChunkReceiveResult> ClientImpl<Req, Res, BaseClien
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return success<Response<const Res>>(Response<const Res>{std::move(response)});
+    return ok(Response<const Res>{std::move(response)});
 }
 
 } // namespace popo

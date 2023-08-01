@@ -2,16 +2,16 @@
 
 ### Howto Perform a Benchmark
 In bash you could execute this one liner directly in the root directory of iceoryx.
-```sh 
+```sh
 cd iceoryx
-for i in $(seq 0 3); do 
+for i in $(seq 0 3); do
     echo Optimization level $i
-    g++ iceoryx_examples/benchmark_optional_and_expected/benchmark_optional_and_expected.cpp iceoryx_hoofs/source/units/duration.cpp -Iiceoryx_hoofs/include -Iiceoryx_platform/linux/include -pthread -O$i
+    g++ iceoryx_examples/benchmark_optional_and_expected/benchmark_optional_and_expected.cpp iceoryx_hoofs/time/source/duration.cpp -Iiceoryx_hoofs/include -Iiceoryx_platform/linux/include -pthread -O$i
     ./a.out
 done
 ```
 
-If you compile it with our default cmake settings you would only compile it in 
+If you compile it with our default cmake settings you would only compile it in
 release mode which is naturally faster than debug mode since it does not inject debug symbols and uses optimization level `-O2`.
 
 This shell command on the other hand does compile the benchmark for all 4 optimization

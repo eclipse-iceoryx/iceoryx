@@ -32,7 +32,7 @@ namespace config
 class StubbedTomlGatewayConfigParser : public TomlGatewayConfigParser
 {
   public:
-    static expected<TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
+    static expected<void, TomlGatewayConfigParseError> validate(const cpptoml::table& parsedToml) noexcept
     {
         return TomlGatewayConfigParser::validate(parsedToml);
     }

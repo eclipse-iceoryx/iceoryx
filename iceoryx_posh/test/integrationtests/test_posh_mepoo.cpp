@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
+#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -25,6 +25,7 @@
 #include "iceoryx_posh/roudi/roudi_app.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iox/duration.hpp"
 #include "iox/optional.hpp"
 
 #include <algorithm>
@@ -312,7 +313,7 @@ class Mepoo_IntegrationTest : public Test
                                             m_roudiEnv->InterOpWait();
                                         });
 
-            if (!allocationResult.has_error())
+            if (allocationResult.has_value())
             {
                 hasRunAsExpected &= !expectedAllocationError.has_value();
                 EXPECT_FALSE(expectedAllocationError.has_value());
@@ -320,15 +321,15 @@ class Mepoo_IntegrationTest : public Test
             else if (!expectedAllocationError.has_value())
             {
                 hasRunAsExpected = false;
-                std::cout << "Did not expect an error but got: " << static_cast<uint32_t>(allocationResult.get_error())
+                std::cout << "Did not expect an error but got: " << static_cast<uint32_t>(allocationResult.error())
                           << std::endl;
                 EXPECT_TRUE(hasRunAsExpected);
             }
-            else if (allocationResult.get_error() != expectedAllocationError.value())
+            else if (allocationResult.error() != expectedAllocationError.value())
             {
                 hasRunAsExpected = false;
                 std::cout << "Expected error: " << static_cast<uint32_t>(expectedAllocationError.value()) << std::endl;
-                std::cout << "But got: " << static_cast<uint32_t>(allocationResult.get_error()) << std::endl;
+                std::cout << "But got: " << static_cast<uint32_t>(allocationResult.error()) << std::endl;
                 EXPECT_TRUE(hasRunAsExpected);
             }
         }
@@ -454,7 +455,7 @@ TIMING_TEST_F(Mepoo_IntegrationTest, MempoolCreationTimeDefaultConfig, Repeat(5)
     auto stop = std::chrono::steady_clock::now();
 
     // Calc the difference
-    auto timediff = iox::units::Duration(stop - start);
+    auto timediff = iox::into<iox::units::Duration>(stop - start);
 
     PrintTiming(timediff);
 

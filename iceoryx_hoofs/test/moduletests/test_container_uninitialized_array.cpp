@@ -100,6 +100,43 @@ TEST(UninitializedArrayTest, capacityIsCorrect)
     EXPECT_EQ(sut.capacity(), capacity);
 }
 
+TEST(UninitializedArrayTest, isNotCopyConstructible)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "abc31a08-77b2-4fd2-af14-3129bafda00c");
+    constexpr uint64_t CAPACITY{31U};
+
+    bool isCopyConstructible = std::is_copy_constructible<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isCopyConstructible);
+}
+
+TEST(UninitializedArrayTest, isNotCopyAssignable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "42c31a08-77b2-4fd2-6914-3129869da00c");
+    constexpr uint64_t CAPACITY{69U};
+
+    bool isCopyAssignable = std::is_copy_assignable<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isCopyAssignable);
+}
+
+
+TEST(UninitializedArrayTest, isNotMoveConstructible)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "baf31a08-77b2-4692-6914-31298693100c");
+    constexpr uint64_t CAPACITY{13U};
+
+    bool isMoveConstructible = std::is_move_constructible<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isMoveConstructible);
+}
+
+TEST(UninitializedArrayTest, isNotMoveAssignable)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "caba1a08-77b2-4fd2-3114-3129842daa0c");
+    constexpr uint64_t CAPACITY{42U};
+
+    bool isMoveAssignable = std::is_move_assignable<UninitializedArray<int, CAPACITY>>::value;
+    EXPECT_FALSE(isMoveAssignable);
+}
+
 typedef ::testing::Types<UninitializedArray<int, 10>,
                          UninitializedArray<Integer, 10>,
                          UninitializedArray<int, 10, iox::ZeroedBuffer>,
@@ -149,6 +186,8 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
     for (auto& e : buffer)
     {
         new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
+        // Access 'e' to prevent the compiler from optimizing away the loop
+        EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
     }
 
     new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer>();
@@ -156,6 +195,31 @@ TEST(UninitializedArrayTest, AllElementsInitializedWithZeroWhenBufferSetToZeroed
     for (auto& e : buffer)
     {
         EXPECT_EQ(e, 0);
+    }
+}
+
+TEST(UninitializedArrayTest, AllElementsAreNotZeroedWhenBufferSetToNonZeroedBuffer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "35666437-6ee5-4940-b053-e82d8e312a11");
+    constexpr uint64_t CAPACITY{32};
+    UninitializedArray<uint32_t, CAPACITY, iox::ZeroedBuffer> buffer;
+    for (auto& e : buffer)
+    {
+        new (&e) uint32_t(std::numeric_limits<uint32_t>::max());
+        // Access 'e' to prevent the compiler from optimizing away the loop
+        EXPECT_EQ(e, std::numeric_limits<uint32_t>::max());
+    }
+
+    new (&buffer) UninitializedArray<uint32_t, CAPACITY, iox::NonZeroedBuffer>();
+
+    // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays) : explicitly required for test
+    uint32_t result[CAPACITY];
+    memcpy(&result, &buffer, CAPACITY * sizeof(uint32_t));
+
+    for (uint64_t i = 0; i < CAPACITY; i++)
+    {
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index) : false positive, is integer constexpr
+        EXPECT_EQ(result[i], std::numeric_limits<uint32_t>::max());
     }
 }
 

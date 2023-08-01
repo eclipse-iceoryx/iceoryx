@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
@@ -128,18 +127,12 @@ class ServiceRegistry_test : public Test
 {
   public:
     using ServiceDescription = iox::capro::ServiceDescription;
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     uint64_t countServices()
@@ -180,12 +173,12 @@ TYPED_TEST(ServiceRegistry_test, AddNoServiceDescriptionsAndWildcardSearchReturn
 TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fa7d6416-4183-4942-a323-01f78c1bb6c1");
-    iox::cxx::vector<ServiceDescription, CAPACITY> services;
+    iox::vector<ServiceDescription, CAPACITY> services;
 
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
-            "Foo", "Bar", iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))));
+            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))));
     }
 
     for (auto& service : services)
@@ -198,12 +191,12 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
 TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a911f654-8314-4ea3-b9b2-1afa121a2b21");
-    iox::cxx::vector<ServiceDescription, CAPACITY> services;
+    iox::vector<ServiceDescription, CAPACITY> services;
 
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
-            "Foo", "Bar", iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))));
+            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))));
     }
 
     for (auto& service : services)
@@ -214,7 +207,7 @@ TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFa
 
     auto result = this->sut.add(iox::capro::ServiceDescription("Foo", "Bar", "Baz"));
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
+    EXPECT_THAT(result.error(), Eq(ServiceRegistry::Error::SERVICE_REGISTRY_FULL));
 }
 
 TYPED_TEST(ServiceRegistry_test, AddServiceDescriptionsWhichWasAlreadyAddedAndReturnsOneResult)
@@ -550,7 +543,7 @@ using string_t = iox::capro::IdString_t;
 
 string_t randomString(uint64_t size = string_t::capacity())
 {
-    // deliberately contains no `0` (need to exclude some char)
+    // deliberately contains no '0' (need to exclude some char)
     static const char chars[] = "123456789"
                                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                                 "abcdefghijklmnopqrstuvwxyz";
@@ -599,7 +592,7 @@ TYPED_TEST(ServiceRegistry_test, SearchInFullRegistryWorks)
 
     constexpr auto CAP = string_t::capacity();
 
-    string_t fixedId = iox::cxx::into<string_t>(std::string(CAP, '0'));
+    string_t fixedId = iox::into<iox::lossy<string_t>>(std::string(CAP, '0'));
 
     ServiceDescription lastAdded;
     do

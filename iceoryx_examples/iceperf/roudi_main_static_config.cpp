@@ -14,11 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser_config_file_option.hpp"
+#include "iox/logging.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -28,9 +28,9 @@ int main(int argc, char* argv[])
 
     iox::config::CmdLineParserConfigFileOption cmdLineParser;
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
-    if (cmdLineArgs.has_error() && (cmdLineArgs.get_error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
+    if (cmdLineArgs.has_error() && (cmdLineArgs.error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
     {
-        LogFatal() << "Unable to parse command line arguments!";
+        IOX_LOG(FATAL) << "Unable to parse command line arguments!";
         return EXIT_FAILURE;
     }
 

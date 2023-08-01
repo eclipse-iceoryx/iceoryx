@@ -46,13 +46,13 @@ expected<RequestHeader*, AllocationError> ClientPortUser::allocateRequest(const 
 
     if (allocateResult.has_error())
     {
-        return error<AllocationError>(allocateResult.get_error());
+        return err(allocateResult.error());
     }
 
     auto* requestHeader = new (allocateResult.value()->userHeader())
         RequestHeader(getMembers()->m_chunkReceiverData.m_uniqueId, RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX);
 
-    return success<RequestHeader*>(requestHeader);
+    return ok(requestHeader);
 }
 
 void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) noexcept
@@ -67,31 +67,31 @@ void ClientPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
 }
 
-expected<ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
+expected<void, ClientSendError> ClientPortUser::sendRequest(RequestHeader* const requestHeader) noexcept
 {
     if (requestHeader == nullptr)
     {
-        LogError() << "Attempted to send a nullptr request!";
+        IOX_LOG(ERROR) << "Attempted to send a nullptr request!";
         errorHandler(PoshError::POPO__CLIENT_PORT_INVALID_REQUEST_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
-        return error<ClientSendError>(ClientSendError::INVALID_REQUEST);
+        return err(ClientSendError::INVALID_REQUEST);
     }
 
     const auto connectRequested = getMembers()->m_connectRequested.load(std::memory_order_relaxed);
     if (!connectRequested)
     {
         releaseRequest(requestHeader);
-        LogWarn() << "Try to send request without being connected!";
-        return error<ClientSendError>(ClientSendError::NO_CONNECT_REQUESTED);
+        IOX_LOG(WARN) << "Try to send request without being connected!";
+        return err(ClientSendError::NO_CONNECT_REQUESTED);
     }
 
     auto numberOfReceiver = m_chunkSender.send(requestHeader->getChunkHeader());
     if (numberOfReceiver == 0U)
     {
-        LogWarn() << "Try to send request but server is not available!";
-        return error<ClientSendError>(ClientSendError::SERVER_NOT_AVAILABLE);
+        IOX_LOG(WARN) << "Try to send request but server is not available!";
+        return err(ClientSendError::SERVER_NOT_AVAILABLE);
     }
 
-    return success<void>();
+    return ok();
 }
 
 void ClientPortUser::connect() noexcept
@@ -121,10 +121,10 @@ expected<const ResponseHeader*, ChunkReceiveResult> ClientPortUser::getResponse(
 
     if (getChunkResult.has_error())
     {
-        return error<ChunkReceiveResult>(getChunkResult.get_error());
+        return err(getChunkResult.error());
     }
 
-    return success<const ResponseHeader*>(static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));
+    return ok(static_cast<const ResponseHeader*>(getChunkResult.value()->userHeader()));
 }
 
 void ClientPortUser::releaseResponse(const ResponseHeader* const responseHeader) noexcept

@@ -21,12 +21,18 @@
 
 namespace iox
 {
-namespace posix
+namespace internal
 {
 /// @brief returns the page size of the system
 uint64_t pageSize() noexcept;
 
-} // namespace posix
+/// @brief Returns info whether called on a 32-bit system
+/// @return True if called on 32-bit, false if not 32-bit system
+constexpr bool isCompiledOn32BitSystem() noexcept
+{
+    return INTPTR_MAX == INT32_MAX;
+}
+} // namespace internal
 } // namespace iox
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_SYSTEM_CONFIGURATION_HPP

@@ -220,7 +220,7 @@ All new code should follow the folder structure.
     only set the title and include the readme from `/iceoryx_examples/foobar/README.md`
 3. Add an `add_subdirectory` directive into `iceoryx_meta/CMakeLists.txt` in the `if(EXAMPLES)` section.
 4. Consider using [geoffrey](https://github.com/elBoberido/geoffrey#geoffrey---syncs-source-code-to-markdown-code-blocks) for syncing code in code blocks with the respective source files
-5. Add integration test for example
+5. Add integration test (add as dependency to package.xml and write a launch_test for the example)
 6. [Record an asciicast](./tools/website/how-to-record-asciicast.md) and embed image link
 
 ## Testing
@@ -325,7 +325,7 @@ Github [labels](https://github.com/eclipse-iceoryx/iceoryx/labels) are used to g
 
 | Ruleset name | Github issue label | Priority |
 |---|---|---|
-| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/standards/adaptive/19-11/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
+| [Adaptive AUTOSAR](https://www.autosar.org/fileadmin/standards/R22-11/AP/AUTOSAR_RS_CPP14Guidelines.pdf) C++14 | AUTOSAR | :star::star::star: |
 | [SEI CERT C++](https://wiki.sei.cmu.edu/confluence/pages/viewpage.action?pageId=88046682) 2016 Coding Standard | CERT | :star::star: |
 | [MISRA](https://www.misra.org.uk/) C++ 2008 | MISRA | :star: |
 

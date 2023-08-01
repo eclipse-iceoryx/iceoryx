@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_platform/getopt.hpp"
 #include <iostream>
@@ -41,7 +41,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* SHORT_OPTIONS = "hvm:l:u:x:k:";
-    int32_t index;
+    int index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
     {
@@ -88,7 +88,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             if (!cxx::convert::fromString(optarg, roudiId))
             {
-                LogError() << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
+                IOX_LOG(ERROR) << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
                 m_run = false;
             }
 
@@ -108,7 +108,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError() << "Options for monitoring-mode are 'on' and 'off'!";
+                IOX_LOG(ERROR) << "Options for monitoring-mode are 'on' and 'off'!";
             }
             break;
         }
@@ -145,8 +145,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError() << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
-                              "'trace'!";
+                IOX_LOG(ERROR) << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
+                                  "'trace'!";
             }
             break;
         }
@@ -156,7 +156,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
             if (!cxx::convert::fromString(optarg, processKillDelayInSeconds))
             {
-                LogError() << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]";
+                IOX_LOG(ERROR) << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY
+                               << "]";
                 m_run = false;
             }
             else
@@ -194,7 +195,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_run = false;
-                LogError()
+                IOX_LOG(ERROR)
                     << "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!";
             }
             break;
@@ -203,7 +204,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             // CmdLineParser did not understand the parameters, don't run
             m_run = false;
-            return error<CmdLineParserResult>(CmdLineParserResult::UNKNOWN_OPTION_USED);
+            return err(CmdLineParserResult::UNKNOWN_OPTION_USED);
         }
         };
 
@@ -212,13 +213,13 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         }
     }
-    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                m_logLevel,
-                                                m_compatibilityCheckLevel,
-                                                m_processKillDelay,
-                                                m_uniqueRouDiId,
-                                                m_run,
-                                                iox::roudi::ConfigFilePathString_t("")});
+    return ok(CmdLineArgs_t{m_monitoringMode,
+                            m_logLevel,
+                            m_compatibilityCheckLevel,
+                            m_processKillDelay,
+                            m_uniqueRouDiId,
+                            m_run,
+                            iox::roudi::ConfigFilePathString_t("")});
 } // namespace roudi
 } // namespace config
 } // namespace iox

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
 
 #include "iceoryx_introspection/introspection_app.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_introspection/introspection_types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/duration.hpp"
+#include "iox/into.hpp"
 
 #include <chrono>
 #include <iomanip>
@@ -81,7 +82,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
                                              CmdLineArgumentParsingMode /*cmdLineParsingMode*/) noexcept
 {
     int32_t opt;
-    int32_t index;
+    int index;
 
     while ((opt = getopt_long(argc, argv, shortOptions, longOptions, &index)) != -1)
     {
@@ -108,7 +109,7 @@ void IntrospectionApp::parseCmdLineArguments(int argc,
             }
             else
             {
-                std::cout << "Invalid argument for `t`! Will be ignored!";
+                std::cout << "Invalid argument for 't'! Will be ignored!";
             }
             break;
         }
@@ -227,15 +228,16 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    /// @todo iox-#1692 Wrap kernel calls with posixCall
-    int32_t eventCount = poll(&fileDesc, nFileDesc, timeoutMs);
-
-    // Event detected
-    if ((eventCount == nFileDesc) && (fileDesc.revents == POLLIN))
-    {
-        updateDisplayYX();
-        refreshTerminal();
-    }
+    iox::posix::posixCall(poll)(&fileDesc, nFileDesc, timeoutMs)
+        .failureReturnValue(-1)
+        .evaluate()
+        .and_then([&](auto eventCount) {
+            if (static_cast<size_t>(eventCount.value) == nFileDesc && fileDesc.revents == POLLIN)
+            {
+                this->updateDisplayYX();
+                this->refreshTerminal();
+            }
+        });
 }
 
 void IntrospectionApp::prettyPrint(const std::string& str, const PrettyOptions pr)
@@ -262,11 +264,11 @@ void IntrospectionApp::printMemPoolInfo(const MemPoolIntrospectionInfo& introspe
     wprintw(pad, "Segment ID: %d\n", introspectionInfo.m_id);
 
     wprintw(pad, "Shared memory segment writer group: ");
-    prettyPrint(iox::cxx::into<std::string>(introspectionInfo.m_writerGroupName), PrettyOptions::bold);
+    prettyPrint(iox::into<std::string>(introspectionInfo.m_writerGroupName), PrettyOptions::bold);
     wprintw(pad, "\n");
 
     wprintw(pad, "Shared memory segment reader group: ");
-    prettyPrint(iox::cxx::into<std::string>(introspectionInfo.m_readerGroupName), PrettyOptions::bold);
+    prettyPrint(iox::into<std::string>(introspectionInfo.m_readerGroupName), PrettyOptions::bold);
     wprintw(pad, "\n\n");
 
     constexpr int32_t memPoolWidth{8};
@@ -394,22 +396,21 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
             needsLineBreak = false;
             wprintw(pad,
                     " %s |",
-                    printEntry(serviceWidth, iox::cxx::into<std::string>(publisherPort.portData->m_caproServiceID))
-                        .c_str());
+                    printEntry(serviceWidth, iox::into<std::string>(publisherPort.portData->m_caproServiceID)).c_str());
+            wprintw(
+                pad,
+                " %s |",
+                printEntry(instanceWidth, iox::into<std::string>(publisherPort.portData->m_caproInstanceID)).c_str());
+            wprintw(
+                pad,
+                " %s |",
+                printEntry(eventWidth, iox::into<std::string>(publisherPort.portData->m_caproEventMethodID)).c_str());
             wprintw(pad,
                     " %s |",
-                    printEntry(instanceWidth, iox::cxx::into<std::string>(publisherPort.portData->m_caproInstanceID))
-                        .c_str());
+                    printEntry(runtimeNameWidth, iox::into<std::string>(publisherPort.portData->m_name)).c_str());
             wprintw(pad,
                     " %s |",
-                    printEntry(eventWidth, iox::cxx::into<std::string>(publisherPort.portData->m_caproEventMethodID))
-                        .c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(runtimeNameWidth, iox::cxx::into<std::string>(publisherPort.portData->m_name)).c_str());
-            wprintw(pad,
-                    " %s |",
-                    printEntry(nodeNameWidth, iox::cxx::into<std::string>(publisherPort.portData->m_node)).c_str());
+                    printEntry(nodeNameWidth, iox::into<std::string>(publisherPort.portData->m_node)).c_str());
             // uncomment once this information is needed
             // wprintw(pad, " %s |", printEntry(sampleSizeWidth, m_sampleSize).c_str());
             // wprintw(pad, " %s |", printEntry(chunkSizeWidth, m_chunkSize).c_str());
@@ -476,24 +477,20 @@ void IntrospectionApp::printPortIntrospectionData(const std::vector<ComposedPubl
         do
         {
             needsLineBreak = false;
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(serviceWidth, iox::cxx::into<std::string>(subscriber.portData->m_caproServiceID)).c_str());
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(instanceWidth, iox::cxx::into<std::string>(subscriber.portData->m_caproInstanceID)).c_str());
-            wprintw(
-                pad,
-                " %s |",
-                printEntry(eventWidth, iox::cxx::into<std::string>(subscriber.portData->m_caproEventMethodID)).c_str());
             wprintw(pad,
                     " %s |",
-                    printEntry(runtimeNameWidth, iox::cxx::into<std::string>(subscriber.portData->m_name)).c_str());
+                    printEntry(serviceWidth, iox::into<std::string>(subscriber.portData->m_caproServiceID)).c_str());
             wprintw(pad,
                     " %s |",
-                    printEntry(nodeNameWidth, iox::cxx::into<std::string>(subscriber.portData->m_node)).c_str());
+                    printEntry(instanceWidth, iox::into<std::string>(subscriber.portData->m_caproInstanceID)).c_str());
+            wprintw(pad,
+                    " %s |",
+                    printEntry(eventWidth, iox::into<std::string>(subscriber.portData->m_caproEventMethodID)).c_str());
+            wprintw(pad,
+                    " %s |",
+                    printEntry(runtimeNameWidth, iox::into<std::string>(subscriber.portData->m_name)).c_str());
+            wprintw(
+                pad, " %s |", printEntry(nodeNameWidth, iox::into<std::string>(subscriber.portData->m_node)).c_str());
             wprintw(pad,
                     " %s |",
                     printEntry(subscriptionStateWidth,
@@ -795,7 +792,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         }
     }
 
-    getchar();
+    iox::posix::posixCall(getchar)().failureReturnValue(EOF).evaluate().expect(
+        "unable to exit the introspection client since getchar failed");
     closeTerminal();
 }
 

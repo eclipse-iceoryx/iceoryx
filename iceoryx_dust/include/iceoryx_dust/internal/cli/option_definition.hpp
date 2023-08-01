@@ -19,8 +19,8 @@
 
 #include "iceoryx_dust/cli/types.hpp"
 #include "iceoryx_dust/internal/cli/arguments.hpp"
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/function.hpp"
+#include "iox/vector.hpp"
 #include <cstdint>
 
 namespace iox
@@ -42,7 +42,7 @@ class OptionDefinition
     ///            defined std::exit(EXIT_FAILURE) is called
     explicit OptionDefinition(
         const OptionDescription_t& programDescription,
-        const cxx::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
+        const function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); }) noexcept;
 
     /// @brief Adds a command line switch argument
     ///        Calls the onFailureCallback when the option was already added or the shortOption and longOption are
@@ -89,8 +89,8 @@ class OptionDefinition
 
   private:
     OptionDescription_t m_programDescription;
-    cxx::vector<OptionWithDetails, MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
-    cxx::function<void()> m_onFailureCallback;
+    vector<OptionWithDetails, MAX_NUMBER_OF_ARGUMENTS> m_availableOptions;
+    function<void()> m_onFailureCallback;
 };
 
 std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& value) noexcept;

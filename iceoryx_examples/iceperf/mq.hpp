@@ -20,10 +20,10 @@
 #include "base.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mqueue.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/duration.hpp"
 #include "iox/optional.hpp"
 
 #include <string>

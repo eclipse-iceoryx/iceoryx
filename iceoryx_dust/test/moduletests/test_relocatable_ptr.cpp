@@ -148,16 +148,10 @@ class Relocatable_ptr_typed_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     using DataType = T;
@@ -169,16 +163,10 @@ class Relocatable_ptr_test : public Test
   public:
     void SetUp() override
     {
-        internal::CaptureStderr();
     }
 
     void TearDown() override
     {
-        std::string output = internal::GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 };
 

@@ -42,7 +42,7 @@ inline ChunkDistributorData<ChunkDistributorDataProperties, LockingPolicy, Chunk
 {
     if (m_historyCapacity != historyCapacity)
     {
-        LogWarn() << "Chunk history too large, reducing from " << historyCapacity << " to " << m_historyCapacity;
+        IOX_LOG(WARN) << "Chunk history too large, reducing from " << historyCapacity << " to " << m_historyCapacity;
     }
 }
 

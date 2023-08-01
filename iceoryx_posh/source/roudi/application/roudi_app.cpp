@@ -22,9 +22,9 @@
 #include "iceoryx_platform/resource.hpp"
 #include "iceoryx_platform/semaphore.hpp"
 #include "iceoryx_platform/signal.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
+#include "iox/logging.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -51,7 +51,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     {
         iox::log::Logger::setLogLevel(m_logLevel);
 
-        LogVerbose() << "Command line parameters are:\n" << cmdLineArgs;
+        IOX_LOG(TRACE) << "Command line parameters are:\n" << cmdLineArgs;
     }
 }
 
@@ -59,7 +59,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
 {
     if (config.m_sharedMemorySegments.empty())
     {
-        LogError() << "A RouDiConfig without segments was specified! Please provide a valid config!";
+        IOX_LOG(ERROR) << "A RouDiConfig without segments was specified! Please provide a valid config!";
         return false;
     }
 
@@ -67,7 +67,8 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
     {
         if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
-            LogError() << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+            IOX_LOG(ERROR)
+                << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
             return false;
         }
     }

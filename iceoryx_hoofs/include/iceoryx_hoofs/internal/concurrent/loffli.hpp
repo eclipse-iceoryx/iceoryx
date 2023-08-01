@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 #define IOX_HOOFS_CONCURRENT_LOFFLI_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
+#include "iox/not_null.hpp"
+#include "iox/relative_pointer.hpp"
 
 #include <atomic>
 #include <cstdint>
@@ -71,7 +71,7 @@ class LoFFLi
     uint32_t m_size{0U};
     Index_t m_invalidIndex{0U};
     std::atomic<Node> m_head{{0U, 1U}};
-    iox::memory::RelativePointer<Index_t> m_nextFreeIndex;
+    iox::RelativePointer<Index_t> m_nextFreeIndex;
 
   public:
     LoFFLi() noexcept = default;
@@ -80,7 +80,7 @@ class LoFFLi
     /// Initializes the lock-free free-list
     /// @param [in] freeIndicesMemory pointer to a memory with the capacity calculated by requiredMemorySize()
     /// @param [in] capacity is the number of elements of the free-list; must be the same used at requiredMemorySize()
-    void init(cxx::not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
+    void init(not_null<Index_t*> freeIndicesMemory, const uint32_t capacity) noexcept;
 
     /// Pop a value from the free-list
     /// @param [out] index for an element to use

@@ -16,9 +16,9 @@
 #ifndef IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 #define IOX_POSH_ROUDI_CMD_LINE_ARGS_HPP
 
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
+#include "iox/log/logstream.hpp"
 
 #include <cstdint>
 
@@ -29,7 +29,7 @@ namespace config
 struct CmdLineArgs_t
 {
     roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
-    iox::log::LogLevel logLevel{iox::log::LogLevel::WARN};
+    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
     version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
     units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
     optional<uint16_t> uniqueRouDiId{nullopt};

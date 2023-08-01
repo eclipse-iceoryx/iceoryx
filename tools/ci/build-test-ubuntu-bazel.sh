@@ -47,3 +47,10 @@ BAZEL_GTEST_FILTER="-Thread_test*"
 # We exclude the sofi stresstest in CI since we cannot set the CPU Affinity in the GitHub Action Runners
 msg "running tests"
 bazel test //... --deleted_packages=iceoryx_hoofs/test/stresstests  --test_output=all --test_arg=--gtest_filter="$BAZEL_GTEST_FILTER"
+
+# Build with clang
+msg "Bazel build with clang"
+bazel build --config=clang //...
+
+msg "running tests with clang build"
+bazel test --config=clang //... --deleted_packages=iceoryx_hoofs/test/stresstests  --test_output=all --test_arg=--gtest_filter="$BAZEL_GTEST_FILTER"

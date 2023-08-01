@@ -80,14 +80,14 @@ It must be ensured that only one server with a given `ServiceDescription` can ru
 ![rpc header](../website/images/request_response_header.svg)
 
 Since request and response need to encode different meta-information, we also need different headers for the messages.
-The common data is aggregated in `RpcBaseHeader` which contains a `cxx::UniqueId` to the `ClientChunkQueueData_t` and a sequence ID.
-The `cxx::UniqueId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToQueue`.
+The common data is aggregated in `RpcBaseHeader` which contains a `iox::UniqueId` to the `ClientChunkQueueData_t` and a sequence ID.
+The `iox::UniqueId` is used to identify the queue which receives the response and used as identifier for `ChunkDistributor::deliverToQueue`.
 This method will iterate over all stored queues and matches the `ChunkQueueData::m_uniqueIdOfOwner`.
 As optimization, the `lastKnownQueueIndex` will be used to do a fast lookup and downgrades to a full lookup if the queue IDs don't match.
 ```cpp
 class ChunkDistributor {
     ...
-    iox::expected<Error> deliverToQueue(cxx::UniqueId uniqueQueueId, uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk);
+    iox::expected<Error> deliverToQueue(iox::UniqueId uniqueQueueId, uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk);
     ...
 };
 ```

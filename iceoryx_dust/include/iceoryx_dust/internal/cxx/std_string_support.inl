@@ -1,4 +1,4 @@
-// Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,20 +20,50 @@
 
 namespace iox
 {
-namespace cxx
-{
 template <uint64_t N>
-inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value)
+inline std::string FromImpl<string<N>, std::string>::fromImpl(const string<N>& value) noexcept
 {
     return std::string(value.c_str(), value.size());
 }
 
 template <uint64_t N>
-inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string& value) noexcept
+inline string<N> FromImpl<std::string, string<N>>::fromImpl(const std::string&) noexcept
+{
+    static_assert(always_false_v<std::string> && always_false_v<string<N>>, "\n \
+        The conversion from 'std::string' to 'iox::string<N>' is potentially lossy!\n \
+        This happens when the size of source string exceeds the capacity of the destination string!\n \
+        Please use either: \n \
+          - 'iox::into<iox::optional<iox::string<N>>>' which returns a 'iox::optional<iox::string<N>>'\n \
+            with a 'nullopt' if the size of the source string exceeds the capacity of the destination string\n \
+          - 'iox::into<iox::lossy<iox::string<N>>>' which returns a 'iox::string<N>' and truncates the\n \
+            source string if its size exceeds the capacity of the destination string");
+}
+
+template <uint64_t N>
+inline optional<string<N>> FromImpl<std::string, optional<string<N>>>::fromImpl(const std::string& value) noexcept
+{
+    const auto stringLength = value.size();
+    if (stringLength <= N)
+    {
+        return string<N>(TruncateToCapacity, value.c_str(), stringLength);
+    }
+    return nullopt;
+}
+
+template <uint64_t N>
+inline string<N> FromImpl<std::string, lossy<string<N>>>::fromImpl(const std::string& value) noexcept
 {
     return string<N>(TruncateToCapacity, value.c_str(), value.size());
 }
-} // namespace cxx
+
+// AXIVION Next Construct AutosarC++19_03-M5.17.1: This is not used as shift operator but as stream operator and does
+// not require to implement '<<='
+template <uint64_t Capacity>
+inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept
+{
+    stream << str.c_str();
+    return stream;
+}
 } // namespace iox
 
 #endif // IOX_DUST_STD_STRING_SUPPORT_INL

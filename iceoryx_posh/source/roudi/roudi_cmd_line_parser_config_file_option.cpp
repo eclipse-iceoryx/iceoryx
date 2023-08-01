@@ -33,7 +33,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
     constexpr const char* SHORT_OPTIONS = ":hc:";
-    int32_t index;
+    int index;
     int32_t opt{-1};
     while (opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1)
     {
@@ -46,7 +46,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv);
             if (result.has_error())
             {
-                return error<CmdLineParserResult>(result.get_error());
+                return err(result.error());
             }
             std::cout << std::endl;
             std::cout << "Config File Option:" << std::endl;
@@ -72,7 +72,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             auto result = CmdLineParser::parse(argc, argv, CmdLineArgumentParsingMode::ONE);
             if (result.has_error())
             {
-                return error<CmdLineParserResult>(result.get_error());
+                return err(result.error());
             }
         }
         };
@@ -82,13 +82,13 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             break;
         }
     }
-    return success<CmdLineArgs_t>(CmdLineArgs_t{m_monitoringMode,
-                                                m_logLevel,
-                                                m_compatibilityCheckLevel,
-                                                m_processKillDelay,
-                                                m_uniqueRouDiId,
-                                                m_run,
-                                                m_customConfigFilePath});
+    return ok(CmdLineArgs_t{m_monitoringMode,
+                            m_logLevel,
+                            m_compatibilityCheckLevel,
+                            m_processKillDelay,
+                            m_uniqueRouDiId,
+                            m_run,
+                            m_customConfigFilePath});
 }
 
 } // namespace config

@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -67,7 +67,7 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signa
             << "This should never happen! Unable to create an empty sigaction set while registering a signal "
                "handler for the signal ["
             << static_cast<int>(signal) << "]. No signal handler will be registered!";
-        return error<SignalGuardError>(SignalGuardError::INVALID_SIGNAL_ENUM_VALUE);
+        return err(SignalGuardError::INVALID_SIGNAL_ENUM_VALUE);
     }
 
     // system struct, no way to avoid union
@@ -88,10 +88,10 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signa
         IOX_LOG(ERROR)
             << "This should never happen! An error occurred while registering a signal handler for the signal ["
             << static_cast<int>(signal) << "]. ";
-        return error<SignalGuardError>(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);
+        return err(SignalGuardError::UNDEFINED_ERROR_IN_SYSTEM_CALL);
     }
 
-    return success<SignalGuard>(SignalGuard(signal, previousAction));
+    return ok(SignalGuard(signal, previousAction));
 }
 } // namespace posix
 } // namespace iox

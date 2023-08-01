@@ -32,7 +32,7 @@ namespace iox
 namespace popo
 {
 /// @brief The ClientImpl class implements the typed client API
-/// @note Not intended for public usage! Use the `Client` instead!
+/// @note Not intended for public usage! Use the 'Client' instead!
 template <typename Req, typename Res, typename BaseClientT = BaseClient<>>
 class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, ClientSendError>
 {
@@ -62,7 +62,7 @@ class ClientImpl : public BaseClientT, private RpcInterface<Request<Req>, Client
     /// @brief Sends the given Request and then releases its loan.
     /// @param request to send.
     /// @return Error if sending was not successful
-    expected<ClientSendError> send(Request<Req>&& request) noexcept override;
+    expected<void, ClientSendError> send(Request<Req>&& request) noexcept override;
 
     /// @brief Take the Response from the top of the receive queue.
     /// @return Either a Response or a ChunkReceiveResult.

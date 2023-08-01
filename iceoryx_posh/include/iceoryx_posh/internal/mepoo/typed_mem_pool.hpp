@@ -17,13 +17,13 @@
 #ifndef IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 #define IOX_POSH_MEPOO_TYPED_MEM_POOL_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_pointer.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
@@ -45,7 +45,7 @@ template <typename T>
 class TypedMemPool
 {
   public:
-    TypedMemPool(const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+    TypedMemPool(const greater_or_equal<uint32_t, 1> numberOfChunks,
                  BumpAllocator& managementAllocator,
                  BumpAllocator& chunkMemoryAllocator) noexcept;
 

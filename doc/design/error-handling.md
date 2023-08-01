@@ -217,7 +217,7 @@ int32_t myAlgorithm(int32_t* ptr) {
 }
 ```
 
-Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``not_null`` incurs a runtime cost, which may be undesirable.
+Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``iox::not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``iox::not_null`` incurs a runtime cost, which may be undesirable.
 When Expects and Ensures are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
 
 ### `expected`
@@ -262,6 +262,23 @@ auto errorFunc = [](Error& error) {
 };
 
 func(arg).and_then(successFunc).or_else(errorFunc);
+```
+
+### Testing fatal error
+
+For fatal errors the error handler will terminate the execution of the binary. In order to test these paths the
+`iox::testing::IOX_EXPECT_FATAL_FAILURE` function should be used instead of the `EXPECT_DEATH` gTest macro.
+The `EXPECT_DEATH` gTest macro forks the process which slows down the test execution (especially with the ThreadSanitizer enabled)
+and causes issues with running thread. The `IOX_EXPECT_FATAL_FAILURE` registers a temporary error handler and runs the provided
+function in a separate thread. When the error handler is called `longjmp` is used to prevent the termination and instead ensures
+to gracefully shutdown the thread.
+
+```cpp
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+TEST(MyTest, valueOnNulloptIsFatal) {
+    iox::optional<bool> sut;
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.value(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+}
 ```
 
 ## Open points

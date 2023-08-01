@@ -18,6 +18,7 @@
 #define IOX_HOOFS_WIN_PLATFORM_STAT_HPP
 
 #include <io.h>
+#include <limits>
 #include <sys/stat.h>
 
 #define S_IRUSR 0
@@ -30,5 +31,11 @@
 #define S_IXUSR 7
 #define S_IXGRP 8
 #define S_IRWXO 9
+
+using iox_stat = struct __stat64;
+using iox_mode_t = int;
+
+int iox_fstat(int fildes, iox_stat* buf);
+int iox_fchmod(int fildes, iox_mode_t mode);
 
 #endif // IOX_HOOFS_WIN_PLATFORM_STAT_HPP

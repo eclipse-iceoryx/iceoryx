@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 #define IOX_POSH_ROUDI_SERVICE_REGISTRY_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 
 #include <cstdint>
@@ -59,7 +59,7 @@ class ServiceRegistry
     /// @brief Adds a given publisher service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in expected
-    expected<Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
+    expected<void, Error> addPublisher(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given publisher service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -69,7 +69,7 @@ class ServiceRegistry
     /// @brief Adds a given server service description to registry
     /// @param[in] serviceDescription, service to be added
     /// @return ServiceRegistryError, error wrapped in expected
-    expected<Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
+    expected<void, Error> addServer(const capro::ServiceDescription& serviceDescription) noexcept;
 
     /// @brief Removes a given server service description from registry if service is found,
     ///        in case of multiple occurrences only one occurrence is removed
@@ -89,16 +89,16 @@ class ServiceRegistry
     void find(const optional<capro::IdString_t>& service,
               const optional<capro::IdString_t>& instance,
               const optional<capro::IdString_t>& event,
-              cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+              function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
     /// @brief Applys a callable to all entries
     /// @param[in] callable, callable to apply to each entry
     /// @note Can be used to obtain all entries or count them
-    void forEach(cxx::function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+    void forEach(function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
   private:
     using Entry_t = optional<ServiceDescriptionEntry>;
-    using ServiceDescriptionContainer_t = cxx::vector<Entry_t, CAPACITY>;
+    using ServiceDescriptionContainer_t = vector<Entry_t, CAPACITY>;
 
     static constexpr uint32_t NO_INDEX = CAPACITY;
 
@@ -113,8 +113,8 @@ class ServiceRegistry
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;
 
 
-    expected<Error> add(const capro::ServiceDescription& serviceDescription,
-                        ReferenceCounter_t ServiceDescriptionEntry::*count);
+    expected<void, Error> add(const capro::ServiceDescription& serviceDescription,
+                              ReferenceCounter_t ServiceDescriptionEntry::*count);
 };
 
 } // namespace roudi

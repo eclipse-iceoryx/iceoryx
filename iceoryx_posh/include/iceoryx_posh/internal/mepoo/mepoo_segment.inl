@@ -17,19 +17,20 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_INL
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iox/bump_allocator.hpp"
+#include "iox/logging.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {
 namespace mepoo
 {
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-constexpr cxx::perms MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SEGMENT_PERMISSIONS;
+constexpr access_rights MePooSegment<SharedMemoryObjectType, MemoryManagerType>::SEGMENT_PERMISSIONS;
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
@@ -59,8 +60,9 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
         errorHandler(PoshError::MEPOO__SEGMENT_COULD_NOT_APPLY_POSIX_RIGHTS_TO_SHARED_MEMORY);
     }
 
-    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, m_sharedMemoryObject.getBumpAllocator());
-    m_sharedMemoryObject.finalizeAllocation();
+    BumpAllocator allocator(m_sharedMemoryObject.getBaseAddress(),
+                            m_sharedMemoryObject.get_size().expect("Failed to get SHM size."));
+    m_memoryManager.configureMemoryManager(mempoolConfig, managementAllocator, allocator);
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
@@ -76,17 +78,19 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {
-                auto maybeSegmentId = iox::memory::UntypedRelativePointer::registerPtr(
-                    sharedMemoryObject.getBaseAddress(), sharedMemoryObject.getSizeInBytes());
+                auto maybeSegmentId = iox::UntypedRelativePointer::registerPtr(
+                    sharedMemoryObject.getBaseAddress(),
+                    sharedMemoryObject.get_size().expect("Failed to get SHM size"));
                 if (!maybeSegmentId.has_value())
                 {
                     errorHandler(PoshError::MEPOO__SEGMENT_INSUFFICIENT_SEGMENT_IDS);
                 }
                 this->setSegmentId(static_cast<uint64_t>(maybeSegmentId.value()));
 
-                LogDebug() << "Roudi registered payload data segment "
-                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                           << sharedMemoryObject.getSizeInBytes() << " to id " << m_segmentId;
+                IOX_LOG(DEBUG) << "Roudi registered payload data segment "
+                               << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                               << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
+                               << m_segmentId;
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());

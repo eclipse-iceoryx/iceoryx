@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
@@ -62,28 +61,22 @@ class PortIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
         ASSERT_THAT(m_introspectionAccess.registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection),
                                                                 std::move(m_mockPublisherPortUserIntrospection)),
                     Eq(true));
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     bool comparePortData(const iox::roudi::SubscriberPortData& a, const iox::roudi::SubscriberPortData& b)
     {
-        auto nameA = iox::cxx::into<std::string>(a.m_name);
-        auto nameB = iox::cxx::into<std::string>(b.m_name);
+        auto nameA = iox::into<std::string>(a.m_name);
+        auto nameB = iox::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {
@@ -111,8 +104,8 @@ class PortIntrospection_test : public Test
 
     bool comparePortData(const iox::roudi::PublisherPortData& a, const iox::roudi::PublisherPortData& b)
     {
-        auto nameA = iox::cxx::into<std::string>(a.m_name);
-        auto nameB = iox::cxx::into<std::string>(b.m_name);
+        auto nameA = iox::into<std::string>(a.m_name);
+        auto nameB = iox::into<std::string>(b.m_name);
 
         if (nameA.compare(nameB) != 0)
         {
@@ -172,8 +165,7 @@ TEST_F(PortIntrospection_test, sendPortData_EmptyList)
     bool chunkWasSent = false;
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillOnce(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillOnce(Return(ByMove(iox::ok(chunk.get()->chunkHeader()))));
 
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))
         .WillOnce(Invoke([&](iox::mepoo::ChunkHeader* const) { chunkWasSent = true; }));
@@ -236,9 +228,10 @@ TEST_F(PortIntrospection_test, addAndRemovePublisher)
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addPublisher(portData2), Eq(false));
 
+    iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunkResult =
+        iox::ok(chunk.get()->chunkHeader());
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillRepeatedly(Return(tryAllocateChunkResult));
 
     bool chunkWasSent = false;
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))
@@ -368,9 +361,10 @@ TEST_F(PortIntrospection_test, addAndRemoveSubscriber)
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(true));
     EXPECT_THAT(m_introspectionAccess.addSubscriber(recData2), Eq(false));
 
+    iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunkResult =
+        iox::ok(chunk.get()->chunkHeader());
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-        .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-            chunk.get()->chunkHeader())));
+        .WillRepeatedly(Return(tryAllocateChunkResult));
 
     bool chunkWasSent = false;
     EXPECT_CALL(m_introspectionAccess.getPublisherPort().value(), sendChunk(_))

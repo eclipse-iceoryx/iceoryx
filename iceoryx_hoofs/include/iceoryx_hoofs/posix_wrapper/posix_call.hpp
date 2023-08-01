@@ -16,11 +16,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
 
-#include "iceoryx_hoofs/cxx/algorithm.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/algorithm.hpp"
+#include "iox/attributes.hpp"
 #include "iox/expected.hpp"
 #include "iox/string.hpp"
-#include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -108,7 +107,7 @@ struct PosixCallDetails
 /// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define posixCall(f)                                                                                                   \
     internal::createPosixCallBuilder(                                                                                  \
-        f,                                                                                                             \
+        &(f),                                                                                                          \
         (#f),                                                                                                          \
         __FILE__,                                                                                                      \
         __LINE__,                                                                                                      \

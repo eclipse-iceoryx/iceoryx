@@ -30,5 +30,5 @@ def load_cpptoml_repositories():
         sha256 = "23af72468cfd4040984d46a0dd2a609538579c78ddc429d6b8fd7a10a6e24403",
         url = "https://github.com/skystrife/cpptoml/archive/refs/tags/v{version}.tar.gz".format(version = CPPTOML_VERSION),
         strip_prefix = "cpptoml-{version}".format(version = CPPTOML_VERSION),
-        build_file = "//bazel/cpptoml:cpptoml.BUILD",
+        build_file = Label("//bazel/cpptoml:cpptoml.BUILD"),
     )

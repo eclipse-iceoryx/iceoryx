@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,12 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/logging.hpp"
+#include "iox/scope_guard.hpp"
 
 #include <chrono>
 #include <string>
@@ -44,7 +43,7 @@ UnixDomainSocket::UnixDomainSocket(UnixDomainSocket&& other) noexcept
 // NOLINTBEGIN(readability-function-size, bugprone-easily-swappable-parameters)
 UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
                                    const IpcChannelSide channelSide,
-                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgSize,
                                    const uint64_t maxMsgNumber) noexcept
     // NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
     : UnixDomainSocket(
@@ -52,7 +51,7 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
         [&]() -> UdsName_t {
             /// invalid names will be forwarded and handled by the other constructor
             /// separately
-            if (!cxx::isValidPathToFile(name))
+            if (!isValidPathToFile(name))
             {
                 return name;
             }
@@ -70,13 +69,13 @@ UnixDomainSocket::UnixDomainSocket(const IpcChannelName_t& name,
 UnixDomainSocket::UnixDomainSocket(const NoPathPrefix_t,
                                    const UdsName_t& name,
                                    const IpcChannelSide channelSide,
-                                   const size_t maxMsgSize,
+                                   const uint64_t maxMsgSize,
                                    const uint64_t) noexcept
     // NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
     : m_name(name)
     , m_channelSide(channelSide)
 {
-    if (!cxx::isValidPathToFile(name))
+    if (!isValidPathToFile(name))
     {
         this->m_isInitialized = false;
         this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
@@ -138,14 +137,14 @@ bool UnixDomainSocket::isInitialized() const noexcept
 
 expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t& name) noexcept
 {
-    if (!cxx::isValidPathToFile(name))
+    if (!isValidPathToFile(name))
     {
-        return error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     if (UdsName_t::capacity() < name.size() + UdsName_t(platform::IOX_UDS_SOCKET_PATH_PREFIX).size())
     {
-        return error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     return unlinkIfExists(NoPathPrefix,
@@ -154,22 +153,22 @@ expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const UdsName_t
 
 expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept
 {
-    if (!cxx::isValidPathToFile(name))
+    if (!isValidPathToFile(name))
     {
-        return error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
 
-    if (!unlinkCall.has_error())
+    if (unlinkCall.has_error())
     {
-        // ENOENT is set if this socket is not known
-        return success<bool>(unlinkCall->errnum != ENOENT);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
-    return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    // ENOENT is set if this socket is not known
+    return ok(unlinkCall->errnum != ENOENT);
 }
 
-expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
 {
     if (m_sockfd != INVALID_FD)
     {
@@ -179,48 +178,55 @@ expected<IpcChannelError> UnixDomainSocket::closeFileDescriptor() noexcept
         {
             if (IpcChannelSide::SERVER == m_channelSide)
             {
-                unlink(&(m_sockAddr.sun_path[0]));
+                auto unlinkCall = posixCall(unlink)(&(m_sockAddr.sun_path[0]))
+                                      .failureReturnValue(ERROR_CODE)
+                                      .ignoreErrnos(ENOENT)
+                                      .evaluate();
+                if (unlinkCall.has_error())
+                {
+                    return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+                }
             }
 
             m_sockfd = INVALID_FD;
             m_isInitialized = false;
 
-            return success<void>();
+            return ok();
         }
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(closeCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(closeCall.error().errnum));
     }
-    return success<>();
+    return ok();
 }
 
-expected<IpcChannelError> UnixDomainSocket::destroy() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::destroy() noexcept
 {
     if (m_isInitialized)
     {
         return closeFileDescriptor();
     }
 
-    return success<void>();
+    return ok();
 }
 
-expected<IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
+expected<void, IpcChannelError> UnixDomainSocket::send(const std::string& msg) const noexcept
 {
     // we also support timedSend. The setsockopt call sets the timeout for all further sendto calls, so we must set
     // it to 0 to turn the timeout off
     return timedSend(msg, units::Duration::fromSeconds(0ULL));
 }
 
-expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
-                                                      const units::Duration& timeout) const noexcept
+expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
+                                                            const units::Duration& timeout) const noexcept
 {
     if (msg.size() > m_maxMessageSize)
     {
-        return error<IpcChannelError>(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
         IOX_LOG(ERROR) << "sending on server side not supported for unix domain socket \"" << m_name << "\"";
-        return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     auto tv = timeout.timeval();
@@ -231,7 +237,7 @@ expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
 
     if (setsockoptCall.has_error())
     {
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(setsockoptCall.error().errnum));
     }
     auto sendCall = posixCall(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                         .failureReturnValue(ERROR_CODE)
@@ -239,9 +245,9 @@ expected<IpcChannelError> UnixDomainSocket::timedSend(const std::string& msg,
 
     if (sendCall.has_error())
     {
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(sendCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(sendCall.error().errnum));
     }
-    return success<void>();
+    return ok();
 }
 
 expected<std::string, IpcChannelError> UnixDomainSocket::receive() const noexcept
@@ -260,7 +266,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
         IOX_LOG(ERROR) << "receiving on client side not supported for unix domain socket \"" << m_name << "\"";
-        return error<IpcChannelError>(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     auto tv = timeout.timeval();
@@ -271,7 +277,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
 
     if (setsockoptCall.has_error())
     {
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(setsockoptCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(setsockoptCall.error().errnum));
     }
     // NOLINTJUSTIFICATION needed for recvfrom
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -285,19 +291,19 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
 
     if (recvCall.has_error())
     {
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(recvCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(recvCall.error().errnum));
     }
-    return success<std::string>(&message[0]);
+    return ok<std::string>(&message[0]);
 }
 
-expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
+expected<void, IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 {
     // initialize the sockAddr data structure with the provided name
     memset(&m_sockAddr, 0, sizeof(m_sockAddr));
     m_sockAddr.sun_family = AF_LOCAL;
     if (m_name.size() > LONGEST_VALID_NAME)
     {
-        return error<IpcChannelError>(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
     strncpy(&(m_sockAddr.sun_path[0]), m_name.c_str(), m_name.size());
 
@@ -307,7 +313,7 @@ expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
     // NOLINTNEXTLINE(hicpp-signed-bitwise)
     mode_t umaskSaved = umask(S_IXUSR | S_IXGRP | S_IRWXO);
     // Reset to old umask when going out of scope
-    cxx::ScopeGuard umaskGuard([&] { umask(umaskSaved); });
+    ScopeGuard umaskGuard([&] { umask(umaskSaved); });
 
     auto socketCall = posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
                           .failureReturnValue(ERROR_CODE)
@@ -316,7 +322,7 @@ expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 
     if (socketCall.has_error())
     {
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(socketCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(socketCall.error().errnum));
     }
 
     if (IpcChannelSide::SERVER == m_channelSide)
@@ -332,13 +338,13 @@ expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
 
         if (!bindCall.has_error())
         {
-            return success<>();
+            return ok();
         }
         closeFileDescriptor().or_else([](auto) {
             IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(bindCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(bindCall.error().errnum));
     }
     // we use a connected socket, this leads to a behavior closer to the message queue (e.g. error if client
     // is created and server not present)
@@ -356,9 +362,9 @@ expected<IpcChannelError> UnixDomainSocket::initalizeSocket() noexcept
             IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
-        return error<IpcChannelError>(convertErrnoToIpcChannelError(connectCall.get_error().errnum));
+        return err(convertErrnoToIpcChannelError(connectCall.error().errnum));
     }
-    return success<>();
+    return ok();
 }
 
 IpcChannelError UnixDomainSocket::convertErrnoToIpcChannelError(const int32_t errnum) const noexcept

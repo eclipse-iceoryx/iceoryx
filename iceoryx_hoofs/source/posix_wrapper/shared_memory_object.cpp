@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/attributes.hpp"
+#include "iox/logging.hpp"
 
 #include <bitset>
 #include <cstdlib>
@@ -75,27 +75,45 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                        << ", access mode = " << asStringLiteral(m_accessMode)
                        << ", open mode = " << asStringLiteral(m_openMode)
                        << ", baseAddressHint = " << logBaseAddressHint
-                       << ", permissions = " << iox::log::oct(static_cast<mode_t>(m_permissions)) << " ]";
+                       << ", permissions = " << iox::log::oct(m_permissions.value()) << " ]";
     };
 
     auto sharedMemory = SharedMemoryBuilder()
                             .name(m_name)
                             .accessMode(m_accessMode)
                             .openMode(m_openMode)
-                            .filePermissions(m_permissions)
                             .size(m_memorySizeInBytes)
+                            .filePermissions(m_permissions)
                             .create();
 
     if (!sharedMemory)
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
+        return err(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
+    }
+
+    const auto realSizeResult = sharedMemory->get_size();
+    if (!realSizeResult)
+    {
+        printErrorDetails();
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
+                          "underlying object.";
+        return err(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
+    }
+
+    const auto realSize = *realSizeResult;
+    if (realSize < m_memorySizeInBytes)
+    {
+        printErrorDetails();
+        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
+                       << " was requested but the object has only a size of " << realSize;
+        return err(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
     }
 
     auto memoryMap = MemoryMapBuilder()
                          .baseAddressHint((m_baseAddressHint) ? *m_baseAddressHint : nullptr)
-                         .length(m_memorySizeInBytes)
+                         .length(realSize)
                          .fileDescriptor(sharedMemory->getHandle())
                          .accessMode(m_accessMode)
                          .flags(MemoryMapFlags::SHARE_CHANGES)
@@ -106,10 +124,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     {
         printErrorDetails();
         IOX_LOG(ERROR) << "Failed to map created shared memory into process!";
-        return error<SharedMemoryObjectError>(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
+        return err(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
-
-    BumpAllocator allocator(memoryMap->getBaseAddress(), m_memorySizeInBytes);
 
     if (sharedMemory->hasOwnership())
     {
@@ -125,7 +141,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
             {
                 printErrorDetails();
                 IOX_LOG(ERROR) << "Failed to temporarily override SIGBUS to safely zero the shared memory";
-                return error<SharedMemoryObjectError>(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
+                return err(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
             // NOLINTJUSTIFICATION snprintf required to populate char array so that it can be used signal safe in
@@ -136,14 +152,14 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                 SIGBUS_ERROR_MESSAGE_LENGTH,
                 "While setting the acquired shared memory to zero a fatal SIGBUS signal appeared caused by memset. The "
                 "shared memory object with the following properties [ name = %s, sizeInBytes = %llu, access mode = %s, "
-                "open mode = %s, baseAddressHint = %p, permissions = %lu ] maybe requires more memory than it is "
+                "open mode = %s, baseAddressHint = %p, permissions = %u ] maybe requires more memory than it is "
                 "currently available in the system.\n",
                 m_name.c_str(),
                 static_cast<unsigned long long>(m_memorySizeInBytes),
                 asStringLiteral(m_accessMode),
                 asStringLiteral(m_openMode),
                 (m_baseAddressHint) ? *m_baseAddressHint : nullptr,
-                std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_permissions)).to_ulong()));
+                m_permissions.value()));
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
@@ -151,53 +167,13 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                        << "]";
     }
 
-    return success<SharedMemoryObject>(
-        SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap), std::move(allocator), m_memorySizeInBytes));
+    return ok(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
 }
 
-SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory,
-                                       MemoryMap&& memoryMap,
-                                       BumpAllocator&& allocator,
-                                       const uint64_t memorySizeInBytes) noexcept
-    : m_memorySizeInBytes(memorySizeInBytes)
-    , m_sharedMemory(std::move(sharedMemory))
+SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept
+    : m_sharedMemory(std::move(sharedMemory))
     , m_memoryMap(std::move(memoryMap))
-    , m_allocator(std::move(allocator))
 {
-}
-
-cxx::expected<void*, SharedMemoryAllocationError> SharedMemoryObject::allocate(const uint64_t size,
-                                                                               const uint64_t alignment) noexcept
-{
-    if (size == 0)
-    {
-        IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
-        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::REQUESTED_ZERO_SIZED_MEMORY);
-    }
-    if (m_allocationFinalized)
-    {
-        IOX_LOG(WARN) << "allocate() call after finalizeAllocation()! Could not acquire shared memory chunk.";
-        return cxx::error<SharedMemoryAllocationError>(
-            SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION);
-    }
-
-    auto allocationResult = m_allocator.allocate(size, alignment);
-    if (allocationResult.has_error())
-    {
-        IOX_LOG(WARN) << "Not enough space left in shared memory.";
-        return cxx::error<SharedMemoryAllocationError>(SharedMemoryAllocationError::NOT_ENOUGH_MEMORY);
-    }
-    return cxx::success<void*>(allocationResult.value());
-}
-
-void SharedMemoryObject::finalizeAllocation() noexcept
-{
-    m_allocationFinalized = true;
-}
-
-BumpAllocator& SharedMemoryObject::getBumpAllocator() noexcept
-{
-    return m_allocator;
 }
 
 const void* SharedMemoryObject::getBaseAddress() const noexcept
@@ -210,12 +186,12 @@ void* SharedMemoryObject::getBaseAddress() noexcept
     return m_memoryMap.getBaseAddress();
 }
 
-uint64_t SharedMemoryObject::getSizeInBytes() const noexcept
+shm_handle_t SharedMemoryObject::get_file_handle() const noexcept
 {
-    return m_memorySizeInBytes;
+    return m_sharedMemory.getHandle();
 }
 
-int32_t SharedMemoryObject::getFileHandle() const noexcept
+shm_handle_t SharedMemoryObject::getFileHandle() const noexcept
 {
     return m_sharedMemory.getHandle();
 }
@@ -224,7 +200,5 @@ bool SharedMemoryObject::hasOwnership() const noexcept
 {
     return m_sharedMemory.hasOwnership();
 }
-
-
 } // namespace posix
 } // namespace iox

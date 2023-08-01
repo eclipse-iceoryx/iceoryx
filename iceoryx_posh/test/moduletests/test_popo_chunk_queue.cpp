@@ -36,7 +36,7 @@ using namespace iox::popo;
 using namespace iox::mepoo;
 using namespace iox::units::duration_literals;
 
-using iox::cxx::UniqueId;
+using iox::UniqueId;
 
 class ChunkQueue_testBase
 {

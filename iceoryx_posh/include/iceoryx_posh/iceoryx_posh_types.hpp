@@ -18,16 +18,16 @@
 #ifndef IOX_POSH_ICEORYX_POSH_TYPES_HPP
 #define IOX_POSH_ICEORYX_POSH_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/cxx/variant_queue.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/iceoryx_posh_deployment.hpp"
+#include "iox/duration.hpp"
+#include "iox/function.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -99,7 +99,7 @@ constexpr uint32_t MAX_REQUEST_QUEUE_CAPACITY = build::IOX_MAX_REQUEST_QUEUE_CAP
 // Waitset
 namespace popo
 {
-using WaitSetIsConditionSatisfiedCallback = optional<cxx::function<bool()>>;
+using WaitSetIsConditionSatisfiedCallback = optional<function<bool()>>;
 }
 constexpr uint32_t MAX_NUMBER_OF_CONDITION_VARIABLES = build::IOX_MAX_NUMBER_OF_CONDITION_VARIABLES;
 
@@ -172,16 +172,16 @@ enum class ConnectionState : uint32_t
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(ConnectionState value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ConnectionState value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ConnectionState value) noexcept;
 
 // Default properties of ChunkDistributorData

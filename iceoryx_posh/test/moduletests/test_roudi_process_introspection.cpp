@@ -51,25 +51,18 @@ class ProcessIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     ChunkMock<Topic>* createMemoryChunkAndSend(ProcessIntrospectionAccess& sut)
     {
         EXPECT_CALL(sut.getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-            .WillOnce(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-                m_chunk.get()->chunkHeader())));
+            .WillOnce(Return(ByMove(iox::ok(m_chunk.get()->chunkHeader()))));
 
         bool chunkWasSent = false;
         EXPECT_CALL(sut.getPublisherPort().value(), sendChunk(_)).WillOnce(Invoke([&](iox::mepoo::ChunkHeader* const) {
@@ -166,11 +159,13 @@ TEST_F(ProcessIntrospection_test, thread)
 
         introspectionAccess->registerPublisherPort(std::move(m_mockPublisherPortUserIntrospection));
 
+        iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError> tryAllocateChunkResult =
+            iox::ok(m_chunk.get()->chunkHeader());
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), tryAllocateChunk(_, _, _, _))
-            .WillRepeatedly(Return(iox::expected<iox::mepoo::ChunkHeader*, iox::popo::AllocationError>::create_value(
-                m_chunk.get()->chunkHeader())));
+            .WillRepeatedly(Return(tryAllocateChunkResult));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), hasSubscribers()).WillRepeatedly(Return(true));
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), offer()).Times(1);
+        EXPECT_CALL(introspectionAccess->getPublisherPort().value(), stopOffer()).WillRepeatedly(Return());
         EXPECT_CALL(introspectionAccess->getPublisherPort().value(), sendChunk(_)).Times(Between(2, 8));
 
         using namespace iox::units::duration_literals;

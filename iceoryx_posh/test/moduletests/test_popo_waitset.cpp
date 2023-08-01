@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <chrono>
@@ -497,7 +497,7 @@ class WaitSet_test : public Test
 
     template <uint64_t NotificationInfoVectorCapacity, typename EventOrigin>
     static bool doesNotificationInfoVectorContain(
-        const iox::cxx::vector<const NotificationInfo*, NotificationInfoVectorCapacity>& eventInfoVector,
+        const iox::vector<const NotificationInfo*, NotificationInfoVectorCapacity>& eventInfoVector,
         const uint64_t eventId,
         const EventOrigin& origin)
     {
@@ -615,7 +615,7 @@ class WaitSet_test : public Test
 
     const iox::units::Duration m_timeToWait = 2_s;
     Watchdog m_watchdog{m_timeToWait};
-    using eventVector_t = iox::cxx::vector<SimpleEventClass, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1>;
+    using eventVector_t = iox::vector<SimpleEventClass, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1>;
     eventVector_t m_simpleEvents{iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET + 1};
 };
 std::vector<uint64_t> WaitSet_test::SimpleEventClass::m_invalidateTriggerId;
@@ -706,7 +706,7 @@ TEST_F(WaitSet_test, AttachingSameEventTwiceResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
 }
@@ -719,7 +719,7 @@ TEST_F(WaitSet_test, AttachingSameStateTwiceResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
 }
@@ -732,7 +732,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithNonNullIdTwiceResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
     EXPECT_TRUE(m_simpleEvents[0].hasEventSet());
 }
@@ -745,7 +745,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithNonNullIdTwiceResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
     EXPECT_FALSE(m_simpleEvents[0].hasEventSet());
 }
@@ -759,7 +759,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithDifferentIdResultsInError)
     auto result2 = m_sut->attachEvent(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
@@ -771,7 +771,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithDifferentIdResultsInError)
     auto result2 = m_sut->attachState(m_simpleEvents[0], ANOTHER_USER_DEFINED_EVENT_ID);
 
     ASSERT_TRUE(result2.has_error());
-    EXPECT_THAT(result2.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result2.error(), Eq(WaitSetError::ALREADY_ATTACHED));
 }
 
 TEST_F(WaitSet_test, DetachingAttachedEventIsSuccessful)
@@ -918,7 +918,7 @@ TEST_F(WaitSet_test, AttachingSameEventWithEnumFails)
 
     auto result = m_sut->attachEvent(m_simpleEvents[0], SimpleEvent1::EVENT1);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_THAT(SimpleEventClass::m_simpleEvent1, Eq(SimpleEvent1::EVENT1));
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_FALSE(m_simpleEvents[0].hasStateSet());
@@ -970,7 +970,7 @@ TEST_F(WaitSet_test, AttachingSameStateWithEnumFails)
 
     auto result = m_sut->attachState(m_simpleEvents[0], SimpleState1::STATE1);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(WaitSetError::ALREADY_ATTACHED));
+    EXPECT_THAT(result.error(), Eq(WaitSetError::ALREADY_ATTACHED));
     EXPECT_THAT(SimpleEventClass::m_simpleState1, Eq(SimpleState1::STATE1));
     EXPECT_THAT(m_sut->size(), Eq(1U));
     EXPECT_TRUE(m_simpleEvents[0].hasStateSet());
@@ -1164,7 +1164,7 @@ TEST_F(WaitSet_test, WaitBlocksWhenNothingTriggered)
 TEST_F(WaitSet_test, TimedWaitReturnsNothingWhenNothingTriggered)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bf1a8c00-e9c9-43e1-813e-64fd12d4e055");
-    iox::cxx::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
+    iox::vector<expected<TriggerHandle, WaitSetError>*, iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET> trigger;
     for (uint64_t i = 0U; i < iox::MAX_NUMBER_OF_ATTACHMENTS_PER_WAITSET; ++i)
     {
         ASSERT_FALSE(m_sut->attachEvent(m_simpleEvents[i], 5U + i).has_error());

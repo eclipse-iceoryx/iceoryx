@@ -21,7 +21,7 @@ namespace iox
 {
 namespace popo
 {
-PublisherPortRouDi::PublisherPortRouDi(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept
+PublisherPortRouDi::PublisherPortRouDi(not_null<MemberType_t* const> publisherPortDataPtr) noexcept
     : BasePort(publisherPortDataPtr)
     , m_chunkSender(&getMembers()->m_chunkSenderData)
 {

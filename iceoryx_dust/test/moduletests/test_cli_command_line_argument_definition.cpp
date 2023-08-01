@@ -16,10 +16,12 @@
 
 #include "iceoryx_dust/cli/command_line_argument_definition.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
 
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -41,16 +43,21 @@ class CommandLineArgumentDefinition_test : public Test
     {
         // if we do not capture stdout then the console is filled with garbage
         // since the command line parser prints the help on failure
-        ::testing::internal::CaptureStdout();
+        outputBuffer.emplace();
     }
     void TearDown() override
     {
-        std::string output = ::testing::internal::GetCapturedStdout();
         if (Test::HasFailure())
         {
+            auto output = outputBuffer->output();
+            outputBuffer.reset();
+            std::cout << "#### Captured output start ####" << std::endl;
             std::cout << output << std::endl;
+            std::cout << "#### Captured output stop ####" << std::endl;
         }
     }
+
+    optional<OutBuffer> outputBuffer;
 };
 
 struct CommandLineArgumentDefinitionSut

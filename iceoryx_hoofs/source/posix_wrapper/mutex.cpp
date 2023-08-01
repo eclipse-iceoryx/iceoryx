@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/scheduler.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_platform/platform_correction.hpp"
 
@@ -50,28 +50,28 @@ struct MutexAttributes
         }
     }
 
-    expected<MutexCreationError> init() noexcept
+    expected<void, MutexCreationError> init() noexcept
     {
         m_attributes.emplace();
         auto result = posixCall(pthread_mutexattr_init)(&*m_attributes).returnValueMatchesErrno().evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOMEM:
                 IOX_LOG(ERROR) << "Not enough memory to initialize required mutex attributes";
-                return error<MutexCreationError>(MutexCreationError::INSUFFICIENT_MEMORY);
+                return err(MutexCreationError::INSUFFICIENT_MEMORY);
             default:
                 IOX_LOG(ERROR)
                     << "This should never happen. An unknown error occurred while initializing the mutex attributes.";
-                return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+                return err(MutexCreationError::UNKNOWN_ERROR);
             }
         }
 
-        return success<>();
+        return ok();
     }
 
-    expected<MutexCreationError> enableIpcSupport(const bool enableIpcSupport) noexcept
+    expected<void, MutexCreationError> enableIpcSupport(const bool enableIpcSupport) noexcept
     {
         auto result =
             posixCall(pthread_mutexattr_setpshared)(
@@ -80,23 +80,23 @@ struct MutexAttributes
                 .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOTSUP:
                 IOX_LOG(ERROR) << "The platform does not support shared mutex (inter process mutex)";
-                return error<MutexCreationError>(MutexCreationError::INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM);
+                return err(MutexCreationError::INTER_PROCESS_MUTEX_UNSUPPORTED_BY_PLATFORM);
             default:
                 IOX_LOG(ERROR)
                     << "This should never happen. An unknown error occurred while setting up the inter process "
                        "configuration.";
-                return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+                return err(MutexCreationError::UNKNOWN_ERROR);
             }
         }
 
-        return success<>();
+        return ok();
     }
 
-    expected<MutexCreationError> setType(const MutexType mutexType) noexcept
+    expected<void, MutexCreationError> setType(const MutexType mutexType) noexcept
     {
         auto result = posixCall(pthread_mutexattr_settype)(&*m_attributes, static_cast<int>(mutexType))
                           .returnValueMatchesErrno()
@@ -104,55 +104,55 @@ struct MutexAttributes
         if (result.has_error())
         {
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while setting up the mutex type.";
-            return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+            return err(MutexCreationError::UNKNOWN_ERROR);
         }
 
-        return success<>();
+        return ok();
     }
 
-    expected<MutexCreationError> setProtocol(const MutexPriorityInheritance priorityInheritance)
+    expected<void, MutexCreationError> setProtocol(const MutexPriorityInheritance priorityInheritance)
     {
         auto result = posixCall(pthread_mutexattr_setprotocol)(&*m_attributes, static_cast<int>(priorityInheritance))
                           .returnValueMatchesErrno()
                           .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case ENOSYS:
                 IOX_LOG(ERROR) << "The system does not support mutex priorities";
-                return error<MutexCreationError>(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
+                return err(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case ENOTSUP:
                 IOX_LOG(ERROR) << "The used mutex priority is not supported by the platform";
-                return error<MutexCreationError>(MutexCreationError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
+                return err(MutexCreationError::USED_PRIORITY_UNSUPPORTED_BY_PLATFORM);
             case EPERM:
                 IOX_LOG(ERROR) << "Insufficient permissions to set mutex priorities";
-                return error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
+                return err(MutexCreationError::PERMISSION_DENIED);
             default:
                 IOX_LOG(ERROR)
                     << "This should never happen. An unknown error occurred while setting up the mutex priority.";
-                return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+                return err(MutexCreationError::UNKNOWN_ERROR);
             }
         }
 
-        return success<>();
+        return ok();
     }
 
-    expected<MutexCreationError> setPrioCeiling(const int32_t priorityCeiling) noexcept
+    expected<void, MutexCreationError> setPrioCeiling(const int32_t priorityCeiling) noexcept
     {
         auto result = posixCall(pthread_mutexattr_setprioceiling)(&*m_attributes, static_cast<int>(priorityCeiling))
                           .returnValueMatchesErrno()
                           .evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case EPERM:
                 IOX_LOG(ERROR) << "Insufficient permissions to set the mutex priority ceiling.";
-                return error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
+                return err(MutexCreationError::PERMISSION_DENIED);
             case ENOSYS:
                 IOX_LOG(ERROR) << "The platform does not support mutex priority ceiling.";
-                return error<MutexCreationError>(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
+                return err(MutexCreationError::PRIORITIES_UNSUPPORTED_BY_PLATFORM);
             case EINVAL:
             {
                 auto minimumPriority = getSchedulerPriorityMinimum(Scheduler::FIFO);
@@ -161,15 +161,16 @@ struct MutexAttributes
                 IOX_LOG(ERROR) << "The priority ceiling \"" << priorityCeiling
                                << "\" is not in the valid priority range [ " << minimumPriority << ", "
                                << maximumPriority << "] of the Scheduler::FIFO.";
-                return error<MutexCreationError>(MutexCreationError::INVALID_PRIORITY_CEILING_VALUE);
+                return err(MutexCreationError::INVALID_PRIORITY_CEILING_VALUE);
             }
             }
         }
 
-        return success<>();
+        return ok();
     }
 
-    expected<MutexCreationError> setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
+    expected<void, MutexCreationError>
+    setThreadTerminationBehavior(const MutexThreadTerminationBehavior behavior) noexcept
     {
         auto result = posixCall(pthread_mutexattr_setrobust)(&*m_attributes, static_cast<int>(behavior))
                           .returnValueMatchesErrno()
@@ -178,49 +179,49 @@ struct MutexAttributes
         {
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while setting up the mutex thread "
                               "termination behavior.";
-            return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+            return err(MutexCreationError::UNKNOWN_ERROR);
         }
 
-        return success<>();
+        return ok();
     }
 
     optional<pthread_mutexattr_t> m_attributes;
 };
 
-expected<MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
-                                             const pthread_mutexattr_t* const attributes) noexcept
+expected<void, MutexCreationError> initializeMutex(pthread_mutex_t* const handle,
+                                                   const pthread_mutexattr_t* const attributes) noexcept
 {
     auto initResult = posixCall(pthread_mutex_init)(handle, attributes).returnValueMatchesErrno().evaluate();
     if (initResult.has_error())
     {
-        switch (initResult.get_error().errnum)
+        switch (initResult.error().errnum)
         {
         case EAGAIN:
             IOX_LOG(ERROR) << "Not enough resources to initialize another mutex.";
-            return error<MutexCreationError>(MutexCreationError::INSUFFICIENT_RESOURCES);
+            return err(MutexCreationError::INSUFFICIENT_RESOURCES);
         case ENOMEM:
             IOX_LOG(ERROR) << "Not enough memory to initialize mutex.";
-            return error<MutexCreationError>(MutexCreationError::INSUFFICIENT_MEMORY);
+            return err(MutexCreationError::INSUFFICIENT_MEMORY);
         case EPERM:
             IOX_LOG(ERROR) << "Insufficient permissions to create mutex.";
-            return error<MutexCreationError>(MutexCreationError::PERMISSION_DENIED);
+            return err(MutexCreationError::PERMISSION_DENIED);
         default:
             IOX_LOG(ERROR)
                 << "This should never happen. An unknown error occurred while initializing the mutex handle. "
                    "This is possible when the handle is an already initialized mutex handle.";
-            return error<MutexCreationError>(MutexCreationError::UNKNOWN_ERROR);
+            return err(MutexCreationError::UNKNOWN_ERROR);
         }
     }
 
-    return success<>();
+    return ok();
 }
 
-expected<MutexCreationError> MutexBuilder::create(optional<mutex>& uninitializedMutex) noexcept
+expected<void, MutexCreationError> MutexBuilder::create(optional<mutex>& uninitializedMutex) noexcept
 {
     if (uninitializedMutex.has_value())
     {
         IOX_LOG(ERROR) << "Unable to override an already initialized mutex with a new mutex";
-        return error<MutexCreationError>(MutexCreationError::MUTEX_ALREADY_INITIALIZED);
+        return err(MutexCreationError::MUTEX_ALREADY_INITIALIZED);
     }
 
     MutexAttributes mutexAttributes;
@@ -275,7 +276,7 @@ expected<MutexCreationError> MutexBuilder::create(optional<mutex>& uninitialized
     }
 
     uninitializedMutex->m_isDestructable = true;
-    return success<>();
+    return ok();
 }
 
 /// @todo iox-#1036 remove this, introduced to keep current API temporarily
@@ -313,7 +314,7 @@ mutex::~mutex() noexcept
 
         if (destroyCall.has_error())
         {
-            switch (destroyCall.get_error().errnum)
+            switch (destroyCall.error().errnum)
             {
             case EBUSY:
                 IOX_LOG(ERROR) << "Tried to remove a locked mutex which failed. The mutex handle is now leaked and "
@@ -341,58 +342,58 @@ void mutex::make_consistent() noexcept
     }
 }
 
-expected<MutexLockError> mutex::lock() noexcept
+expected<void, MutexLockError> mutex::lock() noexcept
 {
     auto result = posixCall(pthread_mutex_lock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EINVAL:
             IOX_LOG(ERROR)
                 << "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
                    "priority is greater than the mutex priority.";
-            return error<MutexLockError>(MutexLockError::PRIORITY_MISMATCH);
+            return err(MutexLockError::PRIORITY_MISMATCH);
         case EAGAIN:
             IOX_LOG(ERROR) << "Maximum number of recursive locks exceeded.";
-            return error<MutexLockError>(MutexLockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
+            return err(MutexLockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
         case EDEADLK:
             IOX_LOG(ERROR) << "Deadlock in mutex detected.";
-            return error<MutexLockError>(MutexLockError::DEADLOCK_CONDITION);
+            return err(MutexLockError::DEADLOCK_CONDITION);
         case EOWNERDEAD:
             IOX_LOG(ERROR)
                 << "The thread/process which owned the mutex died. The mutex is now in an inconsistent state "
                    "and must be put into a consistent state again with Mutex::make_consistent()";
             this->m_hasInconsistentState = true;
-            return error<MutexLockError>(MutexLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
+            return err(MutexLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while locking the mutex. "
                               "This can indicate a either corrupted or non-POSIX compliant system.";
-            return error<MutexLockError>(MutexLockError::UNKNOWN_ERROR);
+            return err(MutexLockError::UNKNOWN_ERROR);
         }
     }
-    return success<>();
+    return ok();
 }
 
-expected<MutexUnlockError> mutex::unlock() noexcept
+expected<void, MutexUnlockError> mutex::unlock() noexcept
 {
     auto result = posixCall(pthread_mutex_unlock)(&m_handle).returnValueMatchesErrno().evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EPERM:
             IOX_LOG(ERROR) << "The mutex is not owned by the current thread. The mutex must be unlocked by the same "
                               "thread it was locked by.";
-            return error<MutexUnlockError>(MutexUnlockError::NOT_OWNED_BY_THREAD);
+            return err(MutexUnlockError::NOT_OWNED_BY_THREAD);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while unlocking the mutex. "
                               "This can indicate a either corrupted or non-POSIX compliant system.";
-            return error<MutexUnlockError>(MutexUnlockError::UNKNOWN_ERROR);
+            return err(MutexUnlockError::UNKNOWN_ERROR);
         }
     }
 
-    return success<>();
+    return ok();
 }
 
 expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
@@ -401,32 +402,30 @@ expected<MutexTryLock, MutexTryLockError> mutex::try_lock() noexcept
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EAGAIN:
             IOX_LOG(ERROR) << "Maximum number of recursive locks exceeded.";
-            return error<MutexTryLockError>(MutexTryLockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
+            return err(MutexTryLockError::MAXIMUM_NUMBER_OF_RECURSIVE_LOCKS_EXCEEDED);
         case EINVAL:
             IOX_LOG(ERROR)
                 << "The mutex has the attribute MutexPriorityInheritance::PROTECT set and the calling threads "
                    "priority is greater than the mutex priority.";
-            return error<MutexTryLockError>(MutexTryLockError::PRIORITY_MISMATCH);
+            return err(MutexTryLockError::PRIORITY_MISMATCH);
         case EOWNERDEAD:
             IOX_LOG(ERROR)
                 << "The thread/process which owned the mutex died. The mutex is now in an inconsistent state "
                    "and must be put into a consistent state again with Mutex::make_consistent()";
             this->m_hasInconsistentState = true;
-            return error<MutexTryLockError>(
-                MutexTryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
+            return err(MutexTryLockError::LOCK_ACQUIRED_BUT_HAS_INCONSISTENT_STATE_SINCE_OWNER_DIED);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while trying to lock the mutex. "
                               "This can indicate a either corrupted or non-POSIX compliant system.";
-            return error<MutexTryLockError>(MutexTryLockError::UNKNOWN_ERROR);
+            return err(MutexTryLockError::UNKNOWN_ERROR);
         }
     }
 
-    return (result->errnum == EBUSY) ? success<MutexTryLock>(MutexTryLock::FAILED_TO_ACQUIRE_LOCK)
-                                     : success<MutexTryLock>(MutexTryLock::LOCK_SUCCEEDED);
+    return (result->errnum == EBUSY) ? ok(MutexTryLock::FAILED_TO_ACQUIRE_LOCK) : ok(MutexTryLock::LOCK_SUCCEEDED);
 }
 } // namespace posix
 } // namespace iox

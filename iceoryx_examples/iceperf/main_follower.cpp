@@ -16,7 +16,7 @@
 
 #include "iceperf_follower.hpp"
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_platform/getopt.hpp"
 
 #include <iostream>

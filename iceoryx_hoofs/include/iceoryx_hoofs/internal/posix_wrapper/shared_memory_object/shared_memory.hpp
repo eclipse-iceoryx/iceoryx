@@ -17,10 +17,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/file_management_interface.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
@@ -47,14 +48,18 @@ enum class SharedMemoryError
     NO_FILE_RESIZE_SUPPORT,
     NO_RESIZE_SUPPORT,
     INVALID_FILEDESCRIPTOR,
+    INCOMPATIBLE_OPEN_AND_ACCESS_MODE,
     UNKNOWN_ERROR
 };
+
+/// @brief Shared memory file descriptor type
+using shm_handle_t = int;
 
 /// @brief Creates a bare metal shared memory object with the posix functions
 ///        shm_open, shm_unlink etc.
 ///        It must be used in combination with MemoryMap (or manual mmap calls)
 ///        to gain access to the created/opened shared memory
-class SharedMemory
+class SharedMemory : public FileManagementInterface<SharedMemory>
 {
   public:
     static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
@@ -68,7 +73,7 @@ class SharedMemory
     ~SharedMemory() noexcept;
 
     /// @brief returns the file handle of the shared memory
-    int32_t getHandle() const noexcept;
+    shm_handle_t getHandle() const noexcept;
 
     /// @brief this class has the ownership of the shared memory when the shared
     ///        memory was created by this class. This is the case when this class
@@ -86,7 +91,7 @@ class SharedMemory
     friend class SharedMemoryBuilder;
 
   private:
-    SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept;
+    SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept;
 
     bool unlink() noexcept;
     bool close() noexcept;
@@ -95,8 +100,11 @@ class SharedMemory
 
     static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
+    friend struct FileManagementInterface<SharedMemory>;
+    shm_handle_t get_file_handle() const noexcept;
+
     Name_t m_name;
-    int m_handle{INVALID_HANDLE};
+    shm_handle_t m_handle{INVALID_HANDLE};
     bool m_hasOwnership{false};
 };
 
@@ -115,7 +123,7 @@ class SharedMemoryBuilder
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(cxx::perms, filePermissions, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(access_rights, filePermissions, perms::none)
 
     /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, size, 0U)

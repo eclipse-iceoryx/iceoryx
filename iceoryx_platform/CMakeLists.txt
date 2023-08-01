@@ -44,6 +44,8 @@ elseif(WIN32)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/win/)
 elseif(UNIX)
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
+elseif(FREERTOS)
+    set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/freertos/)
 else()
     set(ICEORYX_PLATFORM ${CMAKE_CURRENT_SOURCE_DIR}/unix/)
     message(WARNING "Could not detect supported platform, but I'm feeling lucky today. Maybe its Unix." )
@@ -69,6 +71,7 @@ iox_add_library(
     PUBLIC_LIBS_LINUX           rt pthread
     PUBLIC_LIBS_UNIX            rt pthread
     PRIVATE_LIBS_QNX            socket
+    PUBLIC_LIBS_FREERTOS        freertos_sdk::FreeRTOS_POSIX
     BUILD_INTERFACE             ${ICEORYX_PLATFORM}/include/
     INSTALL_INTERFACE           include/${PREFIX}
     FILES                       ${ICEORYX_PLATFORM_FILES}

@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_NOTIFIER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CONDITION_NOTIFIER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 
 namespace iox

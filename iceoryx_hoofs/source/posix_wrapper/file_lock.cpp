@@ -15,14 +15,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/file_lock.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/logging.hpp"
 
 #include "iceoryx_platform/platform_correction.hpp"
 
@@ -36,21 +35,21 @@ constexpr const char FileLock::LOCK_FILE_SUFFIX[];
 
 expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 {
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the name \"" << m_name << "\" is not a valid file name.";
-        return error<FileLockError>(FileLockError::INVALID_FILE_NAME);
+        return err(FileLockError::INVALID_FILE_NAME);
     }
 
-    if (!cxx::isValidPathToDirectory(m_path))
+    if (!isValidPathToDirectory(m_path))
     {
         IOX_LOG(ERROR) << "Unable to create FileLock since the path \"" << m_path << "\" is not a valid path.";
-        return error<FileLockError>(FileLockError::INVALID_PATH);
+        return err(FileLockError::INVALID_PATH);
     }
 
     FileLock::FilePath_t fileLockPath = m_path;
 
-    if (!cxx::doesEndWithPathSeparator(fileLockPath))
+    if (!doesEndWithPathSeparator(fileLockPath))
     {
         fileLockPath.unsafe_append(iox::platform::IOX_PATH_SEPARATORS[0]);
     }
@@ -58,15 +57,15 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
     fileLockPath.unsafe_append(m_name);
     fileLockPath.unsafe_append(FileLock::LOCK_FILE_SUFFIX);
 
-    auto openCall = posixCall(iox_open)(fileLockPath.c_str(),
-                                        convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
-                                        static_cast<mode_t>(m_permission))
+    auto openCall = posixCall(iox_ext_open)(fileLockPath.c_str(),
+                                            convertToOflags(AccessMode::READ_ONLY, OpenMode::OPEN_OR_CREATE),
+                                            m_permission.value())
                         .failureReturnValue(-1)
                         .evaluate();
 
     if (openCall.has_error())
     {
-        return error<FileLockError>(FileLock::convertErrnoToFileLockError(openCall.get_error().errnum, fileLockPath));
+        return err(FileLock::convertErrnoToFileLockError(openCall.error().errnum, fileLockPath));
     }
 
     auto fileDescriptor = openCall.value().value;
@@ -77,17 +76,17 @@ expected<FileLock, FileLockError> FileLockBuilder::create() noexcept
 
     if (lockCall.has_error())
     {
-        posixCall(iox_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(iox_ext_close)(fileDescriptor).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, fileLockPath));
             IOX_LOG(ERROR) << "Unable to close file lock \"" << fileLockPath
                            << "\" in error related cleanup during initialization.";
         });
 
-        //  possible errors in iox_close() are masked and we inform the user about the actual error
-        return error<FileLockError>(FileLock::convertErrnoToFileLockError(lockCall.get_error().errnum, fileLockPath));
+        //  possible errors in iox_ext_close() are masked and we inform the user about the actual error
+        return err(FileLock::convertErrnoToFileLockError(lockCall.error().errnum, fileLockPath));
     }
 
-    return success<FileLock>(FileLock(fileDescriptor, fileLockPath));
+    return ok(FileLock(fileDescriptor, fileLockPath));
 }
 
 FileLock::FileLock(const int32_t fileDescriptor, const FilePath_t& path) noexcept
@@ -128,7 +127,7 @@ FileLock::~FileLock() noexcept
     }
 }
 
-expected<FileLockError> FileLock::closeFileDescriptor() noexcept
+expected<void, FileLockError> FileLock::closeFileDescriptor() noexcept
 {
     if (m_fd != INVALID_FD)
     {
@@ -143,7 +142,7 @@ expected<FileLockError> FileLock::closeFileDescriptor() noexcept
                 IOX_LOG(ERROR) << "Unable to unlock the file lock \"" << m_fileLockPath << "\"";
             });
 
-        posixCall(iox_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
+        posixCall(iox_ext_close)(m_fd).failureReturnValue(-1).evaluate().or_else([&](auto& result) {
             cleanupFailed = true;
             IOX_DISCARD_RESULT(FileLock::convertErrnoToFileLockError(result.errnum, m_fileLockPath));
             IOX_LOG(ERROR) << "Unable to close the file handle to the file lock \"" << m_fileLockPath << "\"";
@@ -157,10 +156,10 @@ expected<FileLockError> FileLock::closeFileDescriptor() noexcept
 
         if (cleanupFailed)
         {
-            return error<FileLockError>(FileLockError::INTERNAL_LOGIC_ERROR);
+            return err(FileLockError::INTERNAL_LOGIC_ERROR);
         }
     }
-    return success<>();
+    return ok();
 }
 
 void FileLock::invalidate() noexcept

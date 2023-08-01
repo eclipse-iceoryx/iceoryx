@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,26 +43,27 @@ inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher
 
 template <typename T, typename H, typename BasePublisherType>
 template <typename Callable, typename... ArgTypes>
-inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c,
-                                                                                         ArgTypes... args) noexcept
+inline expected<void, AllocationError>
+PublisherImpl<T, H, BasePublisherType>::publishResultOf(Callable c, ArgTypes... args) noexcept
 {
-    static_assert(cxx::is_invocable<Callable, T*, ArgTypes...>::value,
+    static_assert(is_invocable<Callable, T*, ArgTypes...>::value,
                   "Publisher<T>::publishResultOf expects a valid callable with a specific signature as the "
                   "first argument");
-    static_assert(cxx::is_invocable_r<void, Callable, T*, ArgTypes...>::value,
+    static_assert(is_invocable_r<void, Callable, T*, ArgTypes...>::value,
                   "callable provided to Publisher<T>::publishResultOf must have signature void(T*, ArgsTypes...)");
 
     return loanSample().and_then([&](auto& sample) {
-        c(sample.get(), std::forward<ArgTypes>(args)...);
+        c(new (sample.get()) T, std::forward<ArgTypes>(args)...);
         sample.publish();
     });
 }
 
 template <typename T, typename H, typename BasePublisherType>
-inline expected<AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
+inline expected<void, AllocationError> PublisherImpl<T, H, BasePublisherType>::publishCopyOf(const T& val) noexcept
 {
     return loanSample().and_then([&](auto& sample) {
-        *sample.get() = val; // Copy assignment of value into sample's memory allocation.
+        new (sample.get()) T(val); // Placement new copy-construction of sample, avoid copy-assigment because there
+                                   // might not be an existing instance of T in the sample memory
         sample.publish();
     });
 }
@@ -74,11 +76,11 @@ inline expected<Sample<T, H>, AllocationError> PublisherImpl<T, H, BasePublisher
     auto result = port().tryAllocateChunk(sizeof(T), alignof(T), USER_HEADER_SIZE, alignof(H));
     if (result.has_error())
     {
-        return error<AllocationError>(result.get_error());
+        return err(result.error());
     }
     else
     {
-        return success<Sample<T, H>>(convertChunkHeaderToSample(result.value()));
+        return ok(convertChunkHeaderToSample(result.value()));
     }
 }
 

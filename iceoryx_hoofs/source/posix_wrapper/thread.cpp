@@ -15,14 +15,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
 namespace posix
 {
-void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
+void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
 {
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through iox::string
@@ -32,7 +32,7 @@ void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept
     });
 }
 
-ThreadName_t getThreadName(iox_pthread_t thread) noexcept
+ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
 {
     // NOLINTJUSTIFICATION required as name buffer for iox_pthread_getname_np
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -51,8 +51,8 @@ ThreadName_t getThreadName(iox_pthread_t thread) noexcept
     return ThreadName_t(TruncateToCapacity, &tempName[0]);
 }
 
-expected<ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThread,
-                                            const Thread::callable_t& callable) noexcept
+expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThread,
+                                                  const Thread::callable_t& callable) noexcept
 {
     uninitializedThread.emplace(m_name, callable);
 
@@ -63,14 +63,14 @@ expected<ThreadError> ThreadBuilder::create(optional<Thread>& uninitializedThrea
             &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
             .successReturnValue(0)
             .evaluate();
-    uninitializedThread->m_isThreadConstructed = !createResult.has_error();
+    uninitializedThread->m_isThreadConstructed = createResult.has_value();
     if (!uninitializedThread->m_isThreadConstructed)
     {
         uninitializedThread.reset();
-        return error<ThreadError>(Thread::errnoToEnum(createResult.get_error().errnum));
+        return err(Thread::errnoToEnum(createResult.error().errnum));
     }
 
-    return success<>();
+    return ok();
 }
 
 Thread::Thread(const ThreadName_t& name, const callable_t& callable) noexcept
@@ -88,7 +88,7 @@ Thread::~Thread() noexcept
         auto joinResult = posixCall(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
-            switch (joinResult.get_error().errnum)
+            switch (joinResult.error().errnum)
             {
             case EDEADLK:
                 IOX_LOG(ERROR) << "A deadlock was detected when attempting to join the thread.";

@@ -17,8 +17,10 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iox/string.hpp"
@@ -30,6 +32,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox::testing;
 
 using namespace iox::capro;
 
@@ -129,7 +132,8 @@ TEST_F(ServiceDescription_test, ClassHashSubsriptOperatorOutOfBoundsFails)
     testHash[2] = 3U;
     testHash[3] = 4U;
 
-    EXPECT_DEATH({ testHash[4] = 5U; }, ".*");
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { testHash[4] = 5U; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 /// END CLASSHASH TESTS
@@ -200,7 +204,7 @@ TEST_F(ServiceDescription_test,
     auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
     ASSERT_TRUE(deserializationResult.has_error());
-    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
+    EXPECT_THAT(deserializationResult.error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 /// @attention The purpose of the Serialization is not to be an alternative Constructor. It is intended to send/receive
@@ -229,7 +233,7 @@ TEST_F(ServiceDescription_test,
     auto deserializationResult = ServiceDescription::deserialize(serialObj);
 
     ASSERT_TRUE(deserializationResult.has_error());
-    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
+    EXPECT_THAT(deserializationResult.error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyStringLeadsToInvalidDeserialization)
@@ -241,7 +245,7 @@ TEST_F(ServiceDescription_test, ServiceDescriptionObjectInitialisationWithEmptyS
     auto deserializationResult = ServiceDescription::deserialize(invalidSerialObj);
 
     ASSERT_TRUE(deserializationResult.has_error());
-    EXPECT_THAT(deserializationResult.get_error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
+    EXPECT_THAT(deserializationResult.error(), Eq(iox::cxx::Serialization::Error::DESERIALIZATION_FAILED));
 }
 
 TEST_F(ServiceDescription_test, ServiceDescriptionDefaultCtorInitializesStringsToEmptyString)

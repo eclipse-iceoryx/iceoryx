@@ -1,5 +1,5 @@
 # Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
-# Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -51,6 +51,20 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
+                                ${PROJECT_SOURCE_DIR}/utility/include
+                                ${PROJECT_SOURCE_DIR}/primitives/include
+                                ${PROJECT_SOURCE_DIR}/design/include
+                                ${PROJECT_SOURCE_DIR}/time/include
+                                ${PROJECT_SOURCE_DIR}/buffer/include
+                                ${PROJECT_SOURCE_DIR}/filesystem/include
+                                ${PROJECT_SOURCE_DIR}/functional/include
+                                ${PROJECT_SOURCE_DIR}/reporting/include
+
+                                ${PROJECT_SOURCE_DIR}/posix/design/include
+                                ${PROJECT_SOURCE_DIR}/posix/filesystem/include
+                                ${PROJECT_SOURCE_DIR}/posix/time/include
+                                ${PROJECT_SOURCE_DIR}/posix/vocabulary/include
+
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
@@ -58,20 +72,32 @@ iox_add_library(
                                 memory/include/
                                 container/include/
                                 vocabulary/include/
+                                utility/include/
+                                primitives/include/
+                                design/include/
+                                time/include/
+                                buffer/include/
+                                filesystem/include/
+                                functional/include/
+                                reporting/include/
+
+                                posix/design/include/
+                                posix/filesystem/include/
+                                posix/time/include/
+                                posix/vocabulary/include/
     FILES
+        design/source/functional_interface.cpp
+        filesystem/source/filesystem.cpp
+        memory/source/bump_allocator.cpp
+        memory/source/memory.cpp
+        memory/source/relative_pointer_data.cpp
+        primitives/source/type_traits.cpp
+        reporting/source/log/building_blocks/console_logger.cpp
+        reporting/source/log/building_blocks/logger.cpp
         source/concurrent/loffli.cpp
-        source/cxx/adaptive_wait.cpp
-        source/cxx/deadline_timer.cpp
-        source/cxx/filesystem.cpp
-        source/cxx/functional_interface.cpp
-        source/cxx/helplets.cpp
         source/cxx/requires.cpp
-        source/cxx/type_traits.cpp
-        source/cxx/unique_id.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/log/building_blocks/console_logger.cpp
-        source/log/building_blocks/logger.cpp
         source/posix_wrapper/access_control.cpp
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp
@@ -88,9 +114,19 @@ iox_add_library(
         source/posix_wrapper/types.cpp
         source/posix_wrapper/unnamed_semaphore.cpp
         source/posix_wrapper/unix_domain_socket.cpp
-        source/memory/relative_pointer_data.cpp
-        source/units/duration.cpp
-        memory/source/bump_allocator.cpp
+        source/error_reporting/custom/default/default_error_handler.cpp
+        time/source/duration.cpp
+        utility/source/unique_id.cpp
+
+        posix/design/source/file_management_interface.cpp
+        posix/filesystem/source/file.cpp
+        posix/time/source/adaptive_wait.cpp
+        posix/time/source/deadline_timer.cpp
+        posix/vocabulary/source/file_name.cpp
+        posix/vocabulary/source/file_path.cpp
+        posix/vocabulary/source/group_name.cpp
+        posix/vocabulary/source/path.cpp
+        posix/vocabulary/source/user_name.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"

@@ -20,8 +20,8 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
-
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
+#include "iox/memory.hpp"
 
 #if defined(QNX) || defined(QNX__) || defined(__QNX__)
 #include <malloc.h>
@@ -46,8 +46,8 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
             createMemoryMock(size, alignment);
         }
 
-        dummyMemory = static_cast<uint8_t*>(iox::cxx::alignedAlloc(alignment, size));
-        return iox::success<void*>(dummyMemory);
+        dummyMemory = iox::alignedAlloc(alignment, size);
+        return iox::ok(dummyMemory);
     }
 #ifdef __clang__
 #pragma GCC diagnostic push
@@ -58,17 +58,17 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
 #pragma GCC diagnostic pop
 #endif
 
-    iox::expected<iox::roudi::MemoryProviderError> destroyMemory() noexcept override
+    iox::expected<void, iox::roudi::MemoryProviderError> destroyMemory() noexcept override
     {
         if (m_mockCallsEnabled)
         {
             destroyMemoryMock();
         }
 
-        iox::cxx::alignedFree(dummyMemory);
+        iox::alignedFree(dummyMemory);
         dummyMemory = nullptr;
 
-        return iox::success<void>();
+        return iox::ok();
     }
 #ifdef __clang__
 #pragma GCC diagnostic push
@@ -79,7 +79,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
 #pragma GCC diagnostic pop
 #endif
 
-    uint8_t* dummyMemory{nullptr};
+    void* dummyMemory{nullptr};
 
   protected:
     bool m_mockCallsEnabled{false};

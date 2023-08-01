@@ -17,13 +17,14 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/algorithm.hpp"
 #include "iox/expected.hpp"
+#include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 #include <initializer_list>
@@ -64,7 +65,8 @@ enum class Interfaces : uint16_t
     INTERFACE_END
 };
 
-constexpr const char* INTERFACE_NAMES[] = {"INTERNAL", "ESOC", "SOMEIP", "AMQP", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
+constexpr const char* INTERFACE_NAMES[] = {
+    "INTERNAL", "ESOC", "SOMEIP", "AMQP", "MQTT", "DDS", "SIGNAL", "MTA", "ROS1", "END"};
 
 /// @brief Scope of a service description
 enum class Scope : uint16_t
@@ -86,8 +88,8 @@ class ServiceDescription
     {
         ClassHash() noexcept;
         ClassHash(const std::initializer_list<uint32_t>& values) noexcept;
-        uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept;
-        const uint32_t& operator[](iox::cxx::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept;
+        uint32_t& operator[](iox::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept;
+        const uint32_t& operator[](iox::range<uint64_t, 0, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept;
         bool operator==(const ClassHash& rhs) const noexcept;
         bool operator!=(const ClassHash& rhs) const noexcept;
 
@@ -179,16 +181,16 @@ class ServiceDescription
 /// @return                                 Bool if comparison match or not
 bool serviceMatch(const ServiceDescription& first, const ServiceDescription& second) noexcept;
 
-/// @brief Convenience stream operator to easily use the `ServiceDescription` with std::ostream
+/// @brief Convenience stream operator to easily use the 'ServiceDescription' with std::ostream
 /// @param[in] stream output stream to write the message to
 /// @param[in] service ServiceDescription that shall be converted
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 std::ostream& operator<<(std::ostream& stream, const ServiceDescription& service) noexcept;
 
-/// @brief Convenience stream operator to easily use the `ServiceDescription` with log::LogStream
+/// @brief Convenience stream operator to easily use the 'ServiceDescription' with log::LogStream
 /// @param[in] stream output LogStream to write the message to
 /// @param[in] service ServiceDescription that shall be converted
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 log::LogStream& operator<<(log::LogStream& stream, const ServiceDescription& service) noexcept;
 
 } // namespace capro

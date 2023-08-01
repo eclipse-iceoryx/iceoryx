@@ -19,6 +19,7 @@
 
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_roudi.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -33,7 +34,7 @@ class SubscriberPortMultiProducer : public SubscriberPortRouDi
   public:
     using MemberType_t = SubscriberPortData;
 
-    explicit SubscriberPortMultiProducer(cxx::not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
+    explicit SubscriberPortMultiProducer(not_null<MemberType_t* const> publisherPortDataPtr) noexcept;
 
     SubscriberPortMultiProducer(const SubscriberPortMultiProducer& other) = delete;
     SubscriberPortMultiProducer& operator=(const SubscriberPortMultiProducer&) = delete;

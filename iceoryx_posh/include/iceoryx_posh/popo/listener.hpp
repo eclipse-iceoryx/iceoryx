@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_LISTENER_HPP
 #define IOX_POSH_POPO_LISTENER_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/loffli.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/popo/trigger_handle.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/expected.hpp"
+#include "iox/function.hpp"
 
 #include <thread>
 
@@ -50,7 +50,7 @@ class Event_t
               const uint64_t eventTypeHash,
               internal::GenericCallbackRef_t callback,
               internal::TranslationCallbackRef_t translationCallback,
-              const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
+              const function<void(uint64_t)> invalidationCallback) noexcept;
     void executeCallback() noexcept;
     bool isInitialized() const noexcept;
 
@@ -66,7 +66,7 @@ class Event_t
     void* m_userType = nullptr;
 
     uint64_t m_eventId = INVALID_ID;
-    cxx::function<void(uint64_t)> m_invalidationCallback = [](auto) {};
+    function<void(uint64_t)> m_invalidationCallback = [](auto) {};
 };
 } // namespace internal
 
@@ -126,9 +126,9 @@ class ListenerImpl
               typename EventType,
               typename ContextDataType,
               typename = std::enable_if_t<std::is_enum<EventType>::value>>
-    expected<ListenerError> attachEvent(T& eventOrigin,
-                                        const EventType eventType,
-                                        const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, ListenerError> attachEvent(T& eventOrigin,
+                                              const EventType eventType,
+                                              const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Attaches an event. Hereby the event is defined as a class T, the eventOrigin and
     ///        the corresponding callback which will be called when the event occurs.
@@ -141,8 +141,8 @@ class ListenerImpl
     /// with iox::popo::createNotificationCallback
     /// @return If an error occurs the enum packed inside an expected which describes the error.
     template <typename T, typename ContextDataType>
-    expected<ListenerError> attachEvent(T& eventOrigin,
-                                        const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
+    expected<void, ListenerError> attachEvent(T& eventOrigin,
+                                              const NotificationCallback<T, ContextDataType>& eventCallback) noexcept;
 
     /// @brief Detaches an event. Hereby, the event is defined as a class T, the eventOrigin and
     ///        the eventType with further specifies the event inside of eventOrigin
@@ -180,7 +180,7 @@ class ListenerImpl
                                                const uint64_t eventTypeHash,
                                                internal::GenericCallbackRef_t callback,
                                                internal::TranslationCallbackRef_t translationCallback,
-                                               const cxx::function<void(uint64_t)> invalidationCallback) noexcept;
+                                               const function<void(uint64_t)> invalidationCallback) noexcept;
 
     void removeTrigger(const uint64_t index) noexcept;
 

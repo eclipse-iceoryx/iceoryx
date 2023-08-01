@@ -18,6 +18,7 @@
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 
 #include "iox/bump_allocator.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -36,7 +37,7 @@ MemPoolSegmentManagerMemoryBlock::~MemPoolSegmentManagerMemoryBlock() noexcept
 uint64_t MemPoolSegmentManagerMemoryBlock::size() const noexcept
 {
     const uint64_t segmentManagerSize = sizeof(mepoo::SegmentManager<>);
-    return cxx::align(segmentManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
+    return align(segmentManagerSize, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT)
            + mepoo::SegmentManager<>::requiredManagementMemorySize(m_segmentConfig);
 }
 
@@ -46,11 +47,11 @@ uint64_t MemPoolSegmentManagerMemoryBlock::alignment() const noexcept
     return algorithm::maxVal(segmentManagerAlignment, mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT);
 }
 
-void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory) noexcept
+void MemPoolSegmentManagerMemoryBlock::onMemoryAvailable(not_null<void*> memory) noexcept
 {
     BumpAllocator allocator(memory, size());
     auto allocationResult = allocator.allocate(sizeof(mepoo::SegmentManager<>), alignof(mepoo::SegmentManager<>));
-    cxx::Expects(!allocationResult.has_error());
+    cxx::Expects(allocationResult.has_value());
     auto* segmentManager = allocationResult.value();
     m_segmentManager = new (segmentManager) mepoo::SegmentManager<>(m_segmentConfig, &allocator);
 }

@@ -109,7 +109,7 @@ iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
     auto result = self->loan(payloadSize, payloadAlignment);
     if (result.has_error())
     {
-        return cpp2c::allocationResult(result.get_error());
+        return cpp2c::allocationResult(result.error());
     }
 
     *payload = result.value();
@@ -131,7 +131,7 @@ iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payloa
     auto result = self->send(payload);
     if (result.has_error())
     {
-        return cpp2c::clientSendResult(result.get_error());
+        return cpp2c::clientSendResult(result.error());
     }
 
     return ClientSendResult_SUCCESS;
@@ -163,7 +163,7 @@ iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const v
     auto result = self->take();
     if (result.has_error())
     {
-        return cpp2c::chunkReceiveResult(result.get_error());
+        return cpp2c::chunkReceiveResult(result.error());
     }
 
     *payload = result.value();

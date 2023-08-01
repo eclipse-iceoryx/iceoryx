@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_RUNTIME_POSH_RUNTIME_IMPL_HPP
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_IMPL_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/function.hpp"
 
 namespace iox
 {
@@ -113,7 +113,7 @@ class PoshRuntimeImpl : public PoshRuntime
     static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     // the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
-    concurrent::PeriodicTask<cxx::function<void()>> m_keepAliveTask{
+    concurrent::PeriodicTask<function<void()>> m_keepAliveTask{
         concurrent::PeriodicTaskAutoStart,
         PROCESS_KEEP_ALIVE_INTERVAL,
         "KeepAlive",

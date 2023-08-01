@@ -52,7 +52,7 @@ class PosixShmMemoryProvider_Test : public Test
                     .memorySizeInBytes(8)
                     .accessMode(iox::posix::AccessMode::READ_ONLY)
                     .openMode(iox::posix::OpenMode::OPEN_EXISTING)
-                    .permissions(iox::cxx::perms::owner_all)
+                    .permissions(iox::perms::owner_all)
                     .create()
                     .has_error();
     }
@@ -106,13 +106,13 @@ TEST_F(PosixShmMemoryProvider_Test, CreationFailedWithAlignmentExceedingPageSize
         TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.addMemoryBlock(&memoryBlock1).has_error());
     uint64_t MEMORY_SIZE{16};
-    uint64_t MEMORY_ALIGNMENT{iox::posix::pageSize() + 8U};
+    uint64_t MEMORY_ALIGNMENT{iox::internal::pageSize() + 8U};
     EXPECT_CALL(memoryBlock1, size()).WillRepeatedly(Return(MEMORY_SIZE));
     EXPECT_CALL(memoryBlock1, alignment()).WillRepeatedly(Return(MEMORY_ALIGNMENT));
 
     auto expectFailed = sut.create();
     ASSERT_THAT(expectFailed.has_error(), Eq(true));
-    ASSERT_THAT(expectFailed.get_error(), Eq(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE));
+    ASSERT_THAT(expectFailed.error(), Eq(MemoryProviderError::MEMORY_ALIGNMENT_EXCEEDS_PAGE_SIZE));
 
     EXPECT_THAT(shmExists(), Eq(false));
 }

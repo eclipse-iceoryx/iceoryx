@@ -18,21 +18,20 @@
 #define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
 #include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
 
-enum class BumpAllocatorError
+enum class BumpAllocatorError : uint8_t
 {
     OUT_OF_MEMORY,
     REQUESTED_ZERO_SIZED_MEMORY
 };
 
 /// @brief A bump allocator for the memory provided in the ctor arguments
-class BumpAllocator
+class BumpAllocator final
 {
   public:
     /// @brief c'tor
@@ -51,16 +50,16 @@ class BumpAllocator
     /// @param[in] alignment of the memory to allocate
     /// @return an expected containing a pointer to the memory if allocation was successful, otherwise
     /// BumpAllocatorError
-    cxx::expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
+    expected<void*, BumpAllocatorError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
 
     /// @brief mark the memory as unused
     void deallocate() noexcept;
 
   private:
-    cxx::byte_t* m_startAddress{nullptr};
+    uint64_t m_startAddress{0U};
     uint64_t m_length{0U};
     uint64_t m_currentPosition{0U};
 };
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_MEMORY_BUMP_ALLOCATOR_HPP
+#endif // IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP

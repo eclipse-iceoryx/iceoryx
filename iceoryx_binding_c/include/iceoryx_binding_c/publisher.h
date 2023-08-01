@@ -42,7 +42,7 @@ typedef struct
     /// @brief describes whether a publisher blocks when subscriber queue is full
     ENUM iox_ConsumerTooSlowPolicy subscriberTooSlowPolicy;
 
-    /// @brief this value will be set exclusively by `iox_pub_options_init` and is not supposed to be modified otherwise
+    /// @brief this value will be set exclusively by 'iox_pub_options_init' and is not supposed to be modified otherwise
     uint64_t initCheck;
 } iox_pub_options_t;
 
@@ -83,8 +83,8 @@ void iox_pub_deinit(iox_pub_t const self);
 /// @param[in] userPayloadSize user-payload size of the allocated chunk
 /// @return on success it returns AllocationResult_SUCCESS otherwise a value which
 ///         describes the error
-/// @note for the user-payload alignment `IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT` is used
-///       for a custom user-payload alignment please use `iox_pub_loan_aligned_chunk`
+/// @note for the user-payload alignment 'IOX_C_CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT' is used
+///       for a custom user-payload alignment please use 'iox_pub_loan_aligned_chunk'
 ENUM iox_AllocationResult iox_pub_loan_chunk(iox_pub_t const self,
                                              void** const userPayload,
                                              const uint32_t userPayloadSize);

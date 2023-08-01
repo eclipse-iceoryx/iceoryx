@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/memory.hpp"
 
 namespace iox
 {
@@ -47,16 +47,15 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const noexce
     constexpr uint32_t CHUNK_COUNT{10U};
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {cxx::align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
-        {cxx::align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
-        {cxx::align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
-        {cxx::align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT),
-         CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
     mempoolConfig.m_mempoolConfig.push_back(
-        {cxx::align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
+        {align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
          CHUNK_COUNT});
 
     mempoolConfig.optimize();

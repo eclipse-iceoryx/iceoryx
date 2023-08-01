@@ -50,9 +50,9 @@ class FileReader
 
     /// Opens a file and creates a FileReader object. The file path argument is optional and is ignored if empty. The
     /// error mode is evaluated when an error occurs.
-    explicit FileReader(const std::string& f_fileName,
-                        const std::string& f_filePath = "",
-                        ErrorMode f_errorMode = ErrorMode::Inform) noexcept;
+    explicit FileReader(const std::string& fileName,
+                        const std::string& filePath = "",
+                        ErrorMode errorMode = ErrorMode::Inform) noexcept;
 
     FileReader(const FileReader&) = delete;
     FileReader(FileReader&&) = delete;
@@ -63,13 +63,11 @@ class FileReader
 
     /// Check if the associated file is open.
     bool isOpen() const noexcept;
-    /// Read one line from the file and store the result in f_string.
-    bool readLine(std::string& f_string) noexcept;
+    /// Read one line from the file and store the result in buffer.
+    bool readLine(std::string& buffer) noexcept;
 
   private:
     std::fstream m_fileStream;
-    std::string m_file;
-    ErrorMode m_errorMode;
 };
 
 } // namespace cxx

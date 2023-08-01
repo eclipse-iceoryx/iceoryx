@@ -35,7 +35,7 @@ class RpcInterface
     /// @brief Sends the given Request<T> or Response<T> via the type which implements this interface
     /// @param[in] rpcData is the actual Request<T> or Response<T> instance
     /// @return Error if sending was not successful
-    virtual expected<SendErrorEnum> send(RpcType&& rpcData) noexcept = 0;
+    virtual expected<void, SendErrorEnum> send(RpcType&& rpcData) noexcept = 0;
 
   protected:
     RpcInterface() = default;

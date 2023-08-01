@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_provider.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/logging.hpp"
+#include "iox/memory.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {
@@ -32,30 +32,30 @@ MemoryProvider::~MemoryProvider() noexcept
     // destroy has to be called manually from outside, since it calls a pure virtual function
 }
 
-expected<MemoryProviderError> MemoryProvider::addMemoryBlock(cxx::not_null<MemoryBlock*> memoryBlock) noexcept
+expected<void, MemoryProviderError> MemoryProvider::addMemoryBlock(not_null<MemoryBlock*> memoryBlock) noexcept
 {
     if (isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return err(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     if (m_memoryBlocks.push_back(memoryBlock))
     {
-        return success<void>();
+        return ok();
     }
-    return error<MemoryProviderError>(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
+    return err(MemoryProviderError::MEMORY_BLOCKS_EXHAUSTED);
 }
 
-expected<MemoryProviderError> MemoryProvider::create() noexcept
+expected<void, MemoryProviderError> MemoryProvider::create() noexcept
 {
     if (m_memoryBlocks.empty())
     {
-        return error<MemoryProviderError>(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
+        return err(MemoryProviderError::NO_MEMORY_BLOCKS_PRESENT);
     }
 
     if (isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_ALREADY_CREATED);
+        return err(MemoryProviderError::MEMORY_ALREADY_CREATED);
     }
 
     uint64_t totalSize = 0u;
@@ -70,20 +70,20 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
 
         // just in case the memory block doesn't calculate its size as multiple of the alignment
         // this shouldn't be necessary, but also doesn't harm
-        auto size = cxx::align(memoryBlock->size(), alignment);
-        totalSize = cxx::align(totalSize, alignment) + size;
+        auto size = align(memoryBlock->size(), alignment);
+        totalSize = align(totalSize, alignment) + size;
     }
 
     auto memoryResult = createMemory(totalSize, maxAlignment);
 
     if (memoryResult.has_error())
     {
-        return error<MemoryProviderError>(memoryResult.get_error());
+        return err(memoryResult.error());
     }
 
     m_memory = memoryResult.value();
     m_size = totalSize;
-    auto maybeSegmentId = memory::UntypedRelativePointer::registerPtr(m_memory, m_size);
+    auto maybeSegmentId = UntypedRelativePointer::registerPtr(m_memory, m_size);
 
     if (!maybeSegmentId.has_value())
     {
@@ -91,8 +91,8 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
     }
     m_segmentId = maybeSegmentId.value();
 
-    LogDebug() << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
-               << m_segmentId;
+    IOX_LOG(DEBUG) << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
+                   << m_segmentId;
 
     iox::BumpAllocator allocator(m_memory, m_size);
 
@@ -101,19 +101,19 @@ expected<MemoryProviderError> MemoryProvider::create() noexcept
         auto allocationResult = allocator.allocate(memoryBlock->size(), memoryBlock->alignment());
         if (allocationResult.has_error())
         {
-            return cxx::error<MemoryProviderError>(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
+            return err(MemoryProviderError::MEMORY_ALLOCATION_FAILED);
         }
         memoryBlock->m_memory = allocationResult.value();
     }
 
-    return success<void>();
+    return ok();
 }
 
-expected<MemoryProviderError> MemoryProvider::destroy() noexcept
+expected<void, MemoryProviderError> MemoryProvider::destroy() noexcept
 {
     if (!isAvailable())
     {
-        return error<MemoryProviderError>(MemoryProviderError::MEMORY_NOT_AVAILABLE);
+        return err(MemoryProviderError::MEMORY_NOT_AVAILABLE);
     }
 
     for (auto* memoryBlock : m_memoryBlocks)
@@ -125,7 +125,7 @@ expected<MemoryProviderError> MemoryProvider::destroy() noexcept
 
     if (!destructionResult.has_error())
     {
-        memory::UntypedRelativePointer::unregisterPtr(memory::segment_id_t{m_segmentId});
+        UntypedRelativePointer::unregisterPtr(segment_id_t{m_segmentId});
         m_memory = nullptr;
         m_size = 0U;
     }

@@ -15,8 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
+#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iox/memory.hpp"
 #include "test.hpp"
 
 namespace
@@ -34,8 +35,6 @@ class SharedMemoryObject_Test : public Test
     void TearDown() override
     {
     }
-
-    static constexpr uint64_t MEMORY_ALIGNMENT{8};
 };
 
 TEST_F(SharedMemoryObject_Test, CTorWithValidArguments)
@@ -67,188 +66,174 @@ TEST_F(SharedMemoryObject_Test, CTorOpenNonExistingSharedMemoryObject)
 TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6169ac70-a08e-4a19-80e4-57f0d5f89233");
+    const uint64_t MEMORY_SIZE = 16;
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
-                   .memorySizeInBytes(16)
+                   .memorySizeInBytes(MEMORY_SIZE)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
-                   .create();
+                   .permissions(perms::owner_all)
+                   .create()
+                   .expect("failed to create sut");
 
-    ASSERT_THAT(sut.has_error(), Eq(false));
-    auto result = sut->allocate(sizeof(int), 1);
-    ASSERT_THAT(result.has_error(), Eq(false));
-    int* test = static_cast<int*>(result.value());
-    ASSERT_THAT(test, Ne(nullptr));
-    *test = 123;
-    EXPECT_THAT(*test, Eq(123));
-}
+    auto* data_ptr = static_cast<uint8_t*>(sut.getBaseAddress());
 
-TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithOneChunk)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2def907e-683d-4aaa-a969-47b5468d5383");
-    auto sut = iox::posix::SharedMemoryObjectBuilder()
-                   .name("shmAllocate")
-                   .memorySizeInBytes(8)
-                   .accessMode(iox::posix::AccessMode::READ_WRITE)
-                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
-                   .create();
-
-    ASSERT_THAT(sut.has_error(), Eq(false));
-    auto result = sut->allocate(8, 1);
-    ASSERT_THAT(result.has_error(), Eq(false));
-    ASSERT_THAT(result.value(), Ne(nullptr));
-}
-
-TEST_F(SharedMemoryObject_Test, AllocateWholeSharedMemoryWithMultipleChunks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "dd70c0aa-fef5-49ed-875c-4bb768894ae5");
-    auto sut = iox::posix::SharedMemoryObjectBuilder()
-                   .name("shmAllocate")
-                   .memorySizeInBytes(8)
-                   .accessMode(iox::posix::AccessMode::READ_WRITE)
-                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
-                   .create();
-
-    ASSERT_THAT(sut.has_error(), Eq(false));
-
-    for (uint64_t i = 0; i < 8; ++i)
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        auto result = sut->allocate(1, 1);
-        ASSERT_THAT(result.has_error(), Eq(false));
-        ASSERT_THAT(result.value(), Ne(nullptr));
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        data_ptr[i] = static_cast<uint8_t>(i * 2 + 1);
+    }
+
+    auto sut2 = iox::posix::SharedMemoryObjectBuilder()
+                    .name("shmAllocate")
+                    .memorySizeInBytes(MEMORY_SIZE)
+                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
+                    .create()
+                    .expect("failed to create sut");
+
+    auto* data_ptr2 = static_cast<uint8_t*>(sut2.getBaseAddress());
+
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
+    {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        EXPECT_THAT(data_ptr2[i], Eq(static_cast<uint8_t>(i) * 2 + 1));
     }
 }
 
-TEST_F(SharedMemoryObject_Test, AllocateTooMuchMemoryInSharedMemoryWithOneChunk)
+TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanRequestedSize)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "4b054aac-1d49-4260-afc0-908b184e0b12");
-    uint64_t memorySize{8U};
-
+    ::testing::Test::RecordProperty("TEST_ID", "bb58b45e-8366-42ae-bd30-8d7415791dd4");
+    const uint64_t MEMORY_SIZE = 8192;
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
-                   .memorySizeInBytes(memorySize)
+                   .memorySizeInBytes(1)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
-                   .create();
+                   .permissions(perms::owner_all)
+                   .create()
+                   .expect("failed to create sut");
 
-    ASSERT_THAT(sut.has_error(), Eq(false));
+    auto sut2 = iox::posix::SharedMemoryObjectBuilder()
+                    .name("shmAllocate")
+                    .memorySizeInBytes(MEMORY_SIZE)
+                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
+                    .create();
 
-    auto result = sut->allocate(cxx::align(memorySize, MEMORY_ALIGNMENT) + 1, 1);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::NOT_ENOUGH_MEMORY));
+    ASSERT_TRUE(sut2.has_error());
+    EXPECT_THAT(sut2.error(), Eq(posix::SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE));
 }
 
-TEST_F(SharedMemoryObject_Test, AllocateTooMuchSharedMemoryWithMultipleChunks)
+TEST_F(SharedMemoryObject_Test, OpenSutMapsAllMemoryIntoProcess)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5bb3c7fc-0f15-4487-8479-b27d1d4a17d3");
-    uint64_t memorySize{8U};
+    ::testing::Test::RecordProperty("TEST_ID", "0c8b41eb-74fd-4796-9e5e-fe6707f3c46c");
+    const uint64_t MEMORY_SIZE = 1024;
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
-                   .memorySizeInBytes(memorySize)
+                   .memorySizeInBytes(MEMORY_SIZE * sizeof(uint64_t))
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
-                   .create();
+                   .permissions(perms::owner_all)
+                   .create()
+                   .expect("failed to create sut");
 
-    ASSERT_THAT(sut.has_error(), Eq(false));
+    auto* data_ptr = static_cast<uint64_t*>(sut.getBaseAddress());
 
-    for (uint64_t i = 0; i < cxx::align(memorySize, MEMORY_ALIGNMENT); ++i)
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
     {
-        auto result = sut->allocate(1, 1);
-        ASSERT_THAT(result.has_error(), Eq(false));
-        ASSERT_THAT(result.value(), Ne(nullptr));
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        data_ptr[i] = i * 2 + 1;
     }
 
-    auto result = sut->allocate(1, 1);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::NOT_ENOUGH_MEMORY));
+    auto sut2 = iox::posix::SharedMemoryObjectBuilder()
+                    .name("shmAllocate")
+                    .memorySizeInBytes(1)
+                    .openMode(iox::posix::OpenMode::OPEN_EXISTING)
+                    .create()
+                    .expect("failed to create sut");
+
+    ASSERT_THAT(*sut2.get_size(), Ge(MEMORY_SIZE * sizeof(uint64_t)));
+
+    auto* data_ptr2 = static_cast<uint64_t*>(sut2.getBaseAddress());
+
+    for (uint64_t i = 0; i < MEMORY_SIZE; ++i)
+    {
+        /// NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        EXPECT_THAT(data_ptr2[i], Eq(i * 2 + 1));
+    }
 }
 
-TEST_F(SharedMemoryObject_Test, AllocateAfterFinalizeAllocation)
+#if !defined(_WIN32) && !defined(__APPLE__)
+TEST_F(SharedMemoryObject_Test, AcquiringOwnerWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e4711eaa-e811-41d4-927a-63384cdcb984");
+    ::testing::Test::RecordProperty("TEST_ID", "a9859b5e-555b-4cff-b418-74168a9fd85a");
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(perms::owner_all)
                    .create();
 
-    ASSERT_THAT(sut.has_error(), Eq(false));
-    sut->finalizeAllocation();
+    auto owner = sut->get_ownership();
+    ASSERT_FALSE(owner.has_error());
 
-    auto result = sut->allocate(2, 1);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(),
-                Eq(posix::SharedMemoryAllocationError::REQUESTED_MEMORY_AFTER_FINALIZED_ALLOCATION));
+    EXPECT_THAT(owner->uid(), posix::PosixUser::getUserOfCurrentProcess().getID());
+    EXPECT_THAT(owner->gid(), posix::PosixGroup::getGroupOfCurrentProcess().getID());
 }
 
-TEST_F(SharedMemoryObject_Test, AllocateFailsWithZeroSize)
+TEST_F(SharedMemoryObject_Test, AcquiringPermissionsWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "cf7f6692-1b64-4926-8326-0628ec483231");
+    ::testing::Test::RecordProperty("TEST_ID", "2b36bc3b-16a0-4c18-a1cb-6815812c6616");
+    const auto permissions = perms::owner_all | perms::group_write | perms::group_read | perms::others_exec;
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
                    .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                   .permissions(cxx::perms::owner_all)
+                   .permissions(permissions)
                    .create();
 
-    ASSERT_THAT(sut.has_error(), Eq(false));
-
-    auto result = sut->allocate(0, 1);
-    ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(posix::SharedMemoryAllocationError::REQUESTED_ZERO_SIZED_MEMORY));
+    auto sut_perm = sut->get_permissions();
+    ASSERT_FALSE(sut_perm.has_error());
+    EXPECT_THAT(*sut_perm, Eq(permissions));
 }
 
-TEST_F(SharedMemoryObject_Test, OpeningSharedMemoryAndReadMultipleContents)
+TEST_F(SharedMemoryObject_Test, SettingOwnerWorks)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "14f77425-34aa-43d0-82dd-e05efd93464b");
-    uint64_t memorySize = 128;
-
-    auto shmMemory = iox::posix::SharedMemoryObjectBuilder()
-                         .name("shmSut")
-                         .memorySizeInBytes(memorySize)
-                         .accessMode(iox::posix::AccessMode::READ_WRITE)
-                         .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                         .permissions(cxx::perms::owner_all)
-                         .create();
-
-    ASSERT_THAT(shmMemory.has_error(), Eq(false));
-
-    auto result = shmMemory->allocate(sizeof(int), 1);
-    ASSERT_THAT(result.has_error(), Eq(false));
-    int* test = static_cast<int*>(result.value());
-    *test = 4557;
-
-    result = shmMemory->allocate(sizeof(int), 1);
-    ASSERT_THAT(result.has_error(), Eq(false));
-    int* test2 = static_cast<int*>(result.value());
-    *test2 = 8912;
-
-
+    ::testing::Test::RecordProperty("TEST_ID", "da85be28-7e21-4207-9077-698a2ec188d6");
     auto sut = iox::posix::SharedMemoryObjectBuilder()
-                   .name("shmSut")
-                   .memorySizeInBytes(memorySize)
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
                    .accessMode(iox::posix::AccessMode::READ_WRITE)
-                   .openMode(iox::posix::OpenMode::OPEN_EXISTING)
-                   .permissions(cxx::perms::owner_all)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
                    .create();
 
-    result = sut->allocate(sizeof(int), 1);
-    ASSERT_THAT(sut.has_error(), Eq(false));
-    int* sutValue1 = static_cast<int*>(result.value());
+    auto owner = sut->get_ownership();
+    ASSERT_FALSE(owner.has_error());
 
-    result = sut->allocate(sizeof(int), 1);
-    ASSERT_THAT(sut.has_error(), Eq(false));
-    int* sutValue2 = static_cast<int*>(result.value());
-
-    EXPECT_THAT(*sutValue1, Eq(4557));
-    EXPECT_THAT(*sutValue2, Eq(8912));
+    // It is a slight stub test since we must be root to change the owner of a
+    // file. But changing the owner from self to self is legal.
+    ASSERT_FALSE(sut->set_ownership(*owner).has_error());
 }
+
+TEST_F(SharedMemoryObject_Test, SettingPermissionsWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "412abc8a-d1f8-4ceb-86db-f2790d2da58f");
+    auto sut = iox::posix::SharedMemoryObjectBuilder()
+                   .name("shmAllocate")
+                   .memorySizeInBytes(8)
+                   .accessMode(iox::posix::AccessMode::READ_WRITE)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .permissions(perms::owner_all)
+                   .create();
+
+    ASSERT_FALSE(sut->set_permissions(perms::none).has_error());
+    auto result = sut->get_permissions();
+    ASSERT_FALSE(result.has_error());
+    EXPECT_THAT(*result, Eq(perms::none));
+}
+#endif
+
+
 } // namespace

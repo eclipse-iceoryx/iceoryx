@@ -18,10 +18,13 @@
 #include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iox/function.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
 
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -41,19 +44,23 @@ class CommandLineParser_test : public Test
     {
         // if we do not capture stdout then the console is filled with garbage
         // since the command line parser prints the help on failure
-        ::testing::internal::CaptureStdout();
+        outputBuffer.emplace();
     }
     void TearDown() override
     {
-        std::string output = ::testing::internal::GetCapturedStdout();
         if (Test::HasFailure())
         {
+            auto output = outputBuffer->output();
+            outputBuffer.reset();
+            std::cout << "#### Captured output start ####" << std::endl;
             std::cout << output << std::endl;
+            std::cout << "#### Captured output stop ####" << std::endl;
         }
     }
 
+    optional<OutBuffer> outputBuffer;
     uint64_t numberOfErrorCallbackCalls = 0U;
-    iox::cxx::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
+    iox::function<void()> errorCallback = [this] { ++numberOfErrorCallbackCalls; };
     static Argument_t defaultValue;
 };
 Argument_t CommandLineParser_test::defaultValue = "DEFAULT VALUE";
@@ -91,15 +98,15 @@ void FailureTest(const std::vector<std::string>& options,
         OptionDefinition optionSet("", [&] { wasErrorHandlerCalled = true; });
         for (const auto& o : optionsToRegister)
         {
-            optionSet.addOptional(o[0], iox::cxx::into<OptionName_t>(o), "", "int", "0");
+            optionSet.addOptional(o[0], iox::into<iox::lossy<OptionName_t>>(o), "", "int", "0");
         }
         for (const auto& s : switchesToRegister)
         {
-            optionSet.addSwitch(s[0], iox::cxx::into<OptionName_t>(s), "");
+            optionSet.addSwitch(s[0], iox::into<iox::lossy<OptionName_t>>(s), "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addRequired(r[0], iox::cxx::into<OptionName_t>(r), "", "int");
+            optionSet.addRequired(r[0], iox::into<iox::lossy<OptionName_t>>(r), "", "int");
         }
 
         IOX_DISCARD_RESULT(parseCommandLineArguments(optionSet, args.argc, args.argv, 1U));
@@ -894,15 +901,15 @@ Arguments SuccessTest(const std::vector<std::string>& options,
         for (const auto& o : optionsToRegister)
         {
             optionSet.addOptional(
-                o[0], iox::cxx::into<OptionName_t>(o), "", "int", CommandLineParser_test::defaultValue);
+                o[0], iox::into<iox::lossy<OptionName_t>>(o), "", "int", CommandLineParser_test::defaultValue);
         }
         for (const auto& s : switchesToRegister)
         {
-            optionSet.addSwitch(s[0], iox::cxx::into<OptionName_t>(s), "");
+            optionSet.addSwitch(s[0], iox::into<iox::lossy<OptionName_t>>(s), "");
         }
         for (const auto& r : requiredValuesToRegister)
         {
-            optionSet.addRequired(r[0], iox::cxx::into<OptionName_t>(r), "", "int");
+            optionSet.addRequired(r[0], iox::into<iox::lossy<OptionName_t>>(r), "", "int");
         }
 
         {
@@ -938,7 +945,7 @@ void verifyEntry(const Arguments& options, const OptionName_t& entry, const opti
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 
@@ -965,7 +972,7 @@ void verifyEntry<float>(const Arguments& options, const OptionName_t& entry, con
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 
@@ -992,7 +999,7 @@ void verifyEntry<double>(const Arguments& options, const OptionName_t& entry, co
                 return;
             }
 
-            EXPECT_THAT(result.get_error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
+            EXPECT_THAT(result.error(), Eq(Arguments::Error::UNABLE_TO_CONVERT_VALUE));
         });
 }
 

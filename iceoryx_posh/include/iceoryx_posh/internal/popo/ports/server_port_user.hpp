@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 #define IOX_POSH_POPO_PORTS_SERVER_PORT_USER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/popo/rpc_header.hpp"
 #include "iox/expected.hpp"
+#include "iox/into.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -45,25 +45,22 @@ enum class ServerRequestResult
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(const ServerRequestResult value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ServerRequestResult value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ServerRequestResult value) noexcept;
 } // namespace popo
 
-namespace cxx
-{
 template <>
 constexpr popo::ServerRequestResult
-from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value);
-} // namespace cxx
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value) noexcept;
 
 namespace popo
 {
@@ -79,16 +76,16 @@ enum class ServerSendError
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(const ServerSendError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, ServerSendError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, ServerSendError value) noexcept;
 
 /// @brief The ServerPortUser provides the API for accessing a server port from the user side. The server port
@@ -148,7 +145,7 @@ class ServerPortUser : public BasePort
     /// @brief Send an allocated request chunk to the server port
     /// @param[in] chunkHeader, pointer to the ChunkHeader to send
     /// @return ServerSendError if sending was not successful
-    expected<ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
+    expected<void, ServerSendError> sendResponse(ResponseHeader* const responseHeader) noexcept;
 
     /// @brief offer this server port in the system
     void offer() noexcept;

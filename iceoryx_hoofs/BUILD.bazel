@@ -1,4 +1,4 @@
-# Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,19 +30,40 @@ configure_file(
 cc_library(
     name = "iceoryx_hoofs",
     srcs = glob([
-        "source/**/*.cpp",
-        "vocabulary/source/**/*.cpp",
-        "source/**/*.hpp",
+        "design/source/*.cpp",
+        "filesystem/source/*.cpp",
         "memory/source/*.cpp",
+        "posix/design/source/*.cpp",
+        "posix/filesystem/source/*.cpp",
+        "posix/time/source/*.cpp",
+        "posix/vocabulary/source/*.cpp",
+        "primitives/source/*.cpp",
+        "reporting/source/log/building_blocks/*.cpp",
+        "source/**/*.cpp",
+        "time/source/*.cpp",
+        "utility/source/*.cpp",
+        "vocabulary/source/**/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["reporting/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
     ],
     includes = [
+        "buffer/include/",
         "container/include/",
+        "design/include",
+        "filesystem/include",
+        "functional/include",
         "include/",
         "legacy/include/",
         "memory/include/",
+        "posix/design/include/",
+        "posix/filesystem/include/",
+        "posix/time/include/",
+        "posix/vocabulary/include/",
+        "primitives/include/",
+        "reporting/include/",
+        "time/include/",
+        "utility/include/",
         "vocabulary/include/",
     ],
     linkopts = select({

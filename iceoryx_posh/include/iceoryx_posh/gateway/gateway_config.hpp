@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_GW_GATEWAY_CONFIG_HPP
 #define IOX_POSH_GW_GATEWAY_CONFIG_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -34,7 +34,7 @@ struct GatewayConfig
     {
         capro::ServiceDescription m_serviceDescription;
     };
-    iox::cxx::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices;
+    iox::vector<ServiceEntry, MAX_GATEWAY_SERVICES> m_configuredServices;
 
     void setDefaults() noexcept;
 };

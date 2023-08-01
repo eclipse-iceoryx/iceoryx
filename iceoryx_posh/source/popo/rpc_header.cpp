@@ -22,7 +22,7 @@ namespace iox
 {
 namespace popo
 {
-RpcBaseHeader::RpcBaseHeader(const cxx::UniqueId& uniqueClientQueueId,
+RpcBaseHeader::RpcBaseHeader(const UniqueId& uniqueClientQueueId,
                              const uint32_t lastKnownClientQueueIndex,
                              const int64_t sequenceId,
                              const uint8_t rpcHeaderVersion) noexcept
@@ -63,8 +63,7 @@ const void* RpcBaseHeader::getUserPayload() const noexcept
     return mepoo::ChunkHeader::fromUserHeader(this)->userPayload();
 }
 
-RequestHeader::RequestHeader(const cxx::UniqueId& uniqueClientQueueId,
-                             const uint32_t lastKnownClientQueueIndex) noexcept
+RequestHeader::RequestHeader(const UniqueId& uniqueClientQueueId, const uint32_t lastKnownClientQueueIndex) noexcept
     : RpcBaseHeader(uniqueClientQueueId, lastKnownClientQueueIndex, START_SEQUENCE_ID, RPC_HEADER_VERSION)
 {
 }
@@ -86,7 +85,7 @@ const RequestHeader* RequestHeader::fromPayload(const void* const payload) noexc
     return chunkHeader ? static_cast<const RequestHeader*>(chunkHeader->userHeader()) : nullptr;
 }
 
-ResponseHeader::ResponseHeader(const cxx::UniqueId& uniqueClientQueueId,
+ResponseHeader::ResponseHeader(const UniqueId& uniqueClientQueueId,
                                const uint32_t lastKnownClientQueueIndex,
                                const int64_t sequenceId) noexcept
     : RpcBaseHeader(uniqueClientQueueId, lastKnownClientQueueIndex, sequenceId, RPC_HEADER_VERSION)

@@ -1,5 +1,5 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
 
@@ -22,6 +24,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox;
+using namespace iox::testing;
 
 template <typename T>
 class stringTyped_test : public Test
@@ -1024,8 +1027,8 @@ TYPED_TEST(stringTyped_test, CompareOperatorGreaterEqResultFalseWithDifferentCap
 }
 
 /// @note int64_t compare(const T& other) const noexcept
-/// with T = {char array, std::string}
-TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
+/// with T = {char array}
+TYPED_TEST(stringTyped_test, CompareEqCharArrayResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "13a0f1a3-b006-4686-a5a0-3c6a2c7113e0");
     using MyString = typename TestFixture::stringType;
@@ -1044,11 +1047,9 @@ TYPED_TEST(stringTyped_test, CompareEqCharArrayOrStdStringResultsInZero)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
-
-    EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegative)
 {
     ::testing::Test::RecordProperty("TEST_ID", "df4a32d0-72b1-4c65-86f3-15b007ab003c");
     using MyString = typename TestFixture::stringType;
@@ -1067,12 +1068,9 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultNegative)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Lt(0));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject.compare(testStdString), Lt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
+TYPED_TEST(stringTyped_test, CompareWithCharArrayResultPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d315afbc-558d-474a-8ae5-f53451526c73");
     using MyString = typename TestFixture::stringType;
@@ -1091,12 +1089,9 @@ TYPED_TEST(stringTyped_test, CompareWithCharArrayOrStdStringResultPositive)
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositive)
+TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayResultsInPositive)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a871dfe3-4acd-437c-b315-de3c43ece19b");
     using MyString = typename TestFixture::stringType;
@@ -1107,12 +1102,9 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOrStdStringResultsInPositi
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char testCharArray[STRINGCAP + 1U] = {'\0'};
     EXPECT_THAT(this->testSubject.compare(testCharArray), Gt(0));
-
-    const std::string testStdString;
-    EXPECT_THAT(this->testSubject.compare(testStdString), Gt(0));
 }
 
-TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferentCapaResultsInZero)
+TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayWithDifferentCapaResultsInZero)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d0e86a0c-f68d-4d88-8e8b-f65f82a1e7aa");
     using MyString = typename TestFixture::stringType;
@@ -1131,10 +1123,6 @@ TYPED_TEST(stringTyped_test, CompareEqStringAndCharArrayOrStdStringWithDifferent
     }
     testCharArray[STRINGCAP] = '\0';
     EXPECT_THAT(this->testSubject.compare(testCharArray), Eq(0));
-
-    std::string testStdString(STRINGCAP, 'M');
-    testStdString.reserve(STRINGCAP + 13U);
-    EXPECT_THAT(this->testSubject.compare(testStdString), Eq(0));
 }
 
 TYPED_TEST(stringTyped_test, CompareWithCharArrayResultNegativeWithDifferentCapa)
@@ -1197,7 +1185,7 @@ TYPED_TEST(stringTyped_test, CompareWithEmptyCharArrayOfDifferentCapaResultsInPo
 /// bool operator!=(const T& rhs) const noexcept
 /// bool operator==(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator!=(const T& lhs, const string<Capacity>& rhs) noexcept
-/// with T = {char array, std::string}
+/// with T = {char array}
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38d8e0ca-97c5-4e3f-9cb7-589bb7de3b71");
@@ -1212,12 +1200,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringsWorks)
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
@@ -1234,12 +1216,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringsWorks)
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWorks)
@@ -1256,13 +1232,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithEqualStringWithDifferentCapaWor
     EXPECT_THAT(testCharArray == this->testSubject, Eq(true));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(false));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(false));
-
-    std::string testStdString = "M";
-    testStdString.reserve(STRINGCAP + 5U);
-    EXPECT_THAT(this->testSubject == testStdString, Eq(true));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(true));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(false));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(false));
 
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -1284,12 +1253,6 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
     EXPECT_THAT(testCharArray == this->testSubject, Eq(false));
     EXPECT_THAT(this->testSubject != testCharArray, Eq(true));
     EXPECT_THAT(testCharArray != this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject == testStdString, Eq(false));
-    EXPECT_THAT(testStdString == this->testSubject, Eq(false));
-    EXPECT_THAT(this->testSubject != testStdString, Eq(true));
-    EXPECT_THAT(testStdString != this->testSubject, Eq(true));
 }
 
 /// @note bool operator<(const T& rhs) const noexcept
@@ -1300,7 +1263,7 @@ TYPED_TEST(stringTyped_test, CheckForEqualityWithUnequalStringWithDifferentSizeW
 /// bool operator<=(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator>(const T& lhs, const string<Capacity>& rhs) noexcept
 /// bool operator>=(const T& lhs, const string<Capacity>& rhs) noexcept
-/// with T = {char array, std::string}
+/// with T = {char array}
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9dcd5cce-ce7d-4cf9-8c36-edca46d09ff7");
@@ -1310,7 +1273,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     // required to verify string literal functionality of iox::string
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char testCharArray[STRINGCAP + 1U] = {'L'};
-    std::string testStdString = &testCharArray[0];
 
     // compare with greater string
     string<STRINGCAP> sutGreater("M");
@@ -1324,15 +1286,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     EXPECT_THAT(testCharArray > sutGreater, Eq(false));
     EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
 
-    EXPECT_THAT(sutGreater < testStdString, Eq(false));
-    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-    EXPECT_THAT(sutGreater > testStdString, Eq(true));
-    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-    EXPECT_THAT(testStdString < sutGreater, Eq(true));
-    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-    EXPECT_THAT(testStdString > sutGreater, Eq(false));
-    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
     // compare with less string
     string<STRINGCAP> sutLess("F");
 
@@ -1344,15 +1297,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStrings)
     EXPECT_THAT(testCharArray <= sutLess, Eq(false));
     EXPECT_THAT(testCharArray > sutLess, Eq(true));
     EXPECT_THAT(testCharArray >= sutLess, Eq(true));
-
-    EXPECT_THAT(sutLess < testStdString, Eq(true));
-    EXPECT_THAT(sutLess <= testStdString, Eq(true));
-    EXPECT_THAT(sutLess > testStdString, Eq(false));
-    EXPECT_THAT(sutLess >= testStdString, Eq(false));
-    EXPECT_THAT(testStdString < sutLess, Eq(false));
-    EXPECT_THAT(testStdString <= sutLess, Eq(false));
-    EXPECT_THAT(testStdString > sutLess, Eq(true));
-    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
@@ -1374,17 +1318,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStrings)
     EXPECT_THAT(testCharArray <= this->testSubject, Eq(true));
     EXPECT_THAT(testCharArray > this->testSubject, Eq(false));
     EXPECT_THAT(testCharArray >= this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-    EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-    EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-    EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSize)
@@ -1420,15 +1353,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     EXPECT_THAT(testCharArray > sutGreater, Eq(false));
     EXPECT_THAT(testCharArray >= sutGreater, Eq(false));
 
-    EXPECT_THAT(sutGreater < testStdString, Eq(false));
-    EXPECT_THAT(sutGreater <= testStdString, Eq(false));
-    EXPECT_THAT(sutGreater > testStdString, Eq(true));
-    EXPECT_THAT(sutGreater >= testStdString, Eq(true));
-    EXPECT_THAT(testStdString < sutGreater, Eq(true));
-    EXPECT_THAT(testStdString <= sutGreater, Eq(true));
-    EXPECT_THAT(testStdString > sutGreater, Eq(false));
-    EXPECT_THAT(testStdString >= sutGreater, Eq(false));
-
     // compare with less string
     std::string temp2(STRINGCAP + 5U, 'F');
     string<STRINGCAP + 5U> sutLess;
@@ -1442,15 +1366,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentStringWithDifferentSiz
     EXPECT_THAT(testCharArray <= sutLess, Eq(false));
     EXPECT_THAT(testCharArray > sutLess, Eq(true));
     EXPECT_THAT(testCharArray >= sutLess, Eq(true));
-
-    EXPECT_THAT(sutLess < testStdString, Eq(true));
-    EXPECT_THAT(sutLess <= testStdString, Eq(true));
-    EXPECT_THAT(sutLess > testStdString, Eq(false));
-    EXPECT_THAT(sutLess >= testStdString, Eq(false));
-    EXPECT_THAT(testStdString < sutLess, Eq(false));
-    EXPECT_THAT(testStdString <= sutLess, Eq(false));
-    EXPECT_THAT(testStdString > sutLess, Eq(true));
-    EXPECT_THAT(testStdString >= sutLess, Eq(true));
 }
 
 TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
@@ -1479,17 +1394,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithEqualStringWithDifferentCapa)
     EXPECT_THAT(testCharArray <= this->testSubject, Eq(true));
     EXPECT_THAT(testCharArray > this->testSubject, Eq(false));
     EXPECT_THAT(testCharArray >= this->testSubject, Eq(true));
-
-    const std::string testStdString = &testCharArray[0];
-    EXPECT_THAT(this->testSubject < testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject <= testStdString, Eq(true));
-    EXPECT_THAT(this->testSubject > testStdString, Eq(false));
-    EXPECT_THAT(this->testSubject >= testStdString, Eq(true));
-
-    EXPECT_THAT(testStdString < this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString <= this->testSubject, Eq(true));
-    EXPECT_THAT(testStdString > this->testSubject, Eq(false));
-    EXPECT_THAT(testStdString >= this->testSubject, Eq(true));
 }
 
 /// @note int64_t compare(char other) const noexcept
@@ -1685,52 +1589,6 @@ TYPED_TEST(stringTyped_test, CompareOperatorsWithDifferentCharWithDifferentSize)
     EXPECT_THAT(testChar <= sutEqualTestChar, Eq(true));
     EXPECT_THAT(testChar > sutEqualTestChar, Eq(false));
     EXPECT_THAT(testChar >= sutEqualTestChar, Eq(false));
-}
-
-/// @note constexpr int64_t compare(const std::string& other) const noexcept
-TYPED_TEST(stringTyped_test, CompareWithStdStringResultNegativeWithDifferentSize)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "fbfa1376-8474-4cee-8c83-5adb6dc115a8");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    ASSERT_THAT(this->testSubject.unsafe_assign(testString.c_str()), Eq(true));
-    std::string foo(STRINGCAP + 4, 'M');
-    EXPECT_THAT(this->testSubject.compare(foo), Lt(0));
-}
-
-TYPED_TEST(stringTyped_test, CompareWithStdStringResultPositiveWithDifferentSize)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "08891d54-3db7-47cd-8e42-9beb7035c044");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP + 6U, 'M');
-    string<STRINGCAP + 6U> sut;
-    ASSERT_THAT(sut.unsafe_assign(testString.c_str()), Eq(true));
-    std::string foo(STRINGCAP, 'M');
-    EXPECT_THAT(sut.compare(foo), Gt(0));
-}
-
-/// @note template <uint64_t Capacity>
-/// inline std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str)
-TYPED_TEST(stringTyped_test, EmptyStreamInputWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "88c68194-9a9c-4f2f-a0e0-90bd72f9b102");
-    std::ostringstream testStream;
-    testStream << "";
-    EXPECT_THAT(testStream.str(), StrEq(""));
-}
-
-TYPED_TEST(stringTyped_test, StreamInputOfSizeCapacityWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "c9b3dff3-008d-4189-818f-3534767e7ee4");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testString(STRINGCAP, 'M');
-    string<STRINGCAP> testFixedString(TruncateToCapacity, testString.c_str(), testString.size());
-    std::ostringstream testStream;
-    testStream << testFixedString;
-    EXPECT_THAT(testStream.str(), Eq(testFixedString.c_str()));
 }
 
 /// @note constexpr bool empty() const noexcept
@@ -2445,57 +2303,6 @@ TEST(String10, AppendTooLargeStringLiteralResultsInTruncatedString)
     EXPECT_THAT(testString.c_str(), StrEq("Live long "));
 }
 
-TYPED_TEST(stringTyped_test, AppendEmptyStdStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6b3fb31a-a92b-4013-ba61-12b4846e8593");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    this->testSubject = "M";
-    std::string testStdString;
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(1U));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
-}
-
-TYPED_TEST(stringTyped_test, AppendStdStringToEmptyStringResultsInConcatenatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "2eebdc68-c495-4531-bb66-ee4ede8d86e3");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    std::string testStdString = "M";
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(1U));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
-}
-
-TYPED_TEST(stringTyped_test, AppendStdStringResultsInConcatenatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "7159ef46-f441-4cc7-8eff-46b5f3d33597");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    string<STRINGCAP + 5U> sut = "P";
-    std::string testStdString("icard");
-    sut.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(sut.capacity(), Eq(STRINGCAP + 5U));
-    EXPECT_THAT(sut.size(), Eq(6U));
-    EXPECT_THAT(sut.c_str(), StrEq("Picard"));
-}
-
-TYPED_TEST(stringTyped_test, AppendTooLargeStdStringResultsInTruncatedString)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "76a4752d-282f-47ad-87eb-7c8aab982c0c");
-    using MyString = typename TestFixture::stringType;
-    constexpr auto STRINGCAP = MyString::capacity();
-    this->testSubject = "M";
-    std::string testStdString(STRINGCAP + 1U, 'M');
-    this->testSubject.append(TruncateToCapacity, testStdString);
-    EXPECT_THAT(this->testSubject.capacity(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
-    EXPECT_THAT(this->testSubject.c_str(), StrEq(testStdString.substr(0, STRINGCAP)));
-}
-
 TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ed16b243-ddb3-46be-8bd8-2ed93fc7184d");
@@ -2510,13 +2317,6 @@ TYPED_TEST(stringTyped_test, AppendStringContainingNullWorks)
 
     // append iox::string
     sut.append(TruncateToCapacity, testCxxString);
-    EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
-    EXPECT_THAT(sut.size(), Eq(7U));
-    EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
-
-    // append std::string
-    sut = "i";
-    sut.append(TruncateToCapacity, testStdString);
     EXPECT_THAT(sut.capacity(), Eq(RESULT_CAPACITY));
     EXPECT_THAT(sut.size(), Eq(7U));
     EXPECT_THAT(std::memcmp(sut.c_str(), expectedString.c_str(), sut.size()), Eq(0));
@@ -2684,11 +2484,6 @@ TYPED_TEST(stringTyped_test, FindEmptyStringInEmptyStringWorks)
     res = this->testSubject.find("");
     ASSERT_THAT(res.has_value(), Eq(true));
     EXPECT_THAT(res.value(), Eq(0U));
-
-    std::string testStdString;
-    res = this->testSubject.find(testStdString);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
 }
 
 TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
@@ -2701,10 +2496,6 @@ TYPED_TEST(stringTyped_test, FindStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -2779,39 +2570,6 @@ TEST(String100, FindNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "794f62c2-deca-4511-9529-3353ff9ee552");
-    string<100U> testString("R2-D2");
-    std::string testStdString = "2";
-    auto res = testString.find(testStdString);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find(testStdString, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find(testStdString, 2U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-}
-
-TEST(String100, FindNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "8b2116c9-5f7d-48b4-8c26-cb3b71cf0ea2");
-    string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "abc";
-    auto res = testString.find(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note template <typename T>
 /// iox::cxx::optional<uint64_t> find_first_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
@@ -2825,10 +2583,6 @@ TYPED_TEST(stringTyped_test, FindFirstOfFailsForEmptyStringInEmptyString)
 
     res = this->testSubject.find_first_of("");
     EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString;
-    res = this->testSubject.find_first_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
@@ -2841,10 +2595,6 @@ TYPED_TEST(stringTyped_test, FindFirstOfForStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find_first_of("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find_first_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -2936,48 +2686,6 @@ TEST(String100, FindFirstOfForNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindFirstOfForSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1f44acab-aa37-4f45-a782-06ad02bd926b");
-    string<100U> testString("R2-D2");
-    std::string testStdString1 = "2";
-    auto res = testString.find_first_of(testStdString1);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_first_of(testStdString1, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_first_of(testStdString1, 2U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    std::string testStdString2 = "D3R";
-    res = testString.find_first_of(testStdString2);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
-
-    res = testString.find_first_of(testStdString2, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(3U));
-}
-
-TEST(String100, FindFirstOfForNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "700d9fd9-4039-490e-9dd4-3833fb9f5e08");
-    string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "cd";
-    auto res = testString.find_first_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_first_of(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_first_of(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note template <typename T>
 /// iox::cxx::optional<uint64_t> find_last_of(const T& t, uint64_t pos = 0) const noexcept
 TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
@@ -2991,10 +2699,6 @@ TYPED_TEST(stringTyped_test, FindLastOfFailsForEmptyStringInEmptyString)
 
     res = this->testSubject.find_last_of("");
     EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString;
-    res = this->testSubject.find_last_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
 }
 
 TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
@@ -3007,10 +2711,6 @@ TYPED_TEST(stringTyped_test, FindLastOfForStringInEmptyStringFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 
     res = this->testSubject.find_last_of("a");
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    std::string testStdString = "a";
-    res = this->testSubject.find_last_of(testStdString);
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
@@ -3094,65 +2794,24 @@ TEST(String100, FindLastOfForNotIncludedStringLiteralFails)
     EXPECT_THAT(res.has_value(), Eq(false));
 }
 
-TEST(String100, FindLastOfForSTDStringInNotEmptyStringWorks)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "f068fa78-1e97-4148-bbba-da9cc2cf022e");
-    string<100U> testString("R2-D2");
-    std::string testStdString1 = "2";
-    auto res = testString.find_last_of(testStdString1);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    res = testString.find_last_of(testStdString1, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(1U));
-
-    res = testString.find_last_of(testStdString1, 5U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(4U));
-
-    std::string testStdString2 = "D3R";
-    res = testString.find_last_of(testStdString2);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(3U));
-
-    res = testString.find_last_of(testStdString2, 1U);
-    ASSERT_THAT(res.has_value(), Eq(true));
-    EXPECT_THAT(res.value(), Eq(0U));
-}
-
-TEST(String100, FindLastOfForNotIncludedSTDStringFails)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "91df370f-38ee-41e8-8063-5f4c3010374f");
-    string<100U> testString("Kernfusionsbaby");
-    std::string testStdString = "cd";
-    auto res = testString.find_last_of(testStdString);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_last_of(testStdString, 0U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-
-    res = testString.find_last_of(testStdString, 50U);
-    EXPECT_THAT(res.has_value(), Eq(false));
-}
-
 /// @note constexpr char& at(const uint64_t pos) noexcept
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "89817818-f05a-4ceb-8663-9727d227048c");
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(0U); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(0U); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "68035709-5f8d-4bcb-80ce-ad5619aba84a");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject.at(STRINGCAP); },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNonEmptyStringViaAtReturnsCorrectCharacter)
@@ -3182,23 +2841,23 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaAtSu
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5cf6d322-6ee9-41ce-bbf6-4e0d193fa938");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(0U); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(0U); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstAtFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "90a986f4-b29b-4ce7-ad55-79cc4b7b2b29");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut.at(STRINGCAP); }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut.at(STRINGCAP); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstAtReturnsCorrectCharacter)
@@ -3226,19 +2885,19 @@ TYPED_TEST(stringTyped_test, AccessMaxPositionOfNotEmptyStringViaConstAtSucceeds
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "95ced457-1aec-47e9-a496-0197ea3f4600");
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[0U]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ab52924e-1d6a-41e1-a8a9-8cfd9ab2120d");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ this->testSubject[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { this->testSubject[STRINGCAP]; },
+                                              iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaSubscriptOperatorReturnsCorrectCharacter)
@@ -3268,23 +2927,23 @@ TYPED_TEST(stringTyped_test, AccessAndAssignToMaxPositionOfNotEmptyStringViaSubs
 TYPED_TEST(stringTyped_test, AccessPositionOfEmptyStringViaConstSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7ca75e53-8e26-4451-8712-a86bfe5bd32c");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[0U]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[0U]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessPositionOutOfBoundsViaConstSubscriptOperatorFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5498e314-d321-464a-a667-400ee0c4d81f");
+
     using MyString = typename TestFixture::stringType;
     constexpr auto STRINGCAP = MyString().capacity();
     const string<STRINGCAP> sut;
-    // @todo iox-#1613 remove EXPECT_DEATH
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg, hicpp-avoid-goto, cert-err33-c)
-    EXPECT_DEATH({ sut[STRINGCAP]; }, ""); // ERROR: Out of bounds access !
+
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut[STRINGCAP]; }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 TYPED_TEST(stringTyped_test, AccessFirstPositionOfNotEmptyStringViaConstSubscriptOperatorReturnsCorrectCharacter)
@@ -3524,20 +3183,40 @@ TEST(stringTyped_test, NonCxxStringsAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "898fdeb7-2b35-4d33-8db4-ed3b9447a1da");
 
-    EXPECT_FALSE(is_cxx_string<int>::value);
+    EXPECT_FALSE(is_iox_string<int>::value);
     /// @NOLINTJUSTIFICATION we want test explicitly the c arrays case
     /// @NOLINTBEGIN(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<int[10]>::value);
-    EXPECT_FALSE(is_cxx_string<char[11]>::value);
+    EXPECT_FALSE(is_iox_string<int[10]>::value);
+    EXPECT_FALSE(is_iox_string<char[11]>::value);
     /// @NOLINTEND(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
-    EXPECT_FALSE(is_cxx_string<char>::value);
+    EXPECT_FALSE(is_iox_string<char>::value);
 }
 
 TEST(stringTyped_test, CxxStringsAreIdentifiedCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "778995dc-9be4-47f1-9490-cd111930d3d3");
 
-    EXPECT_TRUE(is_cxx_string<iox::string<1>>::value);
-    EXPECT_TRUE(is_cxx_string<iox::string<10>>::value);
+    EXPECT_TRUE(is_iox_string<iox::string<1>>::value);
+    EXPECT_TRUE(is_iox_string<iox::string<10>>::value);
+}
+
+TYPED_TEST(stringTyped_test, UncheckedAtWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2197840d-af88-4fcd-9bb7-51a87d4bf10d");
+
+    for (uint64_t i = 0; i < this->testSubject.capacity(); ++i)
+    {
+        // add a b c in alternating fashion
+        EXPECT_THAT(this->testSubject.unsafe_append(static_cast<char>('a' + i % 3)), Eq(true));
+    }
+
+    for (uint64_t i = 0; i < this->testSubject.size(); ++i)
+    {
+        EXPECT_THAT(this->testSubject.unchecked_at(i), Eq(static_cast<char>('a' + i % 3)));
+        /// @NOLINTJUSTIFICATION we explicitly test the const version
+        /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+        EXPECT_THAT(const_cast<const decltype(this->testSubject)&>(this->testSubject).unchecked_at(i),
+                    Eq(static_cast<char>('a' + i % 3)));
+    }
 }
 } // namespace

@@ -22,3 +22,38 @@ int iox_close(int fd)
 {
     return close(fd);
 }
+
+int iox_ext_close(int fd)
+{
+    return close(fd);
+}
+
+int iox_fchown(int fd, uid_t owner, gid_t group)
+{
+    return fchown(fd, owner, group);
+}
+
+int iox_access(const char* pathname, int mode)
+{
+    return access(pathname, mode);
+}
+
+int iox_unlink(const char* pathname)
+{
+    return unlink(pathname);
+}
+
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence)
+{
+    return lseek(fd, offset, whence);
+}
+
+iox_ssize_t iox_read(int fd, void* buf, size_t count)
+{
+    return read(fd, buf, count);
+}
+
+iox_ssize_t iox_write(int fd, const void* buf, size_t count)
+{
+    return write(fd, buf, count);
+}

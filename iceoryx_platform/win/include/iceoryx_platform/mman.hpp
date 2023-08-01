@@ -45,4 +45,10 @@ int munmap(void* addr, size_t length);
 int iox_shm_open(const char* name, int oflag, mode_t mode);
 
 int iox_shm_unlink(const char* name);
+
+int iox_shm_close(int fd);
+
+void internal_iox_shm_set_size(int fd, off_t length);
+
+off_t internal_iox_shm_get_size(int fd);
 #endif // IOX_HOOFS_WIN_PLATFORM_MMAN_HPP

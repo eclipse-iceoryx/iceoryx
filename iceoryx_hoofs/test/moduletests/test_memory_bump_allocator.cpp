@@ -53,7 +53,7 @@ TEST_F(BumpAllocator_Test, AllocateFailsWithZeroSize)
 
     auto allocationResult = sut.allocate(0, MEMORY_ALIGNMENT);
     ASSERT_TRUE(allocationResult.has_error());
-    EXPECT_THAT(allocationResult.get_error(), Eq(iox::BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY));
+    EXPECT_THAT(allocationResult.error(), Eq(iox::BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY));
 }
 
 TEST_F(BumpAllocator_Test, OverallocationFails)
@@ -63,7 +63,7 @@ TEST_F(BumpAllocator_Test, OverallocationFails)
 
     auto allocationResult = sut.allocate(MEMORY_SIZE + 1, MEMORY_ALIGNMENT);
     ASSERT_TRUE(allocationResult.has_error());
-    EXPECT_THAT(allocationResult.get_error(), Eq(iox::BumpAllocatorError::OUT_OF_MEMORY));
+    EXPECT_THAT(allocationResult.error(), Eq(iox::BumpAllocatorError::OUT_OF_MEMORY));
 }
 
 TEST_F(BumpAllocator_Test, OverallocationAfterMultipleCallsFails)
@@ -78,7 +78,7 @@ TEST_F(BumpAllocator_Test, OverallocationAfterMultipleCallsFails)
 
     auto allocationResult = sut.allocate(1, MEMORY_ALIGNMENT);
     ASSERT_TRUE(allocationResult.has_error());
-    EXPECT_THAT(allocationResult.get_error(), Eq(iox::BumpAllocatorError::OUT_OF_MEMORY));
+    EXPECT_THAT(allocationResult.error(), Eq(iox::BumpAllocatorError::OUT_OF_MEMORY));
 }
 
 TEST_F(BumpAllocator_Test, AllocationIsCorrectlyAligned)

@@ -59,15 +59,9 @@ class Trigger_test : public Test
 
     void SetUp() override
     {
-        CaptureStderr();
     }
     void TearDown() override
     {
-        std::string output = GetCapturedStderr();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     Trigger

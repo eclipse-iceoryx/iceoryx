@@ -18,7 +18,7 @@
 #include "iceoryx_posh/internal/roudi/process.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 using namespace iox::units::duration_literals;
 namespace iox
@@ -54,7 +54,7 @@ void Process::sendViaIpcChannel(const runtime::IpcMessage& data) noexcept
     bool sendSuccess = m_ipcChannel.send(data);
     if (!sendSuccess)
     {
-        LogWarn() << "Process cannot send message over communication channel";
+        IOX_LOG(WARN) << "Process cannot send message over communication channel";
         errorHandler(PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED, ErrorLevel::MODERATE);
     }
 }

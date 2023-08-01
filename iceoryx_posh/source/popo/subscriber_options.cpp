@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/subscriber_options.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -49,11 +49,11 @@ SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful
         || queueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA))
     {
-        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     subscriberOptions.queueFullPolicy = static_cast<QueueFullPolicy>(queueFullPolicy);
-    return success<SubscriberOptions>(subscriberOptions);
+    return ok(subscriberOptions);
 }
 } // namespace popo
 } // namespace iox

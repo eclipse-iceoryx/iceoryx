@@ -17,9 +17,9 @@
 #ifndef IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 #define IOX_HOOFS_VOCABULARY_OPTIONAL_HPP
 
-#include "iceoryx_hoofs/cxx/functional_interface.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/functional_interface.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <new> // needed for placement new in the construct_value member function
 #include <utility>
@@ -31,7 +31,7 @@ namespace iox
 struct nullopt_t
 {
 };
-// AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : nullopt is defined within iox namespace which prevents easy
 // misuse
 constexpr nullopt_t nullopt{nullopt_t()};
 
@@ -40,7 +40,7 @@ struct in_place_t
 {
 };
 
-// AXIVION Next Construct AutosarC++19_03-M17.0.2 : in_place is defined within iox::cxx namespace which prevents easy
+// AXIVION Next Construct AutosarC++19_03-M17.0.2 : in_place is defined within iox namespace which prevents easy
 // misuse
 constexpr in_place_t in_place{};
 
@@ -68,7 +68,7 @@ constexpr in_place_t in_place{};
 ///     }
 /// @endcode
 template <typename T>
-class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
+class optional final : public FunctionalInterface<optional<T>, T, void>
 {
   public:
     using type = T;
@@ -81,18 +81,20 @@ class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
     /// @brief Creates an optional which has no value. If you access such an
     ///         optional via .value() or the arrow operator the application
     ///         terminates.
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) the usage of 'nullopt' shall be transparent when used with an 'optional'
     optional(const nullopt_t) noexcept;
 
     /// @brief Creates an optional by forwarding value to the constructor of
     ///         T. This optional has a value.
     /// @param[in] value rvalue of type T which will be moved into the optional
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // AXIVION DISABLE STYLE AutosarC++19_03-A12.1.4 : the usage of 'T' shall be transparent when used with an 'optional'
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(T&& value) noexcept;
 
     /// @brief Creates an optional by using the copy constructor of T.
     /// @param[in] value lvalue of type T which will be copy constructed into the optional
-    // NOLINTNEXTLINE(hicpp-explicit-conversions) for justification see doxygen
+    // AXIVION DISABLE STYLE AutosarC++19_03-A12.1.4 : the usage of 'T' shall be transparent when used with an 'optional'
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
     optional(const T& value) noexcept;
 
     /// @brief Creates an optional and an object inside the optional on construction by perfectly forwarding args to the
@@ -228,13 +230,16 @@ class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
     //     initHandle(&handle);
     //   }
     bool m_hasValue{false};
+    // AXIVION DISABLE STYLE AutosarC++19_03-A9.6.1 : False positive. Used type has defined size.
     struct alignas(T) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the array
-        // is wrapped inside the optional
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
         // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
-        cxx::byte_t data[sizeof(T)];
+        byte data[sizeof(T)];
     };
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
     element_t m_data;
 
   private:
@@ -243,7 +248,7 @@ class optional final : public cxx::FunctionalInterface<optional<T>, T, void>
     void destruct_value() noexcept;
 };
 
-// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox::cxx which prevents easy misuse
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : make_optional is defined within iox which prevents easy misuse
 /// @brief Creates an optional which contains a value by forwarding the arguments
 ///         to the constructor of T.
 /// @param[in] args arguments which will be perfectly forwarded to the constructor

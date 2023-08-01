@@ -42,7 +42,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
     auto result = port().getRequest();
     if (result.has_error())
     {
-        return error<ServerRequestResult>(result.get_error());
+        return err(result.error());
     }
     auto requestHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(requestHeader)->userPayload();
@@ -50,7 +50,7 @@ expected<Request<const Req>, ServerRequestResult> ServerImpl<Req, Res, BaseServe
         auto* requestHeader = iox::popo::RequestHeader::fromPayload(payload);
         this->port().releaseRequest(requestHeader);
     });
-    return success<Request<const Req>>(Request<const Req>{std::move(request)});
+    return ok(Request<const Req>{std::move(request)});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
@@ -61,7 +61,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
     auto result = port().allocateResponse(requestHeader, sizeof(Res), alignof(Res));
     if (result.has_error())
     {
-        return error<AllocationError>(result.get_error());
+        return err(result.error());
     }
     auto responseHeader = result.value();
     auto payload = mepoo::ChunkHeader::fromUserHeader(responseHeader)->userPayload();
@@ -69,7 +69,7 @@ ServerImpl<Req, Res, BaseServerT>::loanUninitialized(const Request<const Req>& r
         auto* responseHeader = iox::popo::ResponseHeader::fromPayload(payload);
         this->port().releaseResponse(responseHeader);
     });
-    return success<Response<Res>>(Response<Res>{std::move(response), *this});
+    return ok(Response<Res>{std::move(response), *this});
 }
 
 template <typename Req, typename Res, typename BaseServerT>
@@ -82,9 +82,9 @@ expected<Response<Res>, AllocationError> ServerImpl<Req, Res, BaseServerT>::loan
 }
 
 template <typename Req, typename Res, typename BaseServerT>
-expected<ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
+expected<void, ServerSendError> ServerImpl<Req, Res, BaseServerT>::send(Response<Res>&& response) noexcept
 {
-    // take the ownership of the chunk from the Response to transfer it to `sendResponse`
+    // take the ownership of the chunk from the Response to transfer it to 'sendResponse'
     auto payload = response.release();
     auto* responseHeader = static_cast<ResponseHeader*>(mepoo::ChunkHeader::fromUserPayload(payload)->userHeader());
     return port().sendResponse(responseHeader);

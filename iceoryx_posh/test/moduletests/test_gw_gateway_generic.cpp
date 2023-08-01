@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/duration.hpp"
 
 #include "test.hpp"
 
@@ -34,6 +34,8 @@ using ::testing::_;
 
 // ======================================== Helpers ======================================== //
 
+using iox::into;
+using iox::lossy;
 using iox::capro::IdString_t;
 
 // We do not need real channel terminals to test the base class.
@@ -106,10 +108,10 @@ TEST_F(GatewayGenericTest, IgnoresWildcardServices)
     auto resultThree = sut->addChannel(wildcardInstanceService, StubbedIceoryxTerminal::Options());
     auto resultFour = sut->addChannel(wildcardEventService, StubbedIceoryxTerminal::Options());
 
-    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.get_error());
-    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.get_error());
-    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.get_error());
-    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultOne.error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultTwo.error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultThree.error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUPPORTED_SERVICE_TYPE, resultFour.error());
 
     EXPECT_EQ(0U, sut->getNumberOfChannels());
 }
@@ -148,9 +150,9 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
@@ -168,16 +170,16 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i)),
-                                           iox::cxx::into<iox::capro::IdString_t>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
 
     auto result = sut->addChannel({"oneTooMany", "oneTooMany", "oneTooMany"}, StubbedIceoryxTerminal::Options());
     EXPECT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.get_error());
+    EXPECT_EQ(iox::gw::GatewayError::UNSUCCESSFUL_CHANNEL_CREATION, result.error());
 }
 
 TEST_F(GatewayGenericTest, ThrowsErrorWhenAttemptingToRemoveNonexistantChannel)

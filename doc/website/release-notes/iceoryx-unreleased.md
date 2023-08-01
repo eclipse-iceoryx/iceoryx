@@ -6,6 +6,8 @@
 
 **Features:**
 
+- Add bazel asan, usan, tsan build config [#1547](https://github.com/eclipse-iceoryx/iceoryx/issues/1547)
+- Add bazel clang build config [#1998](https://github.com/eclipse-iceoryx/iceoryx/issues/1998)
 - Add `command_line.hpp` which contains a macro builder to parse command line arguments quickly and safely [#1067](https://github.com/eclipse-iceoryx/iceoryx/issues/1067)
 - optional inherits from FunctionalInterface, adds .expect() method [\#996](https://github.com/eclipse-iceoryx/iceoryx/issues/996)
 - Add clear method for `iox::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
@@ -33,6 +35,17 @@
 - Implement UninitializedArray [\#1614](https://github.com/eclipse-iceoryx/iceoryx/issues/1614)
 - Implement BumpAllocator [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 - Expand cmake configuration options to enable reducing shared memory consumption. [\#1803](https://github.com/eclipse-iceoryx/iceoryx/issues/1803)
+- Implement PolymorphicHandler [\#1640](https://github.com/eclipse-iceoryx/iceoryx/issues/1640)
+- Implement SemanticString as base class for strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Implement UserName as strong string type to represent posix user names. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Implement FileName, GroupName, Path, FilePath as strong string types. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Add string::unchecked_at to access character without bound checks. [\#1942](https://github.com/eclipse-iceoryx/iceoryx/issues/1942)
+- Add posix::FileManagementInterface to offer common operations like ownership/permission handling to all file descriptor based constructs. [\#1952](https://github.com/eclipse-iceoryx/iceoryx/issues/1952)
+- Implement dereference operator for smart_lock::Proxy [\#1966](https://github.com/eclipse-iceoryx/iceoryx/issues/1966)
+- `NewType` supports arithmetic operations and loops [\#1554](https://github.com/eclipse-iceoryx/iceoryx/issues/1554)
+- Add `iox::span` [\#180](https://github.com/eclipse-iceoryx/iceoryx/issues/180)
+- Implement custom error reporting API [\#1032](https://github.com/eclipse-iceoryx/iceoryx/issues/1032)
+- Implement iceoryx platform for FreeRTOS [#1982](https://github.com/eclipse-iceoryx/iceoryx/issues/1982)
 
 **Bugfixes:**
 
@@ -51,11 +64,11 @@
 - Add "inline" keyword to smart_lock method implementation [\#1551](https://github.com/eclipse-iceoryx/iceoryx/issues/1551)
 - Fix RouDi crash due to uninitialized `ServiceRegistry` chunk [\#1575](https://github.com/eclipse-iceoryx/iceoryx/issues/1575)
 - Add check in `cxx::unique_ptr::get` to avoid `nullptr` dereferencing [\#1571](https://github.com/eclipse-iceoryx/iceoryx/issues/1571)
-- Pass `CleanupCapacity` to underlying `cxx::function` in `ScopeGuard` (formerly known as `cxx::GenericRAII`) [\#1594](https://github.com/eclipse-iceoryx/iceoryx/issues/1594)
+- Pass `CleanupCapacity` to underlying `iox::function` in `ScopeGuard` (formerly known as `cxx::GenericRAII`) [\#1594](https://github.com/eclipse-iceoryx/iceoryx/issues/1594)
 - Add check in `RelativePointer::get` to avoid `nullptr` dereferencing [\#1596](https://github.com/eclipse-iceoryx/iceoryx/issues/1596)
 - iceoryx_posh_testing cannot find iceoryx_hoofs_testing in CMake [\#1602](https://github.com/eclipse-iceoryx/iceoryx/issues/1602)
 - locking_policy.cpp calls error handler without log message [\#1609](https://github.com/eclipse-iceoryx/iceoryx/issues/1609)
-- Implement destructor, copy and move operations in `cxx::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
+- Implement destructor, copy and move operations in `iox::stack` [\#1469](https://github.com/eclipse-iceoryx/iceoryx/issues/1469)
 - `gw::GatewayGeneric` sometimes terminates discovery and forward threads immediately [\#1666](https://github.com/eclipse-iceoryx/iceoryx/issues/1666)
 - `m_originId` in `mepoo::ChunkHeader` sometimes not set [\#1668](https://github.com/eclipse-iceoryx/iceoryx/issues/1668)
 - Remove `cxx::unique_ptr::reset` [\#1655](https://github.com/eclipse-iceoryx/iceoryx/issues/1655)
@@ -64,6 +77,18 @@
 - Fix double move in `vector::emplace` [\#1823](https://github.com/eclipse-iceoryx/iceoryx/issues/1823)
 - Default roudi_config.toml path is not used [\#1826](https://github.com/eclipse-iceoryx/iceoryx/issues/1826)
 - `WaitSet::wait` returns if data was send before `WaitSet::attachState(.., State::HAS_{DATA, REQUEST, RESPONSE})` [\#1855](https://github.com/eclipse-iceoryx/iceoryx/issues/1855)
+- Provide a better error message when attempting to create a shared memory in read-only mode
+  [\#1821](https://github.com/eclipse-iceoryx/iceoryx/issues/1821)
+- Can not build iceoryx with gcc 9.4 [\#1871](https://github.com/eclipse-iceoryx/iceoryx/issues/1871)
+- Update iceoryx_integrationtest package to use ROS2 Humble [\#1906](https://github.com/eclipse-iceoryx/iceoryx/issues/1906)
+- Fix potential memory leak in `iox::stack` [\#1893](https://github.com/eclipse-iceoryx/iceoryx/issues/1893)
+- Make `MAX_USER_NAME_LENGTH` and `MAX_GROUP_NAME_LENGTH` platform-dependent [\#1919](https://github.com/eclipse-iceoryx/iceoryx/issues/1919)
+- Fix milliseconds in log timestamps [\#1932](https://github.com/eclipse-iceoryx/iceoryx/issues/1932)
+- Alias `invoke_result` to correct implementation based on C++ version [\#1934](https://github.com/eclipse-iceoryx/iceoryx/issues/1934)
+- Fix undefined behaviour in `publishCopyOf` and `publishResultOf` [\#1963](https://github.com/eclipse-iceoryx/iceoryx/issues/1963)
+- ServiceDescription `Interfaces` and `INTERFACE_NAMES` do not match [\#1977](https://github.com/eclipse-iceoryx/iceoryx/issues/1977)
+- Implement and test nullptr check in c binding [\#1106](https://github.com/eclipse-iceoryx/iceoryx/issues/1106)
+- Fix `expected<void, Error>` is unusable due to `final` [\#1976](https://github.com/eclipse-iceoryx/iceoryx/issues/1976)
 
 **Refactoring:**
 
@@ -74,15 +99,15 @@
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
   - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
-  - Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+  - Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 - Uninteresting mock function calls in tests [\#1341](https://github.com/eclipse-iceoryx/iceoryx/issues/1341)
 - `cxx::unique_ptr` owns deleter, remove all deleter classes [\#1143](https://github.com/eclipse-iceoryx/iceoryx/issues/1143)
 - Remove `iox::posix::Timer` [\#337](https://github.com/eclipse-iceoryx/iceoryx/issues/337)
 - Refactor service discovery tests [/#1065](https://github.com/eclipse-iceoryx/iceoryx/issues/1065)
   to increase comprehension and cover more test cases
 - Remove usage of `std::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
-- Replace `MethodCallback` with `cxx::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
-- Remove null-ability `cxx::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- Replace `MethodCallback` with `iox::function` [\#831](https://github.com/eclipse-iceoryx/iceoryx/issues/831)
+- Remove null-ability `iox::function_ref` [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Remove implicit conversion from `iox::expected` to `iox::optional` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
 - Remove AtomicRelocatablePointer [\#1512](https://github.com/eclipse-iceoryx/iceoryx/issues/1512)
 - `SignalHandler` returns an `iox::expected` in `registerSignalHandler` [\#1196](https://github.com/eclipse-iceoryx/iceoryx/issues/1196)
@@ -95,14 +120,14 @@
 - Move package `iceoryx_dds` to [separate repository](https://github.com/eclipse-iceoryx/iceoryx-gateway-dds) [\#1564](https://github.com/eclipse-iceoryx/iceoryx/issues/1564)
 - Set `SOVERSION` with project major version for shared libraries in CMake [\#1308](https://github.com/eclipse-iceoryx/iceoryx/issues/1308)
 - Monitoring feature of RouDi is now disabled by default [\#1580](https://github.com/eclipse-iceoryx/iceoryx/issues/1580)
-- Rename `cxx::GenericRAII` to `cxx::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
+- Rename `cxx::GenericRAII` to `iox::ScopeGuard` [\#1450](https://github.com/eclipse-iceoryx/iceoryx/issues/1450)
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
-- Change return type of `cxx::vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
+- Change return type of `vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `iox::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
-- `cxx::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
+- `iox::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
 - Rename `BaseRelativePointer` to `UntypedRelativePointer` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - Prevent building GoogleTest when `GTest_DIR` is defined [\#1758](https://github.com/eclipse-iceoryx/iceoryx/issues/1758)
 - Refactor `iceoryx_posh_testing` library into own CMakeLists.txt [\#1516](https://github.com/eclipse-iceoryx/iceoryx/issues/1516)
@@ -112,6 +137,12 @@
 - Move `cxx::static_storage` from `iceoryx_hoofs` to `iceoryx_dust` [\#1732](https://github.com/eclipse-iceoryx/iceoryx/issues/1732)
 - Remove `algorithm::uniqueMergeSortedContainers` from `algorithm.hpp`
 - Move `std::string` conversion function to `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
+- The posix call `unlink` is directly used in `UnixDomainSocket` [\#1622](https://github.com/eclipse-iceoryx/iceoryx/issues/1622)
+- Wrap all C calls in posixCall in IntrospectionApp [\#1692](https://github.com/eclipse-iceoryx/iceoryx/issues/1692)
+- Move `std::chrono` dependency to `iceoryx_dust` [\#536](https://github.com/eclipse-iceoryx/iceoryx/issues/536)
+- Move `std::string` dependency from `iox::string` to `std_string_support.hpp` in `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
+- Better align `iox::expected` with `std::expected` [\#1969](https://github.com/eclipse-iceoryx/iceoryx/issues/1969)
+- Use logger for "RouDi is ready for clients" message [\#1994](https://github.com/eclipse-iceoryx/iceoryx/issues/1994)
 
 **Workflow:**
 
@@ -139,18 +170,18 @@
                             .memorySizeInBytes(16)
                             .accessMode(iox::posix::AccessMode::READ_WRITE)
                             .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                            .permissions(cxx::perms::owner_all)
+                            .permissions(iox::perms::owner_all)
                             .create();
     ```
 
-2. Builder pattern extracted from `helplets.hpp` into `design_pattern/builder.hpp`
+2. Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 
     ```cpp
     // before
     #include "iceoryx_hoofs/cxx/helplets.hpp"
 
     // after
-    #include "iceoryx_hoofs/design_pattern/builder.hpp"
+    #include "iox/builder.hpp"
     ```
 
 3. `UnnamedSemaphore` replaces `Semaphore` with `CreateUnnamed*` option
@@ -188,7 +219,7 @@
     auto result = iox::posix::NamedSemaphoreBuilder()
                     .name("mySemaphoreName")
                     .openMode(iox::posix::OpenMode::OPEN_OR_CREATE)
-                    .permissions(iox::cxx::perms::owner_all)
+                    .permissions(iox::perms::owner_all)
                     .initialValue(0U)
                     .create(semaphore);
     ```
@@ -217,7 +248,7 @@
    via a pointer to `FunctionalInterface`
 
    ```cpp
-   iox::cxx::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
+   iox::FunctionalInterface<iox::optional<MyClass>, MyClass, void>* soSmart =
        new iox::optional<MyClass>{};
 
    delete soSmart; // <- not possible anymore
@@ -226,12 +257,12 @@
 7. It is not possible to delete a class which is derived from `NewType` via a pointer to `NewType`
 
    ```cpp
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
 
-   iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
+   iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>* soSmart = new Foo{42};
 
    delete soSmart; // <- not possible anymore
    ```
@@ -241,17 +272,17 @@
    ```cpp
    // before
    // for the compiler Foo and Bar are the same type
-   using Foo = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
-   using Bar = iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>;
+   using Foo = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
+   using Bar = iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>;
 
    // after
    // compile time error when Foo and Bar are mixed up
-   struct Foo : public iox::cxx::NewType<uint64_t, iox::cxx::newtype::ConstructByValueCopy>
+   struct Foo : public iox::NewType<uint64_t, iox::newtype::ConstructByValueCopy>
    {
        using ThisType::ThisType;
    };
    // or with the IOX_NEW_TYPE macro
-   IOX_NEW_TYPE(Bar, uint64_t, iox::cxx::newtype::ConstructByValueCopy);
+   IOX_NEW_TYPE(Bar, uint64_t, iox::newtype::ConstructByValueCopy);
    ```
 
 9. `FileLock` uses the builder pattern. Path and permissions can now be set.
@@ -264,7 +295,7 @@
     // after
     auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
                                                  .path("/Now/I/Can/Add/A/Path")
-                                                 .permission(iox::cxx::perms::owner_all)
+                                                 .permission(iox::perms::owner_all)
                                                  .create()
                                                  .expect("Oh no I couldn't create the lock file");
     ```
@@ -315,14 +346,83 @@
     }
     ```
 
-14. Remove `forEach` from helplets
+14. Moved or removed various functions from helplets
 
     ```cpp
     // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
     iox::cxx::forEach(container, [&] (element) { /* do stuff with element */ });
 
     // after
     for (const auto& element: container) { /* do stuff with element */ }
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::greater_or_equal(..);
+    iox::cxx::range(..);
+    iox::cxx::BestFittingType(..);
+    iox::cxx::isPowerOfTwo(..);
+
+    // after
+    #include "iox/algorithm.hpp"
+    iox::greater_or_equal(..);
+    iox::range(..);
+    iox::BestFittingType(..);
+    iox::isPowerOfTwo(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::align(..);
+    iox::cxx::alignedAlloc(..);
+    iox::cxx::alignedFree(..);
+    iox::cxx::maxAlignment(..);
+    iox::cxx::maxSize(..);
+
+    // after
+    #include "iox/memory.hpp"
+    iox::align(..);
+    iox::alignedAlloc(..);
+    iox::alignedFree(..);
+    iox::maxAlignment(..);
+    iox::maxSize(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    iox::cxx::isValidPathEntry(..);
+    iox::cxx::isValidFileName(..);
+    iox::cxx::isValidPathToFile(..);
+    iox::cxx::isValidPathToDirectory(..);
+    iox::cxx::doesEndWithPathSeparator(..);
+
+    // after
+    #include "iox/filesystem.hpp"
+    iox::isValidPathEntry(..);
+    iox::isValidFileName(..);
+    iox::isValidPathToFile(..);
+    iox::isValidPathToDirectory(..);
+    iox::doesEndWithPathSeparator(..);
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/helplets.hpp"
+    template <>
+    constexpr DestType
+    iox::cxx::from<SourceType, DestType>(const SourceType value);
+    iox::cxx::into(..);
+
+    // after
+    #include "iox/into.hpp"
+    template <>
+    constexpr DestType
+    iox::from<SourceType, DestType>(const SourceType value);
+    iox::into(..);
     ```
 
 15. Remove `enumTypeAsUnderlyingType`
@@ -349,7 +449,7 @@
     std::cout << SOME_ENUM_STRINGS[static_cast<uint64_t>(someEnum)] << std::endl;
     ```
 
-17. Replace `strlen2` with more generic `arrayCapacity`
+17. Replace `strlen2` with more generic `iox::size`
 
     ```cpp
     constexpr const char LITERAL1[] {"FOO"};
@@ -361,12 +461,13 @@
     std::cout << iox::cxx::strlen2(LITERAL2) << std::endl; // prints 19
 
     // after
-    std::cout << arrayCapacity(LITERAL1) << std::endl; // prints 4
-    std::cout << arrayCapacity(LITERAL2) << std::endl; // prints 20
-    std::cout << arrayCapacity(ARRAY) << std::endl;    // prints 42
+    #include "iox/size.hpp"
+    std::cout << iox::size(LITERAL1) << std::endl; // prints 4
+    std::cout << iox::size(LITERAL2) << std::endl; // prints 20
+    std::cout << iox::size(ARRAY) << std::endl;    // prints 42
     ```
 
-18. Rename `cxx::GenericRAII` to `cxx::ScopeGuard`
+18. Rename `cxx::GenericRAII` to `iox::ScopeGuard`
 
     ```cpp
     // before
@@ -380,8 +481,8 @@
     }};
 
     // after
-    #include "iceoryx_hoofs/cxx/scope_guard.hpp"
-    iox::cxx::ScopeGuard {[]()
+    #include "iox/scope_guard.hpp"
+    iox::ScopeGuard {[]()
     {
         // do on creation
     },[]()
@@ -399,7 +500,7 @@
     constexpr uint32_t MIN_VAL = algorithm::min(3, 1890, 57);
 
     // after
-    #include "iceoryx_hoofs/cxx/algorithm.hpp"
+    #include "iox/algorithm.hpp"
     constexpr uint32_t MAX_VAL = algorithm::maxVal(3, 1890, 57);
     constexpr uint32_t MIN_VAL = algorithm::minVal(3, 1890, 57);
     ```
@@ -424,7 +525,7 @@
     }
     ```
 
-21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and moved it from namespace `rp::` to `memory::`
+21. Renamed `BaseRelativePointer` to `UntypedRelativePointer` and removed it from namespace `rp::`
 
     ```cpp
     // before
@@ -432,8 +533,8 @@
     iox::rp::BaseRelativePointer myUntypedRelativePointer;
 
     // after
-    #include "iceoryx_hoofs/memory/relative_pointer.hpp"
-    iox::memory::UntypedRelativePointer myUntypedRelativePointer;
+    #include "iox/relative_pointer.hpp"
+    iox::UntypedRelativePointer myUntypedRelativePointer;
     ```
 
 22. The `CMakeLists.txt` of apps using iceoryx need to add `iceoryx_platform`
@@ -520,7 +621,7 @@
     myMutex->lock();
     ```
 
-26. Change return type of `cxx::vector::erase` from iterator to bool
+26. Change return type of `vector::erase` from iterator to bool
 
     ```cpp
     // before
@@ -530,20 +631,20 @@
     bool success = myCxxVector.erase(myCxxVector.begin());
     ```
 
-27. `cxx::function` is no longer nullable.
+27. `iox::function` is no longer nullable.
 
     ```cpp
     // before
-    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
-    cxx::function<void()> emptyFunction;
+    iox::cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    iox::cxx::function<void()> emptyFunction;
 
     if (helloFunc) { // required since the object could always be null
         helloFunc();
     }
 
     // after
-    cxx::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
-    iox::optional<cxx::function<void()>> emptyPtr(nullopt); // if function shall be nullable use optional
+    iox::function<void()> helloFunc = []{ std::cout << "hello world\n"; };
+    iox::optional<iox::function<void()>> emptyPtr(nullopt); // if function shall be nullable use optional
 
     // no more null check required since it is no longer nullable
     helloFunc();
@@ -567,7 +668,7 @@
 
     In the C binding the `Iceoryx_LogLevel_Verbose` changed to `Iceoryx_LogLevel_Trace`.
 
-29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iceoryx_hoofs/iceoryx_hoofs_types.hpp`
+29. `LogLevel` enum moved from `iceoryx_hoofs/log/logcommon.hpp` to `iox/iceoryx_hoofs_types.hpp`
 
 30. Using multiple logger instances and logging directly via a logger instance in not supported anymore out of the box
 
@@ -580,7 +681,7 @@
     logger.LogInfo() << "Hello World";
 
     // after
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     iox::log::Logger::init(iox::log::LogLevel::INFO);
 
@@ -596,7 +697,7 @@
     iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
 
     // after
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     iox::log::Logger::init(iox::log::LogLevel::ERROR);
     ```
@@ -664,7 +765,7 @@
 
     // after
     // ==== file bar.cpp ====
-    #include "iceoryx_hoofs/log/logging.hpp"
+    #include "iox/logging.hpp"
 
     namespace foo
     {
@@ -887,6 +988,23 @@
 
     // after
     #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/serialization.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/serialization.hpp"
+    ```
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/convert.hpp"
+
+    // after
+    #include "iceoryx_dust/cxx/convert.hpp"
+    ```
 
 43. Move the conversions functions for `std::string` to `iceoryx_dust`:
 
@@ -902,8 +1020,132 @@
     #include "iceoryx_dust/cxx/std_string_support.hpp"
 
     std::string myStdString("foo");
-    // std::string to iox::string
-    iox::string<3> myIoxString = iox::cxx::into<iox::string<3>>(myStdString);
+    // std::string to iox::string with truncation when source string exceeds capacity
+    auto myIoxString = iox::into<iox::lossy<iox::string<3>>>(myStdString); // returns a 'iox::string<3>'
+    // std::string to iox::string with fallible conversion when source string exceeds capacity
+    auto maybeMyIoxString = iox::into<iox::optional<iox::string<3>>>(myStdString); // returns a 'iox::optional<iox::string<3>>'
     // iox::string to std::string
-    std::string myConvertedIoxString = iox::cxx::into<std::string>(myIoxString);
+    auto myConvertedIoxString = iox::into<std::string>(myIoxString); // returns a 'std::string'
     ```
+
+44. In order to use the comparison or `operator<<` operators, `insert`, `find`, `unsafe_append` functions for
+    `std::string` together with `iox::string` include the support header:
+
+    ```cpp
+    // before
+    std::string myStdString("foo");
+    iox::string<3> myIoxString("foo");
+    if(myIoxString == myStdString)
+    {
+      ..
+    }
+
+    // after
+    #include "iceoryx_dust/cxx/std_string_support.hpp"
+
+    std::string myStdString("foo");
+    iox::string<3> myIoxString("foo");
+    if(myIoxString == myStdString)
+    {
+      ..
+    }
+    ```
+
+45. Move and rename `DeadlineTimer`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/cxx/deadline_timer.hpp"
+    iox::cxx::DeadlineTimer myTimer;
+
+    // after
+    #include "iox/deadline_timer.hpp"
+    iox::deadline_timer myTimer;
+    ```
+
+46. Changed include path of `iox::units::Duration`
+
+    ```cpp
+    // before
+    #include "iceoryx_hoofs/internal/units/duration.hpp"
+
+    // after
+    #include "iox/duration.hpp"
+    ```
+
+47. The `perms` enum is replaced by the `access_rights` class
+
+    ```cpp
+    // before
+    iox::perms foo { iox::perms::owner_all | iox::perms::group_read };
+
+    // after
+    iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
+    ```
+
+47. Renaming `byte_t` to `byte`
+
+    ```cpp
+    // before
+    iox::byte_t m_size;
+
+    // after
+    iox::byte m_size;
+    ```
+
+48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
+
+    ```cpp
+    // before
+    std::chrono::milliseconds chronoDuration = 1_ms;
+    iox::units::Duration ioxDuration(chronoDuration);
+
+    // after
+    #include "iceoryx_dust/cxx/std_chrono_support.hpp"
+
+    std::chrono::milliseconds chronoDuration = 1_ms;
+    iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};
+    ```
+
+49. Replace error only `expected<E>` with `void` value type `expected<void, E>`
+
+    ```cpp
+    // before
+    iox::expected<MyCustomError> foo();
+
+    // after
+    iox::expected<void, MyCustomError> foo();
+    ```
+
+50. `iox::success` and `iox::error` are deprecated in favour of `ok` and `err` free functions
+
+    ```cpp
+    // before
+    return iox::success<void>();
+
+    // after
+    return iox::ok();
+
+
+    // before
+    return iox::success<bool>(true);
+
+    // after
+    return iox::ok(true);
+
+
+    // before
+    return iox::error<MyCustomError>(MyCustomError::ERROR_CODE);
+
+    // after
+    return iox::err(MyCustomError::ERROR_CODE);
+    ```
+
+51. `expected::get_error` is deprecated in favour of `expected::error`
+
+    ```cpp
+    // before
+    auto e = exp.get_error();
+
+    // after
+    auto e = exp.error();

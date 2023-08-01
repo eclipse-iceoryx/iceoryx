@@ -34,7 +34,7 @@ using uid_t = UniquePortId;
 /// @brief The BaseServer class contains the common implementation for the different server
 /// @param[in] PortT type of the underlying port, required for testing specializations.
 /// @param[in] TriggerHandleT type of the underlying trigger handle, required for testing
-/// @note Not intended for public usage! Use the `Server` or `UntypedServer` instead!
+/// @note Not intended for public usage! Use the 'Server' or 'UntypedServer' instead!
 template <typename PortT = ServerPortUser, typename TriggerHandleT = TriggerHandle>
 class BaseServer
 {

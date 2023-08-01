@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_ENUM_TRIGGER_TYPE_HPP
 #define IOX_POSH_POPO_ENUM_TRIGGER_TYPE_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iox/type_traits.hpp"
 
 #include <cstdint>
 

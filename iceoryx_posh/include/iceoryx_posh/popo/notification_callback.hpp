@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_POPO_EVENT_CALLBACK_HPP
 #define IOX_POSH_POPO_EVENT_CALLBACK_HPP
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 
 namespace iox
 {

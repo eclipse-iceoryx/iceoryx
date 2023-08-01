@@ -73,9 +73,9 @@ void FixedPositionContainer<T, Capacity>::erase(const T* const element) noexcept
 }
 
 template <typename T, uint64_t Capacity>
-cxx::vector<T*, Capacity> FixedPositionContainer<T, Capacity>::content() noexcept
+vector<T*, Capacity> FixedPositionContainer<T, Capacity>::content() noexcept
 {
-    cxx::vector<T*, Capacity> returnValue;
+    vector<T*, Capacity> returnValue;
     for (auto& e : m_data)
     {
         if (e.has_value())

@@ -18,18 +18,18 @@
 #ifndef IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_HPP
 #define IOX_POSH_POPO_TYPED_PUBLISHER_IMPL_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/internal/popo/base_publisher.hpp"
 #include "iceoryx_posh/internal/popo/publisher_interface.hpp"
 #include "iceoryx_posh/internal/popo/typed_port_api_trait.hpp"
 #include "iceoryx_posh/popo/sample.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {
 namespace popo
 {
 /// @brief The PublisherImpl class implements the typed publisher API
-/// @note Not intended for public usage! Use the `Publisher` instead!
+/// @note Not intended for public usage! Use the 'Publisher' instead!
 template <typename T, typename H = mepoo::NoUserHeader, typename BasePublisherType = BasePublisher<>>
 class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
 {
@@ -66,7 +66,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @param val Value to copy.
     /// @return Error if unable to allocate memory to loan.
     ///
-    expected<AllocationError> publishCopyOf(const T& val) noexcept;
+    expected<void, AllocationError> publishCopyOf(const T& val) noexcept;
     ///
     /// @brief publishResultOf Loan a sample from memory, execute the provided callable to write to it, then publish it.
     /// @param c Callable with the signature void(T*, ArgTypes...) that write's it's result to T*.
@@ -74,7 +74,7 @@ class PublisherImpl : public BasePublisherType, private PublisherInterface<T, H>
     /// @return Error if unable to allocate memory to loan.
     ///
     template <typename Callable, typename... ArgTypes>
-    expected<AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
+    expected<void, AllocationError> publishResultOf(Callable c, ArgTypes... args) noexcept;
 
   protected:
     using BasePublisherType::port;

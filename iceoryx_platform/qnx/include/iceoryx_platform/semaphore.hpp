@@ -17,6 +17,7 @@
 #ifndef IOX_HOOFS_QNX_PLATFORM_SEMAPHORE_HPP
 #define IOX_HOOFS_QNX_PLATFORM_SEMAPHORE_HPP
 
+#include <climits>
 #include <cstdint>
 #include <semaphore.h>
 

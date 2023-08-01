@@ -20,6 +20,7 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
+#include "iox/not_null.hpp"
 
 class MemoryBlockMock final : public iox::roudi::MemoryBlock
 {
@@ -30,7 +31,7 @@ class MemoryBlockMock final : public iox::roudi::MemoryBlock
 #endif
     MOCK_METHOD(uint64_t, size, (), (const, noexcept, override));
     MOCK_METHOD(uint64_t, alignment, (), (const, noexcept, override));
-    MOCK_METHOD(void, onMemoryAvailable, (iox::cxx::not_null<void*>), (noexcept, override));
+    MOCK_METHOD(void, onMemoryAvailable, (iox::not_null<void*>), (noexcept, override));
     MOCK_METHOD(void, destroy, (), (noexcept, override));
 #ifdef __clang__
 #pragma GCC diagnostic pop

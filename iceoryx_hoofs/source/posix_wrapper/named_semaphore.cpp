@@ -15,9 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -30,7 +29,7 @@ static string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const 
     return nameWithSlash;
 }
 
-static expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
+static expected<void, SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
 {
     auto result = posixCall(iox_sem_unlink)(createNameWithSlash(name).c_str())
                       .failureReturnValue(-1)
@@ -38,18 +37,18 @@ static expected<SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexc
                       .evaluate();
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "You don't have permission to remove the semaphore \"" << name << "\"";
-            return error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
+            return err(SemaphoreError::PERMISSION_DENIED);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while creating the semaphore \""
                            << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::UNDEFINED);
+            return err(SemaphoreError::UNDEFINED);
         }
     }
-    return success<>();
+    return ok();
 }
 
 static expected<bool, SemaphoreError>
@@ -64,26 +63,26 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "Insufficient permissions to open semaphore \"" << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
+            return err(SemaphoreError::PERMISSION_DENIED);
         case EMFILE:
             IOX_LOG(ERROR) << "The per-process limit of file descriptor exceeded while opening the semaphore \"" << name
                            << "\"";
-            return error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+            return err(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
         case ENFILE:
             IOX_LOG(ERROR) << "The system wide limit of file descriptor exceeded while opening the semaphore \"" << name
                            << "\"";
-            return error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+            return err(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
         case ENOMEM:
             IOX_LOG(ERROR) << "Insufficient memory to open the semaphore \"" << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::OUT_OF_MEMORY);
+            return err(SemaphoreError::OUT_OF_MEMORY);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while opening the semaphore \""
                            << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::UNDEFINED);
+            return err(SemaphoreError::UNDEFINED);
         }
     }
 
@@ -91,10 +90,10 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
     {
         constexpr bool HAS_OWNERSHIP = false;
         uninitializedSemaphore.emplace(result.value().value, name, HAS_OWNERSHIP);
-        return success<bool>(true);
+        return ok(true);
     }
 
-    return success<bool>(false);
+    return ok(false);
 }
 
 /// NOLINTJUSTIFICATION used only internally in this file. Furthermore the problem cannot be avoided since
@@ -102,73 +101,73 @@ tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const
 ///                     before this function and provide the result but this would increase code complexity
 ///                     even further. The cognitive complexity results from the expanded log macro
 /// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
-static expected<SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
-                                                const NamedSemaphore::Name_t& name,
-                                                const OpenMode openMode,
-                                                const cxx::perms permissions,
-                                                const uint32_t initialValue) noexcept
+static expected<void, SemaphoreError> createSemaphore(optional<NamedSemaphore>& uninitializedSemaphore,
+                                                      const NamedSemaphore::Name_t& name,
+                                                      const OpenMode openMode,
+                                                      const access_rights permissions,
+                                                      const uint32_t initialValue) noexcept
 {
     auto result = posixCall(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
                                               convertToOflags(openMode),
-                                              static_cast<mode_t>(permissions),
+                                              permissions.value(),
                                               static_cast<unsigned int>(initialValue))
                       .failureReturnValue(IOX_SEM_FAILED)
                       .evaluate();
 
     if (result.has_error())
     {
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EACCES:
             IOX_LOG(ERROR) << "Insufficient permissions to create semaphore \"" << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::PERMISSION_DENIED);
+            return err(SemaphoreError::PERMISSION_DENIED);
         case EEXIST:
             IOX_LOG(ERROR)
                 << "A semaphore with the name \"" << name
                 << "\" does already exist. This should not happen until there is a race condition when multiple "
                    "instances try to create the same named semaphore concurrently.";
-            return error<SemaphoreError>(SemaphoreError::ALREADY_EXIST);
+            return err(SemaphoreError::ALREADY_EXIST);
         case EMFILE:
             IOX_LOG(ERROR) << "The per-process limit of file descriptor exceeded while creating the semaphore \""
                            << name << "\"";
-            return error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+            return err(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
         case ENFILE:
             IOX_LOG(ERROR) << "The system wide limit of file descriptor exceeded while creating the semaphore \""
                            << name << "\"";
-            return error<SemaphoreError>(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
+            return err(SemaphoreError::FILE_DESCRIPTOR_LIMIT_REACHED);
         case ENOMEM:
             IOX_LOG(ERROR) << "Insufficient memory to create the semaphore \"" << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::OUT_OF_MEMORY);
+            return err(SemaphoreError::OUT_OF_MEMORY);
         default:
             IOX_LOG(ERROR) << "This should never happen. An unknown error occurred while creating the semaphore \""
                            << name << "\".";
-            return error<SemaphoreError>(SemaphoreError::UNDEFINED);
+            return err(SemaphoreError::UNDEFINED);
         }
     }
 
     constexpr bool HAS_OWNERSHIP = true;
     uninitializedSemaphore.emplace(result.value().value, name, HAS_OWNERSHIP);
 
-    return success<>();
+    return ok();
 }
 
-expected<SemaphoreError>
+expected<void, SemaphoreError>
 // NOLINTJUSTIFICATION the function size is related to the error handling and the cognitive complexity
 // results from the expanded log macro
 // NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept
 {
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "The name \"" << m_name << "\" is not a valid semaphore name.";
-        return error<SemaphoreError>(SemaphoreError::INVALID_NAME);
+        return err(SemaphoreError::INVALID_NAME);
     }
 
     if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
         IOX_LOG(ERROR) << "The semaphores \"" << m_name << "\" initial value of " << m_initialValue
                        << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
-        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return err(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
     if (m_openMode == OpenMode::OPEN_EXISTING)
@@ -182,9 +181,9 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
         if (!result.value())
         {
             IOX_LOG(ERROR) << "Unable to open semaphore since no semaphore with the name \"" << m_name << "\" exists.";
-            return error<SemaphoreError>(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS);
+            return err(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS);
         }
-        return success<>();
+        return ok();
     }
 
     if (m_openMode == OpenMode::OPEN_OR_CREATE)
@@ -197,7 +196,7 @@ NamedSemaphoreBuilder::create(optional<NamedSemaphore>& uninitializedSemaphore) 
 
         if (result.value())
         {
-            return success<>();
+            return ok();
         }
 
         return createSemaphore(uninitializedSemaphore, m_name, m_openMode, m_permissions, m_initialValue);

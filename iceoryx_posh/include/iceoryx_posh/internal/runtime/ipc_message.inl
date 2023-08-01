@@ -31,7 +31,7 @@ void IpcMessage::addEntry(const T& entry) noexcept
 
     if (!isValidEntry(newEntry.str()))
     {
-        LogError() << "\'" << newEntry.str().c_str() << "\' is an invalid IPC channel entry";
+        IOX_LOG(ERROR) << "\'" << newEntry.str().c_str() << "\' is an invalid IPC channel entry";
         m_isValid = false;
     }
     else

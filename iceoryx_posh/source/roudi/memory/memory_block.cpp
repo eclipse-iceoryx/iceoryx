@@ -16,13 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/memory/memory_block.hpp"
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
 
 namespace iox
 {
 namespace roudi
 {
-void MemoryBlock::onMemoryAvailable(cxx::not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
+void MemoryBlock::onMemoryAvailable(not_null<void*> memory IOX_MAYBE_UNUSED) noexcept
 {
     // nothing to do in the default implementation
 }

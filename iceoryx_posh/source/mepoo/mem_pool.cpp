@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 
 #include <algorithm>
@@ -39,8 +38,8 @@ MemPoolInfo::MemPoolInfo(const uint32_t usedChunks,
 
 constexpr uint64_t MemPool::CHUNK_MEMORY_ALIGNMENT;
 
-MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
-                 const cxx::greater_or_equal<uint32_t, 1> numberOfChunks,
+MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkSize,
+                 const greater_or_equal<uint32_t, 1> numberOfChunks,
                  iox::BumpAllocator& managementAllocator,
                  iox::BumpAllocator& chunkMemoryAllocator) noexcept
     : m_chunkSize(chunkSize)
@@ -51,18 +50,19 @@ MemPool::MemPool(const cxx::greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> c
     {
         auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
                                                               CHUNK_MEMORY_ALIGNMENT);
-        cxx::Expects(!allocationResult.has_error());
+        cxx::Expects(allocationResult.has_value());
         m_rawMemory = static_cast<uint8_t*>(allocationResult.value());
 
         allocationResult =
             managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
-        cxx::Expects(!allocationResult.has_error());
+        cxx::Expects(allocationResult.has_value());
         auto* memoryLoFFLi = allocationResult.value();
         m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
     }
     else
     {
-        std::cerr << chunkSize << " :: " << numberOfChunks << std::endl;
+        IOX_LOG(FATAL) << "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is "
+                       << chunkSize << " for " << numberOfChunks << " chunks!";
         errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
@@ -84,8 +84,8 @@ void* MemPool::getChunk() noexcept
     uint32_t l_index{0U};
     if (!m_freeIndices.pop(l_index))
     {
-        std::cerr << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
-                  << ", used_chunks = " << m_usedChunks << " ] has no more space left" << std::endl;
+        IOX_LOG(WARN) << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
+                      << ", used_chunks = " << m_usedChunks << " ] has no more space left";
         return nullptr;
     }
 

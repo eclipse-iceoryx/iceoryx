@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PORT_POOL_HPP
 #define IOX_POSH_ROUDI_PORT_POOL_HPP
 
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
@@ -34,6 +33,7 @@
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
+#include "iox/type_traits.hpp"
 
 namespace iox
 {
@@ -63,14 +63,13 @@ class PortPool
 
     virtual ~PortPool() noexcept = default;
 
-    cxx::vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
-    cxx::vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
-    cxx::vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;
-    cxx::vector<popo::ServerPortData*, MAX_SERVERS> getServerPortDataList() noexcept;
-    cxx::vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
-    cxx::vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
-    cxx::vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES>
-    getConditionVariableDataList() noexcept;
+    vector<PublisherPortRouDiType::MemberType_t*, MAX_PUBLISHERS> getPublisherPortDataList() noexcept;
+    vector<SubscriberPortType::MemberType_t*, MAX_SUBSCRIBERS> getSubscriberPortDataList() noexcept;
+    vector<popo::ClientPortData*, MAX_CLIENTS> getClientPortDataList() noexcept;
+    vector<popo::ServerPortData*, MAX_SERVERS> getServerPortDataList() noexcept;
+    vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> getInterfacePortDataList() noexcept;
+    vector<runtime::NodeData*, MAX_NODE_NUMBER> getNodeDataList() noexcept;
+    vector<popo::ConditionVariableData*, MAX_NUMBER_OF_CONDITION_VARIABLES> getConditionVariableDataList() noexcept;
 
     expected<PublisherPortRouDiType::MemberType_t*, PortPoolError>
     addPublisherPort(const capro::ServiceDescription& serviceDescription,

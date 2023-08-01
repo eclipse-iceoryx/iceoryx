@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_FIXED_SIZE_CONTAINER_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -124,7 +124,7 @@ class FixedSizeContainer
         bool isValid = false;
     };
 
-    iox::cxx::vector<entry_t, capacity> m_values;
+    iox::vector<entry_t, capacity> m_values;
 };
 
 } // namespace roudi

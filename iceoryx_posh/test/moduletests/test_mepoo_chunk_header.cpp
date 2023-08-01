@@ -15,11 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/cxx/type_traits.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/type_traits.hpp"
 #include "iox/unique_ptr.hpp"
 
 #include "test.hpp"
@@ -30,6 +32,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::mepoo;
+using namespace iox::testing;
 
 using UserPayloadOffset_t = ChunkHeader::UserPayloadOffset_t;
 
@@ -367,7 +370,12 @@ TEST(ChunkHeader_test, ConstructorTerminatesWhenUserPayloadSizeExceedsChunkSize)
     ASSERT_FALSE(chunkSettingsResult.has_error());
     auto& chunkSettings = chunkSettingsResult.value();
 
-    EXPECT_DEATH({ ChunkHeader sut(CHUNK_SIZE, chunkSettings); }, ".*");
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
+        [&] {
+            ChunkHeader sut(CHUNK_SIZE, chunkSettings);
+            ;
+        },
+        iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
 // BEGIN PARAMETERIZED TESTS FOR CHUNK HEADER

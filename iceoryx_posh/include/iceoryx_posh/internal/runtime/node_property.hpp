@@ -16,7 +16,7 @@
 #ifndef IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 #define IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 
-#include "iceoryx_hoofs/cxx/serialization.hpp"
+#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 
 namespace iox

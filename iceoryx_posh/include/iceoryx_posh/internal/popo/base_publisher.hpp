@@ -32,7 +32,7 @@ using uid_t = UniquePortId;
 
 ///
 /// @brief The BasePublisher class contains the common implementation for the different publisher specializations.
-/// @note Not intended for public usage! Use the `Publisher` or `UntypedPublisher` instead!
+/// @note Not intended for public usage! Use the 'Publisher' or 'UntypedPublisher' instead!
 ///
 template <typename port_t = iox::PublisherPortUserType>
 class BasePublisher

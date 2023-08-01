@@ -34,7 +34,7 @@ using uid_t = UniquePortId;
 /// @brief The BaseClient class contains the common implementation for the different clients
 /// @param[in] PortT type of the underlying port, required for testing
 /// @param[in] TriggerHandleT type of the underlying trigger handle, required for testing
-/// @note Not intended for public usage! Use the `Client` or `UntypedClient` instead!
+/// @note Not intended for public usage! Use the 'Client' or 'UntypedClient' instead!
 template <typename PortT = ClientPortUser, typename TriggerHandleT = TriggerHandle>
 class BaseClient
 {

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by NXP. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,9 +19,6 @@
 #ifndef IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 #define IOX_POSH_RUNTIME_IPC_INTERFACE_BASE_HPP
 
-#include "iceoryx_hoofs/cxx/deadline_timer.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -29,6 +27,9 @@
 #include "iceoryx_platform/unistd.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
+#include "iox/deadline_timer.hpp"
+#include "iox/duration.hpp"
+#include "iox/relative_pointer.hpp"
 
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
@@ -48,6 +49,8 @@ namespace iox
 namespace platform
 {
 #if defined(_WIN32)
+using IoxIpcChannelType = iox::posix::NamedPipe;
+#elif defined(__FREERTOS__)
 using IoxIpcChannelType = iox::posix::NamedPipe;
 #else
 using IoxIpcChannelType = iox::posix::UnixDomainSocket;

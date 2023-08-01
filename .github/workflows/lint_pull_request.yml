@@ -45,12 +45,15 @@ jobs:
 
       - name: Restore lychee cache
         uses: actions/cache@v3
+        if: always()
         with:
           path: .lycheecache
           key: cache-lychee-all-branches
+          # the cache will not be updated and therefore needs to be recreated after 7 days
+          retention-days: 7
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.5.4
         with:
           fail: true
-          args: --cache --insecure --max-cache-age 1d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1
+          args: --cache --insecure --max-cache-age 7d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1

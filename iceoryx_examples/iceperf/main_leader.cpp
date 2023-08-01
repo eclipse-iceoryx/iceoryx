@@ -17,7 +17,7 @@
 #include "example_common.hpp"
 #include "iceperf_leader.hpp"
 
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/optional.hpp"

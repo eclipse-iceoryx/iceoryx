@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 
 namespace iox
@@ -60,14 +59,14 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
             uint64_t addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
             uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader);
             uint64_t alignedUserPayloadAddress =
-                iox::cxx::align(headerEndAddress, static_cast<uint64_t>(userPayloadAlignment));
+                iox::align(headerEndAddress, static_cast<uint64_t>(userPayloadAlignment));
             uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
             // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the
             // alignment must be a power of 2, the max alignment is about half of the max value the type can hold
             m_userPayloadOffset = static_cast<UserPayloadOffset_t>(offsetToUserPayload);
 
             // this is safe since the alignment of the user-payload is larger than the one from the ChunkHeader
-            // -> the user-payload is either adjacent and `backOffset` is at the same location as `userPayloadOffset`
+            // -> the user-payload is either adjacent and 'backOffset' is at the same location as 'userPayloadOffset'
             //    or the user-payload is not adjacent and there is space of at least the alignment of ChunkHeader
             //    between the ChunkHeader and the user-payload
             auto addressOfBackOffset = alignedUserPayloadAddress - sizeof(UserPayloadOffset_t);
@@ -84,10 +83,10 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         auto addressOfChunkHeader = reinterpret_cast<uint64_t>(this);
         uint64_t headerEndAddress = addressOfChunkHeader + sizeof(ChunkHeader) + userHeaderSize;
         uint64_t userPayloadOffsetAlignment = alignof(UserPayloadOffset_t);
-        uint64_t anticipatedBackOffsetAddress = iox::cxx::align(headerEndAddress, userPayloadOffsetAlignment);
+        uint64_t anticipatedBackOffsetAddress = iox::align(headerEndAddress, userPayloadOffsetAlignment);
         uint64_t unalignedUserPayloadAddress = anticipatedBackOffsetAddress + sizeof(UserPayloadOffset_t);
         uint64_t alignedUserPayloadAddress =
-            iox::cxx::align(unalignedUserPayloadAddress, static_cast<uint64_t>(userPayloadAlignment));
+            iox::align(unalignedUserPayloadAddress, static_cast<uint64_t>(userPayloadAlignment));
         uint64_t offsetToUserPayload = alignedUserPayloadAddress - addressOfChunkHeader;
         // the cast is safe since userPayloadOffset and userPayloadAlignment have the same type and since the alignment
         // must be a power of 2, the max alignment is about half of the max value the type can hold

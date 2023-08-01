@@ -15,9 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
+#include "iox/logging.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -110,9 +110,9 @@ void subscriber()
 
 int main()
 {
-    // set the log level to error to see the essence of the example
+    // set the log level to info to to have the output for launch_testing
     //! [log level]
-    iox::log::Logger::init(iox::log::LogLevel::ERROR);
+    iox::log::Logger::init(iox::log::LogLevel::INFO);
     //! [log level]
 
     //! [roudi config]

@@ -25,7 +25,7 @@ namespace popo
 {
 template <typename T>
 template <typename S, typename>
-inline expected<ClientSendError> Request<T>::send() noexcept
+inline expected<void, ClientSendError> Request<T>::send() noexcept
 {
     if (BaseType::m_members.smartChunkUniquePtr)
     {
@@ -33,14 +33,14 @@ inline expected<ClientSendError> Request<T>::send() noexcept
     }
     else
     {
-        LogError() << "Tried to send empty Request! Might be an already sent or moved Request!";
+        IOX_LOG(ERROR) << "Tried to send empty Request! Might be an already sent or moved Request!";
         errorHandler(PoshError::POSH__SENDING_EMPTY_REQUEST, ErrorLevel::MODERATE);
-        return error<ClientSendError>(ClientSendError::INVALID_REQUEST);
+        return err(ClientSendError::INVALID_REQUEST);
     }
 }
 
 template <typename T>
-inline cxx::add_const_conditionally_t<RequestHeader, T>& Request<T>::getRequestHeader() noexcept
+inline add_const_conditionally_t<RequestHeader, T>& Request<T>::getRequestHeader() noexcept
 {
     return BaseType::getUserHeader();
 }

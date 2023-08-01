@@ -21,11 +21,9 @@
 
 namespace iox
 {
-namespace cxx
-{
 template <>
 constexpr popo::ServerRequestResult
-from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value)
+from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkReceiveResult value) noexcept
 {
     switch (value)
     {
@@ -36,7 +34,6 @@ from<popo::ChunkReceiveResult, popo::ServerRequestResult>(const popo::ChunkRecei
     }
     return popo::ServerRequestResult::UNDEFINED_CHUNK_RECEIVE_ERROR;
 }
-} // namespace cxx
 
 namespace popo
 {

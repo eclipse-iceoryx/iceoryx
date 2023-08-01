@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PORT_POOL_DATA_HPP
 #define IOX_POSH_ROUDI_PORT_POOL_DATA_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
 #include "iceoryx_posh/internal/popo/ports/client_port_data.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -46,10 +46,10 @@ class FixedPositionContainer
 
     void erase(const T* const element) noexcept;
 
-    cxx::vector<T*, Capacity> content() noexcept;
+    vector<T*, Capacity> content() noexcept;
 
   private:
-    cxx::vector<optional<T>, Capacity> m_data;
+    vector<optional<T>, Capacity> m_data;
 };
 
 struct PortPoolData

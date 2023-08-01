@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "iox/vector.hpp"
 #include "mocks/mepoo_memory_manager_mock.hpp"
 #include "mocks/publisher_mock.hpp"
 
@@ -79,7 +79,7 @@ class SegmentMock
 class SegmentManagerMock
 {
   public:
-    iox::cxx::vector<SegmentMock, iox::MAX_SHM_SEGMENTS> m_segmentContainer;
+    iox::vector<SegmentMock, iox::MAX_SHM_SEGMENTS> m_segmentContainer;
 };
 
 
@@ -118,20 +118,14 @@ class MemPoolIntrospection_test : public Test
     {
     }
 
-    virtual void SetUp()
+    void SetUp() override
     {
-        internal::CaptureStdout();
         SegmentMock segmentMock;
         m_segmentManager_mock.m_segmentContainer.push_back(segmentMock);
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
-        std::string output = internal::GetCapturedStdout();
-        if (Test::HasFailure())
-        {
-            std::cout << output << std::endl;
-        }
     }
 
     template <typename MemPoolInfoStruct>
@@ -213,6 +207,8 @@ TEST_F(MemPoolIntrospection_test, send_noSubscribers)
     initMemPoolInfoContainer(memPoolInfoContainer);
 
     EXPECT_CALL(introspectionAccess.getPublisherPort(), tryAllocateChunk(_, _, _, _)).Times(0);
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers()).WillRepeatedly(Return(false));
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).WillRepeatedly(Return());
 
     introspectionAccess.send();
 }
@@ -267,6 +263,7 @@ TIMING_TEST_F(MemPoolIntrospection_test, thread, Repeat(5), [&] {
     }));
     // we use the hasSubscribers call to check how often the thread calls the send method
     EXPECT_CALL(introspectionAccess.getPublisherPort(), hasSubscribers).Times(AtLeast(4));
+    EXPECT_CALL(introspectionAccess.getPublisherPort(), stopOffer()).WillRepeatedly(Return());
 
     using namespace iox::units::duration_literals;
     iox::units::Duration snapshotInterval(100_ms);

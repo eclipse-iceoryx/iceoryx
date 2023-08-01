@@ -28,7 +28,7 @@ std::atomic<uint16_t> UniquePortId::uniqueRouDiId{roudi::DEFAULT_UNIQUE_ROUDI_ID
 std::atomic<UniquePortId::value_type> UniquePortId::globalIDCounter{1U};
 
 UniquePortId::UniquePortId() noexcept
-    : ThisType(cxx::newtype::internal::ProtectedConstructor,
+    : ThisType(newtype::internal::ProtectedConstructor,
                (static_cast<UniquePortId::value_type>(getUniqueRouDiId()) << UNIQUE_ID_BIT_LENGTH)
                    + ((globalIDCounter.fetch_add(1u, std::memory_order_relaxed) << ROUDI_ID_BIT_LENGTH)
                       >> ROUDI_ID_BIT_LENGTH))
@@ -44,7 +44,7 @@ UniquePortId::UniquePortId() noexcept
 UniquePortId::UniquePortId(InvalidPortId_t) noexcept
     /// we have to cast INVALID_UNIQUE_ID with static_cast<value_type> otherwise it will not link
     /// with gcc-7.x - gcc-10.x. Who knows why?!
-    : ThisType(cxx::newtype::internal::ProtectedConstructor, static_cast<UniquePortId::value_type>(INVALID_UNIQUE_ID))
+    : ThisType(newtype::internal::ProtectedConstructor, static_cast<UniquePortId::value_type>(INVALID_UNIQUE_ID))
 {
     // finalizeSetUniqueRouDiId intentionally not called since the InvalidPortId does not have a unique RouDi ID anyway
 }

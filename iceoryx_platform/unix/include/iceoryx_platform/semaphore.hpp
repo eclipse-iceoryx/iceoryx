@@ -19,6 +19,7 @@
 
 #include <cstdint>
 #include <semaphore.h>
+#include <sys/types.h>
 
 using iox_sem_t = sem_t;
 

@@ -91,7 +91,7 @@ int main()
             if (notification->doesOriginateFrom(&subscriber2))
             {
                 // We need to release the samples to reset the trigger hasSamples
-                // otherwise the WaitSet would notify us in `waitset.wait()` again
+                // otherwise the WaitSet would notify us in 'waitset.wait()' again
                 // instantly.
                 subscriber2.releaseQueuedData();
                 std::cout << "subscriber 2 received something - dont care\n";

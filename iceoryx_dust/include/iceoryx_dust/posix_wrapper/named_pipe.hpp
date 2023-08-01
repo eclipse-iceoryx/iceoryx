@@ -17,12 +17,13 @@
 #define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 
 #include "iceoryx_dust/design/creation.hpp"
+#include "iceoryx_dust/iceoryx_dust_deployment.hpp"
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
@@ -39,8 +40,8 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
   public:
     // no system restrictions at all, except available memory. MAX_MESSAGE_SIZE and MAX_NUMBER_OF_MESSAGES can be
     // increased as long as there is enough memory available
-    static constexpr uint64_t MAX_MESSAGE_SIZE = 4096U;
-    static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = 10U;
+    static constexpr uint64_t MAX_MESSAGE_SIZE = build::IOX_MAX_NAMED_PIPE_MESSAGE_SIZE;
+    static constexpr uint32_t MAX_NUMBER_OF_MESSAGES = build::IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES;
     static_assert(MAX_NUMBER_OF_MESSAGES < IOX_SEM_VALUE_MAX,
                   "The maximum number of supported messages must be less than the maximum allowed semaphore value");
 
@@ -72,19 +73,20 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
     /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
     /// @return on failure an error which describes the failure
-    expected<IpcChannelError> trySend(const std::string& message) const noexcept;
+    expected<void, IpcChannelError> trySend(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<IpcChannelError> send(const std::string& message) const noexcept;
+    expected<void, IpcChannelError> send(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe.
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<IpcChannelError> timedSend(const std::string& message, const units::Duration& timeout) const noexcept;
+    expected<void, IpcChannelError> timedSend(const std::string& message,
+                                              const units::Duration& timeout) const noexcept;
 
     /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
     /// @return on success a string containing the message, otherwise an error which describes the failure
@@ -119,7 +121,7 @@ class NamedPipe : public DesignPattern::Creation<NamedPipe, IpcChannelError>
 
     /// @brief destroys an initialized named pipe.
     /// @return is always successful
-    expected<IpcChannelError> destroy() noexcept;
+    expected<void, IpcChannelError> destroy() noexcept;
 
   private:
     optional<SharedMemoryObject> m_sharedMemory;

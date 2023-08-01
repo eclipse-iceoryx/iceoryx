@@ -18,6 +18,7 @@
 #define IOX_POSH_POPO_NOTIFICATION_ATTORNEY_HPP
 
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/function.hpp"
 
 #include <cstdint>
 
@@ -49,7 +50,7 @@ class NotificationAttorney
     static void disableState(T& stateOrigin, Targs&&... args) noexcept;
 
     template <typename T>
-    static cxx::function<void(uint64_t)> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
+    static function<void(uint64_t)> getInvalidateTriggerMethod(T& eventOrigin) noexcept;
 
     template <typename T, typename... Targs>
     static WaitSetIsConditionSatisfiedCallback getCallbackForIsStateConditionSatisfied(T& eventOrigin,

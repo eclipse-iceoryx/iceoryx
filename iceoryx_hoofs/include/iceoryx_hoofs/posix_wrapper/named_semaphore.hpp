@@ -16,12 +16,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
@@ -64,7 +64,7 @@ class NamedSemaphoreBuilder
     IOX_BUILDER_PARAMETER(OpenMode, openMode, OpenMode::OPEN_EXISTING)
 
     /// @brief Defines the access permissions of the semaphore
-    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::owner_all)
+    IOX_BUILDER_PARAMETER(access_rights, permissions, perms::owner_all)
 
     /// @brief Set the initial value of the unnamed posix semaphore. This value is only used when a new semaphore is
     ///        created.
@@ -75,7 +75,7 @@ class NamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
-    expected<SemaphoreError> create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept;
+    expected<void, SemaphoreError> create(optional<NamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix
 } // namespace iox

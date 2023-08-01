@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/function.hpp"
+#include "iox/function.hpp"
 #include "iox/unique_ptr.hpp"
 #include "test.hpp"
 
@@ -52,8 +52,8 @@ class UniquePtrTest : public Test
 
     using DeleterType = void(Position* const);
 
-    iox::cxx::function<DeleterType> deleter = [this](Position* const) { m_deleterCalled = true; };
-    iox::cxx::function<DeleterType> anotherDeleter = [this](Position* const) { m_anotherDeleterCalled = true; };
+    iox::function<DeleterType> deleter = [this](Position* const) { m_deleterCalled = true; };
+    iox::function<DeleterType> anotherDeleter = [this](Position* const) { m_anotherDeleterCalled = true; };
 };
 
 TEST_F(UniquePtrTest, CtorWithObjectPtrAndDeleterSetsPtrToObjectAndCallsDeleter)

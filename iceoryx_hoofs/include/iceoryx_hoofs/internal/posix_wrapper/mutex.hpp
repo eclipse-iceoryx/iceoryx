@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_MUTEX_HPP
 
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/pthread.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 
@@ -116,11 +116,11 @@ class mutex
 
     /// @brief Locks the mutex.
     /// @return When it fails it returns an enum describing the error.
-    expected<MutexLockError> lock() noexcept;
+    expected<void, MutexLockError> lock() noexcept;
 
     /// @brief  Unlocks the mutex.
     /// @return When it fails it returns an enum describing the error.
-    expected<MutexUnlockError> unlock() noexcept;
+    expected<void, MutexUnlockError> unlock() noexcept;
 
     /// @brief Tries to lock the mutex.
     /// @return If the lock was acquired MutexTryLock::LOCK_SUCCEEDED will be returned otherwise
@@ -222,7 +222,7 @@ class MutexBuilder
     /// @brief Initializes a provided uninitialized mutex
     /// @param[in] uninitializedMutex the uninitialized mutex which should be initialized
     /// @return On failure MutexError which explains the error
-    expected<MutexCreationError> create(optional<mutex>& uninitializedMutex) noexcept;
+    expected<void, MutexCreationError> create(optional<mutex>& uninitializedMutex) noexcept;
 };
 } // namespace posix
 } // namespace iox

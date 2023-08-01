@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_DISTRIBUTOR_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/cxx/adaptive_wait.hpp"
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_queue_pusher.hpp"
+#include "iox/detail/adaptive_wait.hpp"
+#include "iox/detail/unique_id.hpp"
+#include "iox/not_null.hpp"
 
 #include <thread>
 
@@ -67,7 +67,7 @@ class ChunkDistributor
     using ChunkQueueData_t = typename ChunkDistributorDataType::ChunkQueueData_t;
     using ChunkQueuePusher_t = typename ChunkDistributorDataType::ChunkQueuePusher_t;
 
-    explicit ChunkDistributor(cxx::not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
+    explicit ChunkDistributor(not_null<MemberType_t* const> chunkDistrubutorDataPtr) noexcept;
 
     ChunkDistributor(const ChunkDistributor& other) = delete;
     ChunkDistributor& operator=(const ChunkDistributor&) = delete;
@@ -81,13 +81,13 @@ class ChunkDistributor
     /// @param[in] requestedHistory number of last chunks from history to send if available. If history size is smaller
     /// then the available history size chunks are provided
     /// @return if the queue could be added it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryAddQueue(cxx::not_null<ChunkQueueData_t* const> queueToAdd,
-                                                const uint64_t requestedHistory = 0U) noexcept;
+    expected<void, ChunkDistributorError> tryAddQueue(not_null<ChunkQueueData_t* const> queueToAdd,
+                                                      const uint64_t requestedHistory = 0U) noexcept;
 
     /// @brief Remove a queue from the internal list of chunk queues
     /// @param[in] queueToRemove is the queue to remove from the list
     /// @return if the queue could be removed it returns success, otherwiese a ChunkDistributor error
-    expected<ChunkDistributorError> tryRemoveQueue(cxx::not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
+    expected<void, ChunkDistributorError> tryRemoveQueue(not_null<ChunkQueueData_t* const> queueToRemove) noexcept;
 
     /// @brief Delete all the stored chunk queues
     void removeAllQueues() noexcept;
@@ -108,17 +108,15 @@ class ChunkDistributor
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId
     /// @param[in] chunk is the SharedChunk to be delivered
     /// @return ChunkDistributorError if the queue was not found
-    expected<ChunkDistributorError> deliverToQueue(const cxx::UniqueId uniqueQueueId,
-                                                   const uint32_t lastKnownQueueIndex,
-                                                   mepoo::SharedChunk chunk) noexcept;
+    expected<void, ChunkDistributorError>
+    deliverToQueue(const UniqueId uniqueQueueId, const uint32_t lastKnownQueueIndex, mepoo::SharedChunk chunk) noexcept;
 
-    /// @brief Lookup for the index of a queue with a specific cxx::UniqueId
+    /// @brief Lookup for the index of a queue with a specific iox::UniqueId
     /// @param[in] uniqueQueueId is the unique ID of the queue to query the index
     /// @param[in] lastKnownQueueIndex is used for a fast lookup of the queue with uniqueQueueId; if the queue is not
     /// found at the index, the queue is searched by iteration over all stored queues
     /// @return the index of the queue with uniqueQueueId or nullopt if the queue was not found
-    optional<uint32_t> getQueueIndex(const cxx::UniqueId uniqueQueueId,
-                                     const uint32_t lastKnownQueueIndex) const noexcept;
+    optional<uint32_t> getQueueIndex(const UniqueId uniqueQueueId, const uint32_t lastKnownQueueIndex) const noexcept;
 
     /// @brief Update the chunk history but do not deliver the chunk to any chunk queue. E.g. use case is to to update a
     /// non offered field in ara
@@ -143,7 +141,7 @@ class ChunkDistributor
     const MemberType_t* getMembers() const noexcept;
     MemberType_t* getMembers() noexcept;
 
-    bool pushToQueue(cxx::not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
+    bool pushToQueue(not_null<ChunkQueueData_t* const> queue, mepoo::SharedChunk chunk) noexcept;
 
   private:
     MemberType_t* m_chunkDistrubutorDataPtr{nullptr};

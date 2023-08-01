@@ -15,7 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 #include "iceoryx_posh/capro/service_description.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/convert.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
+
 #include <iomanip>
 
 namespace iox
@@ -41,13 +43,13 @@ ServiceDescription::ClassHash::ClassHash(const std::initializer_list<uint32_t>& 
 }
 
 uint32_t&
-ServiceDescription::ClassHash::operator[](iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
+ServiceDescription::ClassHash::operator[](iox::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) noexcept
 {
     return data[index];
 }
 
-const uint32_t& ServiceDescription::ClassHash::operator[](
-    iox::cxx::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
+const uint32_t&
+ServiceDescription::ClassHash::operator[](iox::range<uint64_t, 0U, CLASS_HASH_ELEMENT_COUNT - 1> index) const noexcept
 {
     return data[index];
 }
@@ -173,13 +175,13 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
         || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
     {
-        return error<cxx::Serialization::Error>(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     deserializedObject.m_scope = static_cast<Scope>(scope);
     deserializedObject.m_interfaceSource = static_cast<Interfaces>(interfaceSource);
 
-    return success<ServiceDescription>(deserializedObject);
+    return ok(deserializedObject);
 }
 
 const IdString_t& ServiceDescription::getServiceIDString() const noexcept

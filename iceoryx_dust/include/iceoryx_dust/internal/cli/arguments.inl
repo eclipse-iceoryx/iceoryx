@@ -31,9 +31,9 @@ inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument
     if (!cxx::convert::fromString(stringValue.c_str(), value))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
+        return err(Error::UNABLE_TO_CONVERT_VALUE);
     }
-    return success<T>(value);
+    return ok(value);
 }
 
 template <>
@@ -42,10 +42,10 @@ inline expected<bool, Arguments::Error> Arguments::convertFromString(const Argum
     if (stringValue != "true" && stringValue != "false")
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
-        return error<Error>(Error::UNABLE_TO_CONVERT_VALUE);
+        return err(Error::UNABLE_TO_CONVERT_VALUE);
     }
 
-    return success<bool>(stringValue == "true");
+    return ok(stringValue == "true");
 }
 
 template <typename T>
@@ -59,7 +59,7 @@ inline expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionNa
         }
     }
 
-    return error<Error>(Error::NO_SUCH_VALUE);
+    return err(Error::NO_SUCH_VALUE);
 }
 } // namespace internal
 } // namespace cli

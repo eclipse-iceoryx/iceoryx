@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_TYPES_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -44,7 +44,7 @@ struct MemPoolInfo
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.
-using MemPoolInfoContainer = cxx::vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
+using MemPoolInfoContainer = vector<MemPoolInfo, MAX_NUMBER_OF_MEMPOOLS>;
 
 /// @brief the topic for the mempool introspection that a user can subscribe to
 struct MemPoolIntrospectionInfo
@@ -57,7 +57,7 @@ struct MemPoolIntrospectionInfo
 };
 
 /// @brief container for MemPoolInfo structs of all available mempools.
-using MemPoolIntrospectionInfoContainer = cxx::vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
+using MemPoolIntrospectionInfoContainer = vector<MemPoolIntrospectionInfo, MAX_SHM_SEGMENTS + 1>;
 
 /// @brief publisher/subscriber port information consisting of a process name,a capro service description string
 /// and a node name
@@ -85,8 +85,8 @@ struct PublisherPortData : public PortData
 /// @brief the topic for the port introspection that a user can subscribe to
 struct PortIntrospectionFieldTopic
 {
-    cxx::vector<SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberList;
-    cxx::vector<PublisherPortData, MAX_PUBLISHERS> m_publisherList;
+    vector<SubscriberPortData, MAX_SUBSCRIBERS> m_subscriberList;
+    vector<PublisherPortData, MAX_PUBLISHERS> m_publisherList;
 };
 
 const capro::ServiceDescription
@@ -105,7 +105,7 @@ struct PortThroughputData
 /// @brief the topic for the port throughput that a user can subscribe to
 struct PortThroughputIntrospectionFieldTopic
 {
-    cxx::vector<PortThroughputData, MAX_PUBLISHERS> m_throughputList;
+    vector<PortThroughputData, MAX_PUBLISHERS> m_throughputList;
 };
 
 const capro::ServiceDescription
@@ -122,7 +122,7 @@ struct SubscriberPortChangingData
 
 struct SubscriberPortChangingIntrospectionFieldTopic
 {
-    cxx::vector<SubscriberPortChangingData, MAX_SUBSCRIBERS> subscriberPortChangingDataList;
+    vector<SubscriberPortChangingData, MAX_SUBSCRIBERS> subscriberPortChangingDataList;
 };
 
 const capro::ServiceDescription IntrospectionProcessService(INTROSPECTION_SERVICE_ID, "RouDi_ID", "Process");
@@ -131,13 +131,13 @@ struct ProcessIntrospectionData
 {
     int m_pid{0};
     RuntimeName_t m_name;
-    cxx::vector<NodeName_t, MAX_NODE_PER_PROCESS> m_nodes;
+    vector<NodeName_t, MAX_NODE_PER_PROCESS> m_nodes;
 };
 
 /// @brief the topic for the process introspection that a user can subscribe to
 struct ProcessIntrospectionFieldTopic
 {
-    cxx::vector<ProcessIntrospectionData, MAX_PROCESS_NUMBER> m_processList;
+    vector<ProcessIntrospectionData, MAX_PROCESS_NUMBER> m_processList;
 };
 
 } // namespace roudi

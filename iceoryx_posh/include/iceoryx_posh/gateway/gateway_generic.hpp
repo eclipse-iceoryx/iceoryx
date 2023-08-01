@@ -18,18 +18,18 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_HPP
 #define IOX_POSH_GW_GATEWAY_GENERIC_HPP
 
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/duration.hpp"
 #include "iox/expected.hpp"
+#include "iox/function_ref.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 #include <atomic>
 #include <thread>
@@ -57,7 +57,7 @@ enum class GatewayError : uint8_t
 template <typename channel_t, typename gateway_t = GatewayBase>
 class GatewayGeneric : public gateway_t
 {
-    using ChannelVector = cxx::vector<channel_t, MAX_CHANNEL_NUMBER>;
+    using ChannelVector = vector<channel_t, MAX_CHANNEL_NUMBER>;
     using ConcurrentChannelVector = concurrent::smart_lock<ChannelVector>;
 
   public:
@@ -128,14 +128,14 @@ class GatewayGeneric : public gateway_t
     /// @param f The function to execute.
     /// @note This operation allows thread-safe access to the internal collection.
     ///
-    void forEachChannel(const cxx::function_ref<void(channel_t&)> f) const noexcept;
+    void forEachChannel(const function_ref<void(channel_t&)> f) const noexcept;
 
     ///
     /// @brief discardChannel Discard the channel for the given service in the internal collection if one exists.
     /// @param service The service whose channels hiould be discarded.
     /// @return an empty expected on success, otherwise an error
     ///
-    expected<GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
+    expected<void, GatewayError> discardChannel(const capro::ServiceDescription& service) noexcept;
 
   private:
     ConcurrentChannelVector m_channels;

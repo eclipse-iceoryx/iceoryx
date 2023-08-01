@@ -152,14 +152,14 @@ See also the code example to [create a custom logger](#creating-a-custom-logger)
 
 This is currently only partly implemented.
 
-Customization will be done via the `log/logger.hpp` file. This is currently in
-`iceoryx_hoofs/include/iceoryx_hoofs/log/logger.hpp`. To enable the customization
+Customization will be done via the `iox/logger.hpp` file. This is currently in
+`iceoryx_hoofs/reporting/include/iox/logger.hpp`. To enable the customization
 it will be moved to `iceoryx_hoofs/customization/log/iceoryx_hoofs/log/logger.hpp`.
 The path to `customization/log` can then be set via cmake argument or toolchain
 file and by default will point the the implementation in `iceoryx_hoofs`.
 This is similar to the `iceoryx_platform` customization.
 
-The `log/logger.hpp` header must specify the `Logger` and `TestingLoggerBase`
+The `iox/logger.hpp` header must specify the `Logger` and `TestingLoggerBase`
 alias as well as defining the `IGNORE_ACTIVE_LOG_LEVEL` and `MINIMAL_LOG_LEVEL`
 constexpr variables.
 
@@ -262,7 +262,7 @@ re-implemented via the platform abstraction.
 #### Using the default console logger
 
 ```cpp
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logging.hpp"
 
 int main()
 {
@@ -277,8 +277,8 @@ int main()
 #### Add logging support for custom types
 
 ```cpp
-#include "iceoryx_hoofs/log/logging.hpp"
-#include "iceoryx_hoofs/log/logstream.hpp"
+#include "iox/logging.hpp"
+#include "iox/logstream.hpp"
 #include <cstdint>
 
 struct MyType
@@ -308,8 +308,8 @@ This is a simple custom logger which prints the log level as emoji and ignores
 the file, line number and function name.
 
 ```cpp
-#include "iceoryx_hoofs/log/logger.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
+#include "iox/logger.hpp"
+#include "iox/logging.hpp"
 
 class MyLogger : public iox::log::Logger
 {

@@ -26,7 +26,7 @@ TriggerHandle::TriggerHandle() noexcept
 }
 
 TriggerHandle::TriggerHandle(ConditionVariableData& conditionVariableData,
-                             const cxx::function<void(uint64_t)>& resetCallback,
+                             const function<void(uint64_t)>& resetCallback,
                              const uint64_t uniqueTriggerId) noexcept
     : m_conditionVariableDataPtr(&conditionVariableData)
     , m_resetCallback(resetCallback)

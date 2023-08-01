@@ -21,6 +21,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/condition_listener.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/condition_variable_data.hpp"
+#include "iox/algorithm.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -32,14 +33,13 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox::units::duration_literals;
 
 class ConditionVariable_test : public Test
 {
   public:
     using NotificationVector_t = ConditionListener::NotificationVector_t;
-    using Type_t = iox::cxx::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
+    using Type_t = iox::BestFittingType_t<iox::MAX_NUMBER_OF_EVENTS_PER_LISTENER>;
     const iox::RuntimeName_t m_runtimeName{"Ferdinand"};
     const iox::units::Duration m_timeToWait = 2_s;
     const iox::units::Duration m_timingTestTime = 100_ms;
@@ -47,7 +47,7 @@ class ConditionVariable_test : public Test
     ConditionVariableData m_condVarData{m_runtimeName};
     ConditionListener m_waiter{m_condVarData};
     ConditionNotifier m_signaler{m_condVarData, 0U};
-    vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
+    iox::vector<ConditionNotifier, iox::MAX_NUMBER_OF_NOTIFIERS> m_notifiers;
 
     void SetUp() override
     {
@@ -437,7 +437,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
 })
 
 void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
-                                               const function_ref<ConditionListener::NotificationVector_t()>& wait)
+                                               const iox::function_ref<ConditionListener::NotificationVector_t()>& wait)
 {
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
     {
@@ -466,7 +466,7 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInOrder)
 }
 
 void waitReturnsSortedListWhenTriggeredInReverseOrder(
-    ConditionVariable_test& test, const function_ref<ConditionListener::NotificationVector_t()>& wait)
+    ConditionVariable_test& test, const iox::function_ref<ConditionListener::NotificationVector_t()>& wait)
 {
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
     {

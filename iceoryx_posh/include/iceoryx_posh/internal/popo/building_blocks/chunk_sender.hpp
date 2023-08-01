@@ -17,15 +17,16 @@
 #ifndef IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 #define IOX_POSH_POPO_BUILDING_BLOCKS_CHUNK_SENDER_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/internal/cxx/unique_id.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_distributor.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_sender_data.hpp"
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/detail/unique_id.hpp"
 #include "iox/expected.hpp"
+#include "iox/into.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -43,12 +44,9 @@ enum class AllocationError
 };
 } // namespace popo
 
-namespace cxx
-{
 template <>
 constexpr popo::AllocationError
-from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error);
-} // namespace cxx
+from<mepoo::MemoryManager::Error, popo::AllocationError>(const mepoo::MemoryManager::Error error) noexcept;
 
 namespace popo
 {
@@ -57,16 +55,16 @@ namespace popo
 /// @return pointer to a string literal
 inline constexpr const char* asStringLiteral(const AllocationError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with std::ostream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with std::ostream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline std::ostream& operator<<(std::ostream& stream, AllocationError value) noexcept;
 
-/// @brief Convenience stream operator to easily use the `asStringLiteral` function with iox::log::LogStream
+/// @brief Convenience stream operator to easily use the 'asStringLiteral' function with iox::log::LogStream
 /// @param[in] stream sink to write the message to
 /// @param[in] value to convert to a string literal
-/// @return the reference to `stream` which was provided as input parameter
+/// @return the reference to 'stream' which was provided as input parameter
 inline log::LogStream& operator<<(log::LogStream& stream, AllocationError value) noexcept;
 
 /// @brief The ChunkSender is a building block of the shared memory communication infrastructure. It extends
@@ -81,7 +79,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     using MemberType_t = ChunkSenderDataType;
     using Base_t = ChunkDistributor<typename ChunkSenderDataType::ChunkDistributorData_t>;
 
-    explicit ChunkSender(cxx::not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
+    explicit ChunkSender(not_null<MemberType_t* const> chunkSenderDataPtr) noexcept;
 
     ChunkSender(const ChunkSender& other) = delete;
     ChunkSender& operator=(const ChunkSender&) = delete;
@@ -124,7 +122,7 @@ class ChunkSender : public ChunkDistributor<typename ChunkSenderDataType::ChunkD
     /// @return true when successful, false otherwise
     /// @note This method does not add the chunk to the history
     bool sendToQueue(mepoo::ChunkHeader* const chunkHeader,
-                     const cxx::UniqueId uniqueQueueId,
+                     const UniqueId uniqueQueueId,
                      const uint32_t lastKnownQueueIndex) noexcept;
 
     /// @brief Push an allocated chunk to the history without sending it

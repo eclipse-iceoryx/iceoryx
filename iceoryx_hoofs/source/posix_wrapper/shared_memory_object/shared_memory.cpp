@@ -16,9 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/scope_guard.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -26,8 +23,9 @@
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/logging.hpp"
+#include "iox/scope_guard.hpp"
 
-#include <bitset>
 #include <cassert>
 
 namespace iox
@@ -47,8 +45,8 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         IOX_LOG(ERROR) << "Unable to create shared memory with the following properties [ name = " << m_name
                        << ", access mode = " << asStringLiteral(m_accessMode)
                        << ", open mode = " << asStringLiteral(m_openMode)
-                       << ", mode = " << std::bitset<sizeof(mode_t)>(static_cast<mode_t>(m_filePermissions)).to_string()
-                       << ", sizeInBytes = " << m_size << " ]";
+                       << ", mode = " << iox::log::oct(m_filePermissions.value()) << ", sizeInBytes = " << m_size
+                       << " ]";
     };
 
 
@@ -56,23 +54,33 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
     if (m_name.empty())
     {
         IOX_LOG(ERROR) << "No shared memory name specified!";
-        return error<SharedMemoryError>(SharedMemoryError::EMPTY_NAME);
+        return err(SharedMemoryError::EMPTY_NAME);
     }
 
-    if (!cxx::isValidFileName(m_name))
+    if (!isValidFileName(m_name))
     {
         IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
                        << "\" is not a valid file name";
-        return error<SharedMemoryError>(SharedMemoryError::INVALID_FILE_NAME);
+        return err(SharedMemoryError::INVALID_FILE_NAME);
     }
 
     auto nameWithLeadingSlash = addLeadingSlash(m_name);
 
+    bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
+                         || m_openMode == OpenMode::OPEN_OR_CREATE);
+
+    if (hasOwnership && (m_accessMode == AccessMode::READ_ONLY))
+    {
+        IOX_LOG(ERROR) << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
+                       << "Initializing a new file requires write access";
+        return err(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
+    }
+
     // the mask will be applied to the permissions, therefore we need to set it to 0
-    int sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
+    shm_handle_t sharedMemoryFileHandle = SharedMemory::INVALID_HANDLE;
     mode_t umaskSaved = umask(0U);
     {
-        cxx::ScopeGuard umaskGuard([&] { umask(umaskSaved); });
+        ScopeGuard umaskGuard([&] { umask(umaskSaved); });
 
         if (m_openMode == OpenMode::PURGE_AND_CREATE)
         {
@@ -87,7 +95,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 nameWithLeadingSlash.c_str(),
                 convertToOflags(m_accessMode,
                                 (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
-                static_cast<mode_t>(m_filePermissions))
+                m_filePermissions.value())
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .suppressErrorMessagesForErrnos((m_openMode == OpenMode::OPEN_OR_CREATE) ? EEXIST : 0)
                 .evaluate();
@@ -95,29 +103,26 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         {
             // if it was not possible to create the shm exclusively someone else has the
             // ownership and we just try to open it
-            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.get_error().errnum == EEXIST)
+            if (m_openMode == OpenMode::OPEN_OR_CREATE && result.error().errnum == EEXIST)
             {
+                hasOwnership = false;
                 result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
                                                  convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
-                                                 static_cast<mode_t>(m_filePermissions))
+                                                 m_filePermissions.value())
                              .failureReturnValue(SharedMemory::INVALID_HANDLE)
                              .evaluate();
-                if (!result.has_error())
-                {
-                    constexpr bool HAS_NO_OWNERSHIP = false;
-                    sharedMemoryFileHandle = result->value;
-                    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, HAS_NO_OWNERSHIP));
-                }
             }
 
-            printError();
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result.get_error().errnum));
+            // Check again, as the if-block above may have changed 'result'
+            if (result.has_error())
+            {
+                printError();
+                return err(SharedMemory::errnoToEnum(result.error().errnum));
+            }
         }
         sharedMemoryFileHandle = result->value;
     }
 
-    const bool hasOwnership = (m_openMode == OpenMode::EXCLUSIVE_CREATE || m_openMode == OpenMode::PURGE_AND_CREATE
-                               || m_openMode == OpenMode::OPEN_OR_CREATE);
     if (hasOwnership)
     {
         auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
@@ -127,7 +132,7 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
         {
             printError();
 
-            posixCall(iox_close)(sharedMemoryFileHandle)
+            posixCall(iox_shm_close)(sharedMemoryFileHandle)
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto& r) {
@@ -143,14 +148,14 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                                    << "\". This may be a SharedMemory leak.";
                 });
 
-            return error<SharedMemoryError>(SharedMemory::errnoToEnum(result->errnum));
+            return err(SharedMemory::errnoToEnum(result.error().errnum));
         }
     }
 
-    return success<SharedMemory>(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
+    return ok(SharedMemory(m_name, sharedMemoryFileHandle, hasOwnership));
 }
 
-SharedMemory::SharedMemory(const Name_t& name, const int handle, const bool hasOwnership) noexcept
+SharedMemory::SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept
     : m_name{name}
     , m_handle{handle}
     , m_hasOwnership{hasOwnership}
@@ -195,7 +200,12 @@ SharedMemory& SharedMemory::operator=(SharedMemory&& rhs) noexcept
     return *this;
 }
 
-int32_t SharedMemory::getHandle() const noexcept
+shm_handle_t SharedMemory::getHandle() const noexcept
+{
+    return m_handle;
+}
+
+shm_handle_t SharedMemory::get_file_handle() const noexcept
 {
     return m_handle;
 }
@@ -214,12 +224,12 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
                       .ignoreErrnos(ENOENT)
                       .evaluate();
 
-    if (!result.has_error())
+    if (result.has_error())
     {
-        return success<bool>(result->errnum != ENOENT);
+        return err(errnoToEnum(result.error().errnum));
     }
 
-    return error<SharedMemoryError>(errnoToEnum(result.get_error().errnum));
+    return ok(result->errnum != ENOENT);
 }
 
 bool SharedMemory::unlink() noexcept
@@ -243,10 +253,11 @@ bool SharedMemory::close() noexcept
 {
     if (m_handle != INVALID_HANDLE)
     {
-        auto call = posixCall(iox_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
-            IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
-                           << r.getHumanReadableErrnum();
-        });
+        auto call =
+            posixCall(iox_shm_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
+                IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
+                               << r.getHumanReadableErrnum();
+            });
 
         m_handle = INVALID_HANDLE;
         return !call.has_error();

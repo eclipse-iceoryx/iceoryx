@@ -23,9 +23,9 @@
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -66,20 +66,20 @@ class RouDiMemoryManager
     /// @param [in] memoryProvider is a pointer to a user defined MemoryProvider
     /// @return an RouDiMemoryManagerError::MEMORY_PROVIDER_EXHAUSTED error if no further memory provider can be added,
     /// otherwise success
-    expected<RouDiMemoryManagerError> addMemoryProvider(MemoryProvider* memoryProvider) noexcept;
+    expected<void, RouDiMemoryManagerError> addMemoryProvider(MemoryProvider* memoryProvider) noexcept;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to create the memory and announce the availability
     /// to its MemoryBlocks
     /// @return an RouDiMemoryManagerError if the MemoryProvider cannot create the memory, otherwise success
-    expected<RouDiMemoryManagerError> createAndAnnounceMemory() noexcept;
+    expected<void, RouDiMemoryManagerError> createAndAnnounceMemory() noexcept;
 
     /// @brief The RouDiMemoryManager calls the the MemoryProvider to destroy the memory, which in turn prompts the
     /// MemoryBlocks to destroy their data
-    expected<RouDiMemoryManagerError> destroyMemory() noexcept;
+    expected<void, RouDiMemoryManagerError> destroyMemory() noexcept;
 
   private:
     mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
-    cxx::vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
+    vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
 };
 } // namespace roudi
 } // namespace iox

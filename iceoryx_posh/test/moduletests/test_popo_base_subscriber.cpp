@@ -138,8 +138,7 @@ TEST_F(BaseSubscriberTest, ReceiveReturnsAllocatedMemoryChunk)
     ::testing::Test::RecordProperty("TEST_ID", "5e3c00e1-bd7c-49bf-adaf-f0d83cd4ab99");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::success<const iox::mepoo::ChunkHeader*>(
-            const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
+        .WillOnce(Return(ByMove(iox::ok(const_cast<const iox::mepoo::ChunkHeader*>(chunkMock.chunkHeader())))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
     // ===== Verify ===== //
@@ -153,13 +152,12 @@ TEST_F(BaseSubscriberTest, ReceiveForwardsErrorsFromUnderlyingPort)
     ::testing::Test::RecordProperty("TEST_ID", "ff175cb2-ad97-4ba9-ab32-cd73618b0b8b");
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), tryGetChunk)
-        .WillOnce(Return(ByMove(iox::error<iox::popo::ChunkReceiveResult>(
-            iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
+        .WillOnce(Return(ByMove(iox::err(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL))));
     // ===== Test ===== //
     auto result = sut.takeChunk();
     // ===== Verify ===== //
     ASSERT_EQ(true, result.has_error());
-    EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.get_error());
+    EXPECT_EQ(iox::popo::ChunkReceiveResult::TOO_MANY_CHUNKS_HELD_IN_PARALLEL, result.error());
     // ===== Cleanup ===== //
 }
 
@@ -181,6 +179,7 @@ TEST_F(BaseSubscriberTest, AttachStateToWaitsetForwardedToUnderlyingSubscriberPo
     WaitSetTest waitSet(condVar);
     // ===== Setup ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     // ===== Test ===== //
     ASSERT_FALSE(waitSet.attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Verify ===== //
@@ -209,6 +208,7 @@ TEST_F(BaseSubscriberTest, WaitSetUnsetStateBasedConditionVariableWhenGoingOutOf
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);
@@ -238,6 +238,7 @@ TEST_F(BaseSubscriberTest, AttachingAttachedStateSubscriberToNewWaitsetDetachesI
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     std::unique_ptr<WaitSetTest> waitSet2{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
@@ -256,6 +257,7 @@ TEST_F(BaseSubscriberTest, AttachingEventToAttachedStateSubscriberDetachesState)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
@@ -273,6 +275,7 @@ TEST_F(BaseSubscriberTest, DetachingAttachedStateCleansup)
     iox::popo::ConditionVariableData condVar("Horscht");
     std::unique_ptr<WaitSetTest> waitSet{new WaitSetTest(condVar)};
     EXPECT_CALL(sut.port(), setConditionVariable(_, _)).Times(1);
+    EXPECT_CALL(sut.port(), hasNewChunks()).WillRepeatedly(Return(false));
     ASSERT_FALSE(waitSet->attachState(sut, iox::popo::SubscriberState::HAS_DATA).has_error());
     // ===== Test ===== //
     EXPECT_CALL(sut.port(), unsetConditionVariable).Times(1);

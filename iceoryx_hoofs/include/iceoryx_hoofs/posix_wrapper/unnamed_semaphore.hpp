@@ -16,8 +16,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_UNNAMED_SEMAPHORE_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_UNNAMED_SEMAPHORE_HPP
 
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
 
@@ -65,7 +65,7 @@ class UnnamedSemaphoreBuilder
     /// @param[in] uninitializedSemaphore since the semaphore is not movable the user has to provide
     ///            memory to store the semaphore into - packed in an optional
     /// @return an error describing the failure or success
-    expected<SemaphoreError> create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
+    expected<void, SemaphoreError> create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept;
 };
 } // namespace posix
 } // namespace iox

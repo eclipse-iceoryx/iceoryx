@@ -31,63 +31,80 @@ extern "C" {
 
 uint64_t iox_notification_info_get_notification_id(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getNotificationId();
 }
 
 bool iox_notification_info_does_originate_from_subscriber(iox_notification_info_t const self,
                                                           iox_sub_t const subscriber)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(subscriber != nullptr);
     return self->doesOriginateFrom(subscriber);
 }
 
 bool iox_notification_info_does_originate_from_user_trigger(iox_notification_info_t const self,
                                                             iox_user_trigger_t const user_trigger)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(user_trigger != nullptr);
     return self->doesOriginateFrom(user_trigger);
 }
 
 bool iox_notification_info_does_originate_from_client(iox_notification_info_t const self, iox_client_t const client)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(client != nullptr);
     return self->doesOriginateFrom(client);
 }
 
 bool iox_notification_info_does_originate_from_server(iox_notification_info_t const self, iox_server_t const server)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(server != nullptr);
     return self->doesOriginateFrom(server);
 }
 
 bool iox_notification_info_does_originate_from_service_discovery(iox_notification_info_t const self,
                                                                  iox_service_discovery_t const serviceDiscovery)
 {
+    iox::cxx::Expects(self != nullptr);
+    iox::cxx::Expects(serviceDiscovery != nullptr);
     return self->doesOriginateFrom(serviceDiscovery);
 }
 
 iox_sub_t iox_notification_info_get_subscriber_origin(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getOrigin<cpp2c_Subscriber>();
 }
 
 iox_user_trigger_t iox_notification_info_get_user_trigger_origin(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getOrigin<UserTrigger>();
 }
 
 iox_client_t iox_notification_info_get_client_origin(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getOrigin<UntypedClient>();
 }
 
 iox_server_t iox_notification_info_get_server_origin(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getOrigin<UntypedServer>();
 }
 
 iox_service_discovery_t iox_notification_info_get_service_discovery_origin(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     return self->getOrigin<ServiceDiscovery>();
 }
 
 void iox_notification_info_call(iox_notification_info_t const self)
 {
+    iox::cxx::Expects(self != nullptr);
     (*self)();
 }

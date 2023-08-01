@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_MEPOO_SHM_SAFE_UNMANAGED_CHUNK_HPP
 #define IOX_POSH_MEPOO_SHM_SAFE_UNMANAGED_CHUNK_HPP
 
-#include "iceoryx_hoofs/internal/memory/relative_pointer_data.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
+#include "iox/detail/relative_pointer_data.hpp"
 
 namespace iox
 {
@@ -60,7 +60,7 @@ class ShmSafeUnmanagedChunk
     bool isNotLogicalNullptrAndHasNoOtherOwners() const noexcept;
 
   private:
-    memory::RelativePointerData m_chunkManagement;
+    RelativePointerData m_chunkManagement;
 };
 
 } // namespace mepoo

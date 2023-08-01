@@ -56,7 +56,7 @@ int main()
 
     // create subscriber and subscribe them to our service
     //! [create subscribers]
-    iox::cxx::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
+    iox::vector<iox::popo::UntypedSubscriber, NUMBER_OF_SUBSCRIBERS> subscriberVector;
     for (auto i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     {
         subscriberVector.emplace_back(iox::capro::ServiceDescription{"Radar", "FrontLeft", "Counter"});
@@ -121,7 +121,7 @@ int main()
                 std::cout << "dismiss data\n";
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 // We need to release the data to reset the trigger hasData
-                // otherwise the WaitSet would notify us in `waitset.wait()` again
+                // otherwise the WaitSet would notify us in 'waitset.wait()' again
                 // instantly.
                 subscriber->releaseQueuedData();
             }

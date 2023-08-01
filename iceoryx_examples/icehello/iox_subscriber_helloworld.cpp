@@ -40,7 +40,7 @@ int main()
     {
         //! [receive]
         auto takeResult = subscriber.take();
-        if (!takeResult.has_error())
+        if (takeResult.has_value())
         {
             std::cout << APP_NAME << " got value: " << takeResult.value()->x << std::endl;
         }
@@ -48,7 +48,7 @@ int main()
         else
         {
             //! [error]
-            if (takeResult.get_error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
+            if (takeResult.error() == iox::popo::ChunkReceiveResult::NO_CHUNK_AVAILABLE)
             {
                 std::cout << "No chunk available." << std::endl;
             }

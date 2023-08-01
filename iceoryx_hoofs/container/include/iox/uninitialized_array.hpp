@@ -18,7 +18,7 @@
 #ifndef IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 #define IOX_HOOFS_CONTAINER_UNINITIALIZED_ARRAY_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 #include <cstdint>
 
@@ -33,11 +33,14 @@ struct ZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-        cxx::byte_t data[sizeof(ElementType)];
+        byte data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity]{};
 };
@@ -50,11 +53,14 @@ struct NonZeroedBuffer
 {
     struct alignas(ElementType) element_t
     {
-        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+        // AXIVION Next Construct AutosarC++19_03-M0.1.3 : the field is intentionally unused and serves as a mean to provide memory
+        // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+        // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
-        cxx::byte_t data[sizeof(ElementType)];
+        byte data[sizeof(ElementType)];
     };
-    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required by low level UninitializedArray building block and encapsulated in abstraction
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
+    // AXIVION Next Construct AutosarC++19_03-A18.1.1 : required as low level building block, encapsulated in abstraction and not directly used
     // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays)
     element_t value[Capacity];
 };
@@ -66,6 +72,7 @@ struct NonZeroedBuffer
 /// @tparam Buffer is the policy parameter to choose between an uninitialized, not zeroed array (=NonZeroedBuffer,
 /// default) and an uninitialized array with all elements zeroed (=ZeroedBuffer)
 /// @note Out of bounds access leads to undefined behavior
+// AXIVION Next Construct AutosarC++19_03-A9.6.1 : type contains a single member that is a byte array whos size is defined by ElementType and Capacity
 template <typename ElementType, uint64_t Capacity, template <typename, uint64_t> class Buffer = NonZeroedBuffer>
 class UninitializedArray final
 {
@@ -76,7 +83,11 @@ class UninitializedArray final
     using iterator = ElementType*;
     using const_iterator = const ElementType*;
 
-    constexpr UninitializedArray() noexcept = default;
+    /// @deterministic
+    // The (empty) user-defined constructor is required.
+    // Use of "= default" leads to value-initialization of class members.
+    // AXIVION Next Construct AutosarC++19_03-A12.6.1 : This is a low-level building block which is supposed to provide uninitialized memory
+    constexpr UninitializedArray() noexcept {};
     UninitializedArray(const UninitializedArray&) = delete;
     UninitializedArray(UninitializedArray&&) = delete;
     UninitializedArray& operator=(const UninitializedArray&) = delete;
@@ -87,32 +98,48 @@ class UninitializedArray final
     /// @param[in] index position of the element to return
     /// @return reference to the element
     /// @note out of bounds access leads to undefined behavior
+    /// @deterministic
     constexpr ElementType& operator[](const uint64_t index) noexcept;
 
     /// @brief returns a const reference to the element stored at index
     /// @param[in] index position of the element to return
     /// @return const reference to the element
     /// @note out of bounds access leads to undefined behavior
+    /// @deterministic
     constexpr const ElementType& operator[](const uint64_t index) const noexcept;
 
     /// @brief returns an iterator to the beginning of the UninitializedArray
+    /// @deterministic
     iterator begin() noexcept;
 
     /// @brief returns a const iterator to the beginning of the UninitializedArray
+    /// @deterministic
     const_iterator begin() const noexcept;
 
     /// @brief returns an iterator to the end of the UninitializedArray
+    /// @deterministic
     iterator end() noexcept;
 
     /// @brief returns a const iterator to the end of the UninitializedArray
+    /// @deterministic
     const_iterator end() const noexcept;
 
     /// @brief returns the array capacity
+    /// @deterministic
     static constexpr uint64_t capacity() noexcept;
 
   private:
+    // AXIVION Next Construct AutosarC++19_03-A1.1.1 : object size depends on template parameter and has to be taken care of at the specific template instantiation
     Buffer<ElementType, Capacity> m_buffer;
 };
+
+/// @brief Returns N
+/// @tparam T Type of the iox::UninitializedArray
+/// @tparam N Size of the iox::UninitializedArray
+/// @param An iox::UninitializedArray
+/// @return Size of the iox::UninitializedArray
+template <typename T, uint64_t N, template <typename, uint64_t> class Buffer>
+constexpr uint64_t size(const UninitializedArray<T, N, Buffer>&) noexcept;
 
 } // namespace iox
 

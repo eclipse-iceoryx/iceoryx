@@ -16,10 +16,10 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_platform/file.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/string.hpp"
 
 namespace iox
@@ -52,7 +52,7 @@ enum class FileLockError
 /// @code
 ///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
 ///                                                .path("/tmp")
-///                                                .permission(iox::cxx::perms::owner_all)
+///                                                .permission(iox::perms::owner_all)
 ///                                                .create()
 ///                                                .expect("Oh no I couldn't create the lock");
 /// @endcode
@@ -106,7 +106,7 @@ class FileLock
     void invalidate() noexcept;
 
     static FileLockError convertErrnoToFileLockError(const int32_t errnum, const FilePath_t& fileLockPath) noexcept;
-    expected<FileLockError> closeFileDescriptor() noexcept;
+    expected<void, FileLockError> closeFileDescriptor() noexcept;
 };
 
 class FileLockBuilder
@@ -121,7 +121,7 @@ class FileLockBuilder
 
     /// @brief Defines the access permissions of the file lock. If they are not
     ///        explicitly set they will be none
-    IOX_BUILDER_PARAMETER(cxx::perms, permission, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(access_rights, permission, perms::none)
 
   public:
     /// @brief Creates a file lock

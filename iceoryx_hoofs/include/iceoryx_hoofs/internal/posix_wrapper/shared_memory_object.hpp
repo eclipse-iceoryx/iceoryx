@@ -17,12 +17,13 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
-#include "iceoryx_hoofs/cxx/filesystem.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/file_management_interface.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 
 #include <cstdint>
@@ -31,12 +32,13 @@ namespace iox
 {
 namespace posix
 {
-using byte_t = uint8_t;
 
 enum class SharedMemoryObjectError
 {
     SHARED_MEMORY_CREATION_FAILED,
     MAPPING_SHARED_MEMORY_FAILED,
+    UNABLE_TO_VERIFY_MEMORY_SIZE,
+    REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE,
     INTERNAL_LOGIC_FAILURE,
 };
 
@@ -52,7 +54,7 @@ class SharedMemoryObjectBuilder;
 
 /// @brief Creates a shared memory segment and maps it into the process space.
 ///        One can use optionally the allocator to acquire memory.
-class SharedMemoryObject
+class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
 {
   public:
     using Builder = SharedMemoryObjectBuilder;
@@ -64,54 +66,30 @@ class SharedMemoryObject
     SharedMemoryObject& operator=(SharedMemoryObject&&) noexcept = default;
     ~SharedMemoryObject() noexcept = default;
 
-    /// @brief allocates memory inside the shared memory with a provided size and
-    ///        alignment
-    /// @param[in] size the size of the memory inside the shared memory
-    /// @param[in] alignment the alignment of the memory
-    /// @return an expected containing a pointer to a memory address with the requested size and alignment on success,
-    /// an expected containing SharedMemoryAllocationError if finalizeAllocation was called before or not enough memory
-    /// is available
-    cxx::expected<void*, SharedMemoryAllocationError> allocate(const uint64_t size, const uint64_t alignment) noexcept;
-
-    /// @brief After this call the user cannot allocate memory inside the SharedMemoryObject
-    ///        anymore. This ensures that memory is only allocated in the startup phase.
-    void finalizeAllocation() noexcept;
-
-    /// @brief Returns the reference to the underlying allocator
-    BumpAllocator& getBumpAllocator() noexcept;
-
     /// @brief Returns start- or base-address of the shared memory.
     const void* getBaseAddress() const noexcept;
 
     /// @brief Returns start- or base-address of the shared memory.
     void* getBaseAddress() noexcept;
 
-    /// @brief Returns the size of the shared memory
-    uint64_t getSizeInBytes() const noexcept;
-
     /// @brief Returns the underlying file handle of the shared memory
-    int getFileHandle() const noexcept;
+    shm_handle_t getFileHandle() const noexcept;
 
     /// @brief True if the shared memory has the ownership. False if an already
     ///        existing shared memory was opened.
     bool hasOwnership() const noexcept;
 
-
     friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(SharedMemory&& sharedMemory,
-                       MemoryMap&& memoryMap,
-                       BumpAllocator&& allocator,
-                       const uint64_t memorySizeInBytes) noexcept;
+    SharedMemoryObject(SharedMemory&& sharedMemory, MemoryMap&& memoryMap) noexcept;
+
+    friend struct FileManagementInterface<SharedMemoryObject>;
+    shm_handle_t get_file_handle() const noexcept;
 
   private:
-    uint64_t m_memorySizeInBytes;
-
     SharedMemory m_sharedMemory;
     MemoryMap m_memoryMap;
-    BumpAllocator m_allocator;
-    bool m_allocationFinalized{false};
 };
 
 class SharedMemoryObjectBuilder
@@ -138,7 +116,7 @@ class SharedMemoryObjectBuilder
     IOX_BUILDER_PARAMETER(optional<const void*>, baseAddressHint, nullopt)
 
     /// @brief Defines the access permissions of the shared memory
-    IOX_BUILDER_PARAMETER(cxx::perms, permissions, cxx::perms::none)
+    IOX_BUILDER_PARAMETER(access_rights, permissions, perms::none)
 
   public:
     expected<SharedMemoryObject, SharedMemoryObjectError> create() noexcept;

@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iox/logging.hpp"
 
 #include <bitset>
 
@@ -28,22 +28,11 @@ namespace posix
 {
 expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 {
-    int32_t l_memoryProtection{PROT_NONE};
-    switch (m_accessMode)
-    {
-    case AccessMode::READ_ONLY:
-        l_memoryProtection = PROT_READ;
-        break;
-    case AccessMode::READ_WRITE:
-        // NOLINTNEXTLINE(hicpp-signed-bitwise) enum type is defined by POSIX, no logical fault
-        l_memoryProtection = PROT_READ | PROT_WRITE;
-        break;
-    }
     // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
     auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
                                   m_length,
-                                  l_memoryProtection,
+                                  convertToProtFlags(m_accessMode),
                                   static_cast<int32_t>(m_flags),
                                   m_fileDescriptor,
                                   m_offset)
@@ -56,7 +45,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 
     if (result)
     {
-        return success<MemoryMap>(MemoryMap(result.value().value, m_length));
+        return ok(MemoryMap(result.value().value, m_length));
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
@@ -67,7 +56,7 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
                    << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
                    << ", offset = " << iox::log::hex(m_offset) << " ]";
     std::cerr.setf(flags);
-    return error<MemoryMapError>(MemoryMap::errnoToEnum(result.get_error().errnum));
+    return err(MemoryMap::errnoToEnum(result.error().errnum));
 }
 
 MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
@@ -188,7 +177,7 @@ bool MemoryMap::destroy() noexcept
 
         if (unmapResult.has_error())
         {
-            errnoToEnum(unmapResult.get_error().errnum);
+            errnoToEnum(unmapResult.error().errnum);
             IOX_LOG(ERROR) << "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
                            << ", size = " << m_length << " ]";
             return false;

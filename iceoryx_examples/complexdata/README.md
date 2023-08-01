@@ -6,7 +6,7 @@ To implement zero-copy data transfer we use a shared memory approach. This requi
 contained in the shared memory and must not internally use pointers or references. The complete list of restrictions can be found
 [here](../../doc/website/getting-started/overview.md#restrictions). Therefore, most of the STL types cannot be used, but we
 reimplemented some [constructs](../../iceoryx_hoofs/README.md#cxx). This example shows how
-to send/receive a iox::cxx::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
+to send/receive a iox::vector and how to send/receive a complex data structure containing some of our STL container surrogates.
 
 ## Expected Output
 
@@ -17,14 +17,14 @@ to send/receive a iox::cxx::vector and how to send/receive a complex data struct
 The following examples demonstrate how to send/receive the STL containers that were reimplemented in iceoryx so that they meet
 our requirements.
 
-### Publisher application sending a `iox::cxx::vector`
+### Publisher application sending a `iox::vector`
 
 In this example we want our publisher to send a vector containing double. Since we cannot use dynamic memory, we use the
-`iox::cxx::vector` with a capacity of 5.
+`iox::vector` with a capacity of 5.
 
 <!--[geoffrey][iceoryx_examples/complexdata/iox_publisher_vector.cpp][create publisher]-->
 ```cpp
-iox::popo::Publisher<iox::cxx::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
+iox::popo::Publisher<iox::vector<double, 5>> publisher({"Radar", "FrontRight", "VectorData"});
 ```
 
 We use a while-loop similar to the one described in the
@@ -45,7 +45,7 @@ The only difference here to the `std::vector` is that `emplace_back` returns a b
 false otherwise. `emplace_back` fails when the vector is already full. In our case, we can omit the check of the return value
 since the for-loop doesn't exceed the capacity of the vector.
 
-### Subscriber application receiving a `iox::cxx::vector`
+### Subscriber application receiving a `iox::vector`
 
 Our subscriber application iterates over the received vector to print its entries to the console. Note that the `separator` is only
 used for a easy to read output.

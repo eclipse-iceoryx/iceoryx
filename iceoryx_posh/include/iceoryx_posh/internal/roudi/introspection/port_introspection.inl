@@ -107,7 +107,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendPortData() noe
                                                               alignof(PortIntrospectionFieldTopic),
                                                               CHUNK_NO_USER_HEADER_SIZE,
                                                               CHUNK_NO_USER_HEADER_ALIGNMENT);
-    if (!maybeChunkHeader.has_error())
+    if (maybeChunkHeader.has_value())
     {
         auto sample = static_cast<PortIntrospectionFieldTopic*>(maybeChunkHeader.value()->userPayload());
         new (sample) PortIntrospectionFieldTopic();
@@ -125,7 +125,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendThroughputData
                                                                         alignof(PortThroughputIntrospectionFieldTopic),
                                                                         CHUNK_NO_USER_HEADER_SIZE,
                                                                         CHUNK_NO_USER_HEADER_ALIGNMENT);
-    if (!maybeChunkHeader.has_error())
+    if (maybeChunkHeader.has_value())
     {
         auto throughputSample =
             static_cast<PortThroughputIntrospectionFieldTopic*>(maybeChunkHeader.value()->userPayload());
@@ -145,7 +145,7 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::sendSubscriberPort
                                                              alignof(SubscriberPortChangingIntrospectionFieldTopic),
                                                              CHUNK_NO_USER_HEADER_SIZE,
                                                              CHUNK_NO_USER_HEADER_ALIGNMENT);
-    if (!maybeChunkHeader.has_error())
+    if (maybeChunkHeader.has_value())
     {
         auto subscriberPortChangingDataSample =
             static_cast<SubscriberPortChangingIntrospectionFieldTopic*>(maybeChunkHeader.value()->userPayload());

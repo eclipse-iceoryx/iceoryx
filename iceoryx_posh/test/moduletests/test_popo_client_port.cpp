@@ -139,11 +139,11 @@ class ClientPort_test : public Test
                                                                      iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
                                                                      userHeaderSize,
                                                                      iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        iox::cxx::Ensures(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(!getChunkResult.has_error());
+        iox::cxx::Ensures(getChunkResult.has_value());
         return getChunkResult.value();
     }
 
@@ -401,7 +401,7 @@ TEST_F(ClientPort_test, GetResponseOnConnectedClientPortWithNonEmptyResponseQueu
     constexpr uint32_t USER_PAYLOAD_SIZE{10};
     auto sharedChunk = getChunkFromMemoryManager(USER_PAYLOAD_SIZE, sizeof(ResponseHeader));
     new (sharedChunk.getChunkHeader()->userHeader())
-        ResponseHeader(iox::cxx::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
+        ResponseHeader(iox::UniqueId(), RpcBaseHeader::UNKNOWN_CLIENT_QUEUE_INDEX, SEQUENCE_ID);
     sut.responseQueuePusher.push(sharedChunk);
 
     sut.portUser.getResponse()
@@ -750,7 +750,7 @@ TEST_F(ClientPort_test, ReleaseAllChunksWorks)
 
     sut.portRouDi.releaseAllChunks();
 
-    // this is not part of the client port but holds the chunk from `sendRequest`
+    // this is not part of the client port but holds the chunk from 'sendRequest'
     serverRequestQueue.clear();
 
     EXPECT_THAT(getNumberOfUsedChunks(), Eq(0U));

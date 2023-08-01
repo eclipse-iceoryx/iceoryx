@@ -25,19 +25,19 @@ namespace iox
 /// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/optional.hpp' instead")]]
 namespace cxx
 {
-/// @deprecated use `iox::in_place` instead of `iox::cxx::in_place`
+/// @deprecated use 'iox::in_place' instead of 'iox::cxx::in_place'
 using iox::in_place;
-/// @deprecated use `iox::in_place_t` instead of `iox::cxx::in_place_t`
+/// @deprecated use 'iox::in_place_t' instead of 'iox::cxx::in_place_t'
 using iox::in_place_t;
-/// @deprecated use `iox::is_optional` instead of `iox::cxx::is_optional`
+/// @deprecated use 'iox::is_optional' instead of 'iox::cxx::is_optional'
 using iox::is_optional;
-/// @deprecated use `iox::make_optional` instead of `iox::cxx::make_optional`
+/// @deprecated use 'iox::make_optional' instead of 'iox::cxx::make_optional'
 using iox::make_optional;
-/// @deprecated use `iox::nullopt` instead of `iox::cxx::nullopt`
+/// @deprecated use 'iox::nullopt' instead of 'iox::cxx::nullopt'
 using iox::nullopt;
-/// @deprecated use `iox::nullopt_t` instead of `iox::cxx::nullopt_t`
+/// @deprecated use 'iox::nullopt_t' instead of 'iox::cxx::nullopt_t'
 using iox::nullopt_t;
-/// @deprecated use `iox::optional` instead of `iox::cxx::optional`
+/// @deprecated use 'iox::optional' instead of 'iox::cxx::optional'
 using iox::optional;
 } // namespace cxx
 } // namespace iox

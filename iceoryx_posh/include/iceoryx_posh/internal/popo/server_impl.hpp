@@ -32,7 +32,7 @@ namespace iox
 namespace popo
 {
 /// @brief The ServerImpl class implements the typed server API
-/// @note Not intended for public usage! Use the `Server` instead!
+/// @note Not intended for public usage! Use the 'Server' instead!
 template <typename Req, typename Res, typename BaseServerT = BaseServer<>>
 class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, ServerSendError>
 {
@@ -69,7 +69,7 @@ class ServerImpl : public BaseServerT, private RpcInterface<Response<Res>, Serve
     /// @brief Sends the given Response and then releases its loan.
     /// @param response to send.
     /// @return Error if sending was not successful
-    expected<ServerSendError> send(Response<Res>&& response) noexcept override;
+    expected<void, ServerSendError> send(Response<Res>&& response) noexcept override;
 
   protected:
     using BaseServerT::port;

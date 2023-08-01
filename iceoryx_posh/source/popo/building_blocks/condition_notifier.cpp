@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/popo/building_blocks/condition_notifier.hpp"
-#include "iceoryx_posh/internal/log/posh_logging.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
@@ -28,8 +28,8 @@ ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, cons
 {
     if (index >= MAX_NUMBER_OF_NOTIFIERS)
     {
-        LogFatal() << "The provided index " << index << " is too large. The index has to be in the range of [0, "
-                   << MAX_NUMBER_OF_NOTIFIERS << "[.";
+        IOX_LOG(FATAL) << "The provided index " << index << " is too large. The index has to be in the range of [0, "
+                       << MAX_NUMBER_OF_NOTIFIERS << "[.";
         errorHandler(PoshError::POPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, ErrorLevel::FATAL);
     }
 }

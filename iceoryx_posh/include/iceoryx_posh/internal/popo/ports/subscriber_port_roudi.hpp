@@ -22,6 +22,7 @@
 #include "iceoryx_posh/internal/popo/building_blocks/chunk_receiver.hpp"
 #include "iceoryx_posh/internal/popo/ports/base_port.hpp"
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_data.hpp"
+#include "iox/not_null.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -37,7 +38,7 @@ class SubscriberPortRouDi : public BasePort
   public:
     using MemberType_t = SubscriberPortData;
 
-    explicit SubscriberPortRouDi(cxx::not_null<MemberType_t* const> subscriberPortDataPtr) noexcept;
+    explicit SubscriberPortRouDi(not_null<MemberType_t* const> subscriberPortDataPtr) noexcept;
 
     SubscriberPortRouDi(const SubscriberPortRouDi& other) = delete;
     SubscriberPortRouDi& operator=(const SubscriberPortRouDi&) = delete;

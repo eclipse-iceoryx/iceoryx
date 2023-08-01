@@ -43,11 +43,11 @@ class ShmSafeUnmanagedChunk_test : public Test
     SharedChunk getChunkFromMemoryManager()
     {
         auto chunkSettingsResult = iox::mepoo::ChunkSettings::create(sizeof(bool), alignof(bool));
-        iox::cxx::Ensures(!chunkSettingsResult.has_error());
+        iox::cxx::Ensures(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(!getChunkResult.has_error());
+        iox::cxx::Ensures(getChunkResult.has_value());
         return getChunkResult.value();
     }
 

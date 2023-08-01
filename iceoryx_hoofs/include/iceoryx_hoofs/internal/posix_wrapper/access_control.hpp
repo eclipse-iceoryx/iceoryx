@@ -17,12 +17,12 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_ACCESS_CONTROL_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/acl.hpp"
 #include "iox/expected.hpp"
 #include "iox/string.hpp"
 #include "iox/unique_ptr.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 #include <iostream>
@@ -121,7 +121,7 @@ class AccessController
         unsigned int m_id;
     };
 
-    cxx::vector<PermissionEntry, MaxNumOfPermissions> m_permissions;
+    vector<PermissionEntry, MaxNumOfPermissions> m_permissions;
 
     static expected<smartAclPointer_t, AccessControllerError> createACL(const int32_t numEntries) noexcept;
     static bool createACLEntry(const acl_t ACL, const PermissionEntry& entry) noexcept;

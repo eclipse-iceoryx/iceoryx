@@ -16,14 +16,15 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_PTHREAD_HPP
 
-#include "iceoryx_hoofs/cxx/function.hpp"
-#include "iceoryx_hoofs/design_pattern/builder.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/pthread.hpp"
+#include "iox/builder.hpp"
 #include "iox/expected.hpp"
+#include "iox/function.hpp"
 #include "iox/string.hpp"
 
 #include <atomic>
+#include <thread>
 
 namespace iox
 {
@@ -34,8 +35,8 @@ constexpr uint64_t MAX_THREAD_NAME_LENGTH = 15U;
 using ThreadName_t = string<MAX_THREAD_NAME_LENGTH>;
 
 /// @todo iox-#1365 remove free functions
-void setThreadName(iox_pthread_t thread, const ThreadName_t& name) noexcept;
-ThreadName_t getThreadName(iox_pthread_t thread) noexcept;
+void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept;
+ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept;
 
 enum class ThreadError
 {
@@ -50,7 +51,7 @@ enum class ThreadError
 /// @code
 /// #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 ///
-/// iox::cxx::function<void()> callable = []() { /* ... */ };
+/// iox::function<void()> callable = []() { /* ... */ };
 /// optional<Thread> myThread;
 /// ThreadBuilder().create(myThread, callable).expect("Couldn't create a thread.");
 /// @endcode
@@ -60,7 +61,7 @@ enum class ThreadError
 class Thread
 {
   public:
-    using callable_t = cxx::function<void()>;
+    using callable_t = function<void()>;
 
     Thread(const Thread&) = delete;
     Thread& operator=(const Thread&) = delete;
@@ -99,7 +100,8 @@ class ThreadBuilder
     /// @param[in] uninitializedThread is an iox::optional where the thread is stored
     /// @param[in] callable is the callable that is invoked by the thread
     /// @return an error describing the failure or success
-    expected<ThreadError> create(optional<Thread>& uninitializedThread, const Thread::callable_t& callable) noexcept;
+    expected<void, ThreadError> create(optional<Thread>& uninitializedThread,
+                                       const Thread::callable_t& callable) noexcept;
 };
 
 } // namespace posix

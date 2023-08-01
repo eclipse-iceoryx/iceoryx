@@ -17,11 +17,23 @@
 
 #include "iceoryx_platform/unistd.hpp"
 #include "iceoryx_platform/handle_translator.hpp"
+#include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/win32_errorHandling.hpp"
 
 int ftruncate(int fildes, off_t length)
 {
+    internal_iox_shm_set_size(fildes, length);
     return 0;
+}
+
+int iox_access(const char* pathname, int mode)
+{
+    return _access(pathname, mode);
+}
+
+int iox_unlink(const char* pathname)
+{
+    return _unlink(pathname);
 }
 
 long sysconf(int name)
@@ -37,6 +49,11 @@ long sysconf(int name)
 
 int iox_close(int fd)
 {
+    return _close(fd);
+}
+
+int iox_ext_close(int fd)
+{
     HANDLE handle = HandleTranslator::getInstance().get(fd);
     if (handle == nullptr)
     {
@@ -49,5 +66,30 @@ int iox_close(int fd)
     {
         return -1;
     }
+    return 0;
+}
+
+int iox_fchown(int fd, uid_t owner, gid_t group)
+{
+    return 0;
+}
+
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence)
+{
+    return _lseek(fd, offset, whence);
+}
+
+iox_ssize_t iox_read(int fd, void* buf, size_t count)
+{
+    return _read(fd, buf, count);
+}
+
+iox_ssize_t iox_write(int fd, const void* buf, size_t count)
+{
+    return _write(fd, buf, count);
+}
+
+gid_t getgid()
+{
     return 0;
 }

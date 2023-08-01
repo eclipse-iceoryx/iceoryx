@@ -16,13 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/logging.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <limits>
@@ -47,7 +47,7 @@ PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
     else
     {
         IOX_LOG(ERROR) << "Error: Group name not found";
-        m_id = std::numeric_limits<uint32_t>::max();
+        m_id = std::numeric_limits<gid_t>::max();
     }
 }
 
@@ -58,7 +58,7 @@ bool PosixGroup::operator==(const PosixGroup& other) const noexcept
 
 PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
 {
-    return PosixGroup(getegid());
+    return PosixGroup(getgid());
 }
 
 optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
@@ -149,7 +149,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
     UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
-    int32_t numGroups = MaxNumberOfGroups;
+    auto numGroups = MaxNumberOfGroups;
 
     auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
                                 .failureReturnValue(-1)
@@ -191,7 +191,7 @@ PosixUser::PosixUser(const PosixUser::userName_t& name) noexcept
     else
     {
         IOX_LOG(ERROR) << "Error: User name not found";
-        m_id = std::numeric_limits<uint32_t>::max();
+        m_id = std::numeric_limits<gid_t>::max();
     }
 }
 

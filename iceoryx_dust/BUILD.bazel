@@ -15,6 +15,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
+load("//bazel:configure_file.bzl", "configure_file")
+
+configure_file(
+    name = "iceoryx_dust_deployment_hpp",
+    src = "cmake/iceoryx_dust_deployment.hpp.in",
+    out = "include/iceoryx_dust/iceoryx_dust_deployment.hpp",
+    config = {
+        "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
+        "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
+    },
+)
 
 cc_library(
     name = "iceoryx_dust",
@@ -22,8 +33,13 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]),
-    strip_include_prefix = "include",
+    hdrs = glob(["include/**"] + glob(["vocabulary/**"])) + [
+        ":iceoryx_dust_deployment_hpp",
+    ],
+    includes = [
+        "include",
+        "vocabulary/include/",
+    ],
     visibility = ["//visibility:public"],
     deps = ["//iceoryx_hoofs"],
 )

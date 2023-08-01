@@ -118,7 +118,7 @@ int main(void)
             else if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[1]))
             {
                 // We need to release the samples to reset the event hasSamples
-                // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+                // otherwise the WaitSet would notify us in 'iox_ws_wait()' again
                 // instantly.
                 iox_sub_release_queued_chunks(subscriber[1U]);
                 printf("subscriber 2 received something - dont care\n");

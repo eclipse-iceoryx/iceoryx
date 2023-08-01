@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/std_string_support.hpp"
-#include "iceoryx_hoofs/cxx/convert.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -74,7 +74,7 @@ class PortManager_test : public Test
 
     iox::RuntimeName_t m_runtimeName{"TestApp"};
 
-    cxx::vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
+    vector<iox::capro::ServiceDescription, NUMBER_OF_INTERNAL_PUBLISHERS> internalServices;
     const capro::ServiceDescription serviceRegistry{
         SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME};
 
@@ -105,7 +105,7 @@ class PortManager_test : public Test
     {
         delete m_portManager;
         delete m_roudiMemoryManager;
-        iox::memory::UntypedRelativePointer::unregisterAll();
+        iox::UntypedRelativePointer::unregisterAll();
     }
 
     void addInternalPublisherOfPortManagerToVector()
@@ -133,9 +133,9 @@ class PortManager_test : public Test
                 }
             }
         }
-        return {iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_sIdCounter)),
-                iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_eventIdCounter)),
-                iox::cxx::into<iox::capro::IdString_t>(convert::toString(m_instIdCounter))};
+        return {into<lossy<IdString_t>>(convert::toString(m_sIdCounter)),
+                into<lossy<IdString_t>>(convert::toString(m_eventIdCounter)),
+                into<lossy<IdString_t>>(convert::toString(m_instIdCounter))};
     }
 
     void acquireMaxNumberOfInterfaces(
@@ -145,8 +145,8 @@ class PortManager_test : public Test
         for (unsigned int i = 0; i < iox::MAX_INTERFACE_NUMBER; i++)
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto interfacePort = m_portManager->acquireInterfacePortData(
-                iox::capro::Interfaces::INTERNAL, iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+            auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,
+                                                                         into<lossy<RuntimeName_t>>(newProcessName));
             ASSERT_NE(interfacePort, nullptr);
             if (f)
             {
@@ -162,8 +162,7 @@ class PortManager_test : public Test
         for (unsigned int i = 0; i < iox::MAX_NUMBER_OF_CONDITION_VARIABLES; i++)
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
-            auto condVar =
-                m_portManager->acquireConditionVariableData(iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+            auto condVar = m_portManager->acquireConditionVariableData(into<lossy<RuntimeName_t>>(newProcessName));
             ASSERT_FALSE(condVar.has_error());
             if (f)
             {
@@ -181,8 +180,8 @@ class PortManager_test : public Test
         {
             auto newProcessName = runtimeName + iox::cxx::convert::toString(i);
             auto newNodeName = nodeName + iox::cxx::convert::toString(i);
-            auto node = m_portManager->acquireNodeData(iox::cxx::into<RuntimeName_t>(newProcessName),
-                                                       iox::cxx::into<NodeName_t>(newNodeName));
+            auto node = m_portManager->acquireNodeData(into<lossy<RuntimeName_t>>(newProcessName),
+                                                       into<lossy<NodeName_t>>(newNodeName));
             ASSERT_FALSE(node.has_error());
             if (f)
             {

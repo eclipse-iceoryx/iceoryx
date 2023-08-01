@@ -19,7 +19,7 @@
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 
-#include "iceoryx_hoofs/cxx/function.hpp"
+#include "iox/function.hpp"
 #include "iox/optional.hpp"
 
 #include <vector>
@@ -57,7 +57,7 @@ class Discovery
                                  const iox::optional<iox::capro::IdString_t>& event);
 
   private:
-    using callback_t = iox::cxx::function<void(Discovery&)>;
+    using callback_t = iox::function<void(Discovery&)>;
 
     ServiceDiscovery* m_discovery{nullptr};
     iox::popo::Listener m_listener;

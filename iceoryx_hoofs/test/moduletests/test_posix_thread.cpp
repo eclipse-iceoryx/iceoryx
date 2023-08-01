@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
+#include "iox/duration.hpp"
 #include "test.hpp"
 
 #include <thread>

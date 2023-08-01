@@ -40,9 +40,9 @@ behind the scenes that dynamically connects matching communication entities.
 
 That iceoryx has the right set of features can be seen from the already existing integrations in middleware and
 frameworks such as [Eclipse Cyclone DDS](https://github.com/eclipse-cyclonedds/cyclonedds),
- [eCAL from Continental](https://continental.github.io/ecal/),
+ [Eclipse eCAL from Continental](https://eclipse-ecal.github.io/ecal/),
  [RTA-VRTE from ETAS](https://www.etas.com/en/products/rta-vrte.php) and
- [Apex.Middleware from Apex.AI](https://www.apex.ai/apex-middleware).
+ [Apex.Ida from Apex.AI](https://www.apex.ai/apexida).
 
 ## Dependable
 

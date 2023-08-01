@@ -22,6 +22,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
@@ -57,7 +58,7 @@ class PosixShmMemoryProvider : public MemoryProvider
 
     /// @copydoc MemoryProvider::destroyMemory
     /// @note This closes and unmaps a POSIX shared memory
-    expected<MemoryProviderError> destroyMemory() noexcept;
+    expected<void, MemoryProviderError> destroyMemory() noexcept;
 
   private:
     ShmName_t m_shmName;
@@ -65,8 +66,8 @@ class PosixShmMemoryProvider : public MemoryProvider
     posix::OpenMode m_openMode{posix::OpenMode::OPEN_EXISTING};
     optional<posix::SharedMemoryObject> m_shmObject;
 
-    static constexpr cxx::perms SHM_MEMORY_PERMISSIONS =
-        cxx::perms::owner_read | cxx::perms::owner_write | cxx::perms::group_read | cxx::perms::group_write;
+    static constexpr access_rights SHM_MEMORY_PERMISSIONS =
+        perms::owner_read | perms::owner_write | perms::group_read | perms::group_write;
 };
 
 } // namespace roudi

@@ -68,12 +68,12 @@ class StubbedGatewayGeneric : public TestGatewayGeneric<channel_t>
         return TestGatewayGeneric<channel_t>::findChannel(service);
     }
 
-    void forEachChannel(const iox::cxx::function_ref<void(channel_t&)> f) noexcept
+    void forEachChannel(const iox::function_ref<void(channel_t&)> f) noexcept
     {
         TestGatewayGeneric<channel_t>::forEachChannel(f);
     }
 
-    iox::expected<iox::gw::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
+    iox::expected<void, iox::gw::GatewayError> discardChannel(const iox::capro::ServiceDescription& service) noexcept
     {
         return TestGatewayGeneric<channel_t>::discardChannel(service);
     }

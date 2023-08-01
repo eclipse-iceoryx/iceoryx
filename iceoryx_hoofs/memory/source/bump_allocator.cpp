@@ -16,54 +16,56 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/bump_allocator.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/logging.hpp"
+#include "iox/memory.hpp"
 
 #include <iostream>
 
 namespace iox
 {
 BumpAllocator::BumpAllocator(void* const startAddress, const uint64_t length) noexcept
-    : m_startAddress(static_cast<cxx::byte_t*>(startAddress))
+    // AXIVION Next Construct AutosarC++19_03-A5.2.4, AutosarC++19_03-M5.2.9 : required for low level memory management
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+    : m_startAddress(reinterpret_cast<uint64_t>(startAddress))
     , m_length(length)
 {
 }
 
 // NOLINTJUSTIFICATION allocation interface requires size and alignment as integral types
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-cxx::expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
+expected<void*, BumpAllocatorError> BumpAllocator::allocate(const uint64_t size, const uint64_t alignment) noexcept
 {
     if (size == 0)
     {
         IOX_LOG(WARN) << "Cannot allocate memory of size 0.";
-        return cxx::error<BumpAllocatorError>(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
+        return err(BumpAllocatorError::REQUESTED_ZERO_SIZED_MEMORY);
     }
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
-    uint64_t currentAddress = reinterpret_cast<uint64_t>(m_startAddress) + m_currentPosition;
-    uint64_t alignedPosition = cxx::align(currentAddress, static_cast<uint64_t>(alignment));
+    const uint64_t currentAddress{m_startAddress + m_currentPosition};
+    uint64_t alignedPosition{align(currentAddress, alignment)};
 
-    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast) required for low level pointer alignment
-    alignedPosition -= reinterpret_cast<uint64_t>(m_startAddress);
+    alignedPosition -= m_startAddress;
 
-    cxx::byte_t* allocation = nullptr;
+    void* allocation{nullptr};
 
-    if (m_length >= alignedPosition + size)
+    const uint64_t nextPosition{alignedPosition + size};
+    if (m_length >= nextPosition)
     {
-        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic) low-level memory management
-        allocation = m_startAddress + alignedPosition;
-        m_currentPosition = alignedPosition + size;
+        // AXIVION Next Construct AutosarC++19_03-A5.2.4 : required for low level memory management
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast, performance-no-int-to-ptr)
+        allocation = reinterpret_cast<void*>(m_startAddress + alignedPosition);
+        m_currentPosition = nextPosition;
     }
     else
     {
         IOX_LOG(WARN) << "Trying to allocate additional " << size << " bytes in the memory of capacity " << m_length
                       << " when there are already " << alignedPosition << " aligned bytes in use.\n Only "
                       << m_length - alignedPosition << " bytes left.";
-        return cxx::error<BumpAllocatorError>(BumpAllocatorError::OUT_OF_MEMORY);
+        return err(BumpAllocatorError::OUT_OF_MEMORY);
     }
 
-    return cxx::success<void*>(allocation);
+    return ok(allocation);
 }
 
 void BumpAllocator::deallocate() noexcept

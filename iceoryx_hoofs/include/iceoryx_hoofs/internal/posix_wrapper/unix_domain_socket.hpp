@@ -17,13 +17,14 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
+#include "iceoryx_hoofs/cxx/filesystem.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
-#include "iceoryx_hoofs/internal/units/duration.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/un.hpp"
+#include "iox/duration.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -87,13 +88,13 @@ class UnixDomainSocket
     /// @brief send a message using std::string.
     /// @param msg to send
     /// @return IpcChannelError if error occured
-    expected<IpcChannelError> send(const std::string& msg) const noexcept;
+    expected<void, IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
     /// @param msg to send
     /// @param timout for the send operation
     /// @return IpcChannelError if error occured
-    expected<IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    expected<void, IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
 
     /// @brief receive message using std::string.
     /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
@@ -107,22 +108,22 @@ class UnixDomainSocket
   private:
     UnixDomainSocket(const IpcChannelName_t& name,
                      const IpcChannelSide channelSide,
-                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
     UnixDomainSocket(const NoPathPrefix_t,
                      const UdsName_t& name,
                      const IpcChannelSide channelSide,
-                     const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                     const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
                      const uint64_t maxMsgNumber = 10U) noexcept;
 
-    expected<IpcChannelError> destroy() noexcept;
+    expected<void, IpcChannelError> destroy() noexcept;
 
-    expected<IpcChannelError> initalizeSocket() noexcept;
+    expected<void, IpcChannelError> initalizeSocket() noexcept;
 
     IpcChannelError convertErrnoToIpcChannelError(const int32_t errnum) const noexcept;
 
-    expected<IpcChannelError> closeFileDescriptor() noexcept;
+    expected<void, IpcChannelError> closeFileDescriptor() noexcept;
 
   private:
     static constexpr int32_t ERROR_CODE = -1;
@@ -135,7 +136,7 @@ class UnixDomainSocket
     IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
     int32_t m_sockfd{INVALID_FD};
     sockaddr_un m_sockAddr{};
-    size_t m_maxMessageSize{MAX_MESSAGE_SIZE};
+    uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
 };
 
 
@@ -145,10 +146,10 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(Targs&&... 
     UnixDomainSocket newObject{std::forward<Targs>(args)...};
     if (!newObject.m_isInitialized)
     {
-        return iox::error<IpcChannelError>(newObject.m_errorValue);
+        return err(newObject.m_errorValue);
     }
 
-    return iox::success<UnixDomainSocket>(std::move(newObject));
+    return ok(std::move(newObject));
 }
 
 } // namespace posix

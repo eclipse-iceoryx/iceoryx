@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 #define IOX_POSH_MEPOO_SEGMENT_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -27,6 +26,7 @@
 #include "iox/bump_allocator.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -84,7 +84,7 @@ class SegmentManager
         uint64_t m_segmentID;
     };
 
-    using SegmentMappingContainer = cxx::vector<SegmentMapping, MAX_SHM_SEGMENTS>;
+    using SegmentMappingContainer = vector<SegmentMapping, MAX_SHM_SEGMENTS>;
 
     SegmentMappingContainer getSegmentMappings(const posix::PosixUser& user) noexcept;
     SegmentUserInformation getSegmentInformationWithWriteAccessForUser(const posix::PosixUser& user) noexcept;
@@ -101,7 +101,7 @@ class SegmentManager
     friend class roudi::MemPoolIntrospection;
 
     BumpAllocator* m_managementAllocator;
-    cxx::vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
+    vector<SegmentType, MAX_SHM_SEGMENTS> m_segmentContainer;
     bool m_createInterfaceEnabled{true};
 };
 

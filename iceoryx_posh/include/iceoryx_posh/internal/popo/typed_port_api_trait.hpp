@@ -34,7 +34,7 @@ namespace popo
 ///     // ...
 /// }
 /// @endcode
-/// @note `typename TypedPortApiTrait<T>::Assert` has to be used otherwise the compiler ignores the static_assert's
+/// @note 'typename TypedPortApiTrait<T>::Assert' has to be used otherwise the compiler ignores the static_assert's
 template <typename T>
 struct TypedPortApiTrait
 {

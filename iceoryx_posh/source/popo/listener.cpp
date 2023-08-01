@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/popo/listener.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 
 namespace iox
 {
@@ -54,7 +53,7 @@ void Event_t::init(const uint64_t eventId,
                    const uint64_t eventTypeHash,
                    internal::GenericCallbackRef_t callback,
                    internal::TranslationCallbackRef_t translationCallback,
-                   const cxx::function<void(uint64_t)> invalidationCallback) noexcept
+                   const function<void(uint64_t)> invalidationCallback) noexcept
 {
     m_eventId = eventId;
     m_origin = origin;

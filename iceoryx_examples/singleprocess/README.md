@@ -22,12 +22,12 @@ transmit and receive data.
 
 ### Creating a Single Process RouDi, Publisher and Subscriber
 
- 1. We start by setting the log level to error since we do not want to see all the
+ 1. We start by setting the log level to info since we do not want to see all the
     debug messages.
 
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][log level]-->
 ```cpp
-iox::log::LogManager::GetLogManager().SetDefaultLogLevel(iox::log::LogLevel::kError);
+iox::log::Logger::init(iox::log::LogLevel::INFO);
 ```
 
  2. To start RouDi we have to create a configuration for him. We are choosing the

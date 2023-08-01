@@ -17,11 +17,11 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 #define IOX_HOOFS_VOCABULARY_STRING_INTERNAL_HPP
 
-#include "iceoryx_hoofs/cxx/attributes.hpp"
+#include "iox/attributes.hpp"
+#include "iox/type_traits.hpp"
 
 #include <cstdint>
 #include <cstring>
-#include <string>
 
 namespace iox
 {
@@ -67,10 +67,16 @@ struct GetCapa<char>
     static constexpr uint64_t capa{1U};
 };
 
-/// @brief struct to get size of iox::string/std::string/char array/char
+/// @brief generic empty implementation of the struct to get size of a string
 template <typename T>
-struct GetSize;
+struct GetSize
+{
+    static_assert(always_false_v<T>, "\n \
+        'GetSize' for the specified type is not implemented!\n \
+        Please specialize 'iox::internal::GetSize'!\n");
+};
 
+/// @brief struct to get size of iox::string
 template <uint64_t N>
 struct GetSize<string<N>>
 {
@@ -80,27 +86,21 @@ struct GetSize<string<N>>
     }
 };
 
+/// @brief struct to get size of char array
 template <uint64_t N>
 // used to acquire size of c array safely, strnlen only accesses N elements which is the maximum capacity of the array
 // where N is a compile time constant
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetSize<char[N]>
 {
+    // AXIVION Next Construct FaultDetection-TaintAnalysis : False positive! The size of the type is deduced
     static uint64_t call(const charArray<N>& data) noexcept
     {
-        return strnlen(data, N);
+        return strnlen(&data[0], N);
     }
 };
 
-template <>
-struct GetSize<std::string>
-{
-    static uint64_t call(const std::string& data) noexcept
-    {
-        return data.size();
-    }
-};
-
+/// @brief struct to get size of a single char
 template <>
 struct GetSize<char>
 {
@@ -110,10 +110,16 @@ struct GetSize<char>
     }
 };
 
-/// @brief struct to get a pointer to the char array of the fixed string/string literal/std::string
+/// @brief generic empty implementation of the struct to get the data of a string
 template <typename T>
-struct GetData;
+struct GetData
+{
+    static_assert(always_false_v<T>, "\n \
+        'GetData' for the specified type is not implemented!\n \
+        Please specialize 'iox::internal::GetData'!\n");
+};
 
+/// @brief struct to get a pointer to the char array of the iox::string
 template <uint64_t N>
 struct GetData<string<N>>
 {
@@ -123,9 +129,10 @@ struct GetData<string<N>>
     }
 };
 
+/// @brief struct to get a pointer to the char array of the string literal
 template <uint64_t N>
 // provides uniform and safe access (in combination with GetCapa and GetSize) to string like constructs like
-// iox::string, std::string, string literal, char
+// iox::string, string literal, char
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
 struct GetData<char[N]>
 {
@@ -135,15 +142,7 @@ struct GetData<char[N]>
     }
 };
 
-template <>
-struct GetData<std::string>
-{
-    static const char* call(const std::string& data) noexcept
-    {
-        return data.data();
-    }
-};
-
+/// @brief struct to get a pointer to the single char
 template <>
 struct GetData<char>
 {

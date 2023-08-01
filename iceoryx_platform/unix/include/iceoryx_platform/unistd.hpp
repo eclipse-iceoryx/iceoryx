@@ -19,6 +19,17 @@
 
 #include <unistd.h>
 
+#define IOX_SEEK_SET SEEK_SET
+using iox_off_t = off_t;
+using iox_ssize_t = ssize_t;
+
 int iox_close(int fd);
+int iox_ext_close(int fd);
+int iox_fchown(int fd, uid_t owner, gid_t group);
+int iox_access(const char* pathname, int mode);
+int iox_unlink(const char* pathname);
+iox_off_t iox_lseek(int fd, iox_off_t offset, int whence);
+iox_ssize_t iox_read(int fd, void* buf, size_t count);
+iox_ssize_t iox_write(int fd, const void* buf, size_t count);
 
 #endif // IOX_HOOFS_UNIX_PLATFORM_UNISTD_HPP

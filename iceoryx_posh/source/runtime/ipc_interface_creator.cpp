@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
+#include "iox/filesystem.hpp"
 
 namespace iox
 {
@@ -29,19 +30,19 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
     , m_fileLock(std::move(
           posix::FileLockBuilder()
               .name(runtimeName)
-              .permission(iox::cxx::perms::owner_read | iox::cxx::perms::owner_write)
+              .permission(iox::perms::owner_read | iox::perms::owner_write)
               .create()
               .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
-                      LogFatal() << "An application with the name " << runtimeName
-                                 << " is still running. Using the "
-                                    "same name twice is not supported.";
+                      IOX_LOG(FATAL) << "An application with the name " << runtimeName
+                                     << " is still running. Using the "
+                                        "same name twice is not supported.";
                       errorHandler(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
-                      LogFatal() << "Error occurred while acquiring file lock named " << runtimeName;
+                      IOX_LOG(FATAL) << "Error occurred while acquiring file lock named " << runtimeName;
                       errorHandler(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, iox::ErrorLevel::FATAL);
                   }
               })

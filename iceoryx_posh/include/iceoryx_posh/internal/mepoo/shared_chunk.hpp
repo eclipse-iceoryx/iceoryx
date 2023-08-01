@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_MEPOO_SHARED_CHUNK_HPP
 #define IOX_POSH_MEPOO_SHARED_CHUNK_HPP
 
-#include "iceoryx_hoofs/memory/relative_pointer.hpp"
 #include "iceoryx_posh/internal/mepoo/chunk_management.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/relative_pointer.hpp"
 
 namespace iox
 {

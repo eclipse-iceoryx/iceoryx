@@ -1,6 +1,8 @@
 # QNX platform / libc headers
 arpa/inet.h
+climits
 cstdint
+cstdio
 dlfcn.h
 errno.h
 fcntl.h
@@ -30,24 +32,23 @@ atomic
 bitset
 cassert
 chrono
-climits
 cmath
 cpptoml.h
-csignal
 cstdint
 cstdio
 cstdlib
 cstring
 ctime
+fstream
 initializer_list
 iomanip
 iostream
+istream
 limits
 map
 memory
 mutex
 new
-numeric
 process.h
 regex
 sstream

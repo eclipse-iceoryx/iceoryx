@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iox/optional.hpp"
+#include "iox/vector.hpp"
 #include "test.hpp"
 
 #include <atomic>
@@ -25,7 +25,6 @@
 
 using namespace ::testing;
 using namespace iox::concurrent;
-using namespace iox::cxx;
 
 namespace
 {
@@ -247,7 +246,7 @@ TEST_F(smart_lock_test, AccessThroughConstScopeGuardWorks)
     ::testing::Test::RecordProperty("TEST_ID", "f52e9b24-0819-487b-947a-5f18d24b55e6");
     constexpr int32_t CTOR_VALUE = 6212818;
     const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
-    auto guard = constSut.getScopeGuard();
+    const auto guard = constSut.getScopeGuard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
 }
@@ -256,10 +255,30 @@ TEST_F(smart_lock_test, AccessThroughScopeGuardWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9d91a04f-d84e-4fa3-9ee0-95ebc4bfbed1");
     constexpr int32_t CTOR_VALUE = 62818;
-    SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
-    auto guard = constSut.getScopeGuard();
+    SutType_t Sut(ForwardArgsToCTor, CTOR_VALUE);
+    auto guard = Sut.getScopeGuard();
 
     EXPECT_THAT(guard->getA(), Eq(CTOR_VALUE));
+}
+
+TEST_F(smart_lock_test, AccessViaConstDereferenceOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "43db4ae1-86ad-4d36-93c4-c38f1faf68b5");
+    constexpr int32_t CTOR_VALUE = 8182126;
+    const SutType_t constSut(ForwardArgsToCTor, CTOR_VALUE);
+    const auto guard = constSut.getScopeGuard();
+
+    EXPECT_THAT((*guard).getA(), Eq(CTOR_VALUE));
+}
+
+TEST_F(smart_lock_test, AccessViaDereferenceOperatorWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45cccede-a609-493d-a285-20c1dfb77714");
+    constexpr int32_t CTOR_VALUE = 81826;
+    SutType_t Sut(ForwardArgsToCTor, CTOR_VALUE);
+    auto guard = Sut.getScopeGuard();
+
+    EXPECT_THAT((*guard).getA(), Eq(CTOR_VALUE));
 }
 
 TEST_F(smart_lock_test, AcquiringCopyWorks)
@@ -291,7 +310,7 @@ void threadSafeOperationTest(smart_lock_test* test, const std::function<void()> 
 {
     test->m_sut.emplace(ForwardArgsToCTor, 0);
 
-    vector<std::thread, NUMBER_OF_THREADS> threads;
+    iox::vector<std::thread, NUMBER_OF_THREADS> threads;
     for (uint64_t i = 0U; i < NUMBER_OF_THREADS; ++i)
     {
         threads.emplace_back([&] {

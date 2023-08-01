@@ -147,6 +147,19 @@ inline const T* smart_lock<T, MutexType>::Proxy::operator->() const noexcept
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
     return const_cast<smart_lock<T, MutexType>::Proxy*>(this)->operator->();
 }
+
+template <typename T, typename MutexType>
+inline T& smart_lock<T, MutexType>::Proxy::operator*() noexcept
+{
+    return base;
+}
+
+template <typename T, typename MutexType>
+inline const T& smart_lock<T, MutexType>::Proxy::operator*() const noexcept
+{
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) const_cast to avoid code duplication
+    return const_cast<smart_lock<T, MutexType>::Proxy*>(this)->operator*();
+}
 } // namespace concurrent
 } // namespace iox
 

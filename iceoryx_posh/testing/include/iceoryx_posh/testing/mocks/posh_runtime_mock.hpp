@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_MOCKS_POSH_RUNTIME_MOCK_HPP
 #define IOX_POSH_MOCKS_POSH_RUNTIME_MOCK_HPP
 
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include <gmock/gmock.h>
 

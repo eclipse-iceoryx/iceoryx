@@ -277,7 +277,7 @@ auto pub = iox::popo::Publisher<MyPayload>(serviceDescription, userHeaderHook);
     - part of the specified chunk-payload might also be used as padding for the user-payload alignment
     - the user will continue to specify the chunk-payload; if a user-header or custom user-payload alignment is used, the user needs to take this into account
 - is it necessary to store a flag in `ChunkHeader` if a user extension is used?
-    - we could maintain a list of known user-header IDs or ranges of IDs similar to `IANA` https://tools.ietf.org/id/draft-cotton-tsvwg-iana-ports-00.html#privateports
+    - we could maintain a list of known user-header IDs or ranges of IDs similar to `IANA` https://datatracker.ietf.org/doc/id/draft-cotton-tsvwg-iana-ports-00.html#privateports
     - the IDs could be stored in the `ChunkHeader` and everything with an ID larger than `0xC000` is free to use
     - to make this somewhat save, the `ChunkHeaderHook` must be mandatory with e.g. a `virtual uint16_t getId() = 0;` method which will be called in the `ChunkSender`
         - alternatively, the user-header struct must have a `constexpr uint16_t USER_HEADER_ID`; if it's not present, we could set the ID to `0xC000` which is the first ID free to use

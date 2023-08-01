@@ -15,11 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
+#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "test_roudi_portmanager_fixture.hpp"
 
 namespace iox_test_roudi_portmanager
 {
+using iox::into;
+using iox::lossy;
+
 PublisherOptions createTestPubOptions()
 {
     return PublisherOptions{0U, iox::NodeName_t("node"), true, iox::popo::ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
@@ -252,7 +256,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfPublishersFails)
             getUniqueSD(), publisherOptions, runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
         ASSERT_TRUE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
+        EXPECT_THAT(publisherPortDataResult.error(), Eq(PortPoolError::PUBLISHER_PORT_LIST_FULL));
     }
 }
 
@@ -268,7 +272,7 @@ TEST_F(PortManager_test, AcquiringPublisherAsUserWithAnyInternalServiceDescripti
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(
             service, iox::popo::PublisherOptions(), runtimeName, m_payloadDataSegmentMemoryManager, PortConfigInfo());
         ASSERT_TRUE(publisherPortDataResult.has_error());
-        EXPECT_THAT(publisherPortDataResult.get_error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
+        EXPECT_THAT(publisherPortDataResult.error(), Eq(PortPoolError::INTERNAL_SERVICE_DESCRIPTION_IS_FORBIDDEN));
     }
 }
 
@@ -317,7 +321,7 @@ TEST_F(PortManager_test, AcquirePublisherPortDataWithSameServiceDescriptionTwice
     if (IS_COMMUNICATION_POLICY_ONE_TO_MANY_ONLY)
     {
         ASSERT_TRUE(acquirePublisherPortResult.has_error());
-        EXPECT_THAT(acquirePublisherPortResult.get_error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
+        EXPECT_THAT(acquirePublisherPortResult.error(), Eq(PortPoolError::UNIQUE_PUBLISHER_PORT_ALREADY_EXISTS));
         EXPECT_TRUE(detectedError.has_value());
     }
     else
@@ -379,7 +383,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfSubscribersFails)
         auto subscriberPortDataResult =
             m_portManager->acquireSubscriberPortData(getUniqueSD(), subscriberOptions, runtimeName1, PortConfigInfo());
         EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(subscriberPortDataResult.get_error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
+        EXPECT_THAT(subscriberPortDataResult.error(), Eq(PortPoolError::SUBSCRIBER_PORT_LIST_FULL));
     }
 }
 
@@ -595,10 +599,10 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeInterfaceData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+        m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
-        auto interfacePort = m_portManager->acquireInterfacePortData(
-            iox::capro::Interfaces::INTERNAL, iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+        auto interfacePort = m_portManager->acquireInterfacePortData(iox::capro::Interfaces::INTERNAL,
+                                                                     into<lossy<iox::RuntimeName_t>>(newProcessName));
         EXPECT_NE(interfacePort, nullptr);
     }
 }
@@ -637,7 +641,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfConditionVariablesFa
         auto conditionVariableResult = m_portManager->acquireConditionVariableData("AnotherToad");
         EXPECT_TRUE(conditionVariableResult.has_error());
         EXPECT_TRUE(errorHandlerCalled);
-        EXPECT_THAT(conditionVariableResult.get_error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
+        EXPECT_THAT(conditionVariableResult.error(), Eq(PortPoolError::CONDITION_VARIABLE_LIST_FULL));
     }
 }
 
@@ -654,10 +658,10 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
         unsigned int testi = 0;
         auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
         // this is done because there is no removeConditionVariableData method in the PortManager class
-        m_portManager->deletePortsOfProcess(iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+        m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
         auto conditionVariableResult =
-            m_portManager->acquireConditionVariableData(iox::cxx::into<iox::RuntimeName_t>(newProcessName));
+            m_portManager->acquireConditionVariableData(into<lossy<iox::RuntimeName_t>>(newProcessName));
         EXPECT_FALSE(conditionVariableResult.has_error());
     }
 }
@@ -687,8 +691,8 @@ TEST_F(PortManager_test, AcquiringMaximumNumberOfNodesWorks)
     std::string nodeName = "node";
 
     acquireMaxNumberOfNodes(nodeName, runtimeName, [&](auto node, auto newNodeName, auto newProcessName) {
-        auto convertedNodeName = iox::cxx::into<std::string>(node->m_nodeName);
-        auto convertedRuntimeName = iox::cxx::into<std::string>(node->m_runtimeName);
+        auto convertedNodeName = iox::into<std::string>(node->m_nodeName);
+        auto convertedRuntimeName = iox::into<std::string>(node->m_runtimeName);
         EXPECT_THAT(convertedNodeName, Eq(newNodeName));
         EXPECT_THAT(convertedRuntimeName, Eq(newProcessName));
     });
@@ -711,7 +715,7 @@ TEST_F(PortManager_test, AcquiringOneMoreThanMaximumNumberOfNodesFails)
     auto nodeResult = m_portManager->acquireNodeData("AnotherProcess", "AnotherNode");
     EXPECT_THAT(nodeResult.has_error(), Eq(true));
     EXPECT_THAT(errorHandlerCalled, Eq(true));
-    EXPECT_THAT(nodeResult.get_error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
+    EXPECT_THAT(nodeResult.error(), Eq(PortPoolError::NODE_DATA_LIST_FULL));
 }
 
 TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
@@ -725,8 +729,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     // delete one and add one NodeData should be possible now
     unsigned int i = 0U;
-    iox::RuntimeName_t newProcessName = iox::cxx::into<RuntimeName_t>(runtimeName + iox::cxx::convert::toString(i));
-    iox::NodeName_t newNodeName = iox::cxx::into<RuntimeName_t>(nodeName + iox::cxx::convert::toString(i));
+    iox::RuntimeName_t newProcessName = into<lossy<RuntimeName_t>>(runtimeName + iox::cxx::convert::toString(i));
+    iox::NodeName_t newNodeName = into<lossy<RuntimeName_t>>(nodeName + iox::cxx::convert::toString(i));
     // this is done because there is no removeNodeData method in the PortManager class
     m_portManager->deletePortsOfProcess(newProcessName);
 
@@ -762,12 +766,12 @@ TEST_F(PortManager_test, UnblockRouDiShutdownMakesAllPublisherStopOffer)
 {
     ::testing::Test::RecordProperty("TEST_ID", "aa0cd25c-4e9d-476a-a8a6-d5c650fb9fff");
     PublisherOptions publisherOptions{1U, iox::NodeName_t("node"), true};
-    iox::cxx::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
+    iox::vector<PublisherPortUser, iox::MAX_PUBLISHERS> publisher;
 
     for (unsigned int i = 0; i < iox::MAX_PUBLISHERS; i++)
     {
         auto servideDescription = getUniqueSD();
-        auto publisherRuntimeName = iox::cxx::into<iox::RuntimeName_t>("pub_" + std::to_string(i));
+        auto publisherRuntimeName = into<lossy<iox::RuntimeName_t>>("pub_" + std::to_string(i));
         auto publisherPortDataResult = m_portManager->acquirePublisherPortData(servideDescription,
                                                                                publisherOptions,
                                                                                publisherRuntimeName,

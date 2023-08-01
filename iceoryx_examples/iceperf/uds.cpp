@@ -1,5 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2020 - 2023 by Apex.AI Inc. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "uds.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iceoryx_dust/cxx/std_string_support.hpp"
+#include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/size.hpp"
 
 #include <chrono>
 #include <thread>
@@ -35,7 +37,7 @@ void UDS::initSocketAddress(sockaddr_un& socketAddr, const std::string& socketNa
     memset(&socketAddr, 0, sizeof(sockaddr_un));
     socketAddr.sun_family = AF_LOCAL;
     constexpr uint64_t NULL_TERMINATION_SIZE{1};
-    const uint64_t maxDestinationLength = iox::cxx::arrayCapacity(socketAddr.sun_path) - NULL_TERMINATION_SIZE;
+    const uint64_t maxDestinationLength = iox::size(socketAddr.sun_path) - NULL_TERMINATION_SIZE;
     iox::cxx::Ensures(maxDestinationLength >= socketName.size() && "Socketname too large!");
     strncpy(socketAddr.sun_path, socketName.c_str(), socketName.size());
 }
@@ -100,6 +102,28 @@ void UDS::init() noexcept
             exit(1);
         });
 
+    auto setNonBlocking = [&](int fd) {
+        int fdFlags{0};
+        iox::posix::posixCall(iox_fcntl2)(fd, F_GETFL)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .and_then([&](auto& r) { fdFlags = r.value; })
+            .or_else([](auto& r) {
+                std::cout << "error getting socket flags: " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
+
+        iox::posix::posixCall(iox_fcntl3)(fd, F_SETFL, fdFlags | O_NONBLOCK)
+            .failureReturnValue(ERROR_CODE)
+            .evaluate()
+            .or_else([](auto& r) {
+                std::cout << "error setting socket O_NONBLOCK flag: " << r.getHumanReadableErrnum() << std::endl;
+                exit(1);
+            });
+    };
+
+    setNonBlocking(m_sockfdSubscriber);
+
     iox::posix::posixCall(iox_bind)(
         m_sockfdSubscriber, reinterpret_cast<struct sockaddr*>(&m_sockAddrSubscriber), sizeof(m_sockAddrSubscriber))
         .failureReturnValue(ERROR_CODE)
@@ -118,6 +142,8 @@ void UDS::init() noexcept
             std::cout << "socket error " << r.getHumanReadableErrnum() << std::endl;
             exit(1);
         });
+
+    setNonBlocking(m_sockfdPublisher);
 }
 
 void UDS::waitForLeader() noexcept
@@ -133,7 +159,7 @@ void UDS::waitForLeader() noexcept
                                                           reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
                                                           sizeof(m_sockAddrPublisher))
                             .failureReturnValue(ERROR_CODE)
-                            .ignoreErrnos(ENOENT)
+                            .ignoreErrnos(ENOENT, ECONNREFUSED)
                             .evaluate()
                             .or_else([](auto& r) {
                                 std::cout << "send error " << r.getHumanReadableErrnum() << std::endl;
@@ -141,7 +167,7 @@ void UDS::waitForLeader() noexcept
                             })
                             .value();
 
-        if (sendCall.errnum == ENOENT)
+        if (sendCall.errnum == ENOENT || sendCall.errnum == ECONNREFUSED)
         {
             constexpr std::chrono::milliseconds RETRY_INTERVAL{10};
             std::this_thread::sleep_for(RETRY_INTERVAL);
@@ -237,32 +263,40 @@ void UDS::send(const char* buffer, uint32_t length) noexcept
     // only return from this loop when the message could be send successfully
     // if the OS socket message buffer if full, retry until it is free'd by
     // the OS and the message could be send
-    while (iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
-                                             buffer,
-                                             length,
-                                             0,
-                                             reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
-                                             sizeof(m_sockAddrPublisher))
-               .failureReturnValue(ERROR_CODE)
-               .ignoreErrnos(ENOBUFS)
-               .evaluate()
-               .or_else([](auto& r) {
-                   std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
-                   exit(1);
-               })
-               ->errnum
-           == ENOBUFS)
+    while (true)
     {
+        auto result = iox::posix::posixCall(iox_sendto)(m_sockfdPublisher,
+                                                        buffer,
+                                                        length,
+                                                        0,
+                                                        reinterpret_cast<struct sockaddr*>(&m_sockAddrPublisher),
+                                                        sizeof(m_sockAddrPublisher))
+                          .failureReturnValue(ERROR_CODE)
+                          .ignoreErrnos(ENOBUFS, EAGAIN)
+                          .evaluate()
+                          .or_else([](auto& r) {
+                              std::cout << std::endl << "send error " << r.getHumanReadableErrnum() << std::endl;
+                              exit(1);
+                          });
+        if (result->errnum != ENOBUFS && result->errnum != EAGAIN)
+        {
+            break;
+        }
     }
 }
 
 void UDS::receive(char* buffer) noexcept
 {
-    iox::posix::posixCall(iox_recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([](auto& r) {
-            std::cout << "receive error " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    while (iox::posix::posixCall(iox_recvfrom)(m_sockfdSubscriber, buffer, MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+               .failureReturnValue(ERROR_CODE)
+               .ignoreErrnos(EAGAIN)
+               .evaluate()
+               .or_else([](auto& r) {
+                   std::cout << "receive error " << r.getHumanReadableErrnum() << std::endl;
+                   exit(1);
+               })
+               ->errnum
+           == EAGAIN)
+    {
+    }
 }

@@ -54,7 +54,7 @@ class SharedMemory_Test : public Test
             .name(name)
             .accessMode(iox::posix::AccessMode::READ_WRITE)
             .openMode(openMode)
-            .filePermissions(cxx::perms::owner_all)
+            .filePermissions(perms::owner_all)
             .size(128)
             .create();
     }
@@ -76,7 +76,7 @@ class SharedMemory_Test : public Test
 
         return std::unique_ptr<int, std::function<void(int*)>>(new int(result->value), [=](const int* fd) {
             cleanupSharedMemory(name);
-            iox_close(*fd);
+            iox_shm_close(*fd);
             delete fd;
         });
     }
@@ -248,6 +248,20 @@ TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
     ::testing::Test::RecordProperty("TEST_ID", "5b1878b9-d292-479c-bfe7-9826561152ee");
     auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
     ASSERT_TRUE(sut.has_error());
+}
+
+TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "80684160-b243-4ca1-b285-118d2ef36108");
+    auto sut = iox::posix::SharedMemoryBuilder()
+                   .name("readOnlyShmMem")
+                   .size(100)
+                   .accessMode(iox::posix::AccessMode::READ_ONLY)
+                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .create();
+
+    ASSERT_TRUE(sut.has_error());
+    ASSERT_THAT(sut.error(), Eq(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
 }
 
 

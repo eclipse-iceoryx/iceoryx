@@ -38,7 +38,7 @@ class NamedSemaphoreTest : public Test
 
     optional<NamedSemaphore> sut;
     NamedSemaphore::Name_t sutName{TruncateToCapacity, "dr.peacock_rocks"};
-    const iox::cxx::perms sutPermission = iox::cxx::perms::owner_all;
+    const iox::access_rights sutPermission = iox::perms::owner_all;
 };
 
 TEST_F(NamedSemaphoreTest, DefaultInitialValueIsZero)
@@ -134,7 +134,7 @@ TEST_F(NamedSemaphoreTest, OpenNonExistingSemaphoreFails)
         NamedSemaphoreBuilder().name(sutName).openMode(OpenMode::OPEN_EXISTING).permissions(sutPermission).create(sut);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
 }
 
 TEST_F(NamedSemaphoreTest, ExclusiveCreateFailsWhenSemaphoreAlreadyExists)
@@ -156,7 +156,7 @@ TEST_F(NamedSemaphoreTest, ExclusiveCreateFailsWhenSemaphoreAlreadyExists)
                       .create(sut2);
 
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(SemaphoreError::ALREADY_EXIST));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::ALREADY_EXIST));
 }
 
 TEST_F(NamedSemaphoreTest, SemaphoreWithInvalidNameFails)
@@ -166,7 +166,7 @@ TEST_F(NamedSemaphoreTest, SemaphoreWithInvalidNameFails)
     auto result =
         NamedSemaphoreBuilder().name("///").openMode(OpenMode::PURGE_AND_CREATE).permissions(sutPermission).create(sut);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(SemaphoreError::INVALID_NAME));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::INVALID_NAME));
 }
 
 TEST_F(NamedSemaphoreTest, OpenOrCreateOpensExistingSemaphoreWithoutDestroyingItInTheDtor)
@@ -229,7 +229,7 @@ TEST_F(NamedSemaphoreTest, OpenOrCreateRemovesSemaphoreWhenItHasTheOwnership)
     // should fail since the previous sut was deleted and had the ownership
     auto result = NamedSemaphoreBuilder().name(sutName).initialValue(0U).openMode(OpenMode::OPEN_EXISTING).create(sut);
     ASSERT_TRUE(result.has_error());
-    EXPECT_THAT(result.get_error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
+    EXPECT_THAT(result.error(), Eq(SemaphoreError::NO_SEMAPHORE_WITH_THAT_NAME_EXISTS));
 }
 
 TEST_F(NamedSemaphoreTest, WhenOwningSemaphoreIsClosedBeforeOpenedSemaphoreTheOpenedSemaphoreRemainsUsable)

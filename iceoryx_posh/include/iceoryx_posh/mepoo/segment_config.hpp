@@ -19,9 +19,9 @@
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/vector.hpp"
 
 namespace iox
 {
@@ -49,7 +49,7 @@ struct SegmentConfig
         iox::mepoo::MemoryInfo m_memoryInfo;
     };
 
-    cxx::vector<SegmentEntry, MAX_SHM_SEGMENTS> m_sharedMemorySegments;
+    vector<SegmentEntry, MAX_SHM_SEGMENTS> m_sharedMemorySegments;
 
     /// @brief Set Function for default values to be added in SegmentConfig
     SegmentConfig& setDefaults() noexcept;

@@ -38,8 +38,6 @@ HANDLE HandleTranslator::get(const int linuxFd) const noexcept
     auto iter = m_linuxToWindows.find(linuxFd);
     if (iter == m_linuxToWindows.end())
     {
-        std::cerr << "Cannot acquire windows file handle for not registered linux file descriptor " << linuxFd
-                  << std::endl;
         return INVALID_HANDLE_VALUE;
     }
 

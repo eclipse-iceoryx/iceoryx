@@ -37,11 +37,20 @@ constexpr const char IOX_PATH_SEPARATORS[IOX_NUMBER_OF_PATH_SEPARATORS] = {'/', 
 constexpr uint64_t IOX_UDS_SOCKET_MAX_MESSAGE_SIZE = 1024U;
 constexpr char IOX_UDS_SOCKET_PATH_PREFIX[] = "";
 constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "C:\\Windows\\Temp\\";
+constexpr const char IOX_TEMP_DIR[] = "C:\\Windows\\Temp\\";
 constexpr uint64_t IOX_MAX_FILENAME_LENGTH = 128U;
 constexpr uint64_t IOX_MAX_PATH_LENGTH = 255U;
 
+constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
+constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
+
+#if __cplusplus >= 201703L
 template <typename C, typename... Cargs>
 using invoke_result = std::invoke_result<C, Cargs...>;
+#else
+template <typename C, typename... Cargs>
+using invoke_result = std::result_of<C(Cargs...)>;
+#endif
 
 namespace win32
 {

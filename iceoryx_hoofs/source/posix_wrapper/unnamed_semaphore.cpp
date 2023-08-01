@@ -15,21 +15,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
-#include "iceoryx_hoofs/log/logging.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/logging.hpp"
 
 namespace iox
 {
 namespace posix
 {
-expected<SemaphoreError>
+expected<void, SemaphoreError>
 UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemaphore) const noexcept
 {
     if (m_initialValue > IOX_SEM_VALUE_MAX)
     {
         IOX_LOG(ERROR) << "The unnamed semaphore initial value of " << m_initialValue
                        << " exceeds the maximum semaphore value " << IOX_SEM_VALUE_MAX;
-        return error<SemaphoreError>(SemaphoreError::SEMAPHORE_OVERFLOW);
+        return err(SemaphoreError::SEMAPHORE_OVERFLOW);
     }
 
     uninitializedSemaphore.emplace();
@@ -45,7 +45,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
         uninitializedSemaphore.value().m_destroyHandle = false;
         uninitializedSemaphore.reset();
 
-        switch (result.get_error().errnum)
+        switch (result.error().errnum)
         {
         case EINVAL:
             IOX_LOG(ERROR) << "The initial value of " << m_initialValue << " exceeds " << IOX_SEM_VALUE_MAX;
@@ -59,7 +59,7 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
         }
     }
 
-    return success<>();
+    return ok();
 }
 
 UnnamedSemaphore::~UnnamedSemaphore() noexcept
@@ -69,7 +69,7 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
         auto result = posixCall(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
         if (result.has_error())
         {
-            switch (result.get_error().errnum)
+            switch (result.error().errnum)
             {
             case EINVAL:
                 IOX_LOG(ERROR) << "The semaphore handle was no longer valid. This can indicate a corrupted system.";
