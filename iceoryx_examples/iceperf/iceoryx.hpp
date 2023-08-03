@@ -30,8 +30,11 @@ class Iceoryx : public IcePerfBase
     void initFollower() noexcept override;
     void shutdown() noexcept override;
 
-  private:
-    void init() noexcept;
+  protected:
+    Iceoryx(const iox::capro::IdString_t& publisherName,
+            const iox::capro::IdString_t& subscriberName,
+            const iox::capro::IdString_t& eventName) noexcept;
+    virtual void init() noexcept;
     void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept override;
     PerfTopic receivePerfTopic() noexcept override;
 

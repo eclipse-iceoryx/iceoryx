@@ -33,14 +33,14 @@ include(IceoryxPlatformSettings)
 
 iox_add_executable(
     TARGET      iceperf-bench-leader
-    FILES       main_leader.cpp iceperf_leader.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp
+    FILES       main_leader.cpp iceperf_leader.cpp base.cpp iceoryx.cpp iceoryx_c.cpp iceoryx_wait.cpp uds.cpp mq.cpp
     LIBS        iceoryx_posh::iceoryx_posh iceoryx_binding_c::iceoryx_binding_c
     LIBS_QNX    socket
 )
 
 iox_add_executable(
     TARGET      iceperf-bench-follower
-    FILES       main_follower.cpp iceperf_follower.cpp base.cpp iceoryx.cpp iceoryx_c.cpp uds.cpp mq.cpp
+    FILES       main_follower.cpp iceperf_follower.cpp base.cpp iceoryx.cpp iceoryx_c.cpp iceoryx_wait.cpp uds.cpp mq.cpp
     LIBS        iceoryx_posh::iceoryx_posh iceoryx_binding_c::iceoryx_binding_c
     LIBS_QNX    socket
 )

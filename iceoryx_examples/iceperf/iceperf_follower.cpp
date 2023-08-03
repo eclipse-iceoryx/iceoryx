@@ -19,6 +19,7 @@
 #include "iceoryx.hpp"
 #include "iceoryx_c.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_wait.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"
@@ -119,6 +120,14 @@ int IcePerfFollower::run() noexcept
         IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
         doMeasurement(iceoryxc);
     }
+
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_WAIT_API)
+    {
+        std::cout << std::endl << "******   ICEORYX WAITSET  ********" << std::endl;
+        IceoryxWait iceoryxwait(PUBLISHER, SUBSCRIBER);
+        doMeasurement(iceoryxwait);
+    }
+
     //! [create an run technologies]
 
     return EXIT_SUCCESS;

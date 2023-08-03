@@ -22,6 +22,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_wait.hpp"
 #include "mq.hpp"
 #include "topic_data.hpp"
 #include "uds.hpp"
@@ -53,20 +54,37 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     ipcTechnology.initLeader();
 
     std::vector<std::tuple<uint32_t, iox::units::Duration>> latencyMeasurements;
-    const std::vector<uint32_t> payloadSizesInKB{1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+    const std::vector<uint32_t> payloadSizes{16,
+                                             32,
+                                             64,
+                                             128,
+                                             256,
+                                             512,
+                                             1 * IcePerfBase::ONE_KILOBYTE,
+                                             2 * IcePerfBase::ONE_KILOBYTE,
+                                             4 * IcePerfBase::ONE_KILOBYTE,
+                                             8 * IcePerfBase::ONE_KILOBYTE,
+                                             16 * IcePerfBase::ONE_KILOBYTE,
+                                             32 * IcePerfBase::ONE_KILOBYTE,
+                                             64 * IcePerfBase::ONE_KILOBYTE,
+                                             128 * IcePerfBase::ONE_KILOBYTE,
+                                             256 * IcePerfBase::ONE_KILOBYTE,
+                                             512 * IcePerfBase::ONE_KILOBYTE,
+                                             1024 * IcePerfBase::ONE_KILOBYTE,
+                                             2048 * IcePerfBase::ONE_KILOBYTE,
+                                             4096 * IcePerfBase::ONE_KILOBYTE};
     std::cout << "Measurement for:";
     const char* separator = " ";
-    for (const auto payloadSizeInKB : payloadSizesInKB)
+    for (const auto payloadSize : payloadSizes)
     {
-        std::cout << separator << payloadSizeInKB << " kB" << std::flush;
+        std::cout << separator << payloadSize << std::flush;
         separator = ", ";
-        auto payloadSizeInBytes = payloadSizeInKB * IcePerfBase::ONE_KILOBYTE;
 
-        ipcTechnology.preLatencyPerfTestLeader(payloadSizeInBytes);
+        ipcTechnology.preLatencyPerfTestLeader(payloadSize);
 
         auto latency = ipcTechnology.latencyPerfTestLeader(m_settings.numberOfSamples);
 
-        latencyMeasurements.push_back(std::make_tuple(payloadSizeInKB, latency));
+        latencyMeasurements.push_back(std::make_tuple(payloadSize, latency));
 
         ipcTechnology.postLatencyPerfTestLeader();
     }
@@ -80,13 +98,13 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     std::cout << "#### Measurement Result ####" << std::endl;
     std::cout << m_settings.numberOfSamples << " round trips for each payload." << std::endl;
     std::cout << std::endl;
-    std::cout << "| Payload Size [kB] | Average Latency [µs] |" << std::endl;
+    std::cout << "| Payload Size      | Average Latency [µs] |" << std::endl;
     std::cout << "|------------------:|---------------------:|" << std::endl;
     for (const auto& latencyMeasuement : latencyMeasurements)
     {
-        auto payloadSizeInKB = std::get<0>(latencyMeasuement);
+        auto payloadSize = std::get<0>(latencyMeasuement);
         auto latencyInMicroseconds = static_cast<double>(std::get<1>(latencyMeasuement).toNanoseconds()) / 1000.0;
-        std::cout << "| " << std::setw(17) << payloadSizeInKB << " | " << std::setw(20) << std::setprecision(2)
+        std::cout << "| " << std::setw(17) << payloadSize << " | " << std::setw(20) << std::setprecision(2)
                   << latencyInMicroseconds << " |" << std::endl;
     }
 
@@ -146,6 +164,13 @@ int IcePerfLeader::run() noexcept
         std::cout << std::endl << "******   ICEORYX C API    ********" << std::endl;
         IceoryxC iceoryxc(PUBLISHER, SUBSCRIBER);
         doMeasurement(iceoryxc);
+    }
+
+    if (m_settings.technology == Technology::ALL || m_settings.technology == Technology::ICEORYX_CPP_WAIT_API)
+    {
+        std::cout << std::endl << "******   ICEORYX WAITSET  ********" << std::endl;
+        IceoryxWait iceoryxwait(PUBLISHER, SUBSCRIBER);
+        doMeasurement(iceoryxwait);
     }
     //! [create an run technologies]
 
