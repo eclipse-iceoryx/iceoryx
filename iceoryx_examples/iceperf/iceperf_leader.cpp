@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +54,25 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
 {
     ipcTechnology.initLeader();
 
+    auto humanReadableMemorySize = [](const uint64_t memorySize) {
+        constexpr const uint64_t UNIT_DIVIDER{1024};
+        auto humanReadalbeMemorySize = memorySize;
+        for (const auto& unit : {iox::string<2>("B"),
+                                 iox::string<2>("kB"),
+                                 iox::string<2>("MB"),
+                                 iox::string<2>("GB"),
+                                 iox::string<2>("TB")})
+        {
+            if (humanReadalbeMemorySize >= UNIT_DIVIDER)
+            {
+                humanReadalbeMemorySize /= UNIT_DIVIDER;
+                continue;
+            }
+            return std::make_tuple(humanReadalbeMemorySize, unit);
+        }
+        return (std::make_tuple(memorySize, iox::string<2>("B")));
+    };
+
     std::vector<std::tuple<uint32_t, iox::units::Duration>> latencyMeasurements;
     const std::vector<uint32_t> payloadSizes{16,
                                              32,
@@ -77,7 +97,10 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     const char* separator = " ";
     for (const auto payloadSize : payloadSizes)
     {
-        std::cout << separator << payloadSize << std::flush;
+        uint64_t humanReadablePayloadSize{0};
+        iox::string<2> memorySizeUnit{};
+        std::tie(humanReadablePayloadSize, memorySizeUnit) = humanReadableMemorySize(payloadSize);
+        std::cout << separator << humanReadablePayloadSize << " [" << memorySizeUnit << "]" << std::flush;
         separator = ", ";
 
         ipcTechnology.preLatencyPerfTestLeader(payloadSize);
@@ -98,14 +121,20 @@ void IcePerfLeader::doMeasurement(IcePerfBase& ipcTechnology) noexcept
     std::cout << "#### Measurement Result ####" << std::endl;
     std::cout << m_settings.numberOfSamples << " round trips for each payload." << std::endl;
     std::cout << std::endl;
-    std::cout << "| Payload Size      | Average Latency [µs] |" << std::endl;
-    std::cout << "|------------------:|---------------------:|" << std::endl;
+    std::cout << "| Payload Size | Average Latency [µs] |" << std::endl;
+    std::cout << "|-------------:|---------------------:|" << std::endl;
     for (const auto& latencyMeasuement : latencyMeasurements)
     {
-        auto payloadSize = std::get<0>(latencyMeasuement);
+        uint64_t humanReadablePayloadSize{0};
+        iox::string<2> memorySizeUnit{};
+        std::tie(humanReadablePayloadSize, memorySizeUnit) = humanReadableMemorySize(std::get<0>(latencyMeasuement));
         auto latencyInMicroseconds = static_cast<double>(std::get<1>(latencyMeasuement).toNanoseconds()) / 1000.0;
-        std::cout << "| " << std::setw(17) << payloadSize << " | " << std::setw(20) << std::setprecision(2)
-                  << latencyInMicroseconds << " |" << std::endl;
+        iox::string<10> unitString{"["};
+        unitString.append(iox::TruncateToCapacity, memorySizeUnit);
+        unitString.append(iox::TruncateToCapacity, "]");
+        std::cout << "| " << std::setw(7) << humanReadablePayloadSize << " " << std::setw(4) << std::left << unitString
+                  << std::right << " | " << std::setw(20) << std::setprecision(2) << latencyInMicroseconds << " |"
+                  << std::endl;
     }
 
     std::cout << std::endl;
