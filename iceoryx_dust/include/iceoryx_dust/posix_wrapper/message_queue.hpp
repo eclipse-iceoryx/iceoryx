@@ -67,7 +67,7 @@ class MessageQueue
     /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
     static expected<MessageQueue, IpcChannelError> create(const IpcChannelName_t& name,
                                                           const IpcChannelSide channelSide,
-                                                          const size_t maxMsgSize = MAX_MESSAGE_SIZE,
+                                                          const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
                                                           const uint64_t maxMsgNumber = MAX_MESSAGE_NUMBER) noexcept;
 
     /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
@@ -143,7 +143,7 @@ class MessageQueueBuilder
     IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the message queue
-    IOX_BUILDER_PARAMETER(size_t, maxMsgSize, MessageQueue::MAX_MESSAGE_SIZE)
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, MessageQueue::MAX_MESSAGE_SIZE)
 
     /// @brief Defines the max number of messages for the message queue.
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, MessageQueue::MAX_MESSAGE_NUMBER)

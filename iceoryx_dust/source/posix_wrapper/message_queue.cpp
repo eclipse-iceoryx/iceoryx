@@ -61,8 +61,8 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
     // fields have a different order in QNX, so we need to initialize by name
     mq_attr attributes;
     attributes.mq_flags = 0;
-    attributes.mq_maxmsg = static_cast<long>(m_maxMsgNumber);
-    attributes.mq_msgsize = static_cast<long>(m_maxMsgSize);
+    attributes.mq_maxmsg = static_cast<decltype(attributes.mq_maxmsg)>(m_maxMsgNumber);
+    attributes.mq_msgsize = static_cast<decltype(attributes.mq_msgsize)>(m_maxMsgSize);
     attributes.mq_curmsgs = 0L;
 #ifdef __QNX__
     attributes.mq_recvwait = 0L;
@@ -93,7 +93,7 @@ MessageQueue::MessageQueue(const IpcChannelName_t&& name,
 // NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
 expected<MessageQueue, IpcChannelError> MessageQueue::create(const IpcChannelName_t& name,
                                                              const IpcChannelSide channelSide,
-                                                             const size_t maxMsgSize,
+                                                             const uint64_t maxMsgSize,
                                                              const uint64_t maxMsgNumber) noexcept
 {
     return MessageQueueBuilder()
