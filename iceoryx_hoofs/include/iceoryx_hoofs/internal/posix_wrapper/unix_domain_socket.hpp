@@ -47,9 +47,6 @@ class UnixDomainSocket
     using UdsName_t = string<LONGEST_VALID_NAME>;
     using Message_t = string<MAX_MESSAGE_SIZE>;
 
-    using result_t = expected<UnixDomainSocket, IpcChannelError>;
-    using errorType_t = IpcChannelError;
-
     UnixDomainSocket() noexcept = delete;
     UnixDomainSocket(const UnixDomainSocket& other) = delete;
     UnixDomainSocket(UnixDomainSocket&& other) noexcept;

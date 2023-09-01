@@ -61,6 +61,8 @@ class CMqInterfaceStartupRace_test : public Test
   public:
     virtual void SetUp()
     {
+        platform::IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)
+            .and_then([this](auto& channel) { this->m_roudiQueue.emplace(std::move(channel)); });
         ASSERT_THAT(m_roudiQueue.has_value(), true);
     }
     virtual void TearDown()
@@ -110,8 +112,7 @@ class CMqInterfaceStartupRace_test : public Test
 
     /// @note smart_lock in combination with optional is currently not really usable
     std::mutex m_roudiQueueMutex;
-    platform::IoxIpcChannelType::result_t m_roudiQueue{
-        platform::IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)};
+    optional<platform::IoxIpcChannelType> m_roudiQueue;
     std::mutex m_appQueueMutex;
     optional<platform::IoxIpcChannelType> m_appQueue;
 };
