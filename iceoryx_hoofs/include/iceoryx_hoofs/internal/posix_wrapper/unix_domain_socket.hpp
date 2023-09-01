@@ -50,11 +50,7 @@ class UnixDomainSocket
     using result_t = expected<UnixDomainSocket, IpcChannelError>;
     using errorType_t = IpcChannelError;
 
-    /// @brief default constructor. The result is an invalid UnixDomainSocket object which can be reassigned later by
-    /// using the
-    /// move constructor.
-    UnixDomainSocket() noexcept = default;
-
+    UnixDomainSocket() noexcept = delete;
     UnixDomainSocket(const UnixDomainSocket& other) = delete;
     UnixDomainSocket(UnixDomainSocket&& other) noexcept;
     UnixDomainSocket& operator=(const UnixDomainSocket& other) = delete;

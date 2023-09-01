@@ -56,11 +56,7 @@ class MessageQueue
     static constexpr uint64_t MAX_MESSAGE_SIZE = 4096;
     static constexpr uint64_t MAX_MESSAGE_NUMBER = 10;
 
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    /// default constructor. The result is an invalid MessageQueue object which can be reassigned later by using the
-    /// move constructor.
-    MessageQueue() noexcept = default;
-
+    MessageQueue() noexcept = delete;
     MessageQueue(const MessageQueue& other) = delete;
     MessageQueue(MessageQueue&& other) noexcept;
     MessageQueue& operator=(const MessageQueue& other) = delete;

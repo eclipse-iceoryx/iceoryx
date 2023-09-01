@@ -59,14 +59,9 @@ class StringToMessage : public IpcInterfaceBase
 class CMqInterfaceStartupRace_test : public Test
 {
   public:
-    CMqInterfaceStartupRace_test()
-        : m_appQueue{platform::IoxIpcChannelType::create()}
-    {
-    }
-
     virtual void SetUp()
     {
-        ASSERT_THAT(m_roudiQueue.has_error(), false);
+        ASSERT_THAT(m_roudiQueue.has_value(), true);
     }
     virtual void TearDown()
     {
@@ -102,11 +97,13 @@ class CMqInterfaceStartupRace_test : public Test
         regAck << IpcMessageTypeToString(IpcMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
                << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID << SEND_KEEP_ALIVE;
 
-        if (m_appQueue.has_error())
+        if (!m_appQueue.has_value())
         {
-            m_appQueue = platform::IoxIpcChannelType::create(MqAppName, IpcChannelSide::CLIENT);
+            platform::IoxIpcChannelType::create(MqAppName, IpcChannelSide::CLIENT).and_then([this](auto& channel) {
+                this->m_appQueue.emplace(std::move(channel));
+            });
         }
-        ASSERT_THAT(m_appQueue.has_error(), false);
+        ASSERT_THAT(m_appQueue.has_value(), true);
 
         ASSERT_FALSE(m_appQueue->send(regAck.getMessage()).has_error());
     }
@@ -116,7 +113,7 @@ class CMqInterfaceStartupRace_test : public Test
     platform::IoxIpcChannelType::result_t m_roudiQueue{
         platform::IoxIpcChannelType::create(roudi::IPC_CHANNEL_ROUDI_NAME, IpcChannelSide::SERVER)};
     std::mutex m_appQueueMutex;
-    platform::IoxIpcChannelType::result_t m_appQueue;
+    optional<platform::IoxIpcChannelType> m_appQueue;
 };
 
 #if !defined(__APPLE__)
