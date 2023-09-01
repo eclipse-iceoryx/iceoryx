@@ -1,4 +1,5 @@
 // Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,113 +35,116 @@ constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
 
-NamedPipe::NamedPipe() noexcept
+expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
 {
-    this->m_isInitialized = false;
-    this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
-}
-
-// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
-NamedPipe::NamedPipe(const IpcChannelName_t& name,
-                     const IpcChannelSide channelSide,
-                     const size_t maxMsgSize,
-                     const uint64_t maxMsgNumber) noexcept
-{
-    // We do not store maxMsgSize or maxMsgNumber, this is just technical debt since every ipc channel
-    // requires the same behavior as the message queue. The named pipe would get later two template
-    // parameters MAX_MSG_SIZE and MAX_MSG_NUMBER from which the Message_t size and m_messages queue
-    // size is obtained. Reducing the max message size / number of messages even further would not gain
-    // reduced memory usage or decreased runtime. See issue #832.
-    if (name.size() + strlen(&NAMED_PIPE_PREFIX[0]) > MAX_MESSAGE_SIZE)
+    if (m_name.size() + strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) > NamedPipe::MAX_MESSAGE_SIZE)
     {
-        std::cerr << "The named pipe name: \"" << name
-                  << "\" is too long. Maxium name length is: " << MAX_MESSAGE_SIZE - strlen(&NAMED_PIPE_PREFIX[0])
-                  << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
-        return;
+        std::cerr << "The named pipe name: \"" << m_name << "\" is too long. Maxium name length is: "
+                  << NamedPipe::MAX_MESSAGE_SIZE - strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) << std::endl;
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     // leading slash is allowed even though it is not a valid file name
-    bool isValidPipeName = isValidFileName(name)
+    bool isValidPipeName = isValidFileName(m_name)
                            // name is checked for emptiness, so it's ok to get a first member
                            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-                           || (!name.empty() && name.c_str()[0] == '/' && isValidFileName(*name.substr(1)));
+                           || (!m_name.empty() && m_name.c_str()[0] == '/' && isValidFileName(*m_name.substr(1)));
     if (!isValidPipeName)
     {
-        std::cerr << "The named pipe name: \"" << name << "\" is not a valid file path name." << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
-        return;
+        std::cerr << "The named pipe name: \"" << m_name << "\" is not a valid file path name." << std::endl;
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    if (maxMsgSize > MAX_MESSAGE_SIZE)
+    if (m_maxMsgSize > NamedPipe::MAX_MESSAGE_SIZE)
     {
-        std::cerr << "A message size of " << maxMsgSize << " exceeds the maximum message size for named pipes of "
-                  << MAX_MESSAGE_SIZE << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
-        return;
+        std::cerr << "A message size of " << m_maxMsgSize << " exceeds the maximum message size for named pipes of "
+                  << NamedPipe::MAX_MESSAGE_SIZE << std::endl;
+        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
-    if (maxMsgNumber > MAX_NUMBER_OF_MESSAGES)
+    if (m_maxMsgNumber > NamedPipe::MAX_NUMBER_OF_MESSAGES)
     {
-        std::cerr << "A message amount of " << maxMsgNumber
-                  << " exceeds the maximum number of messages for named pipes of " << MAX_NUMBER_OF_MESSAGES
+        std::cerr << "A message amount of " << m_maxMsgNumber
+                  << " exceeds the maximum number of messages for named pipes of " << NamedPipe::MAX_NUMBER_OF_MESSAGES
                   << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
-        return;
+        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
-    if (!SharedMemoryObjectBuilder()
-             .name(convertName(NAMED_PIPE_PREFIX, name))
-             .memorySizeInBytes(sizeof(NamedPipeData) + alignof(NamedPipeData))
-             .accessMode(AccessMode::READ_WRITE)
-             .openMode((channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING)
-             .permissions(perms::owner_all | perms::group_all)
-             .create()
-             .and_then([this](auto& value) { m_sharedMemory.emplace(std::move(value)); }))
+    auto namedPipeShmName = NamedPipe::mapToSharedMemoryName(NamedPipe::NAMED_PIPE_PREFIX, m_name);
+    auto sharedMemoryResult =
+        SharedMemoryObjectBuilder()
+            .name(namedPipeShmName)
+            .memorySizeInBytes(sizeof(NamedPipe::NamedPipeData) + alignof(NamedPipe::NamedPipeData))
+            .accessMode(AccessMode::READ_WRITE)
+            .openMode((m_channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING)
+            .permissions(perms::owner_all | perms::group_all)
+            .create();
+
+    if (sharedMemoryResult.has_error())
     {
-        std::cerr << "Unable to open shared memory: \"" << convertName(NAMED_PIPE_PREFIX, name)
-                  << "\" for named pipe \"" << name << "\"" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = (channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
-                                                               : IpcChannelError::INTERNAL_LOGIC_ERROR;
-        return;
+        std::cerr << "Unable to open shared memory: \"" << namedPipeShmName << "\" for named pipe \"" << m_name << "\""
+                  << std::endl;
+        return err((m_channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
+                                                             : IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
+    auto& sharedMemory = sharedMemoryResult.value();
 
-    BumpAllocator allocator(m_sharedMemory->getBaseAddress(),
-                            m_sharedMemory->get_size().expect("failed to acquire shm size"));
+    BumpAllocator allocator(sharedMemory.getBaseAddress(),
+                            sharedMemory.get_size().expect("failed to acquire shm size"));
 
-    auto allocationResult = allocator.allocate(sizeof(NamedPipeData), alignof(NamedPipeData));
+    auto allocationResult = allocator.allocate(sizeof(NamedPipe::NamedPipeData), alignof(NamedPipe::NamedPipeData));
     if (allocationResult.has_error())
     {
-        std::cerr << "Unable to allocate memory for named pipe \"" << name << "\"" << std::endl;
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::MEMORY_ALLOCATION_FAILED;
-        return;
+        std::cerr << "Unable to allocate memory for named pipe \"" << m_name << "\"" << std::endl;
+        return err(IpcChannelError::MEMORY_ALLOCATION_FAILED);
     }
-    m_data = static_cast<NamedPipeData*>(allocationResult.value());
+    auto* data = static_cast<NamedPipe::NamedPipeData*>(allocationResult.value());
 
-    m_isInitialized = true;
-    if (m_sharedMemory->hasOwnership())
+    if (sharedMemory.hasOwnership())
     {
-        new (m_data) NamedPipeData(m_isInitialized, m_errorValue, static_cast<uint32_t>(maxMsgNumber));
+        new (data) NamedPipe::NamedPipeData();
+        auto dataInitializeResult = data->initialize(static_cast<uint32_t>(m_maxMsgNumber));
+        if (dataInitializeResult.has_error())
+        {
+            return err(dataInitializeResult.error());
+        }
     }
     else
     {
-        m_isInitialized = m_data->waitForInitialization();
-        if (!m_isInitialized)
+        if (!data->waitForInitialization())
         {
-            m_errorValue = IpcChannelError::INTERNAL_LOGIC_ERROR;
+            return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
         }
     }
+
+    return ok(NamedPipe{std::move(sharedMemory), data});
+}
+
+// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
+expected<NamedPipe, IpcChannelError> NamedPipe::create(const IpcChannelName_t& name,
+                                                       const IpcChannelSide channelSide,
+                                                       const size_t maxMsgSize,
+                                                       const uint64_t maxMsgNumber) noexcept
+{
+    return NamedPipeBuilder()
+        .name(name)
+        .channelSide(channelSide)
+        .maxMsgSize(maxMsgSize)
+        .maxMsgNumber(maxMsgNumber)
+        .create();
+}
+
+NamedPipe::NamedPipe(SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept
+    : m_sharedMemory(std::move(sharedMemory))
+    , m_data(data)
+{
 }
 
 NamedPipe::NamedPipe(NamedPipe&& rhs) noexcept
+    : m_sharedMemory(std::move(rhs.m_sharedMemory))
+    , m_data(std::move(rhs.m_data))
 {
-    *this = std::move(rhs);
+    rhs.m_data = nullptr;
 }
 
 NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
@@ -148,10 +152,7 @@ NamedPipe& NamedPipe::operator=(NamedPipe&& rhs) noexcept
     if (this != &rhs)
     {
         IOX_DISCARD_RESULT(destroy());
-        CreationPattern_t::operator=(std::move(rhs));
 
-        /// NOLINTJUSTIFICATION iox-#1036 will be fixed with the builder pattern
-        /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
         m_sharedMemory = std::move(rhs.m_sharedMemory);
         m_data = rhs.m_data;
         rhs.m_data = nullptr;
@@ -166,7 +167,7 @@ NamedPipe::~NamedPipe() noexcept
 }
 
 template <typename Prefix>
-IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t& name) noexcept
+IpcChannelName_t NamedPipe::mapToSharedMemoryName(const Prefix& p, const IpcChannelName_t& name) noexcept
 {
     IpcChannelName_t channelName = p;
 
@@ -184,15 +185,12 @@ IpcChannelName_t NamedPipe::convertName(const Prefix& p, const IpcChannelName_t&
 
 expected<void, IpcChannelError> NamedPipe::destroy() noexcept
 {
-    if (m_isInitialized)
+    if (m_data)
     {
-        m_isInitialized = false;
-        m_errorValue = IpcChannelError::NOT_INITIALIZED;
-        if (m_sharedMemory->hasOwnership())
+        if (m_sharedMemory.hasOwnership())
         {
             m_data->~NamedPipeData();
         }
-        m_sharedMemory.reset();
         m_data = nullptr;
     }
     return ok();
@@ -200,7 +198,7 @@ expected<void, IpcChannelError> NamedPipe::destroy() noexcept
 
 expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
 {
-    auto result = SharedMemory::unlinkIfExist(convertName(NAMED_PIPE_PREFIX, name));
+    auto result = SharedMemory::unlinkIfExist(mapToSharedMemoryName(NAMED_PIPE_PREFIX, name));
     if (result.has_error())
     {
         return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
@@ -211,11 +209,6 @@ expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t
 
 expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     if (message.size() > MAX_MESSAGE_SIZE)
     {
         return err(IpcChannelError::MESSAGE_TOO_LONG);
@@ -235,11 +228,6 @@ expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) c
 
 expected<void, IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     if (message.size() > MAX_MESSAGE_SIZE)
     {
         return err(IpcChannelError::MESSAGE_TOO_LONG);
@@ -255,11 +243,6 @@ expected<void, IpcChannelError> NamedPipe::send(const std::string& message) cons
 expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
                                                      const units::Duration& timeout) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     if (message.size() > MAX_MESSAGE_SIZE)
     {
         return err(IpcChannelError::MESSAGE_TOO_LONG);
@@ -279,11 +262,6 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
 expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     cxx::Expects(!m_data->receiveSemaphore().wait().has_error());
     auto message = m_data->messages.pop();
     if (message.has_value())
@@ -296,11 +274,6 @@ expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 
 expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     auto result = m_data->receiveSemaphore().tryWait();
     cxx::Expects(!result.has_error());
 
@@ -320,11 +293,6 @@ expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
 
 expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
 {
-    if (!m_isInitialized)
-    {
-        return err(IpcChannelError::NOT_INITIALIZED);
-    }
-
     auto result = m_data->receiveSemaphore().timedWait(timeout);
     cxx::Expects(!result.has_error());
 
@@ -341,40 +309,31 @@ expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Dura
     return err(IpcChannelError::TIMEOUT);
 }
 
-// NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init) semaphores are initalized via placementCreate call
-NamedPipe::NamedPipeData::NamedPipeData(bool& isInitialized,
-                                        IpcChannelError& error,
-                                        const uint32_t maxMsgNumber) noexcept
+expected<void, IpcChannelError> NamedPipe::NamedPipeData::initialize(const uint32_t maxMsgNumber) noexcept
 {
     auto signalError = [&](const char* name) {
         std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
-        isInitialized = false;
-        error = IpcChannelError::INTERNAL_LOGIC_ERROR;
     };
 
-    UnnamedSemaphoreBuilder()
-        .initialValue(maxMsgNumber)
-        .isInterProcessCapable(true)
-        .create(m_sendSemaphore)
-        .or_else([&](auto) { signalError("send"); });
-
-    if (!isInitialized)
+    if (UnnamedSemaphoreBuilder()
+            .initialValue(maxMsgNumber)
+            .isInterProcessCapable(true)
+            .create(m_sendSemaphore)
+            .has_error())
     {
-        return;
+        signalError("send");
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    UnnamedSemaphoreBuilder()
-        .initialValue(0U)
-        .isInterProcessCapable(true)
-        .create(m_receiveSemaphore)
-        .or_else([&](auto) { signalError("receive"); });
-
-    if (!isInitialized)
+    if (UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_receiveSemaphore).has_error())
     {
-        return;
+        signalError("receive");
+        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     initializationGuard.store(VALID_DATA);
+
+    return ok();
 }
 
 UnnamedSemaphore& NamedPipe::NamedPipeData::sendSemaphore() noexcept
