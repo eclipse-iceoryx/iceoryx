@@ -279,33 +279,6 @@ expected<void, MutexCreationError> MutexBuilder::create(optional<mutex>& uniniti
     return ok();
 }
 
-/// @todo iox-#1036 remove this, introduced to keep current API temporarily
-mutex::mutex(bool f_isRecursive) noexcept
-{
-    pthread_mutexattr_t attr;
-    bool isInitialized{true};
-    isInitialized &= !posixCall(pthread_mutexattr_init)(&attr).returnValueMatchesErrno().evaluate().has_error();
-    isInitialized &= !posixCall(pthread_mutexattr_setpshared)(&attr, PTHREAD_PROCESS_SHARED)
-                          .returnValueMatchesErrno()
-                          .evaluate()
-                          .has_error();
-    isInitialized &=
-        !posixCall(pthread_mutexattr_settype)(&attr, f_isRecursive ? PTHREAD_MUTEX_RECURSIVE : PTHREAD_MUTEX_NORMAL)
-             .returnValueMatchesErrno()
-             .evaluate()
-             .has_error();
-    isInitialized &= !posixCall(pthread_mutexattr_setprotocol)(&attr, PTHREAD_PRIO_NONE)
-                          .returnValueMatchesErrno()
-                          .evaluate()
-                          .has_error();
-    isInitialized &= !posixCall(pthread_mutex_init)(&m_handle, &attr).returnValueMatchesErrno().evaluate().has_error();
-    isInitialized &= !posixCall(pthread_mutexattr_destroy)(&attr).returnValueMatchesErrno().evaluate().has_error();
-
-    /// NOLINTJUSTIFICATION is fixed in the PR iox-#1443
-    /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-    cxx::Ensures(isInitialized && "Unable to create mutex");
-}
-
 mutex::~mutex() noexcept
 {
     if (m_isDestructable)

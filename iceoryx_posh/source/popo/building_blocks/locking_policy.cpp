@@ -23,9 +23,18 @@ namespace iox
 {
 namespace popo
 {
+ThreadSafePolicy::ThreadSafePolicy() noexcept
+{
+    posix::MutexBuilder()
+        .isInterProcessCapable(true)
+        .mutexType(posix::MutexType::RECURSIVE)
+        .create(m_mutex)
+        .expect("Valid Mutex");
+}
+
 void ThreadSafePolicy::lock() const noexcept
 {
-    if (!m_mutex.lock())
+    if (!m_mutex->lock())
     {
         IOX_LOG(FATAL)
             << "Locking of an inter-process mutex failed! This indicates that the application holding the lock "
@@ -36,7 +45,7 @@ void ThreadSafePolicy::lock() const noexcept
 
 void ThreadSafePolicy::unlock() const noexcept
 {
-    if (!m_mutex.unlock())
+    if (!m_mutex->unlock())
     {
         IOX_LOG(FATAL)
             << "Unlocking of an inter-process mutex failed! This indicates that the resources were cleaned up "
@@ -47,7 +56,7 @@ void ThreadSafePolicy::unlock() const noexcept
 
 bool ThreadSafePolicy::tryLock() const noexcept
 {
-    auto tryLockResult = m_mutex.try_lock();
+    auto tryLockResult = m_mutex->try_lock();
     if (tryLockResult.has_error())
     {
         errorHandler(PoshError::POPO__CHUNK_TRY_LOCK_ERROR, ErrorLevel::FATAL);
