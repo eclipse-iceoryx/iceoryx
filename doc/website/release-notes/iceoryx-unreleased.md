@@ -103,6 +103,7 @@
     - `SharedMemory`
     - `MessageQueue`
     - `NamedPipe`
+    - `UnixDomainSocket`
     - `FileLock`
         - Add the ability to adjust path and file permissions of the file lock
     - `Mutex`
