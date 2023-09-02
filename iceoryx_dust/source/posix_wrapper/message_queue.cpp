@@ -90,20 +90,6 @@ MessageQueue::MessageQueue(const IpcChannelName_t& name,
 {
 }
 
-// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
-expected<MessageQueue, IpcChannelError> MessageQueue::create(const IpcChannelName_t& name,
-                                                             const IpcChannelSide channelSide,
-                                                             const uint64_t maxMsgSize,
-                                                             const uint64_t maxMsgNumber) noexcept
-{
-    return MessageQueueBuilder()
-        .name(name)
-        .channelSide(channelSide)
-        .maxMsgSize(maxMsgSize)
-        .maxMsgNumber(maxMsgNumber)
-        .create();
-}
-
 MessageQueue::MessageQueue(MessageQueue&& other) noexcept
 {
     *this = std::move(other);

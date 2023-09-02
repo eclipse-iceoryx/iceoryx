@@ -62,27 +62,6 @@ class UnixDomainSocket
 
     ~UnixDomainSocket() noexcept;
 
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<UnixDomainSocket, IpcChannelError>
-    create(const IpcChannelName_t& name,
-           const IpcChannelSide channelSide,
-           const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
-           const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<UnixDomainSocket, IpcChannelError>
-    create(const NoPathPrefix_t,
-           const UdsName_t& name,
-           const IpcChannelSide channelSide,
-           const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
-           const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    bool isInitialized() const noexcept
-    {
-        return m_sockfd != INVALID_FD;
-    }
-
     /// @brief unlink the provided unix domain socket
     /// @param name of the unix domain socket to unlink
     /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured

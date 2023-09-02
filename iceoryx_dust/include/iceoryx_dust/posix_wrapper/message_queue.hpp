@@ -68,19 +68,6 @@ class MessageQueue
 
     ~MessageQueue() noexcept;
 
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<MessageQueue, IpcChannelError>
-    create(const IpcChannelName_t& name,
-           const IpcChannelSide channelSide,
-           const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
-           const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    bool isInitialized() const noexcept
-    {
-        return m_mqDescriptor != INVALID_DESCRIPTOR;
-    }
-
     static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// @brief send a message to queue using std::string.

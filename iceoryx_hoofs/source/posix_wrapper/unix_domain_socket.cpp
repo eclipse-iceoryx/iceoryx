@@ -156,36 +156,6 @@ UnixDomainSocket::UnixDomainSocket(const UdsName_t& udsName,
 {
 }
 
-expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(const IpcChannelName_t& name,
-                                                                     const IpcChannelSide channelSide,
-                                                                     const uint64_t maxMsgSize,
-                                                                     const uint64_t maxMsgNumber) noexcept
-{
-    return UnixDomainSocketBuilder()
-        .name(name)
-        .channelSide(channelSide)
-        .maxMsgSize(maxMsgSize)
-        .maxMsgNumber(maxMsgNumber)
-        .create();
-}
-
-// NOLINTJUSTIFICATION will be removed
-// NOLINTBEGIN(readability-function-size, bugprone-easily-swappable-parameters)
-expected<UnixDomainSocket, IpcChannelError> UnixDomainSocket::create(const NoPathPrefix_t,
-                                                                     const UdsName_t& name,
-                                                                     const IpcChannelSide channelSide,
-                                                                     const uint64_t maxMsgSize,
-                                                                     const uint64_t maxMsgNumber) noexcept
-{
-    return UnixDomainSocketBuilderNoPathPrefix()
-        .name(name)
-        .channelSide(channelSide)
-        .maxMsgSize(maxMsgSize)
-        .maxMsgNumber(maxMsgNumber)
-        .create();
-}
-// NOLINTEND(readability-function-size, bugprone-easily-swappable-parameters)
-
 UnixDomainSocket::~UnixDomainSocket() noexcept
 {
     if (destroy().has_error())

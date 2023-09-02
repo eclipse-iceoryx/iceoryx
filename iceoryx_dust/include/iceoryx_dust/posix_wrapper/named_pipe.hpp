@@ -68,18 +68,6 @@ class NamedPipe
     NamedPipe& operator=(NamedPipe&& rhs) noexcept;
     ~NamedPipe() noexcept;
 
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<NamedPipe, IpcChannelError> create(const IpcChannelName_t& name,
-                                                       const IpcChannelSide channelSide,
-                                                       const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                                                       const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    bool isInitialized() const noexcept
-    {
-        return m_data != nullptr;
-    }
-
     /// @brief removes a named pipe artifact from the system
     /// @return true if the artifact was removed, false when no artifact was found and
     ///         IpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
