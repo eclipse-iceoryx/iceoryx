@@ -23,6 +23,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/builder.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
@@ -35,6 +36,8 @@ namespace iox
 {
 namespace posix
 {
+class NamedPipeBuilder;
+
 class NamedPipe
 {
   public:
@@ -51,6 +54,8 @@ class NamedPipe
     /// NOLINTJUSTIFICATION used as safe compile time string literal
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char NAMED_PIPE_PREFIX[] = "iox_np_";
+
+    using Builder_t = NamedPipeBuilder;
 
     using Message_t = string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;

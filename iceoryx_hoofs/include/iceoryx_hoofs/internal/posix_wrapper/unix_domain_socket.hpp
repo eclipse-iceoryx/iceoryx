@@ -49,6 +49,8 @@ class UnixDomainSocket
     /// @brief The name length is limited by the size of the sockaddr_un::sun_path buffer and the IOX_SOCKET_PATH_PREFIX
     static constexpr size_t LONGEST_VALID_NAME = sizeof(sockaddr_un::sun_path) - 1;
 
+    using Builder_t = UnixDomainSocketBuilder;
+
     using UdsName_t = string<LONGEST_VALID_NAME>;
     using Message_t = string<MAX_MESSAGE_SIZE>;
 

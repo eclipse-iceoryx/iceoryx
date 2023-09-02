@@ -192,7 +192,14 @@ template <typename IpcChannelType>
 bool IpcInterface<IpcChannelType>::openIpcChannel(const posix::IpcChannelSide channelSide) noexcept
 {
     m_channelSide = channelSide;
-    IpcChannelType::create(m_runtimeName, m_channelSide, m_maxMessageSize, m_maxMessages)
+
+    using IpcChannelBuilder_t = typename IpcChannelType::Builder_t;
+    IpcChannelBuilder_t()
+        .name(m_runtimeName)
+        .channelSide(m_channelSide)
+        .maxMsgSize(m_maxMessageSize)
+        .maxMsgNumber(m_maxMessages)
+        .create()
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel.emplace(std::move(ipcChannel)); })
         .or_else([](auto& err) {
             IOX_LOG(ERROR) << "unable to create ipc channel with error code: " << static_cast<uint8_t>(err);
