@@ -25,7 +25,7 @@
 ./iceoryx_hoofs/source/posix_wrapper/shared_memory_object/*
 ./iceoryx_hoofs/test/moduletests/test_posix*
 
-./iceoryx_hoofs/include/error_reporting/**/*
+./iceoryx_hoofs/include/iceoryx_hoofs/error_reporting/**/*
 ./iceoryx_hoofs/source/error_reporting/**/*
 ./iceoryx_hoofs/testing/include/iceoryx_hoofs/testing/error_reporting/*
 ./iceoryx_hoofs/testing/error_reporting/*

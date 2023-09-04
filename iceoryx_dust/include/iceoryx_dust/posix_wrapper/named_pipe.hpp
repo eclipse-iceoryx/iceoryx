@@ -23,6 +23,7 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
+#include "iox/builder.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
 #include "iox/optional.hpp"
@@ -35,6 +36,8 @@ namespace iox
 {
 namespace posix
 {
+class NamedPipeBuilder;
+
 class NamedPipe
 {
   public:
@@ -52,6 +55,8 @@ class NamedPipe
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     static constexpr const char NAMED_PIPE_PREFIX[] = "iox_np_";
 
+    using Builder_t = NamedPipeBuilder;
+
     using Message_t = string<MAX_MESSAGE_SIZE>;
     using MessageQueue_t = concurrent::LockFreeQueue<Message_t, MAX_NUMBER_OF_MESSAGES>;
 
@@ -62,18 +67,6 @@ class NamedPipe
     NamedPipe(NamedPipe&& rhs) noexcept;
     NamedPipe& operator=(NamedPipe&& rhs) noexcept;
     ~NamedPipe() noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<NamedPipe, IpcChannelError> create(const IpcChannelName_t& name,
-                                                       const IpcChannelSide channelSide,
-                                                       const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                                                       const uint64_t maxMsgNumber = MAX_NUMBER_OF_MESSAGES) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    bool isInitialized() const noexcept
-    {
-        return m_data != nullptr;
-    }
 
     /// @brief removes a named pipe artifact from the system
     /// @return true if the artifact was removed, false when no artifact was found and

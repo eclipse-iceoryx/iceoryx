@@ -31,6 +31,8 @@ namespace iox
 {
 namespace posix
 {
+class MessageQueueBuilder;
+
 /// @brief Wrapper class for posix message queue
 ///
 /// @code
@@ -54,7 +56,9 @@ class MessageQueue
     static constexpr uint64_t SHORTEST_VALID_QUEUE_NAME = 2;
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1;
     static constexpr uint64_t MAX_MESSAGE_SIZE = 4096;
-    static constexpr uint64_t MAX_MESSAGE_NUMBER = 10;
+    static constexpr uint64_t MAX_NUMBER_OF_MESSAGES = 10;
+
+    using Builder_t = MessageQueueBuilder;
 
     MessageQueue() noexcept = delete;
     MessageQueue(const MessageQueue& other) = delete;
@@ -63,18 +67,6 @@ class MessageQueue
     MessageQueue& operator=(MessageQueue&& other) noexcept;
 
     ~MessageQueue() noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    static expected<MessageQueue, IpcChannelError> create(const IpcChannelName_t& name,
-                                                          const IpcChannelSide channelSide,
-                                                          const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
-                                                          const uint64_t maxMsgNumber = MAX_MESSAGE_NUMBER) noexcept;
-
-    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
-    bool isInitialized() const noexcept
-    {
-        return m_mqDescriptor != INVALID_DESCRIPTOR;
-    }
 
     static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
@@ -101,7 +93,7 @@ class MessageQueue
   private:
     friend class MessageQueueBuilder;
 
-    MessageQueue(const IpcChannelName_t&& name,
+    MessageQueue(const IpcChannelName_t& name,
                  const mq_attr attributes,
                  mqd_t mqDescriptor,
                  const IpcChannelSide channelSide) noexcept;
@@ -146,7 +138,7 @@ class MessageQueueBuilder
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, MessageQueue::MAX_MESSAGE_SIZE)
 
     /// @brief Defines the max number of messages for the message queue.
-    IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, MessageQueue::MAX_MESSAGE_NUMBER)
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, MessageQueue::MAX_NUMBER_OF_MESSAGES)
 
   public:
     /// @brief create a message queue

@@ -79,29 +79,15 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
     return ok(MessageQueue{std::move(sanitizedName), attributes, mqDescriptor, m_channelSide});
 }
 
-MessageQueue::MessageQueue(const IpcChannelName_t&& name,
+MessageQueue::MessageQueue(const IpcChannelName_t& name,
                            const mq_attr attributes,
                            mqd_t mqDescriptor,
                            const IpcChannelSide channelSide) noexcept
-    : m_name(std::move(name))
+    : m_name(name)
     , m_attributes(attributes)
     , m_mqDescriptor(mqDescriptor)
     , m_channelSide(channelSide)
 {
-}
-
-// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
-expected<MessageQueue, IpcChannelError> MessageQueue::create(const IpcChannelName_t& name,
-                                                             const IpcChannelSide channelSide,
-                                                             const uint64_t maxMsgSize,
-                                                             const uint64_t maxMsgNumber) noexcept
-{
-    return MessageQueueBuilder()
-        .name(name)
-        .channelSide(channelSide)
-        .maxMsgSize(maxMsgSize)
-        .maxMsgNumber(maxMsgNumber)
-        .create();
 }
 
 MessageQueue::MessageQueue(MessageQueue&& other) noexcept

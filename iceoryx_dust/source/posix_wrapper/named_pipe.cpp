@@ -120,20 +120,6 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
     return ok(NamedPipe{std::move(sharedMemory), data});
 }
 
-// NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
-expected<NamedPipe, IpcChannelError> NamedPipe::create(const IpcChannelName_t& name,
-                                                       const IpcChannelSide channelSide,
-                                                       const size_t maxMsgSize,
-                                                       const uint64_t maxMsgNumber) noexcept
-{
-    return NamedPipeBuilder()
-        .name(name)
-        .channelSide(channelSide)
-        .maxMsgSize(maxMsgSize)
-        .maxMsgNumber(maxMsgNumber)
-        .create();
-}
-
 NamedPipe::NamedPipe(SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept
     : m_sharedMemory(std::move(sharedMemory))
     , m_data(data)
