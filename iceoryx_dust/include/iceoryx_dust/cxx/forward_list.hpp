@@ -338,7 +338,6 @@ class forward_list
     size_type& getNextIdx(const const_iterator& iter) noexcept;
     const size_type& getNextIdx(const const_iterator& iter) const noexcept;
     void setNextIdx(const size_type idx, const size_type nextIdx) noexcept;
-    static void errorMessage(const char* source, const char* msg) noexcept;
 
     //***************************************
     //    members

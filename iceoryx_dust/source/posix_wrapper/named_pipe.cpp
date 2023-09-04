@@ -21,6 +21,7 @@
 #include "iox/deadline_timer.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/into.hpp"
+#include "iox/logging.hpp"
 
 #include <thread>
 
@@ -39,8 +40,8 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
 {
     if (m_name.size() + strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) > NamedPipe::MAX_MESSAGE_SIZE)
     {
-        std::cerr << "The named pipe name: \"" << m_name << "\" is too long. Maxium name length is: "
-                  << NamedPipe::MAX_MESSAGE_SIZE - strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) << std::endl;
+        IOX_LOG(ERROR) << "The named pipe name: '" << m_name << "' is too long. Maxium name length is: "
+                       << NamedPipe::MAX_MESSAGE_SIZE - strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]);
         return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
@@ -51,22 +52,22 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
                            || (!m_name.empty() && m_name.c_str()[0] == '/' && isValidFileName(*m_name.substr(1)));
     if (!isValidPipeName)
     {
-        std::cerr << "The named pipe name: \"" << m_name << "\" is not a valid file path name." << std::endl;
+        IOX_LOG(ERROR) << "The named pipe name: '" << m_name << "' is not a valid file path name.";
         return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     if (m_maxMsgSize > NamedPipe::MAX_MESSAGE_SIZE)
     {
-        std::cerr << "A message size of " << m_maxMsgSize << " exceeds the maximum message size for named pipes of "
-                  << NamedPipe::MAX_MESSAGE_SIZE << std::endl;
+        IOX_LOG(ERROR) << "A message size of " << m_maxMsgSize
+                       << " exceeds the maximum message size for named pipes of " << NamedPipe::MAX_MESSAGE_SIZE;
         return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
     if (m_maxMsgNumber > NamedPipe::MAX_NUMBER_OF_MESSAGES)
     {
-        std::cerr << "A message amount of " << m_maxMsgNumber
-                  << " exceeds the maximum number of messages for named pipes of " << NamedPipe::MAX_NUMBER_OF_MESSAGES
-                  << std::endl;
+        IOX_LOG(ERROR) << "A message amount of " << m_maxMsgNumber
+                       << " exceeds the maximum number of messages for named pipes of "
+                       << NamedPipe::MAX_NUMBER_OF_MESSAGES;
         return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
@@ -82,8 +83,8 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
 
     if (sharedMemoryResult.has_error())
     {
-        std::cerr << "Unable to open shared memory: \"" << namedPipeShmName << "\" for named pipe \"" << m_name << "\""
-                  << std::endl;
+        IOX_LOG(ERROR) << "Unable to open shared memory: '" << namedPipeShmName << "' for named pipe '" << m_name
+                       << "'";
         return err((m_channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
                                                              : IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
@@ -95,7 +96,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
     auto allocationResult = allocator.allocate(sizeof(NamedPipe::NamedPipeData), alignof(NamedPipe::NamedPipeData));
     if (allocationResult.has_error())
     {
-        std::cerr << "Unable to allocate memory for named pipe \"" << m_name << "\"" << std::endl;
+        IOX_LOG(ERROR) << "Unable to allocate memory for named pipe '" << m_name << "'";
         return err(IpcChannelError::MEMORY_ALLOCATION_FAILED);
     }
     auto* data = static_cast<NamedPipe::NamedPipeData*>(allocationResult.value());
@@ -298,7 +299,7 @@ expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Dura
 expected<void, IpcChannelError> NamedPipe::NamedPipeData::initialize(const uint32_t maxMsgNumber) noexcept
 {
     auto signalError = [&](const char* name) {
-        std::cerr << "Unable to create " << name << " semaphore for named pipe \"" << 'x' << "\"";
+        IOX_LOG(ERROR) << "Unable to create '" << name << "' semaphore for named pipe";
     };
 
     if (UnnamedSemaphoreBuilder()
