@@ -29,6 +29,7 @@
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/duration.hpp"
+#include "iox/optional.hpp"
 #include "iox/relative_pointer.hpp"
 
 #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
@@ -265,7 +266,7 @@ class IpcInterface
     uint64_t m_maxMessageSize{0U};
     uint64_t m_maxMessages{0U};
     iox::posix::IpcChannelSide m_channelSide{posix::IpcChannelSide::CLIENT};
-    IpcChannelType m_ipcChannel;
+    optional<IpcChannelType> m_ipcChannel;
 };
 
 using IpcInterfaceBase = IpcInterface<platform::IoxIpcChannelType>;

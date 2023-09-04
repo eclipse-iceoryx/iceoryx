@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,77 +25,83 @@
 #include <chrono>
 #include <string>
 
-
 namespace iox
 {
 namespace posix
 {
-MessageQueue::MessageQueue() noexcept
+expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noexcept
 {
-    this->m_isInitialized = false;
-    this->m_errorValue = IpcChannelError::NOT_INITIALIZED;
+    auto sanitzedNameResult = MessageQueue::sanitizeIpcChannelName(m_name);
+    if (sanitzedNameResult.has_error())
+    {
+        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+    }
+    auto& sanitizedName = sanitzedNameResult.value();
+    IOX_MAYBE_UNUSED std::false_type m_name; // m_name shall not be used anymore but only sanitizedName
+
+    if (m_maxMsgSize > MessageQueue::MAX_MESSAGE_SIZE)
+    {
+        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
+    }
+
+    if (m_channelSide == IpcChannelSide::SERVER)
+    {
+        posixCall(mq_unlink)(sanitizedName.c_str())
+            .failureReturnValue(MessageQueue::ERROR_CODE)
+            .ignoreErrnos(ENOENT)
+            .evaluate()
+            .and_then([&sanitizedName](auto& r) {
+                if (r.errnum != ENOENT)
+                {
+                    std::cout << "MQ still there, doing an unlink of " << sanitizedName << std::endl;
+                }
+            });
+    }
+
+    // fields have a different order in QNX, so we need to initialize by name
+    mq_attr attributes;
+    attributes.mq_flags = 0;
+    attributes.mq_maxmsg = static_cast<decltype(attributes.mq_maxmsg)>(m_maxMsgNumber);
+    attributes.mq_msgsize = static_cast<decltype(attributes.mq_msgsize)>(m_maxMsgSize);
+    attributes.mq_curmsgs = 0L;
+#ifdef __QNX__
+    attributes.mq_recvwait = 0L;
+    attributes.mq_sendwait = 0L;
+#endif
+
+    auto openResult = MessageQueue::open(sanitizedName, attributes, m_channelSide);
+    if (openResult.has_error())
+    {
+        return err(openResult.error());
+    }
+    const auto mqDescriptor = openResult.value();
+
+    return ok(MessageQueue{std::move(sanitizedName), attributes, mqDescriptor, m_channelSide});
+}
+
+MessageQueue::MessageQueue(const IpcChannelName_t&& name,
+                           const mq_attr attributes,
+                           mqd_t mqDescriptor,
+                           const IpcChannelSide channelSide) noexcept
+    : m_name(std::move(name))
+    , m_attributes(attributes)
+    , m_mqDescriptor(mqDescriptor)
+    , m_channelSide(channelSide)
+{
 }
 
 // NOLINTNEXTLINE(readability-function-size) @todo iox-#832 make a struct out of arguments
-MessageQueue::MessageQueue(const IpcChannelName_t& name,
-                           const IpcChannelSide channelSide,
-                           /// NOLINTJUSTIFICATION @todo iox-#832 should be solved when the arguments are put in a
-                           ///                      struct
-                           /// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-                           const size_t maxMsgSize,
-                           const uint64_t maxMsgNumber) noexcept
-    : m_channelSide(channelSide)
+expected<MessageQueue, IpcChannelError> MessageQueue::create(const IpcChannelName_t& name,
+                                                             const IpcChannelSide channelSide,
+                                                             const uint64_t maxMsgSize,
+                                                             const uint64_t maxMsgNumber) noexcept
 {
-    sanitizeIpcChannelName(name)
-        .and_then([this](IpcChannelName_t& name) { this->m_name = std::move(name); })
-        .or_else([this](IpcChannelError) {
-            this->m_isInitialized = false;
-            this->m_errorValue = IpcChannelError::INVALID_CHANNEL_NAME;
-        });
-
-    if (maxMsgSize > MAX_MESSAGE_SIZE)
-    {
-        this->m_isInitialized = false;
-        this->m_errorValue = IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED;
-    }
-    else
-    {
-        if (channelSide == IpcChannelSide::SERVER)
-        {
-            posixCall(mq_unlink)(m_name.c_str())
-                .failureReturnValue(ERROR_CODE)
-                .ignoreErrnos(ENOENT)
-                .evaluate()
-                .and_then([this](auto& r) {
-                    if (r.errnum != ENOENT)
-                    {
-                        std::cout << "MQ still there, doing an unlink of " << m_name << std::endl;
-                    }
-                });
-        }
-        // fields have a different order in QNX,
-        // so we need to initialize by name
-        m_attributes.mq_flags = 0;
-        m_attributes.mq_maxmsg = static_cast<long>(maxMsgNumber);
-        m_attributes.mq_msgsize = static_cast<long>(maxMsgSize);
-        m_attributes.mq_curmsgs = 0L;
-#ifdef __QNX__
-        m_attributes.mq_recvwait = 0L;
-        m_attributes.mq_sendwait = 0L;
-#endif
-        auto openResult = open(m_name, channelSide);
-        if (!openResult.has_error())
-        {
-            this->m_isInitialized = true;
-            this->m_errorValue = IpcChannelError::UNDEFINED;
-            this->m_mqDescriptor = openResult.value();
-        }
-        else
-        {
-            this->m_isInitialized = false;
-            this->m_errorValue = openResult.error();
-        }
-    }
+    return MessageQueueBuilder()
+        .name(name)
+        .channelSide(channelSide)
+        .maxMsgSize(maxMsgSize)
+        .maxMsgNumber(maxMsgNumber)
+        .create();
 }
 
 MessageQueue::MessageQueue(MessageQueue&& other) noexcept
@@ -119,7 +126,6 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
             std::cerr << "unable to cleanup message queue \"" << m_name
                       << "\" during move operation - resource leaks are possible!" << std::endl;
         }
-        CreationPattern_t::operator=(std::move(other));
 
         /// NOLINTJUSTIFICATION iox-#1036 will be fixed with the builder pattern
         /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
@@ -173,7 +179,6 @@ expected<void, IpcChannelError> MessageQueue::destroy() noexcept
     }
 
     m_mqDescriptor = INVALID_DESCRIPTOR;
-    m_isInitialized = false;
     return ok();
 }
 
@@ -214,38 +219,42 @@ expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
     return ok(std::string(&(message[0])));
 }
 
-expected<mqd_t, IpcChannelError> MessageQueue::open(const IpcChannelName_t& name,
-                                                    const IpcChannelSide channelSide) noexcept
+expected<mqd_t, IpcChannelError>
+MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcChannelSide channelSide) noexcept
 {
-    auto sanitizedIpcChannelName = sanitizeIpcChannelName(name);
-    if (sanitizedIpcChannelName.has_error())
+    auto sanitizedNameResult = sanitizeIpcChannelName(name);
+    if (sanitizedNameResult.has_error())
     {
         return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
-
-    int32_t openFlags = O_RDWR;
-    if (channelSide == IpcChannelSide::SERVER)
+    const auto& sanitizedName = sanitizedNameResult.value();
     {
-        /// NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
-        /// NOLINTNEXTLINE(hicpp-signed-bitwise)
-        openFlags |= O_CREAT;
+        IOX_MAYBE_UNUSED std::false_type name; // name shall not be used anymore but only sanitizedName
+
+        int32_t openFlags = O_RDWR;
+        if (channelSide == IpcChannelSide::SERVER)
+        {
+            /// NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
+            /// NOLINTNEXTLINE(hicpp-signed-bitwise)
+            openFlags |= O_CREAT;
+        }
+
+        // the mask will be applied to the permissions, therefore we need to set it to 0
+        mode_t umaskSaved = umask(0);
+        auto mqCall = posixCall(iox_mq_open4)(sanitizedName.c_str(), openFlags, MessageQueue::FILE_MODE, &attributes)
+                          .failureReturnValue(MessageQueue::INVALID_DESCRIPTOR)
+                          .suppressErrorMessagesForErrnos(ENOENT)
+                          .evaluate();
+
+        umask(umaskSaved);
+
+        if (mqCall.has_error())
+        {
+            return err(MessageQueue::errnoToEnum(sanitizedName, mqCall.error().errnum));
+        }
+
+        return ok<mqd_t>(mqCall->value);
     }
-
-    // the mask will be applied to the permissions, therefore we need to set it to 0
-    mode_t umaskSaved = umask(0);
-    auto mqCall = posixCall(iox_mq_open4)(sanitizedIpcChannelName->c_str(), openFlags, m_filemode, &m_attributes)
-                      .failureReturnValue(INVALID_DESCRIPTOR)
-                      .suppressErrorMessagesForErrnos(ENOENT)
-                      .evaluate();
-
-    umask(umaskSaved);
-
-    if (mqCall.has_error())
-    {
-        return err(errnoToEnum(mqCall.error().errnum));
-    }
-
-    return ok<mqd_t>(mqCall->value);
 }
 
 expected<void, IpcChannelError> MessageQueue::close() noexcept

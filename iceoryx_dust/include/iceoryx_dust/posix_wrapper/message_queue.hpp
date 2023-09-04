@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,12 +18,13 @@
 #ifndef IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
 #define IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
 
-#include "iceoryx_dust/design/creation.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mqueue.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/builder.hpp"
 #include "iox/duration.hpp"
+#include "iox/expected.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -31,11 +33,11 @@ namespace posix
 {
 /// @brief Wrapper class for posix message queue
 ///
-/// @tparam NON_BLOCKING specifies the type of message queue. A non-blocking message queue will immediately return from
-/// a send/receive call if the queue is full/empty. A blocking message has member functions timedSend and timedReceive
-/// which allow to specify a maximum timeout duration.
 /// @code
-///     auto mq = posix::MessageQueue<true>::CreateMessageQueue("/MqName123");
+///     auto mq = iox::posix::MessageQueueBuilder()
+///                 .name("/MqName123")
+///                 .channelSide(iox::posix::IpcChannelSide::CLIENT)
+///                 .create();
 ///     if (mq.has_value())
 ///     {
 ///         mq->send("important message, bla.");
@@ -44,7 +46,7 @@ namespace posix
 ///         mq->receive(str);
 ///     }
 /// @endcode
-class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelError>
+class MessageQueue
 {
   public:
     static constexpr mqd_t INVALID_DESCRIPTOR = std::numeric_limits<mqd_t>::max();
@@ -52,20 +54,27 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     static constexpr uint64_t SHORTEST_VALID_QUEUE_NAME = 2;
     static constexpr uint64_t NULL_TERMINATOR_SIZE = 1;
     static constexpr uint64_t MAX_MESSAGE_SIZE = 4096;
+    static constexpr uint64_t MAX_MESSAGE_NUMBER = 10;
 
-    /// for calling private constructor in create method
-    friend class DesignPattern::Creation<MessageQueue, IpcChannelError>;
-
-    /// default constructor. The result is an invalid MessageQueue object which can be reassigned later by using the
-    /// move constructor.
-    MessageQueue() noexcept;
-
+    MessageQueue() noexcept = delete;
     MessageQueue(const MessageQueue& other) = delete;
     MessageQueue(MessageQueue&& other) noexcept;
     MessageQueue& operator=(const MessageQueue& other) = delete;
     MessageQueue& operator=(MessageQueue&& other) noexcept;
 
     ~MessageQueue() noexcept;
+
+    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
+    static expected<MessageQueue, IpcChannelError> create(const IpcChannelName_t& name,
+                                                          const IpcChannelSide channelSide,
+                                                          const uint64_t maxMsgSize = MAX_MESSAGE_SIZE,
+                                                          const uint64_t maxMsgNumber = MAX_MESSAGE_NUMBER) noexcept;
+
+    /// @todo iox-#1036 Remove when all channels are ported to the builder pattern
+    bool isInitialized() const noexcept
+    {
+        return m_mqDescriptor != INVALID_DESCRIPTOR;
+    }
 
     static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
@@ -90,12 +99,15 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     static expected<bool, IpcChannelError> isOutdated() noexcept;
 
   private:
-    MessageQueue(const IpcChannelName_t& name,
-                 const IpcChannelSide channelSide,
-                 const size_t maxMsgSize = MAX_MESSAGE_SIZE,
-                 const uint64_t maxMsgNumber = 10U) noexcept;
+    friend class MessageQueueBuilder;
 
-    expected<mqd_t, IpcChannelError> open(const IpcChannelName_t& name, const IpcChannelSide channelSide) noexcept;
+    MessageQueue(const IpcChannelName_t&& name,
+                 const mq_attr attributes,
+                 mqd_t mqDescriptor,
+                 const IpcChannelSide channelSide) noexcept;
+
+    static expected<mqd_t, IpcChannelError>
+    open(const IpcChannelName_t& name, mq_attr& attributes, const IpcChannelSide channelSide) noexcept;
 
     expected<void, IpcChannelError> close() noexcept;
     expected<void, IpcChannelError> unlink() noexcept;
@@ -119,8 +131,29 @@ class MessageQueue : public DesignPattern::Creation<MessageQueue, IpcChannelErro
     /// NOLINTJUSTIFICATION used inside the wrapper so that the user does not have to use this
     ///                     construct from outside
     /// NOLINTNEXTLINE(hicpp-signed-bitwise)
-    static constexpr mode_t m_filemode{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
+    static constexpr mode_t FILE_MODE{S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH};
 };
+
+class MessageQueueBuilder
+{
+    /// @brief Defines the message queue name
+    IOX_BUILDER_PARAMETER(IpcChannelName_t, name, "")
+
+    /// @brief Defines how the message queue is opened, i.e. as client or server
+    IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
+
+    /// @brief Defines the max message size of the message queue
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, MessageQueue::MAX_MESSAGE_SIZE)
+
+    /// @brief Defines the max number of messages for the message queue.
+    IOX_BUILDER_PARAMETER(uint64_t, maxMsgNumber, MessageQueue::MAX_MESSAGE_NUMBER)
+
+  public:
+    /// @brief create a message queue
+    /// @return On success a 'MessageQueue' is returned and on failure an 'IpcChannelError'.
+    expected<MessageQueue, IpcChannelError> create() const noexcept;
+};
+
 } // namespace posix
 } // namespace iox
 

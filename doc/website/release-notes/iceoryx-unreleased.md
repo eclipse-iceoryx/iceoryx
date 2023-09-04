@@ -24,8 +24,6 @@
 - Extend `concatenate`, `operator+`, `unsafe_append` and `append` of `iox::string` for chars [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - Extend `unsafe_append` and `append` methods of `iox::string` for `std::string` [\#208](https://github.com/eclipse-iceoryx/iceoryx/issues/208)
 - The iceoryx development environment supports multiple running docker containers [\#1410](https://github.com/eclipse-iceoryx/iceoryx/issues/1410)
-- Use builder pattern in FileLock [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
-    - Add the ability to adjust path and file permissions of the file lock
 - Create convenience macro for `NewType` [\#1425](https://github.com/eclipse-iceoryx/iceoryx/issues/1425)
 - Add posix thread wrapper [\#1365](https://github.com/eclipse-iceoryx/iceoryx/issues/1365)
 - Apps send only the heartbeat when monitoring is enabled in roudi [\#1436](https://github.com/eclipse-iceoryx/iceoryx/issues/1436)
@@ -99,8 +97,17 @@
 - Use `GTEST_FAIL` and `GTEST_SUCCEED` instead of `FAIL` and `SUCCEED` [\#1072](https://github.com/eclipse-iceoryx/iceoryx/issues/1072)
 - posix wrapper `SharedMemoryObject` is silent on success [\#971](https://github.com/eclipse-iceoryx/iceoryx/issues/971)
 - Remove creation design pattern class with in place implementation [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
-  - posix wrapper `SharedMemoryObject` uses builder pattern instead of creation
-  - Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
+  - the following classes use the builder pattern instead of creation
+    - `SharedMemoryObject`
+    - `MemoryMap`
+    - `SharedMemory`
+    - `MessageQueue`
+    - `FileLock`
+        - Add the ability to adjust path and file permissions of the file lock
+    - `Mutex`
+    - `NamedSemaphore`
+    - `UnnamedSemaphore`
+    - Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 - Uninteresting mock function calls in tests [\#1341](https://github.com/eclipse-iceoryx/iceoryx/issues/1341)
 - `cxx::unique_ptr` owns deleter, remove all deleter classes [\#1143](https://github.com/eclipse-iceoryx/iceoryx/issues/1143)
 - Remove `iox::posix::Timer` [\#337](https://github.com/eclipse-iceoryx/iceoryx/issues/337)
@@ -125,7 +132,6 @@
 - Rename `algorithm::max` and `algorithm::min` to `algorithm::maxVal` and `algorithm::minVal` [\#1394](https://github.com/eclipse-iceoryx/iceoryx/issues/1394)
 - Extract `iceoryx_hoofs/platform` into separate package `iceoryx_platform` [\#1615](https://github.com/eclipse-iceoryx/iceoryx/issues/1615)
 - `cxx::unique_ptr` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
-- Use builder pattern in mutex [\#1036](https://github.com/eclipse-iceoryx/iceoryx/issues/1036)
 - Change return type of `vector::erase` to bool [\#1662](https://github.com/eclipse-iceoryx/iceoryx/issues/1662)
 - `ReleativePointer::registerPtr` returns `iox::optional` [\#605](https://github.com/eclipse-iceoryx/iceoryx/issues/605)
 - `iox::function` is no longer nullable [\#1104](https://github.com/eclipse-iceoryx/iceoryx/issues/1104)
@@ -155,25 +161,20 @@
 
 **API Breaking Changes:**
 
-1. Builder pattern in `SharedMemoryObject` instead of creation pattern
+1. Builder pattern instead of creation pattern
 
     ```cpp
     // before
-    auto sharedMemory = iox::posix::SharedMemoryObject::create("shmAllocate",
-                                                      16,
-                                                      iox::posix::AccessMode::READ_WRITE,
-                                                      iox::posix::OpenMode::PURGE_AND_CREATE,
-                                                      iox::posix::SharedMemoryObject::NO_ADDRESS_HINT);
+    auto fooObject = iox::Foo::create("Bar", 42);
 
     // after
-    auto sharedMemory = iox::posix::SharedMemoryObjectBuilder()
-                            .name("shmAllocate")
-                            .memorySizeInBytes(16)
-                            .accessMode(iox::posix::AccessMode::READ_WRITE)
-                            .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
-                            .permissions(iox::perms::owner_all)
+    auto fooObject = iox::FooBuilder()
+                            .name("Bar")
+                            .memorySizeInBytes(42)
                             .create();
     ```
+
+    The **refactoring** section has a list with all the affected classes. Have a look at the documentation of these classes for more details.
 
 2. Builder pattern extracted from `helplets.hpp` into `iox/builder.hpp`
 
