@@ -113,8 +113,6 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
                       << "\" during move operation - resource leaks are possible!" << std::endl;
         }
 
-        /// NOLINTJUSTIFICATION iox-#1036 will be fixed with the builder pattern
-        /// NOLINTNEXTLINE(bugprone-use-after-move,hicpp-invalid-access-moved)
         m_name = std::move(other.m_name);
         m_attributes = other.m_attributes;
         m_mqDescriptor = other.m_mqDescriptor;
