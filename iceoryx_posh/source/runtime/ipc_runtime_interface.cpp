@@ -185,6 +185,7 @@ void IpcRuntimeInterface::waitForRoudi(deadline_timer& timer) noexcept
 {
     bool printWaitingWarning = true;
     bool printFoundMessage = false;
+    uint32_t numberOfRemainingFastPolls{10};
     while (!timer.hasExpired() && !m_RoudiIpcInterface.isInitialized())
     {
         m_RoudiIpcInterface.reopen();
@@ -201,7 +202,15 @@ void IpcRuntimeInterface::waitForRoudi(deadline_timer& timer) noexcept
             printWaitingWarning = false;
             printFoundMessage = true;
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (numberOfRemainingFastPolls > 0)
+        {
+            --numberOfRemainingFastPolls;
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        else
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
     }
 
     if (printFoundMessage && m_RoudiIpcInterface.isInitialized())
