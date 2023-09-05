@@ -28,10 +28,14 @@ namespace testing
 /// shared memory.
 class MinimalRouDiConfigBuilder
 {
-    /// @brief Set the chunk size. Default = 128
-    IOX_BUILDER_PARAMETER(uint32_t, chunk_size, 128)
-    /// @brief Set the chunk count. Default = 10
-    IOX_BUILDER_PARAMETER(uint32_t, chunk_count, 10)
+    /// @brief Set the payload chunk size. Default = 128
+    IOX_BUILDER_PARAMETER(uint32_t, payloadChunkSize, 128)
+
+    /// @brief Set the payload chunk count. Default = 10
+    IOX_BUILDER_PARAMETER(uint32_t, payloadChunkCount, 10)
+
+    /// @brief Set the introspection chunk count. Default = 2
+    IOX_BUILDER_PARAMETER(uint32_t, introspectionChunkCount, 2)
 
   public:
     /// @brief creates the previously configured RouDiConfig_t

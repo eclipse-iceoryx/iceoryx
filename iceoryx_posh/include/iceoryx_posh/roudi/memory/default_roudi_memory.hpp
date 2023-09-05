@@ -36,11 +36,12 @@ struct DefaultRouDiMemory
     DefaultRouDiMemory(const DefaultRouDiMemory&) = delete;
     DefaultRouDiMemory& operator=(const DefaultRouDiMemory&) = delete;
 
-    mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
-
     MemPoolCollectionMemoryBlock m_introspectionMemPoolBlock;
     MemPoolSegmentManagerMemoryBlock m_segmentManagerBlock;
     PosixShmMemoryProvider m_managementShm;
+
+  private:
+    mepoo::MePooConfig introspectionMemPoolConfig(const uint32_t chunkCount) const noexcept;
 };
 } // namespace roudi
 } // namespace iox

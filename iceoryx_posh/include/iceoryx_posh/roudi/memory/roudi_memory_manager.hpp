@@ -78,7 +78,6 @@ class RouDiMemoryManager
     expected<void, RouDiMemoryManagerError> destroyMemory() noexcept;
 
   private:
-    mepoo::MePooConfig introspectionMemPoolConfig() const noexcept;
     vector<MemoryProvider*, MAX_NUMBER_OF_MEMORY_PROVIDER> m_memoryProvider;
 };
 } // namespace roudi

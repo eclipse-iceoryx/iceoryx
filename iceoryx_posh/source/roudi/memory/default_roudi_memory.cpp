@@ -25,7 +25,7 @@ namespace iox
 namespace roudi
 {
 DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept
-    : m_introspectionMemPoolBlock(introspectionMemPoolConfig())
+    : m_introspectionMemPoolBlock(introspectionMemPoolConfig(roudiConfig.introspectionChunkCount))
     , m_segmentManagerBlock(roudiConfig)
     , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OpenMode::PURGE_AND_CREATE)
 {
@@ -38,25 +38,21 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
                      ErrorLevel::FATAL);
     });
 }
-mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig() const noexcept
+mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig(const uint32_t chunkCount) const noexcept
 {
     constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
-    // have some spare chunks to still deliver introspection data in case there are multiple subscriber to the data
-    // which are caching different samples; could probably be reduced to 2 with the instruction to not cache the
-    // introspection samples
-    constexpr uint32_t CHUNK_COUNT{10U};
     mepoo::MePooConfig mempoolConfig;
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::MemPoolIntrospectionInfoContainer)), ALIGNMENT), chunkCount});
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::ProcessIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::PortIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
     mempoolConfig.m_mempoolConfig.push_back(
-        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), CHUNK_COUNT});
+        {align(static_cast<uint32_t>(sizeof(roudi::PortThroughputIntrospectionFieldTopic)), ALIGNMENT), chunkCount});
     mempoolConfig.m_mempoolConfig.push_back(
         {align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
-         CHUNK_COUNT});
+         chunkCount});
 
     mempoolConfig.optimize();
     return mempoolConfig;

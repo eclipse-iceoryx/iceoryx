@@ -52,7 +52,7 @@ class PublisherSubscriberCommunication_test : public RouDi_GTest
 {
   public:
     PublisherSubscriberCommunication_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().chunk_size(512).chunk_count(10).create())
+        : RouDi_GTest(MinimalRouDiConfigBuilder().payloadChunkSize(512).create())
     {
     }
 
