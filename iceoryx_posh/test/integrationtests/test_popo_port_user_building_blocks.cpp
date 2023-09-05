@@ -310,7 +310,7 @@ class PortUser_IntegrationTest : public Test
                 });
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 10));
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 4));
         }
 
         // Signal the subscriber thread we're done
