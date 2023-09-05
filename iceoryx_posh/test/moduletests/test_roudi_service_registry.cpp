@@ -704,4 +704,46 @@ TYPED_TEST(ServiceRegistry_test, FindWithMixOfPublishersAndServersWorks)
     EXPECT_EQ(filtered[1].serviceDescription, service3);
 }
 
+TYPED_TEST(ServiceRegistry_test, HasDataChangedSinceLastCallReturnsTrueOnInitialCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "51398abb-53b2-4dce-9267-73f02f9d7574");
+
+    EXPECT_TRUE(this->sut.registry.hasDataChangedSinceLastCall());
+}
+
+TYPED_TEST(ServiceRegistry_test, HasDataChangedSinceLastCallReturnsFalsOnSubsequentCall)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a8a8d286-01ba-4084-94c4-fd0866e0e5d0");
+
+    EXPECT_TRUE(this->sut.registry.hasDataChangedSinceLastCall());
+    EXPECT_FALSE(this->sut.registry.hasDataChangedSinceLastCall());
+}
+
+TYPED_TEST(ServiceRegistry_test, HasDataChangedSinceLastCallReturnsTrueAfterAddingService)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "17d5b84a-abe0-46e0-aa06-2d049c716b22");
+
+    iox::capro::ServiceDescription service1("a", "a", "a");
+
+    this->sut.registry.hasDataChangedSinceLastCall();
+
+    ASSERT_FALSE(this->sut.add(service1).has_error());
+
+    EXPECT_TRUE(this->sut.registry.hasDataChangedSinceLastCall());
+}
+
+TYPED_TEST(ServiceRegistry_test, HasDataChangedSinceLastCallReturnsTrueAfterRemovingService)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a4f0c9e2-2549-4fa0-88d4-75a2ef8714b8");
+
+    iox::capro::ServiceDescription service1("a", "a", "a");
+
+    ASSERT_FALSE(this->sut.add(service1).has_error());
+    this->sut.registry.hasDataChangedSinceLastCall();
+
+    this->sut.remove(service1);
+
+    EXPECT_TRUE(this->sut.registry.hasDataChangedSinceLastCall());
+}
+
 } // namespace

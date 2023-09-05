@@ -115,6 +115,8 @@ void PortManager::doDiscovery() noexcept
     handleNodes();
 
     handleConditionVariables();
+
+    publishServiceRegistry();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -1036,8 +1038,13 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
     }
 }
 
-void PortManager::publishServiceRegistry() const noexcept
+void PortManager::publishServiceRegistry() noexcept
 {
+    if (!m_serviceRegistry.hasDataChangedSinceLastCall())
+    {
+        return;
+    }
+
     if (!m_serviceRegistryPublisherPortData.has_value())
     {
         // should not happen (except during RouDi shutdown)
@@ -1071,13 +1078,11 @@ void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription&
         IOX_LOG(WARN) << "Could not add publisher with service description '" << service << "' to service registry!";
         errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
-    publishServiceRegistry();
 }
 
 void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removePublisher(service);
-    publishServiceRegistry();
 }
 
 void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept
@@ -1086,13 +1091,11 @@ void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& se
         IOX_LOG(WARN) << "Could not add server with service description '" << service << "' to service registry!";
         errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
-    publishServiceRegistry();
 }
 
 void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removeServer(service);
-    publishServiceRegistry();
 }
 
 expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

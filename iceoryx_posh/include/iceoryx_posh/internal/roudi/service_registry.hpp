@@ -91,10 +91,14 @@ class ServiceRegistry
               const optional<capro::IdString_t>& event,
               function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
 
-    /// @brief Applys a callable to all entries
+    /// @brief Applies a callable to all entries
     /// @param[in] callable, callable to apply to each entry
     /// @note Can be used to obtain all entries or count them
     void forEach(function_ref<void(const ServiceDescriptionEntry&)> callable) const noexcept;
+
+    /// @brief Checks whether the registry data changed since the last time this method was called
+    /// @return true when the registry changed since the last call, false otherwise
+    bool hasDataChangedSinceLastCall() noexcept;
 
   private:
     using Entry_t = optional<ServiceDescriptionEntry>;
@@ -108,6 +112,8 @@ class ServiceRegistry
     // we could use a queue (or stack) here since they are not optimal
     // for the filling pattern of a vector (prefer entries close to the front)
     uint32_t m_freeIndex{NO_INDEX};
+
+    bool m_dataChanged{true}; // initially true in order to also get notified of the empty registry
 
   private:
     uint32_t findIndex(const capro::ServiceDescription& serviceDescription) const noexcept;

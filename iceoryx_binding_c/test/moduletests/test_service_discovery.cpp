@@ -17,6 +17,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 using namespace iox;
@@ -39,6 +40,10 @@ using description_vector = vector<iox_service_description_t, MAX_FINDSERVICE_RES
 class iox_service_discovery_test : public RouDi_GTest
 {
   public:
+    iox_service_discovery_test()
+        : RouDi_GTest(MinimalRouDiConfigBuilder().introspectionChunkCount(4).create())
+    {
+    }
     void SetUp() override
     {
         iox_runtime_init("runtime");
@@ -76,6 +81,10 @@ TEST_F(iox_service_discovery_test,
        FindServiceWithCallableAndContextDataWithNullptrsForServiceInstanceEventReturnsAllServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "09a2cd6c-fba9-4b9d-af96-c5a6cc168d98");
+
+    // let the roudi discovery loop run at least once
+    InterOpWait();
+
     iox_service_discovery_find_service_apply_callable_with_context_data(
         sut, nullptr, nullptr, nullptr, findHandler, &searchResult, MessagingPattern_PUB_SUB);
     for (const auto& service : searchResult)
@@ -93,6 +102,8 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableAndContextDataReturnsO
     auto* publisher = iox_pub_init(&storage, "service", "instance", "event", &options);
     ASSERT_NE(publisher, nullptr);
     const iox_service_description_t SERVICE_DESCRIPTION = iox_pub_get_service_description(publisher);
+
+    InterOpWait();
 
     iox_service_discovery_find_service_apply_callable_with_context_data(sut,
                                                                         SERVICE_DESCRIPTION.serviceString,
@@ -112,6 +123,9 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableAndContextDataReturnsO
 TEST_F(iox_service_discovery_test, FindServiceWithCallableWithNullptrsForServiceInstanceEventFindsCorrectServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec565ca3-7494-42d7-9440-2000f1513759");
+
+    InterOpWait();
+
     auto findHandler = [](const iox_service_description_t s) { EXPECT_THAT(s.instanceString, StrEq("RouDi_ID")); };
     iox_service_discovery_find_service_apply_callable(
         sut, nullptr, nullptr, nullptr, findHandler, MessagingPattern_PUB_SUB);
@@ -125,6 +139,8 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableReturnsFindsCorrectSer
     iox_pub_storage_t storage;
     auto* publisher = iox_pub_init(&storage, "service", "instance", "event", &options);
     ASSERT_NE(publisher, nullptr);
+
+    InterOpWait();
 
     auto findHandler = [](const iox_service_description_t s) {
         EXPECT_THAT(s.serviceString, StrEq("service"));
@@ -140,6 +156,9 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableReturnsFindsCorrectSer
 TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEventReturnsAllServices)
 {
     ::testing::Test::RecordProperty("TEST_ID", "75b411d7-b8c7-42d5-8acd-3916fd172081");
+
+    InterOpWait();
+
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
@@ -170,6 +189,8 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
     ASSERT_NE(publisher, nullptr);
     const iox_service_description_t SERVICE_DESCRIPTION = iox_pub_get_service_description(publisher);
 
+    InterOpWait();
+
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
@@ -194,6 +215,9 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
 TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhenServiceContainerTooSmall)
 {
     ::testing::Test::RecordProperty("TEST_ID", "01047b88-f257-447c-8c5e-9bef7c358433");
+
+    InterOpWait();
+
     const uint64_t SERVICE_CONTAINER_CAPACITY = 3U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
     uint64_t missedServices = 0U;
