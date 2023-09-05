@@ -154,6 +154,7 @@
 - Move `std::string` dependency from `iox::string` to `std_string_support.hpp` in `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - Better align `iox::expected` with `std::expected` [\#1969](https://github.com/eclipse-iceoryx/iceoryx/issues/1969)
 - Use logger for "RouDi is ready for clients" message [\#1994](https://github.com/eclipse-iceoryx/iceoryx/issues/1994)
+- Speed up posh tests [#1030](https://github.com/eclipse-iceoryx/iceoryx/issues/1030)
 
 **Workflow:**
 
