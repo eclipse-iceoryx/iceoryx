@@ -281,6 +281,14 @@ TEST(MyTest, valueOnNulloptIsFatal) {
 }
 ```
 
+In cases where the `IOX_EXPECT_FATAL_FAILURE` cannot be used, e.g. testing the `PoshRuntime` with its singleton, `EXPECT_DEATH`
+shall be used with `GTEST_FLAG(death_test_style) = "threadsafe";`.
+
+```cpp
+GTEST_FLAG(death_test_style) = "threadsafe";
+EXPECT_DEATH(bad_call(), ".*");
+```
+
 ## Open points
 
 ### Centralized error handling

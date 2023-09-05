@@ -140,6 +140,7 @@ TEST_F(PoshRuntime_test, NoAppName)
     ::testing::Test::RecordProperty("TEST_ID", "e053d114-c79c-4391-91e1-8fcfe90ee8e4");
     const iox::RuntimeName_t invalidAppName("");
 
+    GTEST_FLAG(death_test_style) = "threadsafe";
     EXPECT_DEATH({ PoshRuntime::initRuntime(invalidAppName); }, "");
 }
 
@@ -161,6 +162,7 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
     {
         const iox::RuntimeName_t invalidAppName(iox::TruncateToCapacity, i);
 
+        GTEST_FLAG(death_test_style) = "threadsafe";
         EXPECT_DEATH(PoshRuntime::initRuntime(invalidAppName), ".*");
     }
 }
@@ -171,6 +173,8 @@ TEST(PoshRuntime, RuntimeFailsWhenAppNameIsNotAFileName)
 TEST(PoshRuntime, AppNameEmpty)
 {
     ::testing::Test::RecordProperty("TEST_ID", "63900656-4fbb-466d-b6cc-f2139121092c");
+
+    GTEST_FLAG(death_test_style) = "threadsafe";
     EXPECT_DEATH({ iox::runtime::PoshRuntime::getInstance(); }, ".*");
 }
 
@@ -1138,6 +1142,7 @@ TEST(PoshRuntimeFactory_test, SetEmptyRuntimeFactoryFails)
     auto mockRuntime = PoshRuntimeMock::create("hypnotoad");
 
     // do not use the setRuntimeFactory in a test with a running RouDiEnvironment
+    GTEST_FLAG(death_test_style) = "threadsafe";
     EXPECT_DEATH(
         {
             class FactoryAccess : public PoshRuntime

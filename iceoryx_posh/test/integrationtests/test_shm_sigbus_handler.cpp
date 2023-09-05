@@ -45,6 +45,7 @@ TEST(ShmCreatorDeathTest, AllocatingTooMuchMemoryLeadsToExitWithSIGBUS)
             TEST_SHM_NAME, iox::posix::AccessMode::READ_WRITE, iox::posix::OpenMode::PURGE_AND_CREATE);
         ASSERT_FALSE(badShmProvider.addMemoryBlock(&badmempools).has_error());
 
+        GTEST_FLAG(death_test_style) = "threadsafe";
         EXPECT_DEATH(IOX_DISCARD_RESULT(badShmProvider.create()), ".*");
     }
 
