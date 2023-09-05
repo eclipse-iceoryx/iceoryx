@@ -18,11 +18,13 @@
 #include "test.hpp"
 
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 
 namespace
 {
 using namespace ::testing;
 
+using namespace iox::testing;
 using iox::roudi::IceOryxRouDiMemoryManager;
 
 /// @brief This test file verifies that the BaseClass IceoryxRouDiMemoryManager is tested
@@ -33,8 +35,8 @@ class IceoryxRoudiMemoryManager_test : public Test
 
     void SetUp() override
     {
-        auto config = iox::RouDiConfig_t().setDefaults();
-        m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(new IceOryxRouDiMemoryManager(config));
+        m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(
+            new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create()));
     }
 
     void TearDown() override

@@ -29,6 +29,7 @@
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 
 #include "test.hpp"
 
@@ -43,6 +44,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::roudi;
+using namespace iox::testing;
 
 using iox::runtime::PortConfigInfo;
 
@@ -84,8 +86,7 @@ class PortManager_test : public Test
         m_eventIdCounter = 0;
         // starting at {1,1,1}
 
-        auto config = iox::RouDiConfig_t().setDefaults();
-        m_roudiMemoryManager = new IceOryxRouDiMemoryManager(config);
+        m_roudiMemoryManager = new IceOryxRouDiMemoryManager(MinimalRouDiConfigBuilder().create());
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = new PortManagerTester(m_roudiMemoryManager);
 

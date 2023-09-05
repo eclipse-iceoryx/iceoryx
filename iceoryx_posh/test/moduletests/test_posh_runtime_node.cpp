@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
@@ -26,6 +27,7 @@ namespace
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
+using namespace iox::testing;
 using namespace iox;
 
 /// @brief Test goal: This test suit verifies class node
@@ -46,7 +48,7 @@ class PoshRuntimeNode_test : public Test
     virtual void TearDown(){};
 
     const RuntimeName_t m_runtimeName{"App"};
-    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+    RouDiEnvironment m_roudiEnv{MinimalRouDiConfigBuilder().create()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
 };
 

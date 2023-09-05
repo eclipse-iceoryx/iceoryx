@@ -23,6 +23,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
@@ -34,6 +35,7 @@ using namespace iox::roudi;
 using namespace iox::popo;
 using namespace iox::runtime;
 using namespace iox::posix;
+using namespace iox::testing;
 using namespace iox::version;
 
 class ProcessManager_test : public Test
@@ -41,8 +43,7 @@ class ProcessManager_test : public Test
   public:
     void SetUp() override
     {
-        auto config = iox::RouDiConfig_t().setDefaults();
-        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(config);
+        m_roudiMemoryManager = std::make_unique<IceOryxRouDiMemoryManager>(MinimalRouDiConfigBuilder().create());
         EXPECT_FALSE(m_roudiMemoryManager->createAndAnnounceMemory().has_error());
         m_portManager = std::make_unique<PortManager>(m_roudiMemoryManager.get());
         CompatibilityCheckLevel m_compLevel{CompatibilityCheckLevel::OFF};

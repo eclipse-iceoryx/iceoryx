@@ -22,6 +22,7 @@ extern "C" {
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 namespace
@@ -33,6 +34,11 @@ using namespace iox::testing;
 class Chunk_test : public RouDi_GTest
 {
   public:
+    Chunk_test()
+        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+    {
+    }
+
     void SetUp() override
     {
         iox_runtime_init("hypnotoad");
