@@ -22,6 +22,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "iox/optional.hpp"
 #include "iox/stack.hpp"
@@ -38,6 +39,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::popo;
 using namespace iox::cxx;
+using namespace iox::testing;
 
 template <typename T>
 struct ComplexDataType
@@ -49,6 +51,11 @@ struct ComplexDataType
 class PublisherSubscriberCommunication_test : public RouDi_GTest
 {
   public:
+    PublisherSubscriberCommunication_test()
+        : RouDi_GTest(MinimalRouDiConfigBuilder().chunk_size(512).chunk_count(10).create())
+    {
+    }
+
     void SetUp()
     {
         runtime::PoshRuntime::initRuntime("PublisherSubscriberCommunication_test");
@@ -463,7 +470,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_string)
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fdfe4d05-c61a-4a99-b0b7-5e79da2700d5");
-    using Type_t = ComplexDataType<vector<string<128>, 20>>;
+    using Type_t = ComplexDataType<vector<string<64>, 5>>;
     auto publisher = createPublisher<Type_t>();
     auto subscriber = createSubscriber<Type_t>();
 
@@ -491,7 +498,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
 TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b5688ff-2367-4c76-93a2-6e447403c5ed");
-    using Type_t = ComplexDataType<vector<variant<string<128>, int>, 20>>;
+    using Type_t = ComplexDataType<vector<variant<string<64>, int>, 5>>;
     auto publisher = createPublisher<Type_t>();
     auto subscriber = createSubscriber<Type_t>();
 

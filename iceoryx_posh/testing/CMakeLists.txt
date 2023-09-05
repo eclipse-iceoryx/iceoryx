@@ -36,6 +36,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
                                 iceoryx_posh::iceoryx_posh_roudi
                                 iceoryx_hoofs_testing::iceoryx_hoofs_testing
         FILES
+            roudi_environment/minimal_roudi_config.cpp
             roudi_environment/runtime_test_interface.cpp
             roudi_environment/roudi_environment.cpp
     )
