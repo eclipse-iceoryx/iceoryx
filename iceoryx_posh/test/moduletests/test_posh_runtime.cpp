@@ -61,11 +61,6 @@ class PoshRuntime_test : public Test
     {
     }
 
-    void InterOpWait()
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-
     void checkClientInitialization(const ClientPortData* const portData,
                                    const ServiceDescription& sd,
                                    const ClientOptions& options,

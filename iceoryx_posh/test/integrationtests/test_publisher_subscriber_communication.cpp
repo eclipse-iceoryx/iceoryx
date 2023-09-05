@@ -150,7 +150,6 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
 {
     ::testing::Test::RecordProperty("TEST_ID", "aba18b27-bf64-49a7-8ad6-06a84b23a455");
     auto publisher = createPublisher<int>();
-    this->InterOpWait();
 
     std::vector<std::unique_ptr<iox::popo::Subscriber<int>>> subscribers;
     for (uint16_t interface = 0U; interface < static_cast<uint16_t>(capro::Interfaces::INTERFACE_END); ++interface)
@@ -159,7 +158,6 @@ TEST_F(PublisherSubscriberCommunication_test, AllSubscriberInterfacesCanBeSubscr
                                                        SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
                                                        static_cast<capro::Interfaces>(interface)));
     }
-    this->InterOpWait();
 
     constexpr int TRANSMISSION_DATA = 1337;
     ASSERT_FALSE(publisher->loan()
@@ -280,7 +278,6 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
 
         auto publisher = createPublisher<int>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA,
                                               static_cast<capro::Interfaces>(publisherInterface));
-        this->InterOpWait();
 
         std::vector<std::unique_ptr<iox::popo::Subscriber<int>>> subscribers;
         for (uint16_t subscriberInterface = 0U;
@@ -291,7 +288,6 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriberCanOnlyBeSubscribedWhenI
                                                            SubscriberPortData::ChunkQueueData_t::MAX_CAPACITY,
                                                            static_cast<capro::Interfaces>(subscriberInterface)));
         }
-        this->InterOpWait();
 
         constexpr int TRANSMISSION_DATA = 1337;
         ASSERT_FALSE(publisher->loan()
@@ -323,9 +319,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_forward_lis
     ::testing::Test::RecordProperty("TEST_ID", "97cbebbe-d430-4437-881d-90329e73dd42");
     using Type_t = ComplexDataType<forward_list<string<5>, 5>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -353,9 +347,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_list)
     ::testing::Test::RecordProperty("TEST_ID", "4c5fa83a-935d-46ba-8adf-91e1de6acc89");
     using Type_t = ComplexDataType<list<int64_t, 5>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -386,9 +378,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_optional)
     ::testing::Test::RecordProperty("TEST_ID", "341ff552-a7a7-4dd9-be83-29d41bf142ec");
     using Type_t = ComplexDataType<list<optional<int32_t>, 5>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -419,9 +409,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_stack)
     ::testing::Test::RecordProperty("TEST_ID", "c378e0db-d863-4cad-9efa-4daec364b266");
     using Type_t = ComplexDataType<stack<uint64_t, 10>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -454,9 +442,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_string)
     ::testing::Test::RecordProperty("TEST_ID", "0603b4ca-f41a-4280-9984-cf1465ee05c7");
     using Type_t = ComplexDataType<string<128>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -479,9 +465,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_vector)
     ::testing::Test::RecordProperty("TEST_ID", "fdfe4d05-c61a-4a99-b0b7-5e79da2700d5");
     using Type_t = ComplexDataType<vector<string<128>, 20>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -509,9 +493,7 @@ TEST_F(PublisherSubscriberCommunication_test, SendingComplexDataType_variant)
     ::testing::Test::RecordProperty("TEST_ID", "0b5688ff-2367-4c76-93a2-6e447403c5ed");
     using Type_t = ComplexDataType<vector<variant<string<128>, int>, 20>>;
     auto publisher = createPublisher<Type_t>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<Type_t>();
-    this->InterOpWait();
 
     ASSERT_FALSE(publisher->loan()
                      .and_then([](auto& sample) {
@@ -544,10 +526,8 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherBlocksWhenBlockingActivat
 {
     ::testing::Test::RecordProperty("TEST_ID", "e97f1665-3488-4288-8fde-f485067bfeb4");
     auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
-    this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
-    this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("start your day with a smile").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("and hypnotoad will smile back").has_error());
@@ -587,10 +567,8 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherDoesNotBlockAndDiscardsSa
 {
     ::testing::Test::RecordProperty("TEST_ID", "1d92226d-fb3a-487c-bf52-6eb3c7946dc6");
     auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
-    this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
-    this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("first there was a blubb named mantua").has_error());
     EXPECT_FALSE(publisher->publishCopyOf("second hypnotoad ate it").has_error());
@@ -621,13 +599,10 @@ TEST_F(PublisherSubscriberCommunication_test, NoSubscriptionWhenSubscriberWantsB
 {
     ::testing::Test::RecordProperty("TEST_ID", "c0144704-6dd7-4354-a41d-d4e512633484");
     auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
-    this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
-    this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
-    this->InterOpWait();
 
     auto sample = subscriber->take();
     EXPECT_THAT(sample.has_error(), Eq(true));
@@ -637,13 +612,10 @@ TEST_F(PublisherSubscriberCommunication_test, SubscriptionWhenSubscriberDoesNotR
 {
     ::testing::Test::RecordProperty("TEST_ID", "228ea848-8926-4779-9e38-4d92eeb87feb");
     auto publisher = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
-    this->InterOpWait();
 
     auto subscriber = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
-    this->InterOpWait();
 
     EXPECT_FALSE(publisher->publishCopyOf("never kiss the hypnotoad").has_error());
-    this->InterOpWait();
 
     auto sample = subscriber->take();
     EXPECT_THAT(sample.has_error(), Eq(false));
@@ -655,11 +627,9 @@ TEST_F(PublisherSubscriberCommunication_test, MixedOptionsSetupWorksWithBlocking
     ::testing::Test::RecordProperty("TEST_ID", "c60ade45-1765-40ca-bc4b-7452c82ba127");
     auto publisherBlocking = createPublisher<string<128>>(ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER);
     auto publisherNonBlocking = createPublisher<string<128>>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA);
-    this->InterOpWait();
 
     auto subscriberBlocking = createSubscriber<string<128>>(QueueFullPolicy::BLOCK_PRODUCER, 2U);
     auto subscriberNonBlocking = createSubscriber<string<128>>(QueueFullPolicy::DISCARD_OLDEST_DATA, 2U);
-    this->InterOpWait();
 
     EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoads real name is Salsabarh Slimekirkdingle").has_error());
     EXPECT_FALSE(publisherBlocking->publishCopyOf("hypnotoad wants a cookie").has_error());
@@ -714,9 +684,7 @@ TEST_F(PublisherSubscriberCommunication_test, PublisherUniqueIdMatchesReceivedSa
     ::testing::Test::RecordProperty("TEST_ID", "decbfcdd-778f-4e18-b6a8-395d400fdd80");
 
     auto publisher = createPublisher<int>();
-    this->InterOpWait();
     auto subscriber = createSubscriber<int>();
-    this->InterOpWait();
 
     const auto uid = publisher->getUid();
 

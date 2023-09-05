@@ -287,18 +287,6 @@ class Mepoo_IntegrationTest : public Test
         constexpr auto TOPIC_SIZE = sizeof(Topic);
         constexpr auto TOPIC_ALIGNMENT = alignof(Topic);
 
-        if (!(publisherPort->isOffered()))
-        {
-            publisherPort->offer();
-        }
-
-        if (subscriberPort->getSubscriptionState() != iox::SubscribeState::SUBSCRIBED)
-        {
-            subscriberPort->subscribe();
-        }
-
-        m_roudiEnv->InterOpWait();
-
         bool hasRunAsExpected = true;
         for (uint32_t idx = 0; idx < times; ++idx)
         {
@@ -310,7 +298,6 @@ class Mepoo_IntegrationTest : public Test
                                         .and_then([&](auto sample) {
                                             new (sample->userPayload()) Topic;
                                             publisherPort->sendChunk(sample);
-                                            m_roudiEnv->InterOpWait();
                                         });
 
             if (allocationResult.has_value())
@@ -383,8 +370,6 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
     memPoolTestContainer[mempolIndex1].m_minFreeChunks =
         memPoolTestContainer[mempolIndex1].m_minFreeChunks - REPETITION_1;
 
-    m_roudiEnv->InterOpWait();
-
     constexpr uint32_t SAMPLE_SIZE_2 = 450U;
     constexpr uint32_t REPETITION_2 = 3U;
     ASSERT_TRUE(sendReceiveSample<SAMPLE_SIZE_2>(REPETITION_2));
@@ -392,8 +377,6 @@ TEST_F(Mepoo_IntegrationTest, MempoolConfigCheck)
     memPoolTestContainer[mempolIndex2].m_usedChunks = REPETITION_2;
     memPoolTestContainer[mempolIndex2].m_minFreeChunks =
         memPoolTestContainer[mempolIndex2].m_minFreeChunks - REPETITION_2;
-
-    m_roudiEnv->InterOpWait();
 
     // get mempoolconfig from introspection
     MemPoolInfoContainer memPoolInfoContainer;
