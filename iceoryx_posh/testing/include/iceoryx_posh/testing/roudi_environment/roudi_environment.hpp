@@ -23,6 +23,7 @@
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
+#include "iox/duration.hpp"
 
 #include <atomic>
 #include <map>
@@ -67,9 +68,9 @@ class RouDiEnvironment
   private:
     RuntimeTestInterface m_runtimes;
 #if defined(__APPLE__)
-    std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(1000);
+    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(1000)};
 #else
-    std::chrono::milliseconds m_interOpWaitingTime = std::chrono::milliseconds(200);
+    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(200)};
 #endif
     std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
     std::unique_ptr<RouDi> m_roudiApp;

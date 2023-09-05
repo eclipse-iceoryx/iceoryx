@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
@@ -82,6 +83,11 @@ class RouDi
 
     virtual ~RouDi() noexcept;
 
+    /// @brief Triggers the discovery loop to run immediately instead of waiting for the next tick interval
+    /// @param[in] timeout is the time to wait to unblock the function call in case the discovery loop never signals to
+    /// have finished the run
+    void triggerDiscoveryLoopAndWaitToFinish(units::Duration timeout) noexcept;
+
   protected:
     /// @brief Starts the thread processing messages from the runtimes
     /// Once this is done, applications can register and Roudi is fully operational.
@@ -130,6 +136,9 @@ class RouDi
     bool m_killProcessesInDestructor;
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
+
+    popo::UserTrigger m_discoveryLoopTrigger;
+    optional<iox::posix::UnnamedSemaphore> m_discoveryFinishedSemaphore;
 
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 

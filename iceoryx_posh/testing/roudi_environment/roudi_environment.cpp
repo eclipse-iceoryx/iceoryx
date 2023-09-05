@@ -57,12 +57,12 @@ RouDiEnvironment::~RouDiEnvironment()
 
 void RouDiEnvironment::SetInterOpWaitingTime(const std::chrono::milliseconds& v)
 {
-    m_interOpWaitingTime = v;
+    m_interOpWaitingTimeout = units::Duration::fromMilliseconds(v.count());
 }
 
 void RouDiEnvironment::InterOpWait()
 {
-    std::this_thread::sleep_for(m_interOpWaitingTime);
+    m_roudiApp->triggerDiscoveryLoopAndWaitToFinish(m_interOpWaitingTimeout);
 }
 
 void RouDiEnvironment::CleanupAppResources(const RuntimeName_t& name)
