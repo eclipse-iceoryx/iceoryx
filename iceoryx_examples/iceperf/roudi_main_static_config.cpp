@@ -68,6 +68,12 @@ int main(int argc, char* argv[])
     ///  mempoolConfig})
     /// @endcode
 
+    /// configure the chunk count for the introspection; each introspection topic gets this number of chunks
+    roudiConfig.introspectionChunkCount = 10;
+
+    /// configure the chunk count for the service discovery
+    roudiConfig.discoveryChunkCount = 10;
+
     IceOryxRouDiApp roudi(cmdLineArgs.value(), roudiConfig);
 
     return roudi.run();

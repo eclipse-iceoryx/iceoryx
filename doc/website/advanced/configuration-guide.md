@@ -184,5 +184,33 @@ it as constructor argument to the RouDi instance.
 In the cmake file entry of the custom RouDi executable you need to ensure that it
 is **not** linking against `iceoryx_posh_config` to ensure using the static configuration.
 
-An example of a static config can be found
+```cpp
+int main(int argc, char* argv[])
+{
+    iox::RouDiConfig_t roudiConfig;
+
+    // create mempools
+    iox::mepoo::MePooConfig mepooConfig;
+    mepooConfig.addMemPool({128, 10000}); // payload in bytes, chunk count
+    mepooConfig.addMemPool({265, 10000});
+
+    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+    roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
+
+    // configure the chunk count for the introspection; each introspection topic gets this number of chunks
+    roudiConfig.introspectionChunkCount = 10;
+
+    // configure the chunk count for the service discovery
+    roudiConfig.discoveryChunkCount = 10;
+
+    // create a roudi instance
+    iox::config::CmdLineParserConfigFileOption cmdLineParser;
+    IceOryxRouDiApp roudi(cmdLineParser.parse(argc, argv).expect("Valid CLI parameter"), roudiConfig);
+
+    // run roudi
+    return roudi.run();
+}
+```
+
+A working example of a static config can be found
 [here](../../../iceoryx_examples/iceperf/roudi_main_static_config.cpp).
