@@ -23,7 +23,7 @@
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"

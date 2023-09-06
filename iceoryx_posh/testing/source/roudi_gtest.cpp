@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
-#define IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
+#include "iceoryx_posh/testing/roudi_gtest.hpp"
 
-#include "iceoryx_posh/roudi_env/roudi_environment.hpp"
-
-#endif // IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
+RouDi_GTest::RouDi_GTest(const iox::RouDiConfig_t& roudiConfig)
+    : iox::roudi::RouDiEnvironment(roudiConfig)
+{
+}

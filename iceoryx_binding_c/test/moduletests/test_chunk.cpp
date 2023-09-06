@@ -22,7 +22,7 @@ extern "C" {
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 namespace

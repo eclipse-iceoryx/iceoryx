@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
-#define IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
+#ifndef IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP
+#define IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iox/builder.hpp"
@@ -47,4 +47,4 @@ class MinimalRouDiConfigBuilder
 } // namespace testing
 } // namespace iox
 
-#endif // IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
+#endif // IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP

@@ -17,7 +17,7 @@
 #ifndef IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP
 #define IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP
 
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_environment.hpp"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -28,10 +28,7 @@ class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
 {
   public:
     RouDi_GTest() = default;
-    RouDi_GTest(const iox::RouDiConfig_t& roudiConfig)
-        : iox::roudi::RouDiEnvironment(roudiConfig)
-    {
-    }
+    RouDi_GTest(const iox::RouDiConfig_t& roudiConfig);
 };
 
 #endif // IOX_POSH_TESTUTILS_ROUDI_GTEST_HPP
