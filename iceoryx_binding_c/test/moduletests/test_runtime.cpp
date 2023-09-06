@@ -26,6 +26,7 @@ extern "C" {
 
 namespace
 {
+using namespace ::testing;
 using namespace iox;
 using namespace iox::runtime;
 using namespace iox::roudi_env;

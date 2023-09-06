@@ -84,7 +84,7 @@ TEST_F(iox_service_discovery_test,
     ::testing::Test::RecordProperty("TEST_ID", "09a2cd6c-fba9-4b9d-af96-c5a6cc168d98");
 
     // let the roudi discovery loop run at least once
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     iox_service_discovery_find_service_apply_callable_with_context_data(
         sut, nullptr, nullptr, nullptr, findHandler, &searchResult, MessagingPattern_PUB_SUB);
@@ -104,7 +104,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableAndContextDataReturnsO
     ASSERT_NE(publisher, nullptr);
     const iox_service_description_t SERVICE_DESCRIPTION = iox_pub_get_service_description(publisher);
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     iox_service_discovery_find_service_apply_callable_with_context_data(sut,
                                                                         SERVICE_DESCRIPTION.serviceString,
@@ -125,7 +125,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableWithNullptrsForService
 {
     ::testing::Test::RecordProperty("TEST_ID", "ec565ca3-7494-42d7-9440-2000f1513759");
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     auto findHandler = [](const iox_service_description_t s) { EXPECT_THAT(s.instanceString, StrEq("RouDi_ID")); };
     iox_service_discovery_find_service_apply_callable(
@@ -141,7 +141,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithCallableReturnsFindsCorrectSer
     auto* publisher = iox_pub_init(&storage, "service", "instance", "event", &options);
     ASSERT_NE(publisher, nullptr);
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     auto findHandler = [](const iox_service_description_t s) {
         EXPECT_THAT(s.serviceString, StrEq("service"));
@@ -158,7 +158,7 @@ TEST_F(iox_service_discovery_test, FindServiceWithNullptrsForServiceInstanceEven
 {
     ::testing::Test::RecordProperty("TEST_ID", "75b411d7-b8c7-42d5-8acd-3916fd172081");
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
@@ -190,7 +190,7 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsOfferedService)
     ASSERT_NE(publisher, nullptr);
     const iox_service_description_t SERVICE_DESCRIPTION = iox_pub_get_service_description(publisher);
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     const uint64_t SERVICE_CONTAINER_CAPACITY = 10U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];
@@ -217,7 +217,7 @@ TEST_F(iox_service_discovery_test, FindServiceReturnsCorrectNumberOfServicesWhen
 {
     ::testing::Test::RecordProperty("TEST_ID", "01047b88-f257-447c-8c5e-9bef7c358433");
 
-    InterOpWait();
+    triggerDiscoveryLoopAndWaitToFinish();
 
     const uint64_t SERVICE_CONTAINER_CAPACITY = 3U;
     iox_service_description_t serviceContainer[SERVICE_CONTAINER_CAPACITY];

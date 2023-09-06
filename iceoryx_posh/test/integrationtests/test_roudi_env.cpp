@@ -16,7 +16,7 @@
 
 
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
 #include "test.hpp"
 

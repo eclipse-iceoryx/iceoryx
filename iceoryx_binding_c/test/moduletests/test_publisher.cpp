@@ -25,7 +25,7 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
 using namespace iox;
 using namespace iox::popo;
@@ -144,7 +144,7 @@ TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerm
 TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d2e677cd-2fcc-47a2-80e6-2d08245b7c1a");
-    iox::roudi::RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().create()};
+    iox::roudi_env::RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
 
     iox_runtime_init("hypnotoad");
 

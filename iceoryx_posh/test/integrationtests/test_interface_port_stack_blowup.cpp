@@ -29,6 +29,7 @@ using namespace ::testing;
 
 using namespace iox::gw;
 using namespace iox::roudi_env;
+using namespace iox::testing;
 
 class InterfacePortRequestStackBlowup_test : public RouDi_GTest
 {

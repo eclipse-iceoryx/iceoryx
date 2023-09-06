@@ -27,7 +27,7 @@
 #include "iceoryx_posh/internal/popo/ports/subscriber_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "mocks/wait_set_mock.hpp"
 
 using namespace iox;
@@ -149,7 +149,7 @@ TEST_F(iox_sub_test, initSubscriberWithNotInitializedSubscriberOptionsTerminates
 TEST_F(iox_sub_test, initSubscriberWithDefaultOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "40eaa006-4781-46cd-bde3-40fa7d572f29");
-    iox::roudi::RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
 
     iox_runtime_init("hypnotoad");
 
@@ -406,7 +406,7 @@ TEST_F(iox_sub_test, hasDataTriggersWaitSetWithCorrectCallback)
 TEST_F(iox_sub_test, deinitSubscriberDetachesTriggerFromWaitSet)
 {
     ::testing::Test::RecordProperty("TEST_ID", "93e350fb-5430-43ff-982b-b43c6ae9b890");
-    iox::roudi::RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv roudiEnv{MinimalRouDiConfigBuilder().create()};
     iox_runtime_init("hypnotoad");
 
     iox_sub_storage_t storage;

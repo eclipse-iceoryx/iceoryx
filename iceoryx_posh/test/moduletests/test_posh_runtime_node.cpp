@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/node.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 #include "test.hpp"
 
@@ -48,7 +48,7 @@ class PoshRuntimeNode_test : public Test
     virtual void TearDown(){};
 
     const RuntimeName_t m_runtimeName{"App"};
-    RouDiEnvironment m_roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv m_roudiEnv{MinimalRouDiConfigBuilder().create()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
 };
 
