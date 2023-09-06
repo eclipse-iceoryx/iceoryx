@@ -191,6 +191,22 @@ cc_binary(
 )
 
 #
+########## build iceoryx posh roudi env lib ##########
+#
+cc_library(
+    name = "iceoryx_posh_roudi_env",
+    srcs = glob(["roudi_env/**/*.cpp"]),
+    hdrs = glob(["roudi_env/include/**"]),
+    strip_include_prefix = "roudi_env/include",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":iceoryx_posh",
+        ":iceoryx_posh_roudi",
+        "//iceoryx_hoofs",
+    ],
+)
+
+#
 ########## build iceoryx posh testing lib ##########
 #
 cc_library(
@@ -202,6 +218,7 @@ cc_library(
     deps = [
         ":iceoryx_posh",
         ":iceoryx_posh_roudi",
+        ":iceoryx_posh_roudi_env",
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "@googletest//:gtest",
     ],
