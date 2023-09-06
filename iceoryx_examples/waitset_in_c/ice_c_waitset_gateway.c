@@ -32,24 +32,20 @@
 #define NUMBER_OF_NOTIFICATIONS 3
 #define NUMBER_OF_SUBSCRIBERS 2
 
-iox_user_trigger_storage_t shutdownTriggerStorage;
-iox_user_trigger_t shutdownTrigger;
+volatile bool keepRunning = true;
 
-static void sigHandler(int signalValue)
+volatile iox_ws_t waitSetSigHandlerAccess = NULL;
+
+void sigHandler(int signalValue)
 {
+    // Ignore unused variable warning
     (void)signalValue;
-
-    iox_user_trigger_trigger(shutdownTrigger);
+    keepRunning = false;
+    if (waitSetSigHandlerAccess)
+    {
+        iox_ws_mark_for_destruction(waitSetSigHandlerAccess);
+    }
 }
-
-//! [shutdown callback]
-void shutdownCallback(iox_user_trigger_t userTrigger)
-{
-    (void)userTrigger;
-    printf("CTRL+C pressed - exiting now\n");
-    fflush(stdout);
-}
-//! [shutdown callback]
 
 // The callback of the trigger. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the trigger origin is
@@ -79,18 +75,14 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 int main(void)
 {
     //! [initialization and shutdown handling]
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
     iox_runtime_init("iox-c-waitset-gateway");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-    shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-    // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback);
-
-    // register signal after shutdownTrigger since we are using it in the handler
-    signal(SIGINT, sigHandler);
-    signal(SIGTERM, sigHandler);
+    waitSetSigHandlerAccess = waitSet;
     //! [initialization and shutdown handling]
 
     //! [create and attach subscriber]
@@ -122,7 +114,6 @@ int main(void)
     // array where all notification infos from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    bool keepRunning = true;
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
@@ -132,19 +123,11 @@ int main(void)
         {
             iox_notification_info_t notification = notificationArray[i];
 
-            if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-            {
-                // CTRL+C was pressed -> exit
-                keepRunning = false;
-            }
-            else
-            {
-                // call the callback which was assigned to the event
-                iox_notification_info_call(notification);
+            // call the callback which was assigned to the event
+            iox_notification_info_call(notification);
 
-                printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
-                fflush(stdout);
-            }
+            printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
+            fflush(stdout);
         }
         //! [handle events]
     }
@@ -159,8 +142,8 @@ int main(void)
         iox_sub_deinit(subscriber[i]);
     }
 
+    waitSetSigHandlerAccess = NULL; // invalidate for signal handler
     iox_ws_deinit(waitSet);
-    iox_user_trigger_deinit(shutdownTrigger);
     //! [cleanup all resources]
 
     return 0;

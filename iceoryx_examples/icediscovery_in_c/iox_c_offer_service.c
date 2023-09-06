@@ -23,7 +23,7 @@
 
 #define NUMBER_OF_CAMERA_PUBLISHERS 5
 
-bool keepRunning = true;
+volatile bool keepRunning = true;
 
 const char APP_NAME[] = "iox-c-offer-service";
 

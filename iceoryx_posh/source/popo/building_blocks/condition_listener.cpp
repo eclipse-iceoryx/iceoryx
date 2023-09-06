@@ -43,7 +43,7 @@ void ConditionListener::resetSemaphore() noexcept
     }
 }
 
-void ConditionListener::destroy() noexcept
+void ConditionListener::destroy() volatile noexcept
 {
     m_toBeDestroyed.store(true, std::memory_order_relaxed);
     getMembers()->m_semaphore->post().or_else([](auto) {
@@ -113,12 +113,12 @@ void ConditionListener::resetUnchecked(const uint64_t index) noexcept
     getMembers()->m_wasNotified.store(false, std::memory_order_relaxed);
 }
 
-const ConditionVariableData* ConditionListener::getMembers() const noexcept
+const ConditionVariableData* ConditionListener::getMembers() volatile const noexcept
 {
     return m_condVarDataPtr;
 }
 
-ConditionVariableData* ConditionListener::getMembers() noexcept
+ConditionVariableData* ConditionListener::getMembers() volatile noexcept
 {
     return m_condVarDataPtr;
 }

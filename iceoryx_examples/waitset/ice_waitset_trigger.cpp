@@ -24,6 +24,8 @@
 
 std::atomic_bool keepRunning{true};
 
+using WaitSet = iox::popo::WaitSet<>;
+
 // The two states and events the MyTriggerClass offers
 //! [state enum]
 enum class MyTriggerClassStates : iox::popo::StateEnumIdentifier
@@ -236,9 +238,6 @@ class MyTriggerClass
     iox::popo::TriggerHandle m_activateTrigger;
 };
 
-iox::optional<iox::popo::WaitSet<>> waitset;
-iox::optional<MyTriggerClass> triggerClass;
-
 constexpr uint64_t ACTIVATE_ID = 0U;
 constexpr uint64_t ACTION_ID = 1U;
 
@@ -250,11 +249,11 @@ void callOnActivate(MyTriggerClass* const triggerClassPtr)
 // The global event loop. It will create an infinite loop and
 // will work on the incoming notifications.
 //! [event loop]
-void eventLoop()
+void eventLoop(WaitSet& waitset)
 {
     while (keepRunning)
     {
-        auto notificationVector = waitset->wait();
+        auto notificationVector = waitset.wait();
         for (auto& notification : notificationVector)
         {
             if (notification->getNotificationId() == ACTIVATE_ID)
@@ -281,27 +280,27 @@ int main()
     // we create a waitset and a triggerClass instance inside of the two
     // global optionals
     //! [create]
-    waitset.emplace();
-    triggerClass.emplace();
+    WaitSet waitset;
+    MyTriggerClass triggerClass;
     //! [create]
 
     //! [attach]
     // attach the IS_ACTIVATED state to the waitset and assign a callback
     waitset
-        ->attachState(*triggerClass,
-                      MyTriggerClassStates::IS_ACTIVATED,
-                      ACTIVATE_ID,
-                      iox::popo::createNotificationCallback(callOnActivate))
+        .attachState(triggerClass,
+                     MyTriggerClassStates::IS_ACTIVATED,
+                     ACTIVATE_ID,
+                     iox::popo::createNotificationCallback(callOnActivate))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassStates::IS_ACTIVATED state " << std::endl;
             std::exit(EXIT_FAILURE);
         });
     // attach the PERFORM_ACTION_CALLED event to the waitset and assign a callback
     waitset
-        ->attachEvent(*triggerClass,
-                      MyTriggerClassEvents::PERFORM_ACTION_CALLED,
-                      ACTION_ID,
-                      iox::popo::createNotificationCallback(MyTriggerClass::callOnAction))
+        .attachEvent(triggerClass,
+                     MyTriggerClassEvents::PERFORM_ACTION_CALLED,
+                     ACTION_ID,
+                     iox::popo::createNotificationCallback(MyTriggerClass::callOnAction))
         .or_else([](auto) {
             std::cerr << "failed to attach MyTriggerClassEvents::PERFORM_ACTION_CALLED event " << std::endl;
             std::exit(EXIT_FAILURE);
@@ -310,7 +309,7 @@ int main()
 
     // start the event loop which is handling the events
     //! [start event loop]
-    std::thread eventLoopThread(eventLoop);
+    std::thread eventLoopThread(eventLoop, std::ref(waitset));
     //! [start event loop]
 
     // start a thread which will trigger an event every second
@@ -320,22 +319,20 @@ int main()
         for (auto i = 0U; i < 10; ++i)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            triggerClass->activate(activationCode++);
+            triggerClass.activate(activationCode++);
             std::this_thread::sleep_for(std::chrono::seconds(1));
-            triggerClass->performAction();
+            triggerClass.performAction();
         }
 
         std::cout << "Sending final trigger" << std::endl;
         keepRunning = false;
-        triggerClass->activate(activationCode++);
-        triggerClass->performAction();
+        triggerClass.activate(activationCode++);
+        triggerClass.performAction();
     });
     //! [start trigger]
 
     triggerThread.join();
     eventLoopThread.join();
 
-    triggerClass.reset();
-    waitset.reset();
     return (EXIT_SUCCESS);
 }

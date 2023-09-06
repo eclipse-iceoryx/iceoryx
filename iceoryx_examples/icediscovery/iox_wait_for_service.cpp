@@ -27,6 +27,8 @@ using namespace discovery;
 
 constexpr char APP_NAME[] = "iox-wait-for-service";
 
+volatile bool keepRunning{true};
+
 //! [service to wait for]
 iox::capro::IdString_t service{"Camera"};
 iox::capro::IdString_t instance{"FrontLeft"};
@@ -44,14 +46,15 @@ void printSearchResult(const discovery::ServiceContainer& result)
     }
 }
 
-Discovery* discoveryPtr{nullptr};
+volatile Discovery* discoverySigHandlerAccess{nullptr};
 
 void sigHandler(int)
 {
     //! [unblock wait]
-    if (discoveryPtr)
+    keepRunning = false;
+    if (discoverySigHandlerAccess)
     {
-        discoveryPtr->unblockWait();
+        discoverySigHandlerAccess->unblockWait();
     }
     //! [unblock wait]
 }
@@ -65,7 +68,7 @@ int main()
     Discovery discovery;
     //! [create custom discovery]
 
-    discoveryPtr = &discovery;
+    discoverySigHandlerAccess = &discovery;
 
     auto sigTermGuard =
         iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
@@ -116,11 +119,13 @@ int main()
                       << std::endl;
 
             // loop while the service is available (e.g. perform some computation etc.)
-        } while (true);
+        } while (keepRunning);
 
         std::cout << APP_NAME << " <" << service << ", " << instance << ", " << event << "> was unavailable"
                   << std::endl;
     }
+
+    discoverySigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

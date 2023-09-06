@@ -23,13 +23,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool killswitch = false;
+volatile bool keepRunning = true;
 
-static void sigHandler(int f_sig)
+static void sigHandler(int sig)
 {
     // ignore unused parameter
-    (void)f_sig;
-    killswitch = true;
+    (void)sig;
+    keepRunning = false;
 }
 
 void sending(void)
@@ -47,7 +47,7 @@ void sending(void)
     iox_pub_t publisherRight = iox_pub_init(&publisherRightStorage, "Radar", "FrontRight", "Counter", &options);
 
     struct CounterTopic* userPayload;
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    for (uint32_t counter = 0U; keepRunning; ++counter)
     {
         if (counter % 3 == 0)
         {

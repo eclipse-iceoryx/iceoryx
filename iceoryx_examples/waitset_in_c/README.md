@@ -71,18 +71,6 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 }
 ```
 
-The `shutdownTrigger` gets a simplified callback where it just states that the
-program will be terminated. For this we do not need any context data.
-<!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][shutdown callback]-->
-```c
-void shutdownCallback(iox_user_trigger_t userTrigger)
-{
-    (void)userTrigger;
-    printf("CTRL+C pressed - exiting now\n");
-    fflush(stdout);
-}
-```
-
 Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ that
 notifies us just once when data was received we have to gather and process all chunks.
 One will never miss chunks since the event notification is reset after a call to

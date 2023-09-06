@@ -31,7 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool keepRunning = true;
+volatile bool keepRunning = true;
 
 iox_user_trigger_t heartbeat;
 

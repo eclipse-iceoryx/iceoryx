@@ -26,39 +26,42 @@
 #include <iostream>
 
 //! [sig handler]
-std::atomic_bool keepRunning{true};
-iox::optional<iox::popo::WaitSet<>> waitset;
+volatile bool keepRunning{true};
+
+using WaitSet = iox::popo::WaitSet<>;
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int sig IOX_MAYBE_UNUSED)
 {
     keepRunning = false;
-    if (waitset)
+    if (waitsetSigHandlerAccess)
     {
-        waitset->markForDestruction();
+        waitsetSigHandlerAccess->markForDestruction();
     }
 }
 //! [sig handler]
 
 int main()
 {
-    // initialize runtime
-    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-basic");
-
-    // create waitset inside of the optional
-    //! [create waitset]
-    waitset.emplace();
-
     // register signal handler to handle termination of the loop
     auto signalGuard =
         iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
     auto signalTermGuard =
         iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
 
+    // initialize runtime
+    iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-basic");
+
+    // create waitset inside of the optional
+    //! [create waitset]
+    WaitSet waitset;
+    waitsetSigHandlerAccess = &waitset;
+
     // create subscriber
     iox::popo::Subscriber<CounterTopic> subscriber({"Radar", "FrontLeft", "Counter"});
 
     // attach subscriber to waitset
-    waitset->attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
+    waitset.attachState(subscriber, iox::popo::SubscriberState::HAS_DATA).or_else([](auto) {
         std::cerr << "failed to attach subscriber" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -68,7 +71,7 @@ int main()
     while (keepRunning)
     {
         // We block and wait for samples to arrive.
-        auto notificationVector = waitset->wait();
+        auto notificationVector = waitset.wait();
 
         for (auto& notification : notificationVector)
         {
@@ -96,6 +99,7 @@ int main()
 
     std::cout << "shutting down" << std::endl;
 
-    waitset.reset();
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
+
     return (EXIT_SUCCESS);
 }

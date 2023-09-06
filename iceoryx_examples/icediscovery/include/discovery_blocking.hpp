@@ -48,7 +48,7 @@ class Discovery
 
     /// @brief unblock any wait
     /// @note not reversible, i.e. after this call no further waiting with e.g. waitUntil is possible
-    void unblockWait();
+    void unblockWait() volatile noexcept;
 
     /// @brief get all services matching a findService query
     /// @return ServiceContainer, containing the found services

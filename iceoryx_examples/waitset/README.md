@@ -450,26 +450,6 @@ for (auto i = NUMBER_OF_SUBSCRIBERS / 2; i < NUMBER_OF_SUBSCRIBERS; ++i)
 
 The event loop calls `auto notificationVector = waitset.wait()` in a blocking call to
 receive a vector of all the _NotificationInfos_ which are corresponding to the occurred events.
-If the _Event_ originated from the `shutdownTrigger` we terminate the program.
-
-<!--[geoffrey][iceoryx_examples/waitset/ice_waitset_grouping.cpp][[event loop][shutdown path]]-->
-```cpp
-while (keepRunning)
-{
-    auto notificationVector = waitset.wait();
-
-    for (auto& notification : notificationVector)
-    {
-        if (notification->doesOriginateFrom(&shutdownTrigger))
-        {
-            keepRunning = false;
-        }
-        // ...
-    }
-
-    std::cout << std::endl;
-}
-```
 
 The remaining part of the loop is handling the subscribers. In the first group
 we would like to print the received data to the console and in the second group
@@ -545,27 +525,7 @@ waitset.attachState(subscriber2, iox::popo::SubscriberState::HAS_DATA).or_else([
 });
 ```
 
-With that set up we enter the event loop and handle the program termination first.
-
-<!--[geoffrey][iceoryx_examples/waitset/ice_waitset_individual.cpp][[event loop][shutdown path]]-->
-```cpp
-while (keepRunning)
-{
-    auto notificationVector = waitset.wait();
-
-    for (auto& notification : notificationVector)
-    {
-        if (notification->doesOriginateFrom(&shutdownTrigger))
-        {
-            keepRunning = false;
-        }
-        // ...
-    }
-
-    std::cout << std::endl;
-}
-```
-
+With that set up we enter the event loop and handle subscriber events.
 When the origin is `subscriber1` we would like to print the received data to the
 console. But for `subscriber2` we just dismiss the received samples.
 We accomplish this by asking the `event` if it originated from the
@@ -666,30 +626,7 @@ std::thread cyclicTriggerThread([&] {
 });
 ```
 
-Everything is set up and we can implement the event loop. As usual we handle
-`CTRL+C` which is indicated by the `shutdownTrigger`.
-
-<!--[geoffrey][iceoryx_examples/waitset/ice_waitset_timer_driven_execution.cpp][[event loop][shutdown path]]-->
-```cpp
-while (keepRunning.load())
-{
-    auto notificationVector = waitset.wait();
-
-    for (auto& notification : notificationVector)
-    {
-        if (notification->doesOriginateFrom(&shutdownTrigger))
-        {
-            // CTRL+C was pressed -> exit
-            keepRunning.store(false);
-        }
-        // ...
-    }
-
-    std::cout << std::endl;
-}
-```
-
-The `cyclicTrigger` callback is called in the else part.
+The `cyclicTrigger` callback is called in the loop.
 
 <!--[geoffrey][iceoryx_examples/waitset/ice_waitset_timer_driven_execution.cpp][[event loop][data path]]-->
 ```cpp

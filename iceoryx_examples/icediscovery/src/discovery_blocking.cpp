@@ -58,7 +58,7 @@ void Discovery::waitUntilChange()
 //! [wait until change]
 
 //! [unblock wait]
-void Discovery::unblockWait()
+void Discovery::unblockWait() volatile noexcept
 {
     m_blocking = false;
     // could also unblock with a dedicated condition to unblock the wait but that requires more code

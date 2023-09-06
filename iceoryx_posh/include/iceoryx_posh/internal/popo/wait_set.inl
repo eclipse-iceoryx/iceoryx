@@ -96,7 +96,7 @@ inline WaitSet<Capacity>::~WaitSet() noexcept
 }
 
 template <uint64_t Capacity>
-inline void WaitSet<Capacity>::markForDestruction() noexcept
+inline void WaitSet<Capacity>::markForDestruction() volatile noexcept
 {
     m_conditionListener.destroy();
 }

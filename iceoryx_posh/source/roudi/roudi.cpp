@@ -100,7 +100,7 @@ void RouDi::shutdown() noexcept
     m_runMonitoringAndDiscoveryThread = false;
     m_discoveryLoopTrigger.trigger();
 
-    // stopp the introspection
+    // stop the introspection
     m_processIntrospection.stop();
     m_mempoolIntrospection.stop();
     m_portManager->stopPortIntrospection();
@@ -112,7 +112,6 @@ void RouDi::shutdown() noexcept
         m_monitoringAndDiscoveryThread.join();
         IOX_LOG(DEBUG) << "...'Mon+Discover' thread joined.";
     }
-
 
     if (m_killProcessesInDestructor)
     {

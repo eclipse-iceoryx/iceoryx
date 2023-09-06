@@ -26,7 +26,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-bool keepRunning = true;
+volatile bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-server-basic";
 
 void sigHandler(int signalValue)
