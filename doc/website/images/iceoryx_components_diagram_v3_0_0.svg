@@ -86,7 +86,6 @@ skinparam frame {
 ' @todo #539
 ' RouDi split, separate files and namespaces for static/dynamic discovery
 ' Implement exported libraries (add_library in iceoryx_posh/CMakeLists.txt)
-' RouDiEnvironment shall not be in roudi namespace, but in testing
 
 header Eclipse iceoryx component overview
 
