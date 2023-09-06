@@ -38,7 +38,7 @@ if(ROUDI_ENVIRONMENT OR BUILD_TEST)
                                 iceoryx_posh::iceoryx_posh_roudi
         FILES
             source/minimal_roudi_config.cpp
-            source/roudi_environment.cpp
+            source/roudi_env.cpp
             source/runtime_test_interface.cpp
     )
 endif()

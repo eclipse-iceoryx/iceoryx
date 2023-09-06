@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/roudi_env/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp" // get rid of this
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
@@ -26,17 +26,17 @@ namespace iox
 {
 namespace roudi_env
 {
-RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
+RouDiEnv::RouDiEnv(BaseCTor, const uint16_t uniqueRouDiId)
 {
     // setUniqueRouDiId is called multiple times but it is okay for the tests
     auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
     iox::popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
 }
 
-RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
-                                   const roudi::MonitoringMode monitoringMode,
-                                   const uint16_t uniqueRouDiId)
-    : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
+RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
+                   const roudi::MonitoringMode monitoringMode,
+                   const uint16_t uniqueRouDiId)
+    : RouDiEnv(BaseCTor::BASE, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig));
     m_roudiApp =
@@ -45,7 +45,7 @@ RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
                                                        roudi::RouDi::RoudiStartupParameters{monitoringMode, false}));
 }
 
-RouDiEnvironment::~RouDiEnvironment()
+RouDiEnv::~RouDiEnv()
 {
     if (m_runtimes.m_doCleanupOnDestruction)
     {
@@ -56,22 +56,22 @@ RouDiEnvironment::~RouDiEnvironment()
     CleanupRuntimes();
 }
 
-void RouDiEnvironment::SetInterOpWaitingTime(const std::chrono::milliseconds& v)
+void RouDiEnv::SetInterOpWaitingTime(const std::chrono::milliseconds& v)
 {
     m_interOpWaitingTimeout = units::Duration::fromMilliseconds(v.count());
 }
 
-void RouDiEnvironment::InterOpWait()
+void RouDiEnv::InterOpWait()
 {
     m_roudiApp->triggerDiscoveryLoopAndWaitToFinish(m_interOpWaitingTimeout);
 }
 
-void RouDiEnvironment::CleanupAppResources(const RuntimeName_t& name)
+void RouDiEnv::CleanupAppResources(const RuntimeName_t& name)
 {
     m_runtimes.eraseRuntime(name);
 }
 
-void RouDiEnvironment::CleanupRuntimes()
+void RouDiEnv::CleanupRuntimes()
 {
     m_runtimes.cleanupRuntimes();
 }

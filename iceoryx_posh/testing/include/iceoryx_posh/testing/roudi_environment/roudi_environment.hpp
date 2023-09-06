@@ -18,13 +18,13 @@
 #ifndef IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 #define IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 
-#include "iceoryx_posh/roudi_env/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
 namespace iox
 {
 namespace roudi
 {
-using roudi_env::RouDiEnvironment;
+using RouDiEnvironment = roudi_env::RouDiEnv;
 }
 } // namespace iox
 

@@ -18,6 +18,6 @@
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 RouDi_GTest::RouDi_GTest(const iox::RouDiConfig_t& roudiConfig)
-    : iox::roudi_env::RouDiEnvironment(roudiConfig)
+    : iox::roudi_env::RouDiEnv(roudiConfig)
 {
 }

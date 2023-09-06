@@ -33,7 +33,7 @@ namespace roudi_env
 {
 class RuntimeTestInterface
 {
-    friend class RouDiEnvironment;
+    friend class RouDiEnv;
 
   private:
     bool m_doCleanupOnDestruction{true};

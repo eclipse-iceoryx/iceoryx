@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_ROUDI_ENV_ROUDI_ENVIRONMENT_HPP
-#define IOX_POSH_ROUDI_ENV_ROUDI_ENVIRONMENT_HPP
+#ifndef IOX_POSH_ROUDI_ENV_ROUDI_ENV_HPP
+#define IOX_POSH_ROUDI_ENV_ROUDI_ENV_HPP
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -39,19 +39,19 @@ class RouDi;
 namespace roudi_env
 {
 
-class RouDiEnvironment
+class RouDiEnv
 {
   public:
-    RouDiEnvironment(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-                     roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-                     const uint16_t uniqueRouDiId = 0u);
-    virtual ~RouDiEnvironment();
+    RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
+             roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
+             const uint16_t uniqueRouDiId = 0u);
+    virtual ~RouDiEnv();
 
-    RouDiEnvironment(RouDiEnvironment&& rhs) = default;
-    RouDiEnvironment& operator=(RouDiEnvironment&& rhs) = default;
+    RouDiEnv(RouDiEnv&& rhs) = default;
+    RouDiEnv& operator=(RouDiEnv&& rhs) = default;
 
-    RouDiEnvironment(const RouDiEnvironment&) = delete;
-    RouDiEnvironment& operator=(const RouDiEnvironment&) = delete;
+    RouDiEnv(const RouDiEnv&) = delete;
+    RouDiEnv& operator=(const RouDiEnv&) = delete;
 
     void SetInterOpWaitingTime(const std::chrono::milliseconds& v);
     void InterOpWait();
@@ -64,8 +64,8 @@ class RouDiEnvironment
     {
         BASE,
     };
-    /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0u);
+    /// @brief for implementations on top of RouDiEnv
+    RouDiEnv(BaseCTor, const uint16_t uniqueRouDiId = 0u);
 
     void CleanupRuntimes();
 
@@ -83,4 +83,4 @@ class RouDiEnvironment
 } // namespace roudi_env
 } // namespace iox
 
-#endif // IOX_POSH_ROUDI_ENV_ROUDI_ENVIRONMENT_HPP
+#endif // IOX_POSH_ROUDI_ENV_ROUDI_ENV_HPP
