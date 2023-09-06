@@ -1,5 +1,6 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -350,6 +351,26 @@ TYPED_TEST(IoxLogStreamHexFloatingPoint_test, StreamOperatorLogHex_ValueMax)
     testStreamOperatorLogHexFloatingPoint(this->loggerMock, this->LogValueMax);
 }
 
+template <typename T>
+class Wrapper
+{
+  public:
+    constexpr explicit Wrapper(T value) noexcept
+        : m_value(value)
+    {
+    }
+
+    // NOLINTJUSTIFICATION Implicit conversion is required for the test
+    // NOLINTNEXTLINE(hicpp-explicit-conversions)
+    constexpr operator T() const noexcept
+    {
+        return m_value;
+    }
+
+  private:
+    T m_value{};
+};
+
 using ArithmeticTypes =
     Types<bool, int8_t, int16_t, int32_t, int64_t, uint8_t, uint16_t, uint32_t, uint64_t, size_t, float, double>;
 
@@ -359,6 +380,8 @@ template <typename Arithmetic>
 class IoxLogStreamArithmetic_test : public IoxLogStream_test
 {
   public:
+    using type_t = Arithmetic;
+
     Arithmetic LogValueLow = std::numeric_limits<Arithmetic>::lowest();
     Arithmetic LogValueMin = std::numeric_limits<Arithmetic>::min();
     Arithmetic LogValueMax = std::numeric_limits<Arithmetic>::max();
@@ -436,6 +459,36 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ValueMax)
     EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueMax)));
 }
 
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ValueLow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "86dccc28-0007-4ab3-88c6-216eeb861fef");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->LogValueLow);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueLow)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ValueMin)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "72bc51fe-a23f-4c7d-a17f-0e4ad29bee9f");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->LogValueMin);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueMin)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ValueMax)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "49e79c8b-98c0-4074-aed1-25293bf49bd0");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->LogValueMax);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->LogValueMax)));
+}
+
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueLow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "65cfbc9b-a535-47fa-a543-0c31ba63d4ba");
@@ -463,6 +516,36 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstValueMax)
     EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueMax)));
 }
 
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstValueLow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "77cb68ac-bffb-4cf5-a4c2-119e5aaae307");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstLogValueLow);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueLow)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstValueMin)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3b042ec2-0a6d-4d24-9a12-dab81736847f");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstLogValueMin);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueMin)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstValueMax)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "83194cc1-3c2a-4c0e-a413-972a95f36b66");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstLogValueMax);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstLogValueMax)));
+}
+
 TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueLow)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e9688979-d209-4718-9810-49684fdd9261");
@@ -485,6 +568,36 @@ TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_ConstexprValueMax)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4a6dc777-a53b-4a42-9ab1-e1da893ad884");
     LogStreamSut(this->loggerMock) << this->ConstexprLogValueMax;
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueMax)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstexprValueLow)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3025b6e3-3abd-49e8-8d3c-f6fa0c164011");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstexprLogValueLow);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueLow)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstexprValueMin)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c49ad58d-948a-499a-9e2b-8bbdeb9b5c5e");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstexprLogValueMin);
+
+    ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueMin)));
+}
+
+TYPED_TEST(IoxLogStreamArithmetic_test, StreamOperator_WrappedAndImplicitelyConverted_ConstexprValueMax)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8c7637ce-8155-4edc-88e2-a155169934f2");
+    using type_t = typename TestFixture::type_t;
+    LogStreamSut(this->loggerMock) << Wrapper<type_t>(this->ConstexprLogValueMax);
 
     ASSERT_THAT(this->loggerMock.logs.size(), Eq(1U));
     EXPECT_THAT(this->loggerMock.logs[0].message, StrEq(convertToString(this->ConstexprLogValueMax)));

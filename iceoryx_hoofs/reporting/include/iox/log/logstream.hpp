@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -156,17 +157,79 @@ class LogStream
     /// and avoid the std::string dependency; alternatively this could be implemented as free function
     LogStream& operator<<(const std::string& str) noexcept;
 
-    /// @brief Logging support for boolean
-    /// @param[in] val is the boolean to log
+    // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : Basic numeric types are used in order to cover als basic numeric types, independent of the type alias
+
+    /// @brief Logging support for 'boolean'
+    /// @param[in] val is the 'boolean' to log
     /// @return a reference to the LogStream instance
     LogStream& operator<<(const bool val) noexcept;
 
-    /// @brief Logging support for arithmetic numbers in decimal format
-    /// @tparam[in] T is the arithmetic data type of the value to log
-    /// @param[in] val is the number to log
+    /// @brief Logging support for 'signed char'
+    /// @param[in] val is the 'signed char' to log
     /// @return a reference to the LogStream instance
-    template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool> = 0>
-    LogStream& operator<<(const T val) noexcept;
+    LogStream& operator<<(const signed char val) noexcept;
+
+    /// @brief Logging support for 'unsigned char'
+    /// @param[in] val is the 'unsigned char' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const unsigned char val) noexcept;
+
+    /// @brief Logging support for 'short'
+    /// @param[in] val is the 'short' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const short val) noexcept;
+
+    /// @brief Logging support for 'unsigned shor'
+    /// @param[in] val is the 'unsigned shor' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const unsigned short val) noexcept;
+
+    /// @brief Logging support for 'int'
+    /// @param[in] val is the 'int' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const int val) noexcept;
+
+    /// @brief Logging support for 'unsigned int'
+    /// @param[in] val is the 'unsigned int' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const unsigned int val) noexcept;
+
+    /// @brief Logging support for 'long'
+    /// @param[in] val is the 'long' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const long val) noexcept;
+
+    /// @brief Logging support for 'unsigned long'
+    /// @param[in] val is the 'unsigned long' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const unsigned long val) noexcept;
+
+    /// @brief Logging support for 'long long'
+    /// @param[in] val is the 'long long' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const long long val) noexcept;
+
+    /// @brief Logging support for 'unsigned long long'
+    /// @param[in] val is the 'unsigned long long' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const unsigned long long val) noexcept;
+
+    /// @brief Logging support for 'float'
+    /// @param[in] val is the 'float' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const float val) noexcept;
+
+    /// @brief Logging support for 'double'
+    /// @param[in] val is the 'double' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const double val) noexcept;
+
+    /// @brief Logging support for 'long double'
+    /// @param[in] val is the 'long double' to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const long double val) noexcept;
+
+    // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
     /// @brief Logging support for integral numbers in hexadecimal format
     /// @tparam[in] T is the integral data type of the value to log

@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,9 +109,10 @@ inline LogStream& LogStream::self() noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
+// AXIVION DISABLE STYLE AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
 // not require to implement '<<='
+
+// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 inline LogStream& LogStream::operator<<(const char* cstr) noexcept
 {
     m_logger.logString(cstr);
@@ -118,8 +120,6 @@ inline LogStream& LogStream::operator<<(const char* cstr) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 inline LogStream& LogStream::operator<<(const std::string& str) noexcept
 {
     m_logger.logString(str.c_str());
@@ -127,26 +127,107 @@ inline LogStream& LogStream::operator<<(const std::string& str) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 inline LogStream& LogStream::operator<<(const bool val) noexcept
 {
     m_logger.logBool(val);
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
-template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool>>
-inline LogStream& LogStream::operator<<(const T val) noexcept
+// AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : See at declaration in header
+
+inline LogStream& LogStream::operator<<(const signed char val) noexcept
 {
     m_logger.logDec(val);
     m_isFlushed = false;
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
+inline LogStream& LogStream::operator<<(const unsigned char val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const short val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const unsigned short val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const int val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const unsigned int val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const long val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const unsigned long val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const long long val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const unsigned long long val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const float val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const double val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const long double val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
+// AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
+
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
 inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
@@ -156,8 +237,6 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool>>
 inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 {
@@ -166,8 +245,6 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 inline LogStream& LogStream::operator<<(const LogHex<const void* const> val) noexcept
 {
     m_logger.logHex(val.m_value);
@@ -175,8 +252,6 @@ inline LogStream& LogStream::operator<<(const LogHex<const void* const> val) noe
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
 inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 {
@@ -186,16 +261,12 @@ inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 template <typename Callable, typename>
 inline LogStream& LogStream::operator<<(const Callable& c) noexcept
 {
     return c(*this);
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 inline LogStream& LogStream::operator<<(const LogLevel value) noexcept
 {
     m_logger.logString(asStringLiteral(value));
@@ -214,14 +285,14 @@ inline LogStreamOff& LogStreamOff::self() noexcept
     return *this;
 }
 
-// AXIVION Next Construct AutosarC++19_03-M5.17.1 : This is not used as shift operator but as stream operator and does
-// not require to implement '<<='
 template <typename T>
 inline LogStreamOff& LogStreamOff::operator<<(T&&) noexcept
 {
     return *this;
 }
 } // namespace internal
+
+// AXIVION ENABLE STYLE AutosarC++19_03-M5.17.1
 
 } // namespace log
 } // namespace iox
