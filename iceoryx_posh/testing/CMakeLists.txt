@@ -15,27 +15,25 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-if(ROUDI_ENVIRONMENT OR BUILD_TEST)
-    #
-    ######### posh roudi environment ##########
-    #
-    find_package(GTest CONFIG REQUIRED)
-    find_package(iceoryx_hoofs_testing REQUIRED)
-    iox_add_library(
-        STATIC
-        TARGET                  iceoryx_posh_testing
-        NAMESPACE               iceoryx_posh_testing
-        PROJECT_PREFIX          ${PREFIX}
-        BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        INSTALL_INTERFACE       include/${PREFIX}
-        EXPORT_INCLUDE_DIRS     include/
-        PUBLIC_LIBS             GTest::gtest
-                                GTest::gmock
-                                iceoryx_posh::iceoryx_posh_roudi_env
-        PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
-                                iceoryx_hoofs::iceoryx_hoofs
-                                iceoryx_hoofs_testing::iceoryx_hoofs_testing
-        FILES
-            source/roudi_gtest.cpp
-    )
-endif()
+#
+######### posh testing ##########
+#
+find_package(GTest CONFIG REQUIRED)
+find_package(iceoryx_hoofs_testing REQUIRED)
+iox_add_library(
+    STATIC
+    TARGET                  iceoryx_posh_testing
+    NAMESPACE               iceoryx_posh_testing
+    PROJECT_PREFIX          ${PREFIX}
+    BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    INSTALL_INTERFACE       include/${PREFIX}
+    EXPORT_INCLUDE_DIRS     include/
+    PUBLIC_LIBS             GTest::gtest
+                            GTest::gmock
+                            iceoryx_posh::iceoryx_posh_roudi_env
+    PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
+                            iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_hoofs_testing::iceoryx_hoofs_testing
+    FILES
+        source/roudi_gtest.cpp
+)

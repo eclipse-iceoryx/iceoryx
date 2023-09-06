@@ -17,7 +17,6 @@
 
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp" // get rid of this
 #include "iceoryx_posh/internal/popo/building_blocks/unique_port_id.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
@@ -28,17 +27,15 @@ namespace iox
 {
 namespace roudi_env
 {
-RouDiEnv::RouDiEnv(BaseCTor, const uint16_t uniqueRouDiId)
+RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId)
 {
-    // setUniqueRouDiId is called multiple times but it is okay for the tests
-    auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
-    iox::popo::UniquePortId::setUniqueRouDiId(uniqueRouDiId);
+    popo::UniquePortId::rouDiEnvOverideUniqueRouDiId(uniqueRouDiId);
 }
 
 RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
                    const roudi::MonitoringMode monitoringMode,
                    const uint16_t uniqueRouDiId)
-    : RouDiEnv(BaseCTor::BASE, uniqueRouDiId)
+    : RouDiEnv(MainCTor{}, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig));
     m_roudiApp =
@@ -51,9 +48,7 @@ RouDiEnv::~RouDiEnv()
 {
     if (m_runtimes.m_doCleanupOnDestruction)
     {
-        // setUniqueRouDiId is called multiple times but it is okay for the tests
-        auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
-        popo::UniquePortId::setUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
+        popo::UniquePortId::rouDiEnvOverideUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
     cleanupRuntimes();
 }

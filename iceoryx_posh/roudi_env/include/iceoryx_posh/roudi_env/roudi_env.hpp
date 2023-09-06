@@ -56,12 +56,11 @@ class RouDiEnv
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter
-    enum class BaseCTor
+    struct MainCTor
     {
-        BASE,
     };
     /// @brief for implementations on top of RouDiEnv
-    RouDiEnv(BaseCTor, const uint16_t uniqueRouDiId = 0u);
+    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = 0u);
 
     void cleanupRuntimes();
 

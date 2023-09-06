@@ -19,27 +19,22 @@
 # This package must NOT depend in any way on gtest or any other testing framework since
 # it will be used from other languages like Rust for integration testing.
 
-if(ROUDI_ENVIRONMENT OR BUILD_TEST)
-    #
-    ######### posh roudi env ##########
-    #
-    find_package(iceoryx_hoofs_testing REQUIRED)
-    iox_add_library(
-        STATIC
-        TARGET                  iceoryx_posh_roudi_env
-        NAMESPACE               iceoryx_posh
-        PROJECT_PREFIX          ${PREFIX}
-        BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        INSTALL_INTERFACE       include/${PREFIX}
-        EXPORT_INCLUDE_DIRS     include/
-        PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
-                                iceoryx_hoofs::iceoryx_hoofs
-                                iceoryx_hoofs_testing::iceoryx_hoofs_testing
-                                iceoryx_posh::iceoryx_posh_roudi
-        FILES
-            source/minimal_roudi_config.cpp
-            source/roudi_env.cpp
-            source/runtime_test_interface.cpp
-    )
-endif()
-
+#
+######### posh roudi env ##########
+#
+iox_add_library(
+    STATIC
+    TARGET                  iceoryx_posh_roudi_env
+    NAMESPACE               iceoryx_posh
+    PROJECT_PREFIX          ${PREFIX}
+    BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
+    INSTALL_INTERFACE       include/${PREFIX}
+    EXPORT_INCLUDE_DIRS     include/
+    PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
+                            iceoryx_hoofs::iceoryx_hoofs
+                            iceoryx_posh::iceoryx_posh_roudi
+    FILES
+        source/minimal_roudi_config.cpp
+        source/roudi_env.cpp
+        source/runtime_test_interface.cpp
+)
