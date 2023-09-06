@@ -62,7 +62,7 @@ class ServiceDiscoveryBase_test : public RouDi_GTest
 {
   public:
     ServiceDiscoveryBase_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().introspectionChunkCount(4).create())
+        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
     {
     }
 

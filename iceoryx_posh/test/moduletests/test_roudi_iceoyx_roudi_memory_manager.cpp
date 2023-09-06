@@ -57,6 +57,13 @@ TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNulloptWhenNotP
     EXPECT_THAT(result, Eq(iox::nullopt_t()));
 }
 
+TEST_F(IceoryxRoudiMemoryManager_test, DiscoveryMemoryManagerNulloptWhenNotPresent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5c432412-8095-4683-994b-55bbb82bb255");
+    auto result = m_roudiMemoryManagerTest->discoveryMemoryManager();
+    EXPECT_THAT(result, Eq(iox::nullopt_t()));
+}
+
 TEST_F(IceoryxRoudiMemoryManager_test, segmentManagerNulloptWhenNotPresent)
 {
     ::testing::Test::RecordProperty("TEST_ID", "951b828b-a99c-4eb6-8ea0-34cb34cf7d28");
@@ -93,6 +100,17 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterC
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
+    EXPECT_THAT(result, Not(Eq(iox::nullopt_t())));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, AcquiringDiscoveryMemoryManagerAfterCreateAndAnnounceMemoryIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ce42929a-0721-41b9-bf08-b48e53fe901e");
+    auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    EXPECT_THAT(tr.has_error(), Eq(false));
+
+    auto result = m_roudiMemoryManagerTest->discoveryMemoryManager();
     EXPECT_THAT(result, Not(Eq(iox::nullopt_t())));
 }
 
@@ -139,6 +157,19 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryIntrospectionMemoryManagerRe
     ASSERT_FALSE(result.has_error());
 
     auto res = m_roudiMemoryManagerTest->introspectionMemoryManager();
+    EXPECT_THAT(res, Eq(iox::nullopt_t()));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryDiscoveryMemoryManagerReturnNullOpt)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "44c826e3-7ba1-4398-8c14-ad8b3e6297ca");
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+    ASSERT_FALSE(testResult.has_error());
+
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
+    ASSERT_FALSE(result.has_error());
+
+    auto res = m_roudiMemoryManagerTest->discoveryMemoryManager();
     EXPECT_THAT(res, Eq(iox::nullopt_t()));
 }
 

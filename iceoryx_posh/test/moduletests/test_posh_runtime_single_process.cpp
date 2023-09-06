@@ -66,7 +66,7 @@ TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessIsSucce
 TEST_F(PoshRuntimeSingleProcess_test, ConstructorPoshRuntimeSingleProcessMultipleProcessIsFound)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1cc7ad5d-5878-454a-94ba-5cf412c22682");
-    RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().introspectionChunkCount(4).create()};
+    RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().create()};
 
     const RuntimeName_t runtimeName{"App"};
 

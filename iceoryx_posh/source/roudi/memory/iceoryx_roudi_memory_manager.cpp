@@ -63,6 +63,11 @@ optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::introspectionMemoryMa
     return m_defaultMemory.m_introspectionMemPoolBlock.memoryManager();
 }
 
+optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::discoveryMemoryManager() const noexcept
+{
+    return m_defaultMemory.m_discoveryMemPoolBlock.memoryManager();
+}
+
 optional<mepoo::SegmentManager<>*> IceOryxRouDiMemoryManager::segmentManager() const noexcept
 {
     return m_defaultMemory.m_segmentManagerBlock.segmentManager();

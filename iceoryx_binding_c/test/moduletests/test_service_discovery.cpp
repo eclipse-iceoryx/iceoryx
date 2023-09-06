@@ -41,7 +41,7 @@ class iox_service_discovery_test : public RouDi_GTest
 {
   public:
     iox_service_discovery_test()
-        : RouDi_GTest(MinimalRouDiConfigBuilder().introspectionChunkCount(4).create())
+        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
     {
     }
     void SetUp() override

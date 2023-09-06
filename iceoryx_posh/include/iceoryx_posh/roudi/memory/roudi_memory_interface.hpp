@@ -57,6 +57,7 @@ class RouDiMemoryInterface
     virtual const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept = 0;
     virtual optional<PortPool*> portPool() noexcept = 0;
     virtual optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
+    virtual optional<mepoo::MemoryManager*> discoveryMemoryManager() const noexcept = 0;
     virtual optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
 };
 } // namespace roudi

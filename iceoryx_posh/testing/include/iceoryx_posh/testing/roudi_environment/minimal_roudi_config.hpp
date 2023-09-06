@@ -37,6 +37,9 @@ class MinimalRouDiConfigBuilder
     /// @brief Set the introspection chunk count. Default = 2
     IOX_BUILDER_PARAMETER(uint32_t, introspectionChunkCount, 2)
 
+    /// @brief Set the discovery chunk count. Default = 2
+    IOX_BUILDER_PARAMETER(uint32_t, discoveryChunkCount, 2)
+
   public:
     /// @brief creates the previously configured RouDiConfig_t
     RouDiConfig_t create() const noexcept;

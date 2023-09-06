@@ -17,6 +17,7 @@
 
 #include "iceoryx_posh/roudi/memory/default_roudi_memory.hpp"
 #include "iceoryx_posh/internal/mepoo/mem_pool.hpp"
+#include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iox/memory.hpp"
 
@@ -26,6 +27,7 @@ namespace roudi
 {
 DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcept
     : m_introspectionMemPoolBlock(introspectionMemPoolConfig(roudiConfig.introspectionChunkCount))
+    , m_discoveryMemPoolBlock(discoveryMemPoolConfig(roudiConfig.discoveryChunkCount))
     , m_segmentManagerBlock(roudiConfig)
     , m_managementShm(SHM_NAME, posix::AccessMode::READ_WRITE, posix::OpenMode::PURGE_AND_CREATE)
 {
@@ -33,11 +35,15 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
         errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_INTROSPECTION_MEMORY_BLOCK,
                      ErrorLevel::FATAL);
     });
+    m_managementShm.addMemoryBlock(&m_discoveryMemPoolBlock).or_else([](auto) {
+        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_DISCOVERY_MEMORY_BLOCK, ErrorLevel::FATAL);
+    });
     m_managementShm.addMemoryBlock(&m_segmentManagerBlock).or_else([](auto) {
         errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK,
                      ErrorLevel::FATAL);
     });
 }
+
 mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig(const uint32_t chunkCount) const noexcept
 {
     constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
@@ -53,6 +59,17 @@ mepoo::MePooConfig DefaultRouDiMemory::introspectionMemPoolConfig(const uint32_t
     mempoolConfig.m_mempoolConfig.push_back(
         {align(static_cast<uint32_t>(sizeof(roudi::SubscriberPortChangingIntrospectionFieldTopic)), ALIGNMENT),
          chunkCount});
+
+    mempoolConfig.optimize();
+    return mempoolConfig;
+}
+
+mepoo::MePooConfig DefaultRouDiMemory::discoveryMemPoolConfig(const uint32_t chunkCount) const noexcept
+{
+    constexpr uint32_t ALIGNMENT{mepoo::MemPool::CHUNK_MEMORY_ALIGNMENT};
+    mepoo::MePooConfig mempoolConfig;
+    mempoolConfig.m_mempoolConfig.push_back(
+        {align(static_cast<uint32_t>(sizeof(roudi::ServiceRegistry)), ALIGNMENT), chunkCount});
 
     mempoolConfig.optimize();
     return mempoolConfig;

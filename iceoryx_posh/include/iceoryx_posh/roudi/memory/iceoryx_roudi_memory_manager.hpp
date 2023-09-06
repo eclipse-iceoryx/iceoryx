@@ -55,6 +55,7 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
     const PosixShmMemoryProvider* mgmtMemoryProvider() const noexcept override;
     optional<PortPool*> portPool() noexcept override;
     optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept override;
+    optional<mepoo::MemoryManager*> discoveryMemoryManager() const noexcept override;
     optional<mepoo::SegmentManager<>*> segmentManager() const noexcept override;
 
   private:

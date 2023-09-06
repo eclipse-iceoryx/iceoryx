@@ -31,6 +31,8 @@ struct RouDiConfig
     // introspection samples
     uint32_t introspectionChunkCount{10};
 
+    uint32_t discoveryChunkCount{10};
+
     RouDiConfig& setDefaults() noexcept;
     RouDiConfig& optimize() noexcept;
 };
