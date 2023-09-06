@@ -40,19 +40,19 @@ class RouDiEnv
   public:
     RouDiEnv(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
              roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-             const uint16_t uniqueRouDiId = 0u);
-    virtual ~RouDiEnv();
+             const uint16_t uniqueRouDiId = 0u) noexcept;
+    virtual ~RouDiEnv() noexcept;
 
-    RouDiEnv(RouDiEnv&& rhs) = default;
-    RouDiEnv& operator=(RouDiEnv&& rhs) = default;
+    RouDiEnv(RouDiEnv&& rhs) noexcept = default;
+    RouDiEnv& operator=(RouDiEnv&& rhs) noexcept = default;
 
     RouDiEnv(const RouDiEnv&) = delete;
     RouDiEnv& operator=(const RouDiEnv&) = delete;
 
-    void setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout);
-    void triggerDiscoveryLoopAndWaitToFinish();
+    void setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout) noexcept;
+    void triggerDiscoveryLoopAndWaitToFinish() noexcept;
 
-    void cleanupAppResources(const RuntimeName_t& name);
+    void cleanupAppResources(const RuntimeName_t& name) noexcept;
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter
@@ -60,9 +60,9 @@ class RouDiEnv
     {
     };
     /// @brief for implementations on top of RouDiEnv
-    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = 0u);
+    RouDiEnv(MainCTor, const uint16_t uniqueRouDiId = 0u) noexcept;
 
-    void cleanupRuntimes();
+    void cleanupRuntimes() noexcept;
 
   private:
     RuntimeTestInterface m_runtimes;

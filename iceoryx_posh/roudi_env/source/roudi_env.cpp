@@ -27,14 +27,14 @@ namespace iox
 {
 namespace roudi_env
 {
-RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId)
+RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId) noexcept
 {
     popo::UniquePortId::rouDiEnvOverideUniqueRouDiId(uniqueRouDiId);
 }
 
 RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
                    const roudi::MonitoringMode monitoringMode,
-                   const uint16_t uniqueRouDiId)
+                   const uint16_t uniqueRouDiId) noexcept
     : RouDiEnv(MainCTor{}, uniqueRouDiId)
 {
     m_roudiComponents = std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig));
@@ -44,7 +44,7 @@ RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
                                                        roudi::RouDi::RoudiStartupParameters{monitoringMode, false}));
 }
 
-RouDiEnv::~RouDiEnv()
+RouDiEnv::~RouDiEnv() noexcept
 {
     if (m_runtimes.m_doCleanupOnDestruction)
     {
@@ -53,22 +53,22 @@ RouDiEnv::~RouDiEnv()
     cleanupRuntimes();
 }
 
-void RouDiEnv::setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout)
+void RouDiEnv::setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout) noexcept
 {
     m_discoveryLoopWaitToFinishTimeout = timeout;
 }
 
-void RouDiEnv::triggerDiscoveryLoopAndWaitToFinish()
+void RouDiEnv::triggerDiscoveryLoopAndWaitToFinish() noexcept
 {
     m_roudiApp->triggerDiscoveryLoopAndWaitToFinish(m_discoveryLoopWaitToFinishTimeout);
 }
 
-void RouDiEnv::cleanupAppResources(const RuntimeName_t& name)
+void RouDiEnv::cleanupAppResources(const RuntimeName_t& name) noexcept
 {
     m_runtimes.eraseRuntime(name);
 }
 
-void RouDiEnv::cleanupRuntimes()
+void RouDiEnv::cleanupRuntimes() noexcept
 {
     m_runtimes.cleanupRuntimes();
 }

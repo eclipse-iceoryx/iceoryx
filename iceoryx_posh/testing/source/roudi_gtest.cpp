@@ -17,7 +17,30 @@
 
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
-RouDi_GTest::RouDi_GTest(const iox::RouDiConfig_t& roudiConfig)
-    : iox::roudi::RouDiEnvironment(roudiConfig)
+namespace iox
+{
+namespace testing
+{
+
+RouDi_GTest::RouDi_GTest(const iox::RouDiConfig_t& roudiConfig) noexcept
+    : iox::roudi_env::RouDiEnv(roudiConfig)
 {
 }
+
+void RouDi_GTest::SetInterOpWaitingTime(const std::chrono::milliseconds& v) noexcept
+{
+    setDiscoveryLoopWaitToFinishTimeout(units::Duration::fromMilliseconds(v.count()));
+}
+
+void RouDi_GTest::InterOpWait() noexcept
+{
+    triggerDiscoveryLoopAndWaitToFinish();
+}
+
+void RouDi_GTest::CleanupAppResources(const RuntimeName_t& name) noexcept
+{
+    cleanupAppResources(name);
+}
+
+} // namespace testing
+} // namespace iox
