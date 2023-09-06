@@ -22,6 +22,8 @@
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 
+#include <memory>
+
 namespace iox
 {
 namespace roudi_env
@@ -53,25 +55,25 @@ RouDiEnv::~RouDiEnv()
         auto errorHandlerGuard = iox::ErrorHandlerMock::setTemporaryErrorHandler<iox::PoshError>([](auto, auto) {});
         popo::UniquePortId::setUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
-    CleanupRuntimes();
+    cleanupRuntimes();
 }
 
-void RouDiEnv::SetInterOpWaitingTime(const std::chrono::milliseconds& v)
+void RouDiEnv::setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout)
 {
-    m_interOpWaitingTimeout = units::Duration::fromMilliseconds(v.count());
+    m_discoveryLoopWaitToFinishTimeout = timeout;
 }
 
-void RouDiEnv::InterOpWait()
+void RouDiEnv::triggerDiscoveryLoopAndWaitToFinish()
 {
-    m_roudiApp->triggerDiscoveryLoopAndWaitToFinish(m_interOpWaitingTimeout);
+    m_roudiApp->triggerDiscoveryLoopAndWaitToFinish(m_discoveryLoopWaitToFinishTimeout);
 }
 
-void RouDiEnv::CleanupAppResources(const RuntimeName_t& name)
+void RouDiEnv::cleanupAppResources(const RuntimeName_t& name)
 {
     m_runtimes.eraseRuntime(name);
 }
 
-void RouDiEnv::CleanupRuntimes()
+void RouDiEnv::cleanupRuntimes()
 {
     m_runtimes.cleanupRuntimes();
 }

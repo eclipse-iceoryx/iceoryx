@@ -20,12 +20,35 @@
 
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
+#include <chrono>
+
 namespace iox
 {
 namespace roudi
 {
-using RouDiEnvironment = roudi_env::RouDiEnv;
-}
+class RouDiEnvironment : public roudi_env::RouDiEnv
+{
+  public:
+    using ParentType = roudi_env::RouDiEnv;
+    using ParentType::ParentType;
+    using ParentType::operator=;
+
+    void SetInterOpWaitingTime(const std::chrono::milliseconds& v)
+    {
+        setDiscoveryLoopWaitToFinishTimeout(units::Duration::fromMilliseconds(v.count()));
+    }
+
+    void InterOpWait()
+    {
+        triggerDiscoveryLoopAndWaitToFinish();
+    }
+
+    void CleanupAppResources(const RuntimeName_t& name)
+    {
+        cleanupAppResources(name);
+    }
+};
+} // namespace roudi
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP

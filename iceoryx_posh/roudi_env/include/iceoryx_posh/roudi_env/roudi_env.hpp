@@ -26,10 +26,6 @@
 #include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iox/duration.hpp"
 
-#include <atomic>
-#include <map>
-#include <mutex>
-
 namespace iox
 {
 namespace roudi
@@ -53,10 +49,10 @@ class RouDiEnv
     RouDiEnv(const RouDiEnv&) = delete;
     RouDiEnv& operator=(const RouDiEnv&) = delete;
 
-    void SetInterOpWaitingTime(const std::chrono::milliseconds& v);
-    void InterOpWait();
+    void setDiscoveryLoopWaitToFinishTimeout(const units::Duration timeout);
+    void triggerDiscoveryLoopAndWaitToFinish();
 
-    void CleanupAppResources(const RuntimeName_t& name);
+    void cleanupAppResources(const RuntimeName_t& name);
 
   protected:
     /// @note this is due to ambiguity of the cTor with the default parameter
@@ -67,14 +63,14 @@ class RouDiEnv
     /// @brief for implementations on top of RouDiEnv
     RouDiEnv(BaseCTor, const uint16_t uniqueRouDiId = 0u);
 
-    void CleanupRuntimes();
+    void cleanupRuntimes();
 
   private:
     RuntimeTestInterface m_runtimes;
 #if defined(__APPLE__)
-    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(1000)};
+    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(1000)};
 #else
-    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(200)};
+    iox::units::Duration m_discoveryLoopWaitToFinishTimeout{iox::units::Duration::fromMilliseconds(200)};
 #endif
     std::unique_ptr<roudi::IceOryxRouDiComponents> m_roudiComponents;
     std::unique_ptr<roudi::RouDi> m_roudiApp;
