@@ -77,16 +77,10 @@ int main()
     // start a thread which triggers cyclicTrigger every second
     //! [cyclic thread]
     std::thread cyclicTriggerThread([&] {
-        int countdownToTrigger = 100;
         while (keepRunning.load())
         {
-            if (countdownToTrigger == 0)
-            {
-                cyclicTrigger.trigger();
-                countdownToTrigger = 100;
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            --countdownToTrigger;
+            cyclicTrigger.trigger();
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     });
     //! [cyclic thread]

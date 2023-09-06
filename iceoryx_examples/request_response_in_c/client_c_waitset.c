@@ -34,8 +34,10 @@
 
 #define NUMBER_OF_NOTIFICATIONS 1
 
-volatile bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-client-waitset";
+
+//! [signal handler]
+volatile bool keepRunning = true;
 
 volatile iox_ws_t waitsetSigHandlerAccess = NULL;
 
@@ -48,9 +50,13 @@ void sigHandler(int signalValue)
         iox_ws_mark_for_destruction(waitsetSigHandlerAccess);
     }
 }
+//! [signal handler]
 
 int main(void)
 {
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
     iox_runtime_init(APP_NAME);
 
     iox_client_storage_t clientStorage;
@@ -72,10 +78,6 @@ int main(void)
         _exit(-1);
     }
     //! [create waitset and attach client]
-
-    // since the waitset is used in signal handler, this must happen after the waitset initialization
-    signal(SIGINT, sigHandler);
-    signal(SIGTERM, sigHandler);
 
     while (keepRunning)
     {

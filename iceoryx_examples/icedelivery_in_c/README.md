@@ -60,11 +60,11 @@ iox_sub_t subscriber = iox_sub_init(&subscriberStorage, "Radar", "FrontLeft", "O
 ```
 
  3. We receive samples in a loop and print the received data on the console as
-    long as the `killswitch` is not set to `true` by an external signal.
+    long as the `keepRunning` is not set to `false` by an external signal.
 
 <!--[geoffrey][iceoryx_examples/icedelivery_in_c/ice_c_subscriber.c][receive and print data]-->
 ```c
-while (!killswitch)
+while (keepRunning)
 {
     if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
     {
@@ -132,7 +132,7 @@ iox_pub_storage_t publisherStorage;
 iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Object", &options);
 ```
 
- 3. Until an external signal sets `killswitch` to `true`, we will send an
+ 3. Until an external signal sets `keepRunning` to `false`, we will send an
     incrementing number to all subscribers in every iteration and print the
     value of that number to the console.
 
@@ -140,7 +140,7 @@ iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Obj
 ```c
 double ct = 0.0;
 
-while (!killswitch)
+while (keepRunning)
 {
     void* userPayload = NULL;
     if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &userPayload, sizeof(struct RadarObject)))

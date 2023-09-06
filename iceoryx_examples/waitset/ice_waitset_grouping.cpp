@@ -28,6 +28,7 @@ std::atomic_bool keepRunning{true};
 
 constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
 using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
+
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)

@@ -24,11 +24,14 @@
 #include <chrono>
 #include <iostream>
 
+constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
+
 std::atomic_bool keepRunning{true};
 
-constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
-constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
-using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER>;
+//! [waitset type alias]
+using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
+//! [waitset type alias]
+
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
@@ -39,13 +42,6 @@ static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
         waitsetSigHandlerAccess->markForDestruction();
     }
 }
-
-//! [shutdown callback]
-void shutdownCallback(iox::popo::UserTrigger*)
-{
-    std::cout << "CTRL+C pressed - exiting now" << std::endl;
-}
-//! [shutdown callback]
 
 // The callback of the event. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the event origin is

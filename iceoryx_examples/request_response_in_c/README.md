@@ -33,6 +33,19 @@ signal(SIGTERM, sigHandler);
 iox_runtime_init(APP_NAME);
 ```
 
+The signal handler clears a flag to initiate a graceful shutdown.
+
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_basic.c][signal handler]-->
+```c
+volatile bool keepRunning = true;
+
+void sigHandler(int signalValue)
+{
+    (void)signalValue;
+    keepRunning = false;
+}
+```
+
 We continue with initializing our `client` to send requests to the server. First
 of all, we need some memory in which the client can be stored called `clientStorage`.
 `iox_client_init` will create an object in this memory location, sets the service
@@ -155,11 +168,32 @@ or when you would like to know more about the listener, see the
 
 The startup phase is identical to the client basic version, we register the signal
 handlers, initialize the runtime, create a client and initialize our variables.
+
+This time the signal handler needs to wake up the waitset additionally.
+<!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][signal handler]-->
+```c
+volatile bool keepRunning = true;
+
+volatile iox_ws_t waitsetSigHandlerAccess = NULL;
+
+void sigHandler(int signalValue)
+{
+    (void)signalValue;
+    keepRunning = false;
+    if (waitsetSigHandlerAccess)
+    {
+        iox_ws_mark_for_destruction(waitsetSigHandlerAccess);
+    }
+}
+```
+
 Afterwards we create our waitset and attach the client state `ClientState_HAS_RESPONSE`
 to it.
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][create waitset and attach client]-->
 ```c
-waitset = iox_ws_init(&waitsetStorage);
+iox_ws_storage_t waitsetStorage;
+iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+waitsetSigHandlerAccess = waitset;
 
 if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
 {
@@ -226,6 +260,7 @@ the waitset first and then deinitialize the waitset and the client.
 <!--[geoffrey][iceoryx_examples/request_response_in_c/client_c_waitset.c][cleanup]-->
 ```c
 iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
+waitsetSigHandlerAccess = NULL; // invalidate for signal handler
 iox_ws_deinit(waitset);
 iox_client_deinit(client);
 ```
