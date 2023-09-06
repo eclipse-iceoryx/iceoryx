@@ -88,6 +88,8 @@
 - ServiceDescription `Interfaces` and `INTERFACE_NAMES` do not match [\#1977](https://github.com/eclipse-iceoryx/iceoryx/issues/1977)
 - Implement and test nullptr check in c binding [\#1106](https://github.com/eclipse-iceoryx/iceoryx/issues/1106)
 - Fix `expected<void, Error>` is unusable due to `final` [\#1976](https://github.com/eclipse-iceoryx/iceoryx/issues/1976)
+- MacOS tests that use `EXPECT_DEATH` stuck [#898](https://github.com/eclipse-iceoryx/iceoryx/issues/898)
+- Remove `EXPECT_DEATH` [#1613](https://github.com/eclipse-iceoryx/iceoryx/issues/1613)
 
 **Refactoring:**
 

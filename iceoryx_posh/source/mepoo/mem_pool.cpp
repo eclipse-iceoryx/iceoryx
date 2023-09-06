@@ -62,7 +62,8 @@ MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkS
     else
     {
         IOX_LOG(FATAL) << "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is "
-                       << chunkSize << " for " << numberOfChunks << " chunks!";
+                       << static_cast<uint32_t>(chunkSize) << " for " << static_cast<uint32_t>(numberOfChunks)
+                       << " chunks!";
         errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
