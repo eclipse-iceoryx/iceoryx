@@ -20,7 +20,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace roudi_env
 {
 using runtime::PoshRuntime;
 
@@ -124,5 +124,5 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
     return *RuntimeTestInterface::t_activeRuntime;
 }
 
-} // namespace roudi
+} // namespace roudi_env
 } // namespace iox

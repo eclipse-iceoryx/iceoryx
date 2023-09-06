@@ -38,10 +38,10 @@
 
 namespace iox
 {
-namespace roudi
+namespace roudi_env
 {
 class RuntimeTestInterface;
-} // namespace roudi
+} // namespace roudi_env
 
 namespace runtime
 {
@@ -159,7 +159,7 @@ class PoshRuntime
     virtual bool sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept = 0;
 
   protected:
-    friend class roudi::RuntimeTestInterface;
+    friend class roudi_env::RuntimeTestInterface;
     using factory_t = PoshRuntime& (*)(optional<const RuntimeName_t*>);
 
     // Protected constructor for derived classes

@@ -31,6 +31,7 @@ namespace
 {
 using namespace iox;
 using namespace iox::runtime;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 class iox_node_test : public RouDi_GTest

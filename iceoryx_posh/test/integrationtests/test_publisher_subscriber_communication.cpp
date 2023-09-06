@@ -39,7 +39,7 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::popo;
 using namespace iox::cxx;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
 template <typename T>
 struct ComplexDataType

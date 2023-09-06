@@ -35,6 +35,9 @@ namespace iox
 namespace roudi
 {
 class RouDi;
+}
+namespace roudi_env
+{
 
 class RouDiEnvironment
 {
@@ -73,11 +76,11 @@ class RouDiEnvironment
 #else
     iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(200)};
 #endif
-    std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
-    std::unique_ptr<RouDi> m_roudiApp;
+    std::unique_ptr<roudi::IceOryxRouDiComponents> m_roudiComponents;
+    std::unique_ptr<roudi::RouDi> m_roudiApp;
 };
 
-} // namespace roudi
+} // namespace roudi_env
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ENV_ROUDI_ENVIRONMENT_HPP

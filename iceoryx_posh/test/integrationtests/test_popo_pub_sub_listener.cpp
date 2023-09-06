@@ -30,7 +30,7 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::runtime;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
 void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)
 {

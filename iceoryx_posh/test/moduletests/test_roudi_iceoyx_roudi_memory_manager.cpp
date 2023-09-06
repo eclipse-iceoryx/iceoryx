@@ -24,7 +24,7 @@ namespace
 {
 using namespace ::testing;
 
-using namespace iox::testing;
+using namespace iox::roudi_env;
 using iox::roudi::IceOryxRouDiMemoryManager;
 
 /// @brief This test file verifies that the BaseClass IceoryxRouDiMemoryManager is tested

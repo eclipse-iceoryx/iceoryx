@@ -43,11 +43,10 @@ using namespace iox::runtime;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 using iox::capro::IdString_t;
 using iox::capro::ServiceDescription;
 using iox::popo::MessagingPattern;
-using iox::roudi::RouDiEnvironment;
 
 using ServiceContainer = std::vector<ServiceDescription>;
 

@@ -44,7 +44,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::roudi;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
 using iox::runtime::PortConfigInfo;
 

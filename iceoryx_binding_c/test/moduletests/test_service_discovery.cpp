@@ -22,6 +22,7 @@
 
 using namespace iox;
 using namespace iox::runtime;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 extern "C" {

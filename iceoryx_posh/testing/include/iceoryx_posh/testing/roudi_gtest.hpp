@@ -24,7 +24,7 @@
 
 using namespace ::testing;
 
-class RouDi_GTest : public iox::roudi::RouDiEnvironment, public Test
+class RouDi_GTest : public iox::roudi_env::RouDiEnvironment, public Test
 {
   public:
     RouDi_GTest() = default;

@@ -27,7 +27,7 @@ namespace
 using namespace ::testing;
 using namespace iox::runtime;
 using namespace iox::roudi;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 using namespace iox;
 
 /// @brief Test goal: This test suit verifies class node

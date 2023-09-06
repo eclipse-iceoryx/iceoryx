@@ -18,7 +18,7 @@
 
 namespace iox
 {
-namespace testing
+namespace roudi_env
 {
 RouDiConfig_t MinimalRouDiConfigBuilder::create() const noexcept
 {
@@ -33,5 +33,5 @@ RouDiConfig_t MinimalRouDiConfigBuilder::create() const noexcept
 
     return roudiConfig;
 }
-} // namespace testing
+} // namespace roudi_env
 } // namespace iox

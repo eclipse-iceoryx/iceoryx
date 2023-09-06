@@ -29,6 +29,7 @@ namespace
 {
 using namespace iox;
 using namespace iox::mepoo;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 class Chunk_test : public RouDi_GTest

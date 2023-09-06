@@ -32,6 +32,7 @@
 
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 extern "C" {

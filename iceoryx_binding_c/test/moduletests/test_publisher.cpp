@@ -42,6 +42,7 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::testing;
+using namespace iox::roudi_env;
 using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::mepoo;

@@ -41,7 +41,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 using iox::roudi::RouDiEnvironment;
 
 class PoshRuntime_test : public Test

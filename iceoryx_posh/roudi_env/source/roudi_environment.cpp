@@ -24,7 +24,7 @@
 
 namespace iox
 {
-namespace roudi
+namespace roudi_env
 {
 RouDiEnvironment::RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId)
 {
@@ -38,10 +38,11 @@ RouDiEnvironment::RouDiEnvironment(const RouDiConfig_t& roudiConfig,
                                    const uint16_t uniqueRouDiId)
     : RouDiEnvironment(BaseCTor::BASE, uniqueRouDiId)
 {
-    m_roudiComponents = std::unique_ptr<IceOryxRouDiComponents>(new IceOryxRouDiComponents(roudiConfig));
-    m_roudiApp = std::unique_ptr<RouDi>(new RouDi(m_roudiComponents->rouDiMemoryManager,
-                                                  m_roudiComponents->portManager,
-                                                  RouDi::RoudiStartupParameters{monitoringMode, false}));
+    m_roudiComponents = std::unique_ptr<roudi::IceOryxRouDiComponents>(new roudi::IceOryxRouDiComponents(roudiConfig));
+    m_roudiApp =
+        std::unique_ptr<roudi::RouDi>(new roudi::RouDi(m_roudiComponents->rouDiMemoryManager,
+                                                       m_roudiComponents->portManager,
+                                                       roudi::RouDi::RoudiStartupParameters{monitoringMode, false}));
 }
 
 RouDiEnvironment::~RouDiEnvironment()
@@ -75,5 +76,5 @@ void RouDiEnvironment::CleanupRuntimes()
     m_runtimes.cleanupRuntimes();
 }
 
-} // namespace roudi
+} // namespace roudi_env
 } // namespace iox

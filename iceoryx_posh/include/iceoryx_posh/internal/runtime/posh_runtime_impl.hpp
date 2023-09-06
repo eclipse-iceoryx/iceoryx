@@ -83,7 +83,7 @@ class PoshRuntimeImpl : public PoshRuntime
 
   protected:
     friend class PoshRuntime;
-    friend class roudi::RuntimeTestInterface;
+    friend class roudi_env::RuntimeTestInterface;
 
     // Protected constructor for IPC setup
     PoshRuntimeImpl(optional<const RuntimeName_t*> name,
