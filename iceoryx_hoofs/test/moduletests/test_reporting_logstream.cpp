@@ -129,6 +129,45 @@ TEST_F(IoxLogStream_test, StreamOperatorStdString)
     EXPECT_THAT(loggerMock.logs[1].message, StrEq(constLogValue));
 }
 
+TEST_F(IoxLogStream_test, StreamOperatorChar)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2a1fff17-e388-4f84-bb16-30bb3432ae9d");
+    char logValue{'b'};
+    const char constLogValue{'o'};
+    constexpr char constexprLogValue{'b'};
+    LogStreamSut(loggerMock) << logValue;
+    LogStreamSut(loggerMock) << constLogValue;
+    LogStreamSut(loggerMock) << constexprLogValue;
+
+    ASSERT_THAT(loggerMock.logs.size(), Eq(3U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("b"));
+    EXPECT_THAT(loggerMock.logs[1].message, StrEq("o"));
+    EXPECT_THAT(loggerMock.logs[2].message, StrEq("b"));
+}
+
+TEST_F(IoxLogStream_test, StreamOperator8BitTypesWithCharAsCharacterAndEverythingElseAsNumber)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "707d4c04-1999-4713-b930-e113969617e0");
+    char cc{'a'};
+    signed char sc{'a'};
+    unsigned char uc{'a'};
+    int8_t i8{'a'};
+    uint8_t u8{'a'};
+
+    LogStreamSut(loggerMock) << cc;
+    LogStreamSut(loggerMock) << sc;
+    LogStreamSut(loggerMock) << uc;
+    LogStreamSut(loggerMock) << i8;
+    LogStreamSut(loggerMock) << u8;
+
+    ASSERT_THAT(loggerMock.logs.size(), Eq(5U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq("a"));
+    EXPECT_THAT(loggerMock.logs[1].message, StrEq("97"));
+    EXPECT_THAT(loggerMock.logs[2].message, StrEq("97"));
+    EXPECT_THAT(loggerMock.logs[3].message, StrEq("97"));
+    EXPECT_THAT(loggerMock.logs[4].message, StrEq("97"));
+}
+
 TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d85b7ef4-35de-4e11-b0fd-f0de6581a9e6");

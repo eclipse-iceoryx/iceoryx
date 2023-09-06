@@ -87,6 +87,11 @@ inline constexpr const char* logFormatDec() noexcept
     return nullptr;
 }
 template <>
+inline constexpr const char* logFormatDec<char>() noexcept
+{
+    return "%c";
+}
+template <>
 inline constexpr const char* logFormatDec<signed char>() noexcept
 {
     return "%hhi";

@@ -135,6 +135,13 @@ inline LogStream& LogStream::operator<<(const bool val) noexcept
 
 // AXIVION DISABLE STYLE AutosarC++19_03-A3.9.1 : See at declaration in header
 
+inline LogStream& LogStream::operator<<(const char val) noexcept
+{
+    m_logger.logDec(val);
+    m_isFlushed = false;
+    return *this;
+}
+
 inline LogStream& LogStream::operator<<(const signed char val) noexcept
 {
     m_logger.logDec(val);

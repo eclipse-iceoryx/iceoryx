@@ -52,6 +52,8 @@ namespace internal
 template <typename T>
 constexpr const char* logFormatDec() noexcept;
 template <>
+constexpr const char* logFormatDec<char>() noexcept;
+template <>
 constexpr const char* logFormatDec<signed char>() noexcept;
 template <>
 constexpr const char* logFormatDec<unsigned char>() noexcept;
