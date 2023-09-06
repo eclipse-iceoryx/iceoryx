@@ -49,13 +49,11 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
-    auto flags = std::cerr.flags();
     IOX_LOG(ERROR) << "Unable to map memory with the following properties [ baseAddressHint = "
                    << iox::log::hex(m_baseAddressHint) << ", length = " << m_length
                    << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
                    << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
                    << ", offset = " << iox::log::hex(m_offset) << " ]";
-    std::cerr.setf(flags);
     return err(MemoryMap::errnoToEnum(result.error().errnum));
 }
 

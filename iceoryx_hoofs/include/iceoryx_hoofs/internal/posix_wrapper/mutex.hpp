@@ -96,10 +96,6 @@ enum class MutexTryLock
 class mutex
 {
   public:
-    /// @attention the construction of the mutex can fail. This can lead to a program termination!
-    /// @todo iox-#1036 remove this, introduced to keep current API temporarily
-    explicit mutex(const bool f_isRecursive) noexcept;
-
     /// @brief Destroys the mutex. When the mutex is still locked this will fail and the
     ///        mutex is leaked! If the MutexThreadTerminationBehavior is set to RELEASE_WHEN_LOCKED
     ///        a locked mutex is unlocked and the handle is cleaned up correctly.

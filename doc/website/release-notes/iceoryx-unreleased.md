@@ -935,7 +935,7 @@
     #include "iceoryx_hoofs/design_pattern/creation.hpp"
 
     // after
-    #include "iceoryx_dust/design/creation.hpp"
+    // fully removed
     ```
 
     ```cpp

@@ -25,13 +25,15 @@ namespace popo
 class ThreadSafePolicy
 {
   public:
+    ThreadSafePolicy() noexcept;
+
     // needs to be public since we want to use std::lock_guard
     void lock() const noexcept;
     void unlock() const noexcept;
     bool tryLock() const noexcept;
 
   private:
-    mutable posix::mutex m_mutex{true}; // recursive lock
+    mutable optional<posix::mutex> m_mutex;
 };
 
 class SingleThreadedPolicy

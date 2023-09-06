@@ -45,6 +45,11 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
                                                  m_ipcChannelInterface.getSegmentManagerAddressOffset()});
     }())
 {
+    posix::MutexBuilder()
+        .isInterProcessCapable(false)
+        .mutexType(posix::MutexType::NORMAL)
+        .create(m_appIpcRequestMutex)
+        .expect("Valid Mutex");
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
@@ -648,7 +653,7 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
 bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     // runtime must be thread safe
-    std::lock_guard<posix::mutex> g(m_appIpcRequestMutex);
+    std::lock_guard<posix::mutex> g(m_appIpcRequestMutex.value());
     return m_ipcChannelInterface.sendRequestToRouDi(msg, answer);
 }
 

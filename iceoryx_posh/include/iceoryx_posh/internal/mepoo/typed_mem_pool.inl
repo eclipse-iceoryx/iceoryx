@@ -83,35 +83,6 @@ inline expected<SharedPointer<T>, TypedMemPoolError> TypedMemPool<T>::createObje
 }
 
 template <typename T>
-template <typename ErrorType, typename... Targs>
-inline expected<SharedPointer<T>, variant<TypedMemPoolError, ErrorType>>
-TypedMemPool<T>::createObjectWithCreationPattern(Targs&&... args) noexcept
-{
-    using errorType_t = variant<TypedMemPoolError, ErrorType>;
-    auto chunkManagement = acquireChunkManagementPointer();
-    if (chunkManagement.has_error())
-    {
-        return err<errorType_t>(in_place_index<0>(), chunkManagement.error());
-    }
-
-    auto newObject = T::create(std::forward<Targs>(args)...);
-    if (newObject.has_error())
-    {
-        return err<errorType_t>(in_place_index<1>(), newObject.error());
-    }
-
-    auto sharedPointer = SharedPointer<T>::create(SharedChunk(*chunkManagement), std::move(*newObject));
-
-    if (sharedPointer.has_error())
-    {
-        errorHandler(PoshError::MEPOO__TYPED_MEMPOOL_MANAGEMENT_SEGMENT_IS_BROKEN);
-        return err<errorType_t>(in_place_index<0>(), TypedMemPoolError::FatalErrorReachedInconsistentState);
-    }
-
-    return ok(sharedPointer.value());
-}
-
-template <typename T>
 inline uint32_t TypedMemPool<T>::getChunkCount() const noexcept
 {
     return m_memPool.getChunkCount();

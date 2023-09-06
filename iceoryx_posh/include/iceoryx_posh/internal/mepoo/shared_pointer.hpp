@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_MEPOO_SHARED_POINTER_HPP
 #define IOX_POSH_MEPOO_SHARED_POINTER_HPP
 
-#include "iceoryx_dust/design/creation.hpp"
 #include "iceoryx_posh/internal/mepoo/shared_chunk.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/expected.hpp"
 
 namespace iox
 {
@@ -30,11 +30,10 @@ enum class SharedPointerError
     SharedChunkIsEmpty
 };
 
-/// @brief DesignPattern::Creation offers us a create method which forwards the arguments to
-/// the constructor. Use this class like in the code example below
+/// @brief A typed shared pointer for the untyped 'SharedChunk'.
 /// @code
 ///     // expected
-///     auto sharedPointer = SharedPointer<int>::Create(mySharedChunk, 123);
+///     auto sharedPointer = SharedPointer<int>::create(mySharedChunk, 123);
 ///     if ( sharedPointer.has_error() ) {
 ///         // ...
 ///     } else {
@@ -42,10 +41,11 @@ enum class SharedPointerError
 ///     }
 /// @endcode
 template <typename T>
-class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPointerError>
+class SharedPointer
 {
   public:
-    using CreationPattern_t = DesignPattern::Creation<SharedPointer<T>, SharedPointerError>;
+    template <typename... Targs>
+    static expected<SharedPointer<T>, SharedPointerError> create(const SharedChunk& chunk, Targs&&... args) noexcept;
 
     SharedPointer() = default;
     SharedPointer(const SharedPointer&) = default;
@@ -66,13 +66,15 @@ class SharedPointer : public DesignPattern::Creation<SharedPointer<T>, SharedPoi
 
     explicit operator bool() const noexcept;
 
-    friend class DesignPattern::Creation<SharedPointer<T>, SharedPointerError>;
-
   private:
     template <typename... Targs>
     SharedPointer(const SharedChunk& chunk, Targs&&... args) noexcept;
 
+    SharedPointer(const SharedChunk& chunk) noexcept;
+
     void deleteManagedObjectIfNecessary() noexcept;
+
+  private:
     SharedChunk m_chunk;
 };
 

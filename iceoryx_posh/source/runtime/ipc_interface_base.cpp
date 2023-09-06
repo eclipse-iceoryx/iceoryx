@@ -201,8 +201,20 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const posix::IpcChannelSide ch
         .maxMsgNumber(m_maxMessages)
         .create()
         .and_then([this](auto& ipcChannel) { this->m_ipcChannel.emplace(std::move(ipcChannel)); })
-        .or_else([](auto& err) {
-            IOX_LOG(ERROR) << "unable to create ipc channel with error code: " << static_cast<uint8_t>(err);
+        .or_else([this](auto& err) {
+            if (this->m_channelSide == posix::IpcChannelSide::SERVER)
+            {
+                IOX_LOG(ERROR) << "Unable to create ipc channel '" << this->m_runtimeName
+                               << "'. Error code: " << static_cast<uint8_t>(err);
+            }
+            else
+            {
+                // the client opens the channel and tries to do this in a loop when the channel is not available,
+                // therefore resulting in a wall of error messages on the console which leads to missing the important
+                // one that roudi is not running if this would be LogLevel::ERROR instead of LogLevel::TRACE
+                IOX_LOG(TRACE) << "Unable to open ipc channel '" << this->m_runtimeName
+                               << "'. Error code: " << static_cast<uint8_t>(err);
+            }
         });
 
     return isInitialized();
@@ -243,7 +255,7 @@ void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const RuntimeName_t
 {
     if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
-        IOX_LOG(WARN) << "IPC channel still there, doing an unlink of " << name;
+        IOX_LOG(WARN) << "IPC channel still there, doing an unlink of '" << name << "'";
     }
 }
 

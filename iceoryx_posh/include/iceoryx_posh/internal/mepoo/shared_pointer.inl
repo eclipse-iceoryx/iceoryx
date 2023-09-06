@@ -22,19 +22,23 @@ namespace mepoo
 {
 template <typename T>
 template <typename... Targs>
-inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk, Targs&&... args) noexcept
+inline expected<SharedPointer<T>, SharedPointerError> SharedPointer<T>::create(const SharedChunk& chunk,
+                                                                               Targs&&... args) noexcept
+{
+    if (chunk.m_chunkManagement == nullptr)
+    {
+        return err(SharedPointerError::SharedChunkIsEmpty);
+    }
+
+    new (chunk.m_chunkManagement->m_chunkHeader->userPayload()) T(std::forward<Targs>(args)...);
+
+    return ok(SharedPointer(chunk));
+}
+
+template <typename T>
+inline SharedPointer<T>::SharedPointer(const SharedChunk& chunk) noexcept
     : m_chunk(chunk)
 {
-    if (chunk.m_chunkManagement != nullptr)
-    {
-        new (chunk.m_chunkManagement->m_chunkHeader->userPayload()) T(std::forward<Targs>(args)...);
-        this->m_isInitialized = true;
-    }
-    else
-    {
-        this->m_isInitialized = false;
-        this->m_errorValue = SharedPointerError::SharedChunkIsEmpty;
-    }
 }
 
 template <typename T>
@@ -50,8 +54,6 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(const SharedPointer& rhs) n
     {
         deleteManagedObjectIfNecessary();
 
-        CreationPattern_t::operator=(rhs);
-
         m_chunk = rhs.m_chunk;
     }
     return *this;
@@ -63,8 +65,6 @@ inline SharedPointer<T>& SharedPointer<T>::operator=(SharedPointer&& rhs) noexce
     if (this != &rhs)
     {
         deleteManagedObjectIfNecessary();
-
-        CreationPattern_t::operator=(std::move(rhs));
 
         m_chunk = std::move(rhs.m_chunk);
     }

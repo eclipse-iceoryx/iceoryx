@@ -56,9 +56,6 @@ class TypedMemPool
 
     template <typename... Targs>
     expected<SharedPointer<T>, TypedMemPoolError> createObject(Targs&&... args) noexcept;
-    template <typename ErrorType, typename... Targs>
-    expected<SharedPointer<T>, variant<TypedMemPoolError, ErrorType>>
-    createObjectWithCreationPattern(Targs&&... args) noexcept;
     uint32_t getChunkCount() const noexcept;
     uint32_t getUsedChunks() const noexcept;
 

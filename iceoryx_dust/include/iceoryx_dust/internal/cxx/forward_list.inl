@@ -20,6 +20,7 @@
 
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
+#include "iox/logging.hpp"
 
 
 namespace iox
@@ -233,7 +234,7 @@ forward_list<T, Capacity>::emplace_after(const_iterator iter, ConstructorArgs&&.
 
     if (m_size >= Capacity)
     {
-        errorMessage(__PRETTY_FUNCTION__, " capacity exhausted ");
+        IOX_LOG(DEBUG) << "capacity exhausted";
         return end();
     }
 
@@ -271,7 +272,7 @@ inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::e
     // additional validity check on to-be-erase element
     if (!isValidElementIdx(eraseIdx) || empty())
     {
-        errorMessage(__PRETTY_FUNCTION__, " iterator is end() or list is empty");
+        IOX_LOG(DEBUG) << "iterator is end() or list is empty";
         return end();
     }
 
@@ -607,12 +608,6 @@ inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const
 {
     cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
     return isInvalidIterator(iter);
-}
-
-template <typename T, uint64_t Capacity>
-inline void forward_list<T, Capacity>::errorMessage(const char* source, const char* msg) noexcept
-{
-    std::cerr << source << " ::: " << msg << std::endl;
 }
 
 
