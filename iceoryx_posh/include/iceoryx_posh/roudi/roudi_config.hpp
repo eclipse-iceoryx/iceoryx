@@ -26,7 +26,7 @@ namespace config
 {
 struct RouDiConfig
 {
-    // have some spare chunks to still deliver introspection data in case there are multiple subscriber to the data
+    // have some spare chunks to still deliver introspection data in case there are multiple subscribers to the data
     // which are caching different samples; could probably be reduced to 2 with the instruction to not cache the
     // introspection samples
     uint32_t introspectionChunkCount{10};

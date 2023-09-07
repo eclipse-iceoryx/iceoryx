@@ -47,7 +47,7 @@ class IceoryxRoudiMemoryManager_test : public Test
 TEST_F(IceoryxRoudiMemoryManager_test, ConstructorSuccess)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f435abe6-07da-44e8-9f1a-074fbcb66209");
-    EXPECT_THAT(m_roudiMemoryManagerTest, Not(Eq(nullptr)));
+    EXPECT_THAT(m_roudiMemoryManagerTest, Ne(nullptr));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, IntrospectionMemoryManagerNulloptWhenNotPresent)
@@ -89,7 +89,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, MgmtMemoryProviderReturnNonNullPtr)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e89c1ba8-34ca-410f-bb23-45fb41e24e77");
     auto testResult = m_roudiMemoryManagerTest->mgmtMemoryProvider();
-    EXPECT_THAT(testResult, Not(Eq(nullptr)));
+    EXPECT_THAT(testResult, Ne(nullptr));
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterCreateAndAnnounceMemoryIsSuccessful)
@@ -100,7 +100,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringIntrospectionMemoryManagerAfterC
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->introspectionMemoryManager();
-    EXPECT_THAT(result, Not(Eq(iox::nullopt_t())));
+    EXPECT_TRUE(result.has_value());
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringDiscoveryMemoryManagerAfterCreateAndAnnounceMemoryIsSuccessful)
@@ -111,7 +111,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringDiscoveryMemoryManagerAfterCreat
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->discoveryMemoryManager();
-    EXPECT_THAT(result, Not(Eq(iox::nullopt_t())));
+    EXPECT_TRUE(result.has_value());
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringSegmentManagerAfterCreateAndAnnounceMemoryIsSuccessful)
@@ -122,7 +122,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringSegmentManagerAfterCreateAndAnno
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto resultTest = m_roudiMemoryManagerTest->segmentManager();
-    EXPECT_THAT(resultTest, Not(Eq(iox::nullopt_t())));
+    EXPECT_TRUE(resultTest.has_value());
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMemoryIsSuccessful)
@@ -133,7 +133,7 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringPortPoolAfterCreateAndAnnounceMe
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto testResult = m_roudiMemoryManagerTest->portPool();
-    EXPECT_THAT(testResult, Not(Eq(iox::nullopt_t())));
+    EXPECT_TRUE(testResult.has_value());
 }
 
 TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryReturnNoError)
