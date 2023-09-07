@@ -37,6 +37,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     , m_run(checkAndOptimizeConfig(config))
     , m_config(config)
     , m_compatibilityCheckLevel(cmdLineArgs.compatibilityCheckLevel)
+    , m_processTeminationDelay(cmdLineArgs.processTerminationDelay)
     , m_processKillDelay(cmdLineArgs.processKillDelay)
 {
     // the "and" is intentional, just in case the the provided RouDiConfig_t is empty

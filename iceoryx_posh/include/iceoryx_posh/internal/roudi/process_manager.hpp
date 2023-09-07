@@ -92,9 +92,12 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Informs the user about the processes which are registered and then clears the process list
     void printWarningForRegisteredProcessesAndClearProcessList() noexcept;
 
+    /// @brief Returns the number of registered processes
+    uint64_t registeredProcessCount() const noexcept;
+
     /// @brief Is one or more of the registered processes running?
     /// @return true if one or more of the registered processes is running, false otherwise
-    bool isAnyRegisteredProcessStillRunning() noexcept;
+    bool probeRegisteredProcessesAliveWithSigTerm() noexcept;
 
     /// @brief A process is about to shut down and needs to be unblock by a potentially block publisher
     /// @param [in] name of the process runtime which is about to shut down
@@ -208,7 +211,7 @@ class ProcessManager : public ProcessManagerInterface
     /// @brief Evaluates with a kill SIGTERM signal to a process if he is still alive.
     /// @param [in] process The process to check.
     /// @return Returns true if the process is still alive, otherwise false.
-    bool isProcessAlive(const Process& process) noexcept;
+    bool probeProcessAliveWithSigTerm(const Process& process) noexcept;
 
     /// @brief Evaluates eventual upcoming errors from kill() command in requestShutdownOfProcess
     /// Calls the errorhandler.

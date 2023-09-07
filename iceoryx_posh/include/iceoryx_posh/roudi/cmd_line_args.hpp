@@ -28,12 +28,13 @@ namespace config
 {
 struct CmdLineArgs_t
 {
-    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
-    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
-    version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
-    optional<uint16_t> uniqueRouDiId{nullopt};
     bool run{true};
+    iox::log::LogLevel logLevel{iox::log::LogLevel::INFO};
+    roudi::MonitoringMode monitoringMode{roudi::MonitoringMode::OFF};
+    version::CompatibilityCheckLevel compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
+    optional<uint16_t> uniqueRouDiId{nullopt};
+    units::Duration processTerminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
+    units::Duration processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
     roudi::ConfigFilePathString_t configFilePath;
 };
 
@@ -44,6 +45,7 @@ inline iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const Cmd
     logstream << "Compatibility check level: " << cmdLineArgs.compatibilityCheckLevel << "\n";
     cmdLineArgs.uniqueRouDiId.and_then([&logstream](auto& id) { logstream << "Unique RouDi ID: " << id << "\n"; })
         .or_else([&logstream] { logstream << "Unique RouDi ID: < unset >\n"; });
+    logstream << "Process termination delay: " << cmdLineArgs.processTerminationDelay.toSeconds() << " s\n";
     logstream << "Process kill delay: " << cmdLineArgs.processKillDelay.toSeconds() << " s\n";
     if (!cmdLineArgs.configFilePath.empty())
     {

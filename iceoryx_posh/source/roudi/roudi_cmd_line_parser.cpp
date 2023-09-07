@@ -36,11 +36,12 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
                                        {"log-level", required_argument, nullptr, 'l'},
                                        {"unique-roudi-id", required_argument, nullptr, 'u'},
                                        {"compatibility", required_argument, nullptr, 'x'},
+                                       {"termination-delay", required_argument, nullptr, 't'},
                                        {"kill-delay", required_argument, nullptr, 'k'},
                                        {nullptr, 0, nullptr, 0}};
 
     // colon after shortOption means it requires an argument, two colons mean optional argument
-    constexpr const char* SHORT_OPTIONS = "hvm:l:u:x:k:";
+    constexpr const char* SHORT_OPTIONS = "hvm:l:u:x:t:k:";
     int index;
     int32_t opt{-1};
     while ((opt = getopt_long(argc, argv, SHORT_OPTIONS, LONG_OPTIONS, &index), opt != -1))
@@ -59,28 +60,41 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             std::cout << "                                  on: enables monitoring for all processes" << std::endl;
             std::cout << "                                  off: disables monitoring for all processes" << std::endl;
             std::cout << "-l, --log-level <LEVEL>           Set log level." << std::endl;
-            std::cout << "                                  <LEVEL> {off, fatal, error, warning, info, debug, trace}"
-                      << std::endl;
-            std::cout << "-x, --compatibility               Set compatibility check level between runtime and RouDi."
-                      << std::endl;
+            std::cout << "                                  <LEVEL> {off, fatal, error, warning, info," << std::endl;
+            std::cout << "                                  debug, trace}" << std::endl;
+            std::cout << "                                  default = 'info'" << std::endl;
+            std::cout << "-x, --compatibility               Set compatibility check level between runtime" << std::endl;
+            std::cout << "                                  and RouDi. Value are" << std::endl;
             std::cout << "                                  off: no check" << std::endl;
             std::cout << "                                  major: same major version " << std::endl;
             std::cout << "                                  minor: same minor version + major check" << std::endl;
             std::cout << "                                  patch: same patch version + minor check" << std::endl;
             std::cout << "                                  commitId: same commit ID + patch check" << std::endl;
             std::cout << "                                  buildDate: same build date + commId check" << std::endl;
-            std::cout << "-k, --kill-delay <UINT>           Sets the delay when RouDi sends SIG_KILL, if apps"
-                      << std::endl;
-            std::cout << "                                  have't responded after trying SIG_TERM first, in seconds."
-                      << std::endl;
+            std::cout << "                                  default = 'patch'" << std::endl;
+            std::cout << "-t, --termination-delay <UINT>    Sets the delay in seconds before RouDi sends" << std::endl;
+            std::cout << "                                  SIGTERM to running applications at shutdown." << std::endl;
+            std::cout << "                                  When RouDi and the applications are running" << std::endl;
+            std::cout << "                                  in an automated environment like" << std::endl;
+            std::cout << "                                  launch_testing, where the framework takes" << std::endl;
+            std::cout << "                                  care of the shutdown, this results in a race" << std::endl;
+            std::cout << "                                  between RouDi and the framework in" << std::endl;
+            std::cout << "                                  terminating the applications. To prevent this" << std::endl;
+            std::cout << "                                  race, this parameter can be used to delay the" << std::endl;
+            std::cout << "                                  raising of SIGTERM by a few seconds." << std::endl;
+            std::cout << "                                  default = '0'" << std::endl;
+            std::cout << "-k, --kill-delay <UINT>           Sets the delay in seconds before RouDi sends" << std::endl;
+            std::cout << "                                  SIGKILL to application which did not respond" << std::endl;
+            std::cout << "                                  to the initial SIGTERM signal." << std::endl;
+            std::cout << "                                  default = '45'" << std::endl;
 
-            m_run = false;
+            m_cmdLineArgs.run = false;
             break;
         case 'v':
             std::cout << "RouDi version: " << ICEORYX_LATEST_RELEASE_VERSION << std::endl;
             std::cout << "Build date: " << ICEORYX_BUILDDATE << std::endl;
             std::cout << "Commit ID: " << ICEORYX_SHA1 << std::endl;
-            m_run = false;
+            m_cmdLineArgs.run = false;
             break;
         case 'u':
         {
@@ -89,25 +103,25 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             if (!cxx::convert::fromString(optarg, roudiId))
             {
                 IOX_LOG(ERROR) << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
-                m_run = false;
+                m_cmdLineArgs.run = false;
             }
 
-            m_uniqueRouDiId.emplace(roudiId);
+            m_cmdLineArgs.uniqueRouDiId.emplace(roudiId);
             break;
         }
         case 'm':
         {
             if (strcmp(optarg, "on") == 0)
             {
-                m_monitoringMode = roudi::MonitoringMode::ON;
+                m_cmdLineArgs.monitoringMode = roudi::MonitoringMode::ON;
             }
             else if (strcmp(optarg, "off") == 0)
             {
-                m_monitoringMode = roudi::MonitoringMode::OFF;
+                m_cmdLineArgs.monitoringMode = roudi::MonitoringMode::OFF;
             }
             else
             {
-                m_run = false;
+                m_cmdLineArgs.run = false;
                 IOX_LOG(ERROR) << "Options for monitoring-mode are 'on' and 'off'!";
             }
             break;
@@ -116,37 +130,53 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_logLevel = iox::log::LogLevel::OFF;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::OFF;
             }
             else if (strcmp(optarg, "fatal") == 0)
             {
-                m_logLevel = iox::log::LogLevel::FATAL;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::FATAL;
             }
             else if (strcmp(optarg, "error") == 0)
             {
-                m_logLevel = iox::log::LogLevel::ERROR;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::ERROR;
             }
             else if (strcmp(optarg, "warning") == 0)
             {
-                m_logLevel = iox::log::LogLevel::WARN;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::WARN;
             }
             else if (strcmp(optarg, "info") == 0)
             {
-                m_logLevel = iox::log::LogLevel::INFO;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::INFO;
             }
             else if (strcmp(optarg, "debug") == 0)
             {
-                m_logLevel = iox::log::LogLevel::DEBUG;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::DEBUG;
             }
             else if (strcmp(optarg, "trace") == 0)
             {
-                m_logLevel = iox::log::LogLevel::TRACE;
+                m_cmdLineArgs.logLevel = iox::log::LogLevel::TRACE;
             }
             else
             {
-                m_run = false;
+                m_cmdLineArgs.run = false;
                 IOX_LOG(ERROR) << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
                                   "'trace'!";
+            }
+            break;
+        }
+        case 't':
+        {
+            uint32_t processTerminationDelayInSeconds{0u};
+            constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
+            if (!cxx::convert::fromString(optarg, processTerminationDelayInSeconds))
+            {
+                IOX_LOG(ERROR) << "The process termination delay must be in the range of [0, "
+                               << MAX_PROCESS_TERMINATION_DELAY << "]";
+                m_cmdLineArgs.run = false;
+            }
+            else
+            {
+                m_cmdLineArgs.processTerminationDelay = units::Duration::fromSeconds(processTerminationDelayInSeconds);
             }
             break;
         }
@@ -158,11 +188,11 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             {
                 IOX_LOG(ERROR) << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY
                                << "]";
-                m_run = false;
+                m_cmdLineArgs.run = false;
             }
             else
             {
-                m_processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
+                m_cmdLineArgs.processKillDelay = units::Duration::fromSeconds(processKillDelayInSeconds);
             }
             break;
         }
@@ -170,31 +200,31 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             if (strcmp(optarg, "off") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::OFF;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::OFF;
             }
             else if (strcmp(optarg, "major") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MAJOR;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MAJOR;
             }
             else if (strcmp(optarg, "minor") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MINOR;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::MINOR;
             }
             else if (strcmp(optarg, "patch") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::PATCH;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::PATCH;
             }
             else if (strcmp(optarg, "commitId") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::COMMIT_ID;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::COMMIT_ID;
             }
             else if (strcmp(optarg, "buildDate") == 0)
             {
-                m_compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::BUILD_DATE;
+                m_cmdLineArgs.compatibilityCheckLevel = iox::version::CompatibilityCheckLevel::BUILD_DATE;
             }
             else
             {
-                m_run = false;
+                m_cmdLineArgs.run = false;
                 IOX_LOG(ERROR)
                     << "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!";
             }
@@ -203,7 +233,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         default:
         {
             // CmdLineParser did not understand the parameters, don't run
-            m_run = false;
+            m_cmdLineArgs.run = false;
             return err(CmdLineParserResult::UNKNOWN_OPTION_USED);
         }
         };
@@ -213,13 +243,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             break;
         }
     }
-    return ok(CmdLineArgs_t{m_monitoringMode,
-                            m_logLevel,
-                            m_compatibilityCheckLevel,
-                            m_processKillDelay,
-                            m_uniqueRouDiId,
-                            m_run,
-                            iox::roudi::ConfigFilePathString_t("")});
+    return ok(m_cmdLineArgs);
 } // namespace roudi
 } // namespace config
 } // namespace iox

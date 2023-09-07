@@ -57,12 +57,12 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
                       << std::endl;
             std::cout << "                                  1) /etc/iceoryx/roudi_config.toml" << std::endl;
             std::cout << "                                  2) hard-coded config" << std::endl;
-            m_run = false;
+            m_cmdLineArgs.run = false;
             break;
         }
         case 'c':
         {
-            m_customConfigFilePath = roudi::ConfigFilePathString_t(TruncateToCapacity, optarg);
+            m_cmdLineArgs.configFilePath = roudi::ConfigFilePathString_t(TruncateToCapacity, optarg);
             break;
         }
         default:
@@ -82,13 +82,7 @@ expected<CmdLineArgs_t, CmdLineParserResult> CmdLineParserConfigFileOption::pars
             break;
         }
     }
-    return ok(CmdLineArgs_t{m_monitoringMode,
-                            m_logLevel,
-                            m_compatibilityCheckLevel,
-                            m_processKillDelay,
-                            m_uniqueRouDiId,
-                            m_run,
-                            m_customConfigFilePath});
+    return ok(m_cmdLineArgs);
 }
 
 } // namespace config

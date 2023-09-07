@@ -57,6 +57,7 @@ class RouDiApp
     RouDiConfig_t m_config;
 
     version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
+    units::Duration m_processTeminationDelay{roudi::PROCESS_DEFAULT_TERMINATION_DELAY};
     units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
 
   private:

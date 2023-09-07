@@ -70,12 +70,20 @@ class ProcessManager_test : public Test
 };
 
 
+TEST_F(ProcessManager_test, RegisteredProcessCountIsInitiallyZero)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "54ec8fa2-e2dd-43a0-9e39-a9da967941de");
+
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(0));
+}
+
 TEST_F(ProcessManager_test, RegisterProcessWithMonitorningWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "57311fb6-f993-4011-bbe9-e42df5e54d5e");
     auto result = m_sut->registerProcess(m_processname, m_pid, m_user, m_isMonitored, 1U, 1U, m_versionInfo);
 
     EXPECT_TRUE(result);
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(1));
 }
 
 TEST_F(ProcessManager_test, RegisterProcessWithoutMonitoringWorks)
@@ -95,6 +103,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithMonitoringWorks)
 
     EXPECT_TRUE(result1);
     EXPECT_TRUE(result2);
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(2));
 }
 
 TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringWorks)
@@ -123,6 +132,7 @@ TEST_F(ProcessManager_test, RegisterAndUnregisterWorks)
     auto unregisterResult = m_sut->unregisterProcess(m_processname);
 
     EXPECT_TRUE(unregisterResult);
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(0));
 }
 
 TEST_F(ProcessManager_test, HandleProcessShutdownPreparationRequestWorks)

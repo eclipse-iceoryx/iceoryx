@@ -36,6 +36,7 @@ bool operator==(const CmdLineArgs_t& lhs, const CmdLineArgs_t& rhs)
 {
     return (lhs.monitoringMode == rhs.monitoringMode) && (lhs.logLevel == rhs.logLevel)
            && (lhs.compatibilityCheckLevel == rhs.compatibilityCheckLevel)
+           && (lhs.processTerminationDelay == rhs.processTerminationDelay)
            && (lhs.processKillDelay == rhs.processKillDelay) && (lhs.uniqueRouDiId == rhs.uniqueRouDiId)
            && (lhs.run == rhs.run) && (lhs.configFilePath == rhs.configFilePath);
 }
@@ -346,6 +347,65 @@ TEST_F(CmdLineParser_test, KillDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
     EXPECT_FALSE(result.value().run);
 }
 
+TEST_F(CmdLineParser_test, TerminationDelayLongOptionLeadsToCorrectDelay)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9125f775-93b6-4560-a535-f8ecf77671b5");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "--termination-delay";
+    char value[] = "73";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(result.value().processTerminationDelay, 73_s);
+    EXPECT_TRUE(result.value().run);
+}
+
+TEST_F(CmdLineParser_test, TerminationDelayShortOptionLeadsToCorrectDelay)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "05b24a16-334b-4b42-8846-766b0c99943b");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "-t";
+    char value[] = "42";
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(result.has_error());
+    EXPECT_EQ(result.value().processTerminationDelay, 42_s);
+    EXPECT_TRUE(result.value().run);
+}
+
+TEST_F(CmdLineParser_test, TerminationDelayOptionOutOfBoundsLeadsToProgrammNotRunning)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7eaffeb5-a0e5-4cdd-a898-d9d64c999d16");
+    constexpr uint8_t NUMBER_OF_ARGS{3U};
+    char* args[NUMBER_OF_ARGS];
+    char appName[] = "./foo";
+    char option[] = "--termination-delay";
+    char value[] = "4294967296"; // MAX_PROCESS_TERMINATION_DELAY + 1
+    args[0] = &appName[0];
+    args[1] = &option[0];
+    args[2] = &value[0];
+
+    CmdLineParser sut;
+    auto result = sut.parse(NUMBER_OF_ARGS, args);
+
+    ASSERT_FALSE(result.has_error());
+    EXPECT_FALSE(result.value().run);
+}
+
 TEST_F(CmdLineParser_test, CompatibilityLevelOptionsLeadToCorrectCompatibilityLevel)
 {
     ::testing::Test::RecordProperty("TEST_ID", "62b7d5c9-0638-4314-b4f7-c622ef101045");
@@ -458,18 +518,22 @@ TEST_F(CmdLineParser_test, OutOfBoundsUniqueIdOptionLeadsToProgrammNotRunning)
 TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1e674db9-d71a-4b82-83cc-eea2e04f4601");
-    constexpr uint8_t NUMBER_OF_ARGS{5U};
+    constexpr uint8_t NUMBER_OF_ARGS{7U};
     char* args[NUMBER_OF_ARGS];
     char appName[] = "./foo";
     char uniqueIdOption[] = "-u";
     char idValue[] = "4242";
     char killOption[] = "-k";
     char killValue[] = "42";
+    char terminationOption[] = "-t";
+    char terminationValue[] = "2";
     args[0] = &appName[0];
     args[1] = &uniqueIdOption[0];
     args[2] = &idValue[0];
     args[3] = &killOption[0];
     args[4] = &killValue[0];
+    args[5] = &terminationOption[0];
+    args[6] = &terminationValue[0];
 
     CmdLineParser sut;
     auto result = sut.parse(NUMBER_OF_ARGS, args, CmdLineParser::CmdLineArgumentParsingMode::ONE);
@@ -477,6 +541,7 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     ASSERT_FALSE(result.has_error());
     ASSERT_TRUE(result.value().uniqueRouDiId.has_value());
     EXPECT_EQ(result.value().uniqueRouDiId.value(), 4242);
+    EXPECT_EQ(result.value().processTerminationDelay, iox::roudi::PROCESS_DEFAULT_TERMINATION_DELAY);
     EXPECT_EQ(result.value().processKillDelay, iox::roudi::PROCESS_DEFAULT_KILL_DELAY); // default value for kill delay
     EXPECT_TRUE(result.value().run);
 
@@ -487,8 +552,9 @@ TEST_F(CmdLineParser_test, CmdLineParsingModeEqualToOneHandlesOnlyTheFirstOption
     ASSERT_FALSE(res.has_error());
     ASSERT_TRUE(res.value().uniqueRouDiId.has_value());
     EXPECT_EQ(res.value().uniqueRouDiId.value(), 4242);
-    EXPECT_EQ(res.value().processKillDelay, Duration::fromSeconds(42));
-    EXPECT_TRUE(result.value().run);
+    EXPECT_EQ(res.value().processTerminationDelay, 2_s);
+    EXPECT_EQ(res.value().processKillDelay, 42_s);
+    EXPECT_TRUE(res.value().run);
 }
 
 } // namespace

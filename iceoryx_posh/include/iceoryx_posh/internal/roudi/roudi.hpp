@@ -58,12 +58,14 @@ class RouDi
             const bool killProcessesInDestructor = true,
             const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
+            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY,
+            const units::Duration processTerminationDelay = roudi::PROCESS_DEFAULT_TERMINATION_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
+            , m_processTerminationDelay(processTerminationDelay)
         {
         }
 
@@ -72,6 +74,7 @@ class RouDi
         const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
+        const units::Duration m_processTerminationDelay;
     };
 
     RouDi& operator=(const RouDi& other) = delete;
@@ -166,6 +169,7 @@ class RouDi
 
   private:
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
+    units::Duration m_processTerminationDelay;
     units::Duration m_processKillDelay;
 };
 

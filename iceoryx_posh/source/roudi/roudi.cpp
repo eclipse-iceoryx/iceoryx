@@ -50,6 +50,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           *m_roudiMemoryInterface->segmentManager().value(),
           PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
+    , m_processTerminationDelay(roudiStartupParameters.m_processTerminationDelay)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     if (internal::isCompiledOn32BitSystem())
@@ -115,13 +116,25 @@ void RouDi::shutdown() noexcept
 
     if (m_killProcessesInDestructor)
     {
-        deadline_timer finalKillTimer(m_processKillDelay);
+        deadline_timer terminationDelayTimer(m_processTerminationDelay);
+        using namespace units::duration_literals;
+        auto remainingDurationForInfoPrint = m_processTerminationDelay - 1_s;
+        while (!terminationDelayTimer.hasExpired() && m_prcMgr->registeredProcessCount() > 0)
+        {
+            if (remainingDurationForInfoPrint > terminationDelayTimer.remainingTime())
+            {
+                IOX_LOG(WARN) << "Some applications seem to be still running! Time until graceful shutdown: "
+                              << terminationDelayTimer.remainingTime().toSeconds() << "s!";
+                remainingDurationForInfoPrint = remainingDurationForInfoPrint - 5_s;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
+        }
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
-        using namespace units::duration_literals;
+        deadline_timer finalKillTimer(m_processKillDelay);
         auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
-        while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
+        while (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm() && !finalKillTimer.hasExpired())
         {
             if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
             {
@@ -134,13 +147,13 @@ void RouDi::shutdown() noexcept
         }
 
         // Is any processes still alive?
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
+        if (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm() && finalKillTimer.hasExpired())
         {
             // Time to kill them
             m_prcMgr->killAllProcesses();
         }
 
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning())
+        if (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm())
         {
             m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
