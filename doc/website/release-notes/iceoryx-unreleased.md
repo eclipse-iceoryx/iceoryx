@@ -4,6 +4,10 @@
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/vx.x.x...vx.x.x) <!--NOLINT remove this when tag is set-->
 
+**Notes**
+
+- The minimal supported GCC compiler is now 8.3
+
 **Features:**
 
 - Add bazel asan, usan, tsan build config [#1547](https://github.com/eclipse-iceoryx/iceoryx/issues/1547)

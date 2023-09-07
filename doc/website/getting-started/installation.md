@@ -9,7 +9,7 @@ All iceoryx libraries are deployed as independent CMake packages. Posh is using 
 - 64-bit hardware (e.g. x86_64 or aarch64; 32-bit hardware might work, but is not supported)
 - [CMake](https://cmake.org), 3.16 or later
 - One of the following compilers:
-    - [GCC](https://gcc.gnu.org), 8.3 or later (5.4 currently supported too)
+    - [GCC](https://gcc.gnu.org), 8.3 or later
     - [Clang](https://clang.llvm.org), 9.0 or later
     - [MSVC](https://visualstudio.microsoft.com/de/), part of Visual Studio 2019 or later
 - [libacl](http://download.savannah.gnu.org/releases/acl/), 2.2 or later. Only for Linux & QNX.
@@ -35,7 +35,7 @@ make install
 
 ### Linux
 
-Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 18.04 and at least GCC 7.5.0 for development.
+Although we strive to be fully POSIX-compliant, we recommend using Ubuntu 20.04 and at least GCC 8.3 for development.
 
 You will need to install the following packages:
 
@@ -47,7 +47,7 @@ Additionally, there is an optional dependency to the [cpptoml](https://github.co
 
 ### QNX
 
-QNX SDP 7.0 and 7.1 are supported (shipping with gcc 5.4 and gcc 8.3 respectively).
+QNX SDP 7.1 is supported (shipping with gcc 8.3 respectively).
 
 The easiest way to build iceoryx on QNX is by using the build script and providing a toolchain file.
 We provide generic QNX SDP 7.0 toolchain files for ARM_64 and X86_64 in `./tools/toolchains/qnx` ([Direct Link](../../../tools/toolchains/qnx)).
@@ -118,7 +118,7 @@ The `CMakeLists.txt` from `iceoryx_meta` can be used to easily develop iceoryx w
     ```
 
     If the compilation fails, it is possible that the compilation failure originates
-    inside the Windows SDK and is not caused by iceoryx, see 
+    inside the Windows SDK and is not caused by iceoryx, see
     [Windows vcpkg-issue \#15035](https://github.com/microsoft/vcpkg/issues/15035#issuecomment-742427969.)
     In this case try to rebuild the cmake files with:
     ```bash
