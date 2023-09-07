@@ -13,6 +13,9 @@
 # limitations under the License.
 #
 # SPDX-License-Identifier: Apache-2.0
+
+# @todo iox-#2026 update to QNX 7.1
+
 SET(CMAKE_SYSTEM_PROCESSOR x86_64)
 SET(arch gcc_ntox86_64)
 
