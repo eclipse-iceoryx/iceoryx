@@ -103,7 +103,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithMonitoringWorks)
 
     EXPECT_TRUE(result1);
     EXPECT_TRUE(result2);
-    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(2));
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(1));
 }
 
 TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringWorks)
@@ -115,6 +115,7 @@ TEST_F(ProcessManager_test, RegisterSameProcessTwiceWithoutMonitoringWorks)
 
     EXPECT_TRUE(result1);
     EXPECT_TRUE(result2);
+    EXPECT_THAT(m_sut->registeredProcessCount(), Eq(1));
 }
 
 TEST_F(ProcessManager_test, UnregisterNonExistentProcessLeadsToError)
