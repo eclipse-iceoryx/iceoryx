@@ -184,8 +184,8 @@ class LogStream
     /// @return a reference to the LogStream instance
     LogStream& operator<<(const short val) noexcept;
 
-    /// @brief Logging support for 'unsigned shor'
-    /// @param[in] val is the 'unsigned shor' to log
+    /// @brief Logging support for 'unsigned short'
+    /// @param[in] val is the 'unsigned short' to log
     /// @return a reference to the LogStream instance
     LogStream& operator<<(const unsigned short val) noexcept;
 
