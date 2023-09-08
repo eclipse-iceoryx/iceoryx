@@ -288,7 +288,7 @@ samples. When `take()` was successful we print our message to
 the console inside of the `and_then` lambda.
 
 To save some mileage on the keyboard, a type alias for _WaitSet_ with the storage capacity
-for 2 event is defined.
+for 2 events is defined.
 
 <!--[geoffrey][iceoryx_examples/waitset/ice_waitset_gateway.cpp][waitset type alias]-->
 ```cpp

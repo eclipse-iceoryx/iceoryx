@@ -1037,13 +1037,9 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
         this->add(randomService("Ferdinand", "Spitz"));
     }
 
-    IOX_LOG(FATAL) << "#### start";
-
     auto s3 = randomService("Ferdinand", "Spitz");
     this->add(s3);
     ++created;
-
-    IOX_LOG(FATAL) << "#### end";
 
     EXPECT_EQ(created, MAX);
 

@@ -250,7 +250,7 @@ void RouDi::processRuntimeMessages() noexcept
     {
         // read RouDi's IPC channel
         runtime::IpcMessage message;
-        if (roudiIpcInterface.timedReceive(10_ms /*m_runtimeMessagesThreadTimeout*/, message))
+        if (roudiIpcInterface.timedReceive(m_runtimeMessagesThreadTimeout, message))
         {
             auto cmd = runtime::stringToIpcMessageType(message.getElementAtIndex(0).c_str());
             RuntimeName_t runtimeName{into<lossy<RuntimeName_t>>(message.getElementAtIndex(1))};
