@@ -210,7 +210,7 @@ void RouDi::monitorAndDiscoveryUpdate() noexcept
 
     popo::ConditionVariableData conditionVariableData;
     DiscoveryWaitSet discoveryLoopWaitset{conditionVariableData};
-    discoveryLoopWaitset.attachEvent(m_discoveryLoopTrigger).expect("Successfully attaching a single event");
+    discoveryLoopWaitset.attachEvent(m_discoveryLoopTrigger).expect("Failed to attach a single event");
     bool manuallyTriggered{false};
 
     while (m_runMonitoringAndDiscoveryThread)

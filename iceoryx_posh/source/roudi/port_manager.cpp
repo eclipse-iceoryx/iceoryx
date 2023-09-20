@@ -53,13 +53,13 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     m_portPool = maybePortPool.value();
 
-    auto maybediscoveryMemoryManager = m_roudiMemoryInterface->discoveryMemoryManager();
-    if (!maybediscoveryMemoryManager.has_value())
+    auto maybeDiscoveryMemoryManager = m_roudiMemoryInterface->discoveryMemoryManager();
+    if (!maybeDiscoveryMemoryManager.has_value())
     {
         IOX_LOG(FATAL) << "Could not get MemoryManager for discovery!";
         errorHandler(PoshError::PORT_MANAGER__DISCOVERY_MEMORY_MANAGER_UNAVAILABLE, iox::ErrorLevel::FATAL);
     }
-    auto& discoveryMemoryManager = maybediscoveryMemoryManager.value();
+    auto& discoveryMemoryManager = maybeDiscoveryMemoryManager.value();
 
     popo::PublisherOptions registryPortOptions;
     registryPortOptions.historyCapacity = 1U;
