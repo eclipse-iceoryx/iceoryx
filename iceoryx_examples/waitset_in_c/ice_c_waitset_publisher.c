@@ -24,14 +24,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool killswitch = false;
+volatile bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    keepRunning = false;
 }
 
 void sending(void)
@@ -45,7 +45,7 @@ void sending(void)
     iox_pub_storage_t publisherStorage;
     iox_pub_t publisher = iox_pub_init(&publisherStorage, "Radar", "FrontLeft", "Counter", &options);
 
-    for (uint32_t counter = 0U; !killswitch; ++counter)
+    for (uint32_t counter = 0U; keepRunning; ++counter)
     {
         void* userPayload = NULL;
         if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &userPayload, sizeof(struct CounterTopic)))

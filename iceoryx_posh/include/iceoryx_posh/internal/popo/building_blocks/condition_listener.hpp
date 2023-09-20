@@ -46,7 +46,7 @@ class ConditionListener
     ///         and stop working. Destroy will send an empty notification to wait() and
     ///         after this call wait() turns into a non blocking call which always
     ///         returns an empty vector.
-    void destroy() noexcept;
+    void destroy() volatile noexcept;
 
     /// @brief returns a sorted vector of indices of active notifications; blocking if ConditionVariableData was
     /// not notified unless destroy() was called before. The indices of active notifications are
@@ -65,8 +65,8 @@ class ConditionListener
     NotificationVector_t timedWait(const units::Duration& timeToWait) noexcept;
 
   protected:
-    const ConditionVariableData* getMembers() const noexcept;
-    ConditionVariableData* getMembers() noexcept;
+    const ConditionVariableData* getMembers() volatile const noexcept;
+    ConditionVariableData* getMembers() volatile noexcept;
 
   private:
     void resetUnchecked(const uint64_t index) noexcept;

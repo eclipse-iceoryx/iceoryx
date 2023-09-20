@@ -25,11 +25,17 @@
 #include <iostream>
 
 std::atomic_bool keepRunning{true};
-iox::popo::UserTrigger shutdownTrigger;
+
+using WaitSet = iox::popo::WaitSet<>;
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
-    shutdownTrigger.trigger();
+    keepRunning = false;
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
 }
 
 int main()
@@ -43,13 +49,8 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-individual");
 
     //! [create waitset]
-    iox::popo::WaitSet<> waitset;
-
-    // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
-        std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    WaitSet waitset;
+    waitsetSigHandlerAccess = &waitset;
     //! [create waitset]
 
     // create two subscribers, subscribe to the service and attach them to the waitset
@@ -74,15 +75,9 @@ int main()
 
         for (auto& notification : notificationVector)
         {
-            //! [shutdown path]
-            if (notification->doesOriginateFrom(&shutdownTrigger))
-            {
-                keepRunning = false;
-            }
-            //! [shutdown path]
             //! [data path]
             // process sample received by subscriber1
-            else if (notification->doesOriginateFrom(&subscriber1))
+            if (notification->doesOriginateFrom(&subscriber1))
             {
                 subscriber1.take().and_then(
                     [&](auto& sample) { std::cout << "subscriber 1 received: " << sample->counter << std::endl; });
@@ -102,6 +97,8 @@ int main()
         std::cout << std::endl;
     }
     //! [event loop]
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

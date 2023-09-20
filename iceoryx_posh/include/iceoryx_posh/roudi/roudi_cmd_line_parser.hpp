@@ -63,12 +63,7 @@ class CmdLineParser
           const CmdLineArgumentParsingMode cmdLineParsingMode = CmdLineArgumentParsingMode::ALL) noexcept;
 
   protected:
-    bool m_run{true};
-    iox::log::LogLevel m_logLevel{iox::log::LogLevel::INFO};
-    roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::OFF};
-    version::CompatibilityCheckLevel m_compatibilityCheckLevel{version::CompatibilityCheckLevel::PATCH};
-    optional<uint16_t> m_uniqueRouDiId;
-    units::Duration m_processKillDelay{roudi::PROCESS_DEFAULT_KILL_DELAY};
+    CmdLineArgs_t m_cmdLineArgs;
 };
 
 } // namespace config

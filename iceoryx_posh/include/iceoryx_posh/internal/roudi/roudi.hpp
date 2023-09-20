@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/roudi/introspection/mempool_introspection.hpp"
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_creator.hpp"
+#include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_interface.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
@@ -57,12 +58,14 @@ class RouDi
             const bool killProcessesInDestructor = true,
             const RuntimeMessagesThreadStart RuntimeMessagesThreadStart = RuntimeMessagesThreadStart::IMMEDIATE,
             const version::CompatibilityCheckLevel compatibilityCheckLevel = version::CompatibilityCheckLevel::PATCH,
-            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY) noexcept
+            const units::Duration processKillDelay = roudi::PROCESS_DEFAULT_KILL_DELAY,
+            const units::Duration processTerminationDelay = roudi::PROCESS_DEFAULT_TERMINATION_DELAY) noexcept
             : m_monitoringMode(monitoringMode)
             , m_killProcessesInDestructor(killProcessesInDestructor)
             , m_runtimesMessagesThreadStart(RuntimeMessagesThreadStart)
             , m_compatibilityCheckLevel(compatibilityCheckLevel)
             , m_processKillDelay(processKillDelay)
+            , m_processTerminationDelay(processTerminationDelay)
         {
         }
 
@@ -71,6 +74,7 @@ class RouDi
         const RuntimeMessagesThreadStart m_runtimesMessagesThreadStart;
         const version::CompatibilityCheckLevel m_compatibilityCheckLevel;
         const units::Duration m_processKillDelay;
+        const units::Duration m_processTerminationDelay;
     };
 
     RouDi& operator=(const RouDi& other) = delete;
@@ -81,6 +85,11 @@ class RouDi
           RoudiStartupParameters roudiStartupParameters) noexcept;
 
     virtual ~RouDi() noexcept;
+
+    /// @brief Triggers the discovery loop to run immediately instead of waiting for the next tick interval
+    /// @param[in] timeout is the time to wait to unblock the function call in case the discovery loop never signals to
+    /// have finished the run
+    void triggerDiscoveryLoopAndWaitToFinish(units::Duration timeout) noexcept;
 
   protected:
     /// @brief Starts the thread processing messages from the runtimes
@@ -131,6 +140,9 @@ class RouDi
     std::atomic_bool m_runMonitoringAndDiscoveryThread;
     std::atomic_bool m_runHandleRuntimeMessageThread;
 
+    popo::UserTrigger m_discoveryLoopTrigger;
+    optional<iox::posix::UnnamedSemaphore> m_discoveryFinishedSemaphore;
+
     const units::Duration m_runtimeMessagesThreadTimeout{100_ms};
 
   protected:
@@ -157,6 +169,7 @@ class RouDi
 
   private:
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};
+    units::Duration m_processTerminationDelay;
     units::Duration m_processKillDelay;
 };
 

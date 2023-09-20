@@ -73,7 +73,7 @@ class WaitSet
     ///        not block any longer and never return triggered events/states. This
     ///        method can be used to manually initialize destruction and to wakeup
     ///        any thread which is waiting in wait() or timedWait().
-    void markForDestruction() noexcept;
+    void markForDestruction() volatile noexcept;
 
     /// @brief attaches an event of a given class to the WaitSet.
     /// @note attachEvent does not take ownership of callback in the underlying eventCallback or the optional

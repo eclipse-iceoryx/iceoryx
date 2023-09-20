@@ -24,14 +24,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool killswitch = false;
+volatile bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    keepRunning = false;
 }
 
 void sending(void)
@@ -53,7 +53,7 @@ void sending(void)
     //! [send and print number]
     double ct = 0.0;
 
-    while (!killswitch)
+    while (keepRunning)
     {
         void* userPayload = NULL;
         if (AllocationResult_SUCCESS == iox_pub_loan_chunk(publisher, &userPayload, sizeof(struct RadarObject)))

@@ -80,6 +80,8 @@ int main()
     {
         // here the app would run its functional code while the
         // service availability is monitored in the background
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     //! [deregister callback]

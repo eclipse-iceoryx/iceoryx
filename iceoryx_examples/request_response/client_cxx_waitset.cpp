@@ -28,8 +28,10 @@
 #include <iostream>
 
 constexpr char APP_NAME[] = "iox-cpp-request-response-client-waitset";
-std::atomic_bool keepRunning = {true};
-iox::optional<iox::popo::WaitSet<>> waitset;
+volatile bool keepRunning = {true};
+
+using WaitSet = iox::popo::WaitSet<>;
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 //! [context data to store Fibonacci numbers and sequence ids]
 struct ContextData
@@ -41,10 +43,13 @@ struct ContextData
 };
 //! [context data to store Fibonacci numbers and sequence ids]
 
-void signalHandler(int)
+static void signalHandler(int sig IOX_MAYBE_UNUSED)
 {
     keepRunning = false;
-    waitset.and_then([&](auto& w) { w.markForDestruction(); });
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
 }
 
 int main()
@@ -61,7 +66,8 @@ int main()
     ContextData ctx;
 
     //! [create waitset]
-    waitset.emplace();
+    WaitSet waitset;
+    waitsetSigHandlerAccess = &waitset;
 
     //! [create client]
     iox::popo::ClientOptions options;
@@ -70,7 +76,7 @@ int main()
     //! [create client]
 
     // attach client to waitset
-    waitset->attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
+    waitset.attachState(client, iox::popo::ClientState::HAS_RESPONSE).or_else([](auto) {
         std::cerr << "failed to attach client" << std::endl;
         std::exit(EXIT_FAILURE);
     });
@@ -98,7 +104,7 @@ int main()
 
         // We block and wait for samples to arrive, when the time is up we send the request again
         //! [wait and check if the client triggered]
-        auto notificationVector = waitset->timedWait(iox::units::Duration::fromSeconds(5));
+        auto notificationVector = waitset.timedWait(iox::units::Duration::fromSeconds(5));
 
         for (auto& notification : notificationVector)
         {
@@ -131,8 +137,9 @@ int main()
     }
     //! [mainloop]
 
-    waitset.reset();
     std::cout << "shutting down" << std::endl;
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

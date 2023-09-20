@@ -27,7 +27,7 @@
 
 #define SEARCH_RESULT_CAPACITY 10
 
-bool keepRunning = true;
+volatile bool keepRunning = true;
 
 const char APP_NAME[] = "iox-c-find-service";
 

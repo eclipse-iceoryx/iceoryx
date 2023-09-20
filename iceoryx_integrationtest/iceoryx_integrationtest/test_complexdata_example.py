@@ -56,7 +56,7 @@ def generate_test_description():
         'iox-roudi'
     )
     roudi_process = launch.actions.ExecuteProcess(
-        cmd=[roudi_executable, '-l', 'debug'],
+        cmd=[roudi_executable, '-l', 'trace', '--termination-delay', '5', '--kill-delay', '5'],
         env=proc_env, output='screen',
         sigterm_timeout='20')
 

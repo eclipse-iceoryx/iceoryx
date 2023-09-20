@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
-bool keepRunning = true;
+volatile bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {

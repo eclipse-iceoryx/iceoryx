@@ -34,18 +34,23 @@
 
 #define NUMBER_OF_NOTIFICATIONS 1
 
-bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-client-waitset";
 
-iox_ws_t waitset;
-iox_ws_storage_t waitsetStorage;
+//! [signal handler]
+volatile bool keepRunning = true;
+
+volatile iox_ws_t waitsetSigHandlerAccess = NULL;
 
 void sigHandler(int signalValue)
 {
     (void)signalValue;
     keepRunning = false;
-    iox_ws_mark_for_destruction(waitset);
+    if (waitsetSigHandlerAccess)
+    {
+        iox_ws_mark_for_destruction(waitsetSigHandlerAccess);
+    }
 }
+//! [signal handler]
 
 int main(void)
 {
@@ -63,7 +68,9 @@ int main(void)
     int64_t expectedResponseSequenceId = requestSequenceId;
 
     //! [create waitset and attach client]
-    waitset = iox_ws_init(&waitsetStorage);
+    iox_ws_storage_t waitsetStorage;
+    iox_ws_t waitset = iox_ws_init(&waitsetStorage);
+    waitsetSigHandlerAccess = waitset;
 
     if (iox_ws_attach_client_state(waitset, client, ClientState_HAS_RESPONSE, 0U, NULL) != WaitSetResult_SUCCESS)
     {
@@ -146,6 +153,7 @@ int main(void)
 
     //! [cleanup]
     iox_ws_detach_client_state(waitset, client, ClientState_HAS_RESPONSE);
+    waitsetSigHandlerAccess = NULL; // invalidate for signal handler
     iox_ws_deinit(waitset);
     iox_client_deinit(client);
     //! [cleanup]

@@ -25,14 +25,14 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-bool killswitch = false;
+volatile bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    keepRunning = false;
 }
 
 void receiving(void)
@@ -57,7 +57,7 @@ void receiving(void)
     //! [create subscriber port]
 
     //! [receive and print data]
-    while (!killswitch)
+    while (keepRunning)
     {
         if (SubscribeState_SUBSCRIBED == iox_sub_get_subscription_state(subscriber))
         {

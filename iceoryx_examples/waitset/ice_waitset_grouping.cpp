@@ -25,18 +25,23 @@
 #include <iostream>
 
 std::atomic_bool keepRunning{true};
-iox::popo::UserTrigger shutdownTrigger;
+
+constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
+using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
+
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
-    shutdownTrigger.trigger();
+    keepRunning = false;
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
 }
 
 int main()
 {
-    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 4U;
-    constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
-
     // register sigHandler
     auto signalIntGuard =
         iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
@@ -45,13 +50,8 @@ int main()
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-grouping");
     //! [create waitset]
-    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
-
-    // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
-        std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    WaitSet waitset;
+    waitsetSigHandlerAccess = &waitset;
     //! [create waitset]
 
     // create subscriber and subscribe them to our service
@@ -95,16 +95,9 @@ int main()
 
         for (auto& notification : notificationVector)
         {
-            //! [shutdown path]
-            if (notification->doesOriginateFrom(&shutdownTrigger))
-            {
-                keepRunning = false;
-            }
-            //! [shutdown path]
-
             //! [data path]
             // we print the received data for the first group
-            else if (notification->getNotificationId() == FIRST_GROUP_ID)
+            if (notification->getNotificationId() == FIRST_GROUP_ID)
             {
                 auto subscriber = notification->getOrigin<iox::popo::UntypedSubscriber>();
                 subscriber->take().and_then([&](auto& userPayload) {
@@ -131,6 +124,8 @@ int main()
         std::cout << std::endl;
     }
     //! [event loop]
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

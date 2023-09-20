@@ -24,11 +24,18 @@
 #include <chrono>
 #include <iostream>
 
-iox::popo::UserTrigger shutdownTrigger;
+std::atomic_bool keepRunning{true};
+
+using WaitSet = iox::popo::WaitSet<>;
+volatile iox::popo::WaitSet<>* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
-    shutdownTrigger.trigger();
+    keepRunning = false;
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
 }
 
 //! [cyclic run]
@@ -51,16 +58,10 @@ int main()
         iox::posix::registerSignalHandler(iox::posix::Signal::TERM, sigHandler).expect("failed to register SIGTERM");
 
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-sync");
-    std::atomic_bool keepRunning{true};
 
     //! [create waitset]
     iox::popo::WaitSet<> waitset;
-
-    // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger).or_else([](auto) {
-        std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    waitsetSigHandlerAccess = &waitset;
     //! [create waitset]
 
     // create and attach the cyclicTrigger with a callback to
@@ -91,19 +92,9 @@ int main()
 
         for (auto& notification : notificationVector)
         {
-            //! [shutdown path]
-            if (notification->doesOriginateFrom(&shutdownTrigger))
-            {
-                // CTRL+C was pressed -> exit
-                keepRunning.store(false);
-            }
-            //! [shutdown path]
             //! [data path]
-            else
-            {
-                // call SomeClass::cyclicRun
-                (*notification)();
-            }
+            // call SomeClass::cyclicRun
+            (*notification)();
             //! [data path]
         }
 
@@ -112,5 +103,8 @@ int main()
     //! [event loop]
 
     cyclicTriggerThread.join();
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
+
     return (EXIT_SUCCESS);
 }

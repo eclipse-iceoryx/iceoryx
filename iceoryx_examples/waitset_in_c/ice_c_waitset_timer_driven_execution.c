@@ -35,20 +35,22 @@ typedef HANDLE pthread_t;
 
 #define NUMBER_OF_NOTIFICATIONS 2
 
-iox_user_trigger_storage_t shutdownTriggerStorage;
-iox_user_trigger_t shutdownTrigger;
+volatile bool keepRunning = true;
 
 iox_user_trigger_storage_t cyclicTriggerStorage;
 iox_user_trigger_t cyclicTrigger;
 
-bool keepRunning = true;
+volatile iox_ws_t waitSetSigHandlerAccess = NULL;
 
-static void sigHandler(int signalValue)
+void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
-
-    iox_user_trigger_trigger(shutdownTrigger);
+    keepRunning = false;
+    if (waitSetSigHandlerAccess)
+    {
+        iox_ws_mark_for_destruction(waitSetSigHandlerAccess);
+    }
 }
 
 void cyclicRun(iox_user_trigger_t trigger)
@@ -62,10 +64,16 @@ void* cyclicTriggerCallback(void* dontCare)
 {
     // Ignore unused variable warning
     (void)dontCare;
+    int countdownToTrigger = 100;
     while (keepRunning)
     {
-        iox_user_trigger_trigger(cyclicTrigger);
-        sleep_for(1000);
+        if (countdownToTrigger == 0)
+        {
+            iox_user_trigger_trigger(cyclicTrigger);
+            countdownToTrigger = 100;
+        }
+        sleep_for(10);
+        --countdownToTrigger;
     }
     return NULL;
 }
@@ -93,18 +101,14 @@ void joinThread(pthread_t threadHandle)
 int main(void)
 {
     //! [initialization and shutdown handling]
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
     iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-    shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-    // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
-
-    // register signal after shutdownTrigger since we are using it in the handler
-    signal(SIGINT, sigHandler);
-    signal(SIGTERM, sigHandler);
+    waitSetSigHandlerAccess = waitSet;
     //! [initialization and shutdown handling]
 
     // create and attach the cyclicTrigger with a callback to
@@ -140,12 +144,7 @@ int main(void)
         {
             iox_notification_info_t notification = notificationArray[i];
 
-            if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-            {
-                // CTRL+C was pressed -> exit
-                keepRunning = false;
-            }
-            else
+            if (iox_notification_info_does_originate_from_user_trigger(notification, cyclicTrigger))
             {
                 // call myCyclicRun
                 iox_notification_info_call(notification);
@@ -157,8 +156,11 @@ int main(void)
 
     //! [cleanup all resources]
     joinThread(cyclicTriggerThread);
+
+    waitSetSigHandlerAccess = NULL; // invalidate for signal handler
     iox_ws_deinit(waitSet);
-    iox_user_trigger_deinit(shutdownTrigger);
+
+    iox_user_trigger_deinit(cyclicTrigger);
     //! [cleanup all resources]
 
     return 0;

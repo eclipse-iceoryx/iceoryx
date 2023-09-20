@@ -26,14 +26,17 @@
 #include <stddef.h>
 #include <stdio.h>
 
-bool keepRunning = true;
 const char APP_NAME[] = "iox-c-request-response-client-basic";
+
+//! [signal handler]
+volatile bool keepRunning = true;
 
 void sigHandler(int signalValue)
 {
     (void)signalValue;
     keepRunning = false;
 }
+//! [signal handler]
 
 int main(void)
 {

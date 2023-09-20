@@ -226,6 +226,7 @@ constexpr uint16_t DEFAULT_UNIQUE_ROUDI_ID{0U};
 
 // Timeout
 using namespace units::duration_literals;
+constexpr units::Duration PROCESS_DEFAULT_TERMINATION_DELAY = 0_s;
 constexpr units::Duration PROCESS_DEFAULT_KILL_DELAY = 45_s;
 constexpr units::Duration PROCESS_TERMINATED_CHECK_INTERVAL = 250_ms;
 constexpr units::Duration DISCOVERY_INTERVAL = 100_ms;

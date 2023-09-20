@@ -198,7 +198,7 @@ class PortManager
 
     bool isInternal(const capro::ServiceDescription& service) const noexcept;
 
-    void publishServiceRegistry() const noexcept;
+    void publishServiceRegistry() noexcept;
 
     const ServiceRegistry& serviceRegistry() const noexcept;
 

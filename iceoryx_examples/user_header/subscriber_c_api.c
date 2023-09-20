@@ -27,20 +27,14 @@
 #include <stdio.h>
 
 //! [signal handling]
-#ifdef _WIN32
-/// @todo iox-#33 needs proper fix but it seems MSVC doesn't have stdatomic.h
-volatile bool killswitch = false;
-#else
-#include <stdatomic.h>
-atomic_bool killswitch = false;
-#endif
+volatile bool keepRunning = true;
 
 static void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
     // caught SIGINT or SIGTERM, now exit gracefully
-    killswitch = true;
+    keepRunning = false;
 }
 //! [signal handling]
 
@@ -62,7 +56,7 @@ int main(void)
     //! [create subscriber]
 
     //! [poll subscriber for samples in a loop]
-    while (!killswitch)
+    while (keepRunning)
     {
         //! [take chunk]
         const void* userPayload;

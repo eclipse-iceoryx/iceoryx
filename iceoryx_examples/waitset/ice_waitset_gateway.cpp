@@ -24,20 +24,24 @@
 #include <chrono>
 #include <iostream>
 
+constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
+
 std::atomic_bool keepRunning{true};
-iox::popo::UserTrigger shutdownTrigger;
+
+//! [waitset type alias]
+using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
+//! [waitset type alias]
+
+volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
 static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
 {
-    shutdownTrigger.trigger();
+    keepRunning = false;
+    if (waitsetSigHandlerAccess)
+    {
+        waitsetSigHandlerAccess->markForDestruction();
+    }
 }
-
-//! [shutdown callback]
-void shutdownCallback(iox::popo::UserTrigger*)
-{
-    std::cout << "CTRL+C pressed - exiting now" << std::endl;
-}
-//! [shutdown callback]
 
 // The callback of the event. Every callback must have an argument which is
 // a pointer to the origin of the Trigger. In our case the event origin is
@@ -63,9 +67,6 @@ void subscriberCallback(iox::popo::UntypedSubscriber* const subscriber, uint64_t
 
 int main()
 {
-    constexpr uint64_t NUMBER_OF_SUBSCRIBERS = 2U;
-    constexpr uint64_t ONE_SHUTDOWN_TRIGGER = 1U;
-
     // register sigHandler
     auto signalIntGuard =
         iox::posix::registerSignalHandler(iox::posix::Signal::INT, sigHandler).expect("failed to register SIGINT");
@@ -75,13 +76,8 @@ int main()
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-waitset-gateway");
 
     //! [create waitset]
-    iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS + ONE_SHUTDOWN_TRIGGER> waitset;
-
-    // attach shutdownTrigger to handle CTRL+C
-    waitset.attachEvent(shutdownTrigger, iox::popo::createNotificationCallback(shutdownCallback)).or_else([](auto) {
-        std::cerr << "failed to attach shutdown trigger" << std::endl;
-        std::exit(EXIT_FAILURE);
-    });
+    WaitSet waitset;
+    waitsetSigHandlerAccess = &waitset;
     //! [create waitset]
 
     //! [configure]
@@ -115,16 +111,8 @@ int main()
 
         for (auto& notification : notificationVector)
         {
-            if (notification->doesOriginateFrom(&shutdownTrigger))
-            {
-                (*notification)();
-                keepRunning = false;
-            }
-            else
-            {
-                // call the callback which was assigned to the notification
-                (*notification)();
-            }
+            // call the callback which was assigned to the notification
+            (*notification)();
         }
 
         auto flags = std::cout.flags();
@@ -132,6 +120,8 @@ int main()
         std::cout.setf(flags);
     }
     //! [event loop]
+
+    waitsetSigHandlerAccess = nullptr; // invalidate for signal handler
 
     return (EXIT_SUCCESS);
 }

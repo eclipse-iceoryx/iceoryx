@@ -94,6 +94,7 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
     for (auto& process : m_processList)
     {
+        IOX_LOG(DEBUG) << "Sending SIGTERM to Process ID " << process.getPid() << " named '" << process.getName();
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
 
@@ -101,11 +102,16 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     m_portManager.unblockRouDiShutdown();
 }
 
-bool ProcessManager::isAnyRegisteredProcessStillRunning() noexcept
+uint64_t ProcessManager::registeredProcessCount() const noexcept
+{
+    return m_processList.size();
+}
+
+bool ProcessManager::probeRegisteredProcessesAliveWithSigTerm() noexcept
 {
     for (auto& process : m_processList)
     {
-        if (isProcessAlive(process))
+        if (probeProcessAliveWithSigTerm(process))
         {
             return true;
         }
@@ -147,7 +153,7 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
                 .has_error();
 }
 
-bool ProcessManager::isProcessAlive(const Process& process) noexcept
+bool ProcessManager::probeProcessAliveWithSigTerm(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
     auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)

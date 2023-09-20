@@ -27,6 +27,7 @@
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "test.hpp"
 
@@ -40,6 +41,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::popo;
+using namespace iox::testing;
 using iox::roudi::RouDiEnvironment;
 
 class PoshRuntime_test : public Test
@@ -59,11 +61,6 @@ class PoshRuntime_test : public Test
 
     void TearDown() override
     {
-    }
-
-    void InterOpWait()
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
     void checkClientInitialization(const ClientPortData* const portData,
@@ -109,7 +106,7 @@ class PoshRuntime_test : public Test
     }
 
     const iox::RuntimeName_t m_runtimeName{"publisher"};
-    RouDiEnvironment m_roudiEnv{iox::RouDiConfig_t().setDefaults()};
+    RouDiEnvironment m_roudiEnv{MinimalRouDiConfigBuilder().create()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     IpcMessage m_sendBuffer;
     IpcMessage m_receiveBuffer;

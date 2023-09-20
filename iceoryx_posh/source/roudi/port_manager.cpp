@@ -53,13 +53,13 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     }
     m_portPool = maybePortPool.value();
 
-    auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface->introspectionMemoryManager();
-    if (!maybeIntrospectionMemoryManager.has_value())
+    auto maybediscoveryMemoryManager = m_roudiMemoryInterface->discoveryMemoryManager();
+    if (!maybediscoveryMemoryManager.has_value())
     {
-        IOX_LOG(FATAL) << "Could not get MemoryManager for introspection!";
-        errorHandler(PoshError::PORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, iox::ErrorLevel::FATAL);
+        IOX_LOG(FATAL) << "Could not get MemoryManager for discovery!";
+        errorHandler(PoshError::PORT_MANAGER__DISCOVERY_MEMORY_MANAGER_UNAVAILABLE, iox::ErrorLevel::FATAL);
     }
-    auto introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
+    auto& discoveryMemoryManager = maybediscoveryMemoryManager.value();
 
     popo::PublisherOptions registryPortOptions;
     registryPortOptions.historyCapacity = 1U;
@@ -70,11 +70,19 @@ PortManager::PortManager(RouDiMemoryInterface* roudiMemoryInterface) noexcept
     m_serviceRegistryPublisherPortData = acquireInternalPublisherPortDataWithoutDiscovery(
         {SERVICE_DISCOVERY_SERVICE_NAME, SERVICE_DISCOVERY_INSTANCE_NAME, SERVICE_DISCOVERY_EVENT_NAME},
         registryPortOptions,
-        introspectionMemoryManager);
+        discoveryMemoryManager);
 
     // if we arrive here, the port for service discovery exists and we perform the discovery
     PublisherPortRouDiType serviceRegistryPort(*m_serviceRegistryPublisherPortData);
     doDiscoveryForPublisherPort(serviceRegistryPort);
+
+    auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface->introspectionMemoryManager();
+    if (!maybeIntrospectionMemoryManager.has_value())
+    {
+        IOX_LOG(FATAL) << "Could not get MemoryManager for introspection!";
+        errorHandler(PoshError::PORT_MANAGER__INTROSPECTION_MEMORY_MANAGER_UNAVAILABLE, iox::ErrorLevel::FATAL);
+    }
+    auto& introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
 
     popo::PublisherOptions options;
     options.historyCapacity = 1U;
@@ -115,6 +123,8 @@ void PortManager::doDiscovery() noexcept
     handleNodes();
 
     handleConditionVariables();
+
+    publishServiceRegistry();
 }
 
 void PortManager::handlePublisherPorts() noexcept
@@ -1036,8 +1046,13 @@ popo::InterfacePortData* PortManager::acquireInterfacePortData(capro::Interfaces
     }
 }
 
-void PortManager::publishServiceRegistry() const noexcept
+void PortManager::publishServiceRegistry() noexcept
 {
+    if (!m_serviceRegistry.hasDataChangedSinceLastCall())
+    {
+        return;
+    }
+
     if (!m_serviceRegistryPublisherPortData.has_value())
     {
         // should not happen (except during RouDi shutdown)
@@ -1071,13 +1086,11 @@ void PortManager::addPublisherToServiceRegistry(const capro::ServiceDescription&
         IOX_LOG(WARN) << "Could not add publisher with service description '" << service << "' to service registry!";
         errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
-    publishServiceRegistry();
 }
 
 void PortManager::removePublisherFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removePublisher(service);
-    publishServiceRegistry();
 }
 
 void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& service) noexcept
@@ -1086,13 +1099,11 @@ void PortManager::addServerToServiceRegistry(const capro::ServiceDescription& se
         IOX_LOG(WARN) << "Could not add server with service description '" << service << "' to service registry!";
         errorHandler(PoshError::POSH__PORT_MANAGER_COULD_NOT_ADD_SERVICE_TO_REGISTRY, ErrorLevel::MODERATE);
     });
-    publishServiceRegistry();
 }
 
 void PortManager::removeServerFromServiceRegistry(const capro::ServiceDescription& service) noexcept
 {
     m_serviceRegistry.removeServer(service);
-    publishServiceRegistry();
 }
 
 expected<runtime::NodeData*, PortPoolError> PortManager::acquireNodeData(const RuntimeName_t& runtimeName,

@@ -37,6 +37,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         // entry exists, increment counter
         auto& entry = m_serviceDescriptions[index];
         ((*entry).*count)++;
+        m_dataChanged = true;
         return ok();
     }
 
@@ -49,6 +50,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         auto& entry = m_serviceDescriptions[m_freeIndex];
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
+        m_dataChanged = true;
         m_freeIndex = NO_INDEX;
         return ok();
     }
@@ -60,6 +62,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         {
             entry.emplace(serviceDescription);
             (*entry).*count = 1U;
+            m_dataChanged = true;
             return ok();
         }
     }
@@ -70,6 +73,7 @@ expected<void, ServiceRegistry::Error> ServiceRegistry::add(const capro::Service
         auto& entry = m_serviceDescriptions.back();
         entry.emplace(serviceDescription);
         (*entry).*count = 1U;
+        m_dataChanged = true;
         return ok();
     }
 
@@ -102,6 +106,7 @@ void ServiceRegistry::removePublisher(const capro::ServiceDescription& serviceDe
                 entry.reset();
                 // reuse the slot in the next insertion
                 m_freeIndex = index;
+                m_dataChanged = true;
             }
         }
     }
@@ -121,6 +126,7 @@ void ServiceRegistry::removeServer(const capro::ServiceDescription& serviceDescr
                 entry.reset();
                 // reuse the slot in the next insertion
                 m_freeIndex = index;
+                m_dataChanged = true;
             }
         }
     }
@@ -135,6 +141,7 @@ void ServiceRegistry::purge(const capro::ServiceDescription& serviceDescription)
         entry.reset();
         // reuse the slot in the next insertion
         m_freeIndex = index;
+        m_dataChanged = true;
     }
 }
 
@@ -181,6 +188,13 @@ void ServiceRegistry::forEach(function_ref<void(const ServiceDescriptionEntry&)>
             callable(*entry);
         }
     }
+}
+
+bool ServiceRegistry::hasDataChangedSinceLastCall() noexcept
+{
+    auto dataChanged = m_dataChanged;
+    m_dataChanged = false;
+    return dataChanged;
 }
 
 } // namespace roudi

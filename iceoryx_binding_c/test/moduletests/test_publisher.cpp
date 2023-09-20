@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 
 using namespace iox;
@@ -142,7 +143,7 @@ TEST(iox_pub_test_DeathTest, initPublisherWithNotInitializedPublisherOptionsTerm
 TEST_F(iox_pub_test, initPublisherWithDefaultOptionsWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d2e677cd-2fcc-47a2-80e6-2d08245b7c1a");
-    iox::roudi::RouDiEnvironment roudiEnv;
+    iox::roudi::RouDiEnvironment roudiEnv{MinimalRouDiConfigBuilder().create()};
 
     iox_runtime_init("hypnotoad");
 
@@ -464,13 +465,8 @@ TEST(iox_pub_options_test, publisherOptionsInitializationCheckReturnsFalseWithou
 TEST(iox_pub_options_test, publisherOptionInitializationWithNullptrDoesNotCrash)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fe415d38-eaaf-466e-b7d8-d220612cb344");
-    EXPECT_EXIT(
-        {
-            iox_pub_options_init(nullptr);
-            exit(0);
-        },
-        ::testing::ExitedWithCode(0),
-        ".*");
+
+    IOX_EXPECT_NO_FATAL_FAILURE<iox::HoofsError>([&] { iox_pub_options_init(nullptr); });
 }
 
 } // namespace

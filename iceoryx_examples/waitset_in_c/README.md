@@ -71,40 +71,25 @@ void subscriberCallback(iox_sub_t const subscriber, void* const contextData)
 }
 ```
 
-The `shutdownTrigger` gets a simplified callback where it just states that the
-program will be terminated. For this we do not need any context data.
-<!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][shutdown callback]-->
-```c
-void shutdownCallback(iox_user_trigger_t userTrigger)
-{
-    (void)userTrigger;
-    printf("CTRL+C pressed - exiting now\n");
-    fflush(stdout);
-}
-```
-
 Since we attach the `SubscriberEvent_DATA_RECEIVED` event to the _WaitSet_ that
 notifies us just once when data was received we have to gather and process all chunks.
 One will never miss chunks since the event notification is reset after a call to
 `iox_ws_wait` or `iox_ws_timed_wait` which we introduce below.
 
 After we registered our runtime we set up some `waitSetStorage`, initialize the _WaitSet_
-and attach a `shutdownTrigger` to handle `CTRL+C`.
+and let `waitSetSigHandlerAccess` point to `waitSet`. `waitSetSigHandlerAccess` is used by
+the signal handler to initiate a graceful shutdown.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][initialization and shutdown handling]-->
 ```c
+signal(SIGINT, sigHandler);
+signal(SIGTERM, sigHandler);
+
 iox_runtime_init("iox-c-waitset-gateway");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-// attach shutdownTrigger with no callback to handle CTRL+C
-iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, shutdownCallback);
-
-// register signal after shutdownTrigger since we are using it in the handler
-signal(SIGINT, sigHandler);
-signal(SIGTERM, sigHandler);
+waitSetSigHandlerAccess = waitSet;
 ```
 
 In the next steps, we define `sumOfAllSamples`, create two subscribers with `iox_sub_init`,
@@ -154,7 +139,6 @@ uint64_t numberOfNotifications = 0U;
 // array where all notification infos from iox_ws_wait will be stored
 iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-bool keepRunning = true;
 while (keepRunning)
 {
     numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
@@ -163,8 +147,7 @@ while (keepRunning)
 ```
 
 The events which have occurred are stored in the `notificationArray`. We iterate through
-it, if the `shutdownTrigger` was triggered we terminate the program otherwise
-we call the callback with `iox_notification_info_call(notification)`.
+it and call the callback with `iox_notification_info_call(notification)`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][handle events]-->
 ```c
@@ -172,23 +155,16 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
     iox_notification_info_t notification = notificationArray[i];
 
-    if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-    {
-        // CTRL+C was pressed -> exit
-        keepRunning = false;
-    }
-    else
-    {
-        // call the callback which was assigned to the event
-        iox_notification_info_call(notification);
+    // call the callback which was assigned to the event
+    iox_notification_info_call(notification);
 
-        printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
-        fflush(stdout);
-    }
+    printf("sum of all samples: %lu\n", (unsigned long)sumOfAllSamples);
+    fflush(stdout);
 }
 ```
 
-Before we can close the program, we cleanup all resources.
+Before we can close the program, we cleanup all resources and set `waitSetSigHandlerAccess` to
+`NULL` to prevent the signal handler to access an invalid waitset.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_gateway.c][cleanup all resources]-->
 ```c
@@ -200,8 +176,8 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     iox_sub_deinit(subscriber[i]);
 }
 
+waitSetSigHandlerAccess = NULL; // invalidate for signal handler
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Grouping
@@ -210,23 +186,19 @@ In this scenario, we have two groups of subscribers. We are interested in the
 data of the first group and would like to print them onto the console and the
 data of the second group should be discarded.
 
-We start like in every example with creating the _WaitSet_ and attaching the
-`shutdownTrigger`.
+We start like in every example with registering the signal handler, initializing
+the runtime and creating the _WaitSet_.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_grouping.c][initialization and shutdown handling]-->
 ```c
+signal(SIGINT, sigHandler);
+signal(SIGTERM, sigHandler);
+
 iox_runtime_init("iox-c-waitset-grouping");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-// attach shutdownTrigger with no callback to handle CTRL+C
-iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
-
-// register signal after shutdownTrigger since we are using it in the handler
-signal(SIGINT, sigHandler);
-signal(SIGTERM, sigHandler);
+waitSetSigHandlerAccess = waitSet;
 ```
 
 After that we can create a list of subscribers and subscribe them to our topic.
@@ -278,7 +250,6 @@ of notifications by calling `iox_ws_wait`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_grouping.c][[event loop]]-->
 ```c
-bool keepRunning = true;
 while (keepRunning)
 {
     numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
@@ -286,8 +257,7 @@ while (keepRunning)
 }
 ```
 
-When we iterate through the array we handle the `shutdownTrigger` first.
-We check if an event is from the first group by calling
+We iterate through the array and check if an event is from the first group by calling
 `iox_notification_info_get_event_id` and compare the result with `FIRST_GROUP_ID`.
 If that is the case we acquire the subscriber handle with
 `iox_notification_info_get_subscriber_origin`. This allows us to receive the new
@@ -301,13 +271,8 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
     iox_notification_info_t notification = notificationArray[i];
 
-    if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-    {
-        // CTRL+C was pressed -> exit
-        keepRunning = false;
-    }
     // we print the received data for the first group
-    else if (iox_notification_info_get_notification_id(notification) == FIRST_GROUP_ID)
+    if (iox_notification_info_get_notification_id(notification) == FIRST_GROUP_ID)
     {
         iox_sub_t subscriber = iox_notification_info_get_subscriber_origin(notification);
         const void* userPayload;
@@ -325,7 +290,7 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
         printf("dismiss data\n");
         iox_sub_t subscriber = iox_notification_info_get_subscriber_origin(notification);
         // We need to release the samples to reset the event hasSamples
-        // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+        // otherwise the WaitSet would notify us in 'iox_ws_wait()' again
         // instantly.
         iox_sub_release_queued_chunks(subscriber);
     }
@@ -345,8 +310,8 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     iox_sub_deinit(subscriber[i]);
 }
 
+waitSetSigHandlerAccess = NULL; // invalidate for signal handler
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Individual
@@ -357,22 +322,18 @@ One way would be to assign every subscriber a different callback, here we look
 at a different approach. We check if the event originated from a specific
 subscriber and then perform the calls on that subscriber directly.
 
-We start as usual by creating a _WaitSet_ and attach the `shutdownTrigger` to it.
+We start as usual with the setup of the signal handler and _WaitSet_.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_individual.c][initialization and shutdown handling]-->
 ```c
+signal(SIGINT, sigHandler);
+signal(SIGTERM, sigHandler);
+
 iox_runtime_init("iox-c-waitset-individual");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-// attach shutdownTrigger with no callback to handle CTRL+C
-iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
-
-// register signal after shutdownTrigger since we are using it in the handler
-signal(SIGINT, sigHandler);
-signal(SIGTERM, sigHandler);
+waitSetSigHandlerAccess = waitSet;
 ```
 
 Now we create two subscribers, subscribe them to our topic and attach them to
@@ -411,7 +372,6 @@ uint64_t numberOfNotifications = 0U;
 // array where all notification infos from iox_ws_wait will be stored
 iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-bool keepRunning = true;
 while (keepRunning)
 {
     numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
@@ -419,8 +379,7 @@ while (keepRunning)
 }
 ```
 
-The `shutdownTrigger` is handled as usual and
-we use `iox_notification_info_does_originate_from_subscriber`
+We use `iox_notification_info_does_originate_from_subscriber`
 to identify the event that originated from a specific subscriber. If it originated
 from the first subscriber we print the received data to the console, if it
 originated from the second subscriber we discard the data.
@@ -431,13 +390,7 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
     iox_notification_info_t notification = notificationArray[i];
 
-    if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-    {
-        // CTRL+C was pressed -> exit
-        keepRunning = false;
-    }
-    // process sample received by subscriber1
-    else if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[0U]))
+    if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[0U]))
     {
         const void* userPayload;
         if (iox_sub_take_chunk(subscriber[0U], &userPayload))
@@ -452,7 +405,7 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
     else if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[1]))
     {
         // We need to release the samples to reset the event hasSamples
-        // otherwise the WaitSet would notify us in `iox_ws_wait()` again
+        // otherwise the WaitSet would notify us in 'iox_ws_wait()' again
         // instantly.
         iox_sub_release_queued_chunks(subscriber[1U]);
         printf("subscriber 2 received something - dont care\n");
@@ -470,8 +423,8 @@ for (uint64_t i = 0U; i < NUMBER_OF_SUBSCRIBERS; ++i)
     iox_sub_deinit(subscriber[i]);
 }
 
+waitSetSigHandlerAccess = NULL; // invalidate for signal handler
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownTrigger);
 ```
 
 ### Timer Driven Execution
@@ -482,22 +435,18 @@ thread every second to signal the _WaitSet_ that it's time for the next run.
 Additionally, we attach a callback (`cyclicRun`) to this user trigger
 so that the event can directly call the cyclic call.
 
-We begin by creating the _WaitSet_ and attach the `shutdownTrigger`.
+We start as usual with the setup of the signal handler and _WaitSet_.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][initialization and shutdown handling]-->
 ```c
+signal(SIGINT, sigHandler);
+signal(SIGTERM, sigHandler);
+
 iox_runtime_init("iox-c-waitset-timer-driven-execution");
 
 iox_ws_storage_t waitSetStorage;
 iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-// attach shutdownTrigger with no callback to handle CTRL+C
-iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0, NULL);
-
-// register signal after shutdownTrigger since we are using it in the handler
-signal(SIGINT, sigHandler);
-signal(SIGTERM, sigHandler);
+waitSetSigHandlerAccess = waitSet;
 ```
 
 Now we create our cyclic trigger and attach it to our waitset with an eventId
@@ -540,8 +489,8 @@ while (keepRunning)
 }
 ```
 
-The `shutdownTrigger` is handled as usual and the `cyclicTrigger` is handled by
-just calling the attached callback with `iox_notification_info_call(notification)`.
+The code checks for a notification from the `cyclicTrigger` and calls the attached
+callback with `iox_notification_info_call(notification)`.
 
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][handle events]-->
 ```c
@@ -549,12 +498,7 @@ for (uint64_t i = 0U; i < numberOfNotifications; ++i)
 {
     iox_notification_info_t notification = notificationArray[i];
 
-    if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-    {
-        // CTRL+C was pressed -> exit
-        keepRunning = false;
-    }
-    else
+    if (iox_notification_info_does_originate_from_user_trigger(notification, cyclicTrigger))
     {
         // call myCyclicRun
         iox_notification_info_call(notification);
@@ -567,8 +511,11 @@ The last thing we have to do is to cleanup all the used resources.
 <!--[geoffrey][iceoryx_examples/waitset_in_c/ice_c_waitset_timer_driven_execution.c][cleanup all resources]-->
 ```c
 joinThread(cyclicTriggerThread);
+
+waitSetSigHandlerAccess = NULL; // invalidate for signal handler
 iox_ws_deinit(waitSet);
-iox_user_trigger_deinit(shutdownTrigger);
+
+iox_user_trigger_deinit(cyclicTrigger);
 ```
 
 <center>

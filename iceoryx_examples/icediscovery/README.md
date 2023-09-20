@@ -177,9 +177,10 @@ Should the service we wait for never become available we can unblock any of the 
 
 <!--[geoffrey][iceoryx_examples/icediscovery/iox_wait_for_service.cpp][unblock wait]-->
 ```cpp
-if (discoveryPtr)
+keepRunning = false;
+if (discoverySigHandlerAccess)
 {
-    discoveryPtr->unblockWait();
+    discoverySigHandlerAccess->unblockWait();
 }
 ```
 
@@ -343,7 +344,7 @@ It is also possible to unblock any of the waits even if nothing changes or the c
 
 <!--[geoffrey][iceoryx_examples/icediscovery/src/discovery_blocking.cpp][unblock wait]-->
 ```cpp
-void Discovery::unblockWait()
+void Discovery::unblockWait() volatile noexcept
 {
     m_blocking = false;
     // could also unblock with a dedicated condition to unblock the wait but that requires more code

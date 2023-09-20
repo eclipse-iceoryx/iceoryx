@@ -18,6 +18,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -29,6 +30,7 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::runtime;
+using namespace iox::testing;
 
 void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)
 {
@@ -41,6 +43,11 @@ void onSampleReceivedCallbackForUntypedSub(UntypedSubscriber* subscriber IOX_MAY
 class PubSubListener_IntegrationTest : public RouDi_GTest
 {
   public:
+    PubSubListener_IntegrationTest()
+        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+    {
+    }
+
     void SetUp() override
     {
         PoshRuntime::initRuntime("PubSubListener_IntegrationTest");

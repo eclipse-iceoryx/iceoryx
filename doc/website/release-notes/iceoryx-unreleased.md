@@ -94,6 +94,7 @@
 - Fix `expected<void, Error>` is unusable due to `final` [\#1976](https://github.com/eclipse-iceoryx/iceoryx/issues/1976)
 - MacOS tests that use `EXPECT_DEATH` stuck [#898](https://github.com/eclipse-iceoryx/iceoryx/issues/898)
 - Remove `EXPECT_DEATH` [#1613](https://github.com/eclipse-iceoryx/iceoryx/issues/1613)
+- ServiceDiscovery uses instrospection MemPools [#1359](https://github.com/eclipse-iceoryx/iceoryx/issues/1359)
 
 **Refactoring:**
 
@@ -158,6 +159,7 @@
 - Move `std::string` dependency from `iox::string` to `std_string_support.hpp` in `iceoryx_dust` [\#1612](https://github.com/eclipse-iceoryx/iceoryx/issues/1612)
 - Better align `iox::expected` with `std::expected` [\#1969](https://github.com/eclipse-iceoryx/iceoryx/issues/1969)
 - Use logger for "RouDi is ready for clients" message [\#1994](https://github.com/eclipse-iceoryx/iceoryx/issues/1994)
+- Speed up posh tests [#1030](https://github.com/eclipse-iceoryx/iceoryx/issues/1030)
 
 **Workflow:**
 

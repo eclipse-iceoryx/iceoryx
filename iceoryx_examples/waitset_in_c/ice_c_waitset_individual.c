@@ -31,32 +31,32 @@
 #define NUMBER_OF_NOTIFICATIONS 3
 #define NUMBER_OF_SUBSCRIBERS 2
 
-iox_user_trigger_storage_t shutdownTriggerStorage;
-iox_user_trigger_t shutdownTrigger;
+volatile bool keepRunning = true;
 
-static void sigHandler(int signalValue)
+volatile iox_ws_t waitSetSigHandlerAccess = NULL;
+
+void sigHandler(int signalValue)
 {
     // Ignore unused variable warning
     (void)signalValue;
-
-    iox_user_trigger_trigger(shutdownTrigger);
+    keepRunning = false;
+    if (waitSetSigHandlerAccess)
+    {
+        iox_ws_mark_for_destruction(waitSetSigHandlerAccess);
+    }
 }
 
 int main(void)
 {
     //! [initialization and shutdown handling]
+    signal(SIGINT, sigHandler);
+    signal(SIGTERM, sigHandler);
+
     iox_runtime_init("iox-c-waitset-individual");
 
     iox_ws_storage_t waitSetStorage;
     iox_ws_t waitSet = iox_ws_init(&waitSetStorage);
-    shutdownTrigger = iox_user_trigger_init(&shutdownTriggerStorage);
-
-    // attach shutdownTrigger with no callback to handle CTRL+C
-    iox_ws_attach_user_trigger_event(waitSet, shutdownTrigger, 0U, NULL);
-
-    // register signal after shutdownTrigger since we are using it in the handler
-    signal(SIGINT, sigHandler);
-    signal(SIGTERM, sigHandler);
+    waitSetSigHandlerAccess = waitSet;
     //! [initialization and shutdown handling]
 
     //! [create and attach subscriber]
@@ -87,7 +87,6 @@ int main(void)
     // array where all notification infos from iox_ws_wait will be stored
     iox_notification_info_t notificationArray[NUMBER_OF_NOTIFICATIONS];
 
-    bool keepRunning = true;
     while (keepRunning)
     {
         numberOfNotifications = iox_ws_wait(waitSet, notificationArray, NUMBER_OF_NOTIFICATIONS, &missedElements);
@@ -97,13 +96,7 @@ int main(void)
         {
             iox_notification_info_t notification = notificationArray[i];
 
-            if (iox_notification_info_does_originate_from_user_trigger(notification, shutdownTrigger))
-            {
-                // CTRL+C was pressed -> exit
-                keepRunning = false;
-            }
-            // process sample received by subscriber1
-            else if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[0U]))
+            if (iox_notification_info_does_originate_from_subscriber(notification, subscriber[0U]))
             {
                 const void* userPayload;
                 if (iox_sub_take_chunk(subscriber[0U], &userPayload))
@@ -135,8 +128,8 @@ int main(void)
         iox_sub_deinit(subscriber[i]);
     }
 
+    waitSetSigHandlerAccess = NULL; // invalidate for signal handler
     iox_ws_deinit(waitSet);
-    iox_user_trigger_deinit(shutdownTrigger);
     //! [cleanup all resources]
 
     return 0;

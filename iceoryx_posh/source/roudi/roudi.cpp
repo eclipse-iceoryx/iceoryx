@@ -1,5 +1,6 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +24,7 @@
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
+#include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/logging.hpp"
@@ -48,6 +50,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
           *m_roudiMemoryInterface->segmentManager().value(),
           PublisherPortUserType(m_prcMgr->addIntrospectionPublisherPort(IntrospectionMempoolService)))
     , m_monitoringMode(roudiStartupParameters.m_monitoringMode)
+    , m_processTerminationDelay(roudiStartupParameters.m_processTerminationDelay)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
     if (internal::isCompiledOn32BitSystem())
@@ -62,6 +65,13 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
 
     // since RouDi offers the introspection services, also add it to the list of processes
     m_processIntrospection.addProcess(getpid(), IPC_CHANNEL_ROUDI_NAME);
+
+    // initialize semaphore for discovery loop finish indicator
+    iox::posix::UnnamedSemaphoreBuilder()
+        .initialValue(0U)
+        .isInterProcessCapable(false)
+        .create(m_discoveryFinishedSemaphore)
+        .expect("Valid Semaphore");
 
     // run the threads
     m_monitoringAndDiscoveryThread = std::thread(&RouDi::monitorAndDiscoveryUpdate, this);
@@ -86,11 +96,17 @@ void RouDi::startProcessRuntimeMessagesThread() noexcept
 
 void RouDi::shutdown() noexcept
 {
+    // trigger the shutdown of the monitoring and discovery thread in order to prevent application to register while
+    // shutting down
+    m_runMonitoringAndDiscoveryThread = false;
+    m_discoveryLoopTrigger.trigger();
+
+    // stop the introspection
     m_processIntrospection.stop();
+    m_mempoolIntrospection.stop();
     m_portManager->stopPortIntrospection();
 
-    // stop the process management thread in order to prevent application to register while shutting down
-    m_runMonitoringAndDiscoveryThread = false;
+    // wait for the monitoring and discovery thread to stop
     if (m_monitoringAndDiscoveryThread.joinable())
     {
         IOX_LOG(DEBUG) << "Joining 'Mon+Discover' thread...";
@@ -100,13 +116,25 @@ void RouDi::shutdown() noexcept
 
     if (m_killProcessesInDestructor)
     {
-        deadline_timer finalKillTimer(m_processKillDelay);
+        deadline_timer terminationDelayTimer(m_processTerminationDelay);
+        using namespace units::duration_literals;
+        auto remainingDurationForInfoPrint = m_processTerminationDelay - 1_s;
+        while (!terminationDelayTimer.hasExpired() && m_prcMgr->registeredProcessCount() > 0)
+        {
+            if (remainingDurationForInfoPrint > terminationDelayTimer.remainingTime())
+            {
+                IOX_LOG(WARN) << "Some applications seem to be still running! Time until graceful shutdown: "
+                              << terminationDelayTimer.remainingTime().toSeconds() << "s!";
+                remainingDurationForInfoPrint = remainingDurationForInfoPrint - 5_s;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(PROCESS_TERMINATED_CHECK_INTERVAL.toMilliseconds()));
+        }
 
         m_prcMgr->requestShutdownOfAllProcesses();
 
-        using namespace units::duration_literals;
+        deadline_timer finalKillTimer(m_processKillDelay);
         auto remainingDurationForWarnPrint = m_processKillDelay - 2_s;
-        while (m_prcMgr->isAnyRegisteredProcessStillRunning() && !finalKillTimer.hasExpired())
+        while (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm() && !finalKillTimer.hasExpired())
         {
             if (remainingDurationForWarnPrint > finalKillTimer.remainingTime())
             {
@@ -119,13 +147,13 @@ void RouDi::shutdown() noexcept
         }
 
         // Is any processes still alive?
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning() && finalKillTimer.hasExpired())
+        if (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm() && finalKillTimer.hasExpired())
         {
             // Time to kill them
             m_prcMgr->killAllProcesses();
         }
 
-        if (m_prcMgr->isAnyRegisteredProcessStillRunning())
+        if (m_prcMgr->probeRegisteredProcessesAliveWithSigTerm())
         {
             m_prcMgr->printWarningForRegisteredProcessesAndClearProcessList();
         }
@@ -147,15 +175,67 @@ void RouDi::cyclicUpdateHook() noexcept
     // default implementation; do nothing
 }
 
+void RouDi::triggerDiscoveryLoopAndWaitToFinish(units::Duration timeout) noexcept
+{
+    bool decrementSemaphoreCount{true};
+    while (decrementSemaphoreCount)
+    {
+        m_discoveryFinishedSemaphore->tryWait()
+            .and_then([&decrementSemaphoreCount](const auto& countNonZero) { decrementSemaphoreCount = countNonZero; })
+            .or_else([&decrementSemaphoreCount](const auto& error) {
+                decrementSemaphoreCount = false;
+                IOX_LOG(ERROR) << "Could not decrement count of the semaphore which signals a finished run of the "
+                                  "discovery loop! Error: "
+                               << static_cast<uint32_t>(error);
+            });
+    }
+    m_discoveryLoopTrigger.trigger();
+    m_discoveryFinishedSemaphore->timedWait(timeout).or_else([](const auto& error) {
+        IOX_LOG(ERROR) << "A timed wait on the semaphore which signals a finished run of the "
+                          "discovery loop failed! Error: "
+                       << static_cast<uint32_t>(error);
+    });
+}
+
 void RouDi::monitorAndDiscoveryUpdate() noexcept
 {
+    class DiscoveryWaitSet : public popo::WaitSet<1>
+    {
+      public:
+        DiscoveryWaitSet(popo::ConditionVariableData& condVarData) noexcept
+            : WaitSet(condVarData)
+        {
+        }
+    };
+
+    popo::ConditionVariableData conditionVariableData;
+    DiscoveryWaitSet discoveryLoopWaitset{conditionVariableData};
+    discoveryLoopWaitset.attachEvent(m_discoveryLoopTrigger).expect("Successfully attaching a single event");
+    bool manuallyTriggered{false};
+
     while (m_runMonitoringAndDiscoveryThread)
     {
         m_prcMgr->run();
 
         cyclicUpdateHook();
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVERY_INTERVAL.toMilliseconds()));
+        if (manuallyTriggered)
+        {
+            m_discoveryFinishedSemaphore->post().or_else([](const auto& error) {
+                IOX_LOG(ERROR) << "Could not trigger semaphore to signal a finished run of the discovery loop! Error: "
+                               << static_cast<uint32_t>(error);
+            });
+        }
+
+        manuallyTriggered = false;
+        for (const auto& notification : discoveryLoopWaitset.timedWait(DISCOVERY_INTERVAL))
+        {
+            if (notification->doesOriginateFrom(&m_discoveryLoopTrigger))
+            {
+                manuallyTriggered = true;
+                break;
+            }
+        }
     }
 }
 

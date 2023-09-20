@@ -18,6 +18,7 @@
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include <gtest/gtest.h>
 
@@ -35,6 +36,11 @@ using namespace iox::testing;
 class iox_node_test : public RouDi_GTest
 {
   public:
+    iox_node_test()
+        : RouDi_GTest(MinimalRouDiConfigBuilder().create())
+    {
+    }
+
     void SetUp()
     {
         iox_runtime_init(m_runtimeName.c_str());

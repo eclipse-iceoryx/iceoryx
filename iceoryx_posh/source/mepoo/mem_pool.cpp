@@ -86,7 +86,7 @@ void* MemPool::getChunk() noexcept
     if (!m_freeIndices.pop(l_index))
     {
         IOX_LOG(WARN) << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
-                      << ", used_chunks = " << m_usedChunks << " ] has no more space left";
+                      << ", used_chunks = " << m_usedChunks.load() << " ] has no more space left";
         return nullptr;
     }
 
