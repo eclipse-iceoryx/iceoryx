@@ -47,7 +47,7 @@ jobs:
           $GITHUB_WORKSPACE/tools/iceoryx_build_test.sh clean package
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: release_artifacts
           path: ./build_package/iceoryx*.deb
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download release artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: release_artifacts
 
