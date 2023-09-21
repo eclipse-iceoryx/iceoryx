@@ -82,7 +82,7 @@ class UniquePortId : public NewType<UniquePortId,
     friend class roudi_env::RouDiEnv;
     // since the RouDiEnv gets restarted multiple times within a process, this helps to
     // reset the unique RouDi id during tests
-    static void rouDiEnvOverideUniqueRouDiId(const uint16_t id) noexcept;
+    static void rouDiEnvOverrideUniqueRouDiId(const uint16_t id) noexcept;
 
     // returns true if setUniqueRouDiId was already called or a non-invalid UniquePortId
     // was created, otherwise false

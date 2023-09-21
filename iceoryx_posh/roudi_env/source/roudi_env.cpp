@@ -29,7 +29,7 @@ namespace roudi_env
 {
 RouDiEnv::RouDiEnv(MainCTor, const uint16_t uniqueRouDiId) noexcept
 {
-    popo::UniquePortId::rouDiEnvOverideUniqueRouDiId(uniqueRouDiId);
+    popo::UniquePortId::rouDiEnvOverrideUniqueRouDiId(uniqueRouDiId);
 }
 
 RouDiEnv::RouDiEnv(const RouDiConfig_t& roudiConfig,
@@ -48,7 +48,7 @@ RouDiEnv::~RouDiEnv() noexcept
 {
     if (m_runtimes.m_doCleanupOnDestruction)
     {
-        popo::UniquePortId::rouDiEnvOverideUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
+        popo::UniquePortId::rouDiEnvOverrideUniqueRouDiId(roudi::DEFAULT_UNIQUE_ROUDI_ID);
     }
     cleanupRuntimes();
 }

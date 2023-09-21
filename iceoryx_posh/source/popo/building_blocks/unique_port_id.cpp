@@ -63,7 +63,7 @@ void UniquePortId::setUniqueRouDiId(const uint16_t id) noexcept
     uniqueRouDiId.store(id, std::memory_order_relaxed);
 }
 
-void UniquePortId::rouDiEnvOverideUniqueRouDiId(const uint16_t id) noexcept
+void UniquePortId::rouDiEnvOverrideUniqueRouDiId(const uint16_t id) noexcept
 {
     uniqueRouDiId.store(id, std::memory_order_relaxed);
 }

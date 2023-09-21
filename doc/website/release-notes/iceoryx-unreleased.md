@@ -1193,7 +1193,7 @@
 
     // after
     #include "iceoryx_posh/roudi_env/roudi_environment.hpp"
-    iox::roudi_enf::RouDiEnv roudiEnv{/*config*/};
+    iox::roudi_env::RouDiEnv roudiEnv{/*config*/};
 
 
     // before
@@ -1204,10 +1204,10 @@
 
 
     // before
-    SetInterOpWaitingTime(/*chrono*/);
+    roudiEnv.SetInterOpWaitingTime(/*chrono*/);
 
     // after
-    setDiscoveryLoopWaitToFinishTimeout(/*units::Duration*/);
+    roudiEnv.setDiscoveryLoopWaitToFinishTimeout(/*units::Duration*/);
 
     ```
 
