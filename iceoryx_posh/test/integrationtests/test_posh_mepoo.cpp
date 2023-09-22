@@ -23,8 +23,8 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/roudi/roudi_app.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "iox/duration.hpp"
 #include "iox/optional.hpp"
 
@@ -38,8 +38,8 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::units::duration_literals;
+using namespace iox::roudi_env;
 using iox::mepoo::MePooConfig;
-using iox::roudi::RouDiEnvironment;
 
 class Mepoo_IntegrationTest : public Test
 {
@@ -115,7 +115,7 @@ class Mepoo_IntegrationTest : public Test
                const configType defaultconf = configType::DEFAULT)
     {
         auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
-        m_roudiEnv = iox::optional<RouDiEnvironment>(config);
+        m_roudiEnv.emplace(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
 
@@ -133,7 +133,7 @@ class Mepoo_IntegrationTest : public Test
                         const configType defaultconf = configType::DEFAULT)
     {
         auto config = createRouDiConfig(memPoolTestContainer, testMempoolConfig, defaultconf);
-        m_roudiEnv = iox::optional<RouDiEnvironment>(config);
+        m_roudiEnv.emplace(config);
 
         ASSERT_THAT(m_roudiEnv.has_value(), Eq(true));
     }
@@ -347,7 +347,7 @@ class Mepoo_IntegrationTest : public Test
     iox::optional<iox::popo::PublisherPortUser> publisherPort;
     iox::optional<iox::popo::SubscriberPortUser> subscriberPort;
 
-    iox::optional<RouDiEnvironment> m_roudiEnv;
+    iox::optional<RouDiEnv> m_roudiEnv;
 };
 
 constexpr uint32_t Mepoo_IntegrationTest::DEFAULT_NUMBER_OF_CHUNKS;

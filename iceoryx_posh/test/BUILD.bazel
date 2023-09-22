@@ -46,6 +46,7 @@ cc_test(
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "//iceoryx_posh",
         "//iceoryx_posh:iceoryx_posh_config",
+        "//iceoryx_posh:iceoryx_posh_roudi_env",
         "//iceoryx_posh:iceoryx_posh_testing",
         "@cpptoml",
     ],
@@ -77,6 +78,7 @@ cc_test(
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "//iceoryx_posh",
         "//iceoryx_posh:iceoryx_posh_gateway",
+        "//iceoryx_posh:iceoryx_posh_roudi_env",
         "//iceoryx_posh:iceoryx_posh_testing",
     ],
 )

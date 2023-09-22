@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
+#include "iceoryx_posh/roudi_env/runtime_test_interface.hpp"
 #include "iceoryx_posh/internal/runtime/posh_runtime_impl.hpp"
 
 namespace iox
 {
-namespace roudi
+namespace roudi_env
 {
 using runtime::PoshRuntime;
 
@@ -124,5 +124,5 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
     return *RuntimeTestInterface::t_activeRuntime;
 }
 
-} // namespace roudi
+} // namespace roudi_env
 } // namespace iox

@@ -43,6 +43,7 @@ cc_test(
         "//iceoryx_binding_c",
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
         "//iceoryx_posh",
+        "//iceoryx_posh:iceoryx_posh_roudi_env",
         "//iceoryx_posh:iceoryx_posh_testing",
     ],
 )

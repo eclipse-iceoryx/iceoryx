@@ -15,31 +15,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
 #include "test.hpp"
 
 namespace
 {
 using namespace ::testing;
-using namespace iox::roudi;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
-class RouDiEnvironment_test : public Test
-{
-  public:
-    void SetUp(){};
-    void TearDown(){};
-};
-
-TEST_F(RouDiEnvironment_test, StartingRouDiTwiceLeadsToError)
+TEST(RouDiEnv_test, StartingRouDiTwiceLeadsToError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "38075292-7897-4db5-b20e-f06ab324ad31");
-    RouDiEnvironment m_sut{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv m_sut{MinimalRouDiConfigBuilder().create()};
 
     GTEST_FLAG(death_test_style) = "threadsafe";
-    EXPECT_DEATH({ RouDiEnvironment m_sut2{MinimalRouDiConfigBuilder().create()}; }, ".*");
+    EXPECT_DEATH({ RouDiEnv m_sut2{MinimalRouDiConfigBuilder().create()}; }, ".*");
 }
 
 } // namespace

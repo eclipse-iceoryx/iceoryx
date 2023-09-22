@@ -14,15 +14,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
-#define IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
+#ifndef IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP
+#define IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP
 
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iox/builder.hpp"
 
 namespace iox
 {
-namespace testing
+namespace roudi_env
 {
 /// @brief Builder for a minimal RouDiConfig_t with only one MemPool. This significantly speeds up tests which create a
 /// shared memory.
@@ -44,7 +44,7 @@ class MinimalRouDiConfigBuilder
     /// @brief creates the previously configured RouDiConfig_t
     RouDiConfig_t create() const noexcept;
 };
-} // namespace testing
+} // namespace roudi_env
 } // namespace iox
 
-#endif // IOX_POSH_ROUDI_ENVIRONMENT_MINIMAL_ROUDI_CONFIG_HPP
+#endif // IOX_POSH_ROUDI_ENV_MINIMAL_ROUDI_CONFIG_HPP

@@ -160,6 +160,7 @@
 - Better align `iox::expected` with `std::expected` [\#1969](https://github.com/eclipse-iceoryx/iceoryx/issues/1969)
 - Use logger for "RouDi is ready for clients" message [\#1994](https://github.com/eclipse-iceoryx/iceoryx/issues/1994)
 - Speed up posh tests [#1030](https://github.com/eclipse-iceoryx/iceoryx/issues/1030)
+- Roudi Environment independent from Googletest [#1533](https://github.com/eclipse-iceoryx/iceoryx/issues/1533)
 
 **Workflow:**
 
@@ -1181,3 +1182,33 @@
     };
 
     ```
+
+53. `iox::roudi::RouDiEnvironment` is moved to `iox::roudi_env::RouDiEnv` and in a separate library
+
+    There is still an alias on the old location with a deprecation warning. The API also changed a bit.
+    ```cpp
+    // before
+    #include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
+    iox::roudi::RouDiEnvironment roudiEnv{/*config*/};
+
+    // after
+    #include "iceoryx_posh/roudi_env/roudi_environment.hpp"
+    iox::roudi_env::RouDiEnv roudiEnv{/*config*/};
+
+
+    // before
+    roudiEnv.InterOpWait();
+
+    // after
+    roudiEnv.triggerDiscoveryLoopAndWaitToFinish();
+
+
+    // before
+    roudiEnv.SetInterOpWaitingTime(/*chrono*/);
+
+    // after
+    roudiEnv.setDiscoveryLoopWaitToFinishTimeout(/*units::Duration*/);
+
+    ```
+
+    It is now also possible to directly link to `iceoryx_posh::iceoryx_posh_roudi_env` which has no dependency to gTest.

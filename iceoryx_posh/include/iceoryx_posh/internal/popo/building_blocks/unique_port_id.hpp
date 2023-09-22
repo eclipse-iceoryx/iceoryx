@@ -25,6 +25,11 @@
 
 namespace iox
 {
+namespace roudi_env
+{
+class RouDiEnv;
+}
+
 namespace popo
 {
 /// @brief Struct to signal the constructor to create an invalid id
@@ -74,6 +79,11 @@ class UniquePortId : public NewType<UniquePortId,
     static uint16_t getUniqueRouDiId() noexcept;
 
   private:
+    friend class roudi_env::RouDiEnv;
+    // since the RouDiEnv gets restarted multiple times within a process, this helps to
+    // reset the unique RouDi id during tests
+    static void rouDiEnvOverrideUniqueRouDiId(const uint16_t id) noexcept;
+
     // returns true if setUniqueRouDiId was already called or a non-invalid UniquePortId
     // was created, otherwise false
     static bool finalizeSetUniqueRouDiId() noexcept;

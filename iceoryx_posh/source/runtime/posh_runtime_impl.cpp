@@ -49,7 +49,7 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
         .isInterProcessCapable(false)
         .mutexType(posix::MutexType::NORMAL)
         .create(m_appIpcRequestMutex)
-        .expect("Valid Mutex");
+        .expect("Failed to create Mutex");
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept

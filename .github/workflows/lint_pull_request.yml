@@ -53,7 +53,7 @@ jobs:
           retention-days: 7
 
       - name: Link Checker
-        uses: lycheeverse/lychee-action@v1.5.4
+        uses: lycheeverse/lychee-action@v1.8.0
         with:
           fail: true
           args: --cache --insecure --max-cache-age 7d --verbose --no-progress './**/*.md' --github-token ${{secrets.GITHUB_TOKEN}} --max-concurrency 1

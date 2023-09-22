@@ -299,8 +299,12 @@ setup_install_directories_and_export_package(
     INCLUDE_DIRECTORIES include/
 )
 
-add_subdirectory(testing)
+
+if(ROUDI_ENVIRONMENT OR BUILD_TEST)
+    add_subdirectory(roudi_env)
+endif()
 
 if(BUILD_TEST)
+    add_subdirectory(testing)
     add_subdirectory(test)
 endif()

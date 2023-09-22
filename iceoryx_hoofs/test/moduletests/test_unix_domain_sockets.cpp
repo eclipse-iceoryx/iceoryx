@@ -115,14 +115,14 @@ class UnixDomainSocket_test : public Test
                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
                                 .maxMsgNumber(MaxMsgNumber)
                                 .create()
-                                .expect("Valid UnixDomainSocket")};
+                                .expect("Failed to create UnixDomainSocket")};
     UnixDomainSocket client{UnixDomainSocketBuilder()
                                 .name(goodName)
                                 .channelSide(IpcChannelSide::CLIENT)
                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
                                 .maxMsgNumber(MaxMsgNumber)
                                 .create()
-                                .expect("Valid UnixDomainSocket")};
+                                .expect("Failed to create UnixDomainSocket")};
 };
 
 constexpr uint64_t UnixDomainSocket_test::MaxMsgNumber;

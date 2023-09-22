@@ -29,11 +29,11 @@ namespace runtime
 {
 class PoshRuntime;
 }
-namespace roudi
+namespace roudi_env
 {
 class RuntimeTestInterface
 {
-    friend class RouDiEnvironment;
+    friend class RouDiEnv;
 
   private:
     bool m_doCleanupOnDestruction{true};
@@ -83,7 +83,7 @@ class RuntimeTestInterface
     void eraseRuntime(const RuntimeName_t& name);
 };
 
-} // namespace roudi
+} // namespace roudi_env
 } // namespace iox
 
 #endif // IOX_POSH_ROUDI_ENVIRONMENT_RUNTIME_TEST_INTERFACE_HPP

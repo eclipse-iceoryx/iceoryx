@@ -17,8 +17,8 @@
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include <gtest/gtest.h>
 
@@ -29,8 +29,10 @@ extern "C" {
 
 namespace
 {
+using namespace ::testing;
 using namespace iox;
 using namespace iox::runtime;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 class iox_node_test : public RouDi_GTest

@@ -18,7 +18,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -30,6 +30,7 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::runtime;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)

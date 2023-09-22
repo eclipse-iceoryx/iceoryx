@@ -25,10 +25,10 @@
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
-#include "iceoryx_posh/testing/roudi_environment/roudi_environment.hpp"
 #include "test.hpp"
 
 #include <type_traits>
@@ -41,8 +41,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::testing;
-using iox::roudi::RouDiEnvironment;
+using namespace iox::roudi_env;
 
 class PoshRuntime_test : public Test
 {
@@ -106,7 +105,7 @@ class PoshRuntime_test : public Test
     }
 
     const iox::RuntimeName_t m_runtimeName{"publisher"};
-    RouDiEnvironment m_roudiEnv{MinimalRouDiConfigBuilder().create()};
+    RouDiEnv m_roudiEnv{MinimalRouDiConfigBuilder().create()};
     PoshRuntime* m_runtime{&iox::runtime::PoshRuntime::initRuntime(m_runtimeName)};
     IpcMessage m_sendBuffer;
     IpcMessage m_receiveBuffer;

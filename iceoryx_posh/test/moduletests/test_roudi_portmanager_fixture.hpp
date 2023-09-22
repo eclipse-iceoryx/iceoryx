@@ -29,7 +29,7 @@
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/server_options.hpp"
 #include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 
 #include "test.hpp"
 
@@ -44,7 +44,7 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::roudi;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
 using iox::runtime::PortConfigInfo;
 

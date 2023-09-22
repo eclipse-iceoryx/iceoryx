@@ -14,68 +14,48 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 #define IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 
-#include "iceoryx_posh/iceoryx_posh_config.hpp"
-#include "iceoryx_posh/iceoryx_posh_types.hpp"
-#include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
-#include "iceoryx_posh/roudi/memory/iceoryx_roudi_memory_manager.hpp"
-#include "iceoryx_posh/testing/roudi_environment/runtime_test_interface.hpp"
-#include "iox/duration.hpp"
+#include "iceoryx_posh/roudi_env/roudi_env.hpp"
 
-#include <atomic>
-#include <map>
-#include <mutex>
+#include <chrono>
 
 namespace iox
 {
 namespace roudi
 {
-class RouDi;
-
-class RouDiEnvironment
+/// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'iox::roudi_env::RouDiEnv'
+class [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'iox::roudi_env::RouDiEnv'")]] RouDiEnvironment
+    : public roudi_env::RouDiEnv
 {
   public:
-    RouDiEnvironment(const RouDiConfig_t& roudiConfig = RouDiConfig_t().setDefaults(),
-                     roudi::MonitoringMode monitoringMode = roudi::MonitoringMode::OFF,
-                     const uint16_t uniqueRouDiId = 0u);
-    virtual ~RouDiEnvironment();
+    using ParentType = roudi_env::RouDiEnv;
+    using ParentType::ParentType;
+    using ParentType::operator=;
 
-    RouDiEnvironment(RouDiEnvironment&& rhs) = default;
-    RouDiEnvironment& operator=(RouDiEnvironment&& rhs) = default;
-
-    RouDiEnvironment(const RouDiEnvironment&) = delete;
-    RouDiEnvironment& operator=(const RouDiEnvironment&) = delete;
-
-    void SetInterOpWaitingTime(const std::chrono::milliseconds& v);
-    void InterOpWait();
-
-    void CleanupAppResources(const RuntimeName_t& name);
-
-  protected:
-    /// @note this is due to ambiguity of the cTor with the default parameter
-    enum class BaseCTor
+    /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'setDiscoveryLoopWaitToFinishTimeout'
+    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'setDiscoveryLoopWaitToFinishTimeout'")]] void
+    SetInterOpWaitingTime(const std::chrono::milliseconds& v) noexcept
     {
-        BASE,
-    };
-    /// @brief for implementations on top of RouDiEnvironment
-    RouDiEnvironment(BaseCTor, const uint16_t uniqueRouDiId = 0u);
+        setDiscoveryLoopWaitToFinishTimeout(units::Duration::fromMilliseconds(v.count()));
+    }
 
-    void CleanupRuntimes();
+    /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'triggerDiscoveryLoopAndWaitToFinish'
+    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'triggerDiscoveryLoopAndWaitToFinish'")]] void
+    InterOpWait() noexcept
+    {
+        triggerDiscoveryLoopAndWaitToFinish();
+    }
 
-  private:
-    RuntimeTestInterface m_runtimes;
-#if defined(__APPLE__)
-    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(1000)};
-#else
-    iox::units::Duration m_interOpWaitingTimeout{iox::units::Duration::fromMilliseconds(200)};
-#endif
-    std::unique_ptr<IceOryxRouDiComponents> m_roudiComponents;
-    std::unique_ptr<RouDi> m_roudiApp;
+    /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'cleanupAppResources'
+    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'cleanupAppResources'")]] void CleanupAppResources(
+        const RuntimeName_t& name) noexcept
+    {
+        cleanupAppResources(name);
+    }
 };
-
 } // namespace roudi
 } // namespace iox
 

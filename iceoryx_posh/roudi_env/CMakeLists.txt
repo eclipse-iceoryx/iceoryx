@@ -15,25 +15,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+# NOTE
+# This package must NOT depend in any way on gtest or any other testing framework since
+# it will be used from other languages like Rust for integration testing.
+
 #
-######### posh testing ##########
+######### posh roudi env ##########
 #
-find_package(GTest CONFIG REQUIRED)
-find_package(iceoryx_hoofs_testing REQUIRED)
 iox_add_library(
     STATIC
-    TARGET                  iceoryx_posh_testing
-    NAMESPACE               iceoryx_posh_testing
+    TARGET                  iceoryx_posh_roudi_env
+    NAMESPACE               iceoryx_posh
     PROJECT_PREFIX          ${PREFIX}
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
     INSTALL_INTERFACE       include/${PREFIX}
     EXPORT_INCLUDE_DIRS     include/
-    PUBLIC_LIBS             GTest::gtest
-                            GTest::gmock
-                            iceoryx_posh::iceoryx_posh_roudi_env
     PRIVATE_LIBS            iceoryx_posh::iceoryx_posh
                             iceoryx_hoofs::iceoryx_hoofs
-                            iceoryx_hoofs_testing::iceoryx_hoofs_testing
+                            iceoryx_posh::iceoryx_posh_roudi
     FILES
-        source/roudi_gtest.cpp
+        source/minimal_roudi_config.cpp
+        source/roudi_env.cpp
+        source/runtime_test_interface.cpp
 )

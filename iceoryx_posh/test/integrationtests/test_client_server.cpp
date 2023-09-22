@@ -20,8 +20,8 @@
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/popo/untyped_client.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -33,7 +33,7 @@ using namespace ::testing;
 using namespace iox::popo;
 using namespace iox::capro;
 using namespace iox::runtime;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 
 class DummyRequest
 {

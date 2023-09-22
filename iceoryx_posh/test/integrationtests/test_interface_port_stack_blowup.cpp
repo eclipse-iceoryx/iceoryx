@@ -17,8 +17,8 @@
 
 #include "iceoryx_posh/gateway/gateway_base.hpp"
 
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 
 #include "test.hpp"
@@ -28,6 +28,7 @@ namespace
 using namespace ::testing;
 
 using namespace iox::gw;
+using namespace iox::roudi_env;
 using namespace iox::testing;
 
 class InterfacePortRequestStackBlowup_test : public RouDi_GTest

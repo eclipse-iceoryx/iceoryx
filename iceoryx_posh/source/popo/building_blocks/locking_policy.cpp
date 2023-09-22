@@ -29,7 +29,7 @@ ThreadSafePolicy::ThreadSafePolicy() noexcept
         .isInterProcessCapable(true)
         .mutexType(posix::MutexType::RECURSIVE)
         .create(m_mutex)
-        .expect("Valid Mutex");
+        .expect("Failed to create Mutex");
 }
 
 void ThreadSafePolicy::lock() const noexcept

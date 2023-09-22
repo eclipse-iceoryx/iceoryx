@@ -22,10 +22,10 @@
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
+#include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
-#include "iceoryx_posh/testing/roudi_environment/minimal_roudi_config.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
 #include "test.hpp"
 
@@ -43,11 +43,10 @@ using namespace iox::runtime;
 using namespace iox::cxx;
 using namespace iox::popo;
 using namespace iox::capro;
-using namespace iox::testing;
+using namespace iox::roudi_env;
 using iox::capro::IdString_t;
 using iox::capro::ServiceDescription;
 using iox::popo::MessagingPattern;
-using iox::roudi::RouDiEnvironment;
 
 using ServiceContainer = std::vector<ServiceDescription>;
 
@@ -197,7 +196,7 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->findService(SERVICE_DESCRIPTION);
 
@@ -206,7 +205,7 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
 
     producer.stopOffer();
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->findService(SERVICE_DESCRIPTION);
 
@@ -214,7 +213,7 @@ TYPED_TEST(ServiceDiscovery_test, ReofferedServiceCanBeFound)
 
     producer.offer();
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->findService(SERVICE_DESCRIPTION);
 
@@ -229,7 +228,7 @@ TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
     const iox::capro::ServiceDescription SERVICE_DESCRIPTION("service", "instance", "event");
     typename TestFixture::CommunicationKind::Producer producer(SERVICE_DESCRIPTION);
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->findService(SERVICE_DESCRIPTION);
 
@@ -238,7 +237,7 @@ TYPED_TEST(ServiceDiscovery_test, ServiceOfferedMultipleTimesCanBeFound)
 
     producer.offer();
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->findService(SERVICE_DESCRIPTION);
 
@@ -806,7 +805,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenNothingOffered)
     ::testing::Test::RecordProperty("TEST_ID", "7f0bf2c0-5e96-4da6-b282-f84917bb5243");
 
     // ensure the discovery loop ran at least once
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     // Checks whether the reference implementation result matches the sut result if we call
     // findService({"a"}, {"b"}, {"c"}).
@@ -820,7 +819,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSingleServiceOffered)
     ::testing::Test::RecordProperty("TEST_ID", "aab09c10-8b1e-4f25-8f72-bd762b69f2cb");
     this->add({"a", "b", "c"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"a"}, {"b"}, {"c"});
 }
@@ -831,7 +830,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenSingleServiceIsOfferedMulti
     this->add({"a", "b", "c"});
     this->add({"a", "b", "c"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"a"}, {"b"}, {"c"});
 }
@@ -844,7 +843,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenMultipleServicesAreOffered)
     this->add({"aa", "a", "c"});
     this->add({"a", "ab", "a"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"aa"}, {"a"}, {"c"});
 }
@@ -855,7 +854,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindWhenMultipleInstancesOfTheSameS
     this->add({"a", "b", "c"});
     this->add({"a", "d", "c"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"a"}, {"d"}, {"c"});
 }
@@ -868,7 +867,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, RepeatedSearchYieldsSameResult)
     this->add({"aa", "a", "c"});
     this->add({"a", "ab", "a"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"a"}, {"b"}, {"aa"});
     auto previousResult = serviceContainer;
@@ -882,7 +881,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingService)
     ::testing::Test::RecordProperty("TEST_ID", "6f953d0d-bae3-45a1-82e7-c78a32b6d365");
     this->add({"a", "b", "c"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     // those are all representatives of equivalence classes of mismatches
     // that hould not be found
@@ -907,7 +906,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindNonExistingServiceAmongMultiple
     this->add({"x", "b", "x"});
     this->add({"x", "x", "x"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"a"}, {"b"}, {"c"});
 }
@@ -957,7 +956,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumServices)
 
     EXPECT_EQ(created, MAX);
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     // search for specific services we inserted at various times (includes wildcard searches etc.):
     // find first offered service, last offered service and some service offered inbetween
@@ -976,7 +975,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, SameServerAndPublisherCanBeFound)
     this->add({"Ferdinand", "Schnüffel", "Spitz"});
     this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
 }
@@ -987,7 +986,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, OtherServiceKindWithMatchingNameIsN
     this->add({"Schnüffel", "Ferdinand", "Spitz"});
     this->addOther({"Ferdinand", "Schnüffel", "Spitz"});
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     this->testFindService({"Ferdinand"}, {"Schnüffel"}, {"Spitz"});
 }
@@ -1067,7 +1066,7 @@ TYPED_TEST(ServiceDiscoveryFindService_test, FindInMaximumMixedServices)
 
     EXPECT_EQ(created, OTHER_MAX);
 
-    this->InterOpWait();
+    this->triggerDiscoveryLoopAndWaitToFinish();
 
     // now we have the maximum of services of both kinds with semi-random services
 
