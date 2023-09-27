@@ -16,6 +16,9 @@
 
 workspace(name = "org_eclipse_iceoryx")
 
+# Load C/C++test dependency
+local_repository(name = "cpptest", path = "/home/mirek/cpptest-coverage")
+
 # Load dependency googletest
 load("//bazel:load_repositories.bzl", "load_repositories")
 

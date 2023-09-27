@@ -82,3 +82,15 @@ cc_test(
         "//iceoryx_posh:iceoryx_posh_testing",
     ],
 )
+
+load("@cpptest//:integration/bazel/cpptest.bzl", "cpptest_code_coverage_executable", "cpptest_code_coverage_test")  
+                                                                                     
+cpptest_code_coverage_test(                                                           
+    name = "posh_integrationtests_coverage",                                          
+    deps = [ "posh_integrationtests" ],                                               
+)                                                                                     
+                                                                                      
+cpptest_code_coverage_test(                                                           
+    name = "posh_moduletests_coverage",                                               
+    deps = [ "posh_moduletests" ],                                                    
+)             

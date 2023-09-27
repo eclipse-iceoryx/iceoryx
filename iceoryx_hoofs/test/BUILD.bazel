@@ -63,3 +63,15 @@ cc_test(
     visibility = ["//visibility:private"],
     deps = ["//iceoryx_hoofs:iceoryx_hoofs_testing"],
 )
+
+load("@cpptest//:integration/bazel/cpptest.bzl", "cpptest_code_coverage_executable", "cpptest_code_coverage_test")  
+                                                                                     
+cpptest_code_coverage_test(                                                           
+    name = "hoofs_integrationtests_coverage",                                          
+    deps = [ "hoofs_integrationtests" ],                                               
+)                                                                                     
+                                                                                      
+cpptest_code_coverage_test(                                                           
+    name = "hoofs_moduletests_coverage",                                               
+    deps = [ "hoofs_moduletests" ],                                                    
+)             

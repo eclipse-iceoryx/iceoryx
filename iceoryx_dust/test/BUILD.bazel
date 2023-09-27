@@ -42,3 +42,15 @@ cc_test(
         "//iceoryx_hoofs:iceoryx_hoofs_testing",
     ],
 )
+
+load("@cpptest//:integration/bazel/cpptest.bzl", "cpptest_code_coverage_executable", "cpptest_code_coverage_test")  
+                                                                                     
+cpptest_code_coverage_test(                                                           
+    name = "dust_integrationtests_coverage",                                          
+    deps = [ "dust_integrationtests" ],                                               
+)                                                                                     
+                                                                                      
+cpptest_code_coverage_test(                                                           
+    name = "dust_moduletests_coverage",                                               
+    deps = [ "dust_moduletests" ],                                                    
+)             
