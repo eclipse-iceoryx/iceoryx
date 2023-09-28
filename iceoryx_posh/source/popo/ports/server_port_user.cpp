@@ -63,7 +63,7 @@ void ServerPortUser::releaseRequest(const RequestHeader* const requestHeader) no
     }
     else
     {
-        IOX_LOG(FATAL) << "Provided RequestHeader is a nullptr";
+        IOX_LOG(FATAL, "Provided RequestHeader is a nullptr");
         errorHandler(PoshError::POPO__SERVER_PORT_INVALID_REQUEST_TO_RELEASE_FROM_USER, ErrorLevel::SEVERE);
     }
 }
@@ -117,7 +117,7 @@ void ServerPortUser::releaseResponse(const ResponseHeader* const responseHeader)
     }
     else
     {
-        IOX_LOG(FATAL) << "Provided ResponseHeader is a nullptr";
+        IOX_LOG(FATAL, "Provided ResponseHeader is a nullptr");
         errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_FREE_FROM_USER, ErrorLevel::SEVERE);
     }
 }
@@ -126,7 +126,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
 {
     if (responseHeader == nullptr)
     {
-        IOX_LOG(FATAL) << "Provided ResponseHeader is a nullptr";
+        IOX_LOG(FATAL, "Provided ResponseHeader is a nullptr");
         errorHandler(PoshError::POPO__SERVER_PORT_INVALID_RESPONSE_TO_SEND_FROM_USER, ErrorLevel::SEVERE);
         return err(ServerSendError::INVALID_RESPONSE);
     }
@@ -135,7 +135,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
     if (!offerRequested)
     {
         releaseResponse(responseHeader);
-        IOX_LOG(WARN) << "Try to send response without having offered!";
+        IOX_LOG(WARN, "Try to send response without having offered!");
         return err(ServerSendError::NOT_OFFERED);
     }
 
@@ -150,7 +150,7 @@ expected<void, ServerSendError> ServerPortUser::sendResponse(ResponseHeader* con
 
     if (!responseSent)
     {
-        IOX_LOG(WARN) << "Could not deliver to client! Client not available anymore!";
+        IOX_LOG(WARN, "Could not deliver to client! Client not available anymore!");
         return err(ServerSendError::CLIENT_NOT_AVAILABLE);
     }
 

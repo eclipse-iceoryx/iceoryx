@@ -28,8 +28,10 @@ inline vector<T, Capacity>::vector(const uint64_t count, const T& value) noexcep
 {
     if (count > Capacity)
     {
-        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
+        IOX_LOG(ERROR,
+                "Attempting to initialize a vector of capacity "
+                    << Capacity << " with " << count << " elements. This exceeds the capacity and only " << Capacity
+                    << " elements will be created!");
     }
 
     for (uint64_t i{0U}; (i < count) && (i < Capacity); ++i)
@@ -43,8 +45,10 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
 {
     if (count > Capacity)
     {
-        IOX_LOG(ERROR) << "Attempting to initialize a vector of capacity " << Capacity << " with " << count
-                       << " elements. This exceeds the capacity and only " << Capacity << " elements will be created!";
+        IOX_LOG(ERROR,
+                "Attempting to initialize a vector of capacity "
+                    << Capacity << " with " << count << " elements. This exceeds the capacity and only " << Capacity
+                    << " elements will be created!");
     }
 
     m_size = std::min(count, Capacity);

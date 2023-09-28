@@ -49,10 +49,11 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
                 errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
             }
 
-            IOX_LOG(DEBUG) << "Application registered management segment "
-                           << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                           << sharedMemoryObject.get_size().expect("Failed to acquire SHM size.") << " to id "
-                           << segmentId;
+            IOX_LOG(DEBUG,
+                    "Application registered management segment "
+                        << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                        << sharedMemoryObject.get_size().expect("Failed to acquire SHM size.") << " to id "
+                        << segmentId);
 
             this->openDataSegments(segmentId, segmentManagerAddressOffset);
 
@@ -94,10 +95,11 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
                     errorHandler(PoshError::POSH__SHM_APP_COULD_NOT_REGISTER_PTR_WITH_GIVEN_SEGMENT_ID);
                 }
 
-                IOX_LOG(DEBUG) << "Application registered payload data segment "
-                               << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                               << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
-                               << segment.m_segmentId;
+                IOX_LOG(DEBUG,
+                        "Application registered payload data segment "
+                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                            << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
+                            << segment.m_segmentId);
 
                 m_dataShmObjects.emplace_back(std::move(sharedMemoryObject));
             })

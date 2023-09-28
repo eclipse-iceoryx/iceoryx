@@ -70,12 +70,12 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
             return stream;
         };
 
-        IOX_LOG(ERROR) << "Unable to create a shared memory object with the following properties [ name = " << m_name
-                       << ", sizeInBytes = " << m_memorySizeInBytes
-                       << ", access mode = " << asStringLiteral(m_accessMode)
-                       << ", open mode = " << asStringLiteral(m_openMode)
-                       << ", baseAddressHint = " << logBaseAddressHint
-                       << ", permissions = " << iox::log::oct(m_permissions.value()) << " ]";
+        IOX_LOG(ERROR,
+                "Unable to create a shared memory object with the following properties [ name = "
+                    << m_name << ", sizeInBytes = " << m_memorySizeInBytes
+                    << ", access mode = " << asStringLiteral(m_accessMode)
+                    << ", open mode = " << asStringLiteral(m_openMode) << ", baseAddressHint = " << logBaseAddressHint
+                    << ", permissions = " << iox::log::oct(m_permissions.value()) << " ]");
     };
 
     auto sharedMemory = SharedMemoryBuilder()
@@ -89,7 +89,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     if (!sharedMemory)
     {
         printErrorDetails();
-        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource";
+        IOX_LOG(ERROR, "Unable to create SharedMemoryObject since we could not acquire a SharedMemory resource");
         return err(SharedMemoryObjectError::SHARED_MEMORY_CREATION_FAILED);
     }
 
@@ -97,8 +97,9 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     if (!realSizeResult)
     {
         printErrorDetails();
-        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
-                          "underlying object.";
+        IOX_LOG(ERROR,
+                "Unable to create SharedMemoryObject since we could not acquire the memory size of the "
+                "underlying object.");
         return err(SharedMemoryObjectError::UNABLE_TO_VERIFY_MEMORY_SIZE);
     }
 
@@ -106,8 +107,9 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     if (realSize < m_memorySizeInBytes)
     {
         printErrorDetails();
-        IOX_LOG(ERROR) << "Unable to create SharedMemoryObject since a size of " << m_memorySizeInBytes
-                       << " was requested but the object has only a size of " << realSize;
+        IOX_LOG(ERROR,
+                "Unable to create SharedMemoryObject since a size of "
+                    << m_memorySizeInBytes << " was requested but the object has only a size of " << realSize);
         return err(SharedMemoryObjectError::REQUESTED_SIZE_EXCEEDS_ACTUAL_SIZE);
     }
 
@@ -123,14 +125,13 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     if (!memoryMap)
     {
         printErrorDetails();
-        IOX_LOG(ERROR) << "Failed to map created shared memory into process!";
+        IOX_LOG(ERROR, "Failed to map created shared memory into process!");
         return err(SharedMemoryObjectError::MAPPING_SHARED_MEMORY_FAILED);
     }
 
     if (sharedMemory->hasOwnership())
     {
-        IOX_LOG(DEBUG) << "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name
-                       << "]";
+        IOX_LOG(DEBUG, "Trying to reserve " << m_memorySizeInBytes << " bytes in the shared memory [" << m_name << "]");
         if (platform::IOX_SHM_WRITE_ZEROS_ON_CREATION)
         {
             // this lock is required for the case that multiple threads are creating multiple
@@ -140,7 +141,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
             if (memsetSigbusGuard.has_error())
             {
                 printErrorDetails();
-                IOX_LOG(ERROR) << "Failed to temporarily override SIGBUS to safely zero the shared memory";
+                IOX_LOG(ERROR, "Failed to temporarily override SIGBUS to safely zero the shared memory");
                 return err(SharedMemoryObjectError::INTERNAL_LOGIC_FAILURE);
             }
 
@@ -163,8 +164,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
 
             memset(memoryMap->getBaseAddress(), 0, m_memorySizeInBytes);
         }
-        IOX_LOG(DEBUG) << "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name
-                       << "]";
+        IOX_LOG(DEBUG,
+                "Acquired " << m_memorySizeInBytes << " bytes successfully in the shared memory [" << m_name << "]");
     }
 
     return ok(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));

@@ -52,7 +52,7 @@ RouDiApp::RouDiApp(const config::CmdLineArgs_t& cmdLineArgs, const RouDiConfig_t
     {
         iox::log::Logger::setLogLevel(m_logLevel);
 
-        IOX_LOG(TRACE) << "Command line parameters are:\n" << cmdLineArgs;
+        IOX_LOG(TRACE, "Command line parameters are:\n" << cmdLineArgs);
     }
 }
 
@@ -60,7 +60,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
 {
     if (config.m_sharedMemorySegments.empty())
     {
-        IOX_LOG(ERROR) << "A RouDiConfig without segments was specified! Please provide a valid config!";
+        IOX_LOG(ERROR, "A RouDiConfig without segments was specified! Please provide a valid config!");
         return false;
     }
 
@@ -68,8 +68,8 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
     {
         if (segment.m_mempoolConfig.m_mempoolConfig.empty())
         {
-            IOX_LOG(ERROR)
-                << "A RouDiConfig with segments without mempools was specified! Please provide a valid config!";
+            IOX_LOG(ERROR,
+                    "A RouDiConfig with segments without mempools was specified! Please provide a valid config!");
             return false;
         }
     }

@@ -68,7 +68,7 @@ void ServiceDiscovery::findService(const optional<capro::IdString_t>& service,
     }
     default:
     {
-        IOX_LOG(WARN) << "ServiceDiscovery could not perform search due to unknown MessagingPattern!";
+        IOX_LOG(WARN, "ServiceDiscovery could not perform search due to unknown MessagingPattern!");
         errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_MESSAGE_PATTERN_PROVIDED, ErrorLevel::MODERATE);
     }
     }
@@ -85,7 +85,7 @@ void ServiceDiscovery::enableEvent(popo::TriggerHandle&& triggerHandle, const Se
     }
     default:
     {
-        IOX_LOG(WARN) << "ServiceDiscovery::enableEvent() called with unknown event!";
+        IOX_LOG(WARN, "ServiceDiscovery::enableEvent() called with unknown event!");
         errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, ErrorLevel::MODERATE);
     }
     }
@@ -102,7 +102,7 @@ void ServiceDiscovery::disableEvent(const ServiceDiscoveryEvent event) noexcept
     }
     default:
     {
-        IOX_LOG(WARN) << "ServiceDiscovery::disableEvent() called with unknown event!";
+        IOX_LOG(WARN, "ServiceDiscovery::disableEvent() called with unknown event!");
         errorHandler(PoshError::POSH__SERVICE_DISCOVERY_UNKNOWN_EVENT_PROVIDED, ErrorLevel::MODERATE);
     }
     }

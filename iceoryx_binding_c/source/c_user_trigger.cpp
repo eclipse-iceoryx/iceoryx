@@ -30,7 +30,7 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 {
     if (self == nullptr)
     {
-        IOX_LOG(WARN) << "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t";
+        IOX_LOG(WARN, "user trigger initialization skipped - null pointer provided for iox_user_trigger_storage_t");
         return nullptr;
     }
     auto* me = new UserTrigger();

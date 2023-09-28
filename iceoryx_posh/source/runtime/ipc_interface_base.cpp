@@ -69,8 +69,9 @@ IpcInterface<IpcChannelType>::IpcInterface(const RuntimeName_t& runtimeName,
     m_maxMessageSize = messageSize;
     if (m_maxMessageSize > platform::IoxIpcChannelType::MAX_MESSAGE_SIZE)
     {
-        IOX_LOG(WARN) << "Message size too large, reducing from " << messageSize << " to "
-                      << platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
+        IOX_LOG(WARN,
+                "Message size too large, reducing from " << messageSize << " to "
+                                                         << platform::IoxIpcChannelType::MAX_MESSAGE_SIZE);
         m_maxMessageSize = platform::IoxIpcChannelType::MAX_MESSAGE_SIZE;
     }
 }
@@ -80,8 +81,7 @@ bool IpcInterface<IpcChannelType>::receive(IpcMessage& answer) const noexcept
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN) << "Trying to receive data on an non-initialized IPC interface! Interface name: "
-                      << m_runtimeName;
+        IOX_LOG(WARN, "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
         return false;
     }
 
@@ -99,8 +99,7 @@ bool IpcInterface<IpcChannelType>::timedReceive(const units::Duration timeout, I
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN) << "Trying to receive data on an non-initialized IPC interface! Interface name: "
-                      << m_runtimeName;
+        IOX_LOG(WARN, "Trying to receive data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
         return false;
     }
 
@@ -118,7 +117,7 @@ bool IpcInterface<IpcChannelType>::setMessageFromString(const char* buffer, IpcM
     answer.setMessage(buffer);
     if (!answer.isValid())
     {
-        IOX_LOG(ERROR) << "The received message " << answer.getMessage() << " is not valid";
+        IOX_LOG(ERROR, "The received message " << answer.getMessage() << " is not valid");
         return false;
     }
     return true;
@@ -129,14 +128,15 @@ bool IpcInterface<IpcChannelType>::send(const IpcMessage& msg) const noexcept
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN) << "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName;
+        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
         return false;
     }
 
     if (!msg.isValid())
     {
-        IOX_LOG(ERROR) << "Trying to send the message " << msg.getMessage() << " which "
-                       << "does not follow the specified syntax.";
+        IOX_LOG(ERROR,
+                "Trying to send the message " << msg.getMessage() << " which "
+                                              << "does not follow the specified syntax.");
         return false;
     }
 
@@ -144,7 +144,7 @@ bool IpcInterface<IpcChannelType>::send(const IpcMessage& msg) const noexcept
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const uint64_t messageSize = msg.getMessage().size() + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
-            IOX_LOG(ERROR) << "msg size of " << messageSize << " bigger than configured max message size";
+            IOX_LOG(ERROR, "msg size of " << messageSize << " bigger than configured max message size");
         }
     };
     return !m_ipcChannel->send(msg.getMessage()).or_else(logLengthError).has_error();
@@ -155,14 +155,15 @@ bool IpcInterface<IpcChannelType>::timedSend(const IpcMessage& msg, units::Durat
 {
     if (!m_ipcChannel.has_value())
     {
-        IOX_LOG(WARN) << "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName;
+        IOX_LOG(WARN, "Trying to send data on an non-initialized IPC interface! Interface name: " << m_runtimeName);
         return false;
     }
 
     if (!msg.isValid())
     {
-        IOX_LOG(ERROR) << "Trying to send the message " << msg.getMessage() << " which "
-                       << "does not follow the specified syntax.";
+        IOX_LOG(ERROR,
+                "Trying to send the message " << msg.getMessage() << " which "
+                                              << "does not follow the specified syntax.");
         return false;
     }
 
@@ -170,7 +171,7 @@ bool IpcInterface<IpcChannelType>::timedSend(const IpcMessage& msg, units::Durat
         if (error == posix::IpcChannelError::MESSAGE_TOO_LONG)
         {
             const uint64_t messageSize = msg.getMessage().size() + platform::IoxIpcChannelType::NULL_TERMINATOR_SIZE;
-            IOX_LOG(ERROR) << "msg size of " << messageSize << " bigger than configured max message size";
+            IOX_LOG(ERROR, "msg size of " << messageSize << " bigger than configured max message size");
         }
     };
     return !m_ipcChannel->timedSend(msg.getMessage(), timeout).or_else(logLengthError).has_error();
@@ -204,16 +205,18 @@ bool IpcInterface<IpcChannelType>::openIpcChannel(const posix::IpcChannelSide ch
         .or_else([this](auto& err) {
             if (this->m_channelSide == posix::IpcChannelSide::SERVER)
             {
-                IOX_LOG(ERROR) << "Unable to create ipc channel '" << this->m_runtimeName
-                               << "'. Error code: " << static_cast<uint8_t>(err);
+                IOX_LOG(ERROR,
+                        "Unable to create ipc channel '" << this->m_runtimeName
+                                                         << "'. Error code: " << static_cast<uint8_t>(err));
             }
             else
             {
                 // the client opens the channel and tries to do this in a loop when the channel is not available,
                 // therefore resulting in a wall of error messages on the console which leads to missing the important
                 // one that roudi is not running if this would be LogLevel::ERROR instead of LogLevel::TRACE
-                IOX_LOG(TRACE) << "Unable to open ipc channel '" << this->m_runtimeName
-                               << "'. Error code: " << static_cast<uint8_t>(err);
+                IOX_LOG(TRACE,
+                        "Unable to open ipc channel '" << this->m_runtimeName
+                                                       << "'. Error code: " << static_cast<uint8_t>(err));
             }
         });
 
@@ -255,7 +258,7 @@ void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const RuntimeName_t
 {
     if (platform::IoxIpcChannelType::unlinkIfExists(name).value_or(false))
     {
-        IOX_LOG(WARN) << "IPC channel still there, doing an unlink of '" << name << "'";
+        IOX_LOG(WARN, "IPC channel still there, doing an unlink of '" << name << "'");
     }
 }
 

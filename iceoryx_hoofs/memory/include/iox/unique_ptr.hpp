@@ -40,7 +40,7 @@ namespace iox
 ///       });
 ///
 ///       // Data can be accessed through unique_ptr
-///       IOX_LOG(INFO) << myPtr->myClassMember;
+///       IOX_LOG(INFO, myPtr->myClassMember);
 ///
 ///       // Resetting the unique_ptr, can be performed by calling the move assignment operator
 ///       myPtr = std::move(uniquePtrToAnotherInt);

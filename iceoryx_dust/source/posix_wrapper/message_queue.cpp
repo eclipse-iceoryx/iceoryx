@@ -54,7 +54,7 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
             .and_then([&sanitizedName](auto& r) {
                 if (r.errnum != ENOENT)
                 {
-                    IOX_LOG(DEBUG) << "MQ still there, doing an unlink of '" << sanitizedName << "'";
+                    IOX_LOG(DEBUG, "MQ still there, doing an unlink of '" << sanitizedName << "'");
                 }
             });
     }
@@ -100,7 +100,7 @@ MessageQueue::~MessageQueue() noexcept
 {
     if (destroy().has_error())
     {
-        IOX_LOG(ERROR) << "unable to cleanup message queue '" << m_name << "' in the destructor";
+        IOX_LOG(ERROR, "unable to cleanup message queue '" << m_name << "' in the destructor");
     }
 }
 
@@ -110,8 +110,9 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
     {
         if (destroy().has_error())
         {
-            IOX_LOG(ERROR) << "unable to cleanup message queue '" << m_name
-                           << "' during move operation - resource leaks are possible!";
+            IOX_LOG(ERROR,
+                    "unable to cleanup message queue '" << m_name
+                                                        << "' during move operation - resource leaks are possible!");
         }
 
         m_name = std::move(other.m_name);
@@ -302,8 +303,8 @@ expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
     const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
     {
-        IOX_LOG(ERROR) << "the message '" << msg << "' which should be sent to the message queue '" << m_name
-                       << "' is too long";
+        IOX_LOG(ERROR,
+                "the message '" << msg << "' which should be sent to the message queue '" << m_name << "' is too long");
         return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
@@ -344,12 +345,12 @@ IpcChannelError MessageQueue::errnoToEnum(const IpcChannelName_t& name, const in
     {
     case EACCES:
     {
-        IOX_LOG(ERROR) << "access denied to message queue '" << name << "'";
+        IOX_LOG(ERROR, "access denied to message queue '" << name << "'");
         return IpcChannelError::ACCESS_DENIED;
     }
     case EAGAIN:
     {
-        IOX_LOG(ERROR) << "the message queue '" << name << "' is full";
+        IOX_LOG(ERROR, "the message queue '" << name << "' is full");
         return IpcChannelError::CHANNEL_FULL;
     }
     case ETIMEDOUT:
@@ -359,12 +360,12 @@ IpcChannelError MessageQueue::errnoToEnum(const IpcChannelName_t& name, const in
     }
     case EEXIST:
     {
-        IOX_LOG(ERROR) << "message queue '" << name << "' already exists";
+        IOX_LOG(ERROR, "message queue '" << name << "' already exists");
         return IpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EINVAL:
     {
-        IOX_LOG(ERROR) << "provided invalid arguments for message queue '" << name << "'";
+        IOX_LOG(ERROR, "provided invalid arguments for message queue '" << name << "'");
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case ENOENT:
@@ -374,12 +375,12 @@ IpcChannelError MessageQueue::errnoToEnum(const IpcChannelName_t& name, const in
     }
     case ENAMETOOLONG:
     {
-        IOX_LOG(ERROR) << "message queue name '" << name << "' is too long";
+        IOX_LOG(ERROR, "message queue name '" << name << "' is too long");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     default:
     {
-        IOX_LOG(ERROR) << "internal logic error in message queue '" << name << "' occurred";
+        IOX_LOG(ERROR, "internal logic error in message queue '" << name << "' occurred");
         return IpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }

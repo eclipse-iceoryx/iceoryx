@@ -109,8 +109,8 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocketBuilderNoPathPrefix:
         if (bindCall.has_error())
         {
             UnixDomainSocket::closeFileDescriptor(m_name, sockfd, sockAddr, m_channelSide).or_else([](auto) {
-                IOX_LOG(ERROR)
-                    << "Unable to close socket file descriptor in error related cleanup during initialization.";
+                IOX_LOG(ERROR,
+                        "Unable to close socket file descriptor in error related cleanup during initialization.");
             });
             // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
             return err(UnixDomainSocket::errnoToEnum(m_name, bindCall.error().errnum));
@@ -130,7 +130,7 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocketBuilderNoPathPrefix:
     if (connectCall.has_error())
     {
         UnixDomainSocket::closeFileDescriptor(m_name, sockfd, sockAddr, m_channelSide).or_else([](auto) {
-            IOX_LOG(ERROR) << "Unable to close socket file descriptor in error related cleanup during initialization.";
+            IOX_LOG(ERROR, "Unable to close socket file descriptor in error related cleanup during initialization.");
         });
         // possible errors in closeFileDescriptor() are masked and we inform the user about the actual error
         return err(UnixDomainSocket::errnoToEnum(m_name, connectCall.error().errnum));
@@ -160,7 +160,7 @@ UnixDomainSocket::~UnixDomainSocket() noexcept
 {
     if (destroy().has_error())
     {
-        IOX_LOG(ERROR) << "unable to cleanup unix domain socket \"" << m_name << "\" in the destructor";
+        IOX_LOG(ERROR, "unable to cleanup unix domain socket \"" << m_name << "\" in the destructor");
     }
 }
 
@@ -175,8 +175,9 @@ UnixDomainSocket& UnixDomainSocket::operator=(UnixDomainSocket&& other) noexcept
     {
         if (destroy().has_error())
         {
-            IOX_LOG(ERROR) << "Unable to cleanup unix domain socket \"" << m_name
-                           << "\" in the move constructor/move assignment operator";
+            IOX_LOG(ERROR,
+                    "Unable to cleanup unix domain socket \"" << m_name
+                                                              << "\" in the move constructor/move assignment operator");
         }
 
         m_name = std::move(other.m_name);
@@ -288,7 +289,7 @@ expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& m
 
     if (IpcChannelSide::SERVER == m_channelSide)
     {
-        IOX_LOG(ERROR) << "sending on server side not supported for unix domain socket \"" << m_name << "\"";
+        IOX_LOG(ERROR, "sending on server side not supported for unix domain socket \"" << m_name << "\"");
         return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
@@ -328,7 +329,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
 {
     if (IpcChannelSide::CLIENT == m_channelSide)
     {
-        IOX_LOG(ERROR) << "receiving on client side not supported for unix domain socket \"" << m_name << "\"";
+        IOX_LOG(ERROR, "receiving on client side not supported for unix domain socket \"" << m_name << "\"");
         return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
@@ -364,88 +365,90 @@ IpcChannelError UnixDomainSocket::errnoToEnum(const int32_t errnum) const noexce
     return errnoToEnum(m_name, errnum);
 }
 
+// NOLINTJUSTIFICATION the function size and cognitive complexity results from the error handling and the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 IpcChannelError UnixDomainSocket::errnoToEnum(const UdsName_t& name, const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
     {
-        IOX_LOG(ERROR) << "permission to create unix domain socket denied \"" << name << "\"";
+        IOX_LOG(ERROR, "permission to create unix domain socket denied \"" << name << "\"");
         return IpcChannelError::ACCESS_DENIED;
     }
     case EAFNOSUPPORT:
     {
-        IOX_LOG(ERROR) << "address family not supported for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "address family not supported for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EINVAL:
     {
-        IOX_LOG(ERROR) << "provided invalid arguments for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "provided invalid arguments for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EMFILE:
     {
-        IOX_LOG(ERROR) << "process limit reached for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "process limit reached for unix domain socket \"" << name << "\"");
         return IpcChannelError::PROCESS_LIMIT;
     }
     case ENFILE:
     {
-        IOX_LOG(ERROR) << "system limit reached for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "system limit reached for unix domain socket \"" << name << "\"");
         return IpcChannelError::SYSTEM_LIMIT;
     }
     case ENOBUFS:
     {
-        IOX_LOG(ERROR) << "queue is full for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "queue is full for unix domain socket \"" << name << "\"");
         return IpcChannelError::OUT_OF_MEMORY;
     }
     case ENOMEM:
     {
-        IOX_LOG(ERROR) << "out of memory for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "out of memory for unix domain socket \"" << name << "\"");
         return IpcChannelError::OUT_OF_MEMORY;
     }
     case EPROTONOSUPPORT:
     {
-        IOX_LOG(ERROR) << "protocol type not supported for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "protocol type not supported for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case EADDRINUSE:
     {
-        IOX_LOG(ERROR) << "unix domain socket already in use \"" << name << "\"";
+        IOX_LOG(ERROR, "unix domain socket already in use \"" << name << "\"");
         return IpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EBADF:
     {
-        IOX_LOG(ERROR) << "invalid file descriptor for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "invalid file descriptor for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case ENOTSOCK:
     {
-        IOX_LOG(ERROR) << "invalid unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "invalid unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_FILE_DESCRIPTOR;
     }
     case EADDRNOTAVAIL:
     {
-        IOX_LOG(ERROR) << "interface or address error for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "interface or address error for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EFAULT:
     {
-        IOX_LOG(ERROR) << "outside address space error for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "outside address space error for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ELOOP:
     {
-        IOX_LOG(ERROR) << "too many symbolic links for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "too many symbolic links for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENAMETOOLONG:
     {
-        IOX_LOG(ERROR) << "name too long for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "name too long for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOTDIR:
     {
-        IOX_LOG(ERROR) << "not a directory error for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "not a directory error for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case ENOENT:
@@ -455,17 +458,17 @@ IpcChannelError UnixDomainSocket::errnoToEnum(const UdsName_t& name, const int32
     }
     case EROFS:
     {
-        IOX_LOG(ERROR) << "read only error for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "read only error for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_CHANNEL_NAME;
     }
     case EIO:
     {
-        IOX_LOG(ERROR) << "I/O for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "I/O for unix domain socket \"" << name << "\"");
         return IpcChannelError::I_O_ERROR;
     }
     case ENOPROTOOPT:
     {
-        IOX_LOG(ERROR) << "invalid option for unix domain socket \"" << name << "\"";
+        IOX_LOG(ERROR, "invalid option for unix domain socket \"" << name << "\"");
         return IpcChannelError::INVALID_ARGUMENTS;
     }
     case ECONNREFUSED:
@@ -475,7 +478,7 @@ IpcChannelError UnixDomainSocket::errnoToEnum(const UdsName_t& name, const int32
     }
     case ECONNRESET:
     {
-        IOX_LOG(ERROR) << "connection was reset by peer for \"" << name << "\"";
+        IOX_LOG(ERROR, "connection was reset by peer for \"" << name << "\"");
         return IpcChannelError::CONNECTION_RESET_BY_PEER;
     }
     case EWOULDBLOCK:
@@ -485,7 +488,7 @@ IpcChannelError UnixDomainSocket::errnoToEnum(const UdsName_t& name, const int32
     }
     default:
     {
-        IOX_LOG(ERROR) << "internal logic error in unix domain socket \"" << name << "\" occurred";
+        IOX_LOG(ERROR, "internal logic error in unix domain socket \"" << name << "\" occurred");
         return IpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }

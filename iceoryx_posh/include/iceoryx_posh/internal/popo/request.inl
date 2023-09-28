@@ -33,7 +33,7 @@ inline expected<void, ClientSendError> Request<T>::send() noexcept
     }
     else
     {
-        IOX_LOG(ERROR) << "Tried to send empty Request! Might be an already sent or moved Request!";
+        IOX_LOG(ERROR, "Tried to send empty Request! Might be an already sent or moved Request!");
         errorHandler(PoshError::POSH__SENDING_EMPTY_REQUEST, ErrorLevel::MODERATE);
         return err(ClientSendError::INVALID_REQUEST);
     }

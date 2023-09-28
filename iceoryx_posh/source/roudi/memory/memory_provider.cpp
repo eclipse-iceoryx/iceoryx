@@ -91,8 +91,9 @@ expected<void, MemoryProviderError> MemoryProvider::create() noexcept
     }
     m_segmentId = maybeSegmentId.value();
 
-    IOX_LOG(DEBUG) << "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
-                   << m_segmentId;
+    IOX_LOG(DEBUG,
+            "Registered memory segment " << iox::log::hex(m_memory) << " with size " << m_size << " to id "
+                                         << m_segmentId);
 
     iox::BumpAllocator allocator(m_memory, m_size);
 

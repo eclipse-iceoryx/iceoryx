@@ -44,9 +44,9 @@ PoshRuntimeSingleProcess::PoshRuntimeSingleProcess(const RuntimeName_t& name) no
     }
     else
     {
-        IOX_LOG(ERROR)
-            << "PoshRuntimeSingleProcess can only created once per process and only if the default PoshRuntime "
-               "factory method is set!";
+        IOX_LOG(ERROR,
+                "PoshRuntimeSingleProcess can only created once per process and only if the default PoshRuntime "
+                "factory method is set!");
         errorHandler(PoshError::POSH__RUNTIME_IS_CREATED_MULTIPLE_TIMES);
     }
 }

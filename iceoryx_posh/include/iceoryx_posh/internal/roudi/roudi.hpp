@@ -153,7 +153,7 @@ class RouDi
     ScopeGuard m_roudiMemoryManagerCleaner{[this]() {
         if (this->m_roudiMemoryInterface->destroyMemory().has_error())
         {
-            IOX_LOG(WARN) << "unable to cleanup roudi memory interface";
+            IOX_LOG(WARN, "unable to cleanup roudi memory interface");
         };
     }};
     PortManager* m_portManager{nullptr};

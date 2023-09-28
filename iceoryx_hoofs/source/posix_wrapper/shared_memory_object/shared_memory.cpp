@@ -39,28 +39,31 @@ string<SharedMemory::Name_t::capacity() + 1> addLeadingSlash(const SharedMemory:
     return nameWithLeadingSlash;
 }
 
+// NOLINTJUSTIFICATION the function size and cognitive complexity results from the error handling and the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 {
     auto printError = [this] {
-        IOX_LOG(ERROR) << "Unable to create shared memory with the following properties [ name = " << m_name
-                       << ", access mode = " << asStringLiteral(m_accessMode)
-                       << ", open mode = " << asStringLiteral(m_openMode)
-                       << ", mode = " << iox::log::oct(m_filePermissions.value()) << ", sizeInBytes = " << m_size
-                       << " ]";
+        IOX_LOG(ERROR,
+                "Unable to create shared memory with the following properties [ name = "
+                    << m_name << ", access mode = " << asStringLiteral(m_accessMode)
+                    << ", open mode = " << asStringLiteral(m_openMode)
+                    << ", mode = " << iox::log::oct(m_filePermissions.value()) << ", sizeInBytes = " << m_size << " ]");
     };
 
 
     // on qnx the current working directory will be added to the /dev/shmem path if the leading slash is missing
     if (m_name.empty())
     {
-        IOX_LOG(ERROR) << "No shared memory name specified!";
+        IOX_LOG(ERROR, "No shared memory name specified!");
         return err(SharedMemoryError::EMPTY_NAME);
     }
 
     if (!isValidFileName(m_name))
     {
-        IOX_LOG(ERROR) << "Shared memory requires a valid file name (not path) as name and \"" << m_name
-                       << "\" is not a valid file name";
+        IOX_LOG(ERROR,
+                "Shared memory requires a valid file name (not path) as name and \"" << m_name
+                                                                                     << "\" is not a valid file name");
         return err(SharedMemoryError::INVALID_FILE_NAME);
     }
 
@@ -71,8 +74,9 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 
     if (hasOwnership && (m_accessMode == AccessMode::READ_ONLY))
     {
-        IOX_LOG(ERROR) << "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
-                       << "Initializing a new file requires write access";
+        IOX_LOG(ERROR,
+                "Cannot create shared-memory file \"" << m_name << "\" in read-only mode. "
+                                                      << "Initializing a new file requires write access");
         return err(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE);
     }
 
@@ -136,16 +140,18 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto& r) {
-                    IOX_LOG(ERROR) << "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
-                                   << " for SharedMemory \"" << m_name << "\"";
+                    IOX_LOG(ERROR,
+                            "Unable to close filedescriptor (close failed) : "
+                                << r.getHumanReadableErrnum() << " for SharedMemory \"" << m_name << "\"");
                 });
 
             posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto&) {
-                    IOX_LOG(ERROR) << "Unable to remove previously created SharedMemory \"" << m_name
-                                   << "\". This may be a SharedMemory leak.";
+                    IOX_LOG(ERROR,
+                            "Unable to remove previously created SharedMemory \""
+                                << m_name << "\". This may be a SharedMemory leak.");
                 });
 
             return err(SharedMemory::errnoToEnum(result.error().errnum));
@@ -239,7 +245,7 @@ bool SharedMemory::unlink() noexcept
         auto unlinkResult = unlinkIfExist(m_name);
         if (unlinkResult.has_error() || !unlinkResult.value())
         {
-            IOX_LOG(ERROR) << "Unable to unlink SharedMemory (shm_unlink failed).";
+            IOX_LOG(ERROR, "Unable to unlink SharedMemory (shm_unlink failed).");
             return false;
         }
         m_hasOwnership = false;
@@ -255,8 +261,8 @@ bool SharedMemory::close() noexcept
     {
         auto call =
             posixCall(iox_shm_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
-                IOX_LOG(ERROR) << "Unable to close SharedMemory filedescriptor (close failed) : "
-                               << r.getHumanReadableErrnum();
+                IOX_LOG(ERROR,
+                        "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum());
             });
 
         m_handle = INVALID_HANDLE;
@@ -265,49 +271,52 @@ bool SharedMemory::close() noexcept
     return true;
 }
 
+// NOLINTJUSTIFICATION the function size and cognitive complexity results from the error handling and the expanded log macro
+// NOLINTNEXTLINE(readability-function-size,readability-function-cognitive-complexity)
 SharedMemoryError SharedMemory::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
-        IOX_LOG(ERROR) << "No permission to modify, truncate or access the shared memory!";
+        IOX_LOG(ERROR, "No permission to modify, truncate or access the shared memory!");
         return SharedMemoryError::INSUFFICIENT_PERMISSIONS;
     case EPERM:
-        IOX_LOG(ERROR) << "Resizing a file beyond its current size is not supported by the filesystem!";
+        IOX_LOG(ERROR, "Resizing a file beyond its current size is not supported by the filesystem!");
         return SharedMemoryError::NO_RESIZE_SUPPORT;
     case EFBIG:
-        IOX_LOG(ERROR) << "Requested Shared Memory is larger then the maximum file size.";
+        IOX_LOG(ERROR, "Requested Shared Memory is larger then the maximum file size.");
         return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EINVAL:
-        IOX_LOG(ERROR) << "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
-                          "belong to a regular file.";
+        IOX_LOG(ERROR,
+                "Requested Shared Memory is larger then the maximum file size or the filedescriptor does not "
+                "belong to a regular file.");
         return SharedMemoryError::REQUESTED_MEMORY_EXCEEDS_MAXIMUM_FILE_SIZE;
     case EBADF:
-        IOX_LOG(ERROR) << "Provided filedescriptor is not a valid filedescriptor.";
+        IOX_LOG(ERROR, "Provided filedescriptor is not a valid filedescriptor.");
         return SharedMemoryError::INVALID_FILEDESCRIPTOR;
     case EEXIST:
-        IOX_LOG(ERROR) << "A Shared Memory with the given name already exists.";
+        IOX_LOG(ERROR, "A Shared Memory with the given name already exists.");
         return SharedMemoryError::DOES_EXIST;
     case EISDIR:
-        IOX_LOG(ERROR) << "The requested Shared Memory file is a directory.";
+        IOX_LOG(ERROR, "The requested Shared Memory file is a directory.");
         return SharedMemoryError::PATH_IS_A_DIRECTORY;
     case ELOOP:
-        IOX_LOG(ERROR) << "Too many symbolic links encountered while traversing the path.";
+        IOX_LOG(ERROR, "Too many symbolic links encountered while traversing the path.");
         return SharedMemoryError::TOO_MANY_SYMBOLIC_LINKS;
     case EMFILE:
-        IOX_LOG(ERROR) << "Process limit of maximum open files reached.";
+        IOX_LOG(ERROR, "Process limit of maximum open files reached.");
         return SharedMemoryError::PROCESS_LIMIT_OF_OPEN_FILES_REACHED;
     case ENFILE:
-        IOX_LOG(ERROR) << "System limit of maximum open files reached.";
+        IOX_LOG(ERROR, "System limit of maximum open files reached.");
         return SharedMemoryError::SYSTEM_LIMIT_OF_OPEN_FILES_REACHED;
     case ENOENT:
-        IOX_LOG(ERROR) << "Shared Memory does not exist.";
+        IOX_LOG(ERROR, "Shared Memory does not exist.");
         return SharedMemoryError::DOES_NOT_EXIST;
     case ENOMEM:
-        IOX_LOG(ERROR) << "Not enough memory available to create shared memory.";
+        IOX_LOG(ERROR, "Not enough memory available to create shared memory.");
         return SharedMemoryError::NOT_ENOUGH_MEMORY_AVAILABLE;
     default:
-        IOX_LOG(ERROR) << "This should never happen! An unknown error occurred!";
+        IOX_LOG(ERROR, "This should never happen! An unknown error occurred!");
         return SharedMemoryError::UNKNOWN_ERROR;
     }
 }

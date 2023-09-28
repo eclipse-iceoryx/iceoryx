@@ -46,20 +46,20 @@ void MemoryManager::addMemPool(BumpAllocator& managementAllocator,
     uint32_t adjustedChunkSize = sizeWithChunkHeaderStruct(static_cast<uint32_t>(chunkPayloadSize));
     if (m_denyAddMemPool)
     {
-        IOX_LOG(FATAL)
-            << "After the generation of the chunk management pool you are not allowed to create new mempools.";
+        IOX_LOG(FATAL, "After the generation of the chunk management pool you are not allowed to create new mempools.");
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_ADDMEMPOOL_AFTER_GENERATECHUNKMANAGEMENTPOOL);
     }
     else if (m_memPoolVector.size() > 0 && adjustedChunkSize <= m_memPoolVector.back().getChunkSize())
     {
-        IOX_LOG(FATAL) << "The following mempools were already added to the mempool handler:"
-                       << [this](auto& log) -> iox::log::LogStream& {
-            this->printMemPoolVector(log);
-            return log;
-        } << "These mempools must be added in an increasing chunk size ordering. The newly added  MemPool [ "
-             "ChunkSize = "
-          << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint32_t>(chunkPayloadSize)
-          << ", ChunkCount = " << static_cast<uint32_t>(numberOfChunks) << "] breaks that requirement!";
+        IOX_LOG(
+            FATAL,
+            "The following mempools were already added to the mempool handler:" << [this](auto& log) -> auto& {
+                this->printMemPoolVector(log);
+                return log;
+            } << "These mempools must be added in an increasing chunk size ordering. The newly added  MemPool [ "
+                 "ChunkSize = "
+              << adjustedChunkSize << ", ChunkPayloadSize = " << static_cast<uint32_t>(chunkPayloadSize)
+              << ", ChunkCount = " << static_cast<uint32_t>(numberOfChunks) << "] breaks that requirement!");
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_CONFIG_MUST_BE_ORDERED_BY_INCREASING_SIZE);
     }
 
@@ -165,30 +165,34 @@ expected<SharedChunk, MemoryManager::Error> MemoryManager::getChunk(const ChunkS
 
     if (m_memPoolVector.size() == 0)
     {
-        IOX_LOG(FATAL) << "There are no mempools available!";
+        IOX_LOG(FATAL, "There are no mempools available!");
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_WITHOUT_MEMPOOL, ErrorLevel::SEVERE);
         return err(Error::NO_MEMPOOLS_AVAILABLE);
     }
     else if (memPoolPointer == nullptr)
     {
-        IOX_LOG(FATAL) << "The following mempools are available:" << [this](auto& log) -> iox::log::LogStream& {
-            this->printMemPoolVector(log);
-            return log;
-        } << "Could not find a fitting mempool for a chunk of size "
-          << requiredChunkSize;
+        IOX_LOG(
+            FATAL,
+            "The following mempools are available:" << [this](auto& log) -> auto& {
+                this->printMemPoolVector(log);
+                return log;
+            } << "Could not find a fitting mempool for a chunk of size "
+              << requiredChunkSize);
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_CHUNK_IS_TOO_LARGE, ErrorLevel::SEVERE);
         return err(Error::NO_MEMPOOL_FOR_REQUESTED_CHUNK_SIZE);
     }
     else if (chunk == nullptr)
     {
-        IOX_LOG(ERROR) << "MemoryManager: unable to acquire a chunk with a chunk-payload size of "
-                       << chunkSettings.userPayloadSize()
-                       << "The following mempools are available:" << [this](auto& log) -> iox::log::LogStream& {
-            this->printMemPoolVector(log);
-            return log;
-        };
+        IOX_LOG(
+            ERROR,
+            "MemoryManager: unable to acquire a chunk with a chunk-payload size of "
+                << chunkSettings.userPayloadSize()
+                << "The following mempools are available:" << [this](auto& log) -> auto& {
+                this->printMemPoolVector(log);
+                return log;
+            });
 
         errorHandler(iox::PoshError::MEPOO__MEMPOOL_GETCHUNK_POOL_IS_RUNNING_OUT_OF_CHUNKS, ErrorLevel::MODERATE);
         return err(Error::MEMPOOL_OUT_OF_CHUNKS);

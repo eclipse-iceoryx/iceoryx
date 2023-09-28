@@ -57,7 +57,7 @@ class SoFiStress : public Test
         auto retVal = pthread_setaffinity_np(nativeHandle, sizeof(cpu_set_t), &cpuset);
         if (retVal != 0)
         {
-            IOX_LOG(ERROR) << "Error calling pthread_setaffinity_np: " << retVal << "; errno: " << errno;
+            IOX_LOG(ERROR, "Error calling pthread_setaffinity_np: " << retVal << "; errno: " << errno);
             return false;
         }
 #else
@@ -195,8 +195,8 @@ TEST_F(SoFiStress, SimultaneouslyPushAndPopOnEmptySoFi)
         << "There should be at least 4 times as many trys to pop as actual pops!";
     EXPECT_THAT(pushCounter, Eq(popCounter)) << "Push and Pop Counter should be Equal after the Test!";
 
-    IOX_LOG(INFO) << "try pop counter: " << tryPopCounter;
-    IOX_LOG(INFO) << "pop counter    : " << pushCounter;
+    IOX_LOG(INFO, "try pop counter: " << tryPopCounter);
+    IOX_LOG(INFO, "pop counter    : " << pushCounter);
 }
 
 /// @brief This tests a fast pusher and slow popper.
@@ -393,8 +393,8 @@ TEST_F(SoFiStress, PopFromContinuouslyOverflowingSoFi)
     EXPECT_THAT(pushCounter / 4, Gt(popCounter)) << "There should be at least 4 times as many pushes as pops!";
     EXPECT_THAT(pushCounter, Eq(dataCounter)) << "Push and Data Counter should be Equal after the Test!";
 
-    IOX_LOG(INFO) << "push counter: " << pushCounter;
-    IOX_LOG(INFO) << "pop counter : " << popCounter;
+    IOX_LOG(INFO, "push counter: " << pushCounter);
+    IOX_LOG(INFO, "pop counter : " << popCounter);
 }
 
 /// @brief This tests a fast pusher and fast popper.
@@ -541,7 +541,7 @@ TEST_F(SoFiStress, PushAndPopFromNonOverflowingNonEmptySoFi)
     EXPECT_THAT(pushCounter / 1000, Gt(STRESS_TIME.count())) << "There should be at least 1000 pushes per millisecond!";
     EXPECT_THAT(pushCounter, Eq(popCounter.load())) << "Push and Pop Counter should be Equal after the Test!";
 
-    IOX_LOG(INFO) << "push & pop counter: " << pushCounter.load();
+    IOX_LOG(INFO, "push & pop counter: " << pushCounter.load());
 }
 
 int main(int argc, char* argv[])

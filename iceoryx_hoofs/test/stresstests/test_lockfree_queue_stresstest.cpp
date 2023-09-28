@@ -47,7 +47,7 @@ struct Data
 
     void print() const
     {
-        IOX_LOG(INFO) << "data id " << id << " count " << count;
+        IOX_LOG(INFO, "data id " << id << " count " << count);
     }
 };
 
@@ -199,13 +199,13 @@ bool checkTwoConsumerResult(std::list<Data>& consumed1,
 
         if (!isStrictlyMonotonic(filtered1) || !isStrictlyMonotonic(filtered2))
         {
-            IOX_LOG(INFO) << "id " << id << " not strictly monotonic";
+            IOX_LOG(INFO, "id " << id << " not strictly monotonic");
             return false;
         }
 
         if (!isComplete(filtered1, filtered2, expectedFinalCount))
         {
-            IOX_LOG(INFO) << "id " << id << " incomplete";
+            IOX_LOG(INFO, "id " << id << " incomplete");
             return false;
         }
     }

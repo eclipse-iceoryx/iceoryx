@@ -70,7 +70,7 @@ inline bool convert::fromString<char>(const char* v, char& dest) noexcept
 {
     if (strlen(v) != 1U)
     {
-        IOX_LOG(DEBUG) << v << " is not a char";
+        IOX_LOG(DEBUG, v << " is not a char");
         return false;
     }
 
@@ -133,22 +133,22 @@ inline bool convert::stringIsNumberWithErrorMessage(const char* v, const NumberT
 {
     if (!stringIsNumber(v, type))
     {
-        IOX_LOG(DEBUG) << v << " is not ";
+        IOX_LOG(DEBUG, v << " is not ");
         switch (type)
         {
         case NumberType::FLOAT:
         {
-            IOX_LOG(DEBUG) << "a float";
+            IOX_LOG(DEBUG, "a float");
             break;
         }
         case NumberType::INTEGER:
         {
-            IOX_LOG(DEBUG) << "a signed integer";
+            IOX_LOG(DEBUG, "a signed integer");
             break;
         }
         case NumberType::UNSIGNED_INTEGER:
         {
-            IOX_LOG(DEBUG) << "an unsigned integer";
+            IOX_LOG(DEBUG, "an unsigned integer");
             break;
         }
         }
@@ -219,7 +219,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest) noexcep
 
     if (call->value > std::numeric_limits<uint64_t>::max())
     {
-        IOX_LOG(DEBUG) << call->value << " too large, uint64_t overflow";
+        IOX_LOG(DEBUG, call->value << " too large, uint64_t overflow");
         return false;
     }
 
@@ -270,7 +270,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest) noexcep
 
     if (call->value > std::numeric_limits<uint32_t>::max())
     {
-        IOX_LOG(DEBUG) << call->value << " too large, uint32_t overflow";
+        IOX_LOG(DEBUG, call->value << " too large, uint32_t overflow");
         return false;
     }
 
@@ -295,7 +295,7 @@ inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest) noexcep
 
     if (call->value > std::numeric_limits<uint16_t>::max())
     {
-        IOX_LOG(DEBUG) << call->value << " too large, uint16_t overflow";
+        IOX_LOG(DEBUG, call->value << " too large, uint16_t overflow");
         return false;
     }
 
@@ -320,7 +320,7 @@ inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest) noexcept
 
     if (call->value > std::numeric_limits<uint8_t>::max())
     {
-        IOX_LOG(DEBUG) << call->value << " too large, uint8_t overflow";
+        IOX_LOG(DEBUG, call->value << " too large, uint8_t overflow");
         return false;
     }
 
@@ -345,7 +345,7 @@ inline bool convert::fromString<int64_t>(const char* v, int64_t& dest) noexcept
 
     if (call->value > std::numeric_limits<int64_t>::max() || call->value < std::numeric_limits<int64_t>::min())
     {
-        IOX_LOG(DEBUG) << call->value << " is out of range, int64_t overflow";
+        IOX_LOG(DEBUG, call->value << " is out of range, int64_t overflow");
         return false;
     }
 
@@ -370,7 +370,7 @@ inline bool convert::fromString<int32_t>(const char* v, int32_t& dest) noexcept
 
     if (call->value > std::numeric_limits<int32_t>::max() || call->value < std::numeric_limits<int32_t>::min())
     {
-        IOX_LOG(DEBUG) << call->value << " is out of range, int32_t overflow";
+        IOX_LOG(DEBUG, call->value << " is out of range, int32_t overflow");
         return false;
     }
 
@@ -394,7 +394,7 @@ inline bool convert::fromString<int16_t>(const char* v, int16_t& dest) noexcept
 
     if (call->value > std::numeric_limits<int16_t>::max() || call->value < std::numeric_limits<int16_t>::min())
     {
-        IOX_LOG(DEBUG) << call->value << " is out of range, int16_t overflow";
+        IOX_LOG(DEBUG, call->value << " is out of range, int16_t overflow");
         return false;
     }
 
@@ -418,7 +418,7 @@ inline bool convert::fromString<int8_t>(const char* v, int8_t& dest) noexcept
 
     if (call->value > std::numeric_limits<int8_t>::max() || call->value < std::numeric_limits<int8_t>::min())
     {
-        IOX_LOG(DEBUG) << call->value << " is out of range, int8_t overflow";
+        IOX_LOG(DEBUG, call->value << " is out of range, int8_t overflow");
         return false;
     }
 

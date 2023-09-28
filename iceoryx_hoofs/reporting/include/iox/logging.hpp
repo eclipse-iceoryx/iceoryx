@@ -51,13 +51,7 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
         iox::log::LogStream(file, line, function, level).self() << msg_stream;                                         \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
-// NOLINTEND(bugprone-macro-parentheses)
-
-/// @todo iox-#1755 remove after porting to IOX_LOG_LAZY
-#define IOX_LOG_INTERNAL_LEGACY(file, line, function, level)                                                           \
-    if (iox::log::internal::isLogLevelActive(level))                                                                   \
-    iox::log::LogStream(file, line, function, level).self()
-
+            // NOLINTEND(bugprone-macro-parentheses)
 
 /// @brief Macro for logging
 /// @param[in] level is the log level to be used for the log message
@@ -71,15 +65,8 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 // templates the resulting string is too large; we also get the file name and the line of the invocation which should be
 // sufficient for debugging
 // NOLINTBEGIN(bugprone-lambda-function-name)
-/// @todo iox-#1755 rename this to IOX_LOG
-#define IOX_LOG_LAZY(level, msg_stream)                                                                                \
+#define IOX_LOG(level, msg_stream)                                                                                     \
     IOX_LOG_INTERNAL(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level, msg_stream)
-// NOLINTEND(bugprone-lambda-function-name)
-
-// NOLINTBEGIN(bugprone-lambda-function-name)
-/// @todo iox-#1755 remove after porting to IOX_LOG_LAZY
-#define IOX_LOG(level)                                                                                                 \
-    IOX_LOG_INTERNAL_LEGACY(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level)
 // NOLINTEND(bugprone-lambda-function-name)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)

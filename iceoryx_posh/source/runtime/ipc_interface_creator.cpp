@@ -35,14 +35,15 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
               .or_else([&runtimeName](auto& error) {
                   if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
-                      IOX_LOG(FATAL) << "An application with the name " << runtimeName
-                                     << " is still running. Using the "
-                                        "same name twice is not supported.";
+                      IOX_LOG(FATAL,
+                              "An application with the name " << runtimeName
+                                                              << " is still running. Using the "
+                                                                 "same name twice is not supported.");
                       errorHandler(PoshError::IPC_INTERFACE__APP_WITH_SAME_NAME_STILL_RUNNING, iox::ErrorLevel::FATAL);
                   }
                   else
                   {
-                      IOX_LOG(FATAL) << "Error occurred while acquiring file lock named " << runtimeName;
+                      IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << runtimeName);
                       errorHandler(PoshError::IPC_INTERFACE__COULD_NOT_ACQUIRE_FILE_LOCK, iox::ErrorLevel::FATAL);
                   }
               })

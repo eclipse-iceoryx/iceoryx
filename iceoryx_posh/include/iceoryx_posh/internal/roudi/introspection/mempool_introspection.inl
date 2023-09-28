@@ -92,7 +92,7 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
                                                                  CHUNK_NO_USER_HEADER_ALIGNMENT);
         if (maybeChunkHeader.has_error())
         {
-            IOX_LOG(WARN) << "Cannot allocate chunk for mempool introspection!";
+            IOX_LOG(WARN, "Cannot allocate chunk for mempool introspection!");
             errorHandler(PoshError::MEPOO__CANNOT_ALLOCATE_CHUNK, ErrorLevel::MODERATE);
             return;
         }
@@ -123,10 +123,10 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
                 }
                 else
                 {
-                    IOX_LOG(WARN)
-                        << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
-                        << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
-                        << " memory segments sent.";
+                    IOX_LOG(WARN,
+                            "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
+                                << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
+                                << " memory segments sent.");
                     errorHandler(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, ErrorLevel::MODERATE);
                     break;
                 }
@@ -135,9 +135,10 @@ inline void MemPoolIntrospection<MemoryManager, SegmentManager, PublisherPort>::
         }
         else
         {
-            IOX_LOG(WARN) << "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
-                          << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
-                          << " memory segments sent.";
+            IOX_LOG(WARN,
+                    "Mempool Introspection Container full, Mempool Introspection Data not fully updated! "
+                        << (id + 1U) << " of " << m_segmentManager->m_segmentContainer.size()
+                        << " memory segments sent.");
             errorHandler(PoshError::MEPOO__INTROSPECTION_CONTAINER_FULL, ErrorLevel::MODERATE);
         }
 

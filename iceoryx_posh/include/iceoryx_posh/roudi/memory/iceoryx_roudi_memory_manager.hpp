@@ -69,12 +69,12 @@ class IceOryxRouDiMemoryManager : public RouDiMemoryInterface
             .or_else([](auto& error) {
                 if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
                 {
-                    IOX_LOG(FATAL) << "Could not acquire lock, is RouDi still running?";
+                    IOX_LOG(FATAL, "Could not acquire lock, is RouDi still running?");
                     errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__ROUDI_STILL_RUNNING, iox::ErrorLevel::FATAL);
                 }
                 else
                 {
-                    IOX_LOG(FATAL) << "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME;
+                    IOX_LOG(FATAL, "Error occurred while acquiring file lock named " << ROUDI_LOCK_NAME);
                     errorHandler(PoshError::ICEORYX_ROUDI_MEMORY_MANAGER__COULD_NOT_ACQUIRE_FILE_LOCK,
                                  iox::ErrorLevel::FATAL);
                 }

@@ -28,8 +28,9 @@ ConditionNotifier::ConditionNotifier(ConditionVariableData& condVarDataRef, cons
 {
     if (index >= MAX_NUMBER_OF_NOTIFIERS)
     {
-        IOX_LOG(FATAL) << "The provided index " << index << " is too large. The index has to be in the range of [0, "
-                       << MAX_NUMBER_OF_NOTIFIERS << "[.";
+        IOX_LOG(FATAL,
+                "The provided index " << index << " is too large. The index has to be in the range of [0, "
+                                      << MAX_NUMBER_OF_NOTIFIERS << "[.");
         errorHandler(PoshError::POPO__CONDITION_NOTIFIER_INDEX_TOO_LARGE, ErrorLevel::FATAL);
     }
 }

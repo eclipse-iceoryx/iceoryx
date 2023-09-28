@@ -34,7 +34,7 @@ constexpr auto size(const Container& container) -> decltype(container.size())
 /// @brief Get the capacity of a C array at compile time
 /// @code
 /// constexpr uint32_t FOO[42]{};
-/// IOX_LOG(INFO) << size(FOO); // will print 42
+/// IOX_LOG(INFO, size(FOO)); // will print 42
 /// @endcode
 /// @tparam T the type of the array filled out by the compiler.
 /// @tparam CapacityValue the capacity of the array filled out by the compiler.

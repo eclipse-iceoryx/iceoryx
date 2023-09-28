@@ -61,9 +61,10 @@ MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkS
     }
     else
     {
-        IOX_LOG(FATAL) << "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is "
-                       << static_cast<uint32_t>(chunkSize) << " for " << static_cast<uint32_t>(numberOfChunks)
-                       << " chunks!";
+        IOX_LOG(FATAL,
+                "Chunk size must be multiple of '" << CHUNK_MEMORY_ALIGNMENT << "'! Requested size is "
+                                                   << static_cast<uint32_t>(chunkSize) << " for "
+                                                   << static_cast<uint32_t>(numberOfChunks) << " chunks!");
         errorHandler(PoshError::MEPOO__MEMPOOL_CHUNKSIZE_MUST_BE_MULTIPLE_OF_CHUNK_MEMORY_ALIGNMENT);
     }
 }
@@ -85,8 +86,9 @@ void* MemPool::getChunk() noexcept
     uint32_t l_index{0U};
     if (!m_freeIndices.pop(l_index))
     {
-        IOX_LOG(WARN) << "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
-                      << ", used_chunks = " << m_usedChunks.load() << " ] has no more space left";
+        IOX_LOG(WARN,
+                "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
+                                          << ", used_chunks = " << m_usedChunks.load() << " ] has no more space left");
         return nullptr;
     }
 

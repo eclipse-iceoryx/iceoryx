@@ -281,7 +281,7 @@ template <typename... Types>
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : see at declaration in header
 inline void variant<Types...>::error_message(const char* source, const char* msg) noexcept
 {
-    IOX_LOG(ERROR) << source << " ::: " << msg;
+    IOX_LOG(ERROR, source << " ::: " << msg);
 }
 
 template <typename T, typename... Types>

@@ -49,11 +49,12 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
     }
 
     constexpr uint64_t FLAGS_BIT_SIZE = 32U;
-    IOX_LOG(ERROR) << "Unable to map memory with the following properties [ baseAddressHint = "
-                   << iox::log::hex(m_baseAddressHint) << ", length = " << m_length
-                   << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
-                   << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
-                   << ", offset = " << iox::log::hex(m_offset) << " ]";
+    IOX_LOG(ERROR,
+            "Unable to map memory with the following properties [ baseAddressHint = "
+                << iox::log::hex(m_baseAddressHint) << ", length = " << m_length
+                << ", fileDescriptor = " << m_fileDescriptor << ", access mode = " << asStringLiteral(m_accessMode)
+                << ", flags = " << std::bitset<FLAGS_BIT_SIZE>(static_cast<uint32_t>(m_flags)).to_string()
+                << ", offset = " << iox::log::hex(m_offset) << " ]");
     return err(MemoryMap::errnoToEnum(result.error().errnum));
 }
 
@@ -63,63 +64,69 @@ MemoryMap::MemoryMap(void* const baseAddress, const uint64_t length) noexcept
 {
 }
 
+
+// NOLINTJUSTIFICATION the function size results from the error handling and the expanded log macro
+// NOLINTNEXTLINE(readability-function-size)
 MemoryMapError MemoryMap::errnoToEnum(const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
-        IOX_LOG(ERROR)
-            << "One or more of the following failures happened:\n"
-            << "  1. The file descriptor belongs to a non-regular file.\n"
-            << "  2. The file descriptor is not opened for reading.\n"
-            << "  3. MAP_SHARED is requested and PROT_WRITE is set but the file descriptor is not opened for writing.\n"
-            << "  4. PROT_WRITE is set but the file descriptor is set to append-only.";
+        IOX_LOG(ERROR,
+                "One or more of the following failures happened:\n"
+                    << "  1. The file descriptor belongs to a non-regular file.\n"
+                    << "  2. The file descriptor is not opened for reading.\n"
+                    << "  3. MAP_SHARED is requested and PROT_WRITE is set but the file descriptor is not opened for "
+                       "writing.\n"
+                    << "  4. PROT_WRITE is set but the file descriptor is set to append-only.");
         return MemoryMapError::ACCESS_FAILED;
     case EAGAIN:
-        IOX_LOG(ERROR) << "Either too much memory has been locked or the file is already locked.";
+        IOX_LOG(ERROR, "Either too much memory has been locked or the file is already locked.");
         return MemoryMapError::UNABLE_TO_LOCK;
     case EBADF:
-        IOX_LOG(ERROR) << "Invalid file descriptor provided.";
+        IOX_LOG(ERROR, "Invalid file descriptor provided.");
         return MemoryMapError::INVALID_FILE_DESCRIPTOR;
     case EEXIST:
-        IOX_LOG(ERROR) << "The mapped range that is requested is overlapping with an already mapped memory range.";
+        IOX_LOG(ERROR, "The mapped range that is requested is overlapping with an already mapped memory range.");
         return MemoryMapError::MAP_OVERLAP;
     case EINVAL:
-        IOX_LOG(ERROR) << "One or more of the following failures happened:\n"
-                       << "  1. The address, length or the offset is not aligned on a page boundary.\n"
-                       << "  2. The provided length is 0.\n"
-                       << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing.";
+        IOX_LOG(ERROR,
+                "One or more of the following failures happened:\n"
+                    << "  1. The address, length or the offset is not aligned on a page boundary.\n"
+                    << "  2. The provided length is 0.\n"
+                    << "  3. One of the flags of MAP_PRIVATE, MAP_SHARED or MAP_SHARED_VALIDATE is missing.");
         return MemoryMapError::INVALID_PARAMETERS;
     case ENFILE:
-        IOX_LOG(ERROR) << "System limit of maximum open files reached";
+        IOX_LOG(ERROR, "System limit of maximum open files reached");
         return MemoryMapError::OPEN_FILES_SYSTEM_LIMIT_EXCEEDED;
     case ENODEV:
-        IOX_LOG(ERROR) << "Memory mappings are not supported by the underlying filesystem.";
+        IOX_LOG(ERROR, "Memory mappings are not supported by the underlying filesystem.");
         return MemoryMapError::FILESYSTEM_DOES_NOT_SUPPORT_MEMORY_MAPPING;
     case ENOMEM:
-        IOX_LOG(ERROR)
-            << "One or more of the following failures happened:\n"
-            << "  1. Not enough memory available.\n"
-            << "  2. The maximum supported number of mappings is exceeded.\n"
-            << "  3. Partial unmapping of an already mapped memory region dividing it into two parts.\n"
-            << "  4. The processes maximum size of data segments is exceeded.\n"
-            << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
-               "and unsigned long. (only 32-bit architecture)";
+        IOX_LOG(
+            ERROR,
+            "One or more of the following failures happened:\n"
+                << "  1. Not enough memory available.\n"
+                << "  2. The maximum supported number of mappings is exceeded.\n"
+                << "  3. Partial unmapping of an already mapped memory region dividing it into two parts.\n"
+                << "  4. The processes maximum size of data segments is exceeded.\n"
+                << "  5. The sum of the number of pages used for length and the pages used for offset would overflow "
+                   "and unsigned long. (only 32-bit architecture)");
         return MemoryMapError::NOT_ENOUGH_MEMORY_AVAILABLE;
     case EOVERFLOW:
-        IOX_LOG(ERROR) << "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)";
+        IOX_LOG(ERROR, "The sum of the number of pages and offset are overflowing. (only 32-bit architecture)");
         return MemoryMapError::OVERFLOWING_PARAMETERS;
     case EPERM:
-        IOX_LOG(ERROR)
-            << "One or more of the following failures happened:\n"
-            << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
-            << "  2. The corresponding file is sealed.";
+        IOX_LOG(ERROR,
+                "One or more of the following failures happened:\n"
+                    << "  1. Mapping a memory region with PROT_EXEC which belongs to a filesystem that has no-exec.\n"
+                    << "  2. The corresponding file is sealed.");
         return MemoryMapError::PERMISSION_FAILURE;
     case ETXTBSY:
-        IOX_LOG(ERROR) << "The memory region was set up with MAP_DENYWRITE but write access was requested.";
+        IOX_LOG(ERROR, "The memory region was set up with MAP_DENYWRITE but write access was requested.");
         return MemoryMapError::NO_WRITE_PERMISSION;
     default:
-        IOX_LOG(ERROR) << "This should never happened. An unknown error occurred!\n";
+        IOX_LOG(ERROR, "This should never happened. An unknown error occurred!\n");
         return MemoryMapError::UNKNOWN_ERROR;
     };
 }
@@ -135,7 +142,7 @@ MemoryMap& MemoryMap::operator=(MemoryMap&& rhs) noexcept
     {
         if (!destroy())
         {
-            IOX_LOG(ERROR) << "move assignment failed to unmap mapped memory";
+            IOX_LOG(ERROR, "move assignment failed to unmap mapped memory");
         }
 
         m_baseAddress = rhs.m_baseAddress;
@@ -151,7 +158,7 @@ MemoryMap::~MemoryMap() noexcept
 {
     if (!destroy())
     {
-        IOX_LOG(ERROR) << "destructor failed to unmap mapped memory";
+        IOX_LOG(ERROR, "destructor failed to unmap mapped memory");
     }
 }
 
@@ -176,8 +183,9 @@ bool MemoryMap::destroy() noexcept
         if (unmapResult.has_error())
         {
             errnoToEnum(unmapResult.error().errnum);
-            IOX_LOG(ERROR) << "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
-                           << ", size = " << m_length << " ]";
+            IOX_LOG(ERROR,
+                    "unable to unmap mapped memory [ address = " << iox::log::hex(m_baseAddress)
+                                                                 << ", size = " << m_length << " ]");
             return false;
         }
     }

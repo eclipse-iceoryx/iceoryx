@@ -41,7 +41,7 @@ class PosixAccessRights_test : public Test
             .failureReturnValue(-1)
             .evaluate()
             .or_else([](auto& r) {
-                IOX_LOG(ERROR) << "system call failed with error: " << r.getHumanReadableErrnum();
+                IOX_LOG(ERROR, "system call failed with error: " << r.getHumanReadableErrnum());
                 std::terminate();
             });
     }
@@ -50,8 +50,8 @@ class PosixAccessRights_test : public Test
     {
         if (std::remove(TestFileName.c_str()) != 0)
         {
-            IOX_LOG(ERROR) << "Failed to remove temporary file '" << TestFileName
-                           << "'. You'll have to remove it by yourself.";
+            IOX_LOG(ERROR,
+                    "Failed to remove temporary file '" << TestFileName << "'. You'll have to remove it by yourself.");
         }
     }
 

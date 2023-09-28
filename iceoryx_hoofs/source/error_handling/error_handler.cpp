@@ -36,16 +36,16 @@ void ErrorHandler::reactOnErrorLevel(const ErrorLevel level, const char* errorNa
     switch (level)
     {
     case ErrorLevel::FATAL:
-        IOX_LOG(ERROR) << ERROR_TEXT << errorName;
+        IOX_LOG(ERROR, ERROR_TEXT << errorName);
         assert(false);
         std::terminate();
         break;
     case ErrorLevel::SEVERE:
-        IOX_LOG(WARN) << ERROR_TEXT << errorName;
+        IOX_LOG(WARN, ERROR_TEXT << errorName);
         assert(false);
         break;
     case ErrorLevel::MODERATE:
-        IOX_LOG(WARN) << ERROR_TEXT << errorName;
+        IOX_LOG(WARN, ERROR_TEXT << errorName);
         break;
     }
 }
