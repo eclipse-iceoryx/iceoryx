@@ -43,14 +43,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Calculate lychee cache key
+        run: echo "LYCHEE_CACHE_KEY=cache-lychee-all-branches-$(date +'%G-%V')" >> "$GITHUB_ENV" # %G = year; %V = week number
+
       - name: Restore lychee cache
         uses: actions/cache@v3
-        if: always()
         with:
           path: .lycheecache
-          key: cache-lychee-all-branches
-          # the cache will not be updated and therefore needs to be recreated after 7 days
-          retention-days: 7
+          key: ${{ env.LYCHEE_CACHE_KEY }}
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.8.0
