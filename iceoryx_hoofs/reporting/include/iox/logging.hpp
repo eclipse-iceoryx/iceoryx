@@ -48,7 +48,7 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 #define IOX_LOG_INTERNAL(file, line, function, level, msg_stream)                                                      \
     if (iox::log::internal::isLogLevelActive(level))                                                                   \
     {                                                                                                                  \
-        iox::log::internal::SelectedLogStream(file, line, function, level).self() << msg_stream;                       \
+        iox::log::LogStream(file, line, function, level).self() << msg_stream;                                         \
     }                                                                                                                  \
     [] {}() // the empty lambda forces a semicolon on the caller side
 // NOLINTEND(bugprone-macro-parentheses)
@@ -56,7 +56,7 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 /// @todo iox-#1755 remove after porting to IOX_LOG_LAZY
 #define IOX_LOG_INTERNAL_LEGACY(file, line, function, level)                                                           \
     if (iox::log::internal::isLogLevelActive(level))                                                                   \
-    iox::log::internal::SelectedLogStream(file, line, function, level).self()
+    iox::log::LogStream(file, line, function, level).self()
 
 
 /// @brief Macro for logging

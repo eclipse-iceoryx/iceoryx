@@ -79,17 +79,6 @@ inline LogStream::LogStream(const char* file, const int line, const char* functi
 {
 }
 
-/// @todo iox-#1755 use something like 'source_location'
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
-// NOLINTNEXTLINE(readability-function-size)
-inline LogStream::LogStream(
-    const char* file, const int line, const char* function, LogLevel logLevel, bool doFlush) noexcept
-    : m_logger(Logger::get())
-    , m_doFlush(doFlush)
-{
-    m_logger.createLogMessageHeader(file, line, function, logLevel);
-}
-
 inline LogStream::~LogStream() noexcept
 {
     flush();
@@ -279,25 +268,6 @@ inline LogStream& LogStream::operator<<(const LogLevel value) noexcept
     m_logger.logString(asStringLiteral(value));
     return *this;
 }
-
-namespace internal
-{
-// AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
-inline LogStreamOff::LogStreamOff(const char*, const int, const char*, LogLevel, bool) noexcept
-{
-}
-
-inline LogStreamOff& LogStreamOff::self() noexcept
-{
-    return *this;
-}
-
-template <typename T>
-inline LogStreamOff& LogStreamOff::operator<<(T&&) noexcept
-{
-    return *this;
-}
-} // namespace internal
 
 // AXIVION ENABLE STYLE AutosarC++19_03-M5.17.1
 
