@@ -56,7 +56,7 @@ void testLogLevelThreshold(const iox::log::LogLevel loggerLogLevel)
         }
 
         dynamic_cast<iox::testing::TestingLogger&>(iox::log::Logger::get()).clearLogBuffer();
-        IOX_LOG_INTERNAL("", 0, "", logEntryLogLevel.value);
+        IOX_LOG_INTERNAL("", 0, "", logEntryLogLevel.value, "");
 
         if (logEntryLogLevel.value <= loggerLogLevel)
         {

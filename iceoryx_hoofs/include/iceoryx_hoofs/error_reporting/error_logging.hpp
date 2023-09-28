@@ -26,13 +26,13 @@
 /// @brief Log the location of an error.
 /// @param location the location of the error
 #define IOX_ERROR_INTERNAL_LOG(location)                                                                               \
-    IOX_LOG_INTERNAL(location.file, location.line, location.function, iox::log::LogLevel::ERROR)                       \
+    IOX_LOG_INTERNAL_LEGACY(location.file, location.line, location.function, iox::log::LogLevel::ERROR)                \
         << location.file << " line " << location.line
 
 /// @brief Log the location of a fatal error.
 /// @param location the location of the error
 #define IOX_ERROR_INTERNAL_LOG_FATAL(location)                                                                         \
-    IOX_LOG_INTERNAL(location.file, location.line, location.function, iox::log::LogLevel::FATAL)                       \
+    IOX_LOG_INTERNAL_LEGACY(location.file, location.line, location.function, iox::log::LogLevel::FATAL)                \
         << location.file << " line " << location.line << ": "
 
 /// @brief Log a panic invocation.

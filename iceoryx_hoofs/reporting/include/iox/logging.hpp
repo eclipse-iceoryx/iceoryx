@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,15 +44,26 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 cannot be realized with templates or constexpr functions due to the
 // intended lazy evaluation technique with the if statement
 // NOLINTBEGIN(cppcoreguidelines-macro-usage)
-#define IOX_LOG_INTERNAL(file, line, function, level)                                                                  \
-    /* if (iox::log::internal::isLogLevelActive(level)) @todo iox-#1755 lazy evaluation causes issues with Axivion */  \
-    iox::log::internal::SelectedLogStream(file, line, function, level, iox::log::internal::isLogLevelActive(level))    \
-        .self()
+// NOLINTBEGIN(bugprone-macro-parentheses) 'msg_stream' cannot be wrapped in parentheses due to the '<<' operator
+#define IOX_LOG_INTERNAL(file, line, function, level, msg_stream)                                                      \
+    if (iox::log::internal::isLogLevelActive(level))                                                                   \
+    {                                                                                                                  \
+        iox::log::internal::SelectedLogStream(file, line, function, level).self() << msg_stream;                       \
+    }                                                                                                                  \
+    [] {}() // the empty lambda forces a semicolon on the caller side
+// NOLINTEND(bugprone-macro-parentheses)
+
+/// @todo iox-#1755 remove after porting to IOX_LOG_LAZY
+#define IOX_LOG_INTERNAL_LEGACY(file, line, function, level)                                                           \
+    if (iox::log::internal::isLogLevelActive(level))                                                                   \
+    iox::log::internal::SelectedLogStream(file, line, function, level).self()
+
 
 /// @brief Macro for logging
 /// @param[in] level is the log level to be used for the log message
+/// @param[in] msg_stream is the log message stream; multiple items can be logged by using the '<<' operator
 /// @code
-///     IOX_LOG(INFO) << "Hello World";
+///     IOX_LOG(INFO, "Hello" << " World");
 /// @endcode
 // AXIVION Next Construct AutosarC++19_03-A16.0.1 needed for source code location, safely wrapped in macro
 // AXIVION Next Construct AutosarC++19_03-M16.0.6 brackets around macro parameter would lead to compile time failures in this case
@@ -59,8 +71,15 @@ inline bool isLogLevelActive(LogLevel logLevel) noexcept
 // templates the resulting string is too large; we also get the file name and the line of the invocation which should be
 // sufficient for debugging
 // NOLINTBEGIN(bugprone-lambda-function-name)
+/// @todo iox-#1755 rename this to IOX_LOG
+#define IOX_LOG_LAZY(level, msg_stream)                                                                                \
+    IOX_LOG_INTERNAL(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level, msg_stream)
+// NOLINTEND(bugprone-lambda-function-name)
+
+// NOLINTBEGIN(bugprone-lambda-function-name)
+/// @todo iox-#1755 remove after porting to IOX_LOG_LAZY
 #define IOX_LOG(level)                                                                                                 \
-    IOX_LOG_INTERNAL(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level)
+    IOX_LOG_INTERNAL_LEGACY(__FILE__, __LINE__, static_cast<const char*>(__FUNCTION__), iox::log::LogLevel::level)
 // NOLINTEND(bugprone-lambda-function-name)
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
