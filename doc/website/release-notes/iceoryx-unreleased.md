@@ -691,14 +691,14 @@
 
     auto& logger = iox::log::createLogger("MyComponent", "MyContext", iox::log::LogLevel::kInfo);
 
-    logger.LogInfo() << "Hello World";
+    logger.LogInfo() << "Hello World " << 42;
 
     // after
     #include "iox/logging.hpp"
 
     iox::log::Logger::init(iox::log::LogLevel::INFO);
 
-    IOX_LOG(INFO) << "Hello World";
+    IOX_LOG(INFO, "Hello World " << 42);
     ```
 
 31. Setting the default log level changed
@@ -771,7 +771,7 @@
     {
         void myFunc()
         {
-            LogInfo() << "Hello World";
+            LogInfo() << "Hello World " << 42;
         }
     }
 
@@ -784,21 +784,21 @@
     {
         void myFunc()
         {
-            IOX_LOG(INFO) << "Hello World";
+            IOX_LOG(INFO, "Hello World " << 42);
         }
     }
     ```
 
 34. Free function logger calls changed
 
-    | before         | after            |
-    |:--------------:|:----------------:|
-    | `LogFatal()`   | `IOX_LOG(FATAL)` |
-    | `LogError()`   | `IOX_LOG(ERROR)` |
-    | `LogWarn()`    | `IOX_LOG(WARN)`  |
-    | `LogInfo()`    | `IOX_LOG(INFO)`  |
-    | `LogDebug()`   | `IOX_LOG(DEBUG)` |
-    | `LogVerbose()` | `IOX_LOG(TRACE)` |
+    | before                | after                 |
+    |:---------------------:|:---------------------:|
+    | `LogFatal() << "x"`   | `IOX_LOG(FATAL, "x")` |
+    | `LogError() << "x"`   | `IOX_LOG(ERROR, "x")` |
+    | `LogWarn() << "x"`    | `IOX_LOG(WARN, "x")`  |
+    | `LogInfo() << "x"`    | `IOX_LOG(INFO, "x")`  |
+    | `LogDebug() << "x"`   | `IOX_LOG(DEBUG, "x")` |
+    | `LogVerbose() << "x"` | `IOX_LOG(TRACE, "x")` |
 
 35. Logger formatting changed
 
@@ -809,8 +809,8 @@
     LogInfo() << iox::log::RawBuffer(buf); // currently not supported
 
     // after
-    IOX_LOG(INFO) << iox::log::hex(42);
-    IOX_LOG(INFO) << iox::log::oct(42);
+    IOX_LOG(INFO, iox::log::hex(42));
+    IOX_LOG(INFO, iox::log::oct(42));
     ```
 
 36. Creating an instance of `LogStream` does not work anymore
@@ -827,7 +827,7 @@
     stream.Flush();
 
     // after
-    IOX_LOG(INFO) << [] (auto& stream) -> auto& {
+    IOX_LOG(INFO, [] (auto& stream) -> auto& {
         stream << "fibonacci: "
         for(auto fib : {1, 1, 2, 3, 5, 8})
         {
@@ -835,7 +835,7 @@
         }
         stream << "...";
         return stream;
-    };
+    });
     ```
 
 37. Testing of `LogStream::operator<<` overload for custom types changed
