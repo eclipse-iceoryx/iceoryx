@@ -18,6 +18,7 @@
 
 #include "iox/log/building_blocks/console_logger.hpp"
 #include "iceoryx_platform/time.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -163,7 +164,13 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
 
 void ConsoleLogger::flush() noexcept
 {
-    if (std::puts(&getThreadLocalData().buffer[0]) < 0)
+    auto& data = getThreadLocalData();
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    data.buffer[data.bufferWriteIndex] = '\n'; // overwrite null-termination with line ending
+    constexpr uint32_t LINE_ENDING_SIZE{1};
+
+    if (iox_write(STDOUT_FILENO, &data.buffer[0], data.bufferWriteIndex + LINE_ENDING_SIZE) < 0)
     {
         /// @todo iox-#1755 printing to the console failed; call the error handler after the error handler refactoring
         /// was merged

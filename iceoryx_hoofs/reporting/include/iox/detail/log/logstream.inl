@@ -63,6 +63,20 @@ inline constexpr LogOct<T> oct(const T value) noexcept
     return LogOct<T>(value);
 }
 
+template <typename T>
+template <typename>
+constexpr LogBin<T>::LogBin(const T value) noexcept
+    : m_value(value)
+{
+}
+
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : See at declaration in header
+template <typename T, typename>
+inline constexpr LogBin<T> bin(const T value) noexcept
+{
+    return LogBin<T>(value);
+}
+
 /// @todo iox-#1755 use something like 'source_location'
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 // NOLINTNEXTLINE(readability-function-size)
@@ -253,6 +267,15 @@ inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 {
     m_logger.logString("0o");
     m_logger.logOct(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
+    m_isFlushed = false;
+    return *this;
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
+inline LogStream& LogStream::operator<<(const LogBin<T> val) noexcept
+{
+    m_logger.logString("0b");
+    m_logger.logBin(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
     m_isFlushed = false;
     return *this;
 }

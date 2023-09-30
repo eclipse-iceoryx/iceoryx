@@ -22,6 +22,7 @@
 #include "iox/logging.hpp"
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 #include <limits>
 #include <sstream>
@@ -289,22 +290,19 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueMax)
     testStreamOperatorLogOct(this->loggerMock, this->LogValueMax);
 }
 
-#if 0
-/// @todo iox-#1755 re-enable when LogBin will be re-implemented
-
 template <typename LogType>
 void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)
 {
-    iox::log::LogStream(loggerMock) << iox::log::BinFormat(logValue);
+    LogStreamSut(loggerMock) << iox::log::bin(logValue);
 
     // we need to check negative numbers in two's complement, therefore make the output value unsigned
     using TestType = typename std::make_unsigned<LogType>::type;
     auto outputValue = static_cast<TestType>(logValue);
 
-    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    auto expectedValue = "0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string();
 
-    EXPECT_THAT(loggerMock.logs[0].message,
-                Eq("0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string()));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(expectedValue));
 }
 
 TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueLow)
@@ -324,8 +322,6 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueMax)
     ::testing::Test::RecordProperty("TEST_ID", "b583014a-700f-46e3-8b7c-0a128c59598a");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMax);
 }
-
-#endif
 
 template <class T>
 class IoxLogStreamHexFloatingPoint_test : public IoxLogStream_test

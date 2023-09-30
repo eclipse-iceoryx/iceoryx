@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,6 +39,31 @@ inline constexpr void ConsoleLogger::unused(T&&) noexcept
 {
 }
 
+// AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires
+// this to be non-static to not restrict custom implementations
+// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
+inline void ConsoleLogger::logChar(const char value) noexcept
+{
+    auto& data = getThreadLocalData();
+    const auto bufferWriteIndex = data.bufferWriteIndex;
+    const auto bufferWriteIndexNext = bufferWriteIndex + 1;
+    if (bufferWriteIndexNext <= ThreadLocalData::BUFFER_SIZE)
+    {
+        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-constant-array-index)
+        data.buffer[bufferWriteIndex] = value;
+        data.buffer[bufferWriteIndexNext] = 0;
+        // NOLINTEND(cppcoreguidelines-pro-bounds-constant-array-index)
+        data.bufferWriteIndex = bufferWriteIndexNext;
+    }
+    else
+    {
+        /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
+        /// that the log buffer will be truncated;
+        /// it is intended to flush the buffer and create a new log message later on
+    }
+}
+
 template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool>>
 inline void ConsoleLogger::logDec(const T value) noexcept
 {
@@ -57,6 +83,38 @@ template <typename T, typename std::enable_if_t<std::is_integral<T>::value && st
 inline void ConsoleLogger::logOct(const T value) noexcept
 {
     logArithmetic(value, LOG_FORMAT_OCT<T>);
+}
+
+template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool>>
+inline void ConsoleLogger::logBin(const T value) noexcept
+{
+    constexpr uint32_t NUMBER_OF_BITS{std::numeric_limits<decltype(value)>::digits};
+
+    auto& data = getThreadLocalData();
+
+    auto bufferWriteIndexNext = data.bufferWriteIndex;
+    auto bufferWriteIndexEnd = bufferWriteIndexNext + NUMBER_OF_BITS;
+    if (bufferWriteIndexEnd > ThreadLocalData::BUFFER_SIZE)
+    {
+        /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
+        /// that the log buffer will be truncated;
+        /// it is intended to flush the buffer and create a new log message later on
+        bufferWriteIndexEnd = ThreadLocalData::BUFFER_SIZE;
+    }
+
+    constexpr T ONE{1};
+    T mask{ONE << (NUMBER_OF_BITS - 1)};
+    for (; bufferWriteIndexNext < bufferWriteIndexEnd; ++bufferWriteIndexNext)
+    {
+        // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+        // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+        data.buffer[bufferWriteIndexNext] = (value & mask) ? '1' : '0';
+        mask >>= 1;
+    }
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    data.buffer[bufferWriteIndexNext] = 0;
+    data.bufferWriteIndex = bufferWriteIndexNext;
 }
 
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header

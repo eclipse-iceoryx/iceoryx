@@ -80,7 +80,29 @@ class LogOct
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
 inline constexpr LogOct<T> oct(const T value) noexcept;
 
-/// @todo iox-#1755 implement LogBin and LogRawBuffer
+/// @brief Helper struct to log in binary format
+template <typename T>
+class LogBin
+{
+  public:
+    friend class LogStream;
+
+    template <typename = std::enable_if_t<std::is_integral<T>::value>>
+    inline explicit constexpr LogBin(const T value) noexcept;
+
+  private:
+    T m_value;
+};
+
+/// @brief Log a number in binary format
+/// @tparam[in] T the arithmetic data type of the value to log
+/// @param[in] value to be logged
+/// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
+template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+inline constexpr LogBin<T> bin(const T value) noexcept;
+
+/// @todo iox-#1755 implement LogRawBuffer
 
 /// @brief This class provides the public interface to the logger and is used with the 'IOX_LOG' macro. In order to add
 /// support for custom data types 'operator<<' needs to be implement for the custom type.
@@ -248,6 +270,13 @@ class LogStream
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogOct<T> val) noexcept;
+
+    /// @brief Logging support for integral numbers in binary format
+    /// @tparam[in] T is the integral data type of the value to log
+    /// @param[in] val is the number to log
+    /// @return a reference to the LogStream instance
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
+    LogStream& operator<<(const LogBin<T> val) noexcept;
 
     /// @brief Logging support for callable. This gives access to the LogStream instance which e.g. can be used in a
     /// loop

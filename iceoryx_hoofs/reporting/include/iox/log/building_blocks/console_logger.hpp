@@ -73,6 +73,8 @@ class ConsoleLogger
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but a low-level C-style string
     void logString(const char* message) noexcept;
 
+    void logChar(const char value) noexcept;
+
     void logBool(const bool value) noexcept;
 
     template <typename T, typename std::enable_if_t<std::is_arithmetic<T>::value, bool> = 0>
@@ -86,6 +88,9 @@ class ConsoleLogger
 
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool> = 0>
     void logOct(const T value) noexcept;
+
+    template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool> = 0>
+    void logBin(const T value) noexcept;
 
   private:
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
