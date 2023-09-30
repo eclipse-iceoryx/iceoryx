@@ -62,7 +62,7 @@ class LogHex
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value && !std::is_same<T, bool>::value>>
 constexpr LogHex<T> hex(const T value) noexcept;
 
 /// @brief Log a pointer in hexadecimal format
@@ -101,7 +101,7 @@ class LogOct
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+template <typename T, typename = std::enable_if_t<std::is_integral<T>::value && !std::is_same<T, bool>::value>>
 inline constexpr LogOct<T> oct(const T value) noexcept;
 
 /// @brief Helper struct to log in binary format
@@ -134,7 +134,7 @@ class LogBin
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
+template <typename T, typename = std::enable_if_t<std::is_integral<T>::value && !std::is_same<T, bool>::value>>
 inline constexpr LogBin<T> bin(const T value) noexcept;
 
 /// @brief Helper struct to log in raw bytes
