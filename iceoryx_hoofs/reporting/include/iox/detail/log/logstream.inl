@@ -44,7 +44,7 @@ inline constexpr LogHex<T> hex(const T value) noexcept
 }
 
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : See at declaration in header
-inline LogHex<const void* const> hex(const void* const ptr) noexcept
+inline constexpr LogHex<const void* const> hex(const void* const ptr) noexcept
 {
     return LogHex<const void* const>(ptr);
 }
@@ -258,7 +258,7 @@ inline LogStream& LogStream::operator<<(const long double val) noexcept
 // AXIVION ENABLE STYLE AutosarC++19_03-A3.9.1
 
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
-inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
+inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
 {
     m_logger.logString("0x");
     m_logger.logHex(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
@@ -267,14 +267,14 @@ inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
 }
 
 template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool>>
-inline LogStream& LogStream::operator<<(const LogHex<T> val) noexcept
+inline LogStream& LogStream::operator<<(const LogHex<T>&& val) noexcept
 {
     m_logger.logHex(val.m_value);
     m_isFlushed = false;
     return *this;
 }
 
-inline LogStream& LogStream::operator<<(const LogHex<const void* const> val) noexcept
+inline LogStream& LogStream::operator<<(const LogHex<const void* const>&& val) noexcept
 {
     m_logger.logHex(val.m_value);
     m_isFlushed = false;
@@ -282,7 +282,7 @@ inline LogStream& LogStream::operator<<(const LogHex<const void* const> val) noe
 }
 
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
-inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
+inline LogStream& LogStream::operator<<(const LogOct<T>&& val) noexcept
 {
     m_logger.logString("0o");
     m_logger.logOct(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
@@ -291,7 +291,7 @@ inline LogStream& LogStream::operator<<(const LogOct<T> val) noexcept
 }
 
 template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool>>
-inline LogStream& LogStream::operator<<(const LogBin<T> val) noexcept
+inline LogStream& LogStream::operator<<(const LogBin<T>&& val) noexcept
 {
     m_logger.logString("0b");
     m_logger.logBin(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
@@ -299,7 +299,7 @@ inline LogStream& LogStream::operator<<(const LogBin<T> val) noexcept
     return *this;
 }
 
-inline LogStream& LogStream::operator<<(const LogRaw val) noexcept
+inline LogStream& LogStream::operator<<(const LogRaw&& val) noexcept
 {
     m_logger.logRaw(val.m_data, val.m_size);
     m_isFlushed = false;

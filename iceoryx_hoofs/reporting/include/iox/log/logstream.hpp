@@ -32,15 +32,28 @@ class LogStream;
 
 /// @brief Helper struct to log in hexadecimal format
 template <typename T>
+// NOLINTJUSTIFICATION
 class LogHex
 {
   public:
     friend class LogStream;
 
+    template <typename TT, typename>
+    friend constexpr LogHex<TT> hex(const TT) noexcept;
+    friend constexpr LogHex<const void* const> hex(const void* const) noexcept;
+
+    ~LogHex() = default;
+
+    LogHex(const LogHex&) = delete;
+    LogHex& operator=(const LogHex&) = delete;
+    LogHex& operator=(LogHex&&) noexcept = delete;
+
+  private:
     template <typename = std::enable_if_t<std::is_arithmetic<T>::value || std::is_pointer<T>::value>>
     explicit constexpr LogHex(const T value) noexcept;
 
-  private:
+    LogHex(LogHex&&) noexcept = default;
+
     T m_value;
 };
 
@@ -56,7 +69,7 @@ constexpr LogHex<T> hex(const T value) noexcept;
 /// @param[in] ptr is the pointer to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-LogHex<const void* const> hex(const void* const ptr) noexcept;
+constexpr LogHex<const void* const> hex(const void* const ptr) noexcept;
 
 /// @brief Helper struct to log in octal format
 template <typename T>
@@ -65,10 +78,21 @@ class LogOct
   public:
     friend class LogStream;
 
+    template <typename TT, typename>
+    friend constexpr LogOct<TT> oct(const TT) noexcept;
+
+    ~LogOct() = default;
+
+    LogOct(const LogOct&) = delete;
+    LogOct& operator=(const LogOct&) = delete;
+    LogOct& operator=(LogOct&&) noexcept = delete;
+
+  private:
     template <typename = std::enable_if_t<std::is_integral<T>::value>>
     inline explicit constexpr LogOct(const T value) noexcept;
 
-  private:
+    LogOct(LogOct&&) noexcept = default;
+
     T m_value;
 };
 
@@ -87,10 +111,21 @@ class LogBin
   public:
     friend class LogStream;
 
+    template <typename TT, typename>
+    friend constexpr LogBin<TT> bin(const TT) noexcept;
+
+    ~LogBin() = default;
+
+    LogBin(const LogBin&) = delete;
+    LogBin& operator=(const LogBin&) = delete;
+    LogBin& operator=(LogBin&&) noexcept = delete;
+
+  private:
     template <typename = std::enable_if_t<std::is_integral<T>::value>>
     inline explicit constexpr LogBin(const T value) noexcept;
 
-  private:
+    LogBin(LogBin&&) noexcept = default;
+
     T m_value;
 };
 
@@ -108,9 +143,21 @@ class LogRaw
   public:
     friend class LogStream;
 
-    inline explicit constexpr LogRaw(const void* const data, uint64_t size) noexcept;
+    template <typename T, typename>
+    friend constexpr LogRaw raw(const T&) noexcept;
+    friend constexpr LogRaw raw(const void* const, const uint64_t) noexcept;
+
+    ~LogRaw() = default;
+
+    LogRaw(const LogRaw&) = delete;
+    LogRaw& operator=(const LogRaw&) = delete;
+    LogRaw& operator=(LogRaw&&) noexcept = delete;
 
   private:
+    inline explicit constexpr LogRaw(const void* const data, uint64_t size) noexcept;
+
+    LogRaw(LogRaw&&) noexcept = default;
+
     const void* const m_data;
     uint64_t m_size;
 };
@@ -276,38 +323,38 @@ class LogStream
     /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
-    LogStream& operator<<(const LogHex<T> val) noexcept;
+    LogStream& operator<<(const LogHex<T>&& val) noexcept;
 
     /// @brief Logging support for floating point numbers in hexadecimal format
     /// @tparam[in] T is the floating point data type of the value to log
     /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool> = 0>
-    LogStream& operator<<(const LogHex<T> val) noexcept;
+    LogStream& operator<<(const LogHex<T>&& val) noexcept;
 
     /// @brief Logging support for pointer in hexadecimal format
     /// @param[in] val is the pointer to log
     /// @return a reference to the LogStream instance
-    LogStream& operator<<(const LogHex<const void* const> val) noexcept;
+    LogStream& operator<<(const LogHex<const void* const>&& val) noexcept;
 
     /// @brief Logging support for integral numbers in octal format
     /// @tparam[in] T is the integral data type of the value to log
     /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
-    LogStream& operator<<(const LogOct<T> val) noexcept;
+    LogStream& operator<<(const LogOct<T>&& val) noexcept;
 
     /// @brief Logging support for integral numbers in binary format
     /// @tparam[in] T is the integral data type of the value to log
     /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
-    LogStream& operator<<(const LogBin<T> val) noexcept;
+    LogStream& operator<<(const LogBin<T>&& val) noexcept;
 
     /// @brief Logging support for data in raw bytes
     /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
-    LogStream& operator<<(const LogRaw val) noexcept;
+    LogStream& operator<<(const LogRaw&& val) noexcept;
 
     /// @brief Logging support for callable. This gives access to the LogStream instance which e.g. can be used in a
     /// loop
