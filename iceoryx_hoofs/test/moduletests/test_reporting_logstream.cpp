@@ -179,10 +179,13 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
     EXPECT_THAT(loggerMock.logs[0].message, StrEq("This is the iceoryx logger!LogLevel::WARN"));
 }
 
-#if 0
-/// @todo iox-#1755 re-enable when LogRawBuffer will be re-implemented
+constexpr bool isBigEndian()
+{
+    constexpr uint16_t endianess{0x0100};
+    return static_cast<const uint8_t&>(endianess) == 1;
+}
 
-TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "24974c62-3ec6-4a02-83ff-cbb61a3de664");
     struct DummyStruct
@@ -191,23 +194,42 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
         uint16_t b{0xDEAD};
         uint32_t c{0xC0FFEE};
     };
+    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[af fe de ad 00 c0 ff ee]" : "0x[fe af ad de ee ff c0 00]"};
 
     DummyStruct d;
 
-    LogStreamSut(loggerMock) << iox::log::RawBuffer(d);
-    volatile uint16_t endianess{0x0100};
-    auto bigEndian = reinterpret_cast<volatile uint8_t*>(&endianess);
-    if (*bigEndian)
-    {
-        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[af fe de ad 00 c0 ff ee]"));
-    }
-    else
-    {
-        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[fe af ad de ee ff c0 00]"));
-    }
+    LogStreamSut(loggerMock) << iox::log::raw(d);
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
 }
 
-#endif
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "54579f85-0d7a-4d51-b3a8-e18f256f2703");
+    struct DummyStruct
+    {
+        uint16_t a{0xBEEF};
+        uint16_t b{0xAFFE};
+        uint32_t c{0xBAADF00D};
+    };
+    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[be ef af fe ba ad f0 0d]" : "0x[ef be fe af 0d f0 ad ba]"};
+
+    DummyStruct d;
+
+    LogStreamSut(loggerMock) << iox::log::raw(&d, sizeof(d));
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
+}
+
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithNullpointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b1306cb-68d8-4345-b5dd-46fadff02c8d");
+    constexpr const char* EXPECTED_DATA{"0x[nullptr, 42]"};
+
+    LogStreamSut(loggerMock) << iox::log::raw(nullptr, 42);
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
+}
 
 template <class T>
 class IoxLogStreamHexOctBinIntegral_test : public IoxLogStream_test

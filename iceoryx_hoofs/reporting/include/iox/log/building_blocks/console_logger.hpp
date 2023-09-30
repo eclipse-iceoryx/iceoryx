@@ -92,6 +92,8 @@ class ConsoleLogger
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, bool> = 0>
     void logBin(const T value) noexcept;
 
+    void logRaw(const void* const data, const uint64_t size) noexcept;
+
   private:
     // AXIVION Next Construct AutosarC++19_03-A3.9.1 : Not used as an integer but as actual character
     // AXIVION Next Construct AutosarC++19_03-A18.1.1 : C-style array is used to acquire size of the array safely. Safe

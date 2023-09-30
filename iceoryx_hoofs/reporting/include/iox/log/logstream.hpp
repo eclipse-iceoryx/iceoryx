@@ -73,7 +73,7 @@ class LogOct
 };
 
 /// @brief Log a number in octal format
-/// @tparam[in] T the arithmetic data type of the value to log
+/// @tparam[in] T the integral data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
@@ -95,14 +95,40 @@ class LogBin
 };
 
 /// @brief Log a number in binary format
-/// @tparam[in] T the arithmetic data type of the value to log
+/// @tparam[in] T the integral data type of the value to log
 /// @param[in] value to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value>>
 inline constexpr LogBin<T> bin(const T value) noexcept;
 
-/// @todo iox-#1755 implement LogRawBuffer
+/// @brief Helper struct to log in raw bytes
+class LogRaw
+{
+  public:
+    friend class LogStream;
+
+    inline explicit constexpr LogRaw(const void* const data, uint64_t size) noexcept;
+
+  private:
+    const void* const m_data;
+    uint64_t m_size;
+};
+
+/// @brief Log an object in raw bytes
+/// @tparam[in] T the data type of the object to log
+/// @param[in] object to be logged
+/// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
+template <typename T, typename = std::enable_if_t<!std::is_pointer<T>::value>>
+inline constexpr LogRaw raw(const T& object) noexcept;
+
+/// @brief Log data in raw bytes
+/// @param[in] data pointer to the data to be logged
+/// @param[in] size of the data to be logged
+/// @return a helper struct which will be used by the LogStream
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
+inline constexpr LogRaw raw(const void* const data, const uint64_t size) noexcept;
 
 /// @brief This class provides the public interface to the logger and is used with the 'IOX_LOG' macro. In order to add
 /// support for custom data types 'operator<<' needs to be implement for the custom type.
@@ -247,14 +273,14 @@ class LogStream
 
     /// @brief Logging support for integral numbers in hexadecimal format
     /// @tparam[in] T is the integral data type of the value to log
-    /// @param[in] val is the number to log
+    /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
 
     /// @brief Logging support for floating point numbers in hexadecimal format
     /// @tparam[in] T is the floating point data type of the value to log
-    /// @param[in] val is the number to log
+    /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_floating_point<T>::value, bool> = 0>
     LogStream& operator<<(const LogHex<T> val) noexcept;
@@ -266,17 +292,22 @@ class LogStream
 
     /// @brief Logging support for integral numbers in octal format
     /// @tparam[in] T is the integral data type of the value to log
-    /// @param[in] val is the number to log
+    /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogOct<T> val) noexcept;
 
     /// @brief Logging support for integral numbers in binary format
     /// @tparam[in] T is the integral data type of the value to log
-    /// @param[in] val is the number to log
+    /// @param[in] val is the value to log
     /// @return a reference to the LogStream instance
     template <typename T, typename std::enable_if_t<std::is_integral<T>::value, bool> = 0>
     LogStream& operator<<(const LogBin<T> val) noexcept;
+
+    /// @brief Logging support for data in raw bytes
+    /// @param[in] val is the value to log
+    /// @return a reference to the LogStream instance
+    LogStream& operator<<(const LogRaw val) noexcept;
 
     /// @brief Logging support for callable. This gives access to the LogStream instance which e.g. can be used in a
     /// loop

@@ -77,6 +77,25 @@ inline constexpr LogBin<T> bin(const T value) noexcept
     return LogBin<T>(value);
 }
 
+constexpr LogRaw::LogRaw(const void* const data, uint64_t size) noexcept
+    : m_data(data)
+    , m_size(size)
+{
+}
+
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : See at declaration in header
+template <typename T, typename>
+inline constexpr LogRaw raw(const T& object) noexcept
+{
+    return LogRaw(&object, sizeof(T));
+}
+
+// AXIVION Next Construct AutosarC++19_03-M17.0.3 : See at declaration in header
+inline constexpr LogRaw raw(const void* const data, const uint64_t size) noexcept
+{
+    return LogRaw(data, size);
+}
+
 /// @todo iox-#1755 use something like 'source_location'
 // AXIVION Next Construct AutosarC++19_03-A3.9.1 : See at declaration in header
 // NOLINTNEXTLINE(readability-function-size)
@@ -276,6 +295,13 @@ inline LogStream& LogStream::operator<<(const LogBin<T> val) noexcept
 {
     m_logger.logString("0b");
     m_logger.logBin(static_cast<typename std::make_unsigned<T>::type>(val.m_value));
+    m_isFlushed = false;
+    return *this;
+}
+
+inline LogStream& LogStream::operator<<(const LogRaw val) noexcept
+{
+    m_logger.logRaw(val.m_data, val.m_size);
     m_isFlushed = false;
     return *this;
 }
