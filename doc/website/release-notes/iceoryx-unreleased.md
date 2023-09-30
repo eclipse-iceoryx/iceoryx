@@ -805,12 +805,14 @@
     ```cpp
     // before
     LogInfo() << iox::log::HexFormat(42);
-    LogInfo() << iox::log::BinFormat(73); // currently not supported
-    LogInfo() << iox::log::RawBuffer(buf); // currently not supported
+    LogInfo() << iox::log::BinFormat(73);
+    LogInfo() << iox::log::RawBuffer(buf);
 
     // after
     IOX_LOG(INFO, iox::log::hex(42));
-    IOX_LOG(INFO, iox::log::oct(42));
+    IOX_LOG(INFO, iox::log::oct(37));
+    IOX_LOG(INFO, iox::log::bin(73));
+    IOX_LOG(INFO, iox::log::raw(buf));
     ```
 
 36. Creating an instance of `LogStream` does not work anymore
