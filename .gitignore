@@ -17,3 +17,4 @@ tools/website/generated/
 __pycache__
 /bazel-*
 .cpptest/*
+.coverage/*.*

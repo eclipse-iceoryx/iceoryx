@@ -56,6 +56,6 @@ cpptest_code_coverage_test(
 )                                                                                     
                                                                                       
 cpptest_code_coverage_test(                                                           
-    name = "dust_moduletests_coverage",                                               
-    deps = [ "dust_moduletests" ],                                                    
+    name = "binding_moduletests_coverage",                                               
+    deps = [ "binding_moduletests" ],                                                    
 )             
