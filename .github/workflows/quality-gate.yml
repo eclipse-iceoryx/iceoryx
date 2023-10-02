@@ -62,7 +62,7 @@ jobs:
       run: make cpptestcov-compute && make cpptestcov-report
 
     - name: Rename Coverage Report
-      working-directory: ${{github.workspace}}/iceoryx/hoofs/.coverage
+      working-directory: ${{github.workspace}}/iceoryx_hoofs/.coverage
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: mv coverage.html index.html
@@ -84,13 +84,13 @@ jobs:
       uses: actions/deploy-pages@v2
 
     - name: Check Line Coverage Gate
-      working-directory: ${{github.workspace}}/iceoryx/hoofs
+      working-directory: ${{github.workspace}}/iceoryx_hoofs
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: NUMBER=$(cat .coverage/coverage.txt | grep "TOTAL" | sed -n 's/.*LC=\([0-9]*\)%.*/\1/p') && if [ $NUMBER -lt $LINE_COV_GATE ]; then echo "Line coverage quality gate failed"; echo "Expected result $LINE_COV_GATE%, echieved $NUMBER%"; echo "Check html report https://mirek-parasoft.github.io/webinar-cicov/"; false; else echo "Line coverage quality gate passed with $NUMBER% (required $LINE_COV_GATE%)"; echo "check html report https://mirek-parasoft.github.io/webinar-cicov/ for details"; true; fi
       
     - name: Check MCDC Coverage Gate 
-      working-directory: ${{github.workspace}}/iceoryx/hoofs
+      working-directory: ${{github.workspace}}/iceoryx_hoofs
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: NUMBER=$(cat .coverage/coverage.txt | grep "TOTAL" | sed -n 's/.*MCDC=\([0-9]*\)%.*/\1/p') && if [ $NUMBER -lt $MCDC_COV_GATE ]; then echo "Line coverage quality gate failed"; echo "Expected result $MCDC_COV_GATE%, echieved $NUMBER%"; echo "Check html report https://mirek-parasoft.github.io/webinar-cicov/"; false; else echo "Line coverage quality gate passed with $NUMBER% (required $MCDC_COV_GATE%)"; echo "check html report https://mirek-parasoft.github.io/webinar-cicov/ for details" true; fi
