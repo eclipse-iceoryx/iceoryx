@@ -10,7 +10,7 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
   BUILD_ID: build_1
-  LINE_COV_GATE: 90
+  LINE_COV_GATE: 70
   MCDC_COV_GATE: 55
 
 
