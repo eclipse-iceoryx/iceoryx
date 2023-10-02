@@ -1,0 +1,94 @@
+name: CMake
+
+on:
+  pull_request:
+    branches: [ master, main ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  BUILD_ID: build_1
+  LINE_COV_GATE: 90
+  MCDC_COV_GATE: 50
+
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    # The CMake configure and build commands are platform agnostic and should work equally
+    # well on Windows or Mac.  You can convert this to a matrix build if you need
+    # cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: self-hosted
+    continue-on-error: true
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: cmake -Bbuild -Hiceoryx_meta -DBUILD_TEST=ON -DCPPTEST_COVERAGE=ON 
+
+    - name: Build 
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: make -j8
+
+    - name: Coverage Logs Cleanup
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: rm -rf cpptest-coverage/*/*.clog
+
+    - name: Run Unit Tests for hoofs
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: ./hoofs/test/hoofs_integrationtests && ./hoofs/test/hoofs_mocktests && ./hoofs/test/hoofs_moduletests
+
+    - name: Generate Coverage Reports
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: make cpptestcov-compute && make cpptestcov-report
+
+    - name: Rename Coverage Report
+      working-directory: ${{github.workspace}}/iceoryx/hoofs/.coverage
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: mv coverage.html index.html
+
+    - name: Rename Coverage Report
+      working-directory: ${{github.workspace}}
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: ls -la
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        # Upload entire repository
+        path: ${{github.workspace}}/iceoryx_hoofs/.coverage
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v2
+
+    - name: Check Line Coverage Gate
+      working-directory: ${{github.workspace}}/iceoryx/hoofs
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: NUMBER=$(cat .coverage/coverage.txt | grep "TOTAL" | sed -n 's/.*LC=\([0-9]*\)%.*/\1/p') && if [ $NUMBER -lt $LINE_COV_GATE ]; then echo "Line coverage quality gate failed"; echo "Expected result $LINE_COV_GATE%, echieved $NUMBER%"; echo "Check html report https://mirek-parasoft.github.io/webinar-cicov/"; false; else echo "Line coverage quality gate passed with $NUMBER% (required $LINE_COV_GATE%)"; echo "check html report https://mirek-parasoft.github.io/webinar-cicov/ for details"; true; fi
+      
+    - name: Check MCDC Coverage Gate 
+      working-directory: ${{github.workspace}}/iceoryx/hoofs
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: NUMBER=$(cat .coverage/coverage.txt | grep "TOTAL" | sed -n 's/.*MCDC=\([0-9]*\)%.*/\1/p') && if [ $NUMBER -lt $MCDC_COV_GATE ]; then echo "Line coverage quality gate failed"; echo "Expected result $MCDC_COV_GATE%, echieved $NUMBER%"; echo "Check html report https://mirek-parasoft.github.io/webinar-cicov/"; false; else echo "Line coverage quality gate passed with $NUMBER% (required $MCDC_COV_GATE%)"; echo "check html report https://mirek-parasoft.github.io/webinar-cicov/ for details" true; fi
