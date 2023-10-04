@@ -25,6 +25,7 @@
 
 /// @brief Log the location of an error.
 /// @param location the location of the error
+/// @param msg_stream is the log message stream; multiple items can be logged by using the '<<' operator
 #define IOX_ERROR_INTERNAL_LOG(location, msg_stream)                                                                   \
     IOX_LOG_INTERNAL(location.file,                                                                                    \
                      location.line,                                                                                    \
@@ -34,6 +35,7 @@
 
 /// @brief Log the location of a fatal error.
 /// @param location the location of the error
+/// @param msg_stream is the log message stream; multiple items can be logged by using the '<<' operator
 #define IOX_ERROR_INTERNAL_LOG_FATAL(location, msg_stream)                                                             \
     IOX_LOG_INTERNAL(location.file,                                                                                    \
                      location.line,                                                                                    \
@@ -43,6 +45,7 @@
 
 /// @brief Log a panic invocation.
 /// @param location the location of the panic invocation.
+/// @param msg_stream is the log message stream; multiple items can be logged by using the '<<' operator
 #define IOX_ERROR_INTERNAL_LOG_PANIC(location, msg_stream) IOX_ERROR_INTERNAL_LOG_FATAL(location, msg_stream)
 
 // NOLINTEND(cppcoreguidelines-macro-usage, bugprone-macro-parentheses)

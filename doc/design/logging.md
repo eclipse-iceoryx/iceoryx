@@ -97,11 +97,11 @@ by the `BaseLogger` template parameter and the latter by deriving from the logge
 
 #### Logging macro with lazy evaluation
 
-The `IOX_LOG` macro is intended for general use. It has two parameter. The first one
+The `IOX_LOG` macro is intended for general use. It has two parameters. The first one
 sets the log level and delegates `file`, `line` and `function` to the `IOX_LOG_INTERNAL`
 macro. The latter can be used in places like a custom `ASSERT` macro which already
 obtained the `file`, `line` and `function` parameter. The second parameter contains
-the items to log and multiple items can be logged by by using the '<<' operator.
+the items to log and multiple items can be logged by using the '<<' operator.
 
 The buildup of the log message is only done when the condition to log the message
 is fulfilled. This is accomplished by a macro with an if-statement.
