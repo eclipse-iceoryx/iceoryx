@@ -19,3 +19,4 @@ __pycache__
 .cpptest/*
 .coverage/*.*
 iceoryx_hoofs/.coverage/*.*
+iceoryx_hoofs/.cpptest/*

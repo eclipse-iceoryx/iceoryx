@@ -1,0 +1,4 @@
+dtp.url=http://dtp101.parasoft.com.pl:8080/
+dtp.user=admin
+dtp.password=admin
+dtp.project=ICEORYX

@@ -1,0 +1,10 @@
+{
+    "name": "C/C++test",
+    "image": "gcc-cov-toolchain:latest",
+    "runArgs": ["--rm"],
+    "extensions": ["parasoft.vscode-cpptest", "ms-vscode.cmake-tools"],
+    "settings": {
+        "cpptest.installationLocation": "/opt/parasoft/cpptest-coverage/",
+    },
+    "mounts": ["type=bind,src=${localEnv:HOME}/.ssh,dst=/home/ciuser/.ssh"]
+}
