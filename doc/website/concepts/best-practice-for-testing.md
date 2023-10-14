@@ -55,7 +55,7 @@ The catchwords can be used to draw simple scenarios which nicely fits to the AAA
   - etc.
 - etc.
 
-Following [Hyrum's Law](https://web.archive.org/web/20220728001604/https://www.hyrumslaw.com) loosely, given enough users, one will find ways to use the software in a way it was never imagined.
+Following [Hyrum's Law](https://www.hyrumslaw.com) loosely, given enough users, one will find ways to use the software in a way it was never imagined.
 Therefore, never underestimate the creativity of brilliancy/stupidity.
 
 In some cases it might be necessary to instantiate an object on the heap. While that's not allowed in production code, it is fine in test code.
