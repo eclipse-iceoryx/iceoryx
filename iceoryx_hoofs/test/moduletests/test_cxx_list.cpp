@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/cxx/list.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/ctor_and_assignment_operator_test_class.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/attributes.hpp"
 #include "iox/logging.hpp"
@@ -35,122 +36,32 @@ constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
 class list_test : public Test
 {
   public:
-    static uint64_t cTor;
-    static uint64_t customCTor;
-    static uint64_t copyCTor;
-    static uint64_t moveCTor;
-    static uint64_t moveAssignment;
-    static uint64_t copyAssignment;
-    static uint64_t dTor;
-    static int64_t classValue;
-
-    class TestListElement
-    {
-      public:
-        TestListElement()
-        {
-            cTor++;
-            classValue = m_value;
-        }
-
-        /// @NOLINTJUSTIFICATION only used in tests
-        /// @NOLINTNEXTLINE(hicpp-explicit-conversions)
-        TestListElement(const int64_t value)
-            : m_value(value)
-        {
-            customCTor++;
-            classValue = m_value;
-        }
-
-        TestListElement(const TestListElement& rhs)
-            : m_value{rhs.m_value}
-        {
-            copyCTor++;
-            classValue = m_value;
-        }
-
-        TestListElement(TestListElement&& rhs) noexcept
-            : m_value{rhs.m_value}
-        {
-            moveCTor++;
-            classValue = m_value;
-        }
-
-        TestListElement& operator=(const TestListElement& rhs)
-        {
-            if (this != &rhs)
-            {
-                copyAssignment++;
-                m_value = rhs.m_value;
-                classValue = m_value;
-            }
-            return *this;
-        }
-
-        TestListElement& operator=(TestListElement&& rhs) noexcept
-        {
-            if (this != &rhs)
-            {
-                moveAssignment++;
-                m_value = rhs.m_value;
-                classValue = m_value;
-            }
-            return *this;
-        }
-
-        bool operator==(const TestListElement& rhs) const
-        {
-            return rhs.m_value == m_value;
-        }
-
-        ~TestListElement()
-        {
-            dTor++;
-            classValue = m_value;
-        }
-
-        int64_t m_value = TEST_LIST_ELEMENT_DEFAULT_VALUE;
-    };
-
+    using TestListElement = CTorAndAssignmentOperatorTestClass<int64_t, TEST_LIST_ELEMENT_DEFAULT_VALUE>;
 
     void SetUp() override
     {
-        cTor = 0U;
-        customCTor = 0U;
-        copyCTor = 0U;
-        moveCTor = 0U;
-        moveAssignment = 0U;
-        copyAssignment = 0U;
-        dTor = 0U;
-        classValue = 0U;
+        stats.reset();
     }
+
+    TestListElement::Statistics& stats = TestListElement::stats;
 
     static bool isSetupState()
     {
-        return (cTor == 0U && customCTor == 0U && copyCTor == 0U && moveCTor == 0U && moveAssignment == 0U
-                && copyAssignment == 0U && dTor == 0U && classValue == 0U);
+        TestListElement::Statistics& stats = TestListElement::stats;
+        return (stats.cTor == 0U && stats.customCTor == 0U && stats.copyCTor == 0U && stats.moveCTor == 0U
+                && stats.moveAssignment == 0U && stats.copyAssignment == 0U && stats.dTor == 0U
+                && stats.classValue == 0);
     }
 
     list<TestListElement, TESTLISTCAPACITY> sut;
 };
 
-// list_test statics
-uint64_t list_test::cTor;
-uint64_t list_test::customCTor;
-uint64_t list_test::copyCTor;
-uint64_t list_test::moveCTor;
-uint64_t list_test::moveAssignment;
-uint64_t list_test::copyAssignment;
-uint64_t list_test::dTor;
-int64_t list_test::classValue;
-
-
 template <typename IterType>
 int64_t iteratorTraitReturnDoubleValue(IterType iter)
 {
     typedef typename std::iterator_traits<IterType>::value_type IterValueType;
-    IterValueType m_value = *iter;
-    return (2 * m_value); // will only work for integer-convertible m_value types
+    IterValueType value = *iter;
+    return (2 * value); // will only work for integer-convertible value types
 }
 } // namespace
 
@@ -213,7 +124,7 @@ TEST_F(list_test, BeginCendAreTheSameWhenEmpty)
 TEST_F(list_test, CbeginCendAreDifferentWhenFilled)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b355ea2c-9662-40c1-992b-a6c1c01d94ec");
-    EXPECT_THAT(sut.emplace_front().m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT(sut.emplace_front().value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT(sut.cbegin() != sut.cend(), Eq(true));
 }
 TEST_F(list_test, BeginEndAreDifferentWhenFilled)
@@ -259,7 +170,7 @@ TEST_F(list_test, FullWhenFilledWithCapacityElements)
     ::testing::Test::RecordProperty("TEST_ID", "52b993fb-ff52-4ef9-8626-61cb4049c2e3");
     for (uint64_t i = 0U; i < sut.capacity(); ++i)
     {
-        EXPECT_THAT(sut.emplace_front().m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+        EXPECT_THAT(sut.emplace_front().value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     }
     EXPECT_THAT(sut.full(), Eq(true));
 }
@@ -322,14 +233,14 @@ TEST_F(list_test, CTorWithOneElements)
     constexpr uint64_t ELEMENT_COUNT{1U};
     list<TestListElement, CAPACITY> sut1;
 
-    EXPECT_THAT(cTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
         sut1.emplace_front();
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, CustomCTorWithOneElements)
@@ -346,9 +257,9 @@ TEST_F(list_test, CustomCTorWithOneElements)
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
-    EXPECT_THAT(classValue, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.classValue, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, CTorWithSomeElements)
@@ -364,7 +275,7 @@ TEST_F(list_test, CTorWithSomeElements)
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, CTorWithCapacityElements)
@@ -380,7 +291,7 @@ TEST_F(list_test, CTorWithCapacityElements)
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, CTorWithMoreThanCapacityElements)
@@ -397,8 +308,8 @@ TEST_F(list_test, CTorWithMoreThanCapacityElements)
     sut1.emplace(sut1.cbegin(), 2U);
 
     EXPECT_THAT(sut1.size(), Eq(CAPACITY));
-    EXPECT_THAT(cTor, Eq(CAPACITY));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(CAPACITY));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
 }
 
 
@@ -409,10 +320,10 @@ TEST_F(list_test, EmplaceWithOneElements)
     constexpr uint64_t ELEMENT_COUNT{1U};
     list<TestListElement, CAPACITY> sut1;
     auto iter = sut1.begin();
-    decltype(TestListElement::m_value) cnt = 0U;
+    decltype(TestListElement::value) cnt = 0U;
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -423,12 +334,12 @@ TEST_F(list_test, EmplaceWithOneElements)
     for (auto& listElement : sut1)
     {
         --cnt;
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceWithSomeElements)
@@ -440,8 +351,8 @@ TEST_F(list_test, EmplaceWithSomeElements)
     auto iter = sut1.cbegin();
     int64_t cnt = 0;
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -452,12 +363,12 @@ TEST_F(list_test, EmplaceWithSomeElements)
     for (auto& listElement : sut1)
     {
         --cnt;
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceWithCapacityElements)
@@ -478,12 +389,12 @@ TEST_F(list_test, EmplaceWithCapacityElements)
     for (auto& listElement : sut1)
     {
         --cnt;
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceWithMoreThanCapacityElements)
@@ -505,12 +416,12 @@ TEST_F(list_test, EmplaceWithMoreThanCapacityElements)
     for (auto& listElement : sut1)
     {
         --cnt;
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
     }
 
     EXPECT_THAT(sut1.size(), Eq(CAPACITY));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(CAPACITY));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(CAPACITY));
 }
 
 
@@ -532,13 +443,13 @@ TEST_F(list_test, EmplaceReverseWithOneElements)
     cnt = 0;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceReverseWithSomeElements)
@@ -559,13 +470,13 @@ TEST_F(list_test, EmplaceReverseWithSomeElements)
     cnt = 0U;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceReverseWithCapacityElements)
@@ -586,13 +497,13 @@ TEST_F(list_test, EmplaceReverseWithCapacityElements)
     cnt = 0;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceReverseWithWithMoreThanCapacityElements)
@@ -613,13 +524,13 @@ TEST_F(list_test, EmplaceReverseWithWithMoreThanCapacityElements)
     cnt = 0;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(CAPACITY));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(CAPACITY));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(CAPACITY));
 }
 
 
@@ -630,10 +541,10 @@ TEST_F(list_test, EmplaceBackWithOneElements)
     constexpr uint64_t ELEMENT_COUNT{1U};
     list<TestListElement, CAPACITY> sut1;
     // TestListElement compareElement{};
-    decltype(TestListElement::m_value) cnt = 0U;
+    decltype(TestListElement::value) cnt = 0U;
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -644,13 +555,13 @@ TEST_F(list_test, EmplaceBackWithOneElements)
     cnt = 0U;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
 }
 
 TEST_F(list_test, EmplaceBackWithSomeElements)
@@ -659,10 +570,10 @@ TEST_F(list_test, EmplaceBackWithSomeElements)
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{37U};
     list<TestListElement, CAPACITY> sut1;
-    decltype(TestListElement::m_value) cnt = 0U;
+    decltype(TestListElement::value) cnt = 0U;
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -673,13 +584,13 @@ TEST_F(list_test, EmplaceBackWithSomeElements)
     cnt = 0U;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
 }
 
 TEST_F(list_test, EmplaceBackWithCapacityElements)
@@ -688,7 +599,7 @@ TEST_F(list_test, EmplaceBackWithCapacityElements)
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY};
     list<TestListElement, CAPACITY> sut1;
-    decltype(TestListElement::m_value) cnt = 0U;
+    decltype(TestListElement::value) cnt = 0U;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -699,13 +610,13 @@ TEST_F(list_test, EmplaceBackWithCapacityElements)
     cnt = 0U;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
 }
 
 TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
@@ -714,7 +625,7 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
     constexpr uint64_t CAPACITY{42U};
     constexpr uint64_t ELEMENT_COUNT{CAPACITY + 1U};
     list<TestListElement, CAPACITY> sut1;
-    decltype(TestListElement::m_value) cnt = 0U;
+    decltype(TestListElement::value) cnt = 0U;
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
@@ -733,13 +644,13 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
     cnt = 0U;
     for (auto& listElement : sut1)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
     }
 
     EXPECT_THAT(sut1.size(), Eq(CAPACITY));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(CAPACITY * 2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(CAPACITY * 2U));
 }
 
 TEST_F(list_test, EmplaceWithWrongListIterator)
@@ -770,9 +681,9 @@ TEST_F(list_test, PushFrontConstCustomSuccessfullWhenSpaceAvailableLValue)
     const TestListElement a{DEFAULT_VALUE};
     EXPECT_TRUE(sut.push_front(a));
     ASSERT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT((*sut.begin()).value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushFrontConstSuccessfullWhenSpaceAvailableLValue)
@@ -781,9 +692,9 @@ TEST_F(list_test, PushFrontConstSuccessfullWhenSpaceAvailableLValue)
     const TestListElement a{};
     EXPECT_TRUE(sut.push_front(a));
     ASSERT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT(cTor, Eq(1U));
-    EXPECT_THAT(customCTor, Eq(0U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(1U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
+    EXPECT_THAT((*sut.begin()).value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushFrontFailsWhenSpaceNotAvailableLValue)
@@ -811,7 +722,7 @@ TEST_F(list_test, PushFrontSuccessfullWhenSpaceAvailableRValue)
 
     sut.push_front(DEFAULT_VALUE);
     EXPECT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((*sut.begin()).value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
@@ -831,7 +742,7 @@ TEST_F(list_test, PushFrontFailsWhenSpaceNotAvailableRValue)
 
     for (auto& listElement : sut)
     {
-        EXPECT_THAT(listElement.m_value, Eq(DEFAULT_VALUE));
+        EXPECT_THAT(listElement.value, Eq(DEFAULT_VALUE));
     }
 }
 
@@ -843,9 +754,9 @@ TEST_F(list_test, PushBackConstCustomSuccessfullWhenSpaceAvailableLValue)
     const TestListElement a{DEFAULT_VALUE};
     EXPECT_TRUE(sut.push_back(a));
     ASSERT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT((*sut.begin()).value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushBackConstSuccessfullWhenSpaceAvailableLValue)
@@ -854,9 +765,9 @@ TEST_F(list_test, PushBackConstSuccessfullWhenSpaceAvailableLValue)
     const TestListElement a{};
     EXPECT_TRUE(sut.push_back(a));
     ASSERT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT(cTor, Eq(1U));
-    EXPECT_THAT(customCTor, Eq(0U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(1U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
+    EXPECT_THAT((*sut.begin()).value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushBackFailsWhenSpaceNotAvailableLValue)
@@ -884,7 +795,7 @@ TEST_F(list_test, PushBackSuccessfullWhenSpaceAvailableRValue)
 
     sut.push_back(DEFAULT_VALUE);
     EXPECT_THAT(sut.size(), Eq(1U));
-    EXPECT_THAT((*sut.begin()).m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((*sut.begin()).value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PushBackFailsWhenSpaceNotAvailableRValue)
@@ -906,7 +817,7 @@ TEST_F(list_test, PushBackFailsWhenSpaceNotAvailableRValue)
 
     for (auto& listElement : sut)
     {
-        EXPECT_THAT(listElement.m_value, Eq(DEFAULT_VALUE));
+        EXPECT_THAT(listElement.value, Eq(DEFAULT_VALUE));
     }
 }
 
@@ -923,7 +834,7 @@ TEST_F(list_test, PushBackCheckInsertPosition)
     counter = 0;
     for (auto& listElement : sut)
     {
-        EXPECT_THAT(listElement.m_value, Eq(counter));
+        EXPECT_THAT(listElement.value, Eq(counter));
         ++counter;
     }
 }
@@ -939,8 +850,8 @@ TEST_F(list_test, AccessFrontElement)
 
     TestListElement& b{sut.front()};
     const TestListElement& c{sut.front()};
-    EXPECT_THAT(b.m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(b.value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, AccessFrontElementFromConstList)
@@ -955,7 +866,7 @@ TEST_F(list_test, AccessFrontElementFromConstList)
     const list<TestListElement, TESTLISTCAPACITY> sut1{sut};
     const TestListElement& c = sut1.front();
 
-    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, AccessBackElement)
@@ -969,8 +880,8 @@ TEST_F(list_test, AccessBackElement)
 
     TestListElement& b{sut.back()};
     const TestListElement& c{sut.back()};
-    EXPECT_THAT(b.m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(b.value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, AccessBackElementFromConstList)
@@ -985,7 +896,7 @@ TEST_F(list_test, AccessBackElementFromConstList)
     const list<TestListElement, TESTLISTCAPACITY> sut1{sut};
     const TestListElement& c = sut1.back();
 
-    EXPECT_THAT(c.m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(c.value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, PopFrontOnEmptyList)
@@ -1005,9 +916,9 @@ TEST_F(list_test, PopFrontNonEmptyList)
     EXPECT_TRUE(sut.pop_front());
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    ASSERT_THAT(dTor, Eq(1U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    ASSERT_THAT(stats.dTor, Eq(1U));
 }
 
 TEST_F(list_test, PopFrontFullToEmptyList)
@@ -1026,8 +937,8 @@ TEST_F(list_test, PopFrontFullToEmptyList)
     }
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(dTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.dTor, Eq(TESTLISTCAPACITY));
 }
 
 TEST_F(list_test, PopFrontFullPlusOneToEmptyList)
@@ -1048,9 +959,9 @@ TEST_F(list_test, PopFrontFullPlusOneToEmptyList)
     EXPECT_FALSE(sut.pop_front());
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(customCTor, Eq(0U));
-    ASSERT_THAT(dTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.customCTor, Eq(0U));
+    ASSERT_THAT(stats.dTor, Eq(TESTLISTCAPACITY));
 }
 
 
@@ -1071,9 +982,9 @@ TEST_F(list_test, PopBackNonEmptyList)
     EXPECT_TRUE(sut.pop_back());
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    ASSERT_THAT(dTor, Eq(1U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    ASSERT_THAT(stats.dTor, Eq(1U));
 }
 
 TEST_F(list_test, PopBackFullToEmptyList)
@@ -1093,8 +1004,8 @@ TEST_F(list_test, PopBackFullToEmptyList)
     }
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(dTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.dTor, Eq(TESTLISTCAPACITY));
 }
 
 TEST_F(list_test, PopBackFullPlusOneToEmptyList)
@@ -1116,9 +1027,9 @@ TEST_F(list_test, PopBackFullPlusOneToEmptyList)
     EXPECT_FALSE(sut.pop_back());
 
     ASSERT_THAT(sut.size(), Eq(0U));
-    ASSERT_THAT(cTor, Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(customCTor, Eq(0U));
-    ASSERT_THAT(dTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.customCTor, Eq(0U));
+    ASSERT_THAT(stats.dTor, Eq(TESTLISTCAPACITY));
 }
 
 
@@ -1131,12 +1042,12 @@ TEST_F(list_test, InsertEmptyListAsLValue)
     sut.insert(sut.cbegin(), a);
 
     ASSERT_THAT(sut.size(), Eq(1U));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(1U));
-    ASSERT_THAT(copyCTor, Eq(1U));
-    ASSERT_THAT(moveCTor, Eq(0U));
-    ASSERT_THAT(copyAssignment, Eq(0U));
-    ASSERT_THAT(moveAssignment, Eq(0U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(1U));
+    ASSERT_THAT(stats.copyCTor, Eq(1U));
+    ASSERT_THAT(stats.moveCTor, Eq(0U));
+    ASSERT_THAT(stats.copyAssignment, Eq(0U));
+    ASSERT_THAT(stats.moveAssignment, Eq(0U));
 }
 
 TEST_F(list_test, InsertLValueCheckReturn)
@@ -1156,12 +1067,12 @@ TEST_F(list_test, InsertEmptyListAsRValue)
     sut.insert(sut.begin(), {10U});
 
     ASSERT_THAT(sut.size(), Eq(1U));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(1U));
-    ASSERT_THAT(copyCTor, Eq(0U));
-    ASSERT_THAT(moveCTor, Eq(1U));
-    ASSERT_THAT(copyAssignment, Eq(0U));
-    ASSERT_THAT(moveAssignment, Eq(0U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(1U));
+    ASSERT_THAT(stats.copyCTor, Eq(0U));
+    ASSERT_THAT(stats.moveCTor, Eq(1U));
+    ASSERT_THAT(stats.copyAssignment, Eq(0U));
+    ASSERT_THAT(stats.moveAssignment, Eq(0U));
 }
 
 TEST_F(list_test, InsertRValueCheckReturn)
@@ -1170,7 +1081,7 @@ TEST_F(list_test, InsertRValueCheckReturn)
     auto iter = sut.insert(sut.begin(), {10U});
 
     ASSERT_THAT(iter == sut.begin(), Eq(true));
-    ASSERT_THAT((*iter).m_value, Eq(10U));
+    ASSERT_THAT((*iter).value, Eq(10U));
 }
 
 TEST_F(list_test, InsertBeginListLValue)
@@ -1183,11 +1094,11 @@ TEST_F(list_test, InsertBeginListLValue)
     sut.emplace_front();
 
     ASSERT_THAT(sut.size(), Eq(2U));
-    ASSERT_THAT(cTor, Eq(1U));
-    ASSERT_THAT(customCTor, Eq(1U));
+    ASSERT_THAT(stats.cTor, Eq(1U));
+    ASSERT_THAT(stats.customCTor, Eq(1U));
     auto iter = sut.begin();
-    EXPECT_THAT(iter->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(iter->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(DEFAULT_VALUE));
 }
 
 
@@ -1201,11 +1112,11 @@ TEST_F(list_test, InsertBeforeBeginListLValue)
     sut.insert(sut.begin(), a);
 
     ASSERT_THAT(sut.size(), Eq(2U));
-    ASSERT_THAT(cTor, Eq(1U));
-    ASSERT_THAT(customCTor, Eq(1U));
+    ASSERT_THAT(stats.cTor, Eq(1U));
+    ASSERT_THAT(stats.customCTor, Eq(1U));
     auto iter = sut.begin();
-    EXPECT_THAT((*iter).m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((*iter).value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
 }
 
 TEST_F(list_test, InsertBeforeBeginListRValue)
@@ -1218,11 +1129,11 @@ TEST_F(list_test, InsertBeforeBeginListRValue)
     sut.insert(sut.begin(), {});
 
     ASSERT_THAT(sut.size(), Eq(2U));
-    ASSERT_THAT(cTor, Eq(1U));
-    ASSERT_THAT(customCTor, Eq(1U));
+    ASSERT_THAT(stats.cTor, Eq(1U));
+    ASSERT_THAT(stats.customCTor, Eq(1U));
     auto iter = sut.begin();
-    EXPECT_THAT((*iter).m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((*iter).value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(DEFAULT_VALUE));
 }
 
 TEST_F(list_test, InsertSomeElementsListLValue)
@@ -1257,16 +1168,16 @@ TEST_F(list_test, InsertSomeElementsListLValue)
 
     ASSERT_THAT(sut.size(), Eq(6U));
     ASSERT_THAT(loopCounter, Eq(6U));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(6U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(6U));
 
     iter = sut.begin();
-    EXPECT_THAT(iter->m_value, Eq(4U));
-    EXPECT_THAT((++iter)->m_value, Eq(3U));
-    EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(2U));
-    EXPECT_THAT((++iter)->m_value, Eq(1U));
-    EXPECT_THAT((++iter)->m_value, Eq(0U));
+    EXPECT_THAT(iter->value, Eq(4U));
+    EXPECT_THAT((++iter)->value, Eq(3U));
+    EXPECT_THAT((++iter)->value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(2U));
+    EXPECT_THAT((++iter)->value, Eq(1U));
+    EXPECT_THAT((++iter)->value, Eq(0U));
 }
 
 TEST_F(list_test, InsertSomeElementsListRValue)
@@ -1293,16 +1204,16 @@ TEST_F(list_test, InsertSomeElementsListRValue)
     sut.insert(iter, DEFAULT_VALUE);
 
     ASSERT_THAT(sut.size(), Eq(6U));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(6U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(6U));
 
     iter = sut.begin();
-    EXPECT_THAT(iter->m_value, Eq(4U));
-    EXPECT_THAT((++iter)->m_value, Eq(3U));
-    EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(2U));
-    EXPECT_THAT((++iter)->m_value, Eq(1U));
-    EXPECT_THAT((++iter)->m_value, Eq(0U));
+    EXPECT_THAT(iter->value, Eq(4U));
+    EXPECT_THAT((++iter)->value, Eq(3U));
+    EXPECT_THAT((++iter)->value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(2U));
+    EXPECT_THAT((++iter)->value, Eq(1U));
+    EXPECT_THAT((++iter)->value, Eq(0U));
 }
 
 
@@ -1325,16 +1236,16 @@ TEST_F(list_test, InsertFullElementsListLValue)
     sut.insert(iter, a);
 
     ASSERT_THAT(sut.size(), Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(TESTLISTCAPACITY));
 
     for (auto& listElement : sut)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
         if (TESTLISTCAPACITY - 1L == cnt)
         {
-            // for the last element (insert) check for different m_value
+            // for the last element (insert) check for different value
             cnt = DEFAULT_VALUE;
         }
     }
@@ -1358,16 +1269,16 @@ TEST_F(list_test, InsertFullElementsListRValue)
     sut.insert(iter, DEFAULT_VALUE);
 
     ASSERT_THAT(sut.size(), Eq(TESTLISTCAPACITY));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(TESTLISTCAPACITY));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(TESTLISTCAPACITY));
 
     for (auto& listElement : sut)
     {
-        EXPECT_THAT(listElement.m_value, Eq(cnt));
+        EXPECT_THAT(listElement.value, Eq(cnt));
         ++cnt;
         if (TESTLISTCAPACITY - 1L == cnt)
         {
-            // for the last element (insert) check for different m_value
+            // for the last element (insert) check for different value
             cnt = DEFAULT_VALUE;
         }
     }
@@ -1396,16 +1307,16 @@ TEST_F(list_test, IteratorArrowOperator)
     sut.insert(iter, DEFAULT_VALUE);
 
     ASSERT_THAT(sut.size(), Eq(6U));
-    ASSERT_THAT(cTor, Eq(0U));
-    ASSERT_THAT(customCTor, Eq(6U));
+    ASSERT_THAT(stats.cTor, Eq(0U));
+    ASSERT_THAT(stats.customCTor, Eq(6U));
 
     iter = sut.cbegin();
-    EXPECT_THAT(iter->m_value, Eq(4U));
-    EXPECT_THAT((++iter)->m_value, Eq(3U));
-    EXPECT_THAT((++iter)->m_value, Eq(DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(2U));
-    EXPECT_THAT((++iter)->m_value, Eq(1U));
-    EXPECT_THAT((++iter)->m_value, Eq(0U));
+    EXPECT_THAT(iter->value, Eq(4U));
+    EXPECT_THAT((++iter)->value, Eq(3U));
+    EXPECT_THAT((++iter)->value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(2U));
+    EXPECT_THAT((++iter)->value, Eq(1U));
+    EXPECT_THAT((++iter)->value, Eq(0U));
 }
 
 TEST_F(list_test, IteratorIncrementOperatorBeyondEnd)
@@ -1416,7 +1327,7 @@ TEST_F(list_test, IteratorIncrementOperatorBeyondEnd)
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.begin();
-    EXPECT_THAT(iter->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(iter->value, Eq(DEFAULT_VALUE));
     EXPECT_TRUE((++iter) == sut.cend());
     EXPECT_TRUE((++iter) == sut.cend());
 }
@@ -1429,7 +1340,7 @@ TEST_F(list_test, ConstIteratorIncrementOperatorBeyondEnd)
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.cbegin();
-    EXPECT_THAT(iter->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT(iter->value, Eq(DEFAULT_VALUE));
     EXPECT_TRUE((++iter) == sut.cend());
     EXPECT_TRUE((++iter) == sut.cend());
 }
@@ -1442,7 +1353,7 @@ TEST_F(list_test, IteratorDecrementOperatorBeyondBegin)
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.end();
-    EXPECT_THAT((--iter)->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((--iter)->value, Eq(DEFAULT_VALUE));
     EXPECT_TRUE((--iter) == sut.cbegin());
     EXPECT_TRUE((--iter) == sut.cbegin());
 }
@@ -1455,7 +1366,7 @@ TEST_F(list_test, ConstIteratorDecrementOperatorBeyondBegin)
     sut.push_front(DEFAULT_VALUE);
 
     auto iter = sut.cend();
-    EXPECT_THAT((--iter)->m_value, Eq(DEFAULT_VALUE));
+    EXPECT_THAT((--iter)->value, Eq(DEFAULT_VALUE));
     EXPECT_TRUE((--iter) == sut.cbegin());
     EXPECT_TRUE((--iter) == sut.cbegin());
 }
@@ -1471,7 +1382,7 @@ TEST_F(list_test, IteratorDecrementOperatorBeyondBeginWithFullList)
     auto iter = sut.end();
     for (uint64_t i = 0U; i < sut.capacity(); ++i)
     {
-        EXPECT_THAT((--iter)->m_value, Eq(i));
+        EXPECT_THAT((--iter)->value, Eq(i));
     }
     EXPECT_TRUE((iter) == sut.cbegin());
     EXPECT_TRUE((--iter) == sut.cbegin());
@@ -1601,18 +1512,18 @@ TEST_F(list_test, CopyConstructor)
     list<TestListElement, TESTLISTCAPACITY> sut11;
     sut11.emplace_front(101U);
     sut11.emplace_front(102);
-    EXPECT_THAT(customCTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(2U));
 
     list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
 
-    EXPECT_THAT(customCTor, Eq(2U));
-    EXPECT_THAT(copyCTor, Eq(2U));
-    EXPECT_THAT(moveCTor, Eq(0U));
-    EXPECT_THAT(moveAssignment, Eq(0U));
-    EXPECT_THAT(copyAssignment, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(2U));
+    EXPECT_THAT(stats.copyCTor, Eq(2U));
+    EXPECT_THAT(stats.moveCTor, Eq(0U));
+    EXPECT_THAT(stats.moveAssignment, Eq(0U));
+    EXPECT_THAT(stats.copyAssignment, Eq(0U));
     auto iter = sut12.begin();
-    EXPECT_THAT(iter->m_value, Eq(102));
-    EXPECT_THAT((++iter)->m_value, Eq(101U));
+    EXPECT_THAT(iter->value, Eq(102));
+    EXPECT_THAT((++iter)->value, Eq(101U));
     EXPECT_THAT(sut12.empty(), Eq(false));
     EXPECT_THAT(sut12.size(), Eq(2U));
 }
@@ -1624,7 +1535,7 @@ TEST_F(list_test, CopyConstructorWithEmptyList)
     /// @NOLINTJUSTIFICATION the test should explicitly test the copy constructor
     /// @NOLINTNEXTLINE(performance-unnecessary-copy-initialization)
     list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
-    EXPECT_THAT(copyCTor, Eq(0U));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
     EXPECT_THAT(sut12.size(), Eq(0U));
     EXPECT_THAT(sut12.empty(), Eq(true));
 }
@@ -1633,7 +1544,7 @@ TEST_F(list_test, CopyConstructorWithFullList)
 {
     ::testing::Test::RecordProperty("TEST_ID", "674ac8f0-3bb5-47e4-afd9-30f0bcaf6b55");
     list<TestListElement, TESTLISTCAPACITY> sut11;
-    decltype(TestListElement::m_value) i = 0U;
+    decltype(TestListElement::value) i = 0U;
 
     for (uint64_t i = 0U; i < TESTLISTCAPACITY; ++i)
     {
@@ -1643,11 +1554,11 @@ TEST_F(list_test, CopyConstructorWithFullList)
     list<TestListElement, TESTLISTCAPACITY> sut12(sut11);
     for (auto& listElement : sut12)
     {
-        listElement.m_value = i;
+        listElement.value = i;
         ++i;
     }
 
-    EXPECT_THAT(copyCTor, Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(stats.copyCTor, Eq(TESTLISTCAPACITY));
     EXPECT_THAT(i, Eq(TESTLISTCAPACITY));
     EXPECT_THAT(sut12.size(), Eq(TESTLISTCAPACITY));
     EXPECT_THAT(sut12.empty(), Eq(false));
@@ -1662,16 +1573,16 @@ TEST_F(list_test, MoveConstructor)
 
     list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(2U));
-    EXPECT_THAT(copyCTor, Eq(0U));
-    EXPECT_THAT(moveCTor, Eq(2U));
-    EXPECT_THAT(copyAssignment, Eq(0U));
-    EXPECT_THAT(moveAssignment, Eq(0U));
-    EXPECT_THAT(dTor, Eq(2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(2U));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
+    EXPECT_THAT(stats.moveCTor, Eq(2U));
+    EXPECT_THAT(stats.copyAssignment, Eq(0U));
+    EXPECT_THAT(stats.moveAssignment, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
     auto iter = sut12.begin();
-    EXPECT_THAT(iter->m_value, Eq(8102));
-    EXPECT_THAT((++iter)->m_value, Eq(8101U));
+    EXPECT_THAT(iter->value, Eq(8102));
+    EXPECT_THAT((++iter)->value, Eq(8101U));
     EXPECT_THAT(sut12.empty(), Eq(false));
     EXPECT_THAT(sut12.size(), Eq(2U));
     // NOLINTJUSTIFICATION we explicitly want to test the defined state of a moved object
@@ -1684,9 +1595,9 @@ TEST_F(list_test, MoveConstructorWithEmptyList)
     ::testing::Test::RecordProperty("TEST_ID", "42991766-c8dd-4261-814f-837ae99f6647");
     list<TestListElement, TESTLISTCAPACITY> sut11;
     list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
-    EXPECT_THAT(moveCTor, Eq(0U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(0U));
+    EXPECT_THAT(stats.moveCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
     EXPECT_THAT(sut12.size(), Eq(0U));
     EXPECT_THAT(sut12.empty(), Eq(true));
 }
@@ -1702,10 +1613,10 @@ TEST_F(list_test, MoveConstructorWithFullList)
 
     list<TestListElement, TESTLISTCAPACITY> sut12(std::move(sut11));
 
-    EXPECT_THAT(moveCTor, Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(copyCTor, Eq(0U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(stats.moveCTor, Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(TESTLISTCAPACITY));
     EXPECT_THAT(sut12.size(), Eq(TESTLISTCAPACITY));
     EXPECT_THAT(sut12.empty(), Eq(false));
 }
@@ -1716,7 +1627,7 @@ TEST_F(list_test, DestructorWithEmptyList)
     {
         list<TestListElement, TESTLISTCAPACITY> sut11;
     }
-    EXPECT_THAT(dTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(0U));
 }
 
 TEST_F(list_test, DestructorSomeElements)
@@ -1728,9 +1639,9 @@ TEST_F(list_test, DestructorSomeElements)
         sut11.emplace_front(9191U);
         sut11.emplace_front(1U);
     }
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(3U));
-    EXPECT_THAT(dTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(3U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
 }
 
 TEST_F(list_test, DestructorWithFullList)
@@ -1744,9 +1655,9 @@ TEST_F(list_test, DestructorWithFullList)
         }
     }
 
-    EXPECT_THAT(dTor, Eq(TESTLISTCAPACITY));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(stats.dTor, Eq(TESTLISTCAPACITY));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(TESTLISTCAPACITY));
 }
 
 TEST_F(list_test, CopyAssignmentWithEmptySource)
@@ -1759,11 +1670,11 @@ TEST_F(list_test, CopyAssignmentWithEmptySource)
     sut11.emplace_front(8132U);
 
     sut11 = sut12;
-    EXPECT_THAT(dTor, Eq(3U));
-    EXPECT_THAT(copyAssignment, Eq(0U));
-    EXPECT_THAT(copyCTor, Eq(0U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(3U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
+    EXPECT_THAT(stats.copyAssignment, Eq(0U));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(3U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(sut11.empty(), Eq(true));
 }
@@ -1778,16 +1689,16 @@ TEST_F(list_test, CopyAssignmentWithEmptyDestination)
     sut11.emplace_front(58132U);
 
     sut12 = sut11;
-    EXPECT_THAT(dTor, Eq(0U));
-    EXPECT_THAT(copyAssignment, Eq(0U));
-    EXPECT_THAT(copyCTor, Eq(3U));
+    EXPECT_THAT(stats.dTor, Eq(0U));
+    EXPECT_THAT(stats.copyAssignment, Eq(0U));
+    EXPECT_THAT(stats.copyCTor, Eq(3U));
     EXPECT_THAT(sut12.size(), Eq(3U));
     EXPECT_THAT(sut12.empty(), Eq(false));
 
     auto iter = sut12.cbegin();
-    EXPECT_THAT(iter->m_value, Eq(58132U));
-    EXPECT_THAT((++iter)->m_value, Eq(581122U));
-    EXPECT_THAT((++iter)->m_value, Eq(5812U));
+    EXPECT_THAT(iter->value, Eq(58132U));
+    EXPECT_THAT((++iter)->value, Eq(581122U));
+    EXPECT_THAT((++iter)->value, Eq(5812U));
 }
 
 
@@ -1806,15 +1717,15 @@ TEST_F(list_test, CopyAssignmentWithLargerDestination)
 
     sut11 = sut12;
 
-    EXPECT_THAT(dTor, Eq(2U));
-    EXPECT_THAT(copyAssignment, Eq(2U));
-    EXPECT_THAT(copyCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
+    EXPECT_THAT(stats.copyAssignment, Eq(2U));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
     EXPECT_THAT(sut11.size(), Eq(2U));
     EXPECT_THAT(sut11.empty(), Eq(false));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT(iter->m_value, Eq(3131U));
-    EXPECT_THAT((++iter)->m_value, Eq(313U));
+    EXPECT_THAT(iter->value, Eq(3131U));
+    EXPECT_THAT((++iter)->value, Eq(313U));
 }
 
 TEST_F(list_test, CopyAssignmentWithLargerSource)
@@ -1832,17 +1743,17 @@ TEST_F(list_test, CopyAssignmentWithLargerSource)
 
     sut12 = sut11;
 
-    EXPECT_THAT(dTor, Eq(0U));
-    EXPECT_THAT(copyAssignment, Eq(2U));
-    EXPECT_THAT(copyCTor, Eq(2U));
+    EXPECT_THAT(stats.dTor, Eq(0U));
+    EXPECT_THAT(stats.copyAssignment, Eq(2U));
+    EXPECT_THAT(stats.copyCTor, Eq(2U));
     EXPECT_THAT(sut12.size(), Eq(4U));
     EXPECT_THAT(sut12.empty(), Eq(false));
 
     auto iter = sut12.cbegin();
-    EXPECT_THAT(iter->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT(iter->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 
@@ -1857,9 +1768,9 @@ TEST_F(list_test, MoveAssignmentWithEmptySource)
 
     sut11 = std::move(sut12);
 
-    EXPECT_THAT(dTor, Eq(3U));
-    EXPECT_THAT(moveAssignment, Eq(0U));
-    EXPECT_THAT(moveCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
+    EXPECT_THAT(stats.moveAssignment, Eq(0U));
+    EXPECT_THAT(stats.moveCTor, Eq(0U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(sut11.empty(), Eq(true));
 }
@@ -1875,20 +1786,20 @@ TEST_F(list_test, MoveAssignmentWithEmptyDestination)
 
     sut12 = std::move(sut11);
 
-    EXPECT_THAT(dTor, Eq(3U));
-    EXPECT_THAT(moveAssignment, Eq(0U));
-    EXPECT_THAT(copyCTor, Eq(0U));
-    EXPECT_THAT(moveCTor, Eq(3U));
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(3U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
+    EXPECT_THAT(stats.moveAssignment, Eq(0U));
+    EXPECT_THAT(stats.copyCTor, Eq(0U));
+    EXPECT_THAT(stats.moveCTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(3U));
 
     EXPECT_THAT(sut12.size(), Eq(3U));
     EXPECT_THAT(sut12.empty(), Eq(false));
 
     auto iter = sut12.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(58132U));
-    EXPECT_THAT((++iter)->m_value, Eq(581122U));
-    EXPECT_THAT((++iter)->m_value, Eq(5812U));
+    EXPECT_THAT((iter)->value, Eq(58132U));
+    EXPECT_THAT((++iter)->value, Eq(581122U));
+    EXPECT_THAT((++iter)->value, Eq(5812U));
 }
 
 
@@ -1907,15 +1818,15 @@ TEST_F(list_test, MoveAssignmentWithLargerDestination)
 
     sut11 = std::move(sut12);
 
-    EXPECT_THAT(dTor, Eq(4U));
-    EXPECT_THAT(moveAssignment, Eq(2U));
-    EXPECT_THAT(moveCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(4U));
+    EXPECT_THAT(stats.moveAssignment, Eq(2U));
+    EXPECT_THAT(stats.moveCTor, Eq(0U));
     EXPECT_THAT(sut11.size(), Eq(2U));
     EXPECT_THAT(sut11.empty(), Eq(false));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(3131U));
-    EXPECT_THAT((++iter)->m_value, Eq(313U));
+    EXPECT_THAT((iter)->value, Eq(3131U));
+    EXPECT_THAT((++iter)->value, Eq(313U));
 }
 
 TEST_F(list_test, MoveAssignmentWithLargerSource)
@@ -1933,18 +1844,18 @@ TEST_F(list_test, MoveAssignmentWithLargerSource)
 
     sut12 = std::move(sut11);
 
-    EXPECT_THAT(dTor, Eq(4U));
-    EXPECT_THAT(moveAssignment, Eq(2U));
-    EXPECT_THAT(moveCTor, Eq(2U));
+    EXPECT_THAT(stats.dTor, Eq(4U));
+    EXPECT_THAT(stats.moveAssignment, Eq(2U));
+    EXPECT_THAT(stats.moveCTor, Eq(2U));
     EXPECT_THAT(sut12.size(), Eq(4U));
     EXPECT_THAT(sut12.empty(), Eq(false));
 
 
     auto iter = sut12.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 TEST_F(list_test, RemoveDefaultElementFromEmptyList)
@@ -1952,9 +1863,9 @@ TEST_F(list_test, RemoveDefaultElementFromEmptyList)
     ::testing::Test::RecordProperty("TEST_ID", "c77e3f62-1c49-4672-9772-79a1fd818b80");
     auto cnt = sut.remove({});
 
-    EXPECT_THAT(cTor, Eq(1U));
-    EXPECT_THAT(customCTor, Eq(0U));
-    EXPECT_THAT(dTor, Eq(1U));
+    EXPECT_THAT(stats.cTor, Eq(1U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(1U));
     EXPECT_THAT(sut.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(0U));
 }
@@ -1963,9 +1874,9 @@ TEST_F(list_test, RemoveCustomElementFromEmptyList)
     ::testing::Test::RecordProperty("TEST_ID", "c5c57a6d-e7d7-4219-a4a9-fa59f0b9d08f");
     auto cnt = sut.remove({10U});
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT(dTor, Eq(1U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT(stats.dTor, Eq(1U));
     EXPECT_THAT(sut.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(0U));
 }
@@ -1982,17 +1893,17 @@ TEST_F(list_test, RemoveOneDefaultElementFromList)
 
     auto cnt = sut11.remove({});
 
-    EXPECT_THAT(cTor, Eq(3U));
-    EXPECT_THAT(customCTor, Eq(4U));
-    EXPECT_THAT(dTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(3U));
+    EXPECT_THAT(stats.customCTor, Eq(4U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
     EXPECT_THAT(sut11.size(), Eq(4U));
     EXPECT_THAT(cnt, Eq(2U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 TEST_F(list_test, RemoveOneCustomElementFromList)
 {
@@ -2007,18 +1918,18 @@ TEST_F(list_test, RemoveOneCustomElementFromList)
 
     auto cnt = sut11.remove({1584122U});
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(5U));
-    EXPECT_THAT(dTor, Eq(2U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(5U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
     EXPECT_THAT(sut11.size(), Eq(5U));
     EXPECT_THAT(cnt, Eq(1U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 TEST_F(list_test, RemoveNotExistentElementFromList)
 {
@@ -2033,20 +1944,20 @@ TEST_F(list_test, RemoveNotExistentElementFromList)
 
     auto cnt = sut11.remove({1243U});
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(5U));
-    EXPECT_THAT(dTor, Eq(1U));
-    EXPECT_THAT(classValue, Eq(1243U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(5U));
+    EXPECT_THAT(stats.dTor, Eq(1U));
+    EXPECT_THAT(stats.classValue, Eq(1243U));
     EXPECT_THAT(sut11.size(), Eq(6U));
     EXPECT_THAT(cnt, Eq(0U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 TEST_F(list_test, RemoveOnetoEmptyList)
@@ -2057,9 +1968,9 @@ TEST_F(list_test, RemoveOnetoEmptyList)
 
     auto cnt = sut11.remove({15842U});
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(2U));
-    EXPECT_THAT(dTor, Eq(2U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(2U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(1U));
 }
@@ -2074,9 +1985,9 @@ TEST_F(list_test, RemoveWithFewMatches)
 
     auto cnt = sut11.remove({});
 
-    EXPECT_THAT(cTor, Eq(3U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT(dTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(3U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
     EXPECT_THAT(sut11.size(), Eq(1U));
     EXPECT_THAT(cnt, Eq(2U));
 }
@@ -2090,9 +2001,9 @@ TEST_F(list_test, RemoveWithAllMatches)
 
     auto cnt = sut11.remove({});
 
-    EXPECT_THAT(cTor, Eq(3U));
-    EXPECT_THAT(customCTor, Eq(0U));
-    EXPECT_THAT(dTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(3U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(2U));
 }
@@ -2108,9 +2019,9 @@ TEST_F(list_test, RemoveAllFromList)
     auto cnt = sut11.remove({15842U});
     cnt += sut11.remove({});
 
-    EXPECT_THAT(cTor, Eq(3U));
-    EXPECT_THAT(customCTor, Eq(2U));
-    EXPECT_THAT(dTor, Eq(5U));
+    EXPECT_THAT(stats.cTor, Eq(3U));
+    EXPECT_THAT(stats.customCTor, Eq(2U));
+    EXPECT_THAT(stats.dTor, Eq(5U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(3U));
 }
@@ -2139,20 +2050,20 @@ TEST_F(list_test, RemoveIfOneDefaultElementFromList)
     sut11.emplace_front(158432U);
 
     auto cnt =
-        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(4U));
-    EXPECT_THAT(dTor, Eq(2U));
-    EXPECT_THAT(classValue, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(4U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
+    EXPECT_THAT(stats.classValue, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
     EXPECT_THAT(sut11.size(), Eq(4U));
     EXPECT_THAT(cnt, Eq(2U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 TEST_F(list_test, RemoveIfOneCustomElementFromList)
@@ -2166,20 +2077,20 @@ TEST_F(list_test, RemoveIfOneCustomElementFromList)
     sut11.emplace_front(158432U);
     sut11.emplace_front(158432U);
 
-    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 1584122U; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.value == 1584122U; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(4U));
-    EXPECT_THAT(dTor, Eq(1U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(4U));
+    EXPECT_THAT(stats.dTor, Eq(1U));
     EXPECT_THAT(sut11.size(), Eq(5U));
     EXPECT_THAT(cnt, Eq(1U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 TEST_F(list_test, RemoveIfNotExistentElementFromList)
@@ -2193,21 +2104,21 @@ TEST_F(list_test, RemoveIfNotExistentElementFromList)
     sut11.emplace_front(158432U);
     sut11.emplace_front(158432U);
 
-    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 1234U; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.value == 1234U; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(4U));
-    EXPECT_THAT(dTor, Eq(0U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(4U));
+    EXPECT_THAT(stats.dTor, Eq(0U));
     EXPECT_THAT(sut11.size(), Eq(6U));
     EXPECT_THAT(cnt, Eq(0U));
 
     auto iter = sut11.cbegin();
-    EXPECT_THAT((iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(158432U));
-    EXPECT_THAT((++iter)->m_value, Eq(1584122U));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
-    EXPECT_THAT((++iter)->m_value, Eq(15842U));
+    EXPECT_THAT((iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(158432U));
+    EXPECT_THAT((++iter)->value, Eq(1584122U));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(TEST_LIST_ELEMENT_DEFAULT_VALUE));
+    EXPECT_THAT((++iter)->value, Eq(15842U));
 }
 
 TEST_F(list_test, RemoveIfOnetoEmptyList)
@@ -2216,11 +2127,11 @@ TEST_F(list_test, RemoveIfOnetoEmptyList)
     list<TestListElement, 10U> sut11;
     sut11.emplace_front(15842U);
 
-    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 15842U; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.value == 15842U; });
 
-    EXPECT_THAT(cTor, Eq(0U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT(dTor, Eq(1U));
+    EXPECT_THAT(stats.cTor, Eq(0U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT(stats.dTor, Eq(1U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(1U));
 }
@@ -2234,11 +2145,11 @@ TEST_F(list_test, RemoveIfWithFewMatches)
     sut11.emplace_front();
 
     auto cnt =
-        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT(dTor, Eq(2U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
     EXPECT_THAT(sut11.size(), Eq(1U));
     EXPECT_THAT(cnt, Eq(2U));
 }
@@ -2251,11 +2162,11 @@ TEST_F(list_test, RemoveIfWithAllMatches)
     sut11.emplace_front();
 
     auto cnt =
-        sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
+        sut11.remove_if([](const TestListElement& sut1) { return sut1.value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(0U));
-    EXPECT_THAT(dTor, Eq(2U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(0U));
+    EXPECT_THAT(stats.dTor, Eq(2U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(2U));
 }
@@ -2268,12 +2179,12 @@ TEST_F(list_test, RemoveIfAllFromList)
     sut11.emplace_front();
     sut11.emplace_front();
 
-    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == 15842U; });
-    cnt += sut11.remove_if([](const TestListElement& sut1) { return sut1.m_value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
+    auto cnt = sut11.remove_if([](const TestListElement& sut1) { return sut1.value == 15842U; });
+    cnt += sut11.remove_if([](const TestListElement& sut1) { return sut1.value == TEST_LIST_ELEMENT_DEFAULT_VALUE; });
 
-    EXPECT_THAT(cTor, Eq(2U));
-    EXPECT_THAT(customCTor, Eq(1U));
-    EXPECT_THAT(dTor, Eq(3U));
+    EXPECT_THAT(stats.cTor, Eq(2U));
+    EXPECT_THAT(stats.customCTor, Eq(1U));
+    EXPECT_THAT(stats.dTor, Eq(3U));
     EXPECT_THAT(sut11.size(), Eq(0U));
     EXPECT_THAT(cnt, Eq(3U));
 }
@@ -2292,7 +2203,7 @@ TEST_F(list_test, writeContentViaDereferencedIterator)
     auto iter = sut1.begin();
     TestListElement element{TEST_VALUE};
     *iter = element;
-    EXPECT_THAT(sut1.front().m_value, Eq(TEST_VALUE));
+    EXPECT_THAT(sut1.front().value, Eq(TEST_VALUE));
 }
 
 TEST_F(list_test, invalidIteratorErase)
@@ -2393,7 +2304,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).m_value); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).value); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -2410,7 +2321,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
     ++iter;
     auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->m_value == 12U); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->value == 12U); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -2452,6 +2363,6 @@ TEST_F(list_test, ListIsCopyableViaMemcpy)
     for (auto& listElement : *reinterpret_cast<TestFwdList*>(otherSutPtr))
     {
         --i;
-        EXPECT_THAT(listElement.m_value, Eq(i));
+        EXPECT_THAT(listElement.value, Eq(i));
     }
 }
