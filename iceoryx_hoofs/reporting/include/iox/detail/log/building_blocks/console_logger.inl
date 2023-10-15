@@ -109,7 +109,7 @@ inline void ConsoleLogger::logBin(const T value) noexcept
         // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
         // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
         data.buffer[bufferWriteIndexNext] = (value & mask) ? '1' : '0';
-        mask >>= 1;
+        mask = static_cast<T>(mask >> 1);
     }
     // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)

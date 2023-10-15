@@ -260,7 +260,7 @@ void ConsoleLogger::logRaw(const void* const data, const uint64_t size) noexcept
                 logChar(' ');
             }
             // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
-            logArithmetic(static_cast<const uint8_t* const>(data)[i], "%02hhx");
+            logArithmetic(static_cast<const uint8_t*>(data)[i], "%02hhx");
         }
     }
     logChar(']');

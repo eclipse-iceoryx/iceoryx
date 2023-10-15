@@ -31,7 +31,7 @@ namespace log
 {
 template <typename T>
 template <typename>
-constexpr LogHex<T>::LogHex(const T value) noexcept
+inline constexpr LogHex<T>::LogHex(const T value) noexcept
     : m_value(value)
 {
 }
@@ -51,7 +51,7 @@ inline constexpr LogHex<const void* const> hex(const void* const ptr) noexcept
 
 template <typename T>
 template <typename>
-constexpr LogOct<T>::LogOct(const T value) noexcept
+inline constexpr LogOct<T>::LogOct(const T value) noexcept
     : m_value(value)
 {
 }
@@ -65,7 +65,7 @@ inline constexpr LogOct<T> oct(const T value) noexcept
 
 template <typename T>
 template <typename>
-constexpr LogBin<T>::LogBin(const T value) noexcept
+inline constexpr LogBin<T>::LogBin(const T value) noexcept
     : m_value(value)
 {
 }
@@ -77,15 +77,15 @@ inline constexpr LogBin<T> bin(const T value) noexcept
     return LogBin<T>(value);
 }
 
-constexpr LogRaw::LogRaw(const void* const data, uint64_t size) noexcept
+inline constexpr LogRaw::LogRaw(const void* const data, uint64_t size) noexcept
     : m_data(data)
     , m_size(size)
 {
 }
 
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : See at declaration in header
-template <typename T, typename>
-inline constexpr LogRaw raw(const T& object) noexcept
+template <typename T>
+inline constexpr typename std::enable_if<!std::is_pointer<T>::value, LogRaw>::type raw(const T& object) noexcept
 {
     return LogRaw(&object, sizeof(T));
 }

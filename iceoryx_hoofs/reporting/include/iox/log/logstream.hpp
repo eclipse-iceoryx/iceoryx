@@ -89,7 +89,7 @@ class LogOct
 
   private:
     template <typename = std::enable_if_t<std::is_integral<T>::value>>
-    inline explicit constexpr LogOct(const T value) noexcept;
+    explicit constexpr LogOct(const T value) noexcept;
 
     LogOct(LogOct&&) noexcept = default;
 
@@ -102,7 +102,7 @@ class LogOct
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value && !std::is_same<T, bool>::value>>
-inline constexpr LogOct<T> oct(const T value) noexcept;
+constexpr LogOct<T> oct(const T value) noexcept;
 
 /// @brief Helper struct to log in binary format
 template <typename T>
@@ -122,7 +122,7 @@ class LogBin
 
   private:
     template <typename = std::enable_if_t<std::is_integral<T>::value>>
-    inline explicit constexpr LogBin(const T value) noexcept;
+    explicit constexpr LogBin(const T value) noexcept;
 
     LogBin(LogBin&&) noexcept = default;
 
@@ -135,7 +135,7 @@ class LogBin
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
 template <typename T, typename = std::enable_if_t<std::is_integral<T>::value && !std::is_same<T, bool>::value>>
-inline constexpr LogBin<T> bin(const T value) noexcept;
+constexpr LogBin<T> bin(const T value) noexcept;
 
 /// @brief Helper struct to log in raw bytes
 class LogRaw
@@ -143,8 +143,10 @@ class LogRaw
   public:
     friend class LogStream;
 
-    template <typename T, typename>
-    friend constexpr LogRaw raw(const T&) noexcept;
+    // for some reasons the default template argument SFINEA results in the error
+    // 'redeclaration of friend ... may not have default template arguments' on GCC but return type SFINEA seams to work
+    template <typename T>
+    friend constexpr typename std::enable_if<!std::is_pointer<T>::value, LogRaw>::type raw(const T&) noexcept;
     friend constexpr LogRaw raw(const void* const, const uint64_t) noexcept;
 
     ~LogRaw() = default;
@@ -154,7 +156,7 @@ class LogRaw
     LogRaw& operator=(LogRaw&&) noexcept = delete;
 
   private:
-    inline explicit constexpr LogRaw(const void* const data, uint64_t size) noexcept;
+    explicit constexpr LogRaw(const void* const data, uint64_t size) noexcept;
 
     LogRaw(LogRaw&&) noexcept = default;
 
@@ -167,15 +169,15 @@ class LogRaw
 /// @param[in] object to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-template <typename T, typename = std::enable_if_t<!std::is_pointer<T>::value>>
-inline constexpr LogRaw raw(const T& object) noexcept;
+template <typename T>
+constexpr typename std::enable_if<!std::is_pointer<T>::value, LogRaw>::type raw(const T& object) noexcept;
 
 /// @brief Log data in raw bytes
 /// @param[in] data pointer to the data to be logged
 /// @param[in] size of the data to be logged
 /// @return a helper struct which will be used by the LogStream
 // AXIVION Next Construct AutosarC++19_03-M17.0.3 : The function is in the iox::log namespace which prevents easy misuse
-inline constexpr LogRaw raw(const void* const data, const uint64_t size) noexcept;
+constexpr LogRaw raw(const void* const data, const uint64_t size) noexcept;
 
 /// @brief This class provides the public interface to the logger and is used with the 'IOX_LOG' macro. In order to add
 /// support for custom data types 'operator<<' needs to be implement for the custom type.
