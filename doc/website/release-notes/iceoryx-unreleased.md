@@ -161,6 +161,7 @@
 - Use logger for "RouDi is ready for clients" message [\#1994](https://github.com/eclipse-iceoryx/iceoryx/issues/1994)
 - Speed up posh tests [#1030](https://github.com/eclipse-iceoryx/iceoryx/issues/1030)
 - Roudi Environment independent from Googletest [#1533](https://github.com/eclipse-iceoryx/iceoryx/issues/1533)
+- Move test class for ctor and assignment operators to hoofs testing [#2041](https://github.com/eclipse-iceoryx/iceoryx/issues/2041)
 
 **Workflow:**
 
