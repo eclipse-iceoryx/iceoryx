@@ -22,11 +22,17 @@
 
 #include <io.h>
 #include <process.h>
+#include <stdio.h>
 #include <vector>
 
 #define IOX_SEEK_SET SEEK_SET
 #define _SC_PAGESIZE 1
-#define STDERR_FILENO 2
+#ifndef STDOUT_FILENO
+#define STDOUT_FILENO _fileno(stdout)
+#endif
+#ifndef STDERR_FILENO
+#define STDERR_FILENO _fileno(stderr)
+#endif
 
 using uid_t = int;
 using gid_t = int;
