@@ -5,6 +5,9 @@
 # - hicpp-member-init (duplicate of cppcoreguidelines-pro-type-member-init)
 # - performance-move-const-arg (duplicate of hicpp-move-const-arg)
 # - bugprone-use-after-move (duplicate of hicpp-move-const-arg)
+#
+# NOTE: following checks are disabled because they are deprecated
+# - cert-dcl21-cpp
 
 Checks: '
 -*,
@@ -31,6 +34,8 @@ hicpp-*,
 -readability-identifier-naming,
 -readability-use-anyofallof,
 -readability-named-parameter,
+
+-cert-dcl21-cpp
 
 '
 
