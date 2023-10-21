@@ -24,10 +24,6 @@
 using namespace ::testing;
 using ::testing::_;
 
-// global argc and argv needed by the argv_inspection test
-int g_argc;
-char** g_argv;
-
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
@@ -36,9 +32,6 @@ int main(int argc, char* argv[])
 
     iox::testing::ErrorHandler handler;
     iox::er::ErrorHandler::set(handler);
-
-    g_argc = argc;
-    g_argv = argv;
 
     return RUN_ALL_TESTS();
 }

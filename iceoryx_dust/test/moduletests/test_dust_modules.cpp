@@ -22,18 +22,11 @@
 using namespace ::testing;
 using ::testing::_;
 
-// global argc and argv needed by the argv_inspection test
-int g_argc;
-char** g_argv;
-
 int main(int argc, char* argv[])
 {
     ::testing::InitGoogleTest(&argc, argv);
 
     iox::testing::TestingLogger::init();
-
-    g_argc = argc;
-    g_argv = argv;
 
     return RUN_ALL_TESTS();
 }
