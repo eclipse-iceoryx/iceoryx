@@ -130,16 +130,19 @@ void PortManager::doDiscovery() noexcept
 void PortManager::handlePublisherPorts() noexcept
 {
     // get the changes of publisher port offer state
-    for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+    auto& publisherPorts = m_portPool->getPublisherPortDataList();
+    auto port = publisherPorts.begin();
+    while (port != publisherPorts.end())
     {
-        PublisherPortRouDiType publisherPort(publisherPortData);
+        auto currentPort = port++;
+        PublisherPortRouDiType publisherPort(currentPort.to_ptr());
 
         doDiscoveryForPublisherPort(publisherPort);
 
         // check if we have to destroy this publisher port
         if (publisherPort.toBeDestroyed())
         {
-            destroyPublisherPort(publisherPortData);
+            destroyPublisherPort(currentPort.to_ptr());
         }
     }
 }
@@ -177,16 +180,19 @@ void PortManager::doDiscoveryForPublisherPort(PublisherPortRouDiType& publisherP
 void PortManager::handleSubscriberPorts() noexcept
 {
     // get requests for change of subscription state of subscribers
-    for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
+    auto& subscriberPorts = m_portPool->getSubscriberPortDataList();
+    auto port = subscriberPorts.begin();
+    while (port != subscriberPorts.end())
     {
-        SubscriberPortType subscriberPort(subscriberPortData);
+        auto currentPort = port++;
+        SubscriberPortType subscriberPort(currentPort.to_ptr());
 
         doDiscoveryForSubscriberPort(subscriberPort);
 
         // check if we have to destroy this subscriber port
         if (subscriberPort.toBeDestroyed())
         {
-            destroySubscriberPort(subscriberPortData);
+            destroySubscriberPort(currentPort.to_ptr());
         }
     }
 }
@@ -258,16 +264,19 @@ void PortManager::destroyClientPort(popo::ClientPortData* const clientPortData) 
 void PortManager::handleClientPorts() noexcept
 {
     // get requests for change of connection state of clients
-    for (auto clientPortData : m_portPool->getClientPortDataList())
+    auto& clientPorts = m_portPool->getClientPortDataList();
+    auto port = clientPorts.begin();
+    while (port != clientPorts.end())
     {
-        popo::ClientPortRouDi clientPort(*clientPortData);
+        auto currentPort = port++;
+        popo::ClientPortRouDi clientPort(*currentPort);
 
         doDiscoveryForClientPort(clientPort);
 
         // check if we have to destroy this clinet port
         if (clientPort.toBeDestroyed())
         {
-            destroyClientPort(clientPortData);
+            destroyClientPort(currentPort.to_ptr());
         }
     }
 }
@@ -306,11 +315,11 @@ void PortManager::doDiscoveryForClientPort(popo::ClientPortRouDi& clientPort) no
 
 void PortManager::makeAllServerPortsToStopOffer() noexcept
 {
-    for (auto port : m_portPool->getServerPortDataList())
+    for (auto& port : m_portPool->getServerPortDataList())
     {
-        port->m_offeringRequested.store(false, std::memory_order_relaxed);
+        port.m_offeringRequested.store(false, std::memory_order_relaxed);
 
-        popo::ServerPortRouDi serverPort(*port);
+        popo::ServerPortRouDi serverPort(port);
         doDiscoveryForServerPort(serverPort);
     }
 }
@@ -351,16 +360,19 @@ void PortManager::destroyServerPort(popo::ServerPortData* const serverPortData) 
 void PortManager::handleServerPorts() noexcept
 {
     // get the changes of server port offer state
-    for (auto serverPortData : m_portPool->getServerPortDataList())
+    auto& serverPorts = m_portPool->getServerPortDataList();
+    auto port = serverPorts.begin();
+    while (port != serverPorts.end())
     {
-        popo::ServerPortRouDi serverPort(*serverPortData);
+        auto currentPort = port++;
+        popo::ServerPortRouDi serverPort(*currentPort);
 
         doDiscoveryForServerPort(serverPort);
 
         // check if we have to destroy this server port
         if (serverPort.toBeDestroyed())
         {
-            destroyServerPort(serverPortData);
+            destroyServerPort(currentPort.to_ptr());
         }
     }
 }
@@ -400,22 +412,25 @@ void PortManager::handleInterfaces() noexcept
     vector<popo::InterfacePortData*, MAX_INTERFACE_NUMBER> interfacePortsForInitialForwarding;
 
 
-    for (auto interfacePortData : m_portPool->getInterfacePortDataList())
+    auto& interfacePorts = m_portPool->getInterfacePortDataList();
+    auto port = interfacePorts.begin();
+    while (port != interfacePorts.end())
     {
-        if (interfacePortData->m_doInitialOfferForward)
+        auto currentPort = port++;
+        if (currentPort->m_doInitialOfferForward)
         {
-            interfacePortsForInitialForwarding.push_back(interfacePortData);
-            interfacePortData->m_doInitialOfferForward = false;
+            interfacePortsForInitialForwarding.push_back(currentPort.to_ptr());
+            currentPort->m_doInitialOfferForward = false;
         }
 
         // check if we have to destroy this interface port
-        if (interfacePortData->m_toBeDestroyed.load(std::memory_order_relaxed))
+        if (currentPort->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             IOX_LOG(DEBUG,
-                    "Destroy interface port from runtime '" << interfacePortData->m_runtimeName
+                    "Destroy interface port from runtime '" << currentPort->m_runtimeName
                                                             << "' and with service description '"
-                                                            << interfacePortData->m_serviceDescription << "'");
-            m_portPool->removeInterfacePort(interfacePortData);
+                                                            << currentPort->m_serviceDescription << "'");
+            m_portPool->removeInterfacePort(currentPort.to_ptr());
         }
     }
 
@@ -425,9 +440,9 @@ void PortManager::handleInterfaces() noexcept
         capro::CaproMessage caproMessage;
         caproMessage.m_type = capro::CaproMessageType::OFFER;
         caproMessage.m_serviceType = capro::CaproServiceType::PUBLISHER;
-        for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+        for (auto& publisherPortData : m_portPool->getPublisherPortDataList())
         {
-            PublisherPortUserType publisherPort(publisherPortData);
+            PublisherPortUserType publisherPort(&publisherPortData);
             if (publisherPort.isOffered())
             {
                 caproMessage.m_serviceDescription = publisherPort.getCaProServiceDescription();
@@ -445,9 +460,9 @@ void PortManager::handleInterfaces() noexcept
         }
         // provide offer information from all active server ports to all new interfaces
         caproMessage.m_serviceType = capro::CaproServiceType::SERVER;
-        for (auto serverPortData : m_portPool->getServerPortDataList())
+        for (auto& serverPortData : m_portPool->getServerPortDataList())
         {
-            popo::ServerPortUser serverPort(*serverPortData);
+            popo::ServerPortUser serverPort(serverPortData);
             if (serverPort.isOffered())
             {
                 caproMessage.m_serviceDescription = serverPort.getCaProServiceDescription();
@@ -473,27 +488,32 @@ void PortManager::handleNodes() noexcept
     // m_processIntrospection->removeNode(RuntimeName_t(process.c_str()),
     // NodeName_t(node.c_str()));
 
-    for (auto nodeData : m_portPool->getNodeDataList())
+    auto& nodes = m_portPool->getNodeDataList();
+    auto node = nodes.begin();
+    while (node != nodes.end())
     {
-        if (nodeData->m_toBeDestroyed.load(std::memory_order_relaxed))
+        auto currentNode = node++;
+        if (currentNode->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
             IOX_LOG(DEBUG,
-                    "Destroy NodeData from runtime '" << nodeData->m_runtimeName << "' and node name '"
-                                                      << nodeData->m_nodeName << "'");
-            m_portPool->removeNodeData(nodeData);
+                    "Destroy NodeData from runtime '" << currentNode->m_runtimeName << "' and node name '"
+                                                      << currentNode->m_nodeName << "'");
+            m_portPool->removeNodeData(currentNode.to_ptr());
         }
     }
 }
 
 void PortManager::handleConditionVariables() noexcept
 {
-    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    auto& condVars = m_portPool->getConditionVariableDataList();
+    auto condVar = condVars.begin();
+    while (condVar != condVars.end())
     {
-        if (conditionVariableData->m_toBeDestroyed.load(std::memory_order_relaxed))
+        auto currentCondVar = condVar++;
+        if (currentCondVar->m_toBeDestroyed.load(std::memory_order_relaxed))
         {
-            IOX_LOG(DEBUG,
-                    "Destroy ConditionVariableData from runtime '" << conditionVariableData->m_runtimeName << "'");
-            m_portPool->removeConditionVariableData(conditionVariableData);
+            IOX_LOG(DEBUG, "Destroy ConditionVariableData from runtime '" << currentCondVar->m_runtimeName << "'");
+            m_portPool->removeConditionVariableData(currentCondVar.to_ptr());
         }
     }
 }
@@ -522,9 +542,9 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
                                                   SubscriberPortType& subscriberSource) noexcept
 {
     bool publisherFound = false;
-    for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+    for (auto& publisherPortData : m_portPool->getPublisherPortDataList())
     {
-        PublisherPortRouDiType publisherPort(publisherPortData);
+        PublisherPortRouDiType publisherPort(&publisherPortData);
 
         auto messageInterface = message.m_serviceDescription.getSourceInterface();
         auto publisherInterface = publisherPort.getCaProServiceDescription().getSourceInterface();
@@ -561,9 +581,9 @@ bool PortManager::sendToAllMatchingPublisherPorts(const capro::CaproMessage& mes
 void PortManager::sendToAllMatchingSubscriberPorts(const capro::CaproMessage& message,
                                                    PublisherPortRouDiType& publisherSource) noexcept
 {
-    for (auto subscriberPortData : m_portPool->getSubscriberPortDataList())
+    for (auto& subscriberPortData : m_portPool->getSubscriberPortDataList())
     {
-        SubscriberPortType subscriberPort(subscriberPortData);
+        SubscriberPortType subscriberPort(&subscriberPortData);
 
         auto messageInterface = message.m_serviceDescription.getSourceInterface();
         auto subscriberInterface = subscriberPort.getCaProServiceDescription().getSourceInterface();
@@ -628,9 +648,9 @@ bool PortManager::isCompatibleClientServer(const popo::ServerPortRouDi& server,
 void PortManager::sendToAllMatchingClientPorts(const capro::CaproMessage& message,
                                                popo::ServerPortRouDi& serverSource) noexcept
 {
-    for (auto clientPortData : m_portPool->getClientPortDataList())
+    for (auto& clientPortData : m_portPool->getClientPortDataList())
     {
-        popo::ClientPortRouDi clientPort(*clientPortData);
+        popo::ClientPortRouDi clientPort(clientPortData);
         if (isCompatibleClientServer(serverSource, clientPort))
         {
             // send OFFER/STOP_OFFER to client
@@ -665,9 +685,9 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
                                                popo::ClientPortRouDi& clientSource) noexcept
 {
     bool serverFound = false;
-    for (auto serverPortData : m_portPool->getServerPortDataList())
+    for (auto& serverPortData : m_portPool->getServerPortDataList())
     {
-        popo::ServerPortRouDi serverPort(*serverPortData);
+        popo::ServerPortRouDi serverPort(serverPortData);
         if (isCompatibleClientServer(serverPort, clientSource))
         {
             // send CONNECT/DISCONNECT to server
@@ -692,9 +712,9 @@ bool PortManager::sendToAllMatchingServerPorts(const capro::CaproMessage& messag
 
 void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& message) noexcept
 {
-    for (auto interfacePortData : m_portPool->getInterfacePortDataList())
+    for (auto& interfacePortData : m_portPool->getInterfacePortDataList())
     {
-        iox::popo::InterfacePort interfacePort(interfacePortData);
+        iox::popo::InterfacePort interfacePort(&interfacePortData);
         // not to the interface the port is located
         if (message.m_serviceDescription.getSourceInterface()
             != interfacePort.getCaProServiceDescription().getSourceInterface())
@@ -706,22 +726,22 @@ void PortManager::sendToAllMatchingInterfacePorts(const capro::CaproMessage& mes
 
 void PortManager::unblockProcessShutdown(const RuntimeName_t& runtimeName) noexcept
 {
-    for (auto port : m_portPool->getPublisherPortDataList())
+    for (auto& port : m_portPool->getPublisherPortDataList())
     {
-        PublisherPortRouDiType publisherPort(port);
+        PublisherPortRouDiType publisherPort(&port);
         if (runtimeName == publisherPort.getRuntimeName())
         {
-            port->m_offeringRequested.store(false, std::memory_order_relaxed);
+            port.m_offeringRequested.store(false, std::memory_order_relaxed);
             doDiscoveryForPublisherPort(publisherPort);
         }
     }
 
-    for (auto port : m_portPool->getServerPortDataList())
+    for (auto& port : m_portPool->getServerPortDataList())
     {
-        popo::ServerPortRouDi serverPort(*port);
+        popo::ServerPortRouDi serverPort(port);
         if (runtimeName == serverPort.getRuntimeName())
         {
-            port->m_offeringRequested.store(false, std::memory_order_relaxed);
+            port.m_offeringRequested.store(false, std::memory_order_relaxed);
             doDiscoveryForServerPort(serverPort);
         }
     }
@@ -735,11 +755,11 @@ void PortManager::unblockRouDiShutdown() noexcept
 
 void PortManager::makeAllPublisherPortsToStopOffer() noexcept
 {
-    for (auto port : m_portPool->getPublisherPortDataList())
+    for (auto& port : m_portPool->getPublisherPortDataList())
     {
-        port->m_offeringRequested.store(false, std::memory_order_relaxed);
+        port.m_offeringRequested.store(false, std::memory_order_relaxed);
 
-        PublisherPortRouDiType publisherPort(port);
+        PublisherPortRouDiType publisherPort(&port);
         doDiscoveryForPublisherPort(publisherPort);
     }
 }
@@ -751,67 +771,88 @@ void PortManager::deletePortsOfProcess(const RuntimeName_t& runtimeName) noexcep
     {
         m_serviceRegistryPublisherPortData.reset();
     }
-    for (auto port : m_portPool->getPublisherPortDataList())
+    auto& publisherPorts = m_portPool->getPublisherPortDataList();
+    auto publisherPort = publisherPorts.begin();
+    while (publisherPort != publisherPorts.end())
     {
-        PublisherPortRouDiType sender(port);
+        auto currentPort = publisherPort++;
+        PublisherPortRouDiType sender(currentPort.to_ptr());
         if (runtimeName == sender.getRuntimeName())
         {
-            destroyPublisherPort(port);
+            destroyPublisherPort(currentPort.to_ptr());
         }
     }
 
-    for (auto port : m_portPool->getSubscriberPortDataList())
+    auto& subscriberPorts = m_portPool->getSubscriberPortDataList();
+    auto subscriberPort = subscriberPorts.begin();
+    while (subscriberPort != subscriberPorts.end())
     {
-        SubscriberPortUserType subscriber(port);
+        auto currentPort = subscriberPort++;
+        SubscriberPortUserType subscriber(currentPort.to_ptr());
         if (runtimeName == subscriber.getRuntimeName())
         {
-            destroySubscriberPort(port);
+            destroySubscriberPort(currentPort.to_ptr());
         }
     }
 
-    for (auto port : m_portPool->getServerPortDataList())
+    auto& serverPorts = m_portPool->getServerPortDataList();
+    auto serverPort = serverPorts.begin();
+    while (serverPort != serverPorts.end())
     {
-        popo::ServerPortRouDi server(*port);
+        auto currentPort = serverPort++;
+        popo::ServerPortRouDi server(*currentPort);
         if (runtimeName == server.getRuntimeName())
         {
-            destroyServerPort(port);
+            destroyServerPort(currentPort.to_ptr());
         }
     }
 
-    for (auto port : m_portPool->getClientPortDataList())
+    auto& clientPorts = m_portPool->getClientPortDataList();
+    auto clientPort = clientPorts.begin();
+    while (clientPort != clientPorts.end())
     {
-        popo::ClientPortRouDi client(*port);
+        auto currentPort = clientPort++;
+        popo::ClientPortRouDi client(*currentPort);
         if (runtimeName == client.getRuntimeName())
         {
-            destroyClientPort(port);
+            destroyClientPort(currentPort.to_ptr());
         }
     }
 
-    for (auto port : m_portPool->getInterfacePortDataList())
+    auto& interfacePorts = m_portPool->getInterfacePortDataList();
+    auto interfacePort = interfacePorts.begin();
+    while (interfacePort != interfacePorts.end())
     {
-        popo::InterfacePort interface(port);
+        auto currentPort = interfacePort++;
+        popo::InterfacePort interface(currentPort.to_ptr());
         if (runtimeName == interface.getRuntimeName())
         {
-            m_portPool->removeInterfacePort(port);
             IOX_LOG(DEBUG, "Deleted Interface of application " << runtimeName);
+            m_portPool->removeInterfacePort(currentPort.to_ptr());
         }
     }
 
-    for (auto nodeData : m_portPool->getNodeDataList())
+    auto& nodes = m_portPool->getNodeDataList();
+    auto node = nodes.begin();
+    while (node != nodes.end())
     {
-        if (runtimeName == nodeData->m_runtimeName)
+        auto currentNode = node++;
+        if (runtimeName == currentNode->m_runtimeName)
         {
-            m_portPool->removeNodeData(nodeData);
             IOX_LOG(DEBUG, "Deleted node of application " << runtimeName);
+            m_portPool->removeNodeData(currentNode.to_ptr());
         }
     }
 
-    for (auto conditionVariableData : m_portPool->getConditionVariableDataList())
+    auto& condVars = m_portPool->getConditionVariableDataList();
+    auto condVar = condVars.begin();
+    while (condVar != condVars.end())
     {
-        if (runtimeName == conditionVariableData->m_runtimeName)
+        auto currentCondVar = condVar++;
+        if (runtimeName == currentCondVar->m_runtimeName)
         {
-            m_portPool->removeConditionVariableData(conditionVariableData);
             IOX_LOG(DEBUG, "Deleted condition variable of application" << runtimeName);
+            m_portPool->removeConditionVariableData(currentCondVar.to_ptr());
         }
     }
 }
@@ -1021,20 +1062,24 @@ PortManager::acquireServerPortData(const capro::ServiceDescription& service,
 {
     // it is not allowed to have two servers with the same ServiceDescription;
     // check if the server is already in the list
-    for (const auto serverPortData : m_portPool->getServerPortDataList())
+    auto& serverPorts = m_portPool->getServerPortDataList();
+    auto port = serverPorts.begin();
+    while (port != serverPorts.end())
     {
-        if (service == serverPortData->m_serviceDescription)
+        auto currentPort = port++;
+
+        if (service == currentPort->m_serviceDescription)
         {
-            if (serverPortData->m_toBeDestroyed)
+            if (currentPort->m_toBeDestroyed)
             {
-                destroyServerPort(serverPortData);
+                destroyServerPort(currentPort.to_ptr());
                 continue;
             }
             IOX_LOG(WARN,
                     "Process '"
                         << runtimeName
                         << "' violates the communication policy by requesting a ServerPort which is already used by '"
-                        << serverPortData->m_runtimeName << "' with service '"
+                        << currentPort->m_runtimeName << "' with service '"
                         << service.operator cxx::Serialization().toString() << "'.");
             errorHandler(PoshError::POSH__PORT_MANAGER_SERVERPORT_NOT_UNIQUE, ErrorLevel::MODERATE);
             return err(PortPoolError::UNIQUE_SERVER_PORT_ALREADY_EXISTS);

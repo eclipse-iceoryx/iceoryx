@@ -27,7 +27,7 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    return m_portPoolData->m_subscriberPortMembers.insert(
+    auto port = getSubscriberPortDataList().emplace(
         serviceDescription,
         runtimeName,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
@@ -35,6 +35,12 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
             : cxx::VariantQueueTypes::FiFo_MultiProducerSingleConsumer,
         subscriberOptions,
         memoryInfo);
+    if (port == getSubscriberPortDataList().end())
+    {
+        return nullptr;
+    }
+
+    return port.to_ptr();
 }
 
 template <typename T, std::enable_if_t<std::is_same<T, iox::build::OneToManyPolicy>::value>*>
@@ -43,7 +49,7 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
                                                                     const popo::SubscriberOptions& subscriberOptions,
                                                                     const mepoo::MemoryInfo& memoryInfo) noexcept
 {
-    return m_portPoolData->m_subscriberPortMembers.insert(
+    auto port = getSubscriberPortDataList().emplace(
         serviceDescription,
         runtimeName,
         (subscriberOptions.queueFullPolicy == popo::QueueFullPolicy::DISCARD_OLDEST_DATA)
@@ -51,6 +57,12 @@ inline iox::popo::SubscriberPortData* PortPool::constructSubscriber(const capro:
             : cxx::VariantQueueTypes::FiFo_SingleProducerSingleConsumer,
         subscriberOptions,
         memoryInfo);
+    if (port == getSubscriberPortDataList().end())
+    {
+        return nullptr;
+    }
+
+    return port.to_ptr();
 }
 } // namespace roudi
 } // namespace iox

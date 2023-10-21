@@ -155,20 +155,20 @@ TEST_F(PortPool_test, GetNodeDataListIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "5a86e0ed-e61a-4f45-9aab-2b38a22730a9");
     ASSERT_FALSE(sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId).has_error());
 
-    auto nodeDataList = sut.getNodeDataList();
+    EXPECT_EQ(sut.getNodeDataList().size(), 1U);
 
-    EXPECT_EQ(nodeDataList.size(), 1U);
-    EXPECT_EQ(nodeDataList[0]->m_runtimeName, m_runtimeName);
-    EXPECT_EQ(nodeDataList[0]->m_nodeName, m_nodeName);
-    EXPECT_EQ(nodeDataList[0]->m_nodeDeviceIdentifier, m_nodeDeviceId);
+    auto node = sut.getNodeDataList().begin();
+
+    EXPECT_EQ(node->m_runtimeName, m_runtimeName);
+    EXPECT_EQ(node->m_nodeName, m_nodeName);
+    EXPECT_EQ(node->m_nodeDeviceIdentifier, m_nodeDeviceId);
 }
 
 TEST_F(PortPool_test, GetNodeDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c5f629bd-b9ea-4d41-b991-5654e20dae3b");
-    auto nodeDataList = sut.getNodeDataList();
 
-    EXPECT_EQ(nodeDataList.size(), 0U);
+    EXPECT_EQ(sut.getNodeDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetNodeDataListWithMaxCapacityIsSuccessful)
@@ -181,9 +181,7 @@ TEST_F(PortPool_test, GetNodeDataListWithMaxCapacityIsSuccessful)
         ASSERT_THAT(nodeData.has_error(), Eq(false));
     }
 
-    auto nodeDataList = sut.getNodeDataList();
-
-    EXPECT_EQ(nodeDataList.size(), MAX_NODE_NUMBER);
+    EXPECT_EQ(sut.getNodeDataList().size(), MAX_NODE_NUMBER);
 }
 
 TEST_F(PortPool_test, RemoveNodeDataIsSuccessful)
@@ -192,9 +190,8 @@ TEST_F(PortPool_test, RemoveNodeDataIsSuccessful)
     auto nodeData = sut.addNodeData(m_runtimeName, m_nodeName, m_nodeDeviceId);
 
     sut.removeNodeData(nodeData.value());
-    auto nodeDataList = sut.getNodeDataList();
 
-    EXPECT_EQ(nodeDataList.size(), 0U);
+    EXPECT_EQ(sut.getNodeDataList().size(), 0U);
 }
 
 // END Node tests
@@ -274,23 +271,20 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
 TEST_F(PortPool_test, GetPublisherPortDataListIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1650a6e0-8079-4ac4-ad03-723a7fc70217");
-    auto publisherPortDataList = sut.getPublisherPortDataList();
 
-    EXPECT_EQ(publisherPortDataList.size(), 0U);
+    EXPECT_EQ(sut.getPublisherPortDataList().size(), 0U);
 
     ASSERT_FALSE(sut.addPublisherPort(m_serviceDescription, &m_memoryManager, m_applicationName, m_publisherOptions)
                      .has_error());
-    publisherPortDataList = sut.getPublisherPortDataList();
 
-    EXPECT_EQ(publisherPortDataList.size(), 1U);
+    EXPECT_EQ(sut.getPublisherPortDataList().size(), 1U);
 }
 
 TEST_F(PortPool_test, GetPublisherPortDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "01fc41aa-4961-4bb6-98b7-a35ca3f93c1d");
-    auto nodeDataList = sut.getPublisherPortDataList();
 
-    EXPECT_EQ(nodeDataList.size(), 0U);
+    EXPECT_EQ(sut.getPublisherPortDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
@@ -309,9 +303,7 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
                          .has_error());
     }
 
-    auto publisherPortDataList = sut.getPublisherPortDataList();
-
-    EXPECT_EQ(publisherPortDataList.size(), MAX_PUBLISHERS);
+    EXPECT_EQ(sut.getPublisherPortDataList().size(), MAX_PUBLISHERS);
 }
 
 TEST_F(PortPool_test, RemovePublisherPortIsSuccessful)
@@ -320,9 +312,8 @@ TEST_F(PortPool_test, RemovePublisherPortIsSuccessful)
     auto publisherPort =
         sut.addPublisherPort(m_serviceDescription, &m_memoryManager, m_applicationName, m_publisherOptions);
     sut.removePublisherPort(publisherPort.value());
-    auto publisherPortDataList = sut.getPublisherPortDataList();
 
-    EXPECT_EQ(publisherPortDataList.size(), 0U);
+    EXPECT_EQ(sut.getPublisherPortDataList().size(), 0U);
 }
 
 // END PublisherPort tests
@@ -407,17 +398,15 @@ TEST_F(PortPool_test, GetSubscriberPortDataListIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "391bba2f-e6f7-4dec-9ffb-67a69cd9a059");
     auto subscriberPort = sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions);
     EXPECT_FALSE(subscriberPort.has_error());
-    auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
-    ASSERT_EQ(subscriberPortDataList.size(), 1U);
+    ASSERT_EQ(sut.getSubscriberPortDataList().size(), 1U);
 }
 
 TEST_F(PortPool_test, GetSubscriberPortDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a525a8b7-98f3-4c01-a85f-c8c7cc741e09");
-    auto nodeDataList = sut.getSubscriberPortDataList();
 
-    ASSERT_EQ(nodeDataList.size(), 0U);
+    ASSERT_EQ(sut.getSubscriberPortDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
@@ -435,9 +424,8 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
                                   m_subscriberOptions);
         EXPECT_FALSE(publisherPort.has_error());
     }
-    auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
-    ASSERT_EQ(subscriberPortDataList.size(), MAX_SUBSCRIBERS);
+    ASSERT_EQ(sut.getSubscriberPortDataList().size(), MAX_SUBSCRIBERS);
 }
 
 TEST_F(PortPool_test, RemoveSubscriberPortIsSuccessful)
@@ -446,9 +434,8 @@ TEST_F(PortPool_test, RemoveSubscriberPortIsSuccessful)
     auto subscriberPort = sut.addSubscriberPort(m_serviceDescription, m_applicationName, m_subscriberOptions);
 
     sut.removeSubscriberPort(subscriberPort.value());
-    auto subscriberPortDataList = sut.getSubscriberPortDataList();
 
-    EXPECT_EQ(subscriberPortDataList.size(), 0U);
+    EXPECT_EQ(sut.getSubscriberPortDataList().size(), 0U);
 }
 
 // END SubscriberPort tests
@@ -520,17 +507,14 @@ TEST_F(PortPool_test, GetClientPortDataListIsSuccessful)
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
-    auto clientPortDataList = sut.getClientPortDataList();
-
-    ASSERT_EQ(clientPortDataList.size(), NUMBER_OF_CLIENTS_TO_ADD);
+    ASSERT_EQ(sut.getClientPortDataList().size(), NUMBER_OF_CLIENTS_TO_ADD);
 }
 
 TEST_F(PortPool_test, GetClientPortDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6c08ae7d-1eed-46d6-b363-b2dc294d0e0e");
-    auto clientPortDataList = sut.getClientPortDataList();
 
-    ASSERT_EQ(clientPortDataList.size(), 0U);
+    ASSERT_EQ(sut.getClientPortDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetClientPortDataListCompletelyFilledIsSuccessful)
@@ -540,9 +524,7 @@ TEST_F(PortPool_test, GetClientPortDataListCompletelyFilledIsSuccessful)
     auto addSuccessful = addClientPorts(NUMBER_OF_CLIENTS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
-    auto clientPortDataList = sut.getClientPortDataList();
-
-    ASSERT_EQ(clientPortDataList.size(), MAX_CLIENTS);
+    ASSERT_EQ(sut.getClientPortDataList().size(), MAX_CLIENTS);
 }
 
 TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
@@ -554,9 +536,7 @@ TEST_F(PortPool_test, RemoveClientPortIsSuccessful)
                        [&](const auto&, const auto&, const auto& clientPort) { sut.removeClientPort(&clientPort); });
     EXPECT_TRUE(addSuccessful);
 
-    auto clientPortDataList = sut.getClientPortDataList();
-
-    EXPECT_EQ(clientPortDataList.size(), 0U);
+    EXPECT_EQ(sut.getClientPortDataList().size(), 0U);
 }
 
 // END ClientPort tests
@@ -628,17 +608,14 @@ TEST_F(PortPool_test, GetServerPortDataListIsSuccessful)
     auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
-    auto serverPortDataList = sut.getServerPortDataList();
-
-    ASSERT_EQ(serverPortDataList.size(), NUMBER_OF_SERVERS_TO_ADD);
+    ASSERT_EQ(sut.getServerPortDataList().size(), NUMBER_OF_SERVERS_TO_ADD);
 }
 
 TEST_F(PortPool_test, GetServerPortDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "d1b32417-caeb-4a5c-ae40-49d651b418cd");
-    auto serverPortDataList = sut.getServerPortDataList();
 
-    ASSERT_EQ(serverPortDataList.size(), 0U);
+    ASSERT_EQ(sut.getServerPortDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetServerPortDataListCompletelyFilledIsSuccessful)
@@ -648,9 +625,7 @@ TEST_F(PortPool_test, GetServerPortDataListCompletelyFilledIsSuccessful)
     auto addSuccessful = addServerPorts(NUMBER_OF_SERVERS_TO_ADD, [&](const auto&, const auto&, const auto&) {});
     EXPECT_TRUE(addSuccessful);
 
-    auto serverPortDataList = sut.getServerPortDataList();
-
-    ASSERT_EQ(serverPortDataList.size(), MAX_SERVERS);
+    ASSERT_EQ(sut.getServerPortDataList().size(), MAX_SERVERS);
 }
 
 TEST_F(PortPool_test, RemoveServerPortIsSuccessful)
@@ -662,9 +637,7 @@ TEST_F(PortPool_test, RemoveServerPortIsSuccessful)
                        [&](const auto&, const auto&, const auto& serverPort) { sut.removeServerPort(&serverPort); });
     EXPECT_TRUE(addSuccessful);
 
-    auto serverPortDataList = sut.getServerPortDataList();
-
-    EXPECT_EQ(serverPortDataList.size(), 0U);
+    EXPECT_EQ(sut.getServerPortDataList().size(), 0U);
 }
 
 // END ServerPort tests
@@ -719,17 +692,15 @@ TEST_F(PortPool_test, GetInterfacePortDataListIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "0ed6bf52-2ffb-40f4-acab-a9f79532cde1");
     auto interfacePort = sut.addInterfacePort(m_applicationName, Interfaces::INTERNAL);
     EXPECT_FALSE(interfacePort.has_error());
-    auto interfacePortDataList = sut.getInterfacePortDataList();
 
-    ASSERT_EQ(interfacePortDataList.size(), 1U);
+    ASSERT_EQ(sut.getInterfacePortDataList().size(), 1U);
 }
 
 TEST_F(PortPool_test, GetInterfacePortDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "80aab75f-5251-4c2e-9ab6-82b00c728a9c");
-    auto interfacePortDataList = sut.getInterfacePortDataList();
 
-    ASSERT_EQ(interfacePortDataList.size(), 0U);
+    ASSERT_EQ(sut.getInterfacePortDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
@@ -740,9 +711,8 @@ TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
         RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
         ASSERT_FALSE(sut.addInterfacePort(applicationName, Interfaces::INTERNAL).has_error());
     }
-    auto interfacePortDataList = sut.getInterfacePortDataList();
 
-    ASSERT_EQ(interfacePortDataList.size(), MAX_INTERFACE_NUMBER);
+    ASSERT_EQ(sut.getInterfacePortDataList().size(), MAX_INTERFACE_NUMBER);
 }
 
 TEST_F(PortPool_test, RemoveInterfacePortIsSuccessful)
@@ -751,9 +721,8 @@ TEST_F(PortPool_test, RemoveInterfacePortIsSuccessful)
     auto interfacePort = sut.addInterfacePort(m_applicationName, Interfaces::INTERNAL);
 
     sut.removeInterfacePort(interfacePort.value());
-    auto interfacePortDataList = sut.getInterfacePortDataList();
 
-    ASSERT_EQ(interfacePortDataList.size(), 0U);
+    ASSERT_EQ(sut.getInterfacePortDataList().size(), 0U);
 }
 
 // END InterfacePort tests
@@ -806,17 +775,15 @@ TEST_F(PortPool_test, GetConditionVariableDataListIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b128487c-f808-4eef-9c74-7ddeab5415d9");
     ASSERT_FALSE(sut.addConditionVariableData(m_applicationName).has_error());
-    auto condtionalVariableData = sut.getConditionVariableDataList();
 
-    ASSERT_EQ(condtionalVariableData.size(), 1U);
+    ASSERT_EQ(sut.getConditionVariableDataList().size(), 1U);
 }
 
 TEST_F(PortPool_test, GetConditionVariableDataListWhenEmptyIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f70cc08d-9a50-4166-acfc-b2514bd7f571");
-    auto condtionalVariableData = sut.getConditionVariableDataList();
 
-    ASSERT_EQ(condtionalVariableData.size(), 0U);
+    ASSERT_EQ(sut.getConditionVariableDataList().size(), 0U);
 }
 
 TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
@@ -827,9 +794,8 @@ TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
         RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
         ASSERT_FALSE(sut.addConditionVariableData(applicationName).has_error());
     }
-    auto condtionalVariableData = sut.getConditionVariableDataList();
 
-    ASSERT_EQ(condtionalVariableData.size(), MAX_NUMBER_OF_CONDITION_VARIABLES);
+    ASSERT_EQ(sut.getConditionVariableDataList().size(), MAX_NUMBER_OF_CONDITION_VARIABLES);
 }
 
 TEST_F(PortPool_test, RemoveConditionVariableDataIsSuccessful)
@@ -838,9 +804,8 @@ TEST_F(PortPool_test, RemoveConditionVariableDataIsSuccessful)
     auto conditionVariableData = sut.addConditionVariableData(m_applicationName);
 
     sut.removeConditionVariableData(conditionVariableData.value());
-    auto condtionalVariableData = sut.getConditionVariableDataList();
 
-    ASSERT_EQ(condtionalVariableData.size(), 0U);
+    ASSERT_EQ(sut.getConditionVariableDataList().size(), 0U);
 }
 
 // END ConditionVariable tests
