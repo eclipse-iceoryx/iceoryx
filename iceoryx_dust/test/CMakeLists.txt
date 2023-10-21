@@ -25,6 +25,7 @@ find_package(iceoryx_hoofs_testing REQUIRED)
 set(PROJECT_PREFIX "dust")
 
 file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+file(GLOB_RECURSE INTEGRATIONTESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/integrationtests/*.cpp")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
@@ -44,4 +45,12 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     FILES                   ${MODULETESTS_SRC}
 )
 
+iox_add_executable( TARGET                  ${PROJECT_PREFIX}_integrationtests
+                    INCLUDE_DIRECTORIES     .
+                    LIBS                    ${TEST_LINK_LIBS}
+                    LIBS_LINUX              acl dl rt
+                    FILES                   ${INTEGRATIONTESTS_SRC}
+)
+
 target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
