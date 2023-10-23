@@ -164,7 +164,10 @@
 - Speed up posh tests [#1030](https://github.com/eclipse-iceoryx/iceoryx/issues/1030)
 - Roudi Environment independent from Googletest [#1533](https://github.com/eclipse-iceoryx/iceoryx/issues/1533)
 - Move test class for ctor and assignment operators to hoofs testing [#2041](https://github.com/eclipse-iceoryx/iceoryx/issues/2041)
-- Refactor `FixdePositionContainer` and move to `dust` [#2044](https://github.com/eclipse-iceoryx/iceoryx/issues/2044)
+- Refactor `FixedPositionContainer` and move to `dust` [#2044](https://github.com/eclipse-iceoryx/iceoryx/issues/2044)
+- Improve process is alive detection [#1361](https://github.com/eclipse-iceoryx/iceoryx/issues/1361)
+    - only partially
+    - IPC call is replaced with heartbeat via shared memory
 
 **Workflow:**
 
