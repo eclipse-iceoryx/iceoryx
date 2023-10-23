@@ -50,6 +50,20 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
         .mutexType(posix::MutexType::NORMAL)
         .create(m_appIpcRequestMutex)
         .expect("Failed to create Mutex");
+
+    auto heartbeatAddressOffset = m_ipcChannelInterface.getHeartbeatAddressOffset();
+    if (heartbeatAddressOffset.has_value())
+    {
+        m_heartbeat = RelativePointer<Heartbeat>::getPtr(segment_id_t{m_ipcChannelInterface.getSegmentId()},
+                                                         heartbeatAddressOffset.value());
+    }
+
+    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
+    m_keepAliveTask.emplace(concurrent::PeriodicTaskAutoStart,
+                            PROCESS_KEEP_ALIVE_INTERVAL,
+                            "KeepAlive",
+                            *this,
+                            &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation);
 }
 
 PoshRuntimeImpl::~PoshRuntimeImpl() noexcept
@@ -677,10 +691,7 @@ bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answ
 // this is the callback for the m_keepAliveTimer
 void PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation() noexcept
 {
-    if (!m_ipcChannelInterface.sendKeepalive())
-    {
-        IOX_LOG(WARN, "Error in sending keep alive");
-    }
+    m_heartbeat.and_then([](auto& heartbeat) { heartbeat->beat(); });
 
     // this is not the nicest solution, but we cannot send this in the signal handler where m_shutdownRequested is
     // usually set; luckily the runtime already has a thread running and therefore this thread is used to unblock the

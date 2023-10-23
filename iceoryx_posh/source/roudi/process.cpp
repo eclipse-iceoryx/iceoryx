@@ -28,13 +28,12 @@ namespace roudi
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
                  const posix::PosixUser& user,
-                 const bool isMonitored,
+                 const HeartbeatPoolIndexType heartbeatPoolIndex,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
     , m_ipcChannel(name)
-    , m_timestamp(mepoo::BaseClock_t::now())
+    , m_heartbeatPoolIndex(heartbeatPoolIndex)
     , m_user(user)
-    , m_isMonitored(isMonitored)
     , m_sessionId(sessionId)
 {
 }
@@ -64,24 +63,19 @@ uint64_t Process::getSessionId() noexcept
     return m_sessionId.load(std::memory_order_relaxed);
 }
 
-void Process::setTimestamp(const mepoo::TimePointNs_t timestamp) noexcept
-{
-    m_timestamp = timestamp;
-}
-
-mepoo::TimePointNs_t Process::getTimestamp() noexcept
-{
-    return m_timestamp;
-}
-
 posix::PosixUser Process::getUser() const noexcept
 {
     return m_user;
 }
 
+HeartbeatPoolIndexType Process::getHeartbeatPoolIndex() const noexcept
+{
+    return m_heartbeatPoolIndex;
+}
+
 bool Process::isMonitored() const noexcept
 {
-    return m_isMonitored;
+    return m_heartbeatPoolIndex != HeartbeatPool::Index::INVALID;
 }
 
 } // namespace roudi

@@ -36,7 +36,7 @@ class IpcInterfaceUser_Mock : public iox::roudi::Process
 {
   public:
     IpcInterfaceUser_Mock()
-        : iox::roudi::Process("TestProcess", 200, PosixUser("foo"), true, 255)
+        : iox::roudi::Process("TestProcess", 200, PosixUser("foo"), HeartbeatPool::Index::INVALID, 255)
     {
     }
     MOCK_METHOD1(sendViaIpcChannel, void(IpcMessage));
@@ -50,6 +50,8 @@ class Process_test : public Test
     uint32_t pid{200U};
     PosixUser user{"foo"};
     bool isMonitored = true;
+    HeartbeatPool heartbeatPool;
+    HeartbeatPoolIndexType heartbeatPoolIndex{heartbeatPool.emplace().to_index()};
     const uint64_t dataSegmentId{0x654321U};
     const uint64_t sessionId{255U};
     IpcInterfaceUser_Mock ipcInterfaceUserMock;
@@ -58,28 +60,28 @@ class Process_test : public Test
 TEST_F(Process_test, getPid)
 {
     ::testing::Test::RecordProperty("TEST_ID", "fbe9ea27-9e23-4ec7-bfe6-e2563d42c5e7");
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     EXPECT_THAT(roudiproc.getPid(), Eq(pid));
 }
 
 TEST_F(Process_test, getName)
 {
     ::testing::Test::RecordProperty("TEST_ID", "c2f3df1d-0aa9-480e-8c2e-dd76960a7717");
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     EXPECT_THAT(roudiproc.getName(), Eq(processname));
 }
 
 TEST_F(Process_test, isMonitored)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6d926282-c8f4-4b9c-a086-acc62e102c72");
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     EXPECT_THAT(roudiproc.isMonitored(), Eq(isMonitored));
 }
 
 TEST_F(Process_test, getSessionId)
 {
     ::testing::Test::RecordProperty("TEST_ID", "6986a49c-e23b-4cd6-ab63-269b32ff8d92");
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     EXPECT_THAT(roudiproc.getSessionId(), Eq(sessionId));
 }
 
@@ -102,7 +104,7 @@ TEST_F(Process_test, sendViaIpcChannelFail)
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::MODERATE));
         });
 
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
     roudiproc.sendViaIpcChannel(data);
 
     ASSERT_THAT(sendViaIpcChannelStatusFail.has_value(), Eq(true));
@@ -110,13 +112,11 @@ TEST_F(Process_test, sendViaIpcChannelFail)
                 Eq(iox::PoshError::POSH__ROUDI_PROCESS_SEND_VIA_IPC_CHANNEL_FAILED));
 }
 
-TEST_F(Process_test, TimeStamp)
+TEST_F(Process_test, Heartbeat)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b527de2-699e-4d35-86ee-10ed28498e88");
-    auto timestmp = iox::mepoo::BaseClock_t::now();
-    Process roudiproc(processname, pid, user, isMonitored, sessionId);
-    roudiproc.setTimestamp(timestmp);
-    EXPECT_THAT(roudiproc.getTimestamp(), Eq(timestmp));
+    Process roudiproc(processname, pid, user, heartbeatPoolIndex, sessionId);
+    EXPECT_THAT(roudiproc.getHeartbeatPoolIndex(), Eq(heartbeatPoolIndex));
 }
 
 } // namespace
