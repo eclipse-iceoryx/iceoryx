@@ -143,6 +143,7 @@ iox_add_library(
         source/popo/trigger_handle.cpp
         source/popo/user_trigger.cpp
         source/version/version_info.cpp
+        source/runtime/heartbeat.cpp
         source/runtime/ipc_interface_base.cpp
         source/runtime/ipc_interface_user.cpp
         source/runtime/ipc_interface_creator.cpp
