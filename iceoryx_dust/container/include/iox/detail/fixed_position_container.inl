@@ -69,6 +69,7 @@ inline void FixedPositionContainer<T, CAPACITY>::clear() noexcept
     }
     m_slots[Index::LAST].next = Index::INVALID;
 
+    m_size = 0;
     m_begin_free = Index::FIRST;
     m_begin_used = Index::INVALID;
 }
@@ -146,6 +147,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
 
     new (&m_data[index]) T(std::forward<Targs>(args)...);
     m_slots[index].status = SlotStatus::USED;
+    ++m_size;
 
     if (index < m_begin_used)
     {
@@ -256,6 +258,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 
     m_data[index].~T();
     m_slots[index].status = SlotStatus::FREE;
+    --m_size;
 
     auto next_used = m_slots[index].next;
     bool is_removed_from_used_list{false};
@@ -347,7 +350,7 @@ FixedPositionContainer<T, CAPACITY>::erase(ConstIterator it) noexcept
 template <typename T, uint64_t CAPACITY>
 inline bool FixedPositionContainer<T, CAPACITY>::empty() const noexcept
 {
-    return m_begin_used >= Index::INVALID;
+    return m_size == 0;
 }
 
 template <typename T, uint64_t CAPACITY>
@@ -359,19 +362,7 @@ inline bool FixedPositionContainer<T, CAPACITY>::full() const noexcept
 template <typename T, uint64_t CAPACITY>
 inline uint64_t FixedPositionContainer<T, CAPACITY>::size() const noexcept
 {
-    uint64_t count{0};
-    IndexType pos = m_begin_used;
-    // use a for loop to abort at CAPACITY iterations in case the container is corrupted
-    for (IndexType i = 0; i < CAPACITY; ++i)
-    {
-        if (pos > Index::LAST)
-        {
-            break;
-        }
-        ++count;
-        pos = m_slots[pos].next;
-    }
-    return count;
+    return m_size;
 }
 
 template <typename T, uint64_t CAPACITY>

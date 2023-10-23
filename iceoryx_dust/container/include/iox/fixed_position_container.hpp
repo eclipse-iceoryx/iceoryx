@@ -327,6 +327,7 @@ class FixedPositionContainer final
   private:
     UninitializedArray<T, CAPACITY> m_data;
     UninitializedArray<Slot, CAPACITY> m_slots;
+    IndexType m_size{0};
     IndexType m_begin_free{Index::FIRST};
     IndexType m_begin_used{Index::INVALID};
 };
