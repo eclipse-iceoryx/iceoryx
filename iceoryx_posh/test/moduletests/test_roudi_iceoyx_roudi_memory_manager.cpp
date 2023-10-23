@@ -33,6 +33,7 @@ class IceoryxRoudiMemoryManager_test : public Test
   public:
     std::unique_ptr<IceOryxRouDiMemoryManager> m_roudiMemoryManagerTest;
 
+
     void SetUp() override
     {
         m_roudiMemoryManagerTest = std::unique_ptr<IceOryxRouDiMemoryManager>(
@@ -61,6 +62,13 @@ TEST_F(IceoryxRoudiMemoryManager_test, DiscoveryMemoryManagerNulloptWhenNotPrese
 {
     ::testing::Test::RecordProperty("TEST_ID", "5c432412-8095-4683-994b-55bbb82bb255");
     auto result = m_roudiMemoryManagerTest->discoveryMemoryManager();
+    EXPECT_THAT(result, Eq(iox::nullopt_t()));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, HeartbeatPoolNulloptWhenNotPresent)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d5d4fe59-8904-4ab4-b2fe-8e3388c9062c");
+    auto result = m_roudiMemoryManagerTest->heartbeatPool();
     EXPECT_THAT(result, Eq(iox::nullopt_t()));
 }
 
@@ -111,6 +119,17 @@ TEST_F(IceoryxRoudiMemoryManager_test, AcquiringDiscoveryMemoryManagerAfterCreat
     EXPECT_THAT(tr.has_error(), Eq(false));
 
     auto result = m_roudiMemoryManagerTest->discoveryMemoryManager();
+    EXPECT_TRUE(result.has_value());
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, AcquiringHeartbeatPoolAfterCreateAndAnnounceMemoryIsSuccessful)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "715244e7-19ae-4644-bb18-29eb52133019");
+    auto tr = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+
+    EXPECT_THAT(tr.has_error(), Eq(false));
+
+    auto result = m_roudiMemoryManagerTest->heartbeatPool();
     EXPECT_TRUE(result.has_value());
 }
 
@@ -170,6 +189,19 @@ TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryDiscoveryMemoryManagerReturn
     ASSERT_FALSE(result.has_error());
 
     auto res = m_roudiMemoryManagerTest->discoveryMemoryManager();
+    EXPECT_THAT(res, Eq(iox::nullopt_t()));
+}
+
+TEST_F(IceoryxRoudiMemoryManager_test, DestroyMemoryHeartbeatPoolReturnNullOpt)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "9c64c4a7-af44-41d7-9cca-cdebb3f3832b");
+    auto testResult = m_roudiMemoryManagerTest->createAndAnnounceMemory();
+    ASSERT_FALSE(testResult.has_error());
+
+    auto result = m_roudiMemoryManagerTest->destroyMemory();
+    ASSERT_FALSE(result.has_error());
+
+    auto res = m_roudiMemoryManagerTest->heartbeatPool();
     EXPECT_THAT(res, Eq(iox::nullopt_t()));
 }
 

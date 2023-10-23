@@ -35,6 +35,7 @@ IceOryxRouDiMemoryManager::IceOryxRouDiMemoryManager(const RouDiConfig_t& roudiC
 expected<void, RouDiMemoryManagerError> IceOryxRouDiMemoryManager::createAndAnnounceMemory() noexcept
 {
     auto result = m_memoryManager.createAndAnnounceMemory();
+    m_defaultMemory.heartbeatPoolBlock.emplace();
     auto portPool = m_portPoolBlock.portPool();
     if (result.has_value() && portPool.has_value())
     {
@@ -66,6 +67,11 @@ optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::introspectionMemoryMa
 optional<mepoo::MemoryManager*> IceOryxRouDiMemoryManager::discoveryMemoryManager() const noexcept
 {
     return m_defaultMemory.m_discoveryMemPoolBlock.memoryManager();
+}
+
+optional<HeartbeatPool*> IceOryxRouDiMemoryManager::heartbeatPool() const noexcept
+{
+    return m_defaultMemory.heartbeatPoolBlock.value();
 }
 
 optional<mepoo::SegmentManager<>*> IceOryxRouDiMemoryManager::segmentManager() const noexcept
