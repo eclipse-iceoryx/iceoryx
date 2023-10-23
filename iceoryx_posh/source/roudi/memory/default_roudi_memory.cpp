@@ -38,6 +38,9 @@ DefaultRouDiMemory::DefaultRouDiMemory(const RouDiConfig_t& roudiConfig) noexcep
     m_managementShm.addMemoryBlock(&m_discoveryMemPoolBlock).or_else([](auto) {
         errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_DISCOVERY_MEMORY_BLOCK, ErrorLevel::FATAL);
     });
+    m_managementShm.addMemoryBlock(&heartbeatPoolBlock).or_else([](auto) {
+        errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_HEARTBEAT_MEMORY_BLOCK, ErrorLevel::FATAL);
+    });
     m_managementShm.addMemoryBlock(&m_segmentManagerBlock).or_else([](auto) {
         errorHandler(PoshError::ROUDI__DEFAULT_ROUDI_MEMORY_FAILED_TO_ADD_SEGMENT_MANAGER_MEMORY_BLOCK,
                      ErrorLevel::FATAL);
