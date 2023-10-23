@@ -98,9 +98,10 @@ class CMqInterfaceStartupRace_test : public Test
         constexpr uint32_t DUMMY_SHM_OFFSET{73};
         constexpr uint32_t DUMMY_SEGMENT_ID{13};
         constexpr uint32_t INDEX_OF_TIMESTAMP{4};
-        constexpr uint32_t SEND_KEEP_ALIVE{true};
+        constexpr iox::UntypedRelativePointer::offset_t OFFSET_ADDRESS_HEARTBEAT{
+            iox::UntypedRelativePointer::NULL_POINTER_OFFSET};
         regAck << IpcMessageTypeToString(IpcMessageType::REG_ACK) << DUMMY_SHM_SIZE << DUMMY_SHM_OFFSET
-               << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID << SEND_KEEP_ALIVE;
+               << oldMsg.getElementAtIndex(INDEX_OF_TIMESTAMP) << DUMMY_SEGMENT_ID << OFFSET_ADDRESS_HEARTBEAT;
 
         if (!m_appQueue.has_value())
         {
