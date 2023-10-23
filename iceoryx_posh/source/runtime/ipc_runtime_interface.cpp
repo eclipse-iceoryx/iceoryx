@@ -245,7 +245,9 @@ IpcRuntimeInterface::RegAckResult IpcRuntimeInterface::waitForRegAck(int64_t tra
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(4U).c_str(), m_segmentId);
                 UntypedRelativePointer::offset_t heartbeatOffset{UntypedRelativePointer::NULL_POINTER_OFFSET};
                 cxx::convert::fromString(receiveBuffer.getElementAtIndex(5U).c_str(), heartbeatOffset);
-                if (heartbeatOffset != UntypedRelativePointer::NULL_POINTER_OFFSET)
+                /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
+                constexpr uint8_t IOX_2055_WORKAROUND{1};
+                if (heartbeatOffset != (UntypedRelativePointer::NULL_POINTER_OFFSET - IOX_2055_WORKAROUND))
                 {
                     m_heartbeatAddressOffset = heartbeatOffset;
                 }
