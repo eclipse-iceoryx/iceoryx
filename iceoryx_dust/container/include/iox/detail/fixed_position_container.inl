@@ -27,13 +27,13 @@ inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer() noexcept
 {
     for (IndexType i = 0; i < CAPACITY;)
     {
-        m_slots[i].status = SlotStatus::FREE;
+        m_status[i] = SlotStatus::FREE;
 
         IndexType next = static_cast<IndexType>(i + 1U);
-        m_slots[i].next = next;
+        m_next[i] = next;
         i = next;
     }
-    m_slots[Index::LAST].next = Index::INVALID;
+    m_next[Index::LAST] = Index::INVALID;
 
     m_begin_free = Index::FIRST;
     m_begin_used = Index::INVALID;
@@ -44,7 +44,7 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 {
     for (IndexType i = 0; i < CAPACITY; ++i)
     {
-        if (m_slots[i].status == SlotStatus::USED)
+        if (m_status[i] == SlotStatus::USED)
         {
             m_data[i].~T();
         }
@@ -56,18 +56,18 @@ inline void FixedPositionContainer<T, CAPACITY>::clear() noexcept
 {
     for (IndexType i = 0; i < CAPACITY;)
     {
-        if (m_slots[i].status == SlotStatus::USED)
+        if (m_status[i] == SlotStatus::USED)
         {
             m_data[i].~T();
         }
 
-        m_slots[i].status = SlotStatus::FREE;
+        m_status[i] = SlotStatus::FREE;
 
         IndexType next = static_cast<IndexType>(i + 1U);
-        m_slots[i].next = next;
+        m_next[i] = next;
         i = next;
     }
-    m_slots[Index::LAST].next = Index::INVALID;
+    m_next[Index::LAST] = Index::INVALID;
 
     m_size = 0;
     m_begin_free = Index::FIRST;
@@ -96,8 +96,14 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //
     // terminology
     //
+    //   slot
+    //   ᵛ
     // +---+
-    // |S:#| <- slot with status and index of next slot with same status
+    // | 0 | <- index of current slot
+    // +---+
+    // | S | <- current slot status
+    // +---+
+    // | # | <- index of next slot with same status
     // +---+
     // S: slot status; can be F(free) or U(used)
     // #: index of next slot with same status; can be a number or I(Index::INVALID) if there are no further slots
@@ -110,7 +116,11 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //     |       |               Index::INVALID
     //     ᵛ       ᵛ               ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:1|F:5|U:3|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | F | U | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 1 | 5 | 3 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     // after insertion
     //     begin_used
@@ -119,7 +129,11 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //     |   |                   Index::INVALID
     //     ᵛ   ᵛ                   ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |U:2|F:5|U:3|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | U | F | U | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 2 | 5 | 3 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     //
     // scenario 2 (begin_free is ahead of begin_used)
@@ -130,7 +144,11 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //     |   |                   Index::INVALID
     //     ᵛ   ᵛ                   ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |U:3|F:2|F:5|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | U | F | F | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 3 | 2 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     // before insertion
     //     begin_used
@@ -139,19 +157,23 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //     |       |               Index::INVALID
     //     ᵛ       ᵛ               ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |U:1|U:3|F:5|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | U | U | F | U | U | F |   |  <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 1 | 3 | 5 | 4 | I | I |   |  <- next index with same status
     //   +---+---+---+---+---+---+ - +
 
     const auto index = m_begin_free;
-    m_begin_free = m_slots[m_begin_free].next;
+    m_begin_free = m_next[m_begin_free];
 
     new (&m_data[index]) T(std::forward<Targs>(args)...);
-    m_slots[index].status = SlotStatus::USED;
+    m_status[index] = SlotStatus::USED;
     ++m_size;
 
     if (index < m_begin_used)
     {
-        m_slots[index].next = m_begin_used;
+        m_next[index] = m_begin_used;
         m_begin_used = index;
     }
     else
@@ -159,10 +181,10 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
         iox::cxx::EnsuresWithMsg(index != 0, "Corruption detected!");
         for (IndexType i = static_cast<IndexType>(index - 1U);; --i)
         {
-            if (m_slots[i].status == SlotStatus::USED)
+            if (m_status[i] == SlotStatus::USED)
             {
-                m_slots[index].next = m_slots[i].next;
-                m_slots[i].next = index;
+                m_next[index] = m_next[i];
+                m_next[i] = index;
                 break;
             }
             iox::cxx::EnsuresWithMsg(i != 0, "Corruption detected!");
@@ -178,17 +200,23 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 {
     iox::cxx::ExpectsWithMsg(index <= Index::LAST, "Index out of range");
 
-    iox::cxx::EnsuresWithMsg(m_slots[index].status == SlotStatus::USED,
+    iox::cxx::EnsuresWithMsg(m_status[index] == SlotStatus::USED,
                              "Trying to erase from index pointing to an empty slot!");
 
-    const auto it = Iterator{m_slots[index].next, *this};
+    const auto it = Iterator{m_next[index], *this};
 
     // removing data from the container
     //
     // terminology
     //
+    //   slot
+    //   ᵛ
     // +---+
-    // |S:#| <- slot with status and index of next slot with same status
+    // | 0 | <- index of current slot
+    // +---+
+    // | S | <- current slot status
+    // +---+
+    // | # | <- index of next slot with same status
     // +---+
     // S: slot status; can be F(free) or U(used)
     // #: index of next slot with same status; can be a number or I(Index::INVALID) if there are no further slots
@@ -201,7 +229,11 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |   |                   Index::INVALID
     //     ᵛ   ᵛ                   ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |U:2|F:5|U:3|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | U | F | U | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 2 | 5 | 3 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     // after removal
     //     begin_free
@@ -210,7 +242,11 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |       |               Index::INVALID
     //     ᵛ       ᵛ               ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:1|F:5|U:3|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | F | U | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 1 | 5 | 3 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     //
     // scenario 2 (remove at begin_used and remove index is ahead of begin_free)
@@ -221,7 +257,11 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |   |                   Index::INVALID
     //     ᵛ   ᵛ                   ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:2|U:3|F:5|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | U | F | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 2 | 3 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     // after removal
     //     begin_free
@@ -230,7 +270,11 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |           |           Index::INVALID
     //     ᵛ           ᵛ           ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:1|F:2|F:5|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | F | F | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 1 | 2 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     //
     // scenario 3 (remove ahead of begin_used and begin_free)
@@ -244,7 +288,11 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |   |       |           Index::INVALID
     //     ᵛ   ᵛ       ᵛ           ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:2|U:3|F:5|U:4|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | U | F | U | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 2 | 3 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
     // before removal
     //     begin_free
@@ -253,14 +301,18 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //     |   |                   Index::INVALID
     //     ᵛ   ᵛ                   ᵛ
     //   +---+---+---+---+---+---+ - +
-    //   |F:2|U:4|F:3|F:5|U:I|F:I|   |
+    //   | 0 | 1 | 2 | 3 | 4 | 5 | I |   <- index
+    //   +---+---+---+---+---+---+ - +
+    //   | F | U | F | F | U | F |   |   <- status
+    //   +---+---+---+---+---+---+ - +
+    //   | 2 | 4 | 3 | 5 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
 
     m_data[index].~T();
-    m_slots[index].status = SlotStatus::FREE;
+    m_status[index] = SlotStatus::FREE;
     --m_size;
 
-    auto next_used = m_slots[index].next;
+    auto next_used = m_next[index];
     bool is_removed_from_used_list{false};
     bool is_added_to_free_list{false};
 
@@ -272,7 +324,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
 
     if (index < m_begin_free)
     {
-        m_slots[index].next = m_begin_free;
+        m_next[index] = m_begin_free;
         m_begin_free = index;
         is_added_to_free_list = true;
     }
@@ -285,16 +337,16 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     iox::cxx::EnsuresWithMsg(index != 0, "Corruption detected! Index cannot be 0 at this location!");
     for (IndexType i = static_cast<IndexType>(index - 1U); !is_removed_from_used_list || !is_added_to_free_list; --i)
     {
-        if (!is_removed_from_used_list && m_slots[i].status == SlotStatus::USED)
+        if (!is_removed_from_used_list && m_status[i] == SlotStatus::USED)
         {
-            m_slots[i].next = next_used;
+            m_next[i] = next_used;
             is_removed_from_used_list = true;
         }
 
-        if (!is_added_to_free_list && m_slots[i].status == SlotStatus::FREE)
+        if (!is_added_to_free_list && m_status[i] == SlotStatus::FREE)
         {
-            m_slots[index].next = m_slots[i].next;
-            m_slots[i].next = index;
+            m_next[index] = m_next[i];
+            m_next[i] = index;
             is_added_to_free_list = true;
         }
 
@@ -383,7 +435,7 @@ template <typename T, uint64_t CAPACITY>
 inline typename FixedPositionContainer<T, CAPACITY>::ConstIterator
 FixedPositionContainer<T, CAPACITY>::iter_from_index(const IndexType index) const
 {
-    if (index > Index::LAST || m_slots[index].status != SlotStatus::USED)
+    if (index > Index::LAST || m_status[index] != SlotStatus::USED)
     {
         return end();
     }

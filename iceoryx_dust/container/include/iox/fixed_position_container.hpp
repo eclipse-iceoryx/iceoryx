@@ -184,12 +184,6 @@ class FixedPositionContainer final
         USED,
     };
 
-    struct Slot
-    {
-        IndexType next{Index::INVALID};
-        SlotStatus status{SlotStatus::FREE};
-    };
-
     template <IterMutability ITER_MUTABILITY>
     class IteratorBase
     {
@@ -227,7 +221,7 @@ class FixedPositionContainer final
         {
             if (m_index <= Index::LAST)
             {
-                m_index = m_container.get().m_slots[m_index].next;
+                m_index = m_container.get().m_next[m_index];
             }
             return *this;
         }
@@ -249,7 +243,7 @@ class FixedPositionContainer final
         IOX_NO_DISCARD Value& operator*() const
         {
             iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_slots[m_index].status == SlotStatus::USED,
+            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
                                      "Invalid access! Slot not in use!");
             return m_container.get().m_data[m_index];
         }
@@ -262,7 +256,7 @@ class FixedPositionContainer final
         IOX_NO_DISCARD Value* operator->() const
         {
             iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_slots[m_index].status == SlotStatus::USED,
+            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
                                      "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
@@ -275,7 +269,7 @@ class FixedPositionContainer final
         IOX_NO_DISCARD Value* to_ptr() const
         {
             iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_slots[m_index].status == SlotStatus::USED,
+            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
                                      "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
@@ -326,7 +320,8 @@ class FixedPositionContainer final
 
   private:
     UninitializedArray<T, CAPACITY> m_data;
-    UninitializedArray<Slot, CAPACITY> m_slots;
+    UninitializedArray<SlotStatus, CAPACITY> m_status;
+    UninitializedArray<IndexType, CAPACITY> m_next;
     IndexType m_size{0};
     IndexType m_begin_free{Index::FIRST};
     IndexType m_begin_used{Index::INVALID};
