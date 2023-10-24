@@ -21,10 +21,7 @@ jobs:
         id: changed_files
         uses: Ana06/get-changed-files@v2.2.0
       - name: diff scan, clang-tidy for all files which are in `.clang-tidy-diff-scans.txt`
-        run: |
-          for diff_file in ${{ steps.changed_files.outputs.added_modified }}; do
-            ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt ${diff_file}
-          done
+        run: ./tools/scripts/clang_tidy_check.sh scan_list .clang-tidy-diff-scans.txt "${{ steps.changed_files.outputs.added_modified }}"
 
   check-for-todo:
     runs-on: ubuntu-latest
@@ -43,14 +40,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Calculate lychee cache key
+        run: echo "LYCHEE_CACHE_KEY=cache-lychee-all-branches-$(date +'%G-%V')" >> "$GITHUB_ENV" # %G = year; %V = week number
+
       - name: Restore lychee cache
         uses: actions/cache@v3
-        if: always()
         with:
           path: .lycheecache
-          key: cache-lychee-all-branches
-          # the cache will not be updated and therefore needs to be recreated after 7 days
-          retention-days: 7
+          key: ${{ env.LYCHEE_CACHE_KEY }}
 
       - name: Link Checker
         uses: lycheeverse/lychee-action@v1.8.0

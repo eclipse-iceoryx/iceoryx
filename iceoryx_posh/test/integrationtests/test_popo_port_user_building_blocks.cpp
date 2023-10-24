@@ -17,6 +17,7 @@
 
 #include "iceoryx_hoofs/internal/concurrent/smart_lock.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
+#include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_roudi.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_user.hpp"
@@ -46,17 +47,20 @@ struct DummySample
     uint64_t m_dummy{42U};
 };
 
-static const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
-static const iox::RuntimeName_t TEST_SUBSCRIBER_RUNTIME_NAME("mySubscriberApp");
-static const iox::RuntimeName_t TEST_PUBLISHER_RUNTIME_NAME("myPublisherApp");
 
-static constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
-static constexpr uint32_t ITERATIONS = 1000U;
+constexpr iox::units::Duration DEADLOCK_TIMEOUT{15_s};
 
-static constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * ITERATIONS;
-static constexpr uint32_t SMALL_CHUNK = 128U;
-static constexpr uint32_t CHUNK_META_INFO_SIZE = 256U;
-static constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
+const ServiceDescription TEST_SERVICE_DESCRIPTION("x", "y", "z");
+const iox::RuntimeName_t TEST_SUBSCRIBER_RUNTIME_NAME("mySubscriberApp");
+const iox::RuntimeName_t TEST_PUBLISHER_RUNTIME_NAME("myPublisherApp");
+
+constexpr uint32_t NUMBER_OF_PUBLISHERS = 17U;
+constexpr uint32_t ITERATIONS = 1000U;
+
+constexpr uint32_t NUM_CHUNKS_IN_POOL = NUMBER_OF_PUBLISHERS * ITERATIONS;
+constexpr uint32_t SMALL_CHUNK = 128U;
+constexpr uint32_t CHUNK_META_INFO_SIZE = 256U;
+constexpr size_t MEMORY_SIZE = NUM_CHUNKS_IN_POOL * (SMALL_CHUNK + CHUNK_META_INFO_SIZE);
 alignas(64) static uint8_t g_memory[MEMORY_SIZE];
 
 class PortUser_IntegrationTest : public Test
@@ -86,6 +90,8 @@ class PortUser_IntegrationTest : public Test
             m_publisherPortUserVector.emplace_back(&m_publisherPortDataVector.back());
             m_publisherPortRouDiVector.emplace_back(&m_publisherPortDataVector.back());
         }
+
+        m_deadlockWatchdog.watchAndActOnFailure([] { std::terminate(); });
     }
 
     void TearDown()
@@ -102,6 +108,8 @@ class PortUser_IntegrationTest : public Test
         static_cast<void>(m_subscriberPortRouDiSingleProducer.tryGetCaProMessage());
         static_cast<void>(m_subscriberPortRouDiMultiProducer.tryGetCaProMessage());
     }
+
+    Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 
     uint64_t m_receiveCounter{0U};
     std::atomic<uint64_t> m_sendCounter{0U};

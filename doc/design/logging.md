@@ -95,22 +95,59 @@ by the `BaseLogger` template parameter and the latter by deriving from the logge
 
 ![logging with logstream](../website/images/logging_with_logstream.svg)
 
-#### Logging macro
+#### Logging macro with lazy evaluation
 
-The `IOX_LOG` macro is intended for general use. It has one parameter which
+The `IOX_LOG` macro is intended for general use. It has two parameters. The first one
 sets the log level and delegates `file`, `line` and `function` to the `IOX_LOG_INTERNAL`
 macro. The latter can be used in places like a custom `ASSERT` macro which already
-obtained the `file`, `line` and `function` parameter.
+obtained the `file`, `line` and `function` parameter. The second parameter contains
+the items to log and multiple items can be logged by using the '<<' operator.
 
-The `IOX_LOG_INTERNAL` uses the `iox::log::internal::SelectedLogStream` struct which is
-specialized for `LogLevel::OFF` to compile to a no-op when the logging data does not
-cause side effects. `IOX_LOG(INFO) << 42;` won't cause side effects but
-`IOX_LOG(INFO) << functionCall();` might have some.
+The buildup of the log message is only done when the condition to log the message
+is fulfilled. This is accomplished by a macro with an if-statement.
+
+```cpp
+#define LAZY(cond, expr) if (cond) { expr; }
+
+LAZY(x == 42, expensiveFunctionCall());
+```
+
+In the example above `expensiveFunctionCall` is only executed if `cond` is `true`.
+If `cond` is a compile time constant set to `false`, the whole statement is compiled
+to a no-op and optimized away.
+
+This is the log macro with lazy evaluation
+
+```cpp
+inline bool isLogLevelActive(LogLevel logLevel) noexcept
+{
+    return ((logLevel) <= MINIMAL_LOG_LEVEL)
+           && (IGNORE_ACTIVE_LOG_LEVEL || ((logLevel) <= iox::log::Logger::getLogLevel()));
+}
+
+#define IOX_LOG_INTERNAL(file, line, function, level, msg_stream)               \
+    if (iox::log::internal::isLogLevelActive(level))                            \
+    {                                                                           \
+        iox::log::LogStream(file, line, function, level).self() << msg_stream;  \
+    }                                                                           \
+    [] {} () // the empty lambda forces a semicolon on the caller side
+
+#define IOX_LOG(level, msg_stream)                                              \
+    IOX_LOG_INTERNAL(__FILE__, __LINE__, __FUNCTION__, iox::log::LogLevel::level, msg_stream)
+```
+
+With `MINIMAL_LOG_LEVEL` and `IGNORE_ACTIVE_LOG_LEVEL` being static `constexpr`
+constants the compiler will optimize this either to
+`if (false) { iox::log::LogStream(...) ... }` and finally completely away or
+`if ((level) <= iox::log::Logger::getLogLevel()) { iox::log::LogStream(...) ... }`.
+The minimal log level check is intended to fully optimize away a log statement
+and the ignore active log level check to always forward the log message to the
+logger, independent of the active log level.
 
 The `IOX_LOG_INTERNAL` calls `self()` on the `LogStream` instance to create an lvalue
 reference to the `LogStream` instance. This eases the implementation of logging
-support for custom types since `IOX_LOG(INFO) << myType;` would require to implement
-an overload with a rvalue `LogStream` reference but `IOX_LOG(INFO) << "#### " << myType;`
+support for custom types since `IOX_LOG(INFO, myType);` would require to implement
+an overload with a rvalue `LogStream` reference but `IOX_LOG(INFO, "#### " << myType);`
 requires a lvalue reference.
 
 #### Behavior before calling Logger::init
@@ -268,7 +305,7 @@ int main()
 {
     iox::log::Logger::init(iox::log::logLevelFromEnvOr(iox::log::LogLevel::DEBUG));
 
-    IOX_LOG(DEBUG) << "Hello World";
+    IOX_LOG(DEBUG, "Hello World");
 
     return 0;
 }
@@ -296,7 +333,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& stream, const MyType& m)
 int main()
 {
     MyType m;
-    IOX_LOG(INFO) << m;
+    IOX_LOG(INFO,  m);
 
     return 0;
 }
@@ -362,12 +399,12 @@ int main()
 {
     MyLogger::init();
 
-    IOX_LOG(FATAL) << "Whoops ... look, over there is a dead seagull flying!";
-    IOX_LOG(ERROR) << "Oh no!";
-    IOX_LOG(WARN) << "It didn't happen!";
-    IOX_LOG(INFO) << "All glory to the hypnotoad!";
-    IOX_LOG(DEBUG) << "I didn't do it!";
-    IOX_LOG(TRACE) << "Row row row your boat!";
+    IOX_LOG(FATAL, "Whoops ... look, over there is a dead seagull flying!");
+    IOX_LOG(ERROR, "Oh no!");
+    IOX_LOG(WARN, "It didn't happen!");
+    IOX_LOG(INFO, "All glory to the hypnotoad!");
+    IOX_LOG(DEBUG, "I didn't do it!");
+    IOX_LOG(TRACE, "Row row row your boat!");
 
     return 0;
 }
@@ -375,24 +412,10 @@ int main()
 
 ## Open issues
 
-### Lazy evaluation
-
-Lazy evaluation via the following macro clashes with static code analyzer which
-will generate warnings due to missing braces of the if-statement.
-
-```cpp
-#define LAZY() if (cond)
-
-LAZY() expensiveFunctionCall();
-```
-
-Lazy evaluation with stream based logging seems to be challenging. An alternative
-might be a variadic macro like `IOX_LOG(INFO, "Hello World");`
-
 ### Miscellaneous
 
 - do we need to change the log level after `Logger::init`
-- do we want a `IOX_LOG_IF(cond, level)` macro
+- do we want a `IOX_LOG_IF(cond, level, msg_stream)` macro
 - shall the `TestingLogger` register signals to catch `SIGTERM`, etc. and print the
   log messages when the signal is raised? It might be necessary to wait for the
   error handling refactoring before this can be done

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Copyright (c) 2022 - 2023 by Apex.AI Inc. All rights reserved.
+# Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,12 +22,17 @@
 
 set -e
 
+COLOR_OFF='\033[0m'
+COLOR_RED='\033[1;31m'
+COLOR_GREEN='\033[1;32m'
+COLOR_YELLOW='\033[1;33m'
+
 MODE=${1:-full} # Can be either `full` for all files or `hook` for formatting with git hooks
 
 FILE_FILTER="\.(h|hpp|inl|c|cpp)$"
 
 fail() {
-    printf "\033[1;31merror: %s: %s\033[0m\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
+    printf "${COLOR_RED}error: %s: %s${COLOR_OFF}\n" ${FUNCNAME[1]} "${1:-"Unknown error"}"
     exit 1
 }
 
@@ -60,55 +66,121 @@ echo "Using clang-tidy version: $($CLANG_TIDY_CMD --version | sed -n "s/.*versio
 
 noSpaceInSuppressions=$(git ls-files | grep -E "$FILE_FILTER" | xargs -I {} grep -h '// NOLINTNEXTLINE (' {} || true)
 if [[ -n "$noSpaceInSuppressions" ]]; then
-    echo -e "\e[1;31mRemove space between NOLINTNEXTLINE and '('!\e[m"
+    echo -e "${COLOR_RED}Remove space between NOLINTNEXTLINE and '('!${COLOR_OFF}"
     echo "$noSpaceInSuppressions"
     exit 1
 fi
 
 function scanWithFileList() {
     FILE_WITH_SCAN_LIST=$1
-    FILE_TO_SCAN=$2
+    FILES_TO_SCAN=$2
 
     if ! test -f "$FILE_WITH_SCAN_LIST"
     then
-        echo "Scan list file '${FILE_WITH_SCAN_LIST}' does not exist"
+        echo -e "${COLOR_RED}Scan list file '${FILE_WITH_SCAN_LIST}' does not exist! Aborting!${COLOR_OFF}"
         return 1
     fi
 
+    SEPARATOR=''
     while IFS= read -r LINE
     do
         # add files until the comment section starts
         if [[ "$(echo $LINE | grep "#" | wc -l)" == "1" ]]; then
             break
         fi
-        FILE_LIST="${FILE_LIST} $LINE"
+        SCAN_LIST_ENTRIES+="${SEPARATOR}${LINE}"
+        SEPARATOR=$'\n'
     done < "$FILE_WITH_SCAN_LIST"
 
-    if [[ -n $FILE_TO_SCAN ]]
+    if [[ -z $SCAN_LIST_ENTRIES ]]
     then
-        if ! test -f "$FILE_TO_SCAN"
-        then
-            echo "The file which should be scanned '${FILE_TO_SCAN}' does not exist"
+        echo -e "${COLOR_YELLOW}'${FILE_WITH_SCAN_LIST}' is empty skipping scan!${COLOR_OFF}"
+        return 0
+    fi
+
+    ALL_FILES_FROM_SCAN_LIST=$(find ${SCAN_LIST_ENTRIES} -type f | grep -E ${FILE_FILTER} | sort | uniq)
+
+    FILES_TO_SCAN_ARRAY=(${FILES_TO_SCAN})
+    NUMBER_OF_FILES=${#FILES_TO_SCAN_ARRAY[@]}
+    if [[ ${NUMBER_OF_FILES} -gt 0 ]]
+    then
+        FILES=""
+        SEPARATOR=''
+        SKIP_MESSAGE_PRINTED=0
+        for FILE in ${FILES_TO_SCAN}; do
+            if $(echo ${ALL_FILES_FROM_SCAN_LIST} | grep -q ${FILE})
+            then
+                FILES+="${SEPARATOR}${FILE}"
+                SEPARATOR=$'\n'
+            else
+                if [[ ${SKIP_MESSAGE_PRINTED} -eq 0 ]]; then
+                    echo -e "${COLOR_YELLOW}Skipping files which are not part of '${FILE_WITH_SCAN_LIST}' ...${COLOR_OFF}"
+                    SKIP_MESSAGE_PRINTED=1
+                fi
+                echo -e "${COLOR_YELLOW}[#]${COLOR_OFF} ${FILE}"
+            fi
+        done
+
+        if [[ ${SKIP_MESSAGE_PRINTED} -eq 1 ]]; then
+            echo -e "${COLOR_YELLOW}... end of list with skipped files!${COLOR_OFF}"
+        fi
+        scan "error" "$FILES"
+    else
+        echo "Performing full scan of all files in '${FILE_WITH_SCAN_LIST}'"
+        scan "error" "${ALL_FILES_FROM_SCAN_LIST}"
+    fi
+}
+
+function scan() {
+    WARN_MODE=$1
+    FILES=$2
+    FILES_ARRAY=(${FILES})
+    NUMBER_OF_FILES=${#FILES_ARRAY[@]}
+
+    if [[ $WARN_MODE == "warn" ]]; then
+        WARN_MODE_PARAM=""
+    elif [[ $WARN_MODE == "error" ]]; then
+        WARN_MODE_PARAM="--warnings-as-errors=*"
+    else
+        echo "Invalid parameter! Must be either 'warn' or 'error' but got '${WARN_MODE}'"
+        return 1
+    fi
+
+    if [[ ${NUMBER_OF_FILES} -eq 0 ]]; then
+        echo -e "${COLOR_YELLOW}-> nothing to do${COLOR_OFF}"
+        return 0
+    fi
+
+    echo -e "${COLOR_GREEN}Processing files ...${COLOR_OFF}"
+    MAX_CONCURRENT_EXECUTIONS=$(nproc)
+    CURRENT_CONCURRENT_EXECUTIONS=0
+    echo "Concurrency set to '${MAX_CONCURRENT_EXECUTIONS}'"
+    FILE_COUNTER=1
+    for FILE in $FILES; do
+        # run multiple clang-tidy instances concurrently
+        if [[ ${CURRENT_CONCURRENT_EXECUTIONS} -ge ${MAX_CONCURRENT_EXECUTIONS} ]]; then
+            wait -n # wait for one of the background processes to finish
+            CURRENT_CONCURRENT_EXECUTIONS=$((CURRENT_CONCURRENT_EXECUTIONS - 1))
+        fi
+
+        echo -e "${COLOR_GREEN}[${FILE_COUNTER}/${NUMBER_OF_FILES}]${COLOR_OFF} ${FILE}"
+        FILE_COUNTER=$((FILE_COUNTER + 1))
+
+        if test -f "$FILE"; then
+            ${CLANG_TIDY_CMD} ${WARN_MODE_PARAM} --quiet -p build ${FILE} &
+            CURRENT_CONCURRENT_EXECUTIONS=$((CURRENT_CONCURRENT_EXECUTIONS + 1))
+        else
+            echo -e "${COLOR_RED}File does not exist! Aborting!${COLOR_OFF}"
             return 1
         fi
+    done
+    # wait on each background process individually to abort script when a process exits with an error
+    while [[ ${CURRENT_CONCURRENT_EXECUTIONS} -ne 0 ]]; do
+        wait -n # wait for one of the background processes to finish
+        CURRENT_CONCURRENT_EXECUTIONS=$((CURRENT_CONCURRENT_EXECUTIONS - 1))
+    done
 
-        if [[ $(find ${FILE_LIST} -type f | grep -E ${FILE_FILTER} | grep ${FILE_TO_SCAN} | wc -l) == "0" ]]
-        then
-            echo "Skipping file '${FILE_TO_SCAN}' since it is not part of '${FILE_WITH_SCAN_LIST}'"
-            return 0
-        fi
-
-        echo "Scanning file: ${FILE_TO_SCAN}"
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $FILE_TO_SCAN
-    else
-        if [[ -z $FILE_LIST ]]
-        then
-            echo "'${FILE_WITH_SCAN_LIST}' is empty skipping folder scan."
-            return 0
-        fi
-        echo "Performing full scan of all folders in '${FILE_WITH_SCAN_LIST}'"
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build "$(find "${FILE_LIST}" -type f | grep -E ${FILE_FILTER})"
-    fi
+    echo -e "${COLOR_GREEN}... done!${COLOR_OFF}"
 }
 
 if [[ "$MODE" == "hook"* ]]; then
@@ -116,35 +188,23 @@ if [[ "$MODE" == "hook"* ]]; then
         FILE_WITH_SCAN_LIST=$2
     fi
 
-    FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
-    # List only added files
-    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
-    echo "Checking files with Clang-Tidy"
-    echo "  Number of modified files: $(echo "${FILES}" | grep -v "^$" | wc -l)"
-    if [ -z "$FILES" ]; then
-        echo "  -> nothing to do"
+    MODIFIED_FILES=$(git diff --cached --name-only --diff-filter=CMRT | grep -E "$FILE_FILTER" | cat)
+    MODIFIED_FILES_ARRAY=($MODIFIED_FILES)
+    NUMBER_OF_MODIFIED_FILES=${#MODIFIED_FILES_ARRAY[@]}
+    echo ""
+    echo "Checking modified files with Clang-Tidy"
+    if [[ $FILE_WITH_SCAN_LIST && ${NUMBER_OF_MODIFIED_FILES} -gt 0 ]]; then
+        scanWithFileList "${FILE_WITH_SCAN_LIST}" "${MODIFIED_FILES}"
     else
-        echo "  processing ..."
-        if [[ $FILE_WITH_SCAN_LIST ]]; then
-            for FILE_TO_SCAN in $FILES; do
-                echo "    ${FILE_TO_SCAN}"
-                scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
-            done
-        else
-            $CLANG_TIDY_CMD -p build $FILES
-        fi
-        echo "  ... done"
+        scan "warn" "${MODIFIED_FILES}"
     fi
 
-    echo " "
-    echo "  Number of added files: $(echo "${ADDED_FILES}" | grep -v "^$" | wc -l)"
-    if [ -z "$ADDED_FILES" ]; then
-        echo "  -> nothing to do"
-    else
-        echo "  processing ..."
-        $CLANG_TIDY_CMD --warnings-as-errors=* -p build $ADDED_FILES
-        echo "  ... done"
-    fi
+    # List only added files
+    ADDED_FILES=$(git diff --cached --name-only --diff-filter=A | grep -E "$FILE_FILTER" | cat)
+    echo ""
+    echo "Checking added files with Clang-Tidy"
+    scan "error" "${ADDED_FILES}"
+
     exit
 elif [[ "$MODE" == "full"* ]]; then
     DIRECTORY_TO_SCAN=$2
@@ -153,26 +213,27 @@ elif [[ "$MODE" == "full"* ]]; then
     then
         if ! test -d "$DIRECTORY_TO_SCAN"
         then
-            echo "The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist"
+            echo "${COLOR_RED}The directory which should be scanned '${DIRECTORY_TO_SCAN}' does not exist! Aborting!${COLOR_OFF}"
             exit 1
         fi
 
-        echo "scanning all files in '${DIRECTORY_TO_SCAN}'"
-        $CLANG_TIDY_CMD -p build $(find $DIRECTORY_TO_SCAN -type f | grep -E $FILE_FILTER )
+        echo ""
+        echo "Scanning all files in '${DIRECTORY_TO_SCAN}'"
+        FILES=$(find $DIRECTORY_TO_SCAN -type f | grep -E $FILE_FILTER )
+        scan "warn" "${FILES}"
         exit $?
     else
-        FILES=$(git ls-files | grep -E "$FILE_FILTER")
+        FILES=$(find iceoryx_* tools/introspection -type f | grep -E "$FILE_FILTER")
+        echo ""
         echo "Checking all files with Clang-Tidy"
-        echo " "
-        echo $FILES
-        $CLANG_TIDY_CMD -p build $FILES
+        scan "warn" "${FILES}"
         exit $?
     fi
 elif [[ "$MODE" == "scan_list"* ]]; then
     FILE_WITH_SCAN_LIST=$2
-    FILE_TO_SCAN=$3
+    FILES_TO_SCAN=$3 # if there is more than one file, they must be enclosed in quotes -> "file1 file2 file3"
 
-    scanWithFileList $FILE_WITH_SCAN_LIST $FILE_TO_SCAN
+    scanWithFileList "${FILE_WITH_SCAN_LIST}" "${FILES_TO_SCAN}"
 
     exit $?
 else
