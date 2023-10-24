@@ -30,7 +30,8 @@ using namespace iox;
 using namespace iox::runtime;
 
 constexpr uint64_t ALLOWED_NON_SLEEP_JITTER_MS{5};
-constexpr uint64_t ALLOWED_SLEEP_JITTER_MS{50};
+// NOTE: this needs to be quite high due to the thread sanitizer on macOS slows the application down quite a lot
+constexpr uint64_t ALLOWED_SLEEP_JITTER_MS{150};
 
 TEST(Heartbeat_test, ElapsedMillisecondsSinceLastBeatOnNewlyCreatedInstanceIsCloseToZero)
 {
