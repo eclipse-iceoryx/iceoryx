@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/ctor_and_assignment_operator_test_class.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_hoofs/testing/lifetime_and_assignment_tracker.hpp"
 #include "iox/vector.hpp"
 #include "test.hpp"
 
@@ -32,7 +32,7 @@ using namespace iox::testing;
 class vector_test : public Test
 {
   public:
-    using CTorTest = CTorAndAssignmentOperatorTestClass<>;
+    using CTorTest = LifetimeAndAssignmentTracker<>;
 
     void SetUp() override
     {
