@@ -59,7 +59,7 @@ inline void ConsoleLogger::logChar(const char value) noexcept
     else
     {
         /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
-        /// that the log buffer will be truncated;
+        /// than the log buffer will be truncated;
         /// it is intended to flush the buffer and create a new log message later on
     }
 }
@@ -97,7 +97,7 @@ inline void ConsoleLogger::logBin(const T value) noexcept
     if (bufferWriteIndexEnd > ThreadLocalData::BUFFER_SIZE)
     {
         /// @todo iox-#1755 currently we don't support log messages larger than the log buffer and everything larger
-        /// that the log buffer will be truncated;
+        /// than the log buffer will be truncated;
         /// it is intended to flush the buffer and create a new log message later on
         bufferWriteIndexEnd = ThreadLocalData::BUFFER_SIZE;
     }

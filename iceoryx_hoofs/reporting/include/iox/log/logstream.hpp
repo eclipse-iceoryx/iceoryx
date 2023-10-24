@@ -32,7 +32,6 @@ class LogStream;
 
 /// @brief Helper struct to log in hexadecimal format
 template <typename T>
-// NOLINTJUSTIFICATION
 class LogHex
 {
   public:
