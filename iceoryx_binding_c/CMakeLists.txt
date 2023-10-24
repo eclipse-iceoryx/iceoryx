@@ -43,7 +43,7 @@ iox_add_library(
     NAMESPACE           ${PROJECT_NAME}
     PROJECT_PREFIX      ${PREFIX}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx_binding_c/include
     INSTALL_INTERFACE   include/${PREFIX}
     EXPORT_INCLUDE_DIRS include/
     PUBLIC_LIBS_LINUX   stdc++ pthread
