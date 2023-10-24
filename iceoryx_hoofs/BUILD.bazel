@@ -29,9 +29,9 @@ configure_file(
 )
 
 configure_version(
-    name = "iceoryx_versions_hpp",
-    src = "cmake/iceoryx_versions.hpp.in",
-    out = "include/iceoryx_versions.hpp",
+    name = "iceoryx_versions_h",
+    src = "cmake/iceoryx_versions.h.in",
+    out = "include/iceoryx_versions.h",
     version_from = "//:VERSION",
 )
 
@@ -54,7 +54,7 @@ cc_library(
     ]),
     hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["reporting/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
-        ":iceoryx_versions_hpp",
+        ":iceoryx_versions_h",
     ],
     includes = [
         "buffer/include/",
