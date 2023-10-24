@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_LIST_HPP
-#define IOX_HOOFS_CXX_LIST_HPP
+#ifndef IOX_HOOFS_CONTAINER_LIST_HPP
+#define IOX_HOOFS_CONTAINER_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -27,8 +27,6 @@
 #include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief  C++11 compatible bi-directional list implementation.
 /// @details Adjustments in the API were done to not use exceptions and serve the requirement of
@@ -386,9 +384,8 @@ class list
     size_type m_size{0U};
 }; // list
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/cxx/list.inl"
+#include "iox/detail/list.inl"
 
-#endif // IOX_HOOFS_CXX_LIST_HPP
+#endif // IOX_HOOFS_CONTAINER_LIST_HPP
