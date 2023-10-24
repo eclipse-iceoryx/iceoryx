@@ -102,7 +102,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
             if (!cxx::convert::fromString(optarg, roudiId))
             {
-                IOX_LOG(ERROR) << "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]";
+                IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
                 m_cmdLineArgs.run = false;
             }
 
@@ -122,7 +122,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_cmdLineArgs.run = false;
-                IOX_LOG(ERROR) << "Options for monitoring-mode are 'on' and 'off'!";
+                IOX_LOG(ERROR, "Options for monitoring-mode are 'on' and 'off'!");
             }
             break;
         }
@@ -159,8 +159,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_cmdLineArgs.run = false;
-                IOX_LOG(ERROR) << "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and "
-                                  "'trace'!";
+                IOX_LOG(ERROR,
+                        "Options for log-level are 'off', 'fatal', 'error', 'warning', 'info', 'debug' and 'trace'!");
             }
             break;
         }
@@ -170,8 +170,9 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
             if (!cxx::convert::fromString(optarg, processTerminationDelayInSeconds))
             {
-                IOX_LOG(ERROR) << "The process termination delay must be in the range of [0, "
-                               << MAX_PROCESS_TERMINATION_DELAY << "]";
+                IOX_LOG(ERROR,
+                        "The process termination delay must be in the range of [0, " << MAX_PROCESS_TERMINATION_DELAY
+                                                                                     << "]");
                 m_cmdLineArgs.run = false;
             }
             else
@@ -186,8 +187,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
             if (!cxx::convert::fromString(optarg, processKillDelayInSeconds))
             {
-                IOX_LOG(ERROR) << "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY
-                               << "]";
+                IOX_LOG(ERROR, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
                 m_cmdLineArgs.run = false;
             }
             else
@@ -225,8 +225,8 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
             else
             {
                 m_cmdLineArgs.run = false;
-                IOX_LOG(ERROR)
-                    << "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!";
+                IOX_LOG(ERROR,
+                        "Options for compatibility are 'off', 'major', 'minor', 'patch', 'commitId' and 'buildDate'!");
             }
             break;
         }

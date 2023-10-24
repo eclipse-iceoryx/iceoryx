@@ -31,16 +31,16 @@ SemaphoreError errnoToEnum(const int32_t errnum) noexcept
     switch (errnum)
     {
     case EINVAL:
-        IOX_LOG(ERROR) << "The semaphore handle is no longer valid. This can indicate a corrupted system.";
+        IOX_LOG(ERROR, "The semaphore handle is no longer valid. This can indicate a corrupted system.");
         return SemaphoreError::INVALID_SEMAPHORE_HANDLE;
     case EOVERFLOW:
-        IOX_LOG(ERROR) << "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.";
+        IOX_LOG(ERROR, "Semaphore overflow. The maximum value of " << IOX_SEM_VALUE_MAX << " would be exceeded.");
         return SemaphoreError::SEMAPHORE_OVERFLOW;
     case EINTR:
-        IOX_LOG(ERROR) << "The semaphore call was interrupted multiple times by the operating system. Abort operation!";
+        IOX_LOG(ERROR, "The semaphore call was interrupted multiple times by the operating system. Abort operation!");
         return SemaphoreError::INTERRUPTED_BY_SIGNAL_HANDLER;
     default:
-        IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
+        IOX_LOG(ERROR, "This should never happen. An unknown error occurred.");
         break;
     }
     return SemaphoreError::UNDEFINED;

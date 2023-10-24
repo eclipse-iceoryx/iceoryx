@@ -57,8 +57,10 @@ inline optional<mepoo::SharedChunk> ChunkQueuePopper<ChunkQueueDataType>::tryPop
         auto receivedChunkHeaderVersion = chunk.getChunkHeader()->chunkHeaderVersion();
         if (receivedChunkHeaderVersion != mepoo::ChunkHeader::CHUNK_HEADER_VERSION)
         {
-            IOX_LOG(ERROR) << "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion
-                           << "' but expected '" << mepoo::ChunkHeader::CHUNK_HEADER_VERSION << "'! Dropping chunk!";
+            IOX_LOG(ERROR,
+                    "Received chunk with CHUNK_HEADER_VERSION '" << receivedChunkHeaderVersion << "' but expected '"
+                                                                 << mepoo::ChunkHeader::CHUNK_HEADER_VERSION
+                                                                 << "'! Dropping chunk!");
             errorHandler(PoshError::POPO__CHUNK_QUEUE_POPPER_CHUNK_WITH_INCOMPATIBLE_CHUNK_HEADER_VERSION,
                          ErrorLevel::SEVERE);
             return nullopt_t();

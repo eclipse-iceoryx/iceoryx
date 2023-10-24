@@ -45,8 +45,9 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
 {
     if (N > Capacity)
     {
-        IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
-                       << "\" exceeds the maximum valid length of " << Capacity << ".";
+        IOX_LOG(DEBUG,
+                "Unable to create semantic string since the value \""
+                    << value << "\" exceeds the maximum valid length of " << Capacity << ".");
         return err(SemanticStringError::ExceedsMaximumLength);
     }
 
@@ -54,15 +55,14 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
 
     if (DoesContainInvalidCharacterCall(str))
     {
-        IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
-                       << "\" contains invalid characters";
+        IOX_LOG(DEBUG,
+                "Unable to create semantic string since the value \"" << value << "\" contains invalid characters");
         return err(SemanticStringError::ContainsInvalidCharacters);
     }
 
     if (DoesContainInvalidContentCall(str))
     {
-        IOX_LOG(DEBUG) << "Unable to create semantic string since the value \"" << value
-                       << "\" contains invalid content";
+        IOX_LOG(DEBUG, "Unable to create semantic string since the value \"" << value << "\" contains invalid content");
         return err(SemanticStringError::ContainsInvalidContent);
     }
 
@@ -152,23 +152,26 @@ SemanticString<Child, Capacity, DoesContainInvalidContentCall, DoesContainInvali
     auto temp = m_data;
     if (!temp.insert(pos, str, count))
     {
-        IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
-                       << "\" to the semantic string since it would exceed the maximum valid length of " << Capacity
-                       << ".";
+        IOX_LOG(DEBUG,
+                "Unable to insert the value \""
+                    << str << "\" to the semantic string since it would exceed the maximum valid length of " << Capacity
+                    << ".");
         return err(SemanticStringError::ExceedsMaximumLength);
     }
 
     if (DoesContainInvalidCharacterCall(temp))
     {
-        IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
-                       << "\" to the semantic string since it contains invalid characters.";
+        IOX_LOG(DEBUG,
+                "Unable to insert the value \"" << str
+                                                << "\" to the semantic string since it contains invalid characters.");
         return err(SemanticStringError::ContainsInvalidCharacters);
     }
 
     if (DoesContainInvalidContentCall(str))
     {
-        IOX_LOG(DEBUG) << "Unable to insert the value \"" << str
-                       << "\" to the semantic string since it would lead to invalid content.";
+        IOX_LOG(DEBUG,
+                "Unable to insert the value \"" << str
+                                                << "\" to the semantic string since it would lead to invalid content.");
         return err(SemanticStringError::ContainsInvalidContent);
     }
 

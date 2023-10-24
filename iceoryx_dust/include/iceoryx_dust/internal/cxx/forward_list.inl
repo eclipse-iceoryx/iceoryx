@@ -234,7 +234,7 @@ forward_list<T, Capacity>::emplace_after(const_iterator iter, ConstructorArgs&&.
 
     if (m_size >= Capacity)
     {
-        IOX_LOG(DEBUG) << "capacity exhausted";
+        IOX_LOG(DEBUG, "capacity exhausted");
         return end();
     }
 
@@ -272,7 +272,7 @@ inline typename forward_list<T, Capacity>::iterator forward_list<T, Capacity>::e
     // additional validity check on to-be-erase element
     if (!isValidElementIdx(eraseIdx) || empty())
     {
-        IOX_LOG(DEBUG) << "iterator is end() or list is empty";
+        IOX_LOG(DEBUG, "iterator is end() or list is empty");
         return end();
     }
 

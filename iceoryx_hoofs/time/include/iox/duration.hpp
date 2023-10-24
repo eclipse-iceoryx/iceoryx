@@ -76,9 +76,9 @@ constexpr Duration operator"" _d(unsigned long long int value) noexcept;
 ///   using namespace units::duration_literals;
 ///   auto someDays = 2 * 7_d + 5_ns;
 ///   auto someSeconds = 42_s + 500_ms;
-///   IOX_LOG(INFO) << someDays;
-///   IOX_LOG(INFO) << someDays.nanoSeconds<uint64_t>() << " ns";
-///   IOX_LOG(INFO) << someSeconds.milliSeconds<int64_t>() << " ms";
+///   IOX_LOG(INFO, someDays);
+///   IOX_LOG(INFO, someDays.nanoSeconds<uint64_t>() << " ns");
+///   IOX_LOG(INFO, someSeconds.milliSeconds<int64_t>() << " ms");
 /// @endcode
 class Duration
 {

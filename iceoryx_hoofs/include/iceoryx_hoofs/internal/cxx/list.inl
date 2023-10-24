@@ -236,7 +236,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::emplace(const_ite
 
     if (m_size >= Capacity)
     {
-        IOX_LOG(DEBUG) << "capacity exhausted";
+        IOX_LOG(DEBUG, "capacity exhausted");
         return end();
     }
 
@@ -275,7 +275,7 @@ inline typename list<T, Capacity>::iterator list<T, Capacity>::erase(const_itera
     // further narrow-down checks
     if (!isValidElementIdx(eraseIdx) || empty())
     {
-        IOX_LOG(DEBUG) << "list is empty";
+        IOX_LOG(DEBUG, "list is empty");
         return end();
     }
 

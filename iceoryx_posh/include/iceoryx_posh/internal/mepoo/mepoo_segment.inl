@@ -87,10 +87,11 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
                 }
                 this->setSegmentId(static_cast<uint64_t>(maybeSegmentId.value()));
 
-                IOX_LOG(DEBUG) << "Roudi registered payload data segment "
-                               << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
-                               << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
-                               << m_segmentId;
+                IOX_LOG(DEBUG,
+                        "Roudi registered payload data segment "
+                            << iox::log::hex(sharedMemoryObject.getBaseAddress()) << " with size "
+                            << sharedMemoryObject.get_size().expect("Failed to get SHM size.") << " to id "
+                            << m_segmentId);
             })
             .or_else([](auto&) { errorHandler(PoshError::MEPOO__SEGMENT_UNABLE_TO_CREATE_SHARED_MEMORY_OBJECT); })
             .value());

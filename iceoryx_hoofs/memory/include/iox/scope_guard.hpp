@@ -34,9 +34,9 @@ namespace iox
 /// // I am doing stuff
 /// // goodbye
 /// void someFunc() {
-///     ScopeGuard myScopeGuard{[](){ IOX_LOG(INFO) << "hello world\n"; },
-///                 [](){ IOX_LOG(INFO) << "goodbye"; }};
-///     IOX_LOG(INFO) << "I am doing stuff";
+///     ScopeGuard myScopeGuard{[](){ IOX_LOG(INFO, "hello world\n"); },
+///                 [](){ IOX_LOG(INFO, "goodbye"; }});
+///     IOX_LOG(INFO, "I am doing stuff");
 ///     // myScopeGuard goes out of scope here and the cleanupFunction is called in the
 ///     // destructor
 /// }

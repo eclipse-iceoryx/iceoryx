@@ -48,7 +48,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     auto maybeSegmentManager = m_roudiMemoryInterface.segmentManager();
     if (!maybeSegmentManager.has_value())
     {
-        IOX_LOG(FATAL) << "Invalid state! Could not obtain SegmentManager!";
+        IOX_LOG(FATAL, "Invalid state! Could not obtain SegmentManager!");
         fatalError = true;
     }
     m_segmentManager = maybeSegmentManager.value();
@@ -56,7 +56,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface.introspectionMemoryManager();
     if (!maybeIntrospectionMemoryManager.has_value())
     {
-        IOX_LOG(FATAL) << "Invalid state! Could not obtain MemoryManager for instrospection!";
+        IOX_LOG(FATAL, "Invalid state! Could not obtain MemoryManager for instrospection!");
         fatalError = true;
     }
     m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
@@ -64,7 +64,7 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
     auto maybeMgmtSegmentId = m_roudiMemoryInterface.mgmtMemoryProvider()->segmentId();
     if (!maybeMgmtSegmentId.has_value())
     {
-        IOX_LOG(FATAL) << "Invalid state! Could not obtain SegmentId for iceoryx management segment!";
+        IOX_LOG(FATAL, "Invalid state! Could not obtain SegmentId for iceoryx management segment!");
         fatalError = true;
     }
     m_mgmtSegmentId = maybeMgmtSegmentId.value();
@@ -86,7 +86,7 @@ void ProcessManager::handleProcessShutdownPreparationRequest(const RuntimeName_t
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::PREPARE_APP_TERMINATION_ACK);
             process->sendViaIpcChannel(sendBuffer);
         })
-        .or_else([&]() { IOX_LOG(WARN) << "Unknown application " << name << " requested shutdown preparation."; });
+        .or_else([&]() { IOX_LOG(WARN, "Unknown application " << name << " requested shutdown preparation."); });
 }
 
 void ProcessManager::requestShutdownOfAllProcesses() noexcept
@@ -94,7 +94,7 @@ void ProcessManager::requestShutdownOfAllProcesses() noexcept
     // send SIG_TERM to all running applications and wait for processes to answer with TERMINATION
     for (auto& process : m_processList)
     {
-        IOX_LOG(DEBUG) << "Sending SIGTERM to Process ID " << process.getPid() << " named '" << process.getName();
+        IOX_LOG(DEBUG, "Sending SIGTERM to Process ID " << process.getPid() << " named '" << process.getName());
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_TERM);
     }
 
@@ -123,8 +123,9 @@ void ProcessManager::killAllProcesses() noexcept
 {
     for (auto& process : m_processList)
     {
-        IOX_LOG(WARN) << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' is still running after SIGTERM was sent. RouDi is sending SIGKILL now.";
+        IOX_LOG(WARN,
+                "Process ID " << process.getPid() << " named '" << process.getName()
+                              << "' is still running after SIGTERM was sent. RouDi is sending SIGKILL now.");
         requestShutdownOfProcess(process, ShutdownPolicy::SIG_KILL);
     }
 }
@@ -133,8 +134,9 @@ void ProcessManager::printWarningForRegisteredProcessesAndClearProcessList() noe
 {
     for (auto& process : m_processList)
     {
-        IOX_LOG(WARN) << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' is still running after SIGKILL was sent. RouDi is ignoring this process.";
+        IOX_LOG(WARN,
+                "Process ID " << process.getPid() << " named '" << process.getName()
+                              << "' is still running after SIGKILL was sent. RouDi is ignoring this process.");
     }
     m_processList.clear();
 }
@@ -175,19 +177,19 @@ void ProcessManager::evaluateKillError(const Process& process,
 {
     if ((errnum == EINVAL) || (errnum == EPERM) || (errnum == ESRCH))
     {
-        IOX_LOG(WARN) << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with "
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << ", because the command failed with the following error: " << errorString
-                      << " See manpage for kill(2) or type 'man 2 kill' in console for more information";
+        IOX_LOG(WARN,
+                "Process ID " << process.getPid() << " named '" << process.getName() << "' could not be killed with "
+                              << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                              << ", because the command failed with the following error: " << errorString
+                              << " See manpage for kill(2) or type 'man 2 kill' in console for more information");
         errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
     }
     else
     {
-        IOX_LOG(WARN) << "Process ID " << process.getPid() << " named '" << process.getName()
-                      << "' could not be killed with"
-                      << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
-                      << " for unknown reason: '" << errorString << "'";
+        IOX_LOG(WARN,
+                "Process ID " << process.getPid() << " named '" << process.getName() << "' could not be killed with"
+                              << (shutdownPolicy == ShutdownPolicy::SIG_KILL ? "SIGKILL" : "SIGTERM")
+                              << " for unknown reason: '" << errorString << "'");
         errorHandler(PoshError::POSH__ROUDI_PROCESS_SHUTDOWN_FAILED, ErrorLevel::SEVERE);
     }
 }
@@ -211,17 +213,17 @@ bool ProcessManager::registerProcess(const RuntimeName_t& name,
 
             if (process->isMonitored())
             {
-                IOX_LOG(WARN) << "Received register request, but termination of " << name << " not detected yet";
+                IOX_LOG(WARN, "Received register request, but termination of " << name << " not detected yet");
             }
 
             // process exists, we expect that the existing process crashed
-            IOX_LOG(WARN) << "Application " << name << " crashed. Re-registering application";
+            IOX_LOG(WARN, "Application " << name << " crashed. Re-registering application");
 
             // remove the existing process and add the new process afterwards, we do not send ack to new process
             constexpr TerminationFeedback TERMINATION_FEEDBACK{TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS};
             if (!this->searchForProcessAndRemoveIt(name, TERMINATION_FEEDBACK))
             {
-                IOX_LOG(WARN) << "Application " << name << " could not be removed";
+                IOX_LOG(WARN, "Application " << name << " could not be removed");
                 return;
             }
             else
@@ -249,17 +251,19 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
 {
     if (!version::VersionInfo::getCurrentVersion().checkCompatibility(versionInfo, m_compatibilityCheckLevel))
     {
-        IOX_LOG(ERROR)
-            << "Version mismatch from '" << name
-            << "'! Please build your app and RouDi against the same iceoryx version (version & commitID). RouDi: "
-            << version::VersionInfo::getCurrentVersion().operator iox::cxx::Serialization().toString()
-            << " App: " << versionInfo.operator iox::cxx::Serialization().toString();
+        IOX_LOG(
+            ERROR,
+            "Version mismatch from '"
+                << name
+                << "'! Please build your app and RouDi against the same iceoryx version (version & commitID). RouDi: "
+                << version::VersionInfo::getCurrentVersion().operator iox::cxx::Serialization().toString()
+                << " App: " << versionInfo.operator iox::cxx::Serialization().toString());
         return false;
     }
     // overflow check
     if (m_processList.size() >= MAX_PROCESS_NUMBER)
     {
-        IOX_LOG(ERROR) << "Could not register process '" << name << "' - too many processes";
+        IOX_LOG(ERROR, "Could not register process '" << name << "' - too many processes");
         return false;
     }
     m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
@@ -280,7 +284,7 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
 
     m_processIntrospection->addProcess(static_cast<int>(pid), name);
 
-    IOX_LOG(DEBUG) << "Registered new application " << name;
+    IOX_LOG(DEBUG, "Registered new application " << name);
     return true;
 }
 
@@ -289,7 +293,7 @@ bool ProcessManager::unregisterProcess(const RuntimeName_t& name) noexcept
     constexpr TerminationFeedback FEEDBACK{TerminationFeedback::SEND_ACK_TO_PROCESS};
     if (!searchForProcessAndRemoveIt(name, FEEDBACK))
     {
-        IOX_LOG(ERROR) << "Application " << name << " could not be unregistered!";
+        IOX_LOG(ERROR, "Application " << name << " could not be unregistered!");
         return false;
     }
     return true;
@@ -306,7 +310,7 @@ bool ProcessManager::searchForProcessAndRemoveIt(const RuntimeName_t& name, cons
         {
             if (removeProcessAndDeleteRespectiveSharedMemoryObjects(it, feedback))
             {
-                IOX_LOG(DEBUG) << "Removed existing application " << name;
+                IOX_LOG(DEBUG, "Removed existing application " << name);
             }
             return true; // we can assume there are no other processes with this name
         }
@@ -344,7 +348,7 @@ void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexce
             // reset timestamp
             process->setTimestamp(mepoo::BaseClock_t::now());
         })
-        .or_else([&]() { IOX_LOG(WARN) << "Received Keepalive from unknown process " << name; });
+        .or_else([&]() { IOX_LOG(WARN, "Received Keepalive from unknown process " << name); });
 }
 
 void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
@@ -364,9 +368,9 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
                        << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
             process->sendViaIpcChannel(sendBuffer);
 
-            IOX_LOG(DEBUG) << "Created new interface for application " << name;
+            IOX_LOG(DEBUG, "Created new interface for application " << name);
         })
-        .or_else([&]() { IOX_LOG(WARN) << "Unknown application " << name << " requested an interface."; });
+        .or_else([&]() { IOX_LOG(WARN, "Unknown application " << name << " requested an interface."); });
 }
 
 void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const NodeName_t& nodeName) noexcept
@@ -384,7 +388,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                     process->sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(TruncateToCapacity, runtimeName.c_str()),
                                                     NodeName_t(TruncateToCapacity, nodeName.c_str()));
-                    IOX_LOG(DEBUG) << "Created new node " << nodeName << " for process " << runtimeName;
+                    IOX_LOG(DEBUG, "Created new node " << nodeName << " for process " << runtimeName);
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -396,10 +400,10 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
                     }
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(DEBUG) << "Could not create new node for process " << runtimeName;
+                    IOX_LOG(DEBUG, "Could not create new node for process " << runtimeName);
                 });
         })
-        .or_else([&]() { IOX_LOG(WARN) << "Unknown process " << runtimeName << " requested a node."; });
+        .or_else([&]() { IOX_LOG(WARN, "Unknown process " << runtimeName << " requested a node."); });
 }
 
 void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name) noexcept
@@ -409,7 +413,7 @@ void ProcessManager::sendMessageNotSupportedToRuntime(const RuntimeName_t& name)
         sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::MESSAGE_NOT_SUPPORTED);
         process->sendViaIpcChannel(sendBuffer);
 
-        IOX_LOG(ERROR) << "Application " << name << " sent a message, which is not supported by this RouDi";
+        IOX_LOG(ERROR, "Application " << name << " sent a message, which is not supported by this RouDi");
     });
 }
 
@@ -434,8 +438,9 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
-                IOX_LOG(DEBUG) << "Created new SubscriberPort for application '" << name
-                               << "' with service description '" << service << "'";
+                IOX_LOG(DEBUG,
+                        "Created new SubscriberPort for application '" << name << "' with service description '"
+                                                                       << service << "'");
             }
             else
             {
@@ -443,13 +448,15 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::ERROR);
                 sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SUBSCRIBER_LIST_FULL);
                 process->sendViaIpcChannel(sendBuffer);
-                IOX_LOG(ERROR) << "Could not create SubscriberPort for application '" << name
-                               << "' with service description '" << service << "'";
+                IOX_LOG(ERROR,
+                        "Could not create SubscriberPort for application '" << name << "' with service description '"
+                                                                            << service << "'");
             }
         })
         .or_else([&]() {
-            IOX_LOG(WARN) << "Unknown application '" << name
-                          << "' requested a SubscriberPort with service description '" << service << "'";
+            IOX_LOG(WARN,
+                    "Unknown application '" << name << "' requested a SubscriberPort with service description '"
+                                            << service << "'");
         });
 }
 
@@ -486,8 +493,9 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                            << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
-                IOX_LOG(DEBUG) << "Created new PublisherPort for application '" << name
-                               << "' with service description '" << service << "'";
+                IOX_LOG(DEBUG,
+                        "Created new PublisherPort for application '" << name << "' with service description '"
+                                                                      << service << "'");
             }
             else
             {
@@ -517,13 +525,15 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
                 sendBuffer << error;
 
                 process->sendViaIpcChannel(sendBuffer);
-                IOX_LOG(ERROR) << "Could not create PublisherPort for application '" << name
-                               << "' with service description '" << service << "'";
+                IOX_LOG(ERROR,
+                        "Could not create PublisherPort for application '" << name << "' with service description '"
+                                                                           << service << "'");
             }
         })
         .or_else([&]() {
-            IOX_LOG(WARN) << "Unknown application '" << name << "' requested a PublisherPort with service description '"
-                          << service << "'";
+            IOX_LOG(WARN,
+                    "Unknown application '" << name << "' requested a PublisherPort with service description '"
+                                            << service << "'");
         });
 }
 
@@ -560,8 +570,9 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                                << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(DEBUG) << "Created new ClientPort for application '" << name
-                                   << "' with service description '" << service << "'";
+                    IOX_LOG(DEBUG,
+                            "Created new ClientPort for application '" << name << "' with service description '"
+                                                                       << service << "'");
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
@@ -569,13 +580,15 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::CLIENT_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(ERROR) << "Could not create ClientPort for application '" << name
-                                   << "' with service description '" << service << "'";
+                    IOX_LOG(ERROR,
+                            "Could not create ClientPort for application '" << name << "' with service description '"
+                                                                            << service << "'");
                 });
         })
         .or_else([&]() {
-            IOX_LOG(WARN) << "Unknown application '" << name << "' requested a ClientPort with service description '"
-                          << service << "'";
+            IOX_LOG(WARN,
+                    "Unknown application '" << name << "' requested a ClientPort with service description '" << service
+                                            << "'");
         });
 }
 
@@ -612,8 +625,9 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                                << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(DEBUG) << "Created new ServerPort for application '" << name
-                                   << "' with service description '" << service << "'";
+                    IOX_LOG(DEBUG,
+                            "Created new ServerPort for application '" << name << "' with service description '"
+                                                                       << service << "'");
                 })
                 .or_else([&](auto&) {
                     runtime::IpcMessage sendBuffer;
@@ -621,13 +635,15 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
                     sendBuffer << runtime::IpcMessageErrorTypeToString(runtime::IpcMessageErrorType::SERVER_LIST_FULL);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(ERROR) << "Could not create ServerPort for application '" << name
-                                   << "' with service description '" << service << "'";
+                    IOX_LOG(ERROR,
+                            "Could not create ServerPort for application '" << name << "' with service description '"
+                                                                            << service << "'");
                 });
         })
         .or_else([&]() {
-            IOX_LOG(WARN) << "Unknown application '" << name << "' requested a ServerPort with service description '"
-                          << service << "'";
+            IOX_LOG(WARN,
+                    "Unknown application '" << name << "' requested a ServerPort with service description '" << service
+                                            << "'");
         });
 }
 
@@ -645,7 +661,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                                << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(DEBUG) << "Created new ConditionVariable for application " << runtimeName;
+                    IOX_LOG(DEBUG, "Created new ConditionVariable for application " << runtimeName);
                 })
                 .or_else([&](PortPoolError error) {
                     runtime::IpcMessage sendBuffer;
@@ -657,11 +673,10 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     }
                     process->sendViaIpcChannel(sendBuffer);
 
-                    IOX_LOG(DEBUG) << "Could not create new ConditionVariable for application " << runtimeName;
+                    IOX_LOG(DEBUG, "Could not create new ConditionVariable for application " << runtimeName);
                 });
         })
-        .or_else(
-            [&]() { IOX_LOG(WARN) << "Unknown application " << runtimeName << " requested a ConditionVariable."; });
+        .or_else([&]() { IOX_LOG(WARN, "Unknown application " << runtimeName << " requested a ConditionVariable."); });
 }
 
 void ProcessManager::initIntrospection(ProcessIntrospectionType* processIntrospection) noexcept
@@ -712,8 +727,9 @@ void ProcessManager::monitorProcesses() noexcept
                           "keep alive timeout too small");
             if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
             {
-                IOX_LOG(WARN) << "Application " << processIterator->getName() << " not responding (last response "
-                              << timediff.toMilliseconds() << " milliseconds ago) --> removing it";
+                IOX_LOG(WARN,
+                        "Application " << processIterator->getName() << " not responding (last response "
+                                       << timediff.toMilliseconds() << " milliseconds ago) --> removing it");
 
                 // note: if we would want to use the removeProcess function, it would search for the process again
                 // (but we already found it and have an iterator to remove it)

@@ -70,7 +70,7 @@ void PoshRuntime::setRuntimeFactory(const factory_t& factory) noexcept
     }
     else
     {
-        IOX_LOG(FATAL) << "Cannot set runtime factory. Passed factory must not be empty!";
+        IOX_LOG(FATAL, "Cannot set runtime factory. Passed factory must not be empty!");
         errorHandler(PoshError::POSH__RUNTIME_FACTORY_IS_NOT_SET);
     }
 }
@@ -122,7 +122,7 @@ PoshRuntime::PoshRuntime(optional<const RuntimeName_t*> name) noexcept
 {
     if (internal::isCompiledOn32BitSystem())
     {
-        IOX_LOG(WARN) << "Running applications on 32-bit architectures is not supported! Use at your own risk!";
+        IOX_LOG(WARN, "Running applications on 32-bit architectures is not supported! Use at your own risk!");
     }
 }
 
@@ -130,13 +130,14 @@ const RuntimeName_t& PoshRuntime::verifyInstanceName(optional<const RuntimeName_
 {
     if (!name.has_value())
     {
-        IOX_LOG(FATAL) << "Cannot initialize runtime. Application name has not been specified!";
+        IOX_LOG(FATAL, "Cannot initialize runtime. Application name has not been specified!");
         errorHandler(PoshError::POSH__RUNTIME_NO_NAME_PROVIDED, ErrorLevel::FATAL);
     }
     else if (!isValidFileName(**name))
     {
-        IOX_LOG(FATAL) << "Cannot initialize runtime. The application name \"" << **name
-                       << "\" is not a valid platform-independent file name.";
+        IOX_LOG(FATAL,
+                "Cannot initialize runtime. The application name \""
+                    << **name << "\" is not a valid platform-independent file name.");
         errorHandler(PoshError::POSH__RUNTIME_NAME_NOT_VALID_FILE_NAME);
     }
 

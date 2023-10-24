@@ -110,10 +110,11 @@ inline void BaseServer<PortT, TriggerHandleT>::enableState(TriggerHandleT&& trig
     case ServerState::HAS_REQUEST:
         if (m_trigger)
         {
-            IOX_LOG(WARN)
-                << "The server is already attached with either the ServerState::HAS_REQUEST or "
-                   "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
-                   "attaching it to the new one with ServerState::HAS_REQUEST. Best practice is to call detach first.";
+            IOX_LOG(
+                WARN,
+                "The server is already attached with either the ServerState::HAS_REQUEST or "
+                "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
+                "attaching it to the new one with ServerState::HAS_REQUEST. Best practice is to call detach first.");
 
             errorHandler(
                 PoshError::
@@ -159,11 +160,11 @@ inline void BaseServer<PortT, TriggerHandleT>::enableEvent(TriggerHandleT&& trig
     case ServerEvent::REQUEST_RECEIVED:
         if (m_trigger)
         {
-            IOX_LOG(WARN)
-                << "The server is already attached with either the ServerState::HAS_REQUEST or "
-                   "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
-                   "attaching it to the new one with ServerEvent::REQUEST_RECEIVED. Best practice is to call detach "
-                   "first.";
+            IOX_LOG(WARN,
+                    "The server is already attached with either the ServerState::HAS_REQUEST or "
+                    "ServerEvent::REQUEST_RECEIVED to a WaitSet/Listener. Detaching it from previous one and "
+                    "attaching it to the new one with ServerEvent::REQUEST_RECEIVED. Best practice is to call detach "
+                    "first.");
             errorHandler(
                 PoshError::
                     POPO__BASE_SERVER_OVERRIDING_WITH_EVENT_SINCE_HAS_REQUEST_OR_REQUEST_RECEIVED_ALREADY_ATTACHED,

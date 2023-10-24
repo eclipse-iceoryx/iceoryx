@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
     auto cmdLineArgs = cmdLineParser.parse(argc, argv);
     if (cmdLineArgs.has_error() && (cmdLineArgs.error() != iox::config::CmdLineParserResult::INFO_OUTPUT_ONLY))
     {
-        IOX_LOG(FATAL) << "Unable to parse command line arguments!";
+        IOX_LOG(FATAL, "Unable to parse command line arguments!");
         return EXIT_FAILURE;
     }
 

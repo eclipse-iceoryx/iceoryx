@@ -88,17 +88,17 @@ static constexpr uint64_t INVALID_VARIANT_INDEX{std::numeric_limits<uint64_t>::m
 ///     else if ( someVariant.index() == 1)
 ///     {
 ///         auto blubb = someVariant.template get_at_index<1>();
-///         IOX_LOG(INFO) << *blubb;
+///         IOX_LOG(INFO, *blubb);
 ///
 ///         auto sameAsBlubb = someVariant.get<float>();
-///         IOX_LOG(INFO) << *sameAsBlubb;
+///         IOX_LOG(INFO, *sameAsBlubb);
 ///     }
 ///
 ///     // .. do stuff
 ///
 ///     int defaultValue = 123;
 ///     int * fuu = someVariant.get_if<int>(&defaultValue);
-///     IOX_LOG(INFO) << *fuu;
+///     IOX_LOG(INFO, *fuu);
 ///
 /// @endcode
 template <typename... Types>

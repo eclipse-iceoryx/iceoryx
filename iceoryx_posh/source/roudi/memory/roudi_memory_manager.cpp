@@ -49,7 +49,7 @@ iox::log::LogStream& operator<<(iox::log::LogStream& logstream, const RouDiMemor
 
 RouDiMemoryManager::~RouDiMemoryManager() noexcept
 {
-    destroyMemory().or_else([](auto) { IOX_LOG(WARN) << "Failed to cleanup RouDiMemoryManager in destructor."; });
+    destroyMemory().or_else([](auto) { IOX_LOG(WARN, "Failed to cleanup RouDiMemoryManager in destructor."); });
 }
 
 expected<void, RouDiMemoryManagerError> RouDiMemoryManager::addMemoryProvider(MemoryProvider* memoryProvider) noexcept
@@ -73,8 +73,9 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::createAndAnnounceMem
         auto result = memoryProvider->create();
         if (result.has_error())
         {
-            IOX_LOG(ERROR) << "Could not create memory: MemoryProviderError = "
-                           << MemoryProvider::getErrorString(result.error());
+            IOX_LOG(
+                ERROR,
+                "Could not create memory: MemoryProviderError = " << MemoryProvider::getErrorString(result.error()));
             return err(RouDiMemoryManagerError::MEMORY_CREATION_FAILED);
         }
     }
@@ -95,8 +96,8 @@ expected<void, RouDiMemoryManagerError> RouDiMemoryManager::destroyMemory() noex
         auto destructionResult = memoryProvider->destroy();
         if (destructionResult.has_error() && destructionResult.error() != MemoryProviderError::MEMORY_NOT_AVAILABLE)
         {
-            IOX_LOG(ERROR) << "Could not destroy memory provider! Error: "
-                           << static_cast<uint64_t>(destructionResult.error());
+            IOX_LOG(ERROR,
+                    "Could not destroy memory provider! Error: " << static_cast<uint64_t>(destructionResult.error()));
             /// @note do not return on first error but try to cleanup the remaining resources
             if (!result.has_error())
             {

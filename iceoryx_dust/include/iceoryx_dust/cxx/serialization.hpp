@@ -34,7 +34,7 @@ namespace cxx
 ///             5:hello3:1236:123.01
 /// @code
 ///     auto serial = cxx::Serialization::create("fuu", 123, 12.12f, 'c');
-///     IOX_LOG(INFO) << serial.toString();
+///     IOX_LOG(INFO, serial.toString());
 ///
 ///     std::string v1;
 ///     int v2;

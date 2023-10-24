@@ -36,7 +36,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
         static_assert(sizeof(uint64_t) >= sizeof(SEC_TYPE), "casting might alter result");
         if (this->m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
         {
-            IOX_LOG(TRACE) << ": Result of conversion would overflow, clamping to max value!";
+            IOX_LOG(TRACE, ": Result of conversion would overflow, clamping to max value!");
             return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
         }
 
@@ -62,7 +62,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     if (targetTime.m_seconds > static_cast<uint64_t>(std::numeric_limits<SEC_TYPE>::max()))
     {
-        IOX_LOG(TRACE) << ": Result of conversion would overflow, clamping to max value!";
+        IOX_LOG(TRACE, ": Result of conversion would overflow, clamping to max value!");
         return {std::numeric_limits<SEC_TYPE>::max(), NANOSECS_PER_SEC - 1U};
     }
 

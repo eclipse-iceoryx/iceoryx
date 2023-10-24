@@ -27,7 +27,7 @@ void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& n
     posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through iox::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
-        IOX_LOG(ERROR) << "This should never happen! " << r.getHumanReadableErrnum();
+        IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
         cxx::Ensures(false && "internal logic error");
     });
 }
@@ -44,7 +44,7 @@ ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
         .or_else([](auto& r) {
             // String length limit is ensured through MAX_THREAD_NAME_LENGTH
             // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-            IOX_LOG(ERROR) << "This should never happen! " << r.getHumanReadableErrnum();
+            IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
             cxx::Ensures(false && "internal logic error");
         });
 
@@ -91,10 +91,10 @@ Thread::~Thread() noexcept
             switch (joinResult.error().errnum)
             {
             case EDEADLK:
-                IOX_LOG(ERROR) << "A deadlock was detected when attempting to join the thread.";
+                IOX_LOG(ERROR, "A deadlock was detected when attempting to join the thread.");
                 break;
             default:
-                IOX_LOG(ERROR) << "This should never happen. An unknown error occurred.";
+                IOX_LOG(ERROR, "This should never happen. An unknown error occurred.");
                 break;
             }
         }
@@ -113,19 +113,19 @@ ThreadError Thread::errnoToEnum(const int errnoValue) noexcept
     case EAGAIN:
         /// @todo iox-#1365 add thread name to log message once the name is set via BUILDER_PARAMETER, maybe add both,
         /// the name of the new thread and the name of the thread which created the new one
-        IOX_LOG(ERROR) << "insufficient resources to create another thread";
+        IOX_LOG(ERROR, "insufficient resources to create another thread");
         return ThreadError::INSUFFICIENT_RESOURCES;
     case EINVAL:
-        IOX_LOG(ERROR) << "invalid attribute settings";
+        IOX_LOG(ERROR, "invalid attribute settings");
         return ThreadError::INVALID_ATTRIBUTES;
     case ENOMEM:
-        IOX_LOG(ERROR) << "not enough memory to initialize the thread attributes object";
+        IOX_LOG(ERROR, "not enough memory to initialize the thread attributes object");
         return ThreadError::INSUFFICIENT_MEMORY;
     case EPERM:
-        IOX_LOG(ERROR) << "no appropriate permission to set required scheduling policy or parameters";
+        IOX_LOG(ERROR, "no appropriate permission to set required scheduling policy or parameters");
         return ThreadError::INSUFFICIENT_PERMISSIONS;
     default:
-        IOX_LOG(ERROR) << "an unexpected error occurred in thread - this should never happen!";
+        IOX_LOG(ERROR, "an unexpected error occurred in thread - this should never happen!");
         return ThreadError::UNDEFINED;
     }
 }
@@ -139,7 +139,7 @@ void* Thread::startRoutine(void* callable)
         .successReturnValue(0)
         .evaluate()
         .or_else([&self](auto&) {
-            IOX_LOG(WARN) << "failed to set thread name " << self->m_threadName;
+            IOX_LOG(WARN, "failed to set thread name " << self->m_threadName);
             self->m_threadName.clear();
         });
 

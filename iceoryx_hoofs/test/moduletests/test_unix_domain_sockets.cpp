@@ -82,12 +82,12 @@ class UnixDomainSocket_test : public Test
                     .failureReturnValue(ERROR_CODE)
                     .evaluate()
                     .or_else([&](auto&) {
-                        IOX_LOG(ERROR) << "unable to bind socket";
+                        IOX_LOG(ERROR, "unable to bind socket");
                         socketCreationSuccess = false;
                     });
             })
             .or_else([&](auto&) {
-                IOX_LOG(ERROR) << "unable to create socket";
+                IOX_LOG(ERROR, "unable to create socket");
                 socketCreationSuccess = false;
             });
         return socketCreationSuccess;

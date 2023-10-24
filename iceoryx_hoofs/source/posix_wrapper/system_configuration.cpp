@@ -32,7 +32,7 @@ uint64_t pageSize() noexcept
                                      .failureReturnValue(-1)
                                      .evaluate()
                                      .or_else([](auto& r) {
-                                         IOX_LOG(ERROR) << "This should never happen: " << r.getHumanReadableErrnum();
+                                         IOX_LOG(ERROR, "This should never happen: " << r.getHumanReadableErrnum());
                                          cxx::Ensures(false && "Internal logic error");
                                      })
                                      .value()

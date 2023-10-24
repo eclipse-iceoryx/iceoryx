@@ -291,7 +291,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     /// @code
     ///     expected<int, float> frodo(ok(45));
     ///     *frodo += 12;
-    ///     IOX_LOG(INFO) << *frodo; // prints 57
+    ///     IOX_LOG(INFO, *frodo); // prints 57
     /// @endcode
     template <typename U = ValueType>
     enable_if_non_void_t<U>& operator*() noexcept;
@@ -304,7 +304,7 @@ class IOX_NO_DISCARD expected final : public FunctionalInterface<expected<ValueT
     /// @code
     ///     expected<int, float> frodo(ok(45));
     ///     *frodo += 12;
-    ///     IOX_LOG(INFO) << *frodo; // prints 57
+    ///     IOX_LOG(INFO, *frodo); // prints 57
     /// @endcode
     template <typename U = ValueType>
     const enable_if_non_void_t<U>& operator*() const noexcept;

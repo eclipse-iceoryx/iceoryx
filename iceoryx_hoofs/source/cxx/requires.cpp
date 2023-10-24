@@ -34,8 +34,9 @@ void Require(
 {
     if (!condition)
     {
-        IOX_LOG(ERROR) << "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":"
-                       << line << ")";
+        IOX_LOG(ERROR,
+                "Condition: " << conditionString << " in " << function << " is violated. (" << file << ":" << line
+                              << ")");
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }
@@ -51,8 +52,9 @@ void Require(const bool condition,
 {
     if (!condition)
     {
-        IOX_LOG(ERROR) << "Condition: " << conditionString << " in " << function << " is violated: " << msgString
-                       << ". (" << file << ":" << line << ")";
+        IOX_LOG(ERROR,
+                "Condition: " << conditionString << " in " << function << " is violated: " << msgString << ". (" << file
+                              << ":" << line << ")");
         errorHandler(HoofsError::EXPECTS_ENSURES_FAILED, ErrorLevel::FATAL);
     }
 }
