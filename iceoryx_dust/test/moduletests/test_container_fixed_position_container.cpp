@@ -17,8 +17,8 @@
 #include "iox/fixed_position_container.hpp"
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/ctor_and_assignment_operator_test_class.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_hoofs/testing/lifetime_and_assignment_tracker.hpp"
 
 #include "test.hpp"
 
@@ -35,7 +35,7 @@ struct FixedPositionContainer_test : public Test
 
     using Sut = FixedPositionContainer<DataType, CAPACITY>;
 
-    using ComplexType = CTorAndAssignmentOperatorTestClass<DataType, 0>;
+    using ComplexType = LifetimeAndAssignmentTracker<DataType, 0>;
     using SutComplex = FixedPositionContainer<ComplexType, CAPACITY>;
 
     void SetUp() override

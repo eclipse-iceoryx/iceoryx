@@ -16,8 +16,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_TESTING_CTOR_AND_ASSIGNMENT_OPERATOR_TEST_CLASS_HPP
-#define IOX_HOOFS_TESTING_CTOR_AND_ASSIGNMENT_OPERATOR_TEST_CLASS_HPP
+#ifndef IOX_HOOFS_TESTING_LIFETIME_AND_ASSIGNMENT_TRACKER_HPP
+#define IOX_HOOFS_TESTING_LIFETIME_AND_ASSIGNMENT_TRACKER_HPP
 
 #include <cstdint>
 #include <vector>
@@ -27,38 +27,38 @@ namespace iox
 namespace testing
 {
 template <typename T = uint64_t, T DEFAULT_VALUE = 0>
-class CTorAndAssignmentOperatorTestClass
+class LifetimeAndAssignmentTracker
 {
   public:
-    CTorAndAssignmentOperatorTestClass()
+    LifetimeAndAssignmentTracker()
     {
         stats.cTor++;
         stats.classValue = value;
     }
 
     // NOLINTNEXTLINE(hicpp-explicit-conversions) we want to use this class in tests transparently to a 'T'
-    CTorAndAssignmentOperatorTestClass(const T value)
+    LifetimeAndAssignmentTracker(const T value)
         : value(value)
     {
         stats.customCTor++;
         stats.classValue = value;
     }
 
-    CTorAndAssignmentOperatorTestClass(const CTorAndAssignmentOperatorTestClass& rhs)
+    LifetimeAndAssignmentTracker(const LifetimeAndAssignmentTracker& rhs)
         : value(rhs.value)
     {
         stats.copyCTor++;
         stats.classValue = value;
     }
 
-    CTorAndAssignmentOperatorTestClass(CTorAndAssignmentOperatorTestClass&& rhs) noexcept
+    LifetimeAndAssignmentTracker(LifetimeAndAssignmentTracker&& rhs) noexcept
         : value(rhs.value)
     {
         stats.moveCTor++;
         stats.classValue = value;
     }
 
-    CTorAndAssignmentOperatorTestClass& operator=(const CTorAndAssignmentOperatorTestClass& rhs)
+    LifetimeAndAssignmentTracker& operator=(const LifetimeAndAssignmentTracker& rhs)
     {
         if (this != &rhs)
         {
@@ -69,7 +69,7 @@ class CTorAndAssignmentOperatorTestClass
         return *this;
     }
 
-    CTorAndAssignmentOperatorTestClass& operator=(CTorAndAssignmentOperatorTestClass&& rhs) noexcept
+    LifetimeAndAssignmentTracker& operator=(LifetimeAndAssignmentTracker&& rhs) noexcept
     {
         if (this != &rhs)
         {
@@ -80,12 +80,12 @@ class CTorAndAssignmentOperatorTestClass
         return *this;
     }
 
-    bool operator==(const CTorAndAssignmentOperatorTestClass& rhs) const
+    bool operator==(const LifetimeAndAssignmentTracker& rhs) const
     {
         return value == rhs.value;
     }
 
-    ~CTorAndAssignmentOperatorTestClass()
+    ~LifetimeAndAssignmentTracker()
     {
         stats.dTor++;
         stats.classValue = value;
@@ -136,9 +136,9 @@ class CTorAndAssignmentOperatorTestClass
 };
 
 template <typename T, T DEFAULT_VALUE>
-typename CTorAndAssignmentOperatorTestClass<T, DEFAULT_VALUE>::Statistics
-    CTorAndAssignmentOperatorTestClass<T, DEFAULT_VALUE>::stats{};
+typename LifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::Statistics
+    LifetimeAndAssignmentTracker<T, DEFAULT_VALUE>::stats{};
 } // namespace testing
 } // namespace iox
 
-#endif // IOX_HOOFS_TESTING_CTOR_AND_ASSIGNMENT_OPERATOR_TEST_CLASS_HPP
+#endif // IOX_HOOFS_TESTING_LIFETIME_AND_ASSIGNMENT_TRACKER_HPP
