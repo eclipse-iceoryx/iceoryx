@@ -28,10 +28,10 @@
 #define IOX_SEEK_SET SEEK_SET
 #define _SC_PAGESIZE 1
 #ifndef STDOUT_FILENO
-#define STDOUT_FILENO _fileno(stdout)
+#define STDOUT_FILENO 1
 #endif
 #ifndef STDERR_FILENO
-#define STDERR_FILENO _fileno(stderr)
+#define STDERR_FILENO 2
 #endif
 
 using uid_t = int;
