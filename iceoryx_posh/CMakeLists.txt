@@ -48,7 +48,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
-include(cmake/iceoryxversions.cmake)
 
 ########## Multiple libraries are exported, the setup and installation is done
 #          manually without the iox_* macros

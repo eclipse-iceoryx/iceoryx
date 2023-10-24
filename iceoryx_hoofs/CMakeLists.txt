@@ -35,6 +35,7 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
+include(cmake/iceoryxversions.cmake)
 
 #
 ########## build iceoryx hoofs lib ##########

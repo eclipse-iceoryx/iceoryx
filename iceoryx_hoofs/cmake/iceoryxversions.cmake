@@ -31,7 +31,7 @@ if(DEFINED ${PROJECT_VERSION_TWEAK})
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_versions.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp" @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_versions.hpp
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_versions.hpp" @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_versions.hpp
   DESTINATION include/${PREFIX}
   COMPONENT dev)
