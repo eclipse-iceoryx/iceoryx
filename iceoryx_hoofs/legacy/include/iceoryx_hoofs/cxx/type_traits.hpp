@@ -24,6 +24,8 @@ IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/type_traits.hpp' instead.")
 
 namespace iox
 {
+/// @todo iox-#1593 Deprecate namespace with
+/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
 namespace cxx
 {
 /// @deprecated use 'iox::add_const_conditionally' instead of 'iox::cxx::add_const_conditionally'
