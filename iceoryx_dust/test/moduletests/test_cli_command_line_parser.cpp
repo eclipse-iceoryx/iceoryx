@@ -14,12 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_dust/internal/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
 #include "iox/function.hpp"
 #include "iox/optional.hpp"
+#include "iox/std_string_support.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
 

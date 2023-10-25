@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/port_introspection.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
+#include "iox/std_string_support.hpp"
 #include "mocks/publisher_mock.hpp"
 #include "mocks/subscriber_mock.hpp"
 

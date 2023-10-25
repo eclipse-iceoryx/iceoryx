@@ -1042,7 +1042,7 @@
     std::string myConvertedIoxString = static_cast<std::string>(myIoxString);
 
     // after
-    #include "iceoryx_dust/cxx/std_string_support.hpp"
+    #include "iox/std_string_support.hpp"
 
     std::string myStdString("foo");
     // std::string to iox::string with truncation when source string exceeds capacity
@@ -1066,7 +1066,7 @@
     }
 
     // after
-    #include "iceoryx_dust/cxx/std_string_support.hpp"
+    #include "iox/std_string_support.hpp"
 
     std::string myStdString("foo");
     iox::string<3> myIoxString("foo");

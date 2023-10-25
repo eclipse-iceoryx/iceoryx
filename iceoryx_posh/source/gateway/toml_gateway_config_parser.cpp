@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iox/file_reader.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h

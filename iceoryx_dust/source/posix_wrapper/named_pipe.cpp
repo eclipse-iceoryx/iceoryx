@@ -16,12 +16,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <thread>
 

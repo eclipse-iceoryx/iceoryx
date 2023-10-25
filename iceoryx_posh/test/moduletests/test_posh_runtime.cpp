@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dust/cxx/convert.hpp"
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
@@ -29,6 +28,7 @@
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/mocks/posh_runtime_mock.hpp"
+#include "iox/std_string_support.hpp"
 #include "test.hpp"
 
 #include <type_traits>

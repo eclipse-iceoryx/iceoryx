@@ -50,6 +50,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
+                                ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
@@ -57,6 +58,7 @@ iox_add_library(
                                 container/include/
                                 filesystem/include/
                                 memory/include/
+                                utility/include/
                                 vocabulary/include/
     FILES
         source/cli/arguments.cpp

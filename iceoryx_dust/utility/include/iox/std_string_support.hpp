@@ -13,13 +13,15 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_STD_STRING_SUPPORT_HPP
-#define IOX_DUST_STD_STRING_SUPPORT_HPP
+
+#ifndef IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
+#define IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
 
 #include "iox/into.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 
+#include <cstdint>
 #include <ostream>
 #include <string>
 
@@ -88,6 +90,6 @@ template <uint64_t Capacity>
 std::ostream& operator<<(std::ostream& stream, const string<Capacity>& str) noexcept;
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/std_string_support.inl"
+#include "iox/detail/std_string_support.inl"
 
-#endif // IOX_DUST_STD_STRING_SUPPORT_HPP
+#endif // IOX_DUST_UTILITY_STD_STRING_SUPPORT_HPP
