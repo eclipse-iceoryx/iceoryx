@@ -14,16 +14,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_STATIC_STORAGE_HPP
-#define IOX_DUST_STATIC_STORAGE_HPP
+#ifndef IOX_DUST_MEMORY_STATIC_STORAGE_HPP
+#define IOX_DUST_MEMORY_STATIC_STORAGE_HPP
 
 #include <cstdint>
 #include <cstring>
 #include <memory>
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief Static storage class to allocate memory for objects of type not yet known.
 ///        This storage is not aware of any underlying type.
@@ -106,8 +104,7 @@ class static_storage final
     static constexpr uint64_t align_mismatch(uint64_t align, uint64_t requiredAlign) noexcept;
 };
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/static_storage.inl"
-#endif // IOX_DUST_STATIC_STORAGE_HPP
+#include "iox/detail/static_storage.inl"
+#endif // IOX_DUST_MEMORY_STATIC_STORAGE_HPP

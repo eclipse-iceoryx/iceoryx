@@ -14,13 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cxx/static_storage.hpp"
+#include "iox/detail/static_storage.hpp"
 #include "test.hpp"
 
 #include <iostream>
 
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 
 
 // note we cannot enforce size and alignment at the same time,

@@ -964,7 +964,7 @@
     #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
     // after
-    #include "iceoryx_dust/internal/cxx/static_storage.hpp"
+    #include "iox/static_storage.hpp"
     ```
 
     ```cpp
