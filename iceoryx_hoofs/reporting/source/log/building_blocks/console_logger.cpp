@@ -1,6 +1,7 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2023 by NXP. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 
 #include "iox/log/building_blocks/console_logger.hpp"
 #include "iceoryx_platform/time.hpp"
+#include "iceoryx_platform/unistd.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -163,7 +165,13 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
 
 void ConsoleLogger::flush() noexcept
 {
-    if (std::puts(&getThreadLocalData().buffer[0]) < 0)
+    auto& data = getThreadLocalData();
+    // NOLINTJUSTIFICATION it is ensured that the index cannot be out of bounds
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
+    data.buffer[data.bufferWriteIndex] = '\n'; // overwrite null-termination with line ending
+    constexpr uint32_t LINE_ENDING_SIZE{1};
+
+    if (iox_write(STDOUT_FILENO, &data.buffer[0], data.bufferWriteIndex + LINE_ENDING_SIZE) < 0)
     {
         /// @todo iox-#1755 printing to the console failed; call the error handler after the error handler refactoring
         /// was merged
@@ -233,6 +241,29 @@ void ConsoleLogger::logString(const char* message) noexcept
 void ConsoleLogger::logBool(const bool value) noexcept
 {
     logString(value ? "true" : "false");
+}
+
+void ConsoleLogger::logRaw(const void* const data, const uint64_t size) noexcept
+{
+    logString("0x[");
+    if (data == nullptr)
+    {
+        logString("nullptr, ");
+        logDec(size);
+    }
+    else
+    {
+        for (uint64_t i = 0; i < size; ++i)
+        {
+            if (i > 0)
+            {
+                logChar(' ');
+            }
+            // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+            logArithmetic(static_cast<const uint8_t*>(data)[i], "%02hhx");
+        }
+    }
+    logChar(']');
 }
 
 // AXIVION Next Construct AutosarC++19_03-M9.3.3 : This is the default implementation for a logger. The design requires

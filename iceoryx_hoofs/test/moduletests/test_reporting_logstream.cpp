@@ -22,6 +22,7 @@
 #include "iox/logging.hpp"
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 #include <limits>
 #include <sstream>
@@ -178,10 +179,13 @@ TEST_F(IoxLogStream_test, StreamOperatorLogLevel)
     EXPECT_THAT(loggerMock.logs[0].message, StrEq("This is the iceoryx logger!LogLevel::WARN"));
 }
 
-#if 0
-/// @todo iox-#1755 re-enable when LogRawBuffer will be re-implemented
+constexpr bool isBigEndian()
+{
+    constexpr uint16_t endianess{0x0100};
+    return static_cast<const uint8_t&>(endianess) == 1;
+}
 
-TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "24974c62-3ec6-4a02-83ff-cbb61a3de664");
     struct DummyStruct
@@ -190,23 +194,42 @@ TEST_F(IoxLogStream_test, StreamOperatorLogRawBuffer)
         uint16_t b{0xDEAD};
         uint32_t c{0xC0FFEE};
     };
+    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[af fe de ad 00 c0 ff ee]" : "0x[fe af ad de ee ff c0 00]"};
 
     DummyStruct d;
 
-    LogStreamSut(loggerMock) << iox::log::RawBuffer(d);
-    volatile uint16_t endianess{0x0100};
-    auto bigEndian = reinterpret_cast<volatile uint8_t*>(&endianess);
-    if (*bigEndian)
-    {
-        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[af fe de ad 00 c0 ff ee]"));
-    }
-    else
-    {
-        EXPECT_THAT(loggerMock.logs[0].message, Eq("0x[fe af ad de ee ff c0 00]"));
-    }
+    LogStreamSut(loggerMock) << iox::log::raw(d);
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
 }
 
-#endif
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithPointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "54579f85-0d7a-4d51-b3a8-e18f256f2703");
+    struct DummyStruct
+    {
+        uint16_t a{0xBEEF};
+        uint16_t b{0xAFFE};
+        uint32_t c{0xBAADF00D};
+    };
+    constexpr const char* EXPECTED_DATA{isBigEndian() ? "0x[be ef af fe ba ad f0 0d]" : "0x[ef be fe af 0d f0 ad ba]"};
+
+    DummyStruct d;
+
+    LogStreamSut(loggerMock) << iox::log::raw(&d, sizeof(d));
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
+}
+
+TEST_F(IoxLogStream_test, StreamOperatorLogRawBufferWithNullpointer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4b1306cb-68d8-4345-b5dd-46fadff02c8d");
+    constexpr const char* EXPECTED_DATA{"0x[nullptr, 42]"};
+
+    LogStreamSut(loggerMock) << iox::log::raw(nullptr, 42);
+
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(EXPECTED_DATA));
+}
 
 template <class T>
 class IoxLogStreamHexOctBinIntegral_test : public IoxLogStream_test
@@ -289,22 +312,19 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogOct_ValueMax)
     testStreamOperatorLogOct(this->loggerMock, this->LogValueMax);
 }
 
-#if 0
-/// @todo iox-#1755 re-enable when LogBin will be re-implemented
-
 template <typename LogType>
 void testStreamOperatorLogBin(Logger_Mock& loggerMock, LogType logValue)
 {
-    iox::log::LogStream(loggerMock) << iox::log::BinFormat(logValue);
+    LogStreamSut(loggerMock) << iox::log::bin(logValue);
 
     // we need to check negative numbers in two's complement, therefore make the output value unsigned
     using TestType = typename std::make_unsigned<LogType>::type;
     auto outputValue = static_cast<TestType>(logValue);
 
-    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    auto expectedValue = "0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string();
 
-    EXPECT_THAT(loggerMock.logs[0].message,
-                Eq("0b" + std::bitset<std::numeric_limits<TestType>::digits>(outputValue).to_string()));
+    ASSERT_THAT(loggerMock.logs.size(), Eq(1U));
+    EXPECT_THAT(loggerMock.logs[0].message, StrEq(expectedValue));
 }
 
 TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueLow)
@@ -324,8 +344,6 @@ TYPED_TEST(IoxLogStreamHexOctBinIntegral_test, StreamOperatorLogBin_ValueMax)
     ::testing::Test::RecordProperty("TEST_ID", "b583014a-700f-46e3-8b7c-0a128c59598a");
     testStreamOperatorLogBin(this->loggerMock, this->LogValueMax);
 }
-
-#endif
 
 template <class T>
 class IoxLogStreamHexFloatingPoint_test : public IoxLogStream_test
