@@ -164,7 +164,7 @@ TEST_F(FixedPositionContainer_test, FillingUpAndErasingAgainInReverseOrderResult
 TEST_F(FixedPositionContainer_test, NewlyCreatedContainerIsNotFull)
 {
     ::testing::Test::RecordProperty("TEST_ID", "69f3e641-3356-4c52-ae3e-fcca4811e329");
-    EXPECT_THAT(sut.empty(), Eq(true));
+    EXPECT_THAT(sut.full(), Eq(false));
 }
 
 TEST_F(FixedPositionContainer_test, AddingOneElementResultsInNonFullContainer)

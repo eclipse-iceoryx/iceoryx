@@ -31,8 +31,8 @@ namespace iox
 /// inserting or removing elements does not change their positions. The container is optimized for efficient iteration
 /// over the elements by always having the 'next' index point to the closest element in memory, which prevents
 /// unnecessary back-and-forth jumps.
-/// @param T is the type the container holds
-/// @param Capacity is the maximum number of elements the container can hold
+/// @tparam T is the type the container holds
+/// @tparam CAPACITY is the maximum number of elements the container can hold
 template <typename T, uint64_t CAPACITY>
 class FixedPositionContainer final
 {
@@ -65,7 +65,6 @@ class FixedPositionContainer final
     FixedPositionContainer() noexcept;
     ~FixedPositionContainer() noexcept;
 
-    /// @todo iox-#2052 create an issue to implement copy/move ctors and assignment operators
     FixedPositionContainer(const FixedPositionContainer&) noexcept = delete;
     FixedPositionContainer(FixedPositionContainer&&) noexcept = delete;
 

@@ -150,7 +150,7 @@ FixedPositionContainer<T, CAPACITY>::emplace(Targs&&... args) noexcept
     //   +---+---+---+---+---+---+ - +
     //   | 3 | 2 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
-    // before insertion
+    // after insertion
     //     begin_used
     //     |
     //     |       begin_free
@@ -294,7 +294,7 @@ FixedPositionContainer<T, CAPACITY>::erase(const IndexType index) noexcept
     //   +---+---+---+---+---+---+ - +
     //   | 2 | 3 | 5 | 4 | I | I |   |   <- next index with same status
     //   +---+---+---+---+---+---+ - +
-    // before removal
+    // after removal
     //     begin_free
     //     |
     //     |   begin_used
