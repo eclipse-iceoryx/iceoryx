@@ -17,12 +17,13 @@
 #ifndef IOX_HOOFS_FUNCTION_HPP
 #define IOX_HOOFS_FUNCTION_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/function.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/function.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/function.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::function' instead of 'iox::cxx::function'

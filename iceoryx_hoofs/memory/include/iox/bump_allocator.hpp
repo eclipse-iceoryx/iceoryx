@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 #define IOX_HOOFS_MEMORY_BUMP_ALLOCATOR_HPP
 
-#include "iceoryx_hoofs/cxx/expected.hpp"
+#include "iox/expected.hpp"
 
 #include <cstdint>
 

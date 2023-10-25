@@ -18,11 +18,12 @@
 #define IOX_HOOFS_CXX_ATTRIBUTES_HPP
 
 #include "iox/attributes.hpp"
+#include "iox/detail/deprecation_marker.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/attributes.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/attributes.hpp' instead")]]
 namespace cxx
 {
 namespace internal

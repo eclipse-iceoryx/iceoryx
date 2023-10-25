@@ -17,7 +17,8 @@
 #define IOX_HOOFS_CXX_ALGORITHM_HPP
 
 #include "iox/algorithm.hpp"
-#pragma message(                                                                                                       \
-    "Deprecated in 3.0, removed in 4.0, please include 'iox/algorithm.hpp' instead of 'iceoryx_hoofs/cxx/algorithm.hpp'")
+#include "iox/detail/deprecation_marker.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/algorithm.hpp' instead.")
 
 #endif // IOX_HOOFS_CXX_ALGORITHM_HPP

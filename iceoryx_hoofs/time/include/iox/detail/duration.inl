@@ -483,7 +483,7 @@ template <typename T>
 inline constexpr T& operator*=(T&, const Duration&) noexcept
 {
     static_assert(
-        cxx::always_false_v<T>,
+        always_false_v<T>,
         "Assigning the result of a Duration multiplication with 'operator*=' to an arithmetic type is not supported");
     return T();
 }

@@ -17,12 +17,13 @@
 #ifndef IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 #define IOX_HOOFS_CXX_SCOPED_STATIC_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/scoped_static.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/scoped_static.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/scoped_static.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::makeScopedStatic' instead of 'iox::cxx::makeScopedStatic'
