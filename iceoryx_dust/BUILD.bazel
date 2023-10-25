@@ -30,13 +30,16 @@ configure_file(
 cc_library(
     name = "iceoryx_dust",
     srcs = glob([
+        "cli/source/**/*.cpp",
+        "filesystem/source/**/*.cpp",
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
+        "cli/include/",
         "container/include/",
         "filesystem/include/",
         "include",

@@ -47,6 +47,7 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+                                ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
@@ -55,17 +56,18 @@ iox_add_library(
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
+                                cli/include/
                                 container/include/
                                 filesystem/include/
                                 memory/include/
                                 utility/include/
                                 vocabulary/include/
     FILES
-        source/cli/arguments.cpp
-        source/cli/command_line_parser.cpp
-        source/cli/option.cpp
-        source/cli/option_definition.cpp
-        source/cli/option_manager.cpp
+        cli/source/arguments.cpp
+        cli/source/command_line_parser.cpp
+        cli/source/option.cpp
+        cli/source/option_definition.cpp
+        cli/source/option_manager.cpp
         filesystem/source/file_reader.cpp
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/signal_watcher.cpp

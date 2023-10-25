@@ -17,13 +17,11 @@
 #ifndef IOX_DUST_CLI_OPTION_HPP
 #define IOX_DUST_CLI_OPTION_HPP
 
-#include "iceoryx_dust/cli/types.hpp"
+#include "iox/cli/types.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 /// @brief Represents a command line option
 struct Option
@@ -96,7 +94,6 @@ struct OptionWithDetails : public Option // can this be melt together
         TypeName_t typeName;
     } details;
 };
-} // namespace internal
 } // namespace cli
 } // namespace iox
 #endif

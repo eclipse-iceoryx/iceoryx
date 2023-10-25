@@ -16,13 +16,11 @@
 #ifndef IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
 #define IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
 
-#include "iceoryx_dust/internal/cli/arguments.hpp"
+#include "iox/cli/arguments.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 template <typename T>
 inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
@@ -61,7 +59,6 @@ inline expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionNa
 
     return err(Error::NO_SUCH_VALUE);
 }
-} // namespace internal
 } // namespace cli
 } // namespace iox
 

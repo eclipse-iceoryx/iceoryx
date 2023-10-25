@@ -17,8 +17,8 @@
 #ifndef IOX_DUST_CLI_OPTION_DEFINITION_HPP
 #define IOX_DUST_CLI_OPTION_DEFINITION_HPP
 
-#include "iceoryx_dust/cli/types.hpp"
-#include "iceoryx_dust/internal/cli/arguments.hpp"
+#include "iox/cli/arguments.hpp"
+#include "iox/cli/types.hpp"
 #include "iox/function.hpp"
 #include "iox/vector.hpp"
 #include <cstdint>
@@ -26,8 +26,6 @@
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 /// @brief A set of options which is provided to the CommandLineParser.
 ///     Description, short and long name as well as type and value can be defined for every
@@ -94,7 +92,6 @@ class OptionDefinition
 };
 
 std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& value) noexcept;
-} // namespace internal
 } // namespace cli
 } // namespace iox
 

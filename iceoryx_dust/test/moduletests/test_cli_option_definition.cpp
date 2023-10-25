@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/option_definition.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/mocks/error_handler_mock.hpp"
+#include "iox/cli/option_definition.hpp"
 #include "iox/function.hpp"
 #include "iox/optional.hpp"
 #include "test.hpp"
@@ -31,9 +31,8 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox;
 using namespace iox::cli;
-using namespace iox::cli::internal;
-using namespace iox::cxx;
 
 /// All the success tests are handled indirectly in the CommandLineArgumentParser_test
 /// where every combination of short and long option is parsed and verified

@@ -16,15 +16,13 @@
 #ifndef IOX_DUST_CLI_COMMAND_PARSER_HPP
 #define IOX_DUST_CLI_COMMAND_PARSER_HPP
 
-#include "iceoryx_dust/internal/cli/arguments.hpp"
-#include "iceoryx_dust/internal/cli/option_definition.hpp"
+#include "iox/cli/arguments.hpp"
+#include "iox/cli/option_definition.hpp"
 #include <cstdint>
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 /// @brief Factory class for the CommandLineOption. First, one has to register
 ///        all switches and options before calling parse. This is required for
@@ -89,7 +87,6 @@ Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
                                     char* argv[],
                                     const uint64_t argcOffset = 1U) noexcept;
 
-} // namespace internal
 } // namespace cli
 } // namespace iox
 

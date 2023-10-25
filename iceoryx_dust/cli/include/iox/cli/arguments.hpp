@@ -16,9 +16,9 @@
 #ifndef IOX_DUST_CLI_ARGUMENTS_HPP
 #define IOX_DUST_CLI_ARGUMENTS_HPP
 
-#include "iceoryx_dust/cli/types.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
-#include "iceoryx_dust/internal/cli/option.hpp"
+#include "iox/cli/option.hpp"
+#include "iox/cli/types.hpp"
 #include "iox/expected.hpp"
 #include "iox/vector.hpp"
 
@@ -26,14 +26,12 @@ namespace iox
 {
 namespace cli
 {
-namespace internal
-{
 /// @brief This class provides access to the command line argument values.
 ///        When constructed with the default constructor it is empty. Calling
 ///        CommandLineParser::parse creates and returns a populated Arguments
 ///        object.
 ///        This class should never be used directly. Use the CommandLine builder
-///        from 'iceoryx_hoofs/cxx/command_line_argument_definition.hpp' to create a struct which contains
+///        from 'iox/cli_definition.hpp' to create a struct which contains
 ///        the values.
 class Arguments
 {
@@ -69,9 +67,8 @@ class Arguments
     const char* m_binaryName;
     vector<Option, MAX_NUMBER_OF_ARGUMENTS> m_arguments;
 };
-} // namespace internal
 } // namespace cli
 } // namespace iox
 
-#include "iceoryx_dust/internal/cli/arguments.inl"
+#include "iox/cli/arguments.inl"
 #endif

@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cli/command_line_argument_definition.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iox/cli_definition.hpp"
 #include "iox/optional.hpp"
 #include "test.hpp"
 #include "test_cli_command_line_common.hpp"
@@ -36,7 +36,7 @@ using namespace iox;
 /// command line parser macros are working and connecting everything together correctly
 /// The actual test of the command line parser can be found in
 /// test_cli_command_line_argument_parser.cpp
-class CommandLineArgumentDefinition_test : public Test
+class CliDefinition_test : public Test
 {
   public:
     void SetUp() override
@@ -60,9 +60,9 @@ class CommandLineArgumentDefinition_test : public Test
     optional<OutBuffer> outputBuffer;
 };
 
-struct CommandLineArgumentDefinitionSut
+struct CliDefinitionSut
 {
-    IOX_CLI_DEFINITION(CommandLineArgumentDefinitionSut);
+    IOX_CLI_DEFINITION(CliDefinitionSut);
 
     IOX_CLI_OPTIONAL(string<100>, stringValue1, {"default value"}, 's', {"string-value-1"}, {"some description"});
     IOX_CLI_OPTIONAL(string<100>, stringValue2, {"some other value"}, 't', {"string-value-2"}, {"some description"});
@@ -79,12 +79,12 @@ struct CommandLineArgumentDefinitionSut
     IOX_CLI_REQUIRED(uint16_t, requiredUint, 'c', "required-uint", "some description");
 };
 
-TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
+TEST_F(CliDefinition_test, OnlyRequiredValuesSetsRemainingValuesToDefault)
 {
     ::testing::Test::RecordProperty("TEST_ID", "451701b8-061f-4e30-9beb-1c09c7e6bc1b");
     CmdArgs args(
         {"myBinaryName", "--required-string", "bluubb", "--required-float", "123.456", "--required-uint", "12"});
-    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
+    auto sut = CliDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName(), StrEq("myBinaryName"));
 
@@ -103,7 +103,7 @@ TEST_F(CommandLineArgumentDefinition_test, OnlyRequiredValuesSetsRemainingValues
     EXPECT_THAT(sut.requiredUint(), Eq(12));
 }
 
-TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefinitionAreSetCorrectly)
+TEST_F(CliDefinition_test, AllValuesViaCommandLineArgumentDefinitionAreSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0478575e-8eb4-4983-93bd-199d222e706e");
     CmdArgs args({"anotherOneBitesTheDust",
@@ -127,7 +127,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "31",
                   "--light-switch-1",
                   "--light-switch-2"});
-    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
+    auto sut = CliDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName(), StrEq("anotherOneBitesTheDust"));
 
@@ -145,7 +145,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
     EXPECT_THAT(sut.requiredUint(), Eq(1212));
 }
 
-TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefinitionAndShortcutAreSetCorrectly)
+TEST_F(CliDefinition_test, AllValuesViaCommandLineArgumentDefinitionAndShortcutAreSetCorrectly)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0c9abe4d-47ab-469a-a0fe-eff03a7aff37");
     CmdArgs args({"noOneBitesHypnotoad",
@@ -169,7 +169,7 @@ TEST_F(CommandLineArgumentDefinition_test, AllValuesViaCommandLineArgumentDefini
                   "25",
                   "-l",
                   "-m"});
-    auto sut = CommandLineArgumentDefinitionSut::parse(args.argc, args.argv, "My program description");
+    auto sut = CliDefinitionSut::parse(args.argc, args.argv, "My program description");
 
     EXPECT_THAT(sut.binaryName(), StrEq("noOneBitesHypnotoad"));
 

@@ -16,8 +16,8 @@
 #ifndef IOX_DUST_CLI_OPTION_MANAGER_HPP
 #define IOX_DUST_CLI_OPTION_MANAGER_HPP
 
-#include "iceoryx_dust/internal/cli/command_line_parser.hpp"
-#include "iceoryx_dust/internal/cli/option_definition.hpp"
+#include "iox/cli/command_line_parser.hpp"
+#include "iox/cli/option_definition.hpp"
 #include "iox/function.hpp"
 #include "iox/std_string_support.hpp"
 #include "iox/vector.hpp"
@@ -25,8 +25,6 @@
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 using CmdAssignments_t = vector<function<void(Arguments&)>, MAX_NUMBER_OF_ARGUMENTS>;
 
@@ -82,9 +80,8 @@ class OptionManager
                                  const OptionType optionType);
 };
 
-} // namespace internal
 } // namespace cli
 } // namespace iox
 
-#include "iceoryx_dust/internal/cli/option_manager.inl"
+#include "iox/cli/option_manager.inl"
 #endif

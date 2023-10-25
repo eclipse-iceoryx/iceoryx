@@ -14,13 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/option_manager.hpp"
+#include "iox/cli/option_manager.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 OptionManager::OptionManager(const OptionDescription_t& programDescription, const function<void()> onFailureCallback)
     : m_optionSet{programDescription, onFailureCallback}
@@ -49,6 +47,5 @@ OptionName_t OptionManager::getLookupName(const char shortName, const OptionName
     return name;
 }
 
-} // namespace internal
 } // namespace cli
 } // namespace iox

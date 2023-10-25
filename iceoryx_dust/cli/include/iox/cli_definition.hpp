@@ -13,10 +13,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP
-#define IOX_DUST_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP
 
-#include "iceoryx_dust/internal/cli/option_manager.hpp"
+#ifndef IOX_DUST_CLI_CLI_DEFINITION_HPP
+#define IOX_DUST_CLI_CLI_DEFINITION_HPP
+
+#include "iox/cli/option_manager.hpp"
 
 #define IOX_INTERNAL_CMD_LINE_VALUE(type, memberName, defaultValue, shortName, longName, description, optionType)      \
   public:                                                                                                              \
@@ -95,7 +96,7 @@
 /// @endcode
 #define IOX_CLI_DEFINITION(Name)                                                                                       \
   private:                                                                                                             \
-    Name(::iox::cli::internal::OptionManager& optionManager, int argc, char* argv[], const uint64_t argcOffset = 1U)   \
+    Name(::iox::cli::OptionManager& optionManager, int argc, char* argv[], const uint64_t argcOffset = 1U)             \
         : m_optionManager{&optionManager}                                                                              \
     {                                                                                                                  \
         m_optionManager->populateDefinedOptions(m_binaryName, argc, argv, argcOffset);                                 \
@@ -109,7 +110,7 @@
         const uint64_t argcOffset = 1U,                                                                                \
         const ::iox::function<void()> onFailureCallback = [] { std::exit(EXIT_FAILURE); })                             \
     {                                                                                                                  \
-        ::iox::cli::internal::OptionManager optionManager(programDescription, onFailureCallback);                      \
+        ::iox::cli::OptionManager optionManager(programDescription, onFailureCallback);                                \
         return Name(optionManager, argc, argv, argcOffset);                                                            \
     }                                                                                                                  \
                                                                                                                        \
@@ -119,8 +120,8 @@
     }                                                                                                                  \
                                                                                                                        \
   private:                                                                                                             \
-    ::iox::cli::internal::OptionManager* m_optionManager = nullptr;                                                    \
+    ::iox::cli::OptionManager* m_optionManager = nullptr;                                                              \
     const char* m_binaryName = nullptr
 
 
-#endif
+#endif // IOX_DUST_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP

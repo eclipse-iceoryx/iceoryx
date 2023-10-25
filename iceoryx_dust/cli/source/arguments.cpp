@@ -14,13 +14,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/arguments.hpp"
+#include "iox/cli/arguments.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 const char* Arguments::binaryName() const noexcept
 {
@@ -38,6 +36,5 @@ bool Arguments::isSwitchSet(const OptionName_t& switchName) const noexcept
     }
     return false;
 }
-} // namespace internal
 } // namespace cli
 } // namespace iox

@@ -14,14 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/option_definition.hpp"
+#include "iox/cli/option_definition.hpp"
 #include "iox/std_string_support.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 OptionDefinition::OptionDefinition(const OptionDescription_t& programDescription,
                                    const function<void()> onFailureCallback) noexcept
@@ -141,6 +139,5 @@ std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& option) 
 
     return stream;
 }
-} // namespace internal
 } // namespace cli
 } // namespace iox

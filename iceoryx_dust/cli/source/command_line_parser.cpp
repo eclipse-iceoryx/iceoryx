@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/command_line_parser.hpp"
+#include "iox/cli/command_line_parser.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iox/algorithm.hpp"
 #include "iox/std_string_support.hpp"
@@ -24,8 +24,6 @@
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 Arguments
 parseCommandLineArguments(const OptionDefinition& optionSet, int argc, char* argv[], const uint64_t argcOffset) noexcept
@@ -377,6 +375,5 @@ void CommandLineParser::printHelpAndExit() const noexcept
     m_optionSet->m_onFailureCallback();
 }
 
-} // namespace internal
 } // namespace cli
 } // namespace iox

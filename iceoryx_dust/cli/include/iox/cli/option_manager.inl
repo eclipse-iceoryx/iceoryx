@@ -17,13 +17,11 @@
 #ifndef IOX_DUST_CLI_OPTION_MANAGER_INL
 #define IOX_DUST_CLI_OPTION_MANAGER_INL
 
-#include "iceoryx_dust/internal/cli/option_manager.hpp"
+#include "iox/cli/option_manager.hpp"
 
 namespace iox
 {
 namespace cli
-{
-namespace internal
 {
 template <typename T>
 inline T OptionManager::extractOptionArgumentValue(const Arguments& arguments,
@@ -73,7 +71,6 @@ inline T OptionManager::defineOption(T& referenceToMember,
 
     return defaultArgumentValue;
 }
-} // namespace internal
 } // namespace cli
 } // namespace iox
 
