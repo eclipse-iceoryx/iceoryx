@@ -47,10 +47,12 @@ iox_add_library(
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
+                                ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
+                                container/include/
                                 vocabulary/include/
     FILES
         source/cli/arguments.cpp

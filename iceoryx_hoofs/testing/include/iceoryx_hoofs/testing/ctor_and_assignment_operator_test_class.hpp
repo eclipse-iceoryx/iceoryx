@@ -92,6 +92,16 @@ class CTorAndAssignmentOperatorTestClass
         stats.dTorOrder.emplace_back(value);
     }
 
+    T& ref()
+    {
+        return value;
+    }
+
+    const T& ref() const
+    {
+        return value;
+    }
+
     struct Statistics
     {
         uint64_t cTor{0};

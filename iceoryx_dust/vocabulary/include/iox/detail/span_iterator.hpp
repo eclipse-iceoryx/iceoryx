@@ -80,8 +80,6 @@ class span_iterator final
         return *this;
     }
 
-    // Rule DCL21-CPP is deprecated
-    // NOLINTNEXTLINE(cert-dcl21-cpp)
     constexpr span_iterator operator++(int) noexcept
     {
         span_iterator ret = *this;
@@ -97,8 +95,6 @@ class span_iterator final
         return *this;
     }
 
-    // Rule DCL21-CPP is deprecated
-    // NOLINTNEXTLINE(cert-dcl21-cpp)
     constexpr span_iterator operator--(int) noexcept
     {
         span_iterator ret = *this;

@@ -20,7 +20,6 @@
 #include "test.hpp"
 
 using namespace ::testing;
-using ::testing::_;
 
 int main(int argc, char* argv[])
 {
