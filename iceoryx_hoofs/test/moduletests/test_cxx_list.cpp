@@ -15,11 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/cxx/list.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/ctor_and_assignment_operator_test_class.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/attributes.hpp"
+#include "iox/list.hpp"
 #include "iox/logging.hpp"
 #include "test.hpp"
 
@@ -27,7 +27,7 @@
 namespace
 {
 using namespace ::testing;
-using namespace iox::cxx;
+using namespace iox;
 using namespace iox::testing;
 
 constexpr uint64_t TESTLISTCAPACITY{10U};

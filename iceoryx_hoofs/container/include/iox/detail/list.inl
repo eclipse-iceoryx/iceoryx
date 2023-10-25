@@ -15,17 +15,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_LIST_INL
-#define IOX_HOOFS_CXX_LIST_INL
+#ifndef IOX_HOOFS_CONTAINER_LIST_INL
+#define IOX_HOOFS_CONTAINER_LIST_INL
 
-
-#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iox/list.hpp"
 #include "iox/logging.hpp"
 
-
 namespace iox
-{
-namespace cxx
 {
 /// @NOLINTJUSTIFICATION m_data fields are explicitly initialized whenever a new element is inserted
 /// into the list
@@ -699,7 +695,6 @@ inline bool list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterato
     return isInvalidIterator(iter);
 }
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_HOOFS_CXX_LIST_INL
+#endif // IOX_HOOFS_CONTAINER_LIST_INL

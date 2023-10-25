@@ -17,7 +17,6 @@
 #ifndef IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 #define IOX_POSH_ROUDI_PROCESS_MANAGER_HPP
 
-#include "iceoryx_hoofs/cxx/list.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/mepoo/segment_manager.hpp"
 #include "iceoryx_posh/internal/roudi/introspection/process_introspection.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
+#include "iox/list.hpp"
 
 #include <cstdint>
 #include <ctime>
@@ -46,7 +46,7 @@ class ProcessManagerInterface
 class ProcessManager : public ProcessManagerInterface
 {
   public:
-    using ProcessList_t = cxx::list<Process, MAX_PROCESS_NUMBER>;
+    using ProcessList_t = iox::list<Process, MAX_PROCESS_NUMBER>;
     using PortConfigInfo = iox::runtime::PortConfigInfo;
 
     enum class TerminationFeedback

@@ -2,7 +2,7 @@ name: Code Linting on Pull-Requests
 
 on:
   pull_request:
-    branches: [ master, release* ]
+    branches: [ master, release*, iox-* ]
 
 jobs:
   clang-tidy-review:
