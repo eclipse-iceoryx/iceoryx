@@ -49,6 +49,8 @@
 - Implement custom error reporting API [\#1032](https://github.com/eclipse-iceoryx/iceoryx/issues/1032)
 - Implement iceoryx platform for FreeRTOS [#1982](https://github.com/eclipse-iceoryx/iceoryx/issues/1982)
 - Extend 'iceperf' with 'WaitSet' [#2003](https://github.com/eclipse-iceoryx/iceoryx/issues/2003)
+- Create iceoryx version header for the C-binding [#1014](https://github.com/eclipse-iceoryx/iceoryx/issues/1014)
+- Create macros to deprecate header and code constructs [#2057](https://github.com/eclipse-iceoryx/iceoryx/issues/2057)
 
 **Bugfixes:**
 
