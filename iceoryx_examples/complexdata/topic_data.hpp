@@ -18,7 +18,7 @@
 #define IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
-#include "iceoryx_hoofs/cxx/list.hpp"
+#include "iox/list.hpp"
 #include "iox/optional.hpp"
 #include "iox/stack.hpp"
 #include "iox/string.hpp"
