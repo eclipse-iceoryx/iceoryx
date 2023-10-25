@@ -61,7 +61,7 @@ int main()
                 handleInsertionReturnVal(sample->integerList.push_front(ct + 4));
                 // list<optional<int32_t>, 15>
                 handleInsertionReturnVal(sample->optionalList.push_front(42));
-                handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
+                handleInsertionReturnVal(sample->optionalList.push_front(iox::nullopt));
                 //! [fill lists]
 
                 // stack<float, 5>
@@ -84,9 +84,9 @@ int main()
                     handleInsertionReturnVal(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
                 }
                 // vector<variant<string<10>, double>, 10>;
-                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
-                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
-                handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<0>(), "seven"));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<1>(), 8.0));
+                handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<0>(), "nine"));
                 //! [fill vectors]
 
                 sample.publish();

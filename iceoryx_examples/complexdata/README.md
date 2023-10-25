@@ -69,13 +69,13 @@ in iceoryx. A list of all reimplemented containers can be found
 ```cpp
 struct ComplexDataType
 {
-    forward_list<string<10>, 5> stringForwardList;
-    list<uint64_t, 10> integerList;
-    list<optional<int32_t>, 15> optionalList;
-    stack<float, 5> floatStack;
-    string<20> someString;
-    vector<double, 5> doubleVector;
-    vector<variant<string<10>, double>, 10> variantVector;
+    iox::forward_list<iox::string<10>, 5> stringForwardList;
+    iox::list<uint64_t, 10> integerList;
+    iox::list<iox::optional<int32_t>, 15> optionalList;
+    iox::stack<float, 5> floatStack;
+    iox::string<20> someString;
+    iox::vector<double, 5> doubleVector;
+    iox::vector<iox::variant<iox::string<10>, double>, 10> variantVector;
 };
 ```
 
@@ -111,7 +111,7 @@ handleInsertionReturnVal(sample->integerList.push_front(ct * 2));
 handleInsertionReturnVal(sample->integerList.push_front(ct + 4));
 // list<optional<int32_t>, 15>
 handleInsertionReturnVal(sample->optionalList.push_front(42));
-handleInsertionReturnVal(sample->optionalList.push_front(nullopt));
+handleInsertionReturnVal(sample->optionalList.push_front(iox::nullopt));
 ```
 
 !!! note
@@ -144,9 +144,9 @@ for (uint64_t i = 0U; i < sample->doubleVector.capacity(); ++i)
     handleInsertionReturnVal(sample->doubleVector.emplace_back(static_cast<double>(ct + i)));
 }
 // vector<variant<string<10>, double>, 10>;
-handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "seven"));
-handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<1>(), 8.0));
-handleInsertionReturnVal(sample->variantVector.emplace_back(in_place_index<0>(), "nine"));
+handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<0>(), "seven"));
+handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<1>(), 8.0));
+handleInsertionReturnVal(sample->variantVector.emplace_back(iox::in_place_index<0>(), "nine"));
 ```
 
 With `in_place_index` the passed object is constructed in-place at the given index.
@@ -198,7 +198,7 @@ for (const auto& i : sample->variantVector)
     case 1:
         s << separator << *i.template get_at_index<1>();
         break;
-    case INVALID_VARIANT_INDEX:
+    case iox::INVALID_VARIANT_INDEX:
         s << separator << "variant does not contain a type";
         break;
     default:

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/forward_list.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
@@ -23,6 +22,7 @@
 #include "iceoryx_posh/roudi_env/minimal_roudi_config.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iceoryx_posh/testing/roudi_gtest.hpp"
+#include "iox/forward_list.hpp"
 #include "iox/list.hpp"
 #include "iox/optional.hpp"
 #include "iox/stack.hpp"
@@ -38,7 +38,6 @@ using namespace ::testing;
 
 using namespace iox;
 using namespace iox::popo;
-using namespace iox::cxx;
 using namespace iox::roudi_env;
 using namespace iox::testing;
 

@@ -100,7 +100,7 @@ int main()
                     case 1:
                         s << separator << *i.template get_at_index<1>();
                         break;
-                    case INVALID_VARIANT_INDEX:
+                    case iox::INVALID_VARIANT_INDEX:
                         s << separator << "variant does not contain a type";
                         break;
                     default:

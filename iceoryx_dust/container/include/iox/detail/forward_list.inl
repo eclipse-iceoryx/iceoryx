@@ -15,17 +15,15 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CXX_FORWARD_LIST_INL
-#define IOX_DUST_CXX_FORWARD_LIST_INL
+#ifndef IOX_DUST_CONTAINER_FORWARD_LIST_INL
+#define IOX_DUST_CONTAINER_FORWARD_LIST_INL
 
 
-#include "iceoryx_dust/cxx/forward_list.hpp"
+#include "iox/forward_list.hpp"
 #include "iox/logging.hpp"
 
 
 namespace iox
-{
-namespace cxx
 {
 // m_data is initialized when elements are added
 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-member-init, hicpp-member-init)
@@ -610,8 +608,6 @@ inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const
     return isInvalidIterator(iter);
 }
 
-
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_DUST_CXX_FORWARD_LIST_INL
+#endif // IOX_DUST_CONTAINER_FORWARD_LIST_INL

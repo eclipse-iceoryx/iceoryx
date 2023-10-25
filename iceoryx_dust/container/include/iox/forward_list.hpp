@@ -15,8 +15,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CXX_FORWARD_LIST_HPP
-#define IOX_DUST_CXX_FORWARD_LIST_HPP
+#ifndef IOX_DUST_CONTAINER_FORWARD_LIST_HPP
+#define IOX_DUST_CONTAINER_FORWARD_LIST_HPP
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -27,8 +27,6 @@
 #include "iceoryx_platform/platform_correction.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief  C++11 compatible uni-directional forward list implementation.
 /// @details  Adjustments in the API were done to not use exceptions and serve the requirement of
@@ -361,9 +359,8 @@ class forward_list
     size_type m_size{0U};
 }; // forward_list
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/forward_list.inl"
+#include "iox/detail/forward_list.inl"
 
-#endif // IOX_DUST_CXX_FORWARD_LIST_HPP
+#endif // IOX_DUST_CONTAINER_FORWARD_LIST_HPP

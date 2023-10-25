@@ -947,7 +947,8 @@
     // before
     #include "iceoryx_hoofs/cxx/forward_list.hpp"
 
-    #include "iceoryx_dust/cxx/forward_list.hpp"
+    // after
+    #include "iox/forward_list.hpp"
     ```
 
     ```cpp
