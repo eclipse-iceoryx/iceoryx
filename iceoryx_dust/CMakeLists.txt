@@ -71,9 +71,9 @@ iox_add_library(
         cli/source/option_definition.cpp
         cli/source/option_manager.cpp
         filesystem/source/file_reader.cpp
-        source/posix_wrapper/named_pipe.cpp
-        source/posix_wrapper/signal_watcher.cpp
         posix/ipc/source/message_queue.cpp
+        posix/ipc/source/named_pipe.cpp
+        source/posix_wrapper/signal_watcher.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"

@@ -1006,7 +1006,7 @@
     #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+    #include "iox/named_pipe.hpp"
     ```
 
     ```cpp

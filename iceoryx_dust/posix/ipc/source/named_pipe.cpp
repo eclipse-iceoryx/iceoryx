@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+#include "iox/named_pipe.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/filesystem.hpp"
@@ -27,8 +27,8 @@
 
 namespace iox
 {
-namespace posix
-{
+using namespace iox::posix;
+
 /// NOLINTJUSTIFICATION see declaration in header
 /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
 constexpr const char NamedPipe::NAMED_PIPE_PREFIX[];
@@ -361,5 +361,4 @@ bool NamedPipe::NamedPipeData::hasValidState() const noexcept
     return initializationGuard.load() == VALID_DATA;
 }
 
-} // namespace posix
 } // namespace iox
