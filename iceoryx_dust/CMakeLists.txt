@@ -51,6 +51,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
+                                ${PROJECT_SOURCE_DIR}/posix/ipc/include
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
@@ -60,6 +61,7 @@ iox_add_library(
                                 container/include/
                                 filesystem/include/
                                 memory/include/
+                                posix/ipc/include/
                                 utility/include/
                                 vocabulary/include/
     FILES
@@ -71,7 +73,7 @@ iox_add_library(
         filesystem/source/file_reader.cpp
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/signal_watcher.cpp
-        source/posix_wrapper/message_queue.cpp
+        posix/ipc/source/message_queue.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"

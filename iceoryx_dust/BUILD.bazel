@@ -32,10 +32,11 @@ cc_library(
     srcs = glob([
         "cli/source/**/*.cpp",
         "filesystem/source/**/*.cpp",
+        "posix/ipc/source/**/*.cpp",
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
@@ -44,6 +45,7 @@ cc_library(
         "filesystem/include/",
         "include",
         "memory/include/",
+        "posix/ipc/include/",
         "utility/include/",
         "vocabulary/include/",
     ],

@@ -998,7 +998,7 @@
     #include "iceoryx_hoofs/posix_wrapper/internal/message_queue.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
+    #include "iox/message_queue.hpp"
     ```
 
     ```cpp
