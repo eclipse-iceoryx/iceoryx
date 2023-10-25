@@ -16,16 +16,17 @@
 #ifndef IOX_HOOFS_CXX_FILESYSTEM_HPP
 #define IOX_HOOFS_CXX_FILESYSTEM_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/filesystem.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/filesystem.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/filesystem.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::access_rights' instead of 'iox::cxx::perms'
-using perms = iox::access_rights;
+using perms IOX_DEPRECATED_SINCE(3, "Please use 'iox::access_rights' instead.") = iox::access_rights;
 } // namespace cxx
 } // namespace iox
 

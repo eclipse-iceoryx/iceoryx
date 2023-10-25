@@ -16,6 +16,7 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
+load("//bazel:configure_version.bzl", "configure_version")
 
 configure_file(
     name = "iceoryx_hoofs_deployment_hpp",
@@ -25,6 +26,13 @@ configure_file(
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
         "IOX_MINIMAL_LOG_LEVEL": "TRACE",
     },
+)
+
+configure_version(
+    name = "iceoryx_versions_h",
+    src = "cmake/iceoryx_versions.h.in",
+    out = "include/iceoryx_versions.h",
+    version_from = "//:VERSION",
 )
 
 cc_library(
@@ -46,6 +54,7 @@ cc_library(
     ]),
     hdrs = glob(["include/**"]) + glob(["legacy/**"]) + glob(["memory/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + glob(["time/**"]) + glob(["utility/**"]) + glob(["primitives/**"]) + glob(["posix/**"]) + glob(["design/**"]) + glob(["buffer/**"]) + glob(["filesystem/**"]) + glob(["functional/**"]) + glob(["reporting/**"]) + [
         ":iceoryx_hoofs_deployment_hpp",
+        ":iceoryx_versions_h",
     ],
     includes = [
         "buffer/include/",

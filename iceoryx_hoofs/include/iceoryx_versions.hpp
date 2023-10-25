@@ -1,4 +1,4 @@
-// Copyright (c) 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,22 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_HOOFS_CXX_SCOPE_GUARD_HPP
-#define IOX_HOOFS_CXX_SCOPE_GUARD_HPP
+#ifndef IOX_ICEORYX_VERSIONS_HPP
+#define IOX_ICEORYX_VERSIONS_HPP
 
-#include "iox/detail/deprecation_marker.hpp"
-#include "iox/scope_guard.hpp"
+#include "iceoryx_versions.h"
 
-IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/scope_guard.hpp' instead.")
-
-namespace iox
-{
-namespace cxx
-{
-/// @deprecated use 'iox::ScopeGuard' instead of 'iox::cxx::ScopeGuard'
-using iox::ScopeGuard;
-
-} // namespace cxx
-} // namespace iox
-
-#endif // IOX_HOOFS_CXX_SCOPE_GUARD_HPP
+#endif // IOX_ICEORYX_VERSIONS_HPP

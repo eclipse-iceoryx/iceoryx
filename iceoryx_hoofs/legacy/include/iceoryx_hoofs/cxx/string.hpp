@@ -17,12 +17,13 @@
 #ifndef IOX_HOOFS_CXX_STRING_HPP
 #define IOX_HOOFS_CXX_STRING_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/string.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/string.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/string.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'

@@ -17,7 +17,7 @@
 #ifndef IOX_HOOFS_ICEORYX_HOOFS_DEPLOYMENT_HPP
 #define IOX_HOOFS_ICEORYX_HOOFS_DEPLOYMENT_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_types.hpp"
+#include "iox/iceoryx_hoofs_types.hpp"
 
 namespace iox
 {

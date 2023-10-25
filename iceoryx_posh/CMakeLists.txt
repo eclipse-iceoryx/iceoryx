@@ -48,7 +48,6 @@ if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
 endif()
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
-include(cmake/iceoryxversions.cmake)
 
 ########## Multiple libraries are exported, the setup and installation is done
 #          manually without the iox_* macros
@@ -82,7 +81,7 @@ iox_add_library(
                                             # and include both iceoryx_posh_core and iceoryx_posh_runtime
     PROJECT_PREFIX          ${PREFIX}
     BUILD_INTERFACE         ${CMAKE_CURRENT_SOURCE_DIR}/include
-                            ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                            ${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include
     INSTALL_INTERFACE       include/${PREFIX}
     PRIVATE_INCLUDES        source/capro
                             source/log
@@ -172,7 +171,7 @@ iox_add_library(
     NAMESPACE           iceoryx_posh
     PROJECT_PREFIX      ${PREFIX}
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include
                         ${CMAKE_BINARY_DIR}/dependencies/install/include
     INSTALL_INTERFACE   include/${PREFIX}
     PUBLIC_LIBS         iceoryx_hoofs::iceoryx_hoofs
@@ -240,7 +239,7 @@ if(TOML_CONFIG)
                             iceoryx_posh::iceoryx_posh_roudi
                             cpptoml
         BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                            ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                            ${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include
                             ${CMAKE_BINARY_DIR}/dependencies/install/include
         INSTALL_INTERFACE   include/${PREFIX}
         FILES
@@ -279,10 +278,10 @@ if(TOML_CONFIG)
 endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_posh_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include/iceoryx_posh/iceoryx_posh_deployment.hpp" @ONLY)
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_posh/include/${PROJECT_NAME}/iceoryx_posh_deployment.hpp
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )

@@ -17,12 +17,13 @@
 #ifndef IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 #define IOX_HOOFS_CXX_TYPE_TRAITS_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/type_traits.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/type_traits.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/type_traits.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::add_const_conditionally' instead of 'iox::cxx::add_const_conditionally'

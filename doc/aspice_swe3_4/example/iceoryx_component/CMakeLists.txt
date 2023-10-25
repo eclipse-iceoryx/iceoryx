@@ -31,7 +31,7 @@ iox_add_library(
     NAMESPACE           iceoryx_component
     PRIVATE_INCLUDES    source/example_module
     BUILD_INTERFACE     ${CMAKE_CURRENT_SOURCE_DIR}/include
-                        ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                        ${CMAKE_BINARY_DIR}/generated/iceoryx_component/include
     INSTALL_INTERFACE   include/${PREFIX}
     PRIVATE_LIBS        ${CMAKE_THREAD_LIBS_INIT}
     FILES

@@ -49,7 +49,7 @@ iox_add_library(
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
-                                ${CMAKE_BINARY_DIR}/generated/iceoryx/include
+                                ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 container/include/
@@ -67,10 +67,10 @@ iox_add_library(
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx/include/iceoryx_dust/iceoryx_dust_deployment.hpp" @ONLY)
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include/iceoryx_dust/iceoryx_dust_deployment.hpp" @ONLY)
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx/include/${PROJECT_NAME}/iceoryx_dust_deployment.hpp
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include/${PROJECT_NAME}/iceoryx_dust_deployment.hpp
     DESTINATION include/${PREFIX}/${PROJECT_NAME}/
     COMPONENT dev
 )

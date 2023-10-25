@@ -31,7 +31,6 @@ namespace
 // NOLINTBEGIN(cppcoreguidelines-avoid-do-while) bad rule, disable globally
 using namespace ::testing;
 using namespace iox::er;
-using namespace iox::cxx;
 using namespace iox::testing;
 
 using MyErrorA = module_a::errors::Error;

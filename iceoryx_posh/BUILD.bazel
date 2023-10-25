@@ -17,7 +17,6 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("//bazel:configure_file.bzl", "configure_file")
-load("//bazel:configure_version.bzl", "configure_version")
 
 #
 ########## posh core lib ##########
@@ -79,13 +78,6 @@ configure_file(
     }),
 )
 
-configure_version(
-    name = "iceoryx_versions_hpp",
-    src = "cmake/iceoryx_versions.hpp.in",
-    out = "include/iceoryx_versions.hpp",
-    version_from = "//:VERSION",
-)
-
 #
 ########## posh lib ##########
 #
@@ -124,7 +116,6 @@ cc_library(
            iceory_posh_extra_roudi_files,
     hdrs = glob(["include/**"]) + [
         ":iceoryx_posh_deployment_hpp",
-        ":iceoryx_versions_hpp",
     ],
     strip_include_prefix = "include",
     visibility = ["//visibility:public"],

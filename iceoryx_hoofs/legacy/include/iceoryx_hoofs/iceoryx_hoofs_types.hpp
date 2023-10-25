@@ -17,16 +17,17 @@
 #ifndef IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
 #define IOX_HOOFS_ICEORYX_HOOFS_TYPES_HPP
 
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
+
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/iceoryx_hoofs_types.hpp' instead.")
 
 namespace iox
 {
-/// @todo iox-#1593 Deprecate include
-/// [[deprecated("Deprecated in 3.0, removed in 4.0, please include 'iox/iceoryx_hoofs_types.hpp' instead")]]
 namespace cxx
 {
 /// @deprecated use 'iox::byte' instead of 'iox::cxx::byte_t'
-using byte_t = byte;
+using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'iox::byte' instead.") = byte;
 
 } // namespace cxx
 namespace log

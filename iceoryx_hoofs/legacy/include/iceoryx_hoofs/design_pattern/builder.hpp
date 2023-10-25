@@ -18,7 +18,8 @@
 #define IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
 
 #include "iox/builder.hpp"
-#pragma message(                                                                                                       \
-    "Deprecated in 3.0, removed in 4.0, please include 'iox/builder.hpp' instead of 'iceoryx_hoofs/design_pattern/builder.hpp'")
+#include "iox/detail/deprecation_marker.hpp"
 
-#endif
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/builder.hpp' instead.")
+
+#endif // IOX_HOOFS_DESIGN_PATTERN_BUILDER_HPP
