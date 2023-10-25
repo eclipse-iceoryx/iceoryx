@@ -48,11 +48,13 @@ iox_add_library(
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
     BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
                                 ${PROJECT_SOURCE_DIR}/container/include
+                                ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
     EXPORT_INCLUDE_DIRS         include/
                                 container/include/
+                                filesystem/include/
                                 vocabulary/include/
     FILES
         source/cli/arguments.cpp
@@ -60,7 +62,7 @@ iox_add_library(
         source/cli/option.cpp
         source/cli/option_definition.cpp
         source/cli/option_manager.cpp
-        source/cxx/file_reader.cpp
+        filesystem/source/file_reader.cpp
         source/posix_wrapper/named_pipe.cpp
         source/posix_wrapper/signal_watcher.cpp
         source/posix_wrapper/message_queue.cpp

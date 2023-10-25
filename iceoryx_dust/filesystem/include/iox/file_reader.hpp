@@ -14,14 +14,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_FILE_READER_FILE_READER_HPP
-#define IOX_DUST_FILE_READER_FILE_READER_HPP
+
+#ifndef IOX_DUST_FILESYSTEM_FILE_READER_HPP
+#define IOX_DUST_FILESYSTEM_FILE_READER_HPP
 
 #include <fstream>
 
 namespace iox
-{
-namespace cxx
 {
 /// @brief Wrapper class for file reading operations. Tries to open a file in the constructor. Error handling strategy
 /// can be decided by means of the ErrorMode argument.
@@ -70,7 +69,6 @@ class FileReader
     std::fstream m_fileStream;
 };
 
-} // namespace cxx
 } // namespace iox
 
-#endif // IOX_DUST_FILE_READER_FILE_READER_HPP
+#endif // IOX_DUST_FILESYSTEM_FILE_READER_HPP

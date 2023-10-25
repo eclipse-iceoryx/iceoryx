@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/file_reader.hpp"
+#include "iox/file_reader.hpp"
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/logging.hpp"
 
@@ -26,8 +26,6 @@
 #include <string>
 
 namespace iox
-{
-namespace cxx
 {
 FileReader::FileReader(const std::string& fileName, const std::string& filePath, ErrorMode errorMode) noexcept
 {
@@ -71,5 +69,4 @@ bool FileReader::readLine(std::string& buffer) noexcept
     return static_cast<bool>(std::getline(m_fileStream, buffer));
 }
 
-} // namespace cxx
 } // namespace iox

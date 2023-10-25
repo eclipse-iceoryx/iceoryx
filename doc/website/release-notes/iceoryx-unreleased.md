@@ -972,7 +972,7 @@
     #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 
     // after
-    #include "iceoryx_dust/cxx/file_reader.hpp"
+    #include "iox/file_reader.hpp"
     ```
 
     ```cpp
