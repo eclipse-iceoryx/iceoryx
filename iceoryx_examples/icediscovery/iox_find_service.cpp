@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [include ServiceDiscovery]
 #include "iceoryx_posh/runtime/service_discovery.hpp"
 //! [include ServiceDiscovery]
@@ -39,7 +39,7 @@ int main()
     iox::runtime::ServiceDiscovery serviceDiscovery;
     //! [create ServiceDiscovery object]
 
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         std::cout << "\n=========================================" << std::endl;
 

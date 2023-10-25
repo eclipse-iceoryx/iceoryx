@@ -18,9 +18,9 @@
 //! [includes]
 #include "topic_data.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [includes]
 
 #include <iostream>
@@ -38,7 +38,7 @@ int main()
 
     // run until interrupted by Ctrl-C
     //! [loop]
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         subscriber
             .take()

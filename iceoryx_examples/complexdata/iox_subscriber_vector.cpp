@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
@@ -31,7 +31,7 @@ int main()
     iox::popo::Subscriber<iox::vector<double, 5>> subscriber({"Radar", "FrontRight", "VectorData"});
 
     // run until interrupted by Ctrl-C
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         subscriber.take()
             .and_then([](auto& sample) {

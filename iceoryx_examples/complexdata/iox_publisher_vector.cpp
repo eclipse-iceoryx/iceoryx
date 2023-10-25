@@ -16,9 +16,9 @@
 
 #include "iox/vector.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 
 constexpr char APP_NAME[] = "iox-cpp-publisher-vector";
 
@@ -34,7 +34,7 @@ int main()
 
     uint64_t ct = 0;
     // run until interrupted by Ctrl-C
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         publisher.loan()
             .and_then([&](auto& sample) {

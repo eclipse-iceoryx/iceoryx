@@ -46,22 +46,22 @@ iox_add_library(
     PRIVATE_LIBS                ${ICEORYX_SANITIZER_FLAGS}
     PRIVATE_LIBS_LINUX          ${CODE_COVERAGE_LIBS}
     PUBLIC_LIBS                 iceoryx_hoofs::iceoryx_hoofs
-    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/include
-                                ${PROJECT_SOURCE_DIR}/cli/include
+    BUILD_INTERFACE             ${PROJECT_SOURCE_DIR}/cli/include
                                 ${PROJECT_SOURCE_DIR}/container/include
                                 ${PROJECT_SOURCE_DIR}/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/memory/include
                                 ${PROJECT_SOURCE_DIR}/posix/ipc/include
+                                ${PROJECT_SOURCE_DIR}/posix/sync/include
                                 ${PROJECT_SOURCE_DIR}/utility/include
                                 ${PROJECT_SOURCE_DIR}/vocabulary/include
                                 ${CMAKE_BINARY_DIR}/generated/iceoryx_dust/include
     INSTALL_INTERFACE           include/${PREFIX}
-    EXPORT_INCLUDE_DIRS         include/
-                                cli/include/
+    EXPORT_INCLUDE_DIRS         cli/include/
                                 container/include/
                                 filesystem/include/
                                 memory/include/
                                 posix/ipc/include/
+                                posix/sync/include/
                                 utility/include/
                                 vocabulary/include/
     FILES
@@ -73,7 +73,7 @@ iox_add_library(
         filesystem/source/file_reader.cpp
         posix/ipc/source/message_queue.cpp
         posix/ipc/source/named_pipe.cpp
-        source/posix_wrapper/signal_watcher.cpp
+        posix/sync/source/signal_watcher.cpp
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_dust_deployment.hpp.in"

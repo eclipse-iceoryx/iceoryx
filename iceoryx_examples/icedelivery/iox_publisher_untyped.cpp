@@ -20,9 +20,9 @@
 //! [include topic data]
 
 //! [includes]
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [includes]
 
 #include <iostream>
@@ -39,7 +39,7 @@ int main()
     //! [create untyped publisher]
 
     double ct = 0.0;
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         ++ct;
 

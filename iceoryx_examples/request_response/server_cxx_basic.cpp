@@ -17,9 +17,9 @@
 //! [iceoryx includes]
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <iostream>
@@ -36,7 +36,7 @@ int main()
     //! [create server]
 
     //! [process requests in a loop]
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         //! [take request]
         server.take().and_then([&](const auto& request) {

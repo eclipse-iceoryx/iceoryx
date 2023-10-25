@@ -17,11 +17,11 @@
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iox/optional.hpp"
 #include "iox/scoped_static.hpp"
+#include "iox/signal_watcher.hpp"
 
 namespace iox
 {
@@ -50,7 +50,7 @@ uint8_t IceOryxRouDiApp::run() noexcept
                                                            m_compatibilityCheckLevel,
                                                            m_processKillDelay,
                                                            m_processTeminationDelay});
-        iox::posix::waitForTerminationRequest();
+        iox::waitForTerminationRequest();
     }
     return EXIT_SUCCESS;
 }

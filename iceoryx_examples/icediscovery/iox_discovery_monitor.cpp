@@ -18,8 +18,8 @@
 #include "discovery_monitor.hpp"
 //! [include custom discovery]
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 
 #include <iostream>
 
@@ -76,7 +76,7 @@ int main()
     discovery.registerCallback(callback);
     //! [register callback]
 
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         // here the app would run its functional code while the
         // service availability is monitored in the background
