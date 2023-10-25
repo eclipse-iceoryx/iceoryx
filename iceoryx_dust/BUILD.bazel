@@ -33,13 +33,14 @@ cc_library(
         "source/**/*.cpp",
         "source/**/*.hpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["container/**"]) + glob(["container/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["include/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
         "container/include/",
         "filesystem/include/",
         "include",
+        "memory/include/",
         "vocabulary/include/",
     ],
     visibility = ["//visibility:public"],

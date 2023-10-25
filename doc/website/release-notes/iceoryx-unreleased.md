@@ -988,7 +988,7 @@
     #include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
 
     // after
-    #include "iceoryx_dust/relocatable_pointer/relocatable_ptr.hpp"
+    #include "iox/relocatable_ptr.hpp"
     ```
 
     ```cpp

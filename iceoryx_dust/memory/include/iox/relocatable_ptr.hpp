@@ -14,15 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
-#define IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
+#ifndef IOX_DUST_MEMORY_RELOCATABLE_PTR_HPP
+#define IOX_DUST_MEMORY_RELOCATABLE_PTR_HPP
 
 #include <cstdint>
 #include <type_traits>
 
 namespace iox
-{
-namespace memory
 {
 /// @brief Smart pointer type that allows objects using it to able to be copied by memcpy
 ///        without invalidating the pointer.
@@ -148,9 +146,8 @@ bool operator==(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) no
 template <typename T>
 bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& rhs) noexcept;
 
-} // namespace memory
 } // namespace iox
 
-#include "iceoryx_dust/relocatable_pointer/relocatable_ptr.inl"
+#include "iox/detail/relocatable_ptr.inl"
 
-#endif // IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_HPP
+#endif // IOX_DUST_MEMORY_RELOCATABLE_PTR_HPP

@@ -14,14 +14,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_INL
-#define IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_INL
+#ifndef IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
+#define IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
 
-#include "iceoryx_dust/relocatable_pointer/relocatable_ptr.hpp"
+#include "iox/relocatable_ptr.hpp"
 
 namespace iox
-{
-namespace memory
 {
 template <typename T>
 inline relocatable_ptr<T>::relocatable_ptr(T* ptr) noexcept
@@ -161,7 +159,6 @@ inline bool operator!=(const relocatable_ptr<T>& lhs, const relocatable_ptr<T>& 
     return !operator==(lhs, rhs);
 }
 
-} // namespace memory
 } // namespace iox
 
-#endif // IOX_DUST_RELOCATABLE_POINTER_RELOCATABLE_PTR_INL
+#endif // IOX_DUST_MEMORY_RELOCATABLE_PTR_INL
