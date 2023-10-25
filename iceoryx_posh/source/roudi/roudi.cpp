@@ -17,7 +17,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 #include "iox/std_string_support.hpp"
 
@@ -270,9 +270,9 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
                                                  uid_t& userId,
                                                  int64_t& transmissionTimestamp) noexcept
 {
-    cxx::convert::fromString(message.getElementAtIndex(2).c_str(), pid);
-    cxx::convert::fromString(message.getElementAtIndex(3).c_str(), userId);
-    cxx::convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
+    convert::fromString(message.getElementAtIndex(2).c_str(), pid);
+    convert::fromString(message.getElementAtIndex(3).c_str(), userId);
+    convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
     cxx::Serialization serializationVersionInfo(message.getElementAtIndex(5));
     return serializationVersionInfo;
 }

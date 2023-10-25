@@ -178,7 +178,7 @@ TYPED_TEST(ServiceRegistry_test, AddMaximumNumberOfServiceDescriptionsWorks)
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
-            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))));
+            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::convert::toString(i))));
     }
 
     for (auto& service : services)
@@ -196,7 +196,7 @@ TYPED_TEST(ServiceRegistry_test, AddMoreThanMaximumNumberOfServiceDescriptionsFa
     for (uint64_t i = 0U; i < CAPACITY; i++)
     {
         services.push_back(iox::capro::ServiceDescription(
-            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))));
+            "Foo", "Bar", iox::into<iox::lossy<iox::capro::IdString_t>>(iox::convert::toString(i))));
     }
 
     for (auto& service : services)

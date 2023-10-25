@@ -18,12 +18,10 @@
 #ifndef IOX_DUST_CXX_CONVERT_INL
 #define IOX_DUST_CXX_CONVERT_INL
 
-#include "iceoryx_dust/cxx/convert.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 ///@brief specialization for  uint8_t and int8_t is required  since uint8_t is unsigned char and int8_t is signed char
 /// and stringstream will not convert these to string as it is already a character.
@@ -441,7 +439,6 @@ inline bool convert::fromString<bool>(const char* v, bool& dest) noexcept
                 .has_error();
 }
 
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_DUST_CXX_CONVERT_INL

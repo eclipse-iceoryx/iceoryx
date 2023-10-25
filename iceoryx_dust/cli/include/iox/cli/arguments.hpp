@@ -16,9 +16,9 @@
 #ifndef IOX_DUST_CLI_ARGUMENTS_HPP
 #define IOX_DUST_CLI_ARGUMENTS_HPP
 
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iox/cli/option.hpp"
 #include "iox/cli/types.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/expected.hpp"
 #include "iox/vector.hpp"
 

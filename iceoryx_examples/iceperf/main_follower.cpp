@@ -16,8 +16,8 @@
 
 #include "iceperf_follower.hpp"
 
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_platform/getopt.hpp"
+#include "iox/detail/convert.hpp"
 
 #include <iostream>
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
             constexpr decltype(EXIT_SUCCESS) MOO{EXIT_SUCCESS};
 
             uint64_t intensity{0U};
-            if (!iox::cxx::convert::fromString(optarg, intensity))
+            if (!iox::convert::fromString(optarg, intensity))
             {
                 std::cerr << "Could not parse 'intensity' paramater!" << std::endl;
                 return EXIT_FAILURE;

@@ -15,10 +15,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/duration.hpp"
 #include "iox/std_string_support.hpp"
 
@@ -150,9 +150,9 @@ TEST_F(GatewayGenericTest, HandlesMaxmimumChannelCapacity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
-                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
-                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }
@@ -170,9 +170,9 @@ TEST_F(GatewayGenericTest, ThrowsErrorWhenExceedingMaximumChannelCapaicity)
     for (auto i = 0U; i < iox::MAX_CHANNEL_NUMBER; i++)
     {
         auto result = sut->addChannel(
-            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
-                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i)),
-                                           into<lossy<iox::capro::IdString_t>>(iox::cxx::convert::toString(i))),
+            iox::capro::ServiceDescription(into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i)),
+                                           into<lossy<iox::capro::IdString_t>>(iox::convert::toString(i))),
             StubbedIceoryxTerminal::Options());
         EXPECT_EQ(false, result.has_error());
     }

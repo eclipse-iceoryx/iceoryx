@@ -17,7 +17,7 @@
 #ifndef IOX_DUST_CXX_SERIALIZATION_HPP
 #define IOX_DUST_CXX_SERIALIZATION_HPP
 
-#include "iceoryx_dust/cxx/convert.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
 
 #include <iostream>
@@ -28,7 +28,7 @@ namespace iox
 namespace cxx
 {
 /// @brief Simple serializer which serials every given type into the following
-///         format: (The type needs to be convertable into a string via cxx::convert::toString)
+///         format: (The type needs to be convertable into a string via convert::toString)
 ///             LENGTH:DATALENGTH:DATA...
 ///         Example: Serializes "hello", 123, 123.01 into
 ///             5:hello3:1236:123.01
@@ -80,7 +80,7 @@ class Serialization
     operator std::string() const noexcept;
 
     /// @brief Create Serialization if every arguments is convertable to string
-    ///         via cxx::convert::toString, this means if the argument is either
+    ///         via convert::toString, this means if the argument is either
     ///         a pod (plain old data) type or is convertable to string (operator std::string())
     /// @param[in] args list of string convertable data
     /// @return Serialization object which contains the serialized data

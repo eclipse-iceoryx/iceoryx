@@ -17,12 +17,12 @@
 
 #include "test.hpp"
 
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iceoryx_hoofs/testing/mocks/logger_mock.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/string.hpp"
 /// @todo iox-#415 replace the service registry include with the new discovery API header
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
