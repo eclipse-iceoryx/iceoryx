@@ -1126,7 +1126,7 @@
     iox::units::Duration ioxDuration(chronoDuration);
 
     // after
-    #include "iceoryx_dust/cxx/std_chrono_support.hpp"
+    #include "iox/std_chrono_support.hpp"
 
     std::chrono::milliseconds chronoDuration = 1_ms;
     iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};

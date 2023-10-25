@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_chrono_support.hpp"
+#include "iox/std_chrono_support.hpp"
 
 #include "test.hpp"
 

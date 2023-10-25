@@ -14,10 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_STD_CHRONO_SUPPORT_INL
-#define IOX_DUST_STD_CHRONO_SUPPORT_INL
+#ifndef IOX_DUST_UTILITY_STD_CHRONO_SUPPORT_INL
+#define IOX_DUST_UTILITY_STD_CHRONO_SUPPORT_INL
 
-#include "iceoryx_dust/cxx/std_chrono_support.hpp"
+#include "iox/std_chrono_support.hpp"
 
 namespace iox
 {
@@ -47,4 +47,4 @@ FromImpl<std::chrono::seconds, units::Duration>::fromImpl(const std::chrono::sec
 
 } // namespace iox
 
-#endif // IOX_DUST_STD_CHRONO_SUPPORT_INL
+#endif // IOX_DUST_UTILITY_STD_CHRONO_SUPPORT_INL

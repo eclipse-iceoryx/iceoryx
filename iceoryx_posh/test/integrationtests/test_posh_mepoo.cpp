@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_posh/error_handling/error_handling.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
@@ -27,6 +26,7 @@
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/duration.hpp"
 #include "iox/optional.hpp"
+#include "iox/std_chrono_support.hpp"
 
 #include <algorithm>
 #include <chrono>
