@@ -17,6 +17,10 @@
 set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "MacOS")
 set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
 
+set_global(VAR ICEORYX_C_FLAGS              VALUE )
+set_global(VAR ICEORYX_CXX_FLAGS            VALUE )
+set_global(VAR ICEORYX_TEST_CXX_FLAGS       VALUE )
+
 set_global(VAR ICEORYX_C_WARNINGS           VALUE -W -Wall -Wextra -Wuninitialized -Wpedantic -Wstrict-aliasing -Wcast-align -Wconversion)
 set_global(VAR ICEORYX_CXX_WARNINGS         VALUE ${ICEORYX_C_WARNINGS} -Wno-noexcept-type)
 
