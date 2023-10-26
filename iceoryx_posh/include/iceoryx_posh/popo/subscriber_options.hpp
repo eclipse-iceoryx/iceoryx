@@ -20,7 +20,7 @@
 #include "iceoryx_posh/internal/popo/ports/pub_sub_port_types.hpp"
 #include "port_queue_policies.hpp"
 
-#include "iceoryx_dust/cxx/serialization.hpp"
+#include "iox/detail/serialization.hpp"
 
 #include <cstdint>
 
@@ -52,10 +52,9 @@ struct SubscriberOptions
     bool requiresPublisherHistorySupport{false};
 
     /// @brief serialization of the SubscriberOptions
-    cxx::Serialization serialize() const noexcept;
+    Serialization serialize() const noexcept;
     /// @brief deserialization of the SubscriberOptions
-    static expected<SubscriberOptions, cxx::Serialization::Error>
-    deserialize(const cxx::Serialization& serialized) noexcept;
+    static expected<SubscriberOptions, Serialization::Error> deserialize(const Serialization& serialized) noexcept;
 };
 
 } // namespace popo

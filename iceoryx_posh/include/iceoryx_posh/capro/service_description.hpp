@@ -17,9 +17,9 @@
 #ifndef IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 #define IOX_POSH_CAPRO_SERVICE_DESCRIPTION_HPP
 
-#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/detail/serialization.hpp"
 #include "iox/expected.hpp"
 #include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
@@ -124,13 +124,12 @@ class ServiceDescription
     ServiceDescription& operator=(ServiceDescription&&) noexcept = default;
 
     /// @brief serialization of the capro description.
-    explicit operator cxx::Serialization() const noexcept;
+    explicit operator Serialization() const noexcept;
 
     /// @brief de-serialization of a ServiceDescription.
     /// @param[in] serialized, Serialization object from which the ServiceDescription shall be created
-    /// @return expected that either has a ServiceDescription or cxx::Serialization::Error stored inside
-    static expected<ServiceDescription, cxx::Serialization::Error>
-    deserialize(const cxx::Serialization& serialized) noexcept;
+    /// @return expected that either has a ServiceDescription or Serialization::Error stored inside
+    static expected<ServiceDescription, Serialization::Error> deserialize(const Serialization& serialized) noexcept;
 
     // @brief Returns if this service description is used for an RouDi-internal channel
     bool isLocal() const noexcept;

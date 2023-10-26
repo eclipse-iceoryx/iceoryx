@@ -273,7 +273,7 @@ version::VersionInfo RouDi::parseRegisterMessage(const runtime::IpcMessage& mess
     convert::fromString(message.getElementAtIndex(2).c_str(), pid);
     convert::fromString(message.getElementAtIndex(3).c_str(), userId);
     convert::fromString(message.getElementAtIndex(4).c_str(), transmissionTimestamp);
-    cxx::Serialization serializationVersionInfo(message.getElementAtIndex(5));
+    Serialization serializationVersionInfo(message.getElementAtIndex(5));
     return serializationVersionInfo;
 }
 
@@ -317,7 +317,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             auto deserializationResult =
-                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+                capro::ServiceDescription::deserialize(Serialization(message.getElementAtIndex(2)));
             if (deserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -327,7 +327,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             const auto& service = deserializationResult.value();
 
             auto publisherOptionsDeserializationResult =
-                popo::PublisherOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+                popo::PublisherOptions::deserialize(Serialization(message.getElementAtIndex(3)));
             if (publisherOptionsDeserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -337,7 +337,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& publisherOptions = publisherOptionsDeserializationResult.value();
 
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
+            Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
             m_prcMgr->addPublisherForProcess(
                 runtimeName, service, publisherOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -355,7 +355,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             auto deserializationResult =
-                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+                capro::ServiceDescription::deserialize(Serialization(message.getElementAtIndex(2)));
             if (deserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -366,7 +366,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             const auto& service = deserializationResult.value();
 
             auto subscriberOptionsDeserializationResult =
-                popo::SubscriberOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+                popo::SubscriberOptions::deserialize(Serialization(message.getElementAtIndex(3)));
             if (subscriberOptionsDeserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -376,7 +376,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& subscriberOptions = subscriberOptionsDeserializationResult.value();
 
-            cxx::Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
+            Serialization portConfigInfoSerialization(message.getElementAtIndex(4));
 
             m_prcMgr->addSubscriberForProcess(
                 runtimeName, service, subscriberOptions, iox::runtime::PortConfigInfo(portConfigInfoSerialization));
@@ -394,7 +394,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             auto deserializationResult =
-                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+                capro::ServiceDescription::deserialize(Serialization(message.getElementAtIndex(2)));
             if (deserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -405,7 +405,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             const auto& service = deserializationResult.value();
 
             auto clientOptionsDeserializationResult =
-                popo::ClientOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+                popo::ClientOptions::deserialize(Serialization(message.getElementAtIndex(3)));
             if (clientOptionsDeserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -415,7 +415,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& clientOptions = clientOptionsDeserializationResult.value();
 
-            runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
+            runtime::PortConfigInfo portConfigInfo{Serialization(message.getElementAtIndex(4))};
 
             m_prcMgr->addClientForProcess(runtimeName, service, clientOptions, portConfigInfo);
         }
@@ -432,7 +432,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         else
         {
             auto deserializationResult =
-                capro::ServiceDescription::deserialize(cxx::Serialization(message.getElementAtIndex(2)));
+                capro::ServiceDescription::deserialize(Serialization(message.getElementAtIndex(2)));
             if (deserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -443,7 +443,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             const auto& service = deserializationResult.value();
 
             auto serverOptionsDeserializationResult =
-                popo::ServerOptions::deserialize(cxx::Serialization(message.getElementAtIndex(3)));
+                popo::ServerOptions::deserialize(Serialization(message.getElementAtIndex(3)));
             if (serverOptionsDeserializationResult.has_error())
             {
                 IOX_LOG(ERROR,
@@ -453,7 +453,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
             }
             const auto& serverOptions = serverOptionsDeserializationResult.value();
 
-            runtime::PortConfigInfo portConfigInfo{cxx::Serialization(message.getElementAtIndex(4))};
+            runtime::PortConfigInfo portConfigInfo{Serialization(message.getElementAtIndex(4))};
 
             m_prcMgr->addServerForProcess(runtimeName, service, serverOptions, portConfigInfo);
         }
@@ -501,7 +501,7 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         else
         {
-            runtime::NodeProperty nodeProperty(cxx::Serialization(message.getElementAtIndex(2)));
+            runtime::NodeProperty nodeProperty(Serialization(message.getElementAtIndex(2)));
             m_prcMgr->addNodeForProcess(runtimeName, nodeProperty.m_name);
         }
         break;

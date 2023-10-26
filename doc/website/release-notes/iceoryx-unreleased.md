@@ -1020,7 +1020,7 @@
     #include "iceoryx_hoofs/cxx/serialization.hpp"
 
     // after
-    #include "iceoryx_dust/cxx/serialization.hpp"
+    #include "iox/detail/serialization.hpp"
     ```
 
     ```cpp

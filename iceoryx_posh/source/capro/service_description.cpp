@@ -136,24 +136,24 @@ bool ServiceDescription::operator<(const ServiceDescription& rhs) const noexcept
     return false;
 }
 
-ServiceDescription::operator cxx::Serialization() const noexcept
+ServiceDescription::operator Serialization() const noexcept
 {
     std::underlying_type<Scope>::type scope = static_cast<std::underlying_type<Scope>::type>(m_scope);
     std::underlying_type<Interfaces>::type interface =
         static_cast<std::underlying_type<Interfaces>::type>(m_interfaceSource);
-    return cxx::Serialization::create(m_serviceString,
-                                      m_instanceString,
-                                      m_eventString,
-                                      m_classHash[0U],
-                                      m_classHash[1U],
-                                      m_classHash[2U],
-                                      m_classHash[3U],
-                                      scope,
-                                      interface);
+    return Serialization::create(m_serviceString,
+                                 m_instanceString,
+                                 m_eventString,
+                                 m_classHash[0U],
+                                 m_classHash[1U],
+                                 m_classHash[2U],
+                                 m_classHash[3U],
+                                 scope,
+                                 interface);
 }
 
-expected<ServiceDescription, cxx::Serialization::Error>
-ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
+expected<ServiceDescription, Serialization::Error>
+ServiceDescription::deserialize(const Serialization& serialized) noexcept
 {
     ServiceDescription deserializedObject;
 
@@ -175,7 +175,7 @@ ServiceDescription::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful || scope >= static_cast<ScopeUnderlyingType>(Scope::INVALID)
         || interfaceSource >= static_cast<InterfaceUnderlyingType>(Interfaces::INTERFACE_END))
     {
-        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     deserializedObject.m_scope = static_cast<Scope>(scope);

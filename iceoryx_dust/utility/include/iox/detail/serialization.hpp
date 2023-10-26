@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_SERIALIZATION_HPP
-#define IOX_DUST_CXX_SERIALIZATION_HPP
+
+#ifndef IOX_DUST_UTILITY_SERIALIZATION_HPP
+#define IOX_DUST_UTILITY_SERIALIZATION_HPP
 
 #include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
@@ -25,15 +26,13 @@
 
 namespace iox
 {
-namespace cxx
-{
 /// @brief Simple serializer which serials every given type into the following
 ///         format: (The type needs to be convertable into a string via convert::toString)
 ///             LENGTH:DATALENGTH:DATA...
 ///         Example: Serializes "hello", 123, 123.01 into
 ///             5:hello3:1236:123.01
 /// @code
-///     auto serial = cxx::Serialization::create("fuu", 123, 12.12f, 'c');
+///     auto serial = iox::Serialization::create("fuu", 123, 12.12f, 'c');
 ///     IOX_LOG(INFO, serial.toString());
 ///
 ///     std::string v1;
@@ -46,14 +45,14 @@ namespace cxx
 ///     if ( serial.getNth(0, v2) ) {} // fails since "fuu" is not an integer
 ///
 ///     // if you'd like to write a serializable class they need to have a CTor
-///     // with a cxx::Serialization argument and an operator cxx::Serialization
+///     // with a iox::Serialization argument and an operator iox::Serialization
 ///     class Fuu {
 ///         public:
-///             Fuu(const cxx::Serialization & s) {
+///             Fuu(const iox::Serialization & s) {
 ///                 if ( !s.Extract(v1, v2, v3) ) {} // error handling
 ///             }
-///             operator cxx::Serialization() const {
-///                 return cxx::Serialization::Create(v1, v2, v3);
+///             operator iox::Serialization() const {
+///                 return iox::Serialization::Create(v1, v2, v3);
 ///             }
 ///         private:
 ///             int v1 = 123;
@@ -138,9 +137,8 @@ class Serialization
     static bool deserialize(const std::string& serializedString, T& t, Targs&... args) noexcept;
 };
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/serialization.inl"
+#include "iox/detail/serialization.inl"
 
-#endif // IOX_DUST_CXX_SERIALIZATION_HPP
+#endif // IOX_DUST_UTILITY_SERIALIZATION_HPP

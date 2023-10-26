@@ -278,8 +278,8 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
             "Version mismatch from '"
                 << name
                 << "'! Please build your app and RouDi against the same iceoryx version (version & commitID). RouDi: "
-                << version::VersionInfo::getCurrentVersion().operator iox::cxx::Serialization().toString()
-                << " App: " << versionInfo.operator iox::cxx::Serialization().toString());
+                << version::VersionInfo::getCurrentVersion().operator iox::Serialization().toString()
+                << " App: " << versionInfo.operator iox::Serialization().toString());
         return false;
     }
     // overflow check

@@ -93,7 +93,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
             sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << convert::toString(pid)
                        << convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << convert::toString(transmissionTimestamp)
-                       << static_cast<cxx::Serialization>(version::VersionInfo::getCurrentVersion()).toString();
+                       << static_cast<Serialization>(version::VersionInfo::getCurrentVersion()).toString();
 
             bool successfullySent = m_RoudiIpcInterface.timedSend(sendBuffer, 100_ms);
 

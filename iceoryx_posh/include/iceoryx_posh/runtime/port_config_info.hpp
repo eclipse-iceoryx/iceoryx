@@ -17,8 +17,8 @@
 #ifndef IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP
 #define IOX_POSH_RUNTIME_PORT_CONFIG_INFO_HPP
 
-#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
+#include "iox/detail/serialization.hpp"
 
 #include <cstdint>
 
@@ -57,10 +57,10 @@ struct PortConfigInfo
 
     /// @brief creates a PortConfigInfo object from its serialization
     /// @param[in] serialization specifies the serialization from which the port is created
-    PortConfigInfo(const cxx::Serialization& serialization) noexcept;
+    PortConfigInfo(const Serialization& serialization) noexcept;
 
     /// @brief creates a serilaization of the PortConfigInfo
-    operator cxx::Serialization() const noexcept;
+    operator Serialization() const noexcept;
 
     /// @brief comparison operator
     /// @param[in] rhs the right hand side of the comparison

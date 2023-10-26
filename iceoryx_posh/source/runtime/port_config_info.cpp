@@ -27,14 +27,14 @@ PortConfigInfo::PortConfigInfo(uint32_t portType, uint32_t deviceId, uint32_t me
 {
 }
 
-PortConfigInfo::PortConfigInfo(const cxx::Serialization& serialization) noexcept
+PortConfigInfo::PortConfigInfo(const Serialization& serialization) noexcept
 {
     serialization.extract(portType, memoryInfo.deviceId, memoryInfo.memoryType);
 }
 
-PortConfigInfo::operator cxx::Serialization() const noexcept
+PortConfigInfo::operator Serialization() const noexcept
 {
-    return cxx::Serialization::create(portType, memoryInfo.deviceId, memoryInfo.memoryType);
+    return Serialization::create(portType, memoryInfo.deviceId, memoryInfo.memoryType);
 }
 
 bool PortConfigInfo::operator==(const PortConfigInfo& rhs) const noexcept

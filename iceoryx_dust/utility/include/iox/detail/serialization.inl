@@ -14,14 +14,13 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_SERIALIZATION_INL
-#define IOX_DUST_CXX_SERIALIZATION_INL
 
-#include "iceoryx_dust/cxx/serialization.hpp"
+#ifndef IOX_DUST_UTILITY_SERIALIZATION_INL
+#define IOX_DUST_UTILITY_SERIALIZATION_INL
+
+#include "iox/detail/serialization.hpp"
 
 namespace iox
-{
-namespace cxx
 {
 inline Serialization::operator std::string() const noexcept
 {
@@ -143,7 +142,6 @@ inline bool Serialization::getNth(const unsigned int index, T& t) const noexcept
 
     return convert::fromString(entry.c_str(), t);
 }
-} // namespace cxx
 } // namespace iox
 
 #endif // IOX_DUST_CXX_SERIALIZATION_INL

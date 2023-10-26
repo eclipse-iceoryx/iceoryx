@@ -21,17 +21,15 @@ namespace iox
 {
 namespace popo
 {
-cxx::Serialization PublisherOptions::serialize() const noexcept
+Serialization PublisherOptions::serialize() const noexcept
 {
-    return cxx::Serialization::create(
-        historyCapacity,
-        nodeName,
-        offerOnCreate,
-        static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(subscriberTooSlowPolicy));
+    return Serialization::create(historyCapacity,
+                                 nodeName,
+                                 offerOnCreate,
+                                 static_cast<std::underlying_type_t<ConsumerTooSlowPolicy>>(subscriberTooSlowPolicy));
 }
 
-expected<PublisherOptions, cxx::Serialization::Error>
-PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
+expected<PublisherOptions, Serialization::Error> PublisherOptions::deserialize(const Serialization& serialized) noexcept
 {
     using ConsumerTooSlowPolicyUT = std::underlying_type_t<ConsumerTooSlowPolicy>;
 
@@ -46,7 +44,7 @@ PublisherOptions::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful
         || subscriberTooSlowPolicy > static_cast<ConsumerTooSlowPolicyUT>(ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA))
     {
-        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     publisherOptions.subscriberTooSlowPolicy = static_cast<ConsumerTooSlowPolicy>(subscriberTooSlowPolicy);
