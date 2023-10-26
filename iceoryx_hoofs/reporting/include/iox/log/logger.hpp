@@ -28,7 +28,7 @@
 #ifndef IOX_HOOFS_REPORTING_LOG_LOGGER_HPP
 #define IOX_HOOFS_REPORTING_LOG_LOGGER_HPP
 
-#include "iceoryx_hoofs/iceoryx_hoofs_deployment.hpp"
+#include "iox/iceoryx_hoofs_deployment.hpp"
 #include "iox/log/building_blocks/console_logger.hpp"
 #include "iox/log/building_blocks/logger.hpp"
 
