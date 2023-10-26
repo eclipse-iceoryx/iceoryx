@@ -17,7 +17,6 @@
 #ifndef IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 #define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
 
-#include "iceoryx_dust/iceoryx_dust_deployment.hpp"
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
@@ -26,6 +25,7 @@
 #include "iox/builder.hpp"
 #include "iox/duration.hpp"
 #include "iox/expected.hpp"
+#include "iox/iceoryx_dust_deployment.hpp"
 #include "iox/optional.hpp"
 #include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
