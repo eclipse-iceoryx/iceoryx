@@ -28,7 +28,8 @@
 
 namespace iox
 {
-using namespace iox::posix;
+using posix::IpcChannelError;
+using posix::IpcChannelSide;
 
 expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noexcept
 {
