@@ -466,7 +466,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, MultiProducerMultiConsumerComplete
     // verify counts
     for (uint64_t i = 0; i < cycleLength; ++i)
     {
-        EXPECT_EQ(producedCount[i], consumedCount[i]);
+        EXPECT_EQ(producedCount[i].load(), consumedCount[i].load());
     }
 }
 
@@ -552,7 +552,7 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer)
 
     std::vector<std::thread> threads;
 
-    for (uint64_t id = 1; id <= numThreads; ++id)
+    for (uint32_t id = 1; id <= numThreads; ++id)
     {
         threads.emplace_back(work<Queue>, std::ref(q), id, std::ref(run));
     }
@@ -769,9 +769,9 @@ TYPED_TEST(ResizeableLockFreeQueueStressTest, HybridMultiProducerMultiConsumer0v
 
     // we expect at least one overflow in the test (since the queue is full in the beginning)
     // we cannot expect one overflow in each thread due to thread scheduling
-    const auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0LL);
-    EXPECT_GT(numOverflows, 0LL);
-    EXPECT_GT(numChanges, 0LL);
+    const auto numOverflows = std::accumulate(overflowCount.begin(), overflowCount.end(), 0ULL);
+    EXPECT_GT(numOverflows, 0ULL);
+    EXPECT_GT(numChanges, 0ULL);
 
     // check whether all elements are there, but there is no specific ordering we can expect
     // items are either in the local lists or the queue, in total we expect each count numThreads times
