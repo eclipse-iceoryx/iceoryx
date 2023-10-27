@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +48,23 @@ struct Integer
     {
         return value;
     }
+};
+
+// non-POD type used to ensure that the queue supports move-only types.
+struct MoveOnlyInteger : public Integer
+{
+    // NOLINTNEXTLINE(hicpp-explicit-conversions) required for typed tests
+    MoveOnlyInteger(int value = 0)
+        : Integer(value)
+    {
+    }
+
+    MoveOnlyInteger(const MoveOnlyInteger&) = delete;
+    MoveOnlyInteger& operator=(const MoveOnlyInteger&) = delete;
+    MoveOnlyInteger(MoveOnlyInteger&&) = default;
+    MoveOnlyInteger& operator=(MoveOnlyInteger&&) = default;
+
+    ~MoveOnlyInteger() = default;
 };
 
 template <typename Config>
@@ -130,33 +148,43 @@ using AlmostEmpty = Config<QueueType, ElementType, Capacity, 1>;
 using LFFull1 = Full<LFQueue, int, 1>;
 using LFFull2 = Full<LFQueue, int, 1000>;
 using LFFull3 = Full<LFQueue, Integer, 100>;
+using LFFull4 = Full<LFQueue, MoveOnlyInteger, 10>;
 
 // configs of the resizeable lockfree queue
 using Full1 = Full<RLFQueue, Integer, 1>;
 using Full2 = Full<RLFQueue, Integer, 10>;
 using Full3 = Full<RLFQueue, int, 1000>;
+using Full4 = Full<RLFQueue, MoveOnlyInteger, 100>;
 
 using AlmostFull1 = AlmostFull<RLFQueue, Integer, 10>;
 using AlmostFull2 = AlmostFull<RLFQueue, int, 1000>;
+using AlmostFull3 = AlmostFull<RLFQueue, MoveOnlyInteger, 100>;
 
 using HalfFull1 = HalfFull<RLFQueue, Integer, 10>;
 using HalfFull2 = HalfFull<RLFQueue, int, 1000>;
+using HalfFull3 = HalfFull<RLFQueue, MoveOnlyInteger, 100>;
 
 using AlmostEmpty1 = AlmostEmpty<RLFQueue, Integer, 10>;
 using AlmostEmpty2 = AlmostEmpty<RLFQueue, int, 1000>;
+using AlmostEmpty3 = AlmostEmpty<RLFQueue, MoveOnlyInteger, 100>;
 
 typedef ::testing::Types<LFFull1,
                          LFFull2,
                          LFFull3,
+                         LFFull4,
                          Full1,
                          Full2,
                          Full3,
+                         Full4,
                          AlmostFull1,
                          AlmostFull2,
+                         AlmostFull3,
                          HalfFull1,
                          HalfFull2,
+                         HalfFull3,
                          AlmostEmpty1,
-                         AlmostEmpty2>
+                         AlmostEmpty2,
+                         AlmostEmpty3>
     TestConfigs;
 
 TYPED_TEST_SUITE(LockFreeQueueTest, TestConfigs, );
