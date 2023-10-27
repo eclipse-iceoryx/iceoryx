@@ -25,17 +25,15 @@ namespace gw
 {
 // Typedefs
 template <typename IceoryxTerminal>
-using IceoryxTerminalPool = cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
+using IceoryxTerminalPool = FixedPositionContainer<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
 template <typename ExternalTerminal>
-using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
+using ExternalTerminalPool = FixedPositionContainer<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
 // Statics
 template <typename IceoryxTerminal, typename ExternalTerminal>
-IceoryxTerminalPool<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals =
-    IceoryxTerminalPool();
+IceoryxTerminalPool<IceoryxTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_iceoryxTerminals{};
 template <typename IceoryxTerminal, typename ExternalTerminal>
-ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals =
-    ExternalTerminalPool();
+ExternalTerminalPool<ExternalTerminal> Channel<IceoryxTerminal, ExternalTerminal>::s_externalTerminals{};
 
 template <typename IceoryxTerminal, typename ExternalTerminal>
 inline constexpr Channel<IceoryxTerminal, ExternalTerminal>::Channel(
@@ -62,24 +60,24 @@ Channel<IceoryxTerminal, ExternalTerminal>::create(const capro::ServiceDescripti
                                                    const IceoryxPubSubOptions& options) noexcept
 {
     // Create objects in the pool.
-    auto rawIceoryxTerminalPtr = s_iceoryxTerminals.create(std::forward<const capro::ServiceDescription&>(service),
-                                                           std::forward<const IceoryxPubSubOptions&>(options));
-    if (rawIceoryxTerminalPtr == nullptr)
+    auto rawIceoryxTerminal = s_iceoryxTerminals.emplace(std::forward<const capro::ServiceDescription&>(service),
+                                                         std::forward<const IceoryxPubSubOptions&>(options));
+    if (rawIceoryxTerminal == s_iceoryxTerminals.end())
     {
         return err(ChannelError::OBJECT_POOL_FULL);
     }
-    auto rawExternalTerminalPtr = s_externalTerminals.create(
+    auto rawExternalTerminal = s_externalTerminals.emplace(
         service.getServiceIDString(), service.getInstanceIDString(), service.getEventIDString());
-    if (rawExternalTerminalPtr == nullptr)
+    if (rawExternalTerminal == s_externalTerminals.end())
     {
         return err(ChannelError::OBJECT_POOL_FULL);
     }
 
     // Wrap in smart pointer with custom deleter to ensure automatic cleanup.
-    auto iceoryxTerminalPtr =
-        IceoryxTerminalPtr(rawIceoryxTerminalPtr, [](IceoryxTerminal* const p) { s_iceoryxTerminals.free(p); });
-    auto externalTerminalPtr =
-        ExternalTerminalPtr(rawExternalTerminalPtr, [](ExternalTerminal* const p) { s_externalTerminals.free(p); });
+    auto iceoryxTerminalPtr = IceoryxTerminalPtr(
+        rawIceoryxTerminal.to_ptr(), [](IceoryxTerminal* const p) { Channel::s_iceoryxTerminals.erase(p); });
+    auto externalTerminalPtr = ExternalTerminalPtr(
+        rawExternalTerminal.to_ptr(), [](ExternalTerminal* const p) { Channel::s_externalTerminals.erase(p); });
 
     return ok(Channel(service, iceoryxTerminalPtr, externalTerminalPtr));
 }

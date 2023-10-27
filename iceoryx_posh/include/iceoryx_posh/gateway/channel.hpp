@@ -18,10 +18,10 @@
 #ifndef IOX_POSH_GW_CHANNEL_HPP
 #define IOX_POSH_GW_CHANNEL_HPP
 
-#include "iceoryx_dust/cxx/objectpool.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/expected.hpp"
+#include "iox/fixed_position_container.hpp"
 #include "iox/optional.hpp"
 
 #include <memory>
@@ -56,9 +56,9 @@ template <typename IceoryxTerminal, typename ExternalTerminal>
 class Channel
 {
     using IceoryxTerminalPtr = std::shared_ptr<IceoryxTerminal>;
-    using IceoryxTerminalPool = cxx::ObjectPool<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
+    using IceoryxTerminalPool = FixedPositionContainer<IceoryxTerminal, MAX_CHANNEL_NUMBER>;
     using ExternalTerminalPtr = std::shared_ptr<ExternalTerminal>;
-    using ExternalTerminalPool = cxx::ObjectPool<ExternalTerminal, MAX_CHANNEL_NUMBER>;
+    using ExternalTerminalPool = FixedPositionContainer<ExternalTerminal, MAX_CHANNEL_NUMBER>;
 
   public:
     constexpr Channel(const capro::ServiceDescription& service,
