@@ -52,79 +52,113 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 }
 
 template <typename T, uint64_t CAPACITY>
-FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& other) noexcept
+inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& rhs) noexcept
 {
-    m_size = other.m_size;
-    m_begin_free = other.m_begin_free;
-    m_begin_used = other.m_begin_used;
-
-    for (IndexType i = 0; i < CAPACITY; ++i)
-    {
-        m_data[i] = T{other.m_data[i]};
-        m_status[i] = other.m_status[i];
-        m_next[i] = other.m_next[i];
-    }
+    *this = rhs;
 }
 
 template <typename T, uint64_t CAPACITY>
-FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& other) noexcept
+inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& rhs) noexcept
 {
-    m_size = other.m_size;
-    m_begin_free = other.m_begin_free;
-    m_begin_used = other.m_begin_used;
-
-    for (IndexType i = 0; i < CAPACITY; ++i)
-    {
-        m_data[i] = T{std::move(other.m_data[i])};
-        m_status[i] = other.m_status[i];
-        m_next[i] = other.m_next[i];
-    }
-
-    other.m_size = 0;
-    other.m_begin_free = Index::FIRST;
-    other.m_begin_used = Index::INVALID;
+    *this = std::move(rhs);
 }
 
 template <typename T, uint64_t CAPACITY>
-FixedPositionContainer<T, CAPACITY>&
-FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& other) noexcept
+inline FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs) noexcept
 {
-    if (this != &other)
+    if (this != &rhs)
     {
-        m_size = other.m_size;
-        m_begin_free = other.m_begin_free;
-        m_begin_used = other.m_begin_used;
+        IndexType i = 0U;
+        auto lhsSize = size();
+        auto minSize = algorithm::minVal(lhsSize, rhs.size());
 
-        for (IndexType i = 0; i < CAPACITY; ++i)
+        // copy using copy assignment
+        for (; i < minSize; ++i)
         {
-            m_data[i] = other.m_data[i];
-            m_status[i] = other.m_status[i];
-            m_next[i] = other.m_next[i];
+            m_data[i] = rhs.m_data[i];
+            m_status[i] = rhs.m_status[i];
+            m_next[i] = rhs.m_next[i];
         }
+
+        // with rhs.size bigger than this.size: copy further elements from rhs to this
+        for (; i < rhs.size(); ++i)
+        {
+            m_data[i] = rhs.m_data[i];
+            m_status[i] = rhs.m_status[i];
+            m_next[i] = rhs.m_next[i];
+        }
+
+        // with rhs.size smaller than this.size: delete remaining elements of this (erase)
+        for (; i < lhsSize; ++i)
+        {
+            erase(i);
+        }
+
+        // init rest status to avoid garbage value
+        for (; i < CAPACITY; ++i)
+        {
+            m_status[i] = SlotStatus::FREE;
+            m_next[i] = static_cast<IndexType>(i + 1U);
+        }
+        m_next[Index::LAST] = Index::INVALID;
+
+        // member update
+        m_begin_free = rhs.m_begin_free;
+        m_begin_used = rhs.m_begin_used;
+        m_size = rhs.m_size;
     }
+
     return *this;
 }
 
 template <typename T, uint64_t CAPACITY>
-FixedPositionContainer<T, CAPACITY>&
-FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& other) noexcept
+inline FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noexcept
 {
-    if (this != &other)
+    if (this != &rhs)
     {
-        m_size = other.m_size;
-        m_begin_free = other.m_begin_free;
-        m_begin_used = other.m_begin_used;
+        IndexType i = 0U;
+        auto lhsSize = size();
+        auto minSize = algorithm::minVal(lhsSize, rhs.size());
 
-        for (IndexType i = 0; i < CAPACITY; ++i)
+        // move using move assignment
+        for (; i < minSize; ++i)
         {
-            m_data[i] = std::move(other.m_data[i]);
-            m_status[i] = other.m_status[i];
-            m_next[i] = other.m_next[i];
+            m_data[i] = std::move(rhs.m_data[i]);
+            m_status[i] = rhs.m_status[i];
+            m_next[i] = rhs.m_next[i];
         }
 
-        other.m_size = 0;
-        other.m_begin_free = Index::FIRST;
-        other.m_begin_used = Index::INVALID;
+        // with rhs.size bigger than this.size: move further elements from rhs to this
+        for (; i < rhs.size(); ++i)
+        {
+            m_data[i] = std::move(rhs.m_data[i]);
+            m_status[i] = rhs.m_status[i];
+            m_next[i] = rhs.m_next[i];
+        }
+
+        // with rhs.size smaller than this.size: delete remaining elements of this (erase)
+        for (; i < lhsSize; ++i)
+        {
+            erase(i);
+        }
+
+        // init rest status to avoid garbage value
+        for (; i < CAPACITY; ++i)
+        {
+            m_status[i] = SlotStatus::FREE;
+            m_next[i] = static_cast<IndexType>(i + 1U);
+        }
+        m_next[Index::LAST] = Index::INVALID;
+
+        // member update
+        m_begin_free = rhs.m_begin_free;
+        m_begin_used = rhs.m_begin_used;
+        m_size = rhs.m_size;
+
+        // clear rhs to avoid garbage value
+        rhs.clear();
     }
     return *this;
 }

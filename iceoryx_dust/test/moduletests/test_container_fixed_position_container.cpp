@@ -133,7 +133,8 @@ TEST_F(FixedPositionContainer_test, ComplexContainerCopyConstructor)
     }
 
     EXPECT_EQ(sut_complex.size(), sut_complex_copy_ctor.size());
-    EXPECT_EQ(sut_complex_copy_ctor.begin()->stats.copyCTor, sut_complex.size());
+    // FixedPositionContainer copyCtor will call copyAssignment
+    EXPECT_EQ(sut_complex_copy_ctor.begin()->stats.copyAssignment, sut_complex.size());
 }
 
 // END test copy constructor
@@ -193,7 +194,8 @@ TEST_F(FixedPositionContainer_test, ComplexContainerMoveConstructor)
     // sut_complex should be reset (move ctor)
     EXPECT_EQ(sut_complex.empty(), true);
     EXPECT_EQ(sut_complex_move_ctor.size(), data.size());
-    EXPECT_EQ(sut_complex_move_ctor.begin()->stats.moveCTor, data.size());
+    // FixedPositionContainer copyCtor will call copyAssignment
+    EXPECT_EQ(sut_complex_move_ctor.begin()->stats.moveAssignment, data.size());
 }
 
 // END test move constructor
