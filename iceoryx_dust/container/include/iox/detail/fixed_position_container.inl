@@ -52,6 +52,84 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 }
 
 template <typename T, uint64_t CAPACITY>
+FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& other) noexcept
+{
+    m_size = other.m_size;
+    m_begin_free = other.m_begin_free;
+    m_begin_used = other.m_begin_used;
+
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_data[i] = T{other.m_data[i]};
+        m_status[i] = other.m_status[i];
+        m_next[i] = other.m_next[i];
+    }
+}
+
+template <typename T, uint64_t CAPACITY>
+FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& other) noexcept
+{
+    m_size = other.m_size;
+    m_begin_free = other.m_begin_free;
+    m_begin_used = other.m_begin_used;
+
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_data[i] = T{std::move(other.m_data[i])};
+        m_status[i] = other.m_status[i];
+        m_next[i] = other.m_next[i];
+    }
+
+    other.m_size = 0;
+    other.m_begin_free = Index::FIRST;
+    other.m_begin_used = Index::INVALID;
+}
+
+template <typename T, uint64_t CAPACITY>
+FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& other) noexcept
+{
+    if (this != &other)
+    {
+        m_size = other.m_size;
+        m_begin_free = other.m_begin_free;
+        m_begin_used = other.m_begin_used;
+
+        for (IndexType i = 0; i < CAPACITY; ++i)
+        {
+            m_data[i] = other.m_data[i];
+            m_status[i] = other.m_status[i];
+            m_next[i] = other.m_next[i];
+        }
+    }
+    return *this;
+}
+
+template <typename T, uint64_t CAPACITY>
+FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& other) noexcept
+{
+    if (this != &other)
+    {
+        m_size = other.m_size;
+        m_begin_free = other.m_begin_free;
+        m_begin_used = other.m_begin_used;
+
+        for (IndexType i = 0; i < CAPACITY; ++i)
+        {
+            m_data[i] = std::move(other.m_data[i]);
+            m_status[i] = other.m_status[i];
+            m_next[i] = other.m_next[i];
+        }
+
+        other.m_size = 0;
+        other.m_begin_free = Index::FIRST;
+        other.m_begin_used = Index::INVALID;
+    }
+    return *this;
+}
+
+template <typename T, uint64_t CAPACITY>
 inline void FixedPositionContainer<T, CAPACITY>::clear() noexcept
 {
     for (IndexType i = 0; i < CAPACITY;)
