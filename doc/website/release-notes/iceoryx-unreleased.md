@@ -99,6 +99,7 @@
 - ServiceDiscovery uses instrospection MemPools [#1359](https://github.com/eclipse-iceoryx/iceoryx/issues/1359)
 - LockFreeQueue fails to support move-only types [\#2067](https://github.com/eclipse-iceoryx/iceoryx/issues/2067)
 - Fix musl libc compile (missing sys/stat.h include in mqueue.h for mode_t definition) [\#2072](https://github.com/eclipse-iceoryx/iceoryx/issues/2072)
+- Implement move/copy constructor and assignment for `FixedPositionContainer`. [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
 
 **Refactoring:**
 
