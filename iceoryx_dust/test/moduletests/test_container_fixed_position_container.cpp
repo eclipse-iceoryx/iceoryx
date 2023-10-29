@@ -96,220 +96,320 @@ TEST_F(FixedPositionContainer_test, Capacity)
 
 // BEGIN test copy constructor
 
-TEST_F(FixedPositionContainer_test, SimpleContainerCopyConstructor)
+TEST_F(FixedPositionContainer_test, UsingCopyCtorEmptyContainerResultsInEmptyContainer)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "89d40e19-a838-42fb-aebd-95492c690f98");
+    ::testing::Test::RecordProperty("TEST_ID", "6c528ef3-9c2d-4eb2-93a9-2d998d0db380");
 
-    fillSut();
+    SutComplex copy_sut_complex{sut_complex};
 
-    const Sut sut_copy_ctor{sut};
-    auto it = sut.begin();
-    for (const auto& item : sut_copy_ctor)
-    {
-        EXPECT_EQ(item, *it);
-        EXPECT_NE(&item, &(*it));
-        it++;
-    }
-
-    EXPECT_EQ(sut.size(), sut_copy_ctor.size());
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
 }
 
-TEST_F(FixedPositionContainer_test, ComplexContainerCopyConstructor)
+TEST_F(FixedPositionContainer_test, UsingCopyCtorSingleElementContainerPreservesElement)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "b3c84ca9-0e24-4331-beca-efd53a5c8818");
+    ::testing::Test::RecordProperty("TEST_ID", "f3aaf452-77fa-4535-bf0b-37bedefc2bf6");
 
-    fillSutComplex();
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
 
-    // reset copyCtor counter
-    SetUp();
+    sut_complex.emplace(EXPECTED_VALUE);
+    SutComplex copy_sut_complex{sut_complex};
 
-    const SutComplex sut_complex_copy_ctor{sut_complex};
-    auto it = sut_complex_copy_ctor.begin();
-    for (const auto& item : sut_complex)
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    // actually call copyAssignment
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorMultipleElementsContainerPreservesAllElements)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6261f53e-8089-4b9b-9b2d-9da0016a2f1e");
+
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    std::vector<DataType> EXPECTED_VALUE = {0U, 1U, 2U, 3U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
-        EXPECT_EQ(item, *it);
-        EXPECT_NE(&item, &(*it));
-        ++it;
+        sut_complex.emplace(EXPECTED_VALUE[i]);
     }
 
-    EXPECT_EQ(sut_complex.size(), sut_complex_copy_ctor.size());
-    // FixedPositionContainer copyCtor will call copyAssignment
-    EXPECT_EQ(sut_complex_copy_ctor.begin()->stats.copyAssignment, sut_complex.size());
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    // actually call copyAssignment
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorFullCapacityContainerPreservesAllElements)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "028704df-b2f3-4133-9c16-b9d2c6a79916");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(true));
+
+    // actually call copyAssignment
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(sut_complex.iter_from_index(i)->value));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
+    }
 }
 
 // END test copy constructor
 
 // BEGIN test move constructor
 
-TEST_F(FixedPositionContainer_test, SimpleContainerMoveConstructor)
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromEmptyContainerResultsInEmptyContainer)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "869ff262-0157-496b-94ed-da682505cb77");
+    ::testing::Test::RecordProperty("TEST_ID", "af8958fb-9a09-4987-b290-ce41abdc2354");
 
-    fillSut();
+    SutComplex move_sut_complex{std::move(sut_complex)};
 
-    std::vector<DataType> data;
-    for (const auto& item : sut)
-    {
-        data.push_back(item);
-    }
-
-    const Sut sut_move_ctor{std::move(sut)};
-
-    std::size_t index{0};
-    for (const auto& item : sut_move_ctor)
-    {
-        EXPECT_EQ(item, data[index]);
-        index++;
-    }
-
-    // sut should be reset (move ctor)
-    EXPECT_TRUE(sut.empty());
-    EXPECT_EQ(sut_move_ctor.size(), data.size());
+    EXPECT_THAT(move_sut_complex.empty(), Eq(true));
 }
 
-TEST_F(FixedPositionContainer_test, ComplexContainerMoveConstructor)
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromSingleElementContainerClearsOriginal)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "55084310-88db-4972-a0d1-01dc75e440be");
+    ::testing::Test::RecordProperty("TEST_ID", "df6c1884-43c6-4d1e-b889-6cbf4b9ee726");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
+    sut_complex.emplace(EXPECTED_VALUE);
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    // actually call moveAssignment
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
+
+    // make sure clear() been called
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromMultipleElementsContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b9d929ae-23c8-4b5b-ba82-e5af12cdace4");
+
+    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    // actually call moveAssignment
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
+
+    // make sure clear() been called
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromFullCapacityContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8a9ca6d1-5ac3-4e31-9cb9-0476176531e1");
 
     fillSutComplex();
-
-    std::vector<ComplexType> data;
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
     for (const auto& item : sut_complex)
     {
-        data.push_back(item);
+        EXPECTED_VALUE.emplace_back(item.value);
     }
 
-    // reset moveCtor counter
-    SetUp();
+    SutComplex move_sut_complex{std::move(sut_complex)};
 
-    const SutComplex sut_complex_move_ctor{std::move(sut_complex)};
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    ASSERT_THAT(move_sut_complex.full(), Eq(true));
 
-    std::size_t index{0};
-    for (const auto& item : sut_complex_move_ctor)
+    // actually call moveAssignment
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
-        EXPECT_EQ(item.value, data[index].value);
-        index++;
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
-
-    // sut_complex should be reset (move ctor)
-    EXPECT_EQ(sut_complex.empty(), true);
-    EXPECT_EQ(sut_complex_move_ctor.size(), data.size());
-    // FixedPositionContainer copyCtor will call copyAssignment
-    EXPECT_EQ(sut_complex_move_ctor.begin()->stats.moveAssignment, data.size());
 }
 
 // END test move constructor
 
 // BEGIN test copy assignment
 
-TEST_F(FixedPositionContainer_test, SimpleContainerCopyAssignment)
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromEmptyContainerResultsInEmptyContainer)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "e099d78a-4a6c-4c5f-99d5-84431ee24000");
+    ::testing::Test::RecordProperty("TEST_ID", "013338e3-4330-49b4-8aa4-9b66517bb3bc");
 
-    fillSut();
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
 
-    Sut sut_copy_assignment;
-    sut_copy_assignment = sut;
-
-    auto it = sut.begin();
-    for (const auto& item : sut_copy_assignment)
-    {
-        EXPECT_EQ(item, *it);
-        EXPECT_NE(&item, &(*it));
-        ++it;
-    }
-
-    EXPECT_EQ(sut.size(), sut_copy_assignment.size());
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
 }
 
-TEST_F(FixedPositionContainer_test, ComplexContainerCopyAssignment)
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSingleElementContainerClearsOriginal)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "93dd1e09-69d3-47dc-a021-c2a311b83b86");
+    ::testing::Test::RecordProperty("TEST_ID", "6cf9e9d1-91a9-4403-a25a-52b64dd523be");
 
-    fillSutComplex();
+    constexpr DataType EXPECTED_VALUE{42U};
+    sut_complex.emplace(EXPECTED_VALUE);
 
-    // reset copyAssignment counter
-    SetUp();
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
 
-    SutComplex sut_complex_copy_assignment;
-    sut_complex_copy_assignment = sut_complex;
+    ASSERT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(sut_complex.size()));
+    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+}
 
-    auto it = sut_complex.begin();
-    for (const auto& item : sut_complex_copy_assignment)
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "262ad71a-0ee2-4661-b2c8-a3cca9c1cf5e");
+
+    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_VALUE.size(); ++i)
     {
-        EXPECT_EQ(item, *it);
-        EXPECT_NE(&item, &(*it));
-        ++it;
+        sut_complex.emplace(EXPECTED_VALUE[i]);
     }
 
-    EXPECT_EQ(sut_complex_copy_assignment.begin()->stats.copyAssignment, sut_complex.size());
-    EXPECT_EQ(sut_complex.size(), sut_complex_copy_assignment.size());
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    ASSERT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(sut_complex.size()));
+    for (SutComplex::IndexType i = 0; i < sut_complex.size(); ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(sut_complex.iter_from_index(i)->value));
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromFullCapacityContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b46d0be7-5977-467e-adc4-2e9adc554fdd");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
+    for (const auto& item : sut_complex)
+    {
+        EXPECTED_VALUE.emplace_back(item.value);
+    }
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    ASSERT_THAT(copy_sut_complex.full(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
 }
 
 // END test copy assignment
 
 // BEGIN test move assignment
 
-TEST_F(FixedPositionContainer_test, SimpleContainerMoveAssignment)
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyContainerResultsInEmptyContainer)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "6455982d-20f7-4304-a4b1-5947727e3f83");
+    ::testing::Test::RecordProperty("TEST_ID", "711ced12-4b93-47d1-af37-cace03fac2c1");
 
-    fillSut();
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
 
-    Sut sut_move_assignment;
-    std::vector<DataType> data;
-    for (const auto& item : sut)
-    {
-        data.push_back(item);
-    }
-
-    sut_move_assignment = std::move(sut);
-
-    std::size_t index{0};
-    for (const auto& item : sut_move_assignment)
-    {
-        EXPECT_EQ(item, data[index]);
-        index++;
-    }
-
-    // sut should be reset (move assignment)
-    EXPECT_TRUE(sut.empty());
-    EXPECT_EQ(sut_move_assignment.size(), data.size());
+    EXPECT_THAT(move_sut_complex.empty(), Eq(true));
 }
 
-TEST_F(FixedPositionContainer_test, ComplexContainerMoveAssignment)
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromSingleElementContainerClearsOriginal)
 {
-    ::testing::Test::RecordProperty("TEST_ID", "5eb677a3-a54d-462d-9597-70dce86c9701");
+    ::testing::Test::RecordProperty("TEST_ID", "a3902afc-5eba-4e10-8412-f09b7b5d17b8");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
+    sut_complex.emplace(EXPECTED_VALUE);
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
+
+    // make sure clear() been called
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromMultipleElementsContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c44da583-1ed8-4c83-b5bb-dba5d64b21d9");
+
+    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
+
+    // make sure clear() been called
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromFullCapacityContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3196b101-f03a-4029-abb8-77106f0b45d8");
 
     fillSutComplex();
-
-    std::vector<ComplexType> data;
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
     for (const auto& item : sut_complex)
     {
-        data.push_back(item);
+        EXPECTED_VALUE.emplace_back(item.value);
     }
 
-    // reset moveAssignment counter
-    SetUp();
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
 
-    SutComplex sut_complex_move_assignment;
-    sut_complex_move_assignment = std::move(sut_complex);
+    ASSERT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
 
-    std::size_t index{0};
-    for (const auto& item : sut_complex_move_assignment)
+    // make sure clear() been called
+    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
-        EXPECT_EQ(item, data[index]);
-        index++;
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
-
-    // sut_complex should be reset (move assignment)
-    EXPECT_TRUE(sut_complex.empty());
-    EXPECT_EQ(sut_complex_move_assignment.begin()->stats.moveAssignment, data.size());
-    EXPECT_EQ(sut_complex_move_assignment.size(), data.size());
-
-    // sut_complex should can be assigned value again
-    sut_complex.emplace(42UL);
-    EXPECT_EQ(sut_complex.begin()->value, 42UL);
 }
 
 // END test move assignment
