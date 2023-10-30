@@ -74,4 +74,4 @@ inline T OptionManager::defineOption(T& referenceToMember,
 } // namespace cli
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_CLI_OPTION_MANAGER_HPP

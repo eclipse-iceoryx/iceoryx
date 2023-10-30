@@ -90,4 +90,4 @@ Arguments parseCommandLineArguments(const OptionDefinition& optionSet,
 } // namespace cli
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_CLI_COMMAND_PARSER_HPP

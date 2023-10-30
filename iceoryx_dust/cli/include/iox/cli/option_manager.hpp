@@ -13,6 +13,7 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+
 #ifndef IOX_DUST_CLI_OPTION_MANAGER_HPP
 #define IOX_DUST_CLI_OPTION_MANAGER_HPP
 
@@ -84,4 +85,5 @@ class OptionManager
 } // namespace iox
 
 #include "iox/cli/option_manager.inl"
-#endif
+
+#endif // IOX_DUST_CLI_OPTION_MANAGER_HPP

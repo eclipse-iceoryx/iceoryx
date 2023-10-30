@@ -51,4 +51,5 @@ using TypeName_t = string<MAX_TYPE_NAME_LENGTH>;
 
 } // namespace cli
 } // namespace iox
-#endif
+
+#endif // IOX_DUST_CLI_TYPES_HPP

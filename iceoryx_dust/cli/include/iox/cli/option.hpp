@@ -96,4 +96,5 @@ struct OptionWithDetails : public Option // can this be melt together
 };
 } // namespace cli
 } // namespace iox
-#endif
+
+#endif // IOX_DUST_CLI_OPTION_HPP

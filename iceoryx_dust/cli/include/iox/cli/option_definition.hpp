@@ -95,4 +95,4 @@ std::ostream& operator<<(std::ostream& stream, const OptionWithDetails& value) n
 } // namespace cli
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_CLI_OPTION_DEFINITION_HPP

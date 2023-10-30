@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
-#define IOX_DUST_CLI_COMMAND_LINE_OPTION_VALUE_INL
+
+#ifndef IOX_DUST_CLI_CLI_DEFINITION_INL
+#define IOX_DUST_CLI_CLI_DEFINITION_INL
 
 #include "iox/cli/arguments.hpp"
 
@@ -62,4 +63,4 @@ inline expected<T, Arguments::Error> Arguments::get(const OptionName_t& optionNa
 } // namespace cli
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_CLI_CLI_DEFINITION_INL

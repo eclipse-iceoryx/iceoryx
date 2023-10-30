@@ -124,4 +124,4 @@
     const char* m_binaryName = nullptr
 
 
-#endif // IOX_DUST_CLI_COMMAND_LINE_ARGUMENT_DEFINITION_HPP
+#endif // IOX_DUST_CLI_CLI_DEFINITION_HPP

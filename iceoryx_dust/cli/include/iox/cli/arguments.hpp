@@ -71,4 +71,5 @@ class Arguments
 } // namespace iox
 
 #include "iox/cli/arguments.inl"
-#endif
+
+#endif // IOX_DUST_CLI_ARGUMENTS_HPP
