@@ -29,6 +29,12 @@ class Heartbeat
   public:
     Heartbeat() noexcept;
 
+    Heartbeat(const Heartbeat&) = delete;
+    Heartbeat(Heartbeat&&) = delete;
+
+    Heartbeat& operator=(const Heartbeat&) = delete;
+    Heartbeat& operator=(Heartbeat&&) = delete;
+
     /// @brief Get the elapsed milliseconds since the last heartbeat
     uint64_t elapsed_milliseconds_since_last_beat() const noexcept;
 
