@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu <dennis48161025@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +103,9 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorEmptyContainerResultsInEmptyCon
 
     SutComplex copy_sut_complex{sut_complex};
 
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(0));
 }
 
 TEST_F(FixedPositionContainer_test, UsingCopyCtorSingleElementContainerPreservesElement)
@@ -115,11 +118,14 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorSingleElementContainerPreserves
     sut_complex.emplace(EXPECTED_VALUE);
     SutComplex copy_sut_complex{sut_complex};
 
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
 
     // actually call copyAssignment
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+    EXPECT_THAT(stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
 }
 
 TEST_F(FixedPositionContainer_test, UsingCopyCtorMultipleElementsContainerPreservesAllElements)
@@ -135,14 +141,18 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorMultipleElementsContainerPreser
 
     SutComplex copy_sut_complex{sut_complex};
 
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-
-    // actually call copyAssignment
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
     for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
     }
+
+    // actually call copyAssignment
+    EXPECT_THAT(stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
 }
 
 TEST_F(FixedPositionContainer_test, UsingCopyCtorFullCapacityContainerPreservesAllElements)
@@ -155,14 +165,25 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorFullCapacityContainerPreservesA
     SutComplex copy_sut_complex{sut_complex};
 
     EXPECT_THAT(copy_sut_complex.full(), Eq(true));
-
-    // actually call copyAssignment
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY));
     for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(sut_complex.iter_from_index(i)->value));
         EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
     }
+
+    // actually call copyAssignment
+    EXPECT_THAT(stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorFromNonEmptyContainerCopyToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f7e142f3-e236-46f7-82df-52624cb95094");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
 }
 
 // END test copy constructor
@@ -175,7 +196,11 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromEmptyContainerResultsInEmpt
 
     SutComplex move_sut_complex{std::move(sut_complex)};
 
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
     EXPECT_THAT(move_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.size(), Eq(0));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveCtorFromSingleElementContainerClearsOriginal)
@@ -188,15 +213,21 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromSingleElementContainerClear
 
     SutComplex move_sut_complex{std::move(sut_complex)};
 
-    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
 
     // actually call moveAssignment
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
     // make sure clear() been called
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    // Note: It is sufficient to do it only once for "sut_complex"
+    EXPECT_THAT(sut_complex.full(), Eq(false));
     EXPECT_THAT(sut_complex.empty(), Eq(true));
-    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+    EXPECT_THAT(sut_complex.size(), Eq(0));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveCtorFromMultipleElementsContainerClearsOriginal)
@@ -212,18 +243,21 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromMultipleElementsContainerCl
 
     SutComplex move_sut_complex{std::move(sut_complex)};
 
-    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
-
-    // actually call moveAssignment
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-
-    // make sure clear() been called
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
+
+    // actually call moveAssignment
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveCtorFromFullCapacityContainerClearsOriginal)
@@ -240,16 +274,21 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromFullCapacityContainerClears
 
     SutComplex move_sut_complex{std::move(sut_complex)};
 
-    EXPECT_THAT(sut_complex.empty(), Eq(true));
-    ASSERT_THAT(move_sut_complex.full(), Eq(true));
-
-    // actually call moveAssignment
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
+
+    // actually call moveAssignment
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 // END test move constructor
@@ -263,7 +302,9 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromEmptyContainerResults
     SutComplex copy_sut_complex;
     copy_sut_complex = sut_complex;
 
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(0));
 }
 
 TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSingleElementContainerClearsOriginal)
@@ -276,8 +317,12 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSingleElementContaine
     SutComplex copy_sut_complex;
     copy_sut_complex = sut_complex;
 
-    ASSERT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(sut_complex.size()));
+    EXPECT_THAT(stats.copyAssignment, Eq(sut_complex.size()));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
     EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
 }
 
@@ -294,11 +339,16 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsConta
     SutComplex copy_sut_complex;
     copy_sut_complex = sut_complex;
 
-    ASSERT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(sut_complex.size()));
+    EXPECT_THAT(stats.copyAssignment, Eq(sut_complex.size()));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
     for (SutComplex::IndexType i = 0; i < sut_complex.size(); ++i)
     {
-        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(sut_complex.iter_from_index(i)->value));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
     }
 }
 
@@ -317,11 +367,16 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromFullCapacityContainer
     SutComplex copy_sut_complex;
     copy_sut_complex = sut_complex;
 
-    ASSERT_THAT(copy_sut_complex.full(), Eq(true));
-    EXPECT_THAT(copy_sut_complex.begin()->stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
     }
 }
 
@@ -336,7 +391,11 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyContainerResults
     SutComplex move_sut_complex;
     move_sut_complex = std::move(sut_complex);
 
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
     EXPECT_THAT(move_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.size(), Eq(0));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromSingleElementContainerClearsOriginal)
@@ -350,13 +409,17 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromSingleElementContaine
     SutComplex move_sut_complex;
     move_sut_complex = std::move(sut_complex);
 
-    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-
-    // make sure clear() been called
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
     EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromMultipleElementsContainerClearsOriginal)
@@ -373,16 +436,20 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromMultipleElementsConta
     SutComplex move_sut_complex;
     move_sut_complex = std::move(sut_complex);
 
-    ASSERT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-
-    // make sure clear() been called
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
+
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromFullCapacityContainerClearsOriginal)
@@ -400,16 +467,20 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromFullCapacityContainer
     SutComplex move_sut_complex;
     move_sut_complex = std::move(sut_complex);
 
-    ASSERT_THAT(move_sut_complex.full(), Eq(true));
-    EXPECT_THAT(move_sut_complex.begin()->stats.moveAssignment, Eq(EXPECTED_SIZE));
-
-    // make sure clear() been called
-    EXPECT_THAT(move_sut_complex.begin()->stats.dTor, Eq(EXPECTED_SIZE));
-    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
     }
+
+    EXPECT_THAT(stats.moveAssignment, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
 
 // END test move assignment
