@@ -17,11 +17,11 @@
 #ifndef IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 #define IOX_POSH_ROUDI_INTROSPECTION_PORT_INTROSPECTION_HPP
 
-#include "fixed_size_container.hpp"
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/popo/ports/publisher_port_data.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
+#include "iox/fixed_position_container.hpp"
 #include "iox/function.hpp"
 
 #include <atomic>
@@ -55,9 +55,15 @@ class PortIntrospection
     class PortData
     {
       private:
-        /// internal helper classes
+        struct Dummy
+        {
+        };
+        using PublisherContainerIndexType = typename FixedPositionContainer<Dummy, MAX_PUBLISHERS>::IndexType;
+        using ConnectionContainerIndexType = typename FixedPositionContainer<Dummy, MAX_SUBSCRIBERS>::IndexType;
 
         struct ConnectionInfo;
+
+        /// internal helper classes
 
         struct PublisherInfo
         {
@@ -83,8 +89,8 @@ class PortIntrospection
             TimePointNs_t m_sequenceNumberTimestamp{DurationNs_t(0)};
             mepoo::SequenceNumber_t m_sequenceNumber{0U};
 
-            /// map from indices to object pointers
-            std::map<int, ConnectionInfo*> connectionMap;
+            /// map from indices to ConnectionContainer indices
+            std::map<int, ConnectionContainerIndexType> connectionMap;
             int index{-1};
         };
 
@@ -123,12 +129,12 @@ class PortIntrospection
             }
 
             SubscriberInfo subscriberInfo;
-            PublisherInfo* publisherInfo{nullptr};
+            iox::optional<PublisherContainerIndexType> publisherInfoIndex;
             ConnectionState state{ConnectionState::DEFAULT};
 
             bool isConnected() const noexcept
             {
-                return publisherInfo && state == ConnectionState::CONNECTED;
+                return publisherInfoIndex.has_value() && state == ConnectionState::CONNECTED;
             }
         };
 
@@ -208,16 +214,14 @@ class PortIntrospection
         void setNew(bool value) noexcept;
 
       private:
-        using PublisherContainer = FixedSizeContainer<PublisherInfo, MAX_PUBLISHERS>;
-        using ConnectionContainer = FixedSizeContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
+        using PublisherContainer = FixedPositionContainer<PublisherInfo, MAX_PUBLISHERS>;
+        using ConnectionContainer = FixedPositionContainer<ConnectionInfo, MAX_SUBSCRIBERS>;
 
         /// @brief inner map maps from unique port IDs to indices in the PublisherContainer
-        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, typename PublisherContainer::Index_t>>
-            m_publisherMap;
+        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, PublisherContainerIndexType>> m_publisherMap;
 
         /// inner map maps from unique port IDs to indices in the ConnectionContainer
-        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, typename ConnectionContainer::Index_t>>
-            m_connectionMap;
+        std::map<capro::ServiceDescription, std::map<popo::UniquePortId, ConnectionContainerIndexType>> m_connectionMap;
 
         /// @note we avoid allocating the objects on the heap but can still use a map
         /// to locate/remove them fast(er)

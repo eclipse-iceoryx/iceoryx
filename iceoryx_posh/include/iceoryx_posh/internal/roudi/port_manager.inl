@@ -28,17 +28,25 @@ inline optional<RuntimeName_t>
 PortManager::doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept
 {
     // check if the publisher is already in the list
-    for (auto publisherPortData : m_portPool->getPublisherPortDataList())
+    auto& publisherPorts = m_portPool->getPublisherPortDataList();
+    auto port = publisherPorts.begin();
+    while (port != publisherPorts.end())
     {
-        popo::PublisherPortRouDi publisherPort(publisherPortData);
+        popo::PublisherPortRouDi publisherPort(port.to_ptr());
+
         if (service == publisherPort.getCaProServiceDescription())
         {
-            if (publisherPortData->m_toBeDestroyed)
+            if (publisherPort.toBeDestroyed())
             {
-                destroyPublisherPort(publisherPortData);
+                destroyPublisherPort(port.to_ptr());
+                port = publisherPorts.begin();
                 continue;
             }
-            return make_optional<RuntimeName_t>(publisherPortData->m_runtimeName);
+            return make_optional<RuntimeName_t>(port->m_runtimeName);
+        }
+        else
+        {
+            ++port;
         }
     }
     return nullopt;

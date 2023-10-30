@@ -193,8 +193,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateCo
 
     for (auto& pair : innerConnectionMap)
     {
-        auto& connection = m_connectionContainer[pair.second];
-        connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
+        auto connection = m_connectionContainer.iter_from_index(pair.second);
+        connection->state = getNextState<iox::build::CommunicationPolicy>(connection->state, messageType);
     }
 
     setNew(true);
@@ -224,8 +224,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::updateSu
         return false;
     }
 
-    auto& connection = m_connectionContainer[iterInnerMap->second];
-    connection.state = getNextState<iox::build::CommunicationPolicy>(connection.state, messageType);
+    auto connection = m_connectionContainer.iter_from_index(iterInnerMap->second);
+    connection->state = getNextState<iox::build::CommunicationPolicy>(connection->state, messageType);
 
     setNew(true);
     return true;
@@ -240,8 +240,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
     auto service = port.m_serviceDescription;
     auto uniqueId = port.m_uniqueId;
 
-    auto index = m_publisherContainer.add(PublisherInfo(port));
-    if (index < 0)
+    auto publisherInfo = m_publisherContainer.emplace(PublisherInfo(port));
+    if (publisherInfo == m_publisherContainer.end())
     {
         return false;
     }
@@ -250,8 +250,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
     if (iter == m_publisherMap.end())
     {
         // service is new, create new map
-        std::map<popo::UniquePortId, typename PublisherContainer::Index_t> innerPublisherMap;
-        innerPublisherMap.insert(std::make_pair(uniqueId, index));
+        std::map<popo::UniquePortId, PublisherContainerIndexType> innerPublisherMap;
+        innerPublisherMap.insert(std::make_pair(uniqueId, publisherInfo.to_index()));
         m_publisherMap.insert(std::make_pair(service, innerPublisherMap));
     }
     else
@@ -261,7 +261,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
         auto iter = innerPublisherMap.find(uniqueId);
         if (iter == innerPublisherMap.end())
         {
-            innerPublisherMap.insert(std::make_pair(uniqueId, index));
+            innerPublisherMap.insert(std::make_pair(uniqueId, publisherInfo.to_index()));
         }
         else
         {
@@ -270,7 +270,6 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
     }
 
     // connect publisher to all subscribers with the same Id
-    PublisherInfo* publisher = m_publisherContainer.get(index);
 
     // find corresponding subscribers
     auto connIter = m_connectionMap.find(service);
@@ -279,10 +278,10 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addPubli
         auto& innerConnectionMap = connIter->second;
         for (auto& pair : innerConnectionMap)
         {
-            auto& connection = m_connectionContainer[pair.second];
-            if (service == connection.subscriberInfo.service)
+            auto connection = m_connectionContainer.iter_from_index(pair.second);
+            if (service == connection->subscriberInfo.service)
             {
-                connection.publisherInfo = publisher;
+                connection->publisherInfoIndex = publisherInfo.to_index();
             }
         }
     }
@@ -300,8 +299,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     auto service = portData.m_serviceDescription;
     auto uniqueId = portData.m_uniqueId;
 
-    auto index = m_connectionContainer.add(ConnectionInfo(portData));
-    if (index < 0)
+    auto connection = m_connectionContainer.emplace(ConnectionInfo(portData));
+    if (connection == m_connectionContainer.end())
     {
         return false;
     }
@@ -311,8 +310,8 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
     if (iter == m_connectionMap.end())
     {
         // service is new, create new map
-        std::map<popo::UniquePortId, typename ConnectionContainer::Index_t> innerConnectionMap;
-        innerConnectionMap.insert(std::make_pair(uniqueId, index));
+        std::map<popo::UniquePortId, ConnectionContainerIndexType> innerConnectionMap;
+        innerConnectionMap.insert(std::make_pair(uniqueId, connection.to_index()));
         m_connectionMap.insert(std::make_pair(service, innerConnectionMap));
     }
     else
@@ -322,7 +321,7 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
         auto iter = innerConnectionMap.find(uniqueId);
         if (iter == innerConnectionMap.end())
         {
-            innerConnectionMap.insert(std::make_pair(uniqueId, index));
+            innerConnectionMap.insert(std::make_pair(uniqueId, connection.to_index()));
         }
         else
         {
@@ -330,16 +329,22 @@ inline bool PortIntrospection<PublisherPort, SubscriberPort>::PortData::addSubsc
         }
     }
 
-    auto& connection = m_connectionContainer[index];
-
     auto sendIter = m_publisherMap.find(service);
     if (sendIter != m_publisherMap.end())
     {
         auto& innerPublisherMap = sendIter->second;
         for (auto& iter : innerPublisherMap)
         {
-            auto publisher = m_publisherContainer.get(iter.second);
-            connection.publisherInfo = publisher; // set corresponding publisher if exists
+            auto publisherInfo = m_publisherContainer.iter_from_index(iter.second);
+            // set corresponding publisher info if exists
+            if (publisherInfo != m_publisherContainer.end())
+            {
+                connection->publisherInfoIndex = publisherInfo.to_index();
+            }
+            else
+            {
+                connection->publisherInfoIndex.reset();
+            }
         }
     }
 
@@ -365,17 +370,21 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::removePublisher(cons
         return false;
     }
     auto m_publisherIndex = iterInnerMap->second;
-    auto& publisher = m_publisherContainer[m_publisherIndex];
+    auto publisher = m_publisherContainer.iter_from_index(m_publisherIndex);
 
     // disconnect publisher from all its subscribers
-    for (auto& pair : publisher.connectionMap)
+    for (auto& pair : publisher->connectionMap)
     {
-        pair.second->publisherInfo = nullptr;          // publisher is disconnected
-        pair.second->state = ConnectionState::DEFAULT; // connection state is now default
+        auto connIter = m_connectionContainer.iter_from_index(pair.second);
+        if (connIter != m_connectionContainer.end())
+        {
+            connIter->publisherInfoIndex.reset();       // publisher is disconnected
+            connIter->state = ConnectionState::DEFAULT; // connection state is now default
+        }
     }
 
     innerPublisherMap.erase(iterInnerMap);
-    m_publisherContainer.remove(m_publisherIndex);
+    m_publisherContainer.erase(publisher);
     setNew(true); // indicates we have to send new data because
                   // something changed
 
@@ -404,20 +413,24 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::removeSubscriber(con
 
     // remove subscriber in corresponding publisher
     auto connectionIndex = mapIter->second;
-    auto& connection = m_connectionContainer[connectionIndex];
-    auto& publisher = connection.publisherInfo;
+    auto connection = m_connectionContainer.iter_from_index(connectionIndex);
+    auto publisherInfoIndex = connection->publisherInfoIndex;
 
-    if (publisher)
+    if (publisherInfoIndex.has_value())
     {
-        auto connIter = publisher->connectionMap.find(connectionIndex);
-        if (connIter != publisher->connectionMap.end())
+        auto publisherInfo = m_publisherContainer.iter_from_index(publisherInfoIndex.value());
+        if (publisherInfo != m_publisherContainer.end())
         {
-            publisher->connectionMap.erase(connIter);
+            auto connIter = publisherInfo->connectionMap.find(connectionIndex);
+            if (connIter != publisherInfo->connectionMap.end())
+            {
+                publisherInfo->connectionMap.erase(connIter);
+            }
         }
     }
 
     innerConnectionMap.erase(mapIter);
-    m_connectionContainer.remove(connectionIndex);
+    m_connectionContainer.erase(connection);
 
     setNew(true);
     return true;
@@ -533,20 +546,20 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
             auto m_publisherIndex = pair.second;
             if (m_publisherIndex >= 0)
             {
-                auto& publisherInfo = m_publisherContainer[m_publisherIndex];
+                auto publisherInfo = m_publisherContainer.iter_from_index(m_publisherIndex);
                 PublisherPortData publisherData;
-                PublisherPort port(publisherInfo.portData);
+                PublisherPort port(publisherInfo->portData);
                 publisherData.m_publisherPortID = static_cast<uint64_t>(port.getUniqueID());
-                publisherData.m_sourceInterface = publisherInfo.service.getSourceInterface();
-                publisherData.m_name = publisherInfo.process;
-                publisherData.m_node = publisherInfo.node;
+                publisherData.m_sourceInterface = publisherInfo->service.getSourceInterface();
+                publisherData.m_name = publisherInfo->process;
+                publisherData.m_node = publisherInfo->node;
 
-                publisherData.m_caproInstanceID = publisherInfo.service.getInstanceIDString();
-                publisherData.m_caproServiceID = publisherInfo.service.getServiceIDString();
-                publisherData.m_caproEventMethodID = publisherInfo.service.getEventIDString();
+                publisherData.m_caproInstanceID = publisherInfo->service.getInstanceIDString();
+                publisherData.m_caproServiceID = publisherInfo->service.getServiceIDString();
+                publisherData.m_caproEventMethodID = publisherInfo->service.getEventIDString();
 
                 m_publisherList.emplace_back(publisherData);
-                publisherInfo.index = index++;
+                publisherInfo->index = index++;
             }
         }
     }
@@ -559,9 +572,9 @@ PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareTopic(PortInt
             auto connectionIndex = pair.second;
             if (connectionIndex >= 0)
             {
-                auto& connection = m_connectionContainer[connectionIndex];
+                auto connection = m_connectionContainer.iter_from_index(connectionIndex);
                 SubscriberPortData subscriberData;
-                auto& subscriberInfo = connection.subscriberInfo;
+                auto& subscriberInfo = connection->subscriberInfo;
 
                 subscriberData.m_name = subscriberInfo.process;
                 subscriberData.m_node = subscriberInfo.node;
@@ -597,8 +610,8 @@ inline void PortIntrospection<PublisherPort, SubscriberPort>::PortData::prepareT
             auto connectionIndex = pair.second;
             if (connectionIndex >= 0)
             {
-                auto& connection = m_connectionContainer[connectionIndex];
-                auto& subscriberInfo = connection.subscriberInfo;
+                auto connection = m_connectionContainer.iter_from_index(connectionIndex);
+                auto& subscriberInfo = connection->subscriberInfo;
                 SubscriberPortChangingData subscriberData;
                 if (subscriberInfo.portData != nullptr)
                 {
