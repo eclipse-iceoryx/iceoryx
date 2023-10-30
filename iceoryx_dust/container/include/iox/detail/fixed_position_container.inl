@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu <dennis48161025@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,12 +70,12 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
 {
     if (this != &rhs)
     {
-        IndexType i = 0U;
-        auto lhsSize = size();
-        auto minSize = algorithm::minVal(lhsSize, rhs.size());
+        IndexType i = Index::FIRST;
+        auto lhs_size = size();
+        auto min_size = algorithm::minVal(lhs_size, rhs.size());
 
         // copy using copy assignment
-        for (; i < minSize; ++i)
+        for (; i < min_size; ++i)
         {
             m_data[i] = rhs.m_data[i];
             m_status[i] = rhs.m_status[i];
@@ -90,7 +91,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
         }
 
         // with rhs.size smaller than this.size: delete remaining elements of this (erase)
-        for (; i < lhsSize; ++i)
+        for (; i < lhs_size; ++i)
         {
             erase(i);
         }
@@ -118,12 +119,12 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 {
     if (this != &rhs)
     {
-        IndexType i = 0U;
-        auto lhsSize = size();
-        auto minSize = algorithm::minVal(lhsSize, rhs.size());
+        IndexType i = Index::FIRST;
+        auto lhs_size = size();
+        auto min_size = algorithm::minVal(lhs_size, rhs.size());
 
         // move using move assignment
-        for (; i < minSize; ++i)
+        for (; i < min_size; ++i)
         {
             m_data[i] = std::move(rhs.m_data[i]);
             m_status[i] = rhs.m_status[i];
@@ -139,7 +140,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
         }
 
         // with rhs.size smaller than this.size: delete remaining elements of this (erase)
-        for (; i < lhsSize; ++i)
+        for (; i < lhs_size; ++i)
         {
             erase(i);
         }
