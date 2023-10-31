@@ -370,7 +370,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromFullCapacityContainer
     EXPECT_THAT(stats.copyAssignment, Eq(EXPECTED_SIZE));
     EXPECT_THAT(stats.moveAssignment, Eq(0));
 
-    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.full(), Eq(true));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
