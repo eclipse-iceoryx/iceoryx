@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Latitude AI. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -105,7 +106,7 @@ iox::optional<ElementType> LockFreeQueue<ElementType, Capacity>::pushImpl(T&& va
 
     // if we removed from a full queue via popIfFull it might not be full anymore when a concurrent pop occurs
 
-    writeBufferAt(index, value); //&& version is called due to explicit conversion via std::move
+    writeBufferAt(index, std::forward<T>(value));
 
     m_usedIndices.push(index);
 
