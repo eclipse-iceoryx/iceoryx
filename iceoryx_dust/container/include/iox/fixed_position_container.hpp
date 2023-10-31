@@ -324,6 +324,9 @@ class FixedPositionContainer final
     IndexType m_size{0};
     IndexType m_begin_free{Index::FIRST};
     IndexType m_begin_used{Index::INVALID};
+
+    template <typename RhsType>
+    void init(RhsType&& rhs) noexcept;
 };
 
 } // namespace iox

@@ -70,51 +70,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
 {
     if (this != &rhs)
     {
-        IndexType i = Index::FIRST;
-        ConstIterator rhs_it = rhs.begin();
-
-        // copy using copy assignment util rhs iter becomes invalid
-        for (; rhs_it.to_index() != Index::INVALID; i++, rhs_it++)
-        {
-            if (m_status[i] == SlotStatus::USED)
-            {
-                // clean original data by it's dtor
-                erase(i);
-            }
-            m_data[i] = *rhs_it;
-            m_status[i] = SlotStatus::USED;
-            // can this line be removed?
-            m_next[i] = static_cast<IndexType>(i + 1U);
-        }
-
-        // correct next
-        m_next[i] = Index::INVALID;
-
-        // erase rest USED element in rhs, m_next and m_status will be also modified by erase()
-        while (i < Index::INVALID)
-        {
-            if (m_status[i] == SlotStatus::USED)
-            {
-                break;
-            }
-
-            i++;
-        }
-
-        // if rest USED slot found
-        if (i != Index::INVALID)
-        {
-            for (Iterator lhs_it = this->iter_from_index(i); lhs_it.to_index() != Index::INVALID; lhs_it++)
-            {
-                erase(lhs_it);
-            }
-        }
-
-        // member update
-        // may this cause problem when size == capacity?
-        m_begin_free = static_cast<IndexType>(rhs.size());
-        m_begin_used = Index::FIRST;
-        m_size = rhs.m_size;
+        init(rhs);
     }
     return *this;
 }
@@ -125,55 +81,78 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 {
     if (this != &rhs)
     {
-        IndexType i = Index::FIRST;
-        Iterator rhs_it = rhs.begin();
-
-        // copy using copy assignment util rhs iter becomes invalid
-        for (; rhs_it.to_index() != Index::INVALID; i++, rhs_it++)
-        {
-            if (m_status[i] == SlotStatus::USED)
-            {
-                // clean original data by it's dtor
-                erase(i);
-            }
-            m_data[i] = std::move(*rhs_it);
-            m_status[i] = SlotStatus::USED;
-            // can this line be removed?
-            m_next[i] = static_cast<IndexType>(i + 1U);
-        }
-
-        // correct next
-        m_next[i] = Index::INVALID;
-
-        // erase rest USED element in rhs, m_next and m_status will be also modified by erase()
-        while (i < Index::INVALID)
-        {
-            if (m_status[i] == SlotStatus::USED)
-            {
-                break;
-            }
-            i++;
-        }
-
-        // if rest USED slot found
-        if (i != Index::INVALID)
-        {
-            for (Iterator lhs_it = this->iter_from_index(i); lhs_it.to_index() != Index::INVALID; lhs_it++)
-            {
-                erase(lhs_it);
-            }
-        }
-
-        // member update
-        // may this cause problem when size == capacity?
-        m_begin_free = static_cast<IndexType>(rhs.size());
-        m_begin_used = Index::FIRST;
-        m_size = rhs.m_size;
+        init(std::move(rhs));
 
         // clear rhs
         rhs.clear();
     }
     return *this;
+}
+
+template <typename T, uint64_t CAPACITY>
+template <typename RhsType>
+inline void FixedPositionContainer<T, CAPACITY>::init(RhsType&& rhs) noexcept
+{
+    static_assert(std::is_rvalue_reference<decltype(rhs)>::value
+                      || (std::is_lvalue_reference<decltype(rhs)>::value
+                          && std::is_const<std::remove_reference_t<decltype(rhs)>>::value),
+                  "RhsType must be const lvalue reference or rvalue reference");
+
+    IndexType i = Index::FIRST;
+    auto rhs_it = (std::forward<RhsType>(rhs)).begin();
+    bool is_move = std::is_rvalue_reference<RhsType&&>::value;
+
+    // transfer src data to destination
+    for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+            if (is_move)
+            {
+                m_data[i] = std::move(*rhs_it);
+            }
+            else
+            {
+                m_data[i] = *rhs_it;
+            }
+        }
+        else
+        {
+            // use ctor to avoid UB for non-initialized free slots
+            if (is_move)
+            {
+                new (&m_data[i]) T(std::move(*rhs_it));
+            }
+            else
+            {
+                new (&m_data[i]) T(*rhs_it);
+            }
+        }
+
+        m_status[i] = SlotStatus::USED;
+        m_next[i] = static_cast<IndexType>(i + 1U);
+    }
+
+    // correct next
+    m_next[i] = Index::INVALID;
+
+    // erase rest USED element in rhs, also update m_next for free slots
+    for (; i < Index::INVALID; ++i)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+            erase(i);
+        }
+        else
+        {
+            m_next[i] = static_cast<IndexType>(i + 1U);
+        }
+    }
+
+    // member update
+    m_begin_free = static_cast<IndexType>(rhs.m_size);
+    m_begin_used = Index::FIRST;
+    m_size = rhs.m_size;
 }
 
 template <typename T, uint64_t CAPACITY>
