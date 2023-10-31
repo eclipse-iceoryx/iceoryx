@@ -133,7 +133,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorMultipleElementsContainerPreser
     ::testing::Test::RecordProperty("TEST_ID", "6261f53e-8089-4b9b-9b2d-9da0016a2f1e");
 
     constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
-    std::vector<DataType> EXPECTED_VALUE = {0U, 1U, 2U, 3U};
+    std::vector<DataType> EXPECTED_VALUE = {56U, 57U, 58U, 59U};
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
         sut_complex.emplace(EXPECTED_VALUE[i]);
@@ -234,7 +234,7 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromMultipleElementsContainerCl
 {
     ::testing::Test::RecordProperty("TEST_ID", "b9d929ae-23c8-4b5b-ba82-e5af12cdace4");
 
-    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
     constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
@@ -330,7 +330,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsConta
 {
     ::testing::Test::RecordProperty("TEST_ID", "262ad71a-0ee2-4661-b2c8-a3cca9c1cf5e");
 
-    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
     for (SutComplex::IndexType i = 0; i < EXPECTED_VALUE.size(); ++i)
     {
         sut_complex.emplace(EXPECTED_VALUE[i]);
@@ -426,7 +426,7 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromMultipleElementsConta
 {
     ::testing::Test::RecordProperty("TEST_ID", "c44da583-1ed8-4c83-b5bb-dba5d64b21d9");
 
-    std::vector<DataType> EXPECTED_VALUE{0U, 1U, 2U, 3U};
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
     constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
     for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
     {
