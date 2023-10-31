@@ -71,45 +71,51 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
     if (this != &rhs)
     {
         IndexType i = Index::FIRST;
-        auto lhs_size = size();
-        auto min_size = algorithm::minVal(lhs_size, rhs.size());
+        ConstIterator rhs_it = rhs.begin();
 
-        // copy using copy assignment
-        for (; i < min_size; ++i)
+        // copy using copy assignment util rhs iter becomes invalid
+        for (; rhs_it.to_index() != Index::INVALID; i++, rhs_it++)
         {
-            m_data[i] = rhs.m_data[i];
-            m_status[i] = rhs.m_status[i];
-            m_next[i] = rhs.m_next[i];
-        }
-
-        // with rhs.size bigger than this.size: copy further elements from rhs to this
-        for (; i < rhs.size(); ++i)
-        {
-            m_data[i] = rhs.m_data[i];
-            m_status[i] = rhs.m_status[i];
-            m_next[i] = rhs.m_next[i];
-        }
-
-        // with rhs.size smaller than this.size: delete remaining elements of this (erase)
-        for (; i < lhs_size; ++i)
-        {
-            erase(i);
-        }
-
-        // init rest status to avoid garbage value
-        for (; i < CAPACITY; ++i)
-        {
-            m_status[i] = SlotStatus::FREE;
+            if (m_status[i] == SlotStatus::USED)
+            {
+                // clean original data by it's dtor
+                erase(i);
+            }
+            m_data[i] = *rhs_it;
+            m_status[i] = SlotStatus::USED;
+            // can this line be removed?
             m_next[i] = static_cast<IndexType>(i + 1U);
         }
-        m_next[Index::LAST] = Index::INVALID;
+
+        // correct next
+        m_next[i] = Index::INVALID;
+
+        // erase rest USED element in rhs, m_next and m_status will be also modified by erase()
+        while (i < Index::INVALID)
+        {
+            if (m_status[i] == SlotStatus::USED)
+            {
+                break;
+            }
+
+            i++;
+        }
+
+        // if rest USED slot found
+        if (i != Index::INVALID)
+        {
+            for (Iterator lhs_it = this->iter_from_index(i); lhs_it.to_index() != Index::INVALID; lhs_it++)
+            {
+                erase(lhs_it);
+            }
+        }
 
         // member update
-        m_begin_free = rhs.m_begin_free;
-        m_begin_used = rhs.m_begin_used;
+        // may this cause problem when size == capacity?
+        m_begin_free = static_cast<IndexType>(rhs.size());
+        m_begin_used = Index::FIRST;
         m_size = rhs.m_size;
     }
-
     return *this;
 }
 
@@ -120,45 +126,51 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
     if (this != &rhs)
     {
         IndexType i = Index::FIRST;
-        auto lhs_size = size();
-        auto min_size = algorithm::minVal(lhs_size, rhs.size());
+        Iterator rhs_it = rhs.begin();
 
-        // move using move assignment
-        for (; i < min_size; ++i)
+        // copy using copy assignment util rhs iter becomes invalid
+        for (; rhs_it.to_index() != Index::INVALID; i++, rhs_it++)
         {
-            m_data[i] = std::move(rhs.m_data[i]);
-            m_status[i] = rhs.m_status[i];
-            m_next[i] = rhs.m_next[i];
-        }
-
-        // with rhs.size bigger than this.size: move further elements from rhs to this
-        for (; i < rhs.size(); ++i)
-        {
-            m_data[i] = std::move(rhs.m_data[i]);
-            m_status[i] = rhs.m_status[i];
-            m_next[i] = rhs.m_next[i];
-        }
-
-        // with rhs.size smaller than this.size: delete remaining elements of this (erase)
-        for (; i < lhs_size; ++i)
-        {
-            erase(i);
-        }
-
-        // init rest status to avoid garbage value
-        for (; i < CAPACITY; ++i)
-        {
-            m_status[i] = SlotStatus::FREE;
+            if (m_status[i] == SlotStatus::USED)
+            {
+                // clean original data by it's dtor
+                erase(i);
+            }
+            m_data[i] = std::move(*rhs_it);
+            m_status[i] = SlotStatus::USED;
+            // can this line be removed?
             m_next[i] = static_cast<IndexType>(i + 1U);
         }
-        m_next[Index::LAST] = Index::INVALID;
+
+        // correct next
+        m_next[i] = Index::INVALID;
+
+        // erase rest USED element in rhs, m_next and m_status will be also modified by erase()
+        while (i < Index::INVALID)
+        {
+            if (m_status[i] == SlotStatus::USED)
+            {
+                break;
+            }
+            i++;
+        }
+
+        // if rest USED slot found
+        if (i != Index::INVALID)
+        {
+            for (Iterator lhs_it = this->iter_from_index(i); lhs_it.to_index() != Index::INVALID; lhs_it++)
+            {
+                erase(lhs_it);
+            }
+        }
 
         // member update
-        m_begin_free = rhs.m_begin_free;
-        m_begin_used = rhs.m_begin_used;
+        // may this cause problem when size == capacity?
+        m_begin_free = static_cast<IndexType>(rhs.size());
+        m_begin_used = Index::FIRST;
         m_size = rhs.m_size;
 
-        // clear rhs to avoid garbage value
+        // clear rhs
         rhs.clear();
     }
     return *this;
