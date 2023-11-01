@@ -18,6 +18,8 @@
 
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
+#include "iceoryx_posh/roudi/heartbeat_pool.hpp"
+#include "iceoryx_posh/roudi/memory/generic_memory_block.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 
 namespace iox
@@ -38,6 +40,7 @@ struct DefaultRouDiMemory
 
     MemPoolCollectionMemoryBlock m_introspectionMemPoolBlock;
     MemPoolCollectionMemoryBlock m_discoveryMemPoolBlock;
+    GenericMemoryBlock<HeartbeatPool> heartbeatPoolBlock;
     MemPoolSegmentManagerMemoryBlock m_segmentManagerBlock;
     PosixShmMemoryProvider m_managementShm;
 

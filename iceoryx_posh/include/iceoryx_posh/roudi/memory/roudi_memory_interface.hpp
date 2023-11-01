@@ -19,6 +19,7 @@
 #include "iceoryx_posh/internal/roudi/memory/mempool_collection_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/mempool_segment_manager_memory_block.hpp"
 #include "iceoryx_posh/internal/roudi/memory/port_pool_memory_block.hpp"
+#include "iceoryx_posh/roudi/heartbeat_pool.hpp"
 #include "iceoryx_posh/roudi/memory/posix_shm_memory_provider.hpp"
 #include "iceoryx_posh/roudi/memory/roudi_memory_manager.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
@@ -58,6 +59,7 @@ class RouDiMemoryInterface
     virtual optional<PortPool*> portPool() noexcept = 0;
     virtual optional<mepoo::MemoryManager*> introspectionMemoryManager() const noexcept = 0;
     virtual optional<mepoo::MemoryManager*> discoveryMemoryManager() const noexcept = 0;
+    virtual optional<HeartbeatPool*> heartbeatPool() const noexcept = 0;
     virtual optional<mepoo::SegmentManager<>*> segmentManager() const noexcept = 0;
 };
 } // namespace roudi

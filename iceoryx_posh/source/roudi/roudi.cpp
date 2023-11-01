@@ -506,11 +506,6 @@ void RouDi::processMessage(const runtime::IpcMessage& message,
         }
         break;
     }
-    case runtime::IpcMessageType::KEEPALIVE:
-    {
-        m_prcMgr->updateLivelinessOfProcess(runtimeName);
-        break;
-    }
     case runtime::IpcMessageType::PREPARE_APP_TERMINATION:
     {
         if (message.getNumberOfElements() != 2)

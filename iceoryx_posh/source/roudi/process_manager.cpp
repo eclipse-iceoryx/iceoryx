@@ -1,5 +1,6 @@
 // Copyright (c) 2019 - 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,7 +52,10 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
         IOX_LOG(FATAL, "Invalid state! Could not obtain SegmentManager!");
         fatalError = true;
     }
-    m_segmentManager = maybeSegmentManager.value();
+    else
+    {
+        m_segmentManager = maybeSegmentManager.value();
+    }
 
     auto maybeIntrospectionMemoryManager = m_roudiMemoryInterface.introspectionMemoryManager();
     if (!maybeIntrospectionMemoryManager.has_value())
@@ -59,7 +63,10 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
         IOX_LOG(FATAL, "Invalid state! Could not obtain MemoryManager for instrospection!");
         fatalError = true;
     }
-    m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
+    else
+    {
+        m_introspectionMemoryManager = maybeIntrospectionMemoryManager.value();
+    }
 
     auto maybeMgmtSegmentId = m_roudiMemoryInterface.mgmtMemoryProvider()->segmentId();
     if (!maybeMgmtSegmentId.has_value())
@@ -67,7 +74,21 @@ ProcessManager::ProcessManager(RouDiMemoryInterface& roudiMemoryInterface,
         IOX_LOG(FATAL, "Invalid state! Could not obtain SegmentId for iceoryx management segment!");
         fatalError = true;
     }
-    m_mgmtSegmentId = maybeMgmtSegmentId.value();
+    else
+    {
+        m_mgmtSegmentId = maybeMgmtSegmentId.value();
+    }
+
+    auto maybeHeartbeatPool = m_roudiMemoryInterface.heartbeatPool();
+    if (!maybeHeartbeatPool.has_value())
+    {
+        IOX_LOG(FATAL, "Invalid state! Could not obtain HeartbeatPool!");
+        fatalError = true;
+    }
+    else
+    {
+        m_heartbeatPool = maybeHeartbeatPool.value();
+    }
 
     if (fatalError)
     {
@@ -148,6 +169,7 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
     return !posix::posixCall(kill)(static_cast<pid_t>(process.getPid()),
                                    (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
                 .failureReturnValue(ERROR_CODE)
+                .ignoreErrnos(ESRCH)
                 .evaluate()
                 .or_else([&](auto& r) {
                     this->evaluateKillError(process, r.errnum, r.getHumanReadableErrnum().c_str(), shutdownPolicy);
@@ -266,21 +288,28 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
         IOX_LOG(ERROR, "Could not register process '" << name << "' - too many processes");
         return false;
     }
-    m_processList.emplace_back(name, pid, user, isMonitored, sessionId);
+    auto heartbeatPoolIndex = HeartbeatPool::Index::INVALID;
+    /// @todo iox-#2055 this workaround is required sind the conversion of edge cases is broken
+    constexpr uint8_t IOX_2055_WORKAROUND{1};
+    iox::UntypedRelativePointer::offset_t heartbeatOffset{iox::UntypedRelativePointer::NULL_POINTER_OFFSET
+                                                          - IOX_2055_WORKAROUND};
+    if (isMonitored)
+    {
+        auto heartbeat = m_heartbeatPool->emplace();
+        heartbeatPoolIndex = heartbeat.to_index();
+        heartbeatOffset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, heartbeat.to_ptr());
+    }
+    m_processList.emplace_back(name, pid, user, heartbeatPoolIndex, sessionId);
 
     // send REG_ACK and BaseAddrString
     runtime::IpcMessage sendBuffer;
-    const bool sendKeepAlive = isMonitored;
 
-    auto offset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, m_segmentManager);
+    auto segmentManagerOffset = UntypedRelativePointer::getOffset(segment_id_t{m_mgmtSegmentId}, m_segmentManager);
     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::REG_ACK)
-               << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << offset << transmissionTimestamp
-               << m_mgmtSegmentId << sendKeepAlive;
+               << m_roudiMemoryInterface.mgmtMemoryProvider()->size() << segmentManagerOffset << transmissionTimestamp
+               << m_mgmtSegmentId << heartbeatOffset;
 
     m_processList.back().sendViaIpcChannel(sendBuffer);
-
-    // set current timestamp again (already done in Process's constructor
-    m_processList.back().setTimestamp(mepoo::BaseClock_t::now());
 
     m_processIntrospection->addProcess(static_cast<int>(pid), name);
 
@@ -335,20 +364,15 @@ bool ProcessManager::removeProcessAndDeleteRespectiveSharedMemoryObjects(Process
             processIter->sendViaIpcChannel(sendBuffer);
         }
 
+        auto heartbeatIter = m_heartbeatPool->iter_from_index(processIter->getHeartbeatPoolIndex());
+        if (heartbeatIter != m_heartbeatPool->end())
+        {
+            m_heartbeatPool->erase(heartbeatIter);
+        }
         processIter = m_processList.erase(processIter); // delete application
         return true;
     }
     return false;
-}
-
-void ProcessManager::updateLivelinessOfProcess(const RuntimeName_t& name) noexcept
-{
-    findProcess(name)
-        .and_then([&](auto& process) {
-            // reset timestamp
-            process->setTimestamp(mepoo::BaseClock_t::now());
-        })
-        .or_else([&]() { IOX_LOG(WARN, "Received Keepalive from unknown process " << name); });
 }
 
 void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
@@ -714,39 +738,42 @@ optional<Process*> ProcessManager::findProcess(const RuntimeName_t& name) noexce
 
 void ProcessManager::monitorProcesses() noexcept
 {
-    auto currentTimestamp = mepoo::BaseClock_t::now();
-
-    auto processIterator = m_processList.begin();
-    while (processIterator != m_processList.end())
+    static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
+                  "keep alive timeout too small");
+    auto timeout = runtime::PROCESS_KEEP_ALIVE_TIMEOUT.toMilliseconds();
+    auto heartbeatIterator = m_heartbeatPool->begin();
+    while (heartbeatIterator != m_heartbeatPool->end())
     {
-        if (processIterator->isMonitored())
+        auto currentHeartbeatIterator = heartbeatIterator++;
+        auto elapsedMilliseconds = currentHeartbeatIterator->elapsed_milliseconds_since_last_beat();
+        if (elapsedMilliseconds > timeout)
         {
-            auto timediff = into<units::Duration>(currentTimestamp - processIterator->getTimestamp());
-
-            static_assert(runtime::PROCESS_KEEP_ALIVE_TIMEOUT > runtime::PROCESS_KEEP_ALIVE_INTERVAL,
-                          "keep alive timeout too small");
-            if (timediff > runtime::PROCESS_KEEP_ALIVE_TIMEOUT)
+            bool removed{false};
+            auto processIterator = m_processList.begin();
+            while (processIterator != m_processList.end())
             {
+                if (processIterator->getHeartbeatPoolIndex() != currentHeartbeatIterator.to_index())
+                {
+                    ++processIterator;
+                    continue;
+                }
+
                 IOX_LOG(WARN,
                         "Application " << processIterator->getName() << " not responding (last response "
-                                       << timediff.toMilliseconds() << " milliseconds ago) --> removing it");
+                                       << elapsedMilliseconds << " milliseconds ago) --> removing it");
 
-                // note: if we would want to use the removeProcess function, it would search for the process again
-                // (but we already found it and have an iterator to remove it)
-
-                // delete all associated subscriber and publisher ports in shared
-                // memory and the associated RouDi discovery ports
-                // @todo iox-#539 Check if ShmManager and Process Manager end up in unintended condition
-                m_portManager.deletePortsOfProcess(processIterator->getName());
-
-                m_processIntrospection->removeProcess(static_cast<int32_t>(processIterator->getPid()));
-
-                // delete application
-                processIterator = m_processList.erase(processIterator);
-                continue; // erase returns first element after the removed one --> skip iterator increment
+                removed = removeProcessAndDeleteRespectiveSharedMemoryObjects(
+                    processIterator, TerminationFeedback::DO_NOT_SEND_ACK_TO_PROCESS);
+                break;
+            }
+            if (!removed)
+            {
+                IOX_LOG(WARN,
+                        "Could not find application for corresponding heartbeat! HeartbeatPoolIndex: "
+                            << currentHeartbeatIterator.to_index());
+                m_heartbeatPool->erase(currentHeartbeatIterator);
             }
         }
-        ++processIterator;
     }
 }
 

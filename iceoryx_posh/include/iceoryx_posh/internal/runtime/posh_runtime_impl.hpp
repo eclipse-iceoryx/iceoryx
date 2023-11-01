@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
+#include "iceoryx_posh/internal/runtime/heartbeat.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/function.hpp"
@@ -110,16 +111,11 @@ class PoshRuntimeImpl : public PoshRuntime
     IpcRuntimeInterface m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
 
+    optional<Heartbeat*> m_heartbeat;
     void sendKeepAliveAndHandleShutdownPreparation() noexcept;
-    static_assert(PROCESS_KEEP_ALIVE_INTERVAL > roudi::DISCOVERY_INTERVAL, "Keep alive interval too small");
 
     // the m_keepAliveTask should always be the last member, so that it will be the first member to be destroyed
-    concurrent::PeriodicTask<function<void()>> m_keepAliveTask{
-        concurrent::PeriodicTaskAutoStart,
-        PROCESS_KEEP_ALIVE_INTERVAL,
-        "KeepAlive",
-        *this,
-        &PoshRuntimeImpl::sendKeepAliveAndHandleShutdownPreparation};
+    optional<concurrent::PeriodicTask<function<void()>>> m_keepAliveTask;
 };
 
 } // namespace runtime

@@ -24,6 +24,7 @@
 #include "iceoryx_posh/internal/roudi/process.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_user.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iceoryx_posh/roudi/heartbeat_pool.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_posh/version/version_info.hpp"
 #include "iox/list.hpp"
@@ -105,8 +106,6 @@ class ProcessManager : public ProcessManagerInterface
 
     /// @brief Tries to gracefully terminate all registered processes
     void requestShutdownOfAllProcesses() noexcept;
-
-    void updateLivelinessOfProcess(const RuntimeName_t& name) noexcept;
 
     void
     addInterfaceForProcess(const RuntimeName_t& name, capro::Interfaces interface, const NodeName_t& node) noexcept;
@@ -232,6 +231,7 @@ class ProcessManager : public ProcessManagerInterface
     ProcessList_t m_processList;
     ProcessIntrospectionType* m_processIntrospection{nullptr};
     version::CompatibilityCheckLevel m_compatibilityCheckLevel;
+    HeartbeatPool* m_heartbeatPool;
 };
 
 } // namespace roudi

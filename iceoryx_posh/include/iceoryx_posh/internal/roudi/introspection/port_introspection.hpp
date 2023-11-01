@@ -84,11 +84,6 @@ class PortIntrospection
             capro::ServiceDescription service;
             NodeName_t node;
 
-            using TimePointNs_t = mepoo::TimePointNs_t;
-            using DurationNs_t = mepoo::DurationNs_t;
-            TimePointNs_t m_sequenceNumberTimestamp{DurationNs_t(0)};
-            mepoo::SequenceNumber_t m_sequenceNumber{0U};
-
             /// map from indices to ConnectionContainer indices
             std::map<int, ConnectionContainerIndexType> connectionMap;
             int index{-1};

@@ -44,10 +44,6 @@ class IpcRuntimeInterface
     IpcRuntimeInterface(IpcRuntimeInterface&&) = delete;
     IpcRuntimeInterface& operator=(IpcRuntimeInterface&&) = delete;
 
-    /// @brief sends the keep alive trigger to the RouDi daemon
-    /// @return true if sending was successful, false if not
-    bool sendKeepalive() noexcept;
-
     /// @brief send a request to the RouDi daemon
     /// @param[in] msg request to RouDi
     /// @param[out] answer response from RouDi
@@ -65,6 +61,10 @@ class IpcRuntimeInterface
     /// @brief get the segment id of the shared memory object
     /// @return segment id
     uint64_t getSegmentId() const noexcept;
+
+    /// @brief Access the relative pointer offset for the heartbeat
+    /// @return relative pointer offset for the heartbeat or 'nullopt' if monitoring is disabled
+    optional<UntypedRelativePointer::offset_t> getHeartbeatAddressOffset() const noexcept;
 
   private:
     enum class RegAckResult
@@ -84,7 +84,7 @@ class IpcRuntimeInterface
     IpcInterfaceUser m_RoudiIpcInterface;
     uint64_t m_shmTopicSize{0U};
     uint64_t m_segmentId{0U};
-    bool m_sendKeepalive = true;
+    optional<UntypedRelativePointer::offset_t> m_heartbeatAddressOffset;
 };
 
 } // namespace runtime

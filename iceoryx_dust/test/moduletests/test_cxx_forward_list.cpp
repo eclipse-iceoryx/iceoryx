@@ -16,8 +16,8 @@
 
 #include "iceoryx_dust/cxx/forward_list.hpp"
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/ctor_and_assignment_operator_test_class.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_hoofs/testing/lifetime_and_assignment_tracker.hpp"
 #include "iox/attributes.hpp"
 #include "test.hpp"
 
@@ -33,7 +33,7 @@ constexpr int64_t TEST_LIST_ELEMENT_DEFAULT_VALUE{-99L};
 class forward_list_test : public Test
 {
   public:
-    using TestListElement = CTorAndAssignmentOperatorTestClass<int64_t, TEST_LIST_ELEMENT_DEFAULT_VALUE>;
+    using TestListElement = LifetimeAndAssignmentTracker<int64_t, TEST_LIST_ELEMENT_DEFAULT_VALUE>;
 
     void SetUp() override
     {
