@@ -98,6 +98,7 @@
 - Remove `EXPECT_DEATH` [#1613](https://github.com/eclipse-iceoryx/iceoryx/issues/1613)
 - ServiceDiscovery uses instrospection MemPools [#1359](https://github.com/eclipse-iceoryx/iceoryx/issues/1359)
 - LockFreeQueue fails to support move-only types [\#2067](https://github.com/eclipse-iceoryx/iceoryx/issues/2067)
+- Fix musl libc compile (missing sys/stat.h include in mqueue.h for mode_t definition) [\#2072](https://github.com/eclipse-iceoryx/iceoryx/issues/2072)
 
 **Refactoring:**
 
