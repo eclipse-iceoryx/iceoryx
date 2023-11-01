@@ -70,7 +70,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
 {
     if (this != &rhs)
     {
-        init(rhs);
+        copy_and_move_impl(rhs);
     }
     return *this;
 }
@@ -81,7 +81,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 {
     if (this != &rhs)
     {
-        init(std::move(rhs));
+        copy_and_move_impl(std::move(rhs));
 
         // clear rhs
         rhs.clear();
@@ -91,7 +91,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 
 template <typename T, uint64_t CAPACITY>
 template <typename RhsType>
-inline void FixedPositionContainer<T, CAPACITY>::init(RhsType&& rhs) noexcept
+inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
     static_assert(std::is_rvalue_reference<decltype(rhs)>::value
                       || (std::is_lvalue_reference<decltype(rhs)>::value

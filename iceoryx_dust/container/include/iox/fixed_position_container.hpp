@@ -317,6 +317,9 @@ class FixedPositionContainer final
         IndexType m_index;
     };
 
+    template <typename RhsType>
+    void copy_and_move_impl(RhsType&& rhs) noexcept;
+
   private:
     UninitializedArray<T, CAPACITY> m_data;
     UninitializedArray<SlotStatus, CAPACITY> m_status;
@@ -324,9 +327,6 @@ class FixedPositionContainer final
     IndexType m_size{0};
     IndexType m_begin_free{Index::FIRST};
     IndexType m_begin_used{Index::INVALID};
-
-    template <typename RhsType>
-    void init(RhsType&& rhs) noexcept;
 };
 
 } // namespace iox
