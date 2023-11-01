@@ -188,3 +188,40 @@ freebsd_x64_test_task:
     fingerprint_key: $CIRRUS_OS_freebsd_x64_test_binaries_cache
   test_script:
     <<: *IOX_RUN_TESTS
+
+#
+# macOS aarch64 [Basic]
+#
+
+macos_aarch64_build_task:
+  depends_on: preflight_check
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_macOS_aarch64_test_binaries_cache
+  setup_script:
+    - brew install ncurses
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+macos_aarch64_test_task:
+  depends_on: macos_aarch64_build
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_macOS_aarch64_test_binaries_cache
+  env:
+    # No timing tests on macOS
+    GTEST_FILTER: "-*TimingTest*"
+  test_script:
+    <<: *IOX_RUN_TESTS
