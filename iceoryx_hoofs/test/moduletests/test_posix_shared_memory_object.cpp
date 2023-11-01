@@ -103,7 +103,7 @@ TEST_F(SharedMemoryObject_Test, AllocateMemoryInSharedMemoryAndReadIt)
 TEST_F(SharedMemoryObject_Test, OpenFailsWhenActualMemorySizeIsSmallerThanRequestedSize)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb58b45e-8366-42ae-bd30-8d7415791dd4");
-    const uint64_t MEMORY_SIZE = 8192;
+    const uint64_t MEMORY_SIZE = 16U << 20U; // 16 MB
     auto sut = iox::posix::SharedMemoryObjectBuilder()
                    .name("shmAllocate")
                    .memorySizeInBytes(1)
