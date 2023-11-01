@@ -29,6 +29,8 @@ set -e
 WORKSPACE=$(git rev-parse --show-toplevel)
 BUILD_DIR=$WORKSPACE/build
 NUM_JOBS=""
+NUM_JOBS_MIN=1
+NUM_JOBS_MAX=1024
 PACKAGE="OFF"
 CLEAN_BUILD=false
 NO_BUILD=false
@@ -78,6 +80,15 @@ while (( "$#" )); do
             shift 2
         fi
         echo "$TEST_SCOPE"
+        ;;
+    -j|--jobs)
+        if (($2 < $NUM_JOBS_MIN || $2 > $NUM_JOBS_MAX)); then
+            echo "Invalid number of jobs: $2"
+            echo "Allowed range is $NUM_JOBS_MIN to $NUM_JOBS_MAX"
+            exit 1
+        fi
+        NUM_JOBS="$2"
+        shift 2
         ;;
     "clean")
         CLEAN_BUILD=true
@@ -202,6 +213,7 @@ while (( "$#" )); do
         echo "    -b --build-dir        Specify a non-default build directory"
         echo "    -c --coverage         Build with gcov and generate a html/xml report."
         echo "                          Possible arguments: 'all', 'unit', 'integration', 'only-timing-tests'"
+        echo "    -j --jobs             Specify the number of build jobs. Number must be in the range of $NUM_JOBS_MIN to $NUM_JOBS_MAX"
         echo "    -t --toolchain-file   Specify an absolute path to a toolchain file for cross-compiling e.g. (-t $(pwd)/tools/qnx/qnx710.nto.toolchain.aarch64.cmake)"
         echo "Args:"
         echo "    binding-c             Build the iceoryx C-Binding"
@@ -249,7 +261,10 @@ echo " [i] Building in $BUILD_DIR"
 #====================================================================================================
 
 # set number of cores for building
-if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
+if [[ $NUM_JOBS -ne "" ]]; then
+    # don't change number of jobs if set by script argument
+    :
+elif [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "cygwin" ]] || [[ "$OSTYPE" == "msys" ]]; then
     NUM_JOBS=$(nproc)
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     NUM_JOBS=$(sysctl -n hw.ncpu)
@@ -322,13 +337,11 @@ if [ "$OUT_OF_TREE_FLAG" == "ON" ]; then
     rm -rf "$WORKSPACE"/build_out_of_tree
     cd "$WORKSPACE"
 
-    EXAMPLES=$(cd iceoryx_examples; find * -maxdepth 1 -type d)
+    EXAMPLES=$(cd iceoryx_examples; find * -maxdepth 0 -type d)
     # Exclude directories without CMake file from the out-of-tree build
     EXAMPLES=${EXAMPLES/iceensemble/""}
     EXAMPLES=${EXAMPLES/icecrystal/""}
     EXAMPLES=${EXAMPLES/icedocker/""}
-    EXAMPLES=${EXAMPLES/icediscovery\/src/""}
-    EXAMPLES=${EXAMPLES/icediscovery\/include/""}
     EXAMPLES=${EXAMPLES/small_memory/""}
     echo ">>>>>> Start Out-of-tree build <<<<<<"
     echo "${EXAMPLES}"
@@ -360,7 +373,8 @@ fi
 
 if [ $RUN_TEST == true ]; then
     echo " [i] Running all tests"
-    "$BUILD_DIR"/tools/run_tests.sh "$TEST_SCOPE"
+    cd "$BUILD_DIR"
+    tools/run_tests.sh "$TEST_SCOPE"
 fi
 
 for COMPONENT in $COMPONENTS; do
