@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
-#include "iceoryx_dust/cxx/file_reader.hpp"
-#include "iceoryx_dust/cxx/std_string_support.hpp"
+#include "iox/file_reader.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
@@ -39,7 +39,7 @@ iox::config::TomlGatewayConfigParser::parse(const roudi::ConfigFilePathString_t&
     }
 
     /// @todo iox-#1718 Replace with C++17 std::filesystem::exists()
-    iox::cxx::FileReader configFile(into<std::string>(path), "", cxx::FileReader::ErrorMode::Ignore);
+    iox::FileReader configFile(into<std::string>(path), "", FileReader::ErrorMode::Ignore);
     if (!configFile.isOpen())
     {
         IOX_LOG(WARN, "Gateway config file not found at: '" << path << "'. Falling back to built-in config.");

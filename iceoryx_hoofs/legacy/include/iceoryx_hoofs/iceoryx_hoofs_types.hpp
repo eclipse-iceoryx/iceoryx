@@ -24,6 +24,8 @@ IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/iceoryx_hoofs_types.hpp' ins
 
 namespace iox
 {
+/// @todo iox-#1593 Deprecate namespace with
+/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
 namespace cxx
 {
 /// @deprecated use 'iox::byte' instead of 'iox::cxx::byte_t'

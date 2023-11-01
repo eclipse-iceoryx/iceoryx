@@ -46,7 +46,6 @@ static_assert(ICEORYX_VERSION_MAJOR < IOX_INTERNAL_NEXT_DEPRECATED_VERSION,
         " to call 'IOX_INTERNAL_DEPRECATED_SINCE(VERSION, MESSAGE)'\n"
     " - update 'IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V" IOX_INTERNAL_DEPRECATED_STINGIFY_HELPER(ICEORYX_VERSION_MAJOR)
         " to call 'IOX_INTERNAL_DEPRECATED_HEADER_SINCE(VERSION, MESSAGE)'");
-
 // clang-format on
 
 
@@ -68,6 +67,15 @@ static_assert(ICEORYX_VERSION_MAJOR < IOX_INTERNAL_NEXT_DEPRECATED_VERSION,
     }                                                                                                                  \
     }
 
+// clang-format off
+// The 'IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V#' macros call either 'IOX_INTERNAL_DEPRECATED_HEADER_SINCE' if the
+// specific version is deprecated or expand to an empty macro. Here an example with V1 being deprecated and V2 not yet
+// ----
+// #define IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V1(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_HEADER_SINCE(VERSION, MESSAGE)
+// #define IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V2(VERSION, MESSAGE)
+// ----
+// clang-format on
+
 #define IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V1(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_HEADER_SINCE(VERSION, MESSAGE)
 
 #define IOX_INTERNAL_DEPRECATED_HEADER_SINCE_V2(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_HEADER_SINCE(VERSION, MESSAGE)
@@ -88,6 +96,8 @@ static_assert(ICEORYX_VERSION_MAJOR < IOX_INTERNAL_NEXT_DEPRECATED_VERSION,
 /// @param[in] VERSION from when the header is deprecated
 /// @param[in] MESSAGE custom message to be printed after 'Deprecated since vX.0 and will be remove at a later version!'
 /// @code
+///     // assuming this file is 'iox/bar/foo.hpp'
+///     #include "iox/foo.hpp"
 ///     IOX_DEPRECATED_HEADER_SINCE(3, "Please use 'iox/foo.hpp' instead.")
 /// @endcode
 #define IOX_DEPRECATED_HEADER_SINCE(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_HEADER_SINCE_EXPANSION(VERSION, MESSAGE)
@@ -99,6 +109,13 @@ static_assert(ICEORYX_VERSION_MAJOR < IOX_INTERNAL_NEXT_DEPRECATED_VERSION,
 
 #define IOX_INTERNAL_DEPRECATED_SINCE(VERSION, MESSAGE)                                                                \
     [[deprecated("Deprecated since v" #VERSION ".0 and will be removed at a later version! " MESSAGE)]]
+
+// The 'IOX_INTERNAL_DEPRECATED_SINCE_V#' macros call either 'IOX_INTERNAL_DEPRECATED_SINCE' if the
+// specific version is deprecated or expand to an empty macro. Here an example with V1 being deprecated and V2 not yet
+// ----
+// #define IOX_INTERNAL_DEPRECATED_SINCE_V1(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_SINCE(VERSION, MESSAGE)
+// #define IOX_INTERNAL_DEPRECATED_SINCE_V2(VERSION, MESSAGE)
+// ----
 
 #define IOX_INTERNAL_DEPRECATED_SINCE_V1(VERSION, MESSAGE) IOX_INTERNAL_DEPRECATED_SINCE(VERSION, MESSAGE)
 

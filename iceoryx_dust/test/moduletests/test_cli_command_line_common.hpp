@@ -14,8 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
-#define IOX_DUST_MODULETESTS_TEST_CXX_COMMAND_LINE_COMMON_HPP
+#ifndef IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
+#define IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP
 
 #include <iostream>
 #include <memory>
@@ -74,4 +74,4 @@ class OutBuffer
     std::stringstream m_capture;
 };
 
-#endif
+#endif // IOX_DUST_MODULETESTS_TEST_CLI_COMMAND_LINE_COMMON_HPP

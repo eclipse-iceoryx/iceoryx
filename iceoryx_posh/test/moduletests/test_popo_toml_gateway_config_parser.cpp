@@ -18,8 +18,8 @@
 // iox::config::GatewayConfig uses 1MB on the stack which is way too much for QNX
 #if !(defined(QNX) || defined(QNX__) || defined(__QNX__))
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
+#include "iox/std_string_support.hpp"
 #include "stubs/stub_toml_gateway_config_parser.hpp"
 #include "test.hpp"
 

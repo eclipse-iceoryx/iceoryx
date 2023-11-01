@@ -15,9 +15,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/std_string_support.hpp"
 #include "iceoryx_posh/internal/roudi/service_registry.hpp"
 #include "iox/optional.hpp"
+#include "iox/std_string_support.hpp"
 #include "iox/string.hpp"
 
 #include "test.hpp"

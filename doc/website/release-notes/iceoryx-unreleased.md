@@ -947,7 +947,8 @@
     // before
     #include "iceoryx_hoofs/cxx/forward_list.hpp"
 
-    #include "iceoryx_dust/cxx/forward_list.hpp"
+    // after
+    #include "iox/forward_list.hpp"
     ```
 
     ```cpp
@@ -963,7 +964,7 @@
     #include "iceoryx_hoofs/internal/cxx/static_storage.hpp"
 
     // after
-    #include "iceoryx_dust/internal/cxx/static_storage.hpp"
+    #include "iox/static_storage.hpp"
     ```
 
     ```cpp
@@ -971,7 +972,7 @@
     #include "iceoryx_hoofs/internal/file_reader/file_reader.hpp"
 
     // after
-    #include "iceoryx_dust/cxx/file_reader.hpp"
+    #include "iox/file_reader.hpp"
     ```
 
     ```cpp
@@ -987,7 +988,7 @@
     #include "iceoryx_hoofs/internal/relocatable_pointer/relocatable_ptr.hpp"
 
     // after
-    #include "iceoryx_dust/relocatable_pointer/relocatable_ptr.hpp"
+    #include "iox/relocatable_ptr.hpp"
     ```
 
     ```cpp
@@ -1041,7 +1042,7 @@
     std::string myConvertedIoxString = static_cast<std::string>(myIoxString);
 
     // after
-    #include "iceoryx_dust/cxx/std_string_support.hpp"
+    #include "iox/std_string_support.hpp"
 
     std::string myStdString("foo");
     // std::string to iox::string with truncation when source string exceeds capacity
@@ -1065,7 +1066,7 @@
     }
 
     // after
-    #include "iceoryx_dust/cxx/std_string_support.hpp"
+    #include "iox/std_string_support.hpp"
 
     std::string myStdString("foo");
     iox::string<3> myIoxString("foo");
@@ -1125,7 +1126,7 @@
     iox::units::Duration ioxDuration(chronoDuration);
 
     // after
-    #include "iceoryx_dust/cxx/std_chrono_support.hpp"
+    #include "iox/std_chrono_support.hpp"
 
     std::chrono::milliseconds chronoDuration = 1_ms;
     iox::units::Duration ioxDuration{into<iox::units::Duration>(chronoDuration)};

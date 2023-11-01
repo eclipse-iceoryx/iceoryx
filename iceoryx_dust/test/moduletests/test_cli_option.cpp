@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/internal/cli/option.hpp"
+#include "iox/cli/option.hpp"
 #include "test.hpp"
 
 
@@ -22,7 +22,6 @@ namespace
 {
 using namespace ::testing;
 using namespace iox::cli;
-using namespace iox::cli::internal;
 
 template <typename T>
 class OptionTest : public Test

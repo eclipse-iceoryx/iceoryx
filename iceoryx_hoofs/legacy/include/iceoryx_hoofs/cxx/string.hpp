@@ -24,6 +24,8 @@ IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/string.hpp' instead.")
 
 namespace iox
 {
+/// @todo iox-#1593 Deprecate namespace with
+/// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
 namespace cxx
 {
 /// @deprecated use 'iox::concatenate' instead of 'iox::cxx::concatenate'

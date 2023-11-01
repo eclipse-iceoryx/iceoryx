@@ -18,7 +18,6 @@
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
 #include "iceoryx_dust/cxx/convert.hpp"
-#include "iceoryx_dust/cxx/std_chrono_support.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/types.hpp"
@@ -26,6 +25,7 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/logging.hpp"
 #include "iox/relative_pointer.hpp"
+#include "iox/std_chrono_support.hpp"
 #include "iox/vector.hpp"
 
 #include <chrono>

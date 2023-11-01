@@ -17,7 +17,7 @@
 #ifndef IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 #define IOX_EXAMPLES_COMPLEXDATA_TOPIC_DATA_HPP
 
-#include "iceoryx_dust/cxx/forward_list.hpp"
+#include "iox/forward_list.hpp"
 #include "iox/list.hpp"
 #include "iox/optional.hpp"
 #include "iox/stack.hpp"
@@ -25,19 +25,16 @@
 #include "iox/variant.hpp"
 #include "iox/vector.hpp"
 
-using namespace iox::cxx;
-using namespace iox;
-
 //! [complexdata type]
 struct ComplexDataType
 {
-    forward_list<string<10>, 5> stringForwardList;
-    list<uint64_t, 10> integerList;
-    list<optional<int32_t>, 15> optionalList;
-    stack<float, 5> floatStack;
-    string<20> someString;
-    vector<double, 5> doubleVector;
-    vector<variant<string<10>, double>, 10> variantVector;
+    iox::forward_list<iox::string<10>, 5> stringForwardList;
+    iox::list<uint64_t, 10> integerList;
+    iox::list<iox::optional<int32_t>, 15> optionalList;
+    iox::stack<float, 5> floatStack;
+    iox::string<20> someString;
+    iox::vector<double, 5> doubleVector;
+    iox::vector<iox::variant<iox::string<10>, double>, 10> variantVector;
 };
 //! [complexdata type]
 

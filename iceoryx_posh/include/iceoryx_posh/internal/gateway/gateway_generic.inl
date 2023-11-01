@@ -19,9 +19,7 @@
 #ifndef IOX_POSH_GW_GATEWAY_GENERIC_INL
 #define IOX_POSH_GW_GATEWAY_GENERIC_INL
 
-#include "iceoryx_dust/cxx/file_reader.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
-#include "iox/logging.hpp"
 
 // ================================================== Public ================================================== //
 
