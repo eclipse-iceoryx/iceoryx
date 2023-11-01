@@ -76,7 +76,7 @@ iox_add_executable( TARGET                  test_stress_sofi
 
 add_subdirectory(stresstests/benchmark_optional_and_expected)
 
-target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${TEST_CXX_FLAGS})
-target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${TEST_CXX_FLAGS})
-target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${TEST_CXX_FLAGS})
-target_compile_options(test_stress_sofi PRIVATE ${TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_moduletests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_mocktests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
+target_compile_options(${PROJECT_PREFIX}_integrationtests PRIVATE ${ICEORYX_TEST_CXX_FLAGS})
+target_compile_options(test_stress_sofi PRIVATE ${ICEORYX_TEST_CXX_FLAGS})

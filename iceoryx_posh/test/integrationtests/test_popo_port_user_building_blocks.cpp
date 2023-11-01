@@ -328,19 +328,18 @@ class PortUser_IntegrationTest : public Test
 
 TIMING_TEST_F(PortUser_IntegrationTest, SingleProducer, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "bb62ac02-2b7d-4d1c-8699-9f5ba4d9bd5a");
-    constexpr uint32_t NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER = 1U;
-    constexpr uint32_t INDEX_OF_PUBLISHER_SINGLE_PRODUCER = 0U;
 
-    std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortSingleProducer>,
-                                            this,
-                                            NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER,
-                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiSingleProducer),
-                                            std::ref(PortUser_IntegrationTest::m_subscriberPortUserSingleProducer)));
-    std::thread publishingThread(std::bind(&PortUser_IntegrationTest::publisherThread,
-                                           this,
-                                           INDEX_OF_PUBLISHER_SINGLE_PRODUCER,
-                                           std::ref(PortUser_IntegrationTest::m_publisherPortRouDiVector.front()),
-                                           std::ref(PortUser_IntegrationTest::m_publisherPortUserVector.front())));
+    std::thread subscribingThread([this] {
+        constexpr uint32_t NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER = 1U;
+        subscriberThread(NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER,
+                         m_subscriberPortRouDiSingleProducer,
+                         m_subscriberPortUserSingleProducer);
+    });
+    std::thread publishingThread([this] {
+        constexpr uint32_t INDEX_OF_PUBLISHER_SINGLE_PRODUCER = 0U;
+        publisherThread(
+            INDEX_OF_PUBLISHER_SINGLE_PRODUCER, m_publisherPortRouDiVector.front(), m_publisherPortUserVector.front());
+    });
 
     if (subscribingThread.joinable())
     {
@@ -358,21 +357,14 @@ TIMING_TEST_F(PortUser_IntegrationTest, SingleProducer, Repeat(5), [&] {
 
 TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
     ::testing::Test::RecordProperty("TEST_ID", "d27279d3-26c0-4489-9208-bd361120525a");
-    std::thread subscribingThread(std::bind(&PortUser_IntegrationTest::subscriberThread<SubscriberPortMultiProducer>,
-                                            this,
-                                            NUMBER_OF_PUBLISHERS,
-                                            std::ref(PortUser_IntegrationTest::m_subscriberPortRouDiMultiProducer),
-                                            std::ref(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer)));
-
+    std::thread subscribingThread([this] {
+        subscriberThread(NUMBER_OF_PUBLISHERS, m_subscriberPortRouDiMultiProducer, m_subscriberPortUserMultiProducer);
+    });
 
     for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
     {
         m_publisherThreadVector.emplace_back(
-            std::bind(&PortUser_IntegrationTest::publisherThread,
-                      this,
-                      i,
-                      std::ref(PortUser_IntegrationTest::m_publisherPortRouDiVector[i]),
-                      std::ref(PortUser_IntegrationTest::m_publisherPortUserVector[i])));
+            [i, this] { publisherThread(i, m_publisherPortRouDiVector[i], m_publisherPortUserVector[i]); });
     }
 
     if (subscribingThread.joinable())
