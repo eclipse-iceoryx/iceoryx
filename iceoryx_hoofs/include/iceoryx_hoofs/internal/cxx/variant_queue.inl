@@ -245,13 +245,6 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
     return 0U;
 }
 
-template <typename ValueType, uint64_t Capacity>
-inline typename VariantQueue<ValueType, Capacity>::fifo_t&
-VariantQueue<ValueType, Capacity>::getUnderlyingFiFo() noexcept
-{
-    return m_fifo;
-}
-
 } // namespace cxx
 } // namespace iox
 
