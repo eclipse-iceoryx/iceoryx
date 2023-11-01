@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1
+
+# Select base image
+FROM archlinux:base-devel
+
+# Disable prompt during packages installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Minimize the number of layers (RUN, COPY and ADD create layers)
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers
+# Install additional packages
+RUN pacman -Syu --noconfirm \
+  clang \
+  cmake \
+  git \
+  ncurses \
+  && pacman -Scc --noconfirm \
+  && useradd iox_roudi_test1 \
+  && useradd iox_roudi_test2 \
+  && useradd iox_roudi_test3
+
+# Sent environment variables, e.g. 'ENV FOO=BAR'
