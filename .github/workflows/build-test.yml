@@ -40,26 +40,6 @@ jobs:
           cmake-version: '3.16.3' # version used in Ubuntu 20.04 LTS
       - run: ./tools/ci/build-test-ubuntu.sh
 
-  # uses macos to run freebsd in a virtualbox
-  build-test-unix-with-freebsd:
-    # prevent stuck jobs consuming runners for 6 hours
-    timeout-minutes: 60
-    needs: pre-flight-check
-    runs-on: macos-12
-    steps:
-    - uses: actions/checkout@v3
-    - name: Unix (FreeBSD) test
-      id: Test
-      uses: vmactions/freebsd-vm@v0
-      with:
-        usesh: true
-        copyback: false
-        mem: 4096
-        prepare: pkg install -y cmake git ncurses bash wget
-        run: |
-         git config --global --add safe.directory /Users/runner/work/iceoryx/iceoryx
-         ./tools/ci/build-test-freebsd.sh
-
   build-test-windows:
     # prevent stuck jobs consuming runners for 6 hours
     timeout-minutes: 60

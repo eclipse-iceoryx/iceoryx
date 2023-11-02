@@ -37,8 +37,8 @@ for USER in ${USERS}  ; do
             exit 1
         fi
         echo "adding users" $USER
-        sudo useradd -M $USER # create user without home dir
-        sudo usermod -L $USER # prevent login
+        useradd -M $USER # create user without home dir
+        usermod -L $USER # prevent login
     fi
 done
 

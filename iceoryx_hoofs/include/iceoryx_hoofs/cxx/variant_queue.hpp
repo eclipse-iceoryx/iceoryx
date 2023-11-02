@@ -112,16 +112,6 @@ class VariantQueue
     /// @return queue size
     uint64_t capacity() const noexcept;
 
-    /// @brief returns reference to the underlying fifo
-    /// @code
-    ///    VariantQueueTypes<int, 10> myFifo(VariantQueueTypes::FiFo_SingleProducerSingleConsumer);
-    ///
-    ///    // access the underlying fifo directly and call empty on it
-    ///    myFifo.getUnderlyingFiFo().template
-    ///    get_at_index<VariantQueueTypes::FiFo_SingleProducerSingleConsumer>()->empty();
-    /// @endcode
-    fifo_t& getUnderlyingFiFo() noexcept;
-
   private:
     VariantQueueTypes m_type;
     fifo_t m_fifo;

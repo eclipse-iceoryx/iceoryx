@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+
+# Select base image
+FROM ubuntu:22.04
+
+# Disable prompt during packages installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Minimize the number of layers (RUN, COPY and ADD create layers)
+# https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers
+# Install additional packages
+RUN apt update && apt install -y \
+  clang \
+  clang-format-15 \
+  clang-tidy-15 \
+  cmake \
+  g++ \
+  git \
+  libacl1-dev \
+  libncurses5-dev \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt clean \
+  && useradd iox_roudi_test1 \
+  && useradd iox_roudi_test2 \
+  && useradd iox_roudi_test3
+
+# Sent environment variables, e.g. 'ENV FOO=BAR'

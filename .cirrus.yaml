@@ -1,0 +1,227 @@
+#
+# Notes
+#
+# Cirrus CI has a concurrency limit of 24 CPU cores for open source projects.
+# This means we should not have more than 6 pipelines with more than 4 CPUs
+# in each pipeline running parallel
+#
+# Documentation:
+# - https://cirrus-ci.org/examples/
+# - https://cirrus-ci.org/guide/writing-tasks/
+#
+
+---
+
+#
+# Templates
+#
+
+# Constants
+
+iox_task_timeout_template: &IOX_TASK_TIMEOUT
+  timeout_in: 15m  # This needs to be reasonable large in order not to run in a timeout in the docker image re-builds
+
+iox_common_cpu_and_memory_config_for_builds_template: &IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  cpu: 4
+  memory: 8GB
+
+iox_common_cpu_and_memory_config_for_tests_template: &IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  cpu: 1
+  memory: 4GB
+
+# Build and Test
+
+iox_posix_clean_build_script_template: &IOX_POSIX_CLEAN_BUILD
+  - echo "#### Deleting build and iox-tests-bin dir"
+  - if [[ -d "build" ]]; then rm -rf build; fi
+  - if [[ -d "iox-tests-bin" ]]; then rm -rf iox-tests-vin; fi
+  - echo "#### Running cmake to configure build"
+  - cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DCMAKE_INSTALL_PREFIX=build/install
+  - echo "#### Running cmake to build with CIRRUS_CPU = " $CIRRUS_CPU
+  - cmake --build build --target install -j $CIRRUS_CPU
+
+iox_posix_clean_build_with_additional_user_template: &IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
+  - echo "#### Deleting build and iox-tests-bin dir"
+  - if [[ -d "build" ]]; then rm -rf build; fi
+  - if [[ -d "iox-tests-bin" ]]; then rm -rf iox-tests-vin; fi
+  - echo "#### Running cmake to configure build"
+  - cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DTEST_ADD_USER=ON -DCMAKE_INSTALL_PREFIX=build/install
+  - echo "#### Running cmake to build with CIRRUS_CPU = " $CIRRUS_CPU
+  - cmake --build build --target install -j $CIRRUS_CPU
+
+iox_prepare_test_binaries_for_cache_template: &IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+  - mkdir -p iox-tests-bin
+  - mv build/hoofs/test/hoofs_mocktests iox-tests-bin
+  - mv build/hoofs/test/hoofs_moduletests iox-tests-bin
+  - mv build/hoofs/test/hoofs_integrationtests iox-tests-bin
+  - mv build/dust/test/dust_moduletests iox-tests-bin
+  - mv build/dust/test/dust_integrationtests iox-tests-bin
+  - mv build/posh/test/posh_moduletests iox-tests-bin
+  - mv build/posh/test/posh_integrationtests iox-tests-bin
+  - mv build/binding_c/test/binding_c_moduletests iox-tests-bin
+
+iox_run_tests_template: &IOX_RUN_TESTS
+  - cd iox-tests-bin
+  - ./hoofs_mocktests
+  - ./hoofs_moduletests
+  - ./hoofs_integrationtests
+  - ./dust_moduletests
+  - ./dust_integrationtests
+  - ./posh_moduletests
+  - ./posh_integrationtests
+  - ./binding_c_moduletests
+
+#
+# Preflight-Check
+#
+
+preflight_check_task:
+  container:
+    dockerfile: tools/ci/docker/ubuntu-22.04
+    cpu: 1
+    memory: 4GB
+  <<: *IOX_TASK_TIMEOUT
+  clang_format_script: tools/scripts/clang_format.sh check
+  check_test_ids_script: tools/scripts/check_test_ids.sh
+  check_invalid_characters_script: tools/scripts/check_invalid_characters.sh
+  cmake_linter_script: tools/ci/cmake-linter.sh
+
+#
+# Ubuntu 22.04 aarch64
+#
+
+ubuntu_22_04_aarch64_build_task:
+  depends_on: preflight_check
+  arm_container:
+    dockerfile: tools/ci/docker/ubuntu-22.04
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_ubuntu_22_04_aarch64_test_binaries_cache
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+ubuntu_22_04_aarch64_test_task:
+  depends_on: ubuntu_22_04_aarch64_build
+  arm_container:
+    dockerfile: tools/ci/docker/ubuntu-22.04
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_ubuntu_22_04_aarch64_test_binaries_cache
+  test_script:
+    <<: *IOX_RUN_TESTS
+
+#
+# Arch Linux x64
+#
+
+arch_linux_x64_build_task:
+  depends_on: preflight_check
+  container:
+    dockerfile: tools/ci/docker/archlinux-base-devel
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_archlinux_x64_test_binaries_cache
+  env:
+    # use clang on Arch Linux since GCC triggers some compiler warnings which abort the job
+    CC: clang
+    CXX: clang++
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+arch_linux_x64_test_task:
+  depends_on: arch_linux_x64_build
+  container:
+    dockerfile: tools/ci/docker/archlinux-base-devel
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_archlinux_x64_test_binaries_cache
+  test_script:
+    <<: *IOX_RUN_TESTS
+
+#
+# FreeBSD x64
+#
+
+freebsd_x64_build_task:
+  depends_on: preflight_check
+  freebsd_instance:
+    image_family: freebsd-13-2
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_freebsd_x64_test_binaries_cache
+  setup_script:
+    - pkg install -y cmake git ncurses bash wget
+    - ln -s /usr/local/bin/bash /bin/bash
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+freebsd_x64_test_task:
+  depends_on: freebsd_x64_build
+  freebsd_instance:
+    image_family: freebsd-13-2
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_freebsd_x64_test_binaries_cache
+  test_script:
+    <<: *IOX_RUN_TESTS
+
+#
+# macOS aarch64 [Basic]
+#
+
+macos_aarch64_build_task:
+  depends_on: preflight_check
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_macOS_aarch64_test_binaries_cache
+  setup_script:
+    - brew install ncurses
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+macos_aarch64_test_task:
+  depends_on: macos_aarch64_build
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-ventura-base:latest
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_macOS_aarch64_test_binaries_cache
+  env:
+    # No timing tests on macOS
+    GTEST_FILTER: "-*TimingTest*"
+  test_script:
+    <<: *IOX_RUN_TESTS
