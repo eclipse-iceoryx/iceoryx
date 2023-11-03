@@ -37,7 +37,7 @@ VersionInfo::VersionInfo(const uint16_t versionMajor,
 {
 }
 
-VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
+VersionInfo::VersionInfo(const Serialization& serial) noexcept
 {
     SerializationString_t tmp_m_buildDateString;
     SerializationString_t tmp_commitIdString;
@@ -48,11 +48,11 @@ VersionInfo::VersionInfo(const cxx::Serialization& serial) noexcept
 }
 
 /// @brief Serialization of the VersionInfo.
-VersionInfo::operator cxx::Serialization() const noexcept
+VersionInfo::operator Serialization() const noexcept
 {
     SerializationString_t tmp_m_buildDateString = m_buildDateString;
     SerializationString_t tmp_commitIdString = m_commitIdString;
-    return cxx::Serialization::create(
+    return Serialization::create(
         m_versionMajor, m_versionMinor, m_versionPatch, m_versionTweak, tmp_m_buildDateString, tmp_commitIdString);
 }
 

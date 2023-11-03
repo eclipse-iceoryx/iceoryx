@@ -17,12 +17,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/wait.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/std_chrono_support.hpp"
@@ -278,8 +278,8 @@ bool ProcessManager::addProcess(const RuntimeName_t& name,
             "Version mismatch from '"
                 << name
                 << "'! Please build your app and RouDi against the same iceoryx version (version & commitID). RouDi: "
-                << version::VersionInfo::getCurrentVersion().operator iox::cxx::Serialization().toString()
-                << " App: " << versionInfo.operator iox::cxx::Serialization().toString());
+                << version::VersionInfo::getCurrentVersion().operator iox::Serialization().toString()
+                << " App: " << versionInfo.operator iox::Serialization().toString());
         return false;
     }
     // overflow check
@@ -389,7 +389,7 @@ void ProcessManager::addInterfaceForProcess(const RuntimeName_t& name,
 
             runtime::IpcMessage sendBuffer;
             sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_INTERFACE_ACK)
-                       << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                       << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
             process->sendViaIpcChannel(sendBuffer);
 
             IOX_LOG(DEBUG, "Created new interface for application " << name);
@@ -407,7 +407,7 @@ void ProcessManager::addNodeForProcess(const RuntimeName_t& runtimeName, const N
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_NODE_ACK)
-                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                               << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
 
                     process->sendViaIpcChannel(sendBuffer);
                     m_processIntrospection->addNode(RuntimeName_t(TruncateToCapacity, runtimeName.c_str()),
@@ -459,7 +459,7 @@ void ProcessManager::addSubscriberForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SUBSCRIBER_ACK)
-                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                           << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
                 IOX_LOG(DEBUG,
@@ -514,7 +514,7 @@ void ProcessManager::addPublisherForProcess(const RuntimeName_t& name,
 
                 runtime::IpcMessage sendBuffer;
                 sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_PUBLISHER_ACK)
-                           << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                           << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
                 process->sendViaIpcChannel(sendBuffer);
 
                 IOX_LOG(DEBUG,
@@ -590,8 +590,7 @@ void ProcessManager::addClientForProcess(const RuntimeName_t& name,
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_CLIENT_ACK)
-                               << cxx::convert::toString(relativePtrToClientPort)
-                               << cxx::convert::toString(m_mgmtSegmentId);
+                               << convert::toString(relativePtrToClientPort) << convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
                     IOX_LOG(DEBUG,
@@ -645,8 +644,7 @@ void ProcessManager::addServerForProcess(const RuntimeName_t& name,
 
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(runtime::IpcMessageType::CREATE_SERVER_ACK)
-                               << cxx::convert::toString(relativePtrToServerPort)
-                               << cxx::convert::toString(m_mgmtSegmentId);
+                               << convert::toString(relativePtrToServerPort) << convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
                     IOX_LOG(DEBUG,
@@ -682,7 +680,7 @@ void ProcessManager::addConditionVariableForProcess(const RuntimeName_t& runtime
                     runtime::IpcMessage sendBuffer;
                     sendBuffer << runtime::IpcMessageTypeToString(
                         runtime::IpcMessageType::CREATE_CONDITION_VARIABLE_ACK)
-                               << cxx::convert::toString(offset) << cxx::convert::toString(m_mgmtSegmentId);
+                               << convert::toString(offset) << convert::toString(m_mgmtSegmentId);
                     process->sendViaIpcChannel(sendBuffer);
 
                     IOX_LOG(DEBUG, "Created new ConditionVariable for application " << runtimeName);

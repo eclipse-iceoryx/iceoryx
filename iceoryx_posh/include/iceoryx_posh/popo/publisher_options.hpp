@@ -21,7 +21,7 @@
 #include "iox/expected.hpp"
 #include "port_queue_policies.hpp"
 
-#include "iceoryx_dust/cxx/serialization.hpp"
+#include "iox/detail/serialization.hpp"
 
 #include <cstdint>
 
@@ -45,10 +45,9 @@ struct PublisherOptions
     ConsumerTooSlowPolicy subscriberTooSlowPolicy{ConsumerTooSlowPolicy::DISCARD_OLDEST_DATA};
 
     /// @brief serialization of the PublisherOptions
-    cxx::Serialization serialize() const noexcept;
+    Serialization serialize() const noexcept;
     /// @brief deserialization of the PublisherOptions
-    static expected<PublisherOptions, cxx::Serialization::Error>
-    deserialize(const cxx::Serialization& serialized) noexcept;
+    static expected<PublisherOptions, Serialization::Error> deserialize(const Serialization& serialized) noexcept;
 };
 
 } // namespace popo

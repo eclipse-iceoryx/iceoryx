@@ -17,10 +17,10 @@
 #ifndef IOX_POSH_VERSION_VERSION_INFO_HPP
 #define IOX_POSH_VERSION_VERSION_INFO_HPP
 
-#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/version/compatibility_check_level.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/detail/serialization.hpp"
 #include "iox/size.hpp"
 #include "iox/string.hpp"
 
@@ -51,10 +51,10 @@ class VersionInfo
 
     /// @brief Construction of the VersionInfo using serialized strings.
     /// @param[in] serial The serialization object from read from to initialize this object.
-    VersionInfo(const cxx::Serialization& serial) noexcept;
+    VersionInfo(const Serialization& serial) noexcept;
 
     /// @brief Serialization of the VersionInfo.
-    operator cxx::Serialization() const noexcept;
+    operator Serialization() const noexcept;
 
     /// @brief Checks if the to versions information are identical.
     /// @param[in] rhs The right side of the compare with equal.

@@ -597,7 +597,7 @@ TEST_F(PortManager_test, DeleteInterfacePortfromMaximumNumberAndAddOneIsSuccessf
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
+        auto newProcessName = runtimeName + iox::convert::toString(testi);
         // this is done because there is no removeInterfaceData method in the PortManager class
         m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
@@ -656,7 +656,7 @@ TEST_F(PortManager_test, DeleteConditionVariablePortfromMaximumNumberAndAddOneIs
     // delete one and add one should be possible now
     {
         unsigned int testi = 0;
-        auto newProcessName = runtimeName + iox::cxx::convert::toString(testi);
+        auto newProcessName = runtimeName + iox::convert::toString(testi);
         // this is done because there is no removeConditionVariableData method in the PortManager class
         m_portManager->deletePortsOfProcess(into<lossy<iox::RuntimeName_t>>(newProcessName));
 
@@ -729,8 +729,8 @@ TEST_F(PortManager_test, DeleteNodePortfromMaximumNumberandAddOneIsSuccessful)
 
     // delete one and add one NodeData should be possible now
     unsigned int i = 0U;
-    iox::RuntimeName_t newProcessName = into<lossy<RuntimeName_t>>(runtimeName + iox::cxx::convert::toString(i));
-    iox::NodeName_t newNodeName = into<lossy<RuntimeName_t>>(nodeName + iox::cxx::convert::toString(i));
+    iox::RuntimeName_t newProcessName = into<lossy<RuntimeName_t>>(runtimeName + iox::convert::toString(i));
+    iox::NodeName_t newNodeName = into<lossy<RuntimeName_t>>(nodeName + iox::convert::toString(i));
     // this is done because there is no removeNodeData method in the PortManager class
     m_portManager->deletePortsOfProcess(newProcessName);
 

@@ -27,7 +27,7 @@ template <typename T>
 inline expected<T, Arguments::Error> Arguments::convertFromString(const Argument_t& stringValue) const noexcept
 {
     T value;
-    if (!cxx::convert::fromString(stringValue.c_str(), value))
+    if (!convert::fromString(stringValue.c_str(), value))
     {
         std::cout << "\"" << stringValue.c_str() << "\" could not be converted to the requested type" << std::endl;
         return err(Error::UNABLE_TO_CONVERT_VALUE);

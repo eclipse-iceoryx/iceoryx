@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 
-#include "iceoryx_dust/cxx/serialization.hpp"
+#include "iox/detail/serialization.hpp"
 #include "iox/logging.hpp"
 
 namespace iox
@@ -29,7 +29,7 @@ NodeProperty::NodeProperty(const iox::NodeName_t& name, const uint64_t nodeDevic
 {
 }
 
-NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
+NodeProperty::NodeProperty(const Serialization& serialized) noexcept
 {
     if (!serialized.extract(m_name, m_nodeDeviceIdentifier))
     {
@@ -37,9 +37,9 @@ NodeProperty::NodeProperty(const cxx::Serialization& serialized) noexcept
     }
 }
 
-NodeProperty::operator cxx::Serialization() const noexcept
+NodeProperty::operator Serialization() const noexcept
 {
-    return cxx::Serialization::create(m_name, m_nodeDeviceIdentifier);
+    return Serialization::create(m_name, m_nodeDeviceIdentifier);
 }
 } // namespace runtime
 } // namespace iox

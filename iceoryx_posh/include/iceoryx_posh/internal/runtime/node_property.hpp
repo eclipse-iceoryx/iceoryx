@@ -16,8 +16,8 @@
 #ifndef IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 #define IOX_POSH_RUNTIME_NODE_PROPERTY_HPP
 
-#include "iceoryx_dust/cxx/serialization.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/detail/serialization.hpp"
 
 namespace iox
 {
@@ -35,10 +35,10 @@ struct NodeProperty
     /// @brief serialization constructor, used by the IPC channel message to create NodeProperty
     ///         from a received message
     /// @param[in] serialized raw serialized string where all the values are stored
-    NodeProperty(const cxx::Serialization& serialized) noexcept;
+    NodeProperty(const Serialization& serialized) noexcept;
 
     /// @brief serialization of the node properties
-    operator cxx::Serialization() const noexcept;
+    operator Serialization() const noexcept;
 
     iox::NodeName_t m_name;
     uint64_t m_nodeDeviceIdentifier;

@@ -53,7 +53,7 @@ TEST(PublisherOptions_test, SerializationRoundTripIsSuccessful)
 TEST(PublisherOptions_test, DeserializingBogusDataFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "01c4b42b-5636-4bd2-b2de-c5320b170d71");
-    const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
+    const auto bogusSerialization = iox::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::PublisherOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
         .or_else([&](auto&) { GTEST_SUCCEED(); });
@@ -68,7 +68,7 @@ TEST(PublisherOptions_test, DeserializingInvalidSubscriberTooSlowPolicyFails)
     constexpr std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy> SUBSCRIBER_TOO_SLOW_POLICY{111};
 
     const auto serialized =
-        iox::cxx::Serialization::create(HISTORY_CAPACITY, NODE_NAME, OFFER_ON_CREATE, SUBSCRIBER_TOO_SLOW_POLICY);
+        iox::Serialization::create(HISTORY_CAPACITY, NODE_NAME, OFFER_ON_CREATE, SUBSCRIBER_TOO_SLOW_POLICY);
     iox::popo::PublisherOptions::deserialize(serialized)
         .and_then([&](auto&) { GTEST_FAIL() << "Deserialization is expected to fail!"; })
         .or_else([&](auto&) { GTEST_SUCCEED(); });

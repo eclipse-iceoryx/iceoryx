@@ -62,9 +62,9 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithSerializationIsS
     NodeProperty sut(nodeName, nodeDeviceIdentifier);
 
     IpcMessage sendBuffer;
-    sendBuffer << static_cast<cxx::Serialization>(sut).toString();
+    sendBuffer << static_cast<Serialization>(sut).toString();
 
-    NodeProperty sut2(cxx::Serialization(sendBuffer.getElementAtIndex(0U)));
+    NodeProperty sut2(Serialization(sendBuffer.getElementAtIndex(0U)));
 
     EXPECT_EQ(sut2.m_name, nodeName);
     EXPECT_EQ(sut2.m_nodeDeviceIdentifier, nodeDeviceIdentifier);
@@ -74,7 +74,7 @@ TEST_F(PoshRuntimeNodeProperty_test, ConstructorNodePropertyWithWrongSerializati
 {
     ::testing::Test::RecordProperty("TEST_ID", "9674c2bd-27a0-486c-9309-8081f514020a");
     const NodeName_t nodeName{""};
-    NodeProperty sut(cxx::Serialization("Node"));
+    NodeProperty sut(Serialization("Node"));
 
     EXPECT_EQ(sut.m_name, nodeName);
 }

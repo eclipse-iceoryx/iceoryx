@@ -61,7 +61,7 @@ TEST(ClientOptions_test, SerializationRoundTripIsSuccessful)
 TEST(ClientOptions_test, DeserializingBogusDataFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "eb7341fd-f216-4422-8065-cbbadefd567b");
-    const auto bogusSerialization = iox::cxx::Serialization::create("hypnotoad", "brain slug", "rock star");
+    const auto bogusSerialization = iox::Serialization::create("hypnotoad", "brain slug", "rock star");
     iox::popo::ClientOptions::deserialize(bogusSerialization)
         .and_then([&](auto&) {
             constexpr bool DESERIALZATION_SUCCESSFUL{true};
@@ -75,14 +75,14 @@ TEST(ClientOptions_test, DeserializingBogusDataFails)
 
 using QueueFullPolicyUT = std::underlying_type_t<iox::popo::QueueFullPolicy>;
 using ConsumerTooSlowPolicyUT = std::underlying_type_t<iox::popo::ConsumerTooSlowPolicy>;
-iox::cxx::Serialization enumSerialization(QueueFullPolicyUT responseQueueFullPolicy,
-                                          ConsumerTooSlowPolicyUT serverTooSlowPolicy)
+iox::Serialization enumSerialization(QueueFullPolicyUT responseQueueFullPolicy,
+                                     ConsumerTooSlowPolicyUT serverTooSlowPolicy)
 {
     constexpr uint64_t RESPONSE_QUEUE_CAPACITY{42U};
     const iox::NodeName_t NODE_NAME{"harr-harr"};
     constexpr bool CONNECT_ON_CREATE{true};
 
-    return iox::cxx::Serialization::create(
+    return iox::Serialization::create(
         RESPONSE_QUEUE_CAPACITY, NODE_NAME, CONNECT_ON_CREATE, responseQueueFullPolicy, serverTooSlowPolicy);
 }
 

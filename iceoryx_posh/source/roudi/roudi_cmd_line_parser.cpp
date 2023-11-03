@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_cmd_line_parser.hpp"
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_versions.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 
 #include "iceoryx_platform/getopt.hpp"
@@ -100,7 +100,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             uint16_t roudiId{0u};
             constexpr uint64_t MAX_ROUDI_ID = ((1 << 16) - 1);
-            if (!cxx::convert::fromString(optarg, roudiId))
+            if (!convert::fromString(optarg, roudiId))
             {
                 IOX_LOG(ERROR, "The RouDi id must be in the range of [0, " << MAX_ROUDI_ID << "]");
                 m_cmdLineArgs.run = false;
@@ -168,7 +168,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             uint32_t processTerminationDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_TERMINATION_DELAY = std::numeric_limits<uint32_t>::max();
-            if (!cxx::convert::fromString(optarg, processTerminationDelayInSeconds))
+            if (!convert::fromString(optarg, processTerminationDelayInSeconds))
             {
                 IOX_LOG(ERROR,
                         "The process termination delay must be in the range of [0, " << MAX_PROCESS_TERMINATION_DELAY
@@ -185,7 +185,7 @@ CmdLineParser::parse(int argc, char* argv[], const CmdLineArgumentParsingMode cm
         {
             uint32_t processKillDelayInSeconds{0u};
             constexpr uint64_t MAX_PROCESS_KILL_DELAY = std::numeric_limits<uint32_t>::max();
-            if (!cxx::convert::fromString(optarg, processKillDelayInSeconds))
+            if (!convert::fromString(optarg, processKillDelayInSeconds))
             {
                 IOX_LOG(ERROR, "The process kill delay must be in the range of [0, " << MAX_PROCESS_KILL_DELAY << "]");
                 m_cmdLineArgs.run = false;

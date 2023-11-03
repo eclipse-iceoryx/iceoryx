@@ -21,18 +21,18 @@ namespace iox
 {
 namespace popo
 {
-cxx::Serialization SubscriberOptions::serialize() const noexcept
+Serialization SubscriberOptions::serialize() const noexcept
 {
-    return cxx::Serialization::create(queueCapacity,
-                                      historyRequest,
-                                      nodeName,
-                                      subscribeOnCreate,
-                                      static_cast<std::underlying_type_t<QueueFullPolicy>>(queueFullPolicy),
-                                      requiresPublisherHistorySupport);
+    return Serialization::create(queueCapacity,
+                                 historyRequest,
+                                 nodeName,
+                                 subscribeOnCreate,
+                                 static_cast<std::underlying_type_t<QueueFullPolicy>>(queueFullPolicy),
+                                 requiresPublisherHistorySupport);
 }
 
-expected<SubscriberOptions, cxx::Serialization::Error>
-SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
+expected<SubscriberOptions, Serialization::Error>
+SubscriberOptions::deserialize(const Serialization& serialized) noexcept
 {
     using QueueFullPolicyUT = std::underlying_type_t<QueueFullPolicy>;
 
@@ -49,7 +49,7 @@ SubscriberOptions::deserialize(const cxx::Serialization& serialized) noexcept
     if (!deserializationSuccessful
         || queueFullPolicy > static_cast<QueueFullPolicyUT>(QueueFullPolicy::DISCARD_OLDEST_DATA))
     {
-        return err(cxx::Serialization::Error::DESERIALIZATION_FAILED);
+        return err(Serialization::Error::DESERIALIZATION_FAILED);
     }
 
     subscriberOptions.queueFullPolicy = static_cast<QueueFullPolicy>(queueFullPolicy);

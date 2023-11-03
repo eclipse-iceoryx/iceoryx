@@ -131,11 +131,11 @@ iox_add_library(
 )
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/iceoryx_hoofs_deployment.hpp.in"
-  "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iceoryx_hoofs/iceoryx_hoofs_deployment.hpp" @ONLY)
+  "${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iox/iceoryx_hoofs_deployment.hpp" @ONLY)
 
 install(
-    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/${PROJECT_NAME}/iceoryx_hoofs_deployment.hpp
-    DESTINATION include/${PREFIX}/${PROJECT_NAME}/
+    FILES ${CMAKE_BINARY_DIR}/generated/iceoryx_hoofs/include/iox/iceoryx_hoofs_deployment.hpp
+    DESTINATION include/${PREFIX}/iox/
     COMPONENT dev
 )
 

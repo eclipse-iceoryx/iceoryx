@@ -15,12 +15,12 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_posh/internal/roudi/port_pool_data.hpp"
 #include "iceoryx_posh/internal/runtime/node_data.hpp"
 #include "iceoryx_posh/popo/client_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/roudi/port_pool.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/std_string_support.hpp"
 
 #include "test.hpp"
@@ -44,10 +44,10 @@ class PortPool_test : public Test
     {
         for (uint32_t i = 0; i < numberOfClientPortsToAdd; ++i)
         {
-            std::string service = "service" + cxx::convert::toString(i);
+            std::string service = "service" + convert::toString(i);
             auto serviceId = into<lossy<IdString_t>>(service);
             ServiceDescription sd{serviceId, "instance", "event"};
-            RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+            RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
             auto clientPortResult = sut.addClientPort(sd, &m_memoryManager, runtimeName, m_clientOptions, m_memoryInfo);
             if (clientPortResult.has_error())
@@ -67,10 +67,10 @@ class PortPool_test : public Test
     {
         for (uint32_t i = 0; i < numberOfServerPortsToAdd; ++i)
         {
-            std::string service = "service" + cxx::convert::toString(i);
+            std::string service = "service" + convert::toString(i);
             auto serviceId = into<lossy<IdString_t>>(service);
             ServiceDescription sd{serviceId, "instance", "event"};
-            RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+            RuntimeName_t runtimeName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
             auto serverPortResult = sut.addServerPort(sd, &m_memoryManager, runtimeName, m_serverOptions, m_memoryInfo);
             if (serverPortResult.has_error())
@@ -218,7 +218,7 @@ TEST_F(PortPool_test, AddPublisherPortWithMaxCapacityIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "3328692a-77a7-42d4-8ec2-154e1e89f8cd");
     for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         auto publisherPort = sut.addPublisherPort(
             m_serviceDescription, &m_memoryManager, applicationName, m_publisherOptions, m_memoryInfo);
@@ -237,9 +237,9 @@ TEST_F(PortPool_test, AddPublisherPortWhenPublisherListOverflowsReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "a0dcb81c-d7cf-448a-bb6d-5c7feaa7da6c");
     auto addPublisherPort = [&](const uint32_t i) -> bool {
-        std::string service = "service" + cxx::convert::toString(i);
-        std::string instance = "instance" + cxx::convert::toString(i);
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        std::string service = "service" + convert::toString(i);
+        std::string instance = "instance" + convert::toString(i);
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         return sut
             .addPublisherPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
@@ -292,9 +292,9 @@ TEST_F(PortPool_test, GetPublisherPortDataListCompletelyFilledSuccessfully)
     ::testing::Test::RecordProperty("TEST_ID", "1e0c7c72-6a67-4481-8873-afba04850d03");
     for (uint32_t i = 0U; i < MAX_PUBLISHERS; ++i)
     {
-        std::string service = "service" + cxx::convert::toString(i);
-        std::string instance = "instance" + cxx::convert::toString(i);
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        std::string service = "service" + convert::toString(i);
+        std::string instance = "instance" + convert::toString(i);
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         ASSERT_FALSE(sut.addPublisherPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
                                           &m_memoryManager,
@@ -341,9 +341,9 @@ TEST_F(PortPool_test, AddSubscriberPortToMaxCapacityIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "380fa9e5-8cf3-435f-ad33-04bc706a37a5");
     for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
-        std::string service = "service" + cxx::convert::toString(i);
-        std::string instance = "instance" + cxx::convert::toString(i);
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        std::string service = "service" + convert::toString(i);
+        std::string instance = "instance" + convert::toString(i);
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
 
         auto subscriberPort =
@@ -363,9 +363,9 @@ TEST_F(PortPool_test, AddSubscriberPortWhenSubscriberListOverflowsReturnsError)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f7f13463-84d3-4434-ac43-5ee04e37b57f");
     auto addSubscriberPort = [&](const uint32_t i) -> bool {
-        std::string service = "service" + cxx::convert::toString(i);
-        std::string instance = "instance" + cxx::convert::toString(i);
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        std::string service = "service" + convert::toString(i);
+        std::string instance = "instance" + convert::toString(i);
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
 
         auto publisherPort =
@@ -414,9 +414,9 @@ TEST_F(PortPool_test, GetSubscriberPortDataListCompletelyFilledIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "8c1e32ba-74e2-4c34-ae37-4c0d93b21283");
     for (uint32_t i = 0U; i < MAX_SUBSCRIBERS; ++i)
     {
-        std::string service = "service" + cxx::convert::toString(i);
-        std::string instance = "instance" + cxx::convert::toString(i);
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        std::string service = "service" + convert::toString(i);
+        std::string instance = "instance" + convert::toString(i);
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
 
         auto publisherPort =
             sut.addSubscriberPort({into<lossy<IdString_t>>(service), into<lossy<IdString_t>>(instance), "foo"},
@@ -708,7 +708,7 @@ TEST_F(PortPool_test, GetInterfacePortDataListCompletelyFilledIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "460703f9-72d8-4b72-9c3a-761be22e6c9a");
     for (uint32_t i = 0U; i < MAX_INTERFACE_NUMBER; ++i)
     {
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
         ASSERT_FALSE(sut.addInterfacePort(applicationName, Interfaces::INTERNAL).has_error());
     }
 
@@ -791,7 +791,7 @@ TEST_F(PortPool_test, GetConditionVariableDataListCompletelyFilledIsSuccessful)
     ::testing::Test::RecordProperty("TEST_ID", "42c58990-4dbe-485f-bbf6-7430cc878118");
     for (uint32_t i = 0U; i < MAX_NUMBER_OF_CONDITION_VARIABLES; ++i)
     {
-        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + cxx::convert::toString(i));
+        RuntimeName_t applicationName = into<lossy<RuntimeName_t>>("AppName" + convert::toString(i));
         ASSERT_FALSE(sut.addConditionVariableData(applicationName).has_error());
     }
 

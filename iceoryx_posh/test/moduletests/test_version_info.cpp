@@ -37,7 +37,7 @@ class VersionInfo_test : public Test
 TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5d0ebc47-b5f8-4faa-bb32-9df50b071019");
-    VersionInfo versionInfo1(VersionInfo::getCurrentVersion().operator iox::cxx::Serialization());
+    VersionInfo versionInfo1(VersionInfo::getCurrentVersion().operator iox::Serialization());
     EXPECT_TRUE(versionInfo1.isValid());
     EXPECT_TRUE(versionInfo1 == VersionInfo::getCurrentVersion());
 }
@@ -45,8 +45,8 @@ TEST_F(VersionInfo_test, SerializationWorkingOnOurVersion)
 TEST_F(VersionInfo_test, ComparesWorkingForOurVersion)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2e9f5a81-a548-422b-aa87-5964ea720d77");
-    VersionInfo versionInfo1(static_cast<iox::cxx::Serialization>(VersionInfo::getCurrentVersion()));
-    VersionInfo versionInfo2(static_cast<iox::cxx::Serialization>(versionInfo1));
+    VersionInfo versionInfo1(static_cast<iox::Serialization>(VersionInfo::getCurrentVersion()));
+    VersionInfo versionInfo2(static_cast<iox::Serialization>(versionInfo1));
 
     EXPECT_TRUE(versionInfo1.isValid());
     EXPECT_TRUE(versionInfo2.isValid());

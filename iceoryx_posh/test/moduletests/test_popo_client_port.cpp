@@ -933,8 +933,8 @@ TEST_F(ClientPort_test, InvalidStateTransitionsCallErrorHandler)
         {
             auto caproMessageType = static_cast<CaproMessageType>(i);
             SCOPED_TRACE(std::string("Invalid transition test from ")
-                         + iox::cxx::convert::toString(asStringLiteral(targetState)) + std::string(" with ")
-                         + iox::cxx::convert::toString(asStringLiteral(caproMessageType)));
+                         + iox::convert::toString(asStringLiteral(targetState)) + std::string(" with ")
+                         + iox::convert::toString(asStringLiteral(caproMessageType)));
 
             // skip for valid transitions
             switch (targetState)

@@ -1020,7 +1020,7 @@
     #include "iceoryx_hoofs/cxx/serialization.hpp"
 
     // after
-    #include "iceoryx_dust/cxx/serialization.hpp"
+    #include "iox/detail/serialization.hpp"
     ```
 
     ```cpp
@@ -1028,7 +1028,7 @@
     #include "iceoryx_hoofs/cxx/convert.hpp"
 
     // after
-    #include "iceoryx_dust/cxx/convert.hpp"
+    #include "iox/detail/convert.hpp"
     ```
 
 43. Move the conversions functions for `std::string` to `iceoryx_dust`:

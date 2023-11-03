@@ -15,8 +15,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_CXX_CONVERT_HPP
-#define IOX_DUST_CXX_CONVERT_HPP
+
+#ifndef IOX_DUST_UTILITY_CONVERT_HPP
+#define IOX_DUST_UTILITY_CONVERT_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/string.hpp"
@@ -32,17 +33,15 @@
 
 namespace iox
 {
-namespace cxx
-{
 /// @brief Collection of static methods for conversion from and to string.
 /// @code
-///     std::string number      = cxx::convert::toString(123);
-///     std::string someClass   = cxx::convert::toString(someToStringConvertableObject);
+///     std::string number      = iox::convert::toString(123);
+///     std::string someClass   = iox::convert::toString(someToStringConvertableObject);
 ///
 ///     int i;
 ///     unsigned int a;
-///     if ( cxx::convert::fromString("123", i) ) {}  // will succeed
-///     if ( cxx::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
+///     if ( iox::convert::fromString("123", i) ) {}  // will succeed
+///     if ( iox::convert::fromString("-123", a) ) {} // will fail since -123 is not unsigned
 /// @endcode
 /// @todo iox-#260 Refactor 'convert' so that one can use 'into' to directly to convert numbers to strings:
 /// 'ClassExpectingAnIoxString(iox::into<iox::string<100>>(42)'
@@ -102,9 +101,8 @@ class convert
     static bool stringIsNumberWithErrorMessage(const char* v, const NumberType type) noexcept;
 };
 
-} // namespace cxx
 } // namespace iox
 
-#include "iceoryx_dust/internal/cxx/convert.inl"
+#include "iox/detail/convert.inl"
 
-#endif // IOX_DUST_CXX_CONVERT_HPP
+#endif // IOX_DUST_UTILITY_CONVERT_HPP

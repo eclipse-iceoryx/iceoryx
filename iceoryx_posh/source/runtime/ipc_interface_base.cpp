@@ -16,8 +16,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
-#include "iceoryx_dust/cxx/convert.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
+#include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
 
 #include <thread>
@@ -29,8 +29,8 @@ namespace runtime
 IpcMessageType stringToIpcMessageType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageType>::type msg;
-    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
-    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
+    bool noError = convert::stringIsNumber(str, convert::NumberType::INTEGER);
+    noError &= noError ? (convert::fromString(str, msg)) : false;
     noError &= noError ? !(static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::BEGIN) >= msg
                            || static_cast<std::underlying_type<IpcMessageType>::type>(IpcMessageType::END) <= msg)
                        : false;
@@ -39,14 +39,14 @@ IpcMessageType stringToIpcMessageType(const char* str) noexcept
 
 std::string IpcMessageTypeToString(const IpcMessageType msg) noexcept
 {
-    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
+    return convert::toString(static_cast<std::underlying_type<IpcMessageType>::type>(msg));
 }
 
 IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 {
     std::underlying_type<IpcMessageErrorType>::type msg;
-    bool noError = cxx::convert::stringIsNumber(str, cxx::convert::NumberType::INTEGER);
-    noError &= noError ? (cxx::convert::fromString(str, msg)) : false;
+    bool noError = convert::stringIsNumber(str, convert::NumberType::INTEGER);
+    noError &= noError ? (convert::fromString(str, msg)) : false;
     noError &= noError
                    ? !(static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::BEGIN) >= msg
                        || static_cast<std::underlying_type<IpcMessageErrorType>::type>(IpcMessageErrorType::END) <= msg)
@@ -56,7 +56,7 @@ IpcMessageErrorType stringToIpcMessageErrorType(const char* str) noexcept
 
 std::string IpcMessageErrorTypeToString(const IpcMessageErrorType msg) noexcept
 {
-    return cxx::convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
+    return convert::toString(static_cast<std::underlying_type<IpcMessageErrorType>::type>(msg));
 }
 
 template <typename IpcChannelType>
