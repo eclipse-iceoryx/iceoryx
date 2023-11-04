@@ -29,6 +29,38 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::testing;
 
+// should this places in other file?
+template <typename T>
+class MovableButNonCopyableTestClass
+{
+  public:
+    // moveable only class requires this
+    MovableButNonCopyableTestClass(const T value)
+        : value(value)
+    {
+    }
+
+    MovableButNonCopyableTestClass(const MovableButNonCopyableTestClass& rhs) = delete;
+    MovableButNonCopyableTestClass& operator=(const MovableButNonCopyableTestClass& rhs) = delete;
+
+    MovableButNonCopyableTestClass(MovableButNonCopyableTestClass&& rhs)
+    {
+        value = rhs.value;
+    }
+
+    MovableButNonCopyableTestClass& operator=(MovableButNonCopyableTestClass&& rhs)
+    {
+        if (this != &rhs)
+        {
+            value = std::move(rhs.value);
+        }
+        return *this;
+    }
+
+  public:
+    T value;
+};
+
 struct FixedPositionContainer_test : public Test
 {
     using DataType = uint64_t;
@@ -37,7 +69,10 @@ struct FixedPositionContainer_test : public Test
     using Sut = FixedPositionContainer<DataType, CAPACITY>;
 
     using ComplexType = LifetimeAndAssignmentTracker<DataType, 0>;
+    using NonCopyType = MovableButNonCopyableTestClass<DataType>;
+
     using SutComplex = FixedPositionContainer<ComplexType, CAPACITY>;
+    using SutNonCopy = FixedPositionContainer<NonCopyType, CAPACITY>;
 
     void SetUp() override
     {
@@ -69,6 +104,7 @@ struct FixedPositionContainer_test : public Test
 
     Sut sut;
     SutComplex sut_complex;
+    SutNonCopy sut_noncopy;
 
     ComplexType::Statistics& stats = ComplexType::stats;
 };
@@ -289,6 +325,19 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromFullCapacityContainerClears
     EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
 
     EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorAtNonCopyableTypeShouldCompile)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1cc7c9f-c1b5-4047-811b-004302af5c00");
+
+    constexpr uint64_t EXPECTED_SIZE{2U};
+    sut_noncopy.emplace(7U);
+    sut_noncopy.emplace(8U);
+
+    SutNonCopy move_sut_noncopy{std::move(sut_noncopy)};
+
+    EXPECT_THAT(move_sut_noncopy.size(), Eq(EXPECTED_SIZE));
 }
 
 // END test move constructor

@@ -93,6 +93,8 @@ template <typename T, uint64_t CAPACITY>
 template <typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
+    // we already make sure rhs is always passed by std::move() for move case, therefore
+    // the result of "decltype(rhs)" is same as "decltype(std::forward<RhsType>(rhs))"
     static_assert(std::is_rvalue_reference<decltype(rhs)>::value
                       || (std::is_lvalue_reference<decltype(rhs)>::value
                           && std::is_const<std::remove_reference_t<decltype(rhs)>>::value),
@@ -100,14 +102,15 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
 
     IndexType i = Index::FIRST;
     auto rhs_it = (std::forward<RhsType>(rhs)).begin();
-    bool is_move = std::is_rvalue_reference<RhsType&&>::value;
+    constexpr bool is_move = std::is_rvalue_reference<decltype(rhs)>::value;
 
     // transfer src data to destination
     for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
     {
         if (m_status[i] == SlotStatus::USED)
         {
-            if (is_move)
+#if __cplusplus >= 201703L
+            if constexpr (is_move)
             {
                 m_data[i] = std::move(*rhs_it);
             }
@@ -115,11 +118,20 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             {
                 m_data[i] = *rhs_it;
             }
+#else
+            // We introduce a helper struct primarily due to the test case
+            // e1cc7c9f-c1b5-4047-811b-004302af5c00. It demands compile-time if-else branching
+            // for classes that are either non-copyable or non-moveable.
+            // Note: With C++17's 'if constexpr', the need for these helper structs (labeled "C++ 14 feature"
+            // in fixed_position_container.hpp) can be eliminated.
+            AssignmentHelper<is_move>::assign(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
+#endif
         }
         else
         {
-            // use ctor to avoid UB for non-initialized free slots
-            if (is_move)
+// use ctor to avoid UB for non-initialized free slots
+#if __cplusplus >= 201703L
+            if constexpr (is_move)
             {
                 new (&m_data[i]) T(std::move(*rhs_it));
             }
@@ -127,6 +139,10 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             {
                 new (&m_data[i]) T(*rhs_it);
             }
+#else
+            // Same as above
+            CtorHelper<is_move>::construct(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
+#endif
         }
 
         m_status[i] = SlotStatus::USED;

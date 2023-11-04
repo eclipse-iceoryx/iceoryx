@@ -317,6 +317,77 @@ class FixedPositionContainer final
         IndexType m_index;
     };
 
+#if __cplusplus < 201703L
+  private:
+    // C++ 14 feature
+    template <bool IsMove>
+    struct AssignmentHelper;
+
+    template <>
+    struct AssignmentHelper<true>
+    {
+        static void assign(T& dest, T&& src)
+        {
+            dest = std::forward<T>(src);
+        }
+    };
+
+    template <>
+    struct AssignmentHelper<false>
+    {
+        static void assign(T& dest, const T& src)
+        {
+            dest = src;
+        }
+    };
+
+    // C++ 14 feature
+    template <bool IsMove>
+    struct CtorHelper;
+
+    template <>
+    struct CtorHelper<true>
+    {
+        static void construct(T& dest, T&& src)
+        {
+            new (&dest) T(std::forward<T>(src));
+        }
+    };
+
+    template <>
+    struct CtorHelper<false>
+    {
+        static void construct(T& dest, const T& src)
+        {
+            new (&dest) T(src);
+        }
+    };
+
+    // C++ 14 feature
+    template <bool IsMove>
+    struct MoveHelper;
+
+    template <>
+    struct MoveHelper<true>
+    {
+        template <typename Iterator>
+        static auto move_or_copy(Iterator& it) -> decltype(std::move(*it))
+        {
+            return std::move(*it);
+        }
+    };
+
+    template <>
+    struct MoveHelper<false>
+    {
+        template <typename Iterator>
+        static auto move_or_copy(Iterator& it) -> decltype(*it)
+        {
+            return *it;
+        }
+    };
+#endif
+
     template <typename RhsType>
     void copy_and_move_impl(RhsType&& rhs) noexcept;
 
