@@ -100,9 +100,18 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
                           && std::is_const<std::remove_reference_t<decltype(rhs)>>::value),
                   "RhsType must be const lvalue reference or rvalue reference");
 
-    IndexType i = Index::FIRST;
-    auto rhs_it = (std::forward<RhsType>(rhs)).begin();
     constexpr bool is_move = std::is_rvalue_reference<decltype(rhs)>::value;
+
+    IndexType i{Index::FIRST};
+
+    // this can update member faster
+    IndexType next_used_cache{Index::INVALID};
+    IndexType next_free_cache{Index::INVALID};
+    bool overwrite_used_slot{false};
+    bool overwrite_free_slot{true};
+
+    auto rhs_it = (std::forward<RhsType>(rhs)).begin();
+
 
     // transfer src data to destination
     for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
@@ -126,10 +135,13 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // in fixed_position_container.hpp) can be eliminated.
             AssignmentHelper<is_move>::assign(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
 #endif
+            // update next used cache
+            next_used_cache = static_cast<IndexType>(m_next[i]);
+            overwrite_used_slot = true;
         }
+        // use ctor to avoid UB for non-initialized free slots
         else
         {
-// use ctor to avoid UB for non-initialized free slots
 #if __cplusplus >= 201703L
             if constexpr (is_move)
             {
@@ -143,14 +155,38 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // Same as above
             CtorHelper<is_move>::construct(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
 #endif
+
+            // update next free cache
+            next_free_cache = static_cast<IndexType>(m_next[i]);
+            overwrite_free_slot = true;
         }
 
         m_status[i] = SlotStatus::USED;
         m_next[i] = static_cast<IndexType>(i + 1U);
     }
 
-    // correct next
-    m_next[i] = Index::INVALID;
+    // update the member only if rhs is not empty to ensure that erase() functions correctly.
+    if (!rhs.empty())
+    {
+        // if there is overwriting of free slots with source data,
+        // update m_begin_free; otherwise, keep m_begin_free unchanged.
+        if (overwrite_free_slot)
+        {
+            m_begin_free = next_free_cache;
+        }
+
+        if (overwrite_used_slot)
+        {
+            m_next[i - 1] = next_used_cache;
+        }
+        else
+        {
+            m_next[i - 1] = m_begin_used;
+        }
+
+        // cause rhs.m_size != 0, so it's ok to use FIRST
+        m_begin_used = Index::FIRST;
+    }
 
     // erase rest USED element in rhs, also update m_next for free slots
     for (; i < Index::INVALID; ++i)
@@ -165,9 +201,10 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         }
     }
 
-    // member update
+    // update member to correct information
     m_begin_free = static_cast<IndexType>(rhs.m_size);
-    m_begin_used = Index::FIRST;
+    m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
+    m_next[rhs.m_size - 1] = Index::INVALID;
     m_size = rhs.m_size;
 }
 
