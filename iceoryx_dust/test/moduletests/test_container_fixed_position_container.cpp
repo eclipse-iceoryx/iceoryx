@@ -288,6 +288,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorWillNotChangeSourceContainer)
 
 // END test copy constructor
 
+
 // BEGIN test move constructor
 
 TEST_F(FixedPositionContainer_test, UsingMoveCtorFromEmptyContainerResultsInEmptyContainer)
@@ -458,6 +459,7 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorAtNonCopyableTypeShouldCompile)
 }
 
 // END test move constructor
+
 
 // BEGIN test copy assignment
 
@@ -1047,6 +1049,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentInsertionShouldFailWhenCa
 
 // END test copy assignment
 
+
 // BEGIN test move assignment
 
 TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyContainerResultsInEmptyContainer)
@@ -1151,10 +1154,6 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromFullCapacityContainer
 
     EXPECT_THAT(sut_complex.empty(), Eq(true));
 }
-
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////
 
 TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyToNonEmptyContainer)
 {
@@ -1665,9 +1664,8 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentAtNonCopyableTypeShouldCo
     EXPECT_THAT(move_sut_noncopy.size(), Eq(EXPECTED_SIZE));
 }
 
-/////////////////////////////////////////////////////////
-
 // END test move assignment
+
 
 // BEGIN test empty
 
