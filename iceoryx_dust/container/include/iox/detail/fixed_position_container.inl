@@ -207,8 +207,12 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     // update member to correct information
     m_begin_free = static_cast<IndexType>(rhs.m_size);
     m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
-    m_next[rhs.m_size - 1] = Index::INVALID;
     m_size = rhs.m_size;
+
+    if (!rhs.empty())
+    {
+        m_next[rhs.m_size - 1] = Index::INVALID;
+    }
 }
 
 template <typename T, uint64_t CAPACITY>
