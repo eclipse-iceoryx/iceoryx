@@ -21,10 +21,6 @@
 #include "iox/algorithm.hpp"
 #include "iox/uninitialized_array.hpp"
 
-#if __cplusplus < 201703L
-#include "iox/detail/fixed_position_container_helper.hpp"
-#endif
-
 #include <cstdint>
 #include <functional>
 #include <type_traits>

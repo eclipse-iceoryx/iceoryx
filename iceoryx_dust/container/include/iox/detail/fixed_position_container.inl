@@ -19,6 +19,9 @@
 #define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 
 #include "iox/fixed_position_container.hpp"
+#if __cplusplus < 201703L
+#include "iox/detail/fixed_position_container_helper.hpp"
+#endif
 
 namespace iox
 {
