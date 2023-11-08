@@ -106,15 +106,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     constexpr bool is_move = std::is_rvalue_reference<decltype(rhs)>::value;
 
     IndexType i{Index::FIRST};
-
-    // this can update member faster
-    IndexType next_used_cache{Index::INVALID};
-    IndexType next_free_cache{Index::INVALID};
-    bool overwrite_used_slot{false};
-    bool overwrite_free_slot{true};
-
     auto rhs_it = (std::forward<RhsType>(rhs)).begin();
-
 
     // transfer src data to destination
     for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
@@ -134,13 +126,9 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // We introduce a helper struct primarily due to the test case
             // e1cc7c9f-c1b5-4047-811b-004302af5c00. It demands compile-time if-else branching
             // for classes that are either non-copyable or non-moveable.
-            // Note: With C++17's 'if constexpr', the need for these helper structs (labeled "C++ 14 feature"
-            // in fixed_position_container.hpp) can be eliminated.
-            AssignmentHelper<is_move>::assign(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
+            // Note: With C++17's 'if constexpr', the need for these helper structs can be eliminated.
+            detail::AssignmentHelper<is_move>::assign(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
 #endif
-            // update next used cache
-            next_used_cache = static_cast<IndexType>(m_next[i]);
-            overwrite_used_slot = true;
         }
         // use ctor to avoid UB for non-initialized free slots
         else
@@ -156,63 +144,35 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             }
 #else
             // Same as above
-            CtorHelper<is_move>::construct(m_data[i], MoveHelper<is_move>::move_or_copy(rhs_it));
+            detail::CtorHelper<is_move>::construct(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
 #endif
-
-            // update next free cache
-            next_free_cache = static_cast<IndexType>(m_next[i]);
-            overwrite_free_slot = true;
         }
-
         m_status[i] = SlotStatus::USED;
         m_next[i] = static_cast<IndexType>(i + 1U);
     }
 
-    // update the member only if rhs is not empty to ensure that erase() functions correctly.
-    if (!rhs.empty())
-    {
-        // if there is overwriting of free slots with source data,
-        // update m_begin_free; otherwise, keep m_begin_free unchanged.
-        if (overwrite_free_slot)
-        {
-            m_begin_free = next_free_cache;
-        }
-
-        if (overwrite_used_slot)
-        {
-            m_next[i - 1] = next_used_cache;
-        }
-        else
-        {
-            m_next[i - 1] = m_begin_used;
-        }
-
-        // cause rhs.m_size != 0, so it's ok to use FIRST
-        m_begin_used = Index::FIRST;
-    }
-
-    // erase rest USED element in rhs, also update m_next for free slots
-    for (; i < Index::INVALID; ++i)
+    for (; i < CAPACITY; ++i)
     {
         if (m_status[i] == SlotStatus::USED)
         {
-            erase(i);
+            m_data[i].~T();
         }
-        else
-        {
-            m_next[i] = static_cast<IndexType>(i + 1U);
-        }
+
+        m_status[i] = SlotStatus::FREE;
+
+        IndexType next = static_cast<IndexType>(i + 1U);
+        m_next[i] = next;
     }
 
-    // update member to correct information
-    m_begin_free = static_cast<IndexType>(rhs.m_size);
-    m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
-    m_size = rhs.m_size;
-
+    m_next[Index::LAST] = Index::INVALID;
     if (!rhs.empty())
     {
         m_next[rhs.m_size - 1] = Index::INVALID;
     }
+
+    m_begin_free = static_cast<IndexType>(rhs.m_size);
+    m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
+    m_size = rhs.m_size;
 }
 
 template <typename T, uint64_t CAPACITY>

@@ -21,6 +21,8 @@
 
 namespace iox
 {
+namespace detail
+{
 template <bool IsMove>
 struct AssignmentHelper;
 
@@ -91,4 +93,5 @@ struct MoveHelper<false>
 };
 
 #endif
+}
 }
