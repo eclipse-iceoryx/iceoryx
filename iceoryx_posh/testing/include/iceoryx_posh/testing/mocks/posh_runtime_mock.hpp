@@ -28,10 +28,10 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static std::unique_ptr<PoshRuntimeMock> create(const iox::RuntimeName_t& name)
     {
         auto& runtime = mockRuntime();
-        iox::cxx::Expects(!runtime.has_value() && "Using multiple PoshRuntimeMock in parallel is not supported!");
-        iox::cxx::Expects(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
-                          && "The PoshRuntimeMock can only be used in combination with the "
-                             "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+        IOX_EXPECTS(!runtime.has_value() && "Using multiple PoshRuntimeMock in parallel is not supported!");
+        IOX_EXPECTS(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
+                    && "The PoshRuntimeMock can only be used in combination with the "
+                       "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
 
         runtime = new PoshRuntimeMock(name);
         PoshRuntime::setRuntimeFactory(mockRuntimeFactory);
@@ -95,9 +95,8 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static PoshRuntime& mockRuntimeFactory(iox::optional<const iox::RuntimeName_t*> name) noexcept
     {
         auto& runtime = mockRuntime();
-        iox::cxx::Expects(!name.has_value() && "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
-        iox::cxx::Expects(runtime.has_value()
-                          && "This should never happen! If you see this, something went horribly wrong!");
+        IOX_EXPECTS(!name.has_value() && "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
+        IOX_EXPECTS(runtime.has_value() && "This should never happen! If you see this, something went horribly wrong!");
         return *runtime.value();
     }
 

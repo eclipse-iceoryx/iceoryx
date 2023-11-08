@@ -47,7 +47,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::storable_fun
     m_callable(reinterpret_cast<void*>(function))
     , m_invoker(&invokeFreeFunction)
 {
-    cxx::Expects(function);
+    IOX_EXPECTS(function);
 
     m_operations.copyFunction = &copyFreeFunction;
     m_operations.moveFunction = &moveFreeFunction;
@@ -158,7 +158,7 @@ inline storable_function<Capacity, signature<ReturnType, Args...>>::~storable_fu
 template <uint64_t Capacity, typename ReturnType, typename... Args>
 inline ReturnType storable_function<Capacity, signature<ReturnType, Args...>>::operator()(Args... args) const noexcept
 {
-    cxx::Expects(m_callable != nullptr); // should not happen unless incorrectly used after move
+    IOX_EXPECTS(m_callable != nullptr); // should not happen unless incorrectly used after move
     // AXIVION Next Construct AutosarC++19_03-M0.3.1, FaultDetection-NullPointerDereference: m_invoker is initialized in ctor or assignment,
     // can only be nullptr if this was moved from (calling operator() is illegal in this case)
     return m_invoker(m_callable, std::forward<Args>(args)...);
@@ -222,7 +222,7 @@ inline void storable_function<Capacity, signature<ReturnType, Args...>>::copy(co
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
-    cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
+    IOX_EXPECTS(obj != nullptr); // should not happen unless src is incorrectly used after move
 
     // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
     // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above
@@ -241,7 +241,7 @@ inline void storable_function<Capacity, signature<ReturnType, Args...>>::move(st
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8: type erasure - conversion to compatible type
     const auto obj = static_cast<CallableType*>(src.m_callable);
-    cxx::Expects(obj != nullptr); // should not happen unless src is incorrectly used after move
+    IOX_EXPECTS(obj != nullptr); // should not happen unless src is incorrectly used after move
 
     // AXIVION Next Construct AutosarC++19_03-A18.5.10: False positive! 'safeAlign' takes care of proper alignment and size
     // NOLINTNEXTLINE(clang-analyzer-core.NonNullParamChecker) checked two lines above

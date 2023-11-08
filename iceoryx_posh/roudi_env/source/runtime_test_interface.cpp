@@ -36,9 +36,9 @@ RuntimeTestInterface::RuntimeTestInterface()
 {
     std::lock_guard<std::mutex> lock(RuntimeTestInterface::s_runtimeAccessMutex);
 
-    iox::cxx::Expects(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
-                      && "The RuntimeTestInterface can only be used in combination with the "
-                         "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+    IOX_EXPECTS(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
+                && "The RuntimeTestInterface can only be used in combination with the "
+                   "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
 
     PoshRuntime::setRuntimeFactory(RuntimeTestInterface::runtimeFactoryGetInstance);
 }
@@ -101,7 +101,7 @@ PoshRuntime& RuntimeTestInterface::runtimeFactoryGetInstance(optional<const Runt
 
     bool nameIsNullopt{!name.has_value()};
     bool invalidGetRuntimeAccess{RuntimeTestInterface::t_activeRuntime == nullptr && nameIsNullopt};
-    cxx::Expects(!invalidGetRuntimeAccess);
+    IOX_EXPECTS(!invalidGetRuntimeAccess);
 
     if (RuntimeTestInterface::t_activeRuntime != nullptr && nameIsNullopt)
     {

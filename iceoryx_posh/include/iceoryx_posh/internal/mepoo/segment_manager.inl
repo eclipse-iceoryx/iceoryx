@@ -30,7 +30,7 @@ inline SegmentManager<SegmentType>::SegmentManager(const SegmentConfig& segmentC
                                                    BumpAllocator* managementAllocator) noexcept
     : m_managementAllocator(managementAllocator)
 {
-    cxx::Expects(segmentConfig.m_sharedMemorySegments.capacity() <= m_segmentContainer.capacity());
+    IOX_EXPECTS(segmentConfig.m_sharedMemorySegments.capacity() <= m_segmentContainer.capacity());
     for (const auto& segmentEntry : segmentConfig.m_sharedMemorySegments)
     {
         createSegment(segmentEntry);

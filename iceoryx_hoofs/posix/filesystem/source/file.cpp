@@ -189,7 +189,7 @@ void File::close_fd() noexcept
         break;
     }
 
-    cxx::EnsuresWithMsg(false, "Unable to close file descriptor due to a corrupted file descriptor.");
+    IOX_ENSURES_WITH_MSG(false, "Unable to close file descriptor due to a corrupted file descriptor.");
 }
 
 expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept

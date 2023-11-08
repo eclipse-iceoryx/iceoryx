@@ -27,9 +27,9 @@ extern "C" {
 
 void iox_runtime_init(const char* const name)
 {
-    iox::cxx::Expects(name != nullptr && "Runtime name is a nullptr!");
-    iox::cxx::Expects(strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) <= MAX_RUNTIME_NAME_LENGTH
-                      && "Runtime name has more than 100 characters!");
+    IOX_EXPECTS(name != nullptr && "Runtime name is a nullptr!");
+    IOX_EXPECTS(strnlen(name, iox::MAX_RUNTIME_NAME_LENGTH + 1) <= MAX_RUNTIME_NAME_LENGTH
+                && "Runtime name has more than 100 characters!");
 
     PoshRuntime::initRuntime(RuntimeName_t(iox::TruncateToCapacity, name));
 }

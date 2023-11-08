@@ -178,7 +178,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            cxx::ExpectsWithMsg(false, "Could not call destructor for variant element");
+            IOX_EXPECTS_WITH_MSG(false, "Could not call destructor for variant element");
         }
     }
 
@@ -190,7 +190,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            cxx::ExpectsWithMsg(false, "Could not call move assignment for variant element");
+            IOX_EXPECTS_WITH_MSG(false, "Could not call move assignment for variant element");
         }
     }
 
@@ -202,7 +202,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            cxx::ExpectsWithMsg(false, "Could not call move constructor for variant element");
+            IOX_EXPECTS_WITH_MSG(false, "Could not call move constructor for variant element");
         }
     }
 
@@ -214,7 +214,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            cxx::ExpectsWithMsg(false, "Could not call copy assignment for variant element");
+            IOX_EXPECTS_WITH_MSG(false, "Could not call copy assignment for variant element");
         }
     }
 
@@ -226,7 +226,7 @@ struct call_at_index<N, T>
         }
         else
         {
-            cxx::ExpectsWithMsg(false, "Could not call copy constructor for variant element");
+            IOX_EXPECTS_WITH_MSG(false, "Could not call copy constructor for variant element");
         }
     }
 
@@ -236,7 +236,7 @@ struct call_at_index<N, T>
         {
             return *reinterpret_cast<const T*>(lhs) == *reinterpret_cast<const T*>(rhs);
         }
-        cxx::ExpectsWithMsg(false, "Could not call equality operator for variant element");
+        IOX_EXPECTS_WITH_MSG(false, "Could not call equality operator for variant element");
         return false;
     }
 };

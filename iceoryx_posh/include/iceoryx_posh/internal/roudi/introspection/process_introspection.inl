@@ -156,7 +156,7 @@ template <typename PublisherPort>
 inline void ProcessIntrospection<PublisherPort>::run() noexcept
 {
     // @todo iox-#518 error handling for non debug builds
-    cxx::Expects(m_publisherPort.has_value());
+    IOX_EXPECTS(m_publisherPort.has_value());
 
     // this is a field, there needs to be a sample before activate is called
     send();

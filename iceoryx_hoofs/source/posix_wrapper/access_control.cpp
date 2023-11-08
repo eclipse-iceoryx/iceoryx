@@ -100,7 +100,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         /// NOLINTJUSTIFICATION @todo iox-#1032 will be replaced with refactored error handling
         /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        cxx::Ensures(!aclFreeCall.has_error() && "Could not free ACL memory");
+        IOX_ENSURES(!aclFreeCall.has_error() && "Could not free ACL memory");
     };
 
     return ok<smartAclPointer_t>(aclInitCall->value, freeACL);

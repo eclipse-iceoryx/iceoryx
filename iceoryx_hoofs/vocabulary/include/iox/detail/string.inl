@@ -562,7 +562,7 @@ inline constexpr char& string<Capacity>::at(const uint64_t pos) noexcept
 template <uint64_t Capacity>
 inline constexpr const char& string<Capacity>::at(const uint64_t pos) const noexcept
 {
-    cxx::ExpectsWithMsg((pos < size()), "Out of bounds access!");
+    IOX_EXPECTS_WITH_MSG((pos < size()), "Out of bounds access!");
     return m_rawstring[pos];
 }
 

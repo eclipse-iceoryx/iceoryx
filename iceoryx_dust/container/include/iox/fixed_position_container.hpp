@@ -241,9 +241,9 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         IOX_NO_DISCARD Value& operator*() const
         {
-            iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                     "Invalid access! Slot not in use!");
+            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
+                                 "Invalid access! Slot not in use!");
             return m_container.get().m_data[m_index];
         }
 
@@ -254,9 +254,9 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         IOX_NO_DISCARD Value* operator->() const
         {
-            iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                     "Invalid access! Slot not in use!");
+            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
+                                 "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
 
@@ -267,9 +267,9 @@ class FixedPositionContainer final
         ///              - the slot the iterator point to is not in use
         IOX_NO_DISCARD Value* to_ptr() const
         {
-            iox::cxx::EnsuresWithMsg(m_index <= Index::LAST, "Access with invalid index!");
-            iox::cxx::EnsuresWithMsg(m_container.get().m_status[m_index] == SlotStatus::USED,
-                                     "Invalid access! Slot not in use!");
+            IOX_ENSURES_WITH_MSG(m_index <= Index::LAST, "Access with invalid index!");
+            IOX_ENSURES_WITH_MSG(m_container.get().m_status[m_index] == SlotStatus::USED,
+                                 "Invalid access! Slot not in use!");
             return &m_container.get().m_data[m_index];
         }
 

@@ -16,7 +16,7 @@
 #ifndef IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 #define IOX_DUST_VOCABULARY_SPAN_ITERATOR_HPP
 
-// Use 'assert's as 'iox::Expects' is not useable inside 'constexpr' functions
+// Use 'assert's as 'IOX_EXPECTS' is not useable inside 'constexpr' functions
 #include <cassert>
 #include <iterator> // for reverse_iterator, distance, random_access_...
 

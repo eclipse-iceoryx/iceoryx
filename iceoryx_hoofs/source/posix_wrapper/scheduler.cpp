@@ -34,10 +34,9 @@ int32_t getSchedulerPriorityMinimum(const Scheduler scheduler) noexcept
 
         // NOLINTJUSTIFICATION Required to provide an error message to the user
         // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        iox::cxx::Ensures(
-            false
-            && "This should never happen! Either the system is not posix compliant or and invalid integer was "
-               "casted to the enum class Scheduler.");
+        IOX_ENSURES(false
+                    && "This should never happen! Either the system is not posix compliant or and invalid integer was "
+                       "casted to the enum class Scheduler.");
         return -1;
     }
     return result.value().value;
@@ -54,10 +53,9 @@ int32_t getSchedulerPriorityMaximum(const Scheduler scheduler) noexcept
 
         // NOLINTJUSTIFICATION Required to provide an error message to the user
         // NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-        iox::cxx::Ensures(
-            false
-            && "This should never happen! Either the system is not posix compliant or and invalid integer was "
-               "casted to the enum class Scheduler.");
+        IOX_ENSURES(false
+                    && "This should never happen! Either the system is not posix compliant or and invalid integer was "
+                       "casted to the enum class Scheduler.");
         return -1;
     }
     return result.value().value;

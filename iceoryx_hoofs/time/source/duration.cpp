@@ -52,7 +52,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     // AXIVION Next Construct AutosarC++19_03-M0.1.2, AutosarC++19_03-M0.1.9, FaultDetection-DeadBranches : False positive! Branching depends on input parameter
     // AXIVION Next Construct AutosarC++19_03-M5.0.3: False positive! CLOCK_REALTIME and CLOCK_MONOTONIC are of type clockid_t
     const clockid_t clockId{(reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC};
-    cxx::EnsuresWithMsg(
+    IOX_ENSURES_WITH_MSG(
         !posix::posixCall(clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'clock_gettime'!");
 

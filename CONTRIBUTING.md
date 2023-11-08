@@ -112,7 +112,7 @@ codebase follows these rules, things are work in progress.
     which are not compatible with the STL (e.g. `iox::cxx::vector::emplace_back()` does return a bool); see
     [section](CONTRIBUTING.md#external-dependencies) below
 7) **Always use `iox::log::Logger`**, instead of `printf()`
-8) **Always use `iox::ErrorHandler` or `iox::cxx::Expects`/`iox::cxx::Ensures`**, when an error occurs that cannot or
+8) **Always use `iox::ErrorHandler` or `IOX_EXPECTS`/`IOX_ENSURES`**, when an error occurs that cannot or
     shall not be propagated via an `iox::expected`
 9) **Not more than two-level nested namespaces**, three-level nested namespace can be used sparsely
 

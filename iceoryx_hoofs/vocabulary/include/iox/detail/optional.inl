@@ -239,7 +239,7 @@ inline void optional<T>::reset() noexcept
 template <typename T>
 inline T& optional<T>::value() & noexcept
 {
-    cxx::Expects(has_value());
+    IOX_EXPECTS(has_value());
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the
@@ -258,7 +258,7 @@ inline const T& optional<T>::value() const& noexcept
 template <typename T>
 inline T&& optional<T>::value() && noexcept
 {
-    cxx::Expects(has_value());
+    IOX_EXPECTS(has_value());
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : The optional has the type T defined
     // during compile time and the type is unchangeable during the lifetime of the object.
     // All accesses to the underlying data is done via the same static type and therefore the

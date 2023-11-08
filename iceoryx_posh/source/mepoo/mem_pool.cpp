@@ -50,12 +50,12 @@ MemPool::MemPool(const greater_or_equal<uint32_t, CHUNK_MEMORY_ALIGNMENT> chunkS
     {
         auto allocationResult = chunkMemoryAllocator.allocate(static_cast<uint64_t>(m_numberOfChunks) * m_chunkSize,
                                                               CHUNK_MEMORY_ALIGNMENT);
-        cxx::Expects(allocationResult.has_value());
+        IOX_EXPECTS(allocationResult.has_value());
         m_rawMemory = static_cast<uint8_t*>(allocationResult.value());
 
         allocationResult =
             managementAllocator.allocate(freeList_t::requiredIndexMemorySize(m_numberOfChunks), CHUNK_MEMORY_ALIGNMENT);
-        cxx::Expects(allocationResult.has_value());
+        IOX_EXPECTS(allocationResult.has_value());
         auto* memoryLoFFLi = allocationResult.value();
         m_freeIndices.init(static_cast<concurrent::LoFFLi::Index_t*>(memoryLoFFLi), m_numberOfChunks);
     }
@@ -102,11 +102,11 @@ void* MemPool::getChunk() noexcept
 
 void MemPool::freeChunk(const void* chunk) noexcept
 {
-    cxx::Expects(m_rawMemory.get() <= chunk
-                 && chunk <= m_rawMemory.get() + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1U)));
+    IOX_EXPECTS(m_rawMemory.get() <= chunk
+                && chunk <= m_rawMemory.get() + (static_cast<uint64_t>(m_chunkSize) * (m_numberOfChunks - 1U)));
 
     auto offset = static_cast<const uint8_t*>(chunk) - m_rawMemory.get();
-    cxx::Expects(offset % m_chunkSize == 0);
+    IOX_EXPECTS(offset % m_chunkSize == 0);
 
     uint32_t index = static_cast<uint32_t>(offset / m_chunkSize);
 

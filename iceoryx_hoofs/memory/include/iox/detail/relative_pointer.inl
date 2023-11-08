@@ -103,7 +103,7 @@ template <typename T>
 inline T* RelativePointer<T>::operator->() const noexcept
 {
     auto* const ptr{get()};
-    cxx::Ensures(ptr != nullptr);
+    IOX_ENSURES(ptr != nullptr);
     return ptr;
 }
 

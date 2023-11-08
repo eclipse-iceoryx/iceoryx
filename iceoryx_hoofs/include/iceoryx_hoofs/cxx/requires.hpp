@@ -35,6 +35,8 @@ void Require(const bool condition,
              const char* conditionString,
              const char* msgString) noexcept;
 } // namespace internal
+} // namespace cxx
+} // namespace iox
 
 // implementing C++ Core Guideline, I.6. Prefer Expects
 // see:
@@ -43,7 +45,8 @@ void Require(const bool condition,
 /// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
 /// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define Expects(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+#define IOX_EXPECTS(condition)                                                                                         \
+    iox::cxx::internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
 
@@ -51,8 +54,8 @@ void Require(const bool condition,
 /// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
 /// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define ExpectsWithMsg(condition, msg)                                                                                 \
-    internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
+#define IOX_EXPECTS_WITH_MSG(condition, msg)                                                                           \
+    iox::cxx::internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
 
@@ -63,7 +66,8 @@ void Require(const bool condition,
 /// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
 /// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define Ensures(condition) internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
+#define IOX_ENSURES(condition)                                                                                         \
+    iox::cxx::internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition)
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
 
@@ -71,13 +75,9 @@ void Require(const bool condition,
 /// @NOLINTBEGIN(cppcoreguidelines-macro-usage)
 /// @NOLINTJUSTIFICATION array decay: needed for source code location, safely wrapped in macro
 /// @NOLINTBEGIN(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
-#define EnsuresWithMsg(condition, msg)                                                                                 \
-    internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
+#define IOX_ENSURES_WITH_MSG(condition, msg)                                                                           \
+    iox::cxx::internal::Require(condition, __FILE__, __LINE__, __PRETTY_FUNCTION__, #condition, #msg)
 /// @NOLINTEND(hicpp-no-array-decay, cppcoreguidelines-pro-bounds-array-to-pointer-decay)
 /// @NOLINTEND(cppcoreguidelines-macro-usage)
-
-
-} // namespace cxx
-} // namespace iox
 
 #endif
