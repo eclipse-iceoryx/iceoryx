@@ -1,5 +1,6 @@
 ## Pre-Review Checklist for the PR Author
 
+1. [ ] Add a second reviewer for complex new features or larger refactorings
 1. [ ] Code follows the coding style of [CONTRIBUTING.md][contributing]
 1. [ ] Tests follow the [best practice for testing][testing]
 1. [ ] Changelog updated [in the unreleased section][changelog] including API breaking changes
