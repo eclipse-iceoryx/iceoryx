@@ -324,7 +324,12 @@ class PortUser_IntegrationTest : public Test
             ++i;
 
             /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::microseconds(100 + rand() % 50));
+            /// On Windows even when asked for short sleeps the OS suspends the execution for multiple milliseconds;
+            /// therefore lets sleep only every second iteration
+            if (i % 2 == 0)
+            {
+                std::this_thread::sleep_for(std::chrono::microseconds(100 + rand() % 50));
+            }
         }
     }
 };
