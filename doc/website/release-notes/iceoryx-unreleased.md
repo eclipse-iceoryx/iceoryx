@@ -99,7 +99,9 @@
 - ServiceDiscovery uses instrospection MemPools [#1359](https://github.com/eclipse-iceoryx/iceoryx/issues/1359)
 - LockFreeQueue fails to support move-only types [\#2067](https://github.com/eclipse-iceoryx/iceoryx/issues/2067)
 - Fix musl libc compile (missing sys/stat.h include in mqueue.h for mode_t definition) [\#2072](https://github.com/eclipse-iceoryx/iceoryx/issues/2072)
-- Implement move/copy constructor and assignment for `FixedPositionContainer`. [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
+- cxx::Expects macro conflicts with Microsoft GSL Expects macro [#2080](https://github.com/eclipse-iceoryx/iceoryx/issues/2080)
+- Implement move/copy constructor and assignment for `FixedPositionContainer` [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
+
 
 **Refactoring:**
 
@@ -1226,3 +1228,15 @@
     ```
 
     It is now also possible to directly link to `iceoryx_posh::iceoryx_posh_roudi_env` which has no dependency to gTest.
+
+54. `Expects` and `Ensures` macros are renamed to `IOX_EXPECTS` and `IOX_ENSURES`
+
+    ```cpp
+    // before
+    iox::cxx::Expects(foo == true);
+    iox::cxx::Ensures(foo == true);
+
+    // after
+    IOX_EXPECTS(foo == true);
+    IOX_ENSURES(foo == true);
+    ```

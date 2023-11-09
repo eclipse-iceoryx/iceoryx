@@ -126,7 +126,7 @@ iox_sub_t iox_sub_init(iox_sub_storage_t* self,
 
 void iox_sub_deinit(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     auto addressOfSelf = reinterpret_cast<uint64_t>(self);
     auto* selfWithStoragePointer = reinterpret_cast<SubscriberWithStoragePointer*>(addressOfSelf - sizeof(void*));
@@ -136,25 +136,25 @@ void iox_sub_deinit(iox_sub_t const self)
 
 void iox_sub_subscribe(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     SubscriberPortUser(self->m_portData).subscribe();
 }
 
 void iox_sub_unsubscribe(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     SubscriberPortUser(self->m_portData).unsubscribe();
 }
 
 iox_SubscribeState iox_sub_get_subscription_state(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return cpp2c::subscribeState(SubscriberPortUser(self->m_portData).getSubscriptionState());
 }
 
 iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** const userPayload)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     auto result = SubscriberPortUser(self->m_portData).tryGetChunk();
     if (result.has_error())
     {
@@ -167,31 +167,31 @@ iox_ChunkReceiveResult iox_sub_take_chunk(iox_sub_t const self, const void** con
 
 void iox_sub_release_chunk(iox_sub_t const self, const void* const userPayload)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(userPayload != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(userPayload != nullptr);
     SubscriberPortUser(self->m_portData).releaseChunk(ChunkHeader::fromUserPayload(userPayload));
 }
 
 void iox_sub_release_queued_chunks(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     SubscriberPortUser(self->m_portData).releaseQueuedChunks();
 }
 
 bool iox_sub_has_chunks(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return SubscriberPortUser(self->m_portData).hasNewChunks();
 }
 
 bool iox_sub_has_lost_chunks(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return SubscriberPortUser(self->m_portData).hasLostChunksSinceLastCall();
 }
 
 iox_service_description_t iox_sub_get_service_description(iox_sub_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return TranslateServiceDescription(SubscriberPortUser(self->m_portData).getCaProServiceDescription());
 }

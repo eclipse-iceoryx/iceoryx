@@ -30,7 +30,7 @@ TEST(FatalFailure, TriggeringFatalFailureIsDetectedAndDoesNotTerminate)
     ::testing::Test::RecordProperty("TEST_ID", "5463f1c9-eb30-4fd1-85ce-351f03c37fe0");
 
     auto hasFatalFailure = detail::IOX_FATAL_FAILURE_TEST<iox::HoofsError>(
-        [&] { iox::cxx::Expects(false); },
+        [&] { IOX_EXPECTS(false); },
         [&](const auto error, const auto errorLevel) {
             EXPECT_THAT(error, Eq(iox::HoofsError::EXPECTS_ENSURES_FAILED));
             EXPECT_THAT(errorLevel, Eq(iox::ErrorLevel::FATAL));
@@ -56,8 +56,8 @@ TEST(FatalFailure, UsingExpectFatalFailureWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "26393210-9738-462f-9d35-dbd53fbae9d2");
 
-    auto hasFatalFailure = IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { iox::cxx::Expects(false); },
-                                                                     iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    auto hasFatalFailure =
+        IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_EXPECTS(false); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
     EXPECT_TRUE(hasFatalFailure);
 }

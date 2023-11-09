@@ -89,7 +89,7 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
             IpcMessage sendBuffer;
             int pid = getpid();
-            cxx::Expects(pid >= 0);
+            IOX_EXPECTS(pid >= 0);
             sendBuffer << IpcMessageTypeToString(IpcMessageType::REG) << m_runtimeName << convert::toString(pid)
                        << convert::toString(posix::PosixUser::getUserOfCurrentProcess().getID())
                        << convert::toString(transmissionTimestamp)
@@ -147,8 +147,8 @@ IpcRuntimeInterface::IpcRuntimeInterface(const RuntimeName_t& roudiName,
 
 UntypedRelativePointer::offset_t IpcRuntimeInterface::getSegmentManagerAddressOffset() const noexcept
 {
-    cxx::Ensures(m_segmentManagerAddressOffset.has_value()
-                 && "No segment manager available! Should have been fetched in the c'tor");
+    IOX_ENSURES(m_segmentManagerAddressOffset.has_value()
+                && "No segment manager available! Should have been fetched in the c'tor");
     return m_segmentManagerAddressOffset.value();
 }
 

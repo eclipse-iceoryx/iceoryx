@@ -107,11 +107,11 @@ class ServerPort_test : public Test
                                                          iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT,
                                                          userHeaderSize,
                                                          iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        iox::cxx::Ensures(chunkSettingsResult.has_value());
+        IOX_ENSURES(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(getChunkResult.has_value());
+        IOX_ENSURES(getChunkResult.has_value());
         return getChunkResult.value();
     }
 
@@ -129,9 +129,9 @@ class ServerPort_test : public Test
 
     uint64_t getRequestData(const RequestHeader* requestHeader)
     {
-        iox::cxx::Ensures(requestHeader != nullptr && "requestHeader must not be a nullptr");
+        IOX_ENSURES(requestHeader != nullptr && "requestHeader must not be a nullptr");
         auto userPayload = ChunkHeader::fromUserHeader(requestHeader)->userPayload();
-        iox::cxx::Ensures(userPayload != nullptr && "userPayload must not be a nullptr");
+        IOX_ENSURES(userPayload != nullptr && "userPayload must not be a nullptr");
 
         return *static_cast<const uint64_t*>(userPayload);
     }

@@ -103,8 +103,7 @@ ChunkHeader::ChunkHeader(const uint32_t chunkSize, const ChunkSettings& chunkSet
         *backOffset = m_userPayloadOffset;
     }
 
-    cxx::Ensures(overflowSafeUsedSizeOfChunk() <= chunkSize
-                 && "Used size of chunk would exceed the actual chunk size!");
+    IOX_ENSURES(overflowSafeUsedSizeOfChunk() <= chunkSize && "Used size of chunk would exceed the actual chunk size!");
 }
 
 uint8_t ChunkHeader::chunkHeaderVersion() const noexcept

@@ -95,8 +95,8 @@ template <class ReturnType, class... ArgTypes>
 inline ReturnType function_ref<ReturnType(ArgTypes...)>::operator()(ArgTypes... args) const noexcept
 {
     // Expect that a callable was assigned beforehand
-    cxx::ExpectsWithMsg((m_pointerToCallable != nullptr) && (m_functionPointer != nullptr),
-                        "Empty function_ref invoked");
+    IOX_EXPECTS_WITH_MSG((m_pointerToCallable != nullptr) && (m_functionPointer != nullptr),
+                         "Empty function_ref invoked");
     // AXIVION Next Line AutosarC++19_03-M0.3.1, FaultDetection-NullPointerDereference : 'nullptr' check is done above
     return m_functionPointer(m_pointerToCallable, std::forward<ArgTypes>(args)...);
 }

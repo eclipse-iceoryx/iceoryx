@@ -28,7 +28,7 @@ inline unique_ptr<T>::unique_ptr(T* const object, const function<DeleterType>& d
     : m_ptr(object)
     , m_deleter(deleter)
 {
-    cxx::Ensures(object != nullptr);
+    IOX_ENSURES(object != nullptr);
 }
 
 template <typename T>
@@ -61,7 +61,7 @@ inline unique_ptr<T>::~unique_ptr() noexcept
 template <typename T>
 inline T* unique_ptr<T>::operator->() noexcept
 {
-    cxx::Expects(m_ptr != nullptr);
+    IOX_EXPECTS(m_ptr != nullptr);
     return get();
 }
 

@@ -28,7 +28,7 @@ void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& n
         // String length limit is ensured through iox::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
         IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
-        cxx::Ensures(false && "internal logic error");
+        IOX_ENSURES(false && "internal logic error");
     });
 }
 
@@ -45,7 +45,7 @@ ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
             // String length limit is ensured through MAX_THREAD_NAME_LENGTH
             // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
             IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
-            cxx::Ensures(false && "internal logic error");
+            IOX_ENSURES(false && "internal logic error");
         });
 
     return ThreadName_t(TruncateToCapacity, &tempName[0]);

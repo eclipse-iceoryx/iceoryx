@@ -38,7 +38,7 @@ void UDS::initSocketAddress(sockaddr_un& socketAddr, const std::string& socketNa
     socketAddr.sun_family = AF_LOCAL;
     constexpr uint64_t NULL_TERMINATION_SIZE{1};
     const uint64_t maxDestinationLength = iox::size(socketAddr.sun_path) - NULL_TERMINATION_SIZE;
-    iox::cxx::Ensures(maxDestinationLength >= socketName.size() && "Socketname too large!");
+    IOX_ENSURES(maxDestinationLength >= socketName.size() && "Socketname too large!");
     strncpy(socketAddr.sun_path, socketName.c_str(), socketName.size());
 }
 

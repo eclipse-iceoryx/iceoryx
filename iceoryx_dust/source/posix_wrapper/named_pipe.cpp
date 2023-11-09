@@ -204,12 +204,12 @@ expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) c
     }
 
     auto result = m_data->sendSemaphore().tryWait();
-    cxx::Expects(!result.has_error());
+    IOX_EXPECTS(!result.has_error());
 
     if (*result)
     {
         IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-        cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
         return ok();
     }
     return err(IpcChannelError::TIMEOUT);
@@ -222,9 +222,9 @@ expected<void, IpcChannelError> NamedPipe::send(const std::string& message) cons
         return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    cxx::Expects(!m_data->sendSemaphore().wait().has_error());
+    IOX_EXPECTS(!m_data->sendSemaphore().wait().has_error());
     IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-    cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+    IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
 
     return ok();
 }
@@ -238,12 +238,12 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
     }
 
     auto result = m_data->sendSemaphore().timedWait(timeout);
-    cxx::Expects(!result.has_error());
+    IOX_EXPECTS(!result.has_error());
 
     if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
         IOX_DISCARD_RESULT(m_data->messages.push(into<lossy<Message_t>>(message)));
-        cxx::Expects(!m_data->receiveSemaphore().post().has_error());
+        IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
         return ok();
     }
     return err(IpcChannelError::TIMEOUT);
@@ -251,11 +251,11 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
 
 expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 {
-    cxx::Expects(!m_data->receiveSemaphore().wait().has_error());
+    IOX_EXPECTS(!m_data->receiveSemaphore().wait().has_error());
     auto message = m_data->messages.pop();
     if (message.has_value())
     {
-        cxx::Expects(!m_data->sendSemaphore().post().has_error());
+        IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
         return ok<std::string>(message->c_str());
     }
     return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
@@ -264,14 +264,14 @@ expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
 expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
 {
     auto result = m_data->receiveSemaphore().tryWait();
-    cxx::Expects(!result.has_error());
+    IOX_EXPECTS(!result.has_error());
 
     if (*result)
     {
         auto message = m_data->messages.pop();
         if (message.has_value())
         {
-            cxx::Expects(!m_data->sendSemaphore().post().has_error());
+            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
             return ok<std::string>(message->c_str());
         }
         return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
@@ -283,14 +283,14 @@ expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
 expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
 {
     auto result = m_data->receiveSemaphore().timedWait(timeout);
-    cxx::Expects(!result.has_error());
+    IOX_EXPECTS(!result.has_error());
 
     if (*result == SemaphoreWaitState::NO_TIMEOUT)
     {
         auto message = m_data->messages.pop();
         if (message.has_value())
         {
-            cxx::Expects(!m_data->sendSemaphore().post().has_error());
+            IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
             return ok<std::string>(message->c_str());
         }
         return err(IpcChannelError::INTERNAL_LOGIC_ERROR);

@@ -114,13 +114,13 @@ Currently, error codes are used to identify the location of an error. These are 
 
 Each module has it's own range of errors. The ranges are defined `error_handler.hpp` and the error codes in `error_handling.hpp` for each module. More details in the API reference.
 
-### `Expects` and `Ensures`
+### `IOX_EXPECTS` and `IOX_ENSURES`
 
 These assert-like constructs are used to document assumptions in the code which are checked (at least) in debug mode. Currently they are always active, i.e. also checked in release mode. If the condition is violated they print the condition, the location of occurrence in the code and terminate the program execution.
 
-Since they are not necessarily active in release mode, they cannot be used to handle errors. Their purpose is to detect misuse or bugs of the API early in debug mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by Expects and Ensures are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
+Since they are not necessarily active in release mode, they cannot be used to handle errors. Their purpose is to detect misuse or bugs of the API early in debug mode or to verify a result of an algorithm before returning. In this way, assumptions of the developer are made explicit without causing overhead when not needed. Therefore errors to be caught by IOX_EXPECTS and IOX_ENSURES are considered bugs and need to be fixed or the underlying assumptions and algorithms changed. This is in contrast to errors which are expected to occur during runtime which are handled by the error handler (i.e. a system resource cannot be obtained).
 
-Although Expects end Ensures behave the same, the former is used to signify a precondition (e.g. arguments of a function) is checked, while the latter indicates a postcondition check (e.g. result of a function before returning)
+Although IOX_EXPECTS end IOX_ENSURES behave the same, the former is used to signify a precondition (e.g. arguments of a function) is checked, while the latter indicates a postcondition check (e.g. result of a function before returning)
 
 Examples include expecting pointers that are not null (as input, intermediate or final result) or range checks of variables.
 
@@ -139,7 +139,7 @@ Examples include wrapping third party API functions that return error codes or o
 
 Error logging shall be done by the logger only, no calls to ``std::cerr`` or similar should be performed.
 
-All the methods presented (``iox::expected``, ``Expects`` and ``Ensures`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
+All the methods presented (``iox::expected``, ``IOX_EXPECTS`` and ``IOX_ENSURES`` and the error handler) can be used in posh. The appropriate way depends on the type of error scenario (cf. the respective sections for examples). The error handler should be considered the last option.
 
 ### Error handling in hoofs
 
@@ -150,9 +150,9 @@ The error handler cannot be used in hoofs.
 
 Whether it is appropriate to use ``iox::expected`` even if STL compatibility is broken by doing so depends on the circumstances and needs to be decided on a case-by-case basis. If the function has no STL counterpart ``iox::expected`` can be used freely to communicate potential failure to the caller.
 
-It should be noted that since currently `Expects` and `Ensures` are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
+It should be noted that since currently `IOX_EXPECTS` and `IOX_ENSURES` are active at release mode, prolific usage of these will incur a runtime cost. Since this is likely to change in the future, it is still advised to use them to document the developer's intentions.
 
-Do not use `std::terminate` directly but use assert-like constructs such as ``Expects`` or ``Ensures``.
+Do not use `std::terminate` directly but use assert-like constructs such as ``IOX_EXPECTS`` or ``IOX_ENSURES``.
 
 ### Interface for 3rd party code
 
@@ -191,34 +191,34 @@ errorHandler(Error::SOME_ERROR_CODE)
 
 More information on how to setup and use the `errorHandler` can be found in the API reference.
 
-### `Expects` and `Ensures`
+### `IOX_EXPECTS` and `IOX_ENSURES`
 
 Assume myAlgorithm is part of an inner API and not supposed to be called with a ``nullptr``. We may have used a reference here, this is just for illustration.
 In addition the value pointed to is assumed to be in the range (-1024, 1024). While we could check this every time, this can be avoided if we specify that the caller is responsible to ensure that these conditions hold.
 
 ```cpp
 int32_t myAlgorithm(int32_t* ptr) {
-    Expects(ptr!=nullptr);
+    IOX_EXPECTS(ptr!=nullptr);
     //observe the order, we only dereference after the nullptr check
-    Expects(*ptr > -1024 && *ptr < 1024);
+    IOX_EXPECTS(*ptr > -1024 && *ptr < 1024);
 
     int32_t intermediate = timesTwo(*ptr);
     //this may not be necessary here to ensure that the next function call is valid,
     //but it states our expectations clearly
-    Ensures(intermediate % 2 == 0);
+    IOX_ENSURES(intermediate % 2 == 0);
 
     int32_t result = abs(intermediate);
 
-    Ensures(result % 2 == 0);
-    Ensures(result >= 0);
-    Ensures(result < 2048);
+    IOX_ENSURES(result % 2 == 0);
+    IOX_ENSURES(result >= 0);
+    IOX_ENSURES(result < 2048);
 
     return result;
 }
 ```
 
 Note that in the case of ``nullptr`` checks it is also an option to use references in arguments (or ``iox::not_null`` if it is supposed to be stored since references are not copyable). It should be considered that ``iox::not_null`` incurs a runtime cost, which may be undesirable.
-When Expects and Ensures are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
+When IOX_EXPECTS and IOX_ENSURES are implemented to leave no trace in release mode, we do not incur a runtime cost using them. For this reason, it is advised to use them to document and verify assumptions where appropriate.
 
 ### `expected`
 
@@ -334,13 +334,13 @@ What is needed to have a limited stack-trace even in release mode?
 
 ### Debug vs. release mode
 
-We need to further clarify behavior in release and debug mode of the error handler and ``Expects`` and ``Ensures`` (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
+We need to further clarify behavior in release and debug mode of the error handler and ``IOX_EXPECTS`` and ``IOX_ENSURES`` (and maybe the logger as well). Can we have a release build with additional information? (e.g. symbols for a stack-trace).
 
 ### Assert
 
-Do we want an Assert in addition to ``Expects`` and ``Ensures``? If so, shall it possibly be active in release mode or only debug mode?
+Do we want an Assert in addition to ``IOX_EXPECTS`` and ``IOX_ENSURES``? If so, shall it possibly be active in release mode or only debug mode?
 
-In principle with a sufficiently powerful Assert or ``Expects`` (resp. ``Ensures``), this should not be needed (they are equivalent in their functionality).
+In principle with a sufficiently powerful Assert or ``IOX_EXPECTS`` (resp. ``IOX_ENSURES``), this should not be needed (they are equivalent in their functionality).
 
 ## Future improvements
 
@@ -357,7 +357,7 @@ In this section we briefly describe ways to potentially improve or extend functi
 1. Add file, line and function information (using ``__FILE__``, ``__LINE__`` and ``__func__``). This would require using macros for the error handler call in a future implementation.
 1. If deactivation or reduced operation (e.g. not handling ``MODERATE`` errors) is desired, this partial deactivation should cause no (or at least very little) runtime overhead in the deactivated cases.
 
-### `Expects` and `Ensures`
+### `IOX_EXPECTS` and `IOX_ENSURES`
 
 Allow deactivation in release mode, but it should still be possible to leave them active in release mode as well if desired. Deactivation in debug mode can also be considered but is less critical. Deactivation should eliminate all runtime overhead (i.e. condition evaluation).
 

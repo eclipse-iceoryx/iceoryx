@@ -148,7 +148,7 @@ inline ErrorType& expected<ValueType, ErrorType>::error_checked() & noexcept
 template <typename ValueType, typename ErrorType>
 inline const ErrorType& expected<ValueType, ErrorType>::error_checked() const& noexcept
 {
-    cxx::ExpectsWithMsg(has_error(), "Trying to access an error but a value is stored!");
+    IOX_EXPECTS_WITH_MSG(has_error(), "Trying to access an error but a value is stored!");
     return m_store.error_unchecked();
 }
 
@@ -198,7 +198,7 @@ template <typename ValueType, typename ErrorType>
 template <typename U>
 inline const enable_if_non_void_t<U>& expected<ValueType, ErrorType>::value_checked() const& noexcept
 {
-    cxx::ExpectsWithMsg(has_value(), "Trying to access a value but an error is stored!");
+    IOX_EXPECTS_WITH_MSG(has_value(), "Trying to access a value but an error is stored!");
     return m_store.value_unchecked();
 }
 

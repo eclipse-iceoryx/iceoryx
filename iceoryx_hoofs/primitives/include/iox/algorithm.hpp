@@ -179,7 +179,7 @@ struct greater_or_equal
     greater_or_equal(T t) noexcept
         : m_value(t)
     {
-        cxx::Expects(t >= Minimum);
+        IOX_EXPECTS(t >= Minimum);
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2,AutosarC++19_03-A13.5.3:this class should behave like a T but
@@ -205,7 +205,7 @@ struct range
         : m_value(t)
     {
         // AXIVION Next Construct AutosarC++19_03-A1.4.3 : False positive! 't >= Minimum' depends on input parameter
-        cxx::Expects((t >= Minimum) && (t <= Maximum));
+        IOX_EXPECTS((t >= Minimum) && (t <= Maximum));
     }
 
     // AXIVION Next Construct AutosarC++19_03-A13.5.2, AutosarC++19_03-A13.5.3: this class should behave like a T but

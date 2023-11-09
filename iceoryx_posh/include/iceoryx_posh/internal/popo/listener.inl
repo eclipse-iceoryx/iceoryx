@@ -206,7 +206,7 @@ inline bool ListenerImpl<Capacity>::IndexManager_t::pop(uint32_t& value) noexcep
 template <uint64_t Capacity>
 inline void ListenerImpl<Capacity>::IndexManager_t::push(const uint32_t index) noexcept
 {
-    cxx::Expects(m_loffli.push(index));
+    IOX_EXPECTS(m_loffli.push(index));
     --m_indicesInUse;
 }
 

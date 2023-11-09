@@ -29,7 +29,7 @@ extern "C" {
 
 iox_service_discovery_t iox_service_discovery_init(iox_service_discovery_storage_t* self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     auto* me = new ServiceDiscovery();
     self->do_not_touch_me[0] = reinterpret_cast<uint64_t>(me);
@@ -38,7 +38,7 @@ iox_service_discovery_t iox_service_discovery_init(iox_service_discovery_storage
 
 void iox_service_discovery_deinit(iox_service_discovery_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     delete self;
 }
@@ -52,9 +52,9 @@ uint64_t iox_service_discovery_find_service(iox_service_discovery_t const self,
                                             uint64_t* missedServices,
                                             const ENUM iox_MessagingPattern pattern)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(serviceContainer != nullptr);
-    iox::cxx::Expects(missedServices != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(serviceContainer != nullptr);
+    IOX_EXPECTS(missedServices != nullptr);
 
     optional<capro::IdString_t> maybeService;
     if (service != nullptr)
@@ -96,8 +96,8 @@ void iox_service_discovery_find_service_apply_callable(iox_service_discovery_t c
                                                        void (*callable)(const iox_service_description_t),
                                                        const ENUM iox_MessagingPattern pattern)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(callable != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(callable != nullptr);
 
     optional<capro::IdString_t> maybeService;
     if (service != nullptr)
@@ -128,8 +128,8 @@ void iox_service_discovery_find_service_apply_callable_with_context_data(
     void* const contextData,
     const ENUM iox_MessagingPattern pattern)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(callable != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(callable != nullptr);
 
     optional<capro::IdString_t> maybeService;
     if (service != nullptr)

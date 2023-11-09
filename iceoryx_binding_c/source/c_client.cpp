@@ -36,7 +36,7 @@ constexpr uint64_t CLIENT_OPTIONS_INIT_CHECK_CONSTANT = 47113130815;
 
 void iox_client_options_init(iox_client_options_t* options)
 {
-    iox::cxx::Expects(options != nullptr);
+    IOX_EXPECTS(options != nullptr);
 
     ClientOptions clientOptions;
     options->responseQueueCapacity = clientOptions.responseQueueCapacity;
@@ -50,7 +50,7 @@ void iox_client_options_init(iox_client_options_t* options)
 
 bool iox_client_options_is_initialized(const iox_client_options_t* const options)
 {
-    iox::cxx::Expects(options != nullptr);
+    IOX_EXPECTS(options != nullptr);
 
     return options->initCheck == CLIENT_OPTIONS_INIT_CHECK_CONSTANT;
 }
@@ -61,11 +61,11 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
                              const char* const event,
                              const iox_client_options_t* const options)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(service != nullptr);
-    iox::cxx::Expects(instance != nullptr);
-    iox::cxx::Expects(event != nullptr);
-    iox::cxx::Expects(options == nullptr || (options != nullptr && iox_client_options_is_initialized(options)));
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(service != nullptr);
+    IOX_EXPECTS(instance != nullptr);
+    IOX_EXPECTS(event != nullptr);
+    IOX_EXPECTS(options == nullptr || (options != nullptr && iox_client_options_is_initialized(options)));
 
     ClientOptions clientOptions;
     if (options != nullptr)
@@ -88,7 +88,7 @@ iox_client_t iox_client_init(iox_client_storage_t* self,
 
 void iox_client_deinit(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     delete self;
 }
@@ -103,8 +103,8 @@ iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
                                                      const uint32_t payloadSize,
                                                      const uint32_t payloadAlignment)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(payload != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(payload != nullptr);
 
     auto result = self->loan(payloadSize, payloadAlignment);
     if (result.has_error())
@@ -118,15 +118,15 @@ iox_AllocationResult iox_client_loan_aligned_request(iox_client_t const self,
 
 void iox_client_release_request(iox_client_t const self, void* const payload)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(payload != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(payload != nullptr);
 
     self->releaseRequest(payload);
 }
 
 iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payload)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     auto result = self->send(payload);
     if (result.has_error())
@@ -139,26 +139,26 @@ iox_ClientSendResult iox_client_send(iox_client_t const self, void* const payloa
 
 void iox_client_connect(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     self->connect();
 }
 
 void iox_client_disconnect(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     self->disconnect();
 }
 
 iox_ConnectionState iox_client_get_connection_state(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return cpp2c::connectionState(self->getConnectionState());
 }
 
 iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const void** const payload)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(payload != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(payload != nullptr);
 
     auto result = self->take();
     if (result.has_error())
@@ -172,27 +172,27 @@ iox_ChunkReceiveResult iox_client_take_response(iox_client_t const self, const v
 
 void iox_client_release_response(iox_client_t const self, const void* const payload)
 {
-    iox::cxx::Expects(self != nullptr);
-    iox::cxx::Expects(payload != nullptr);
+    IOX_EXPECTS(self != nullptr);
+    IOX_EXPECTS(payload != nullptr);
 
     self->releaseResponse(payload);
 }
 
 void iox_client_release_queued_responses(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     self->releaseQueuedResponses();
 }
 
 bool iox_client_has_responses(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return self->hasResponses();
 }
 
 bool iox_client_has_missed_responses(iox_client_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return self->hasMissedResponses();
 }
 
