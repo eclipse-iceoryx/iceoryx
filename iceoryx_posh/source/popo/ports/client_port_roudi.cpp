@@ -150,7 +150,7 @@ ClientPortRouDi::handleCaProMessageForStateConnectRequested(const capro::CaproMe
     switch (caProMessage.m_type)
     {
     case capro::CaproMessageType::ACK:
-        IOX_EXPECTS(caProMessage.m_chunkQueueData != nullptr && "Invalid request queue passed to client");
+        IOX_EXPECTS_WITH_MSG(caProMessage.m_chunkQueueData != nullptr, "Invalid request queue passed to client");
         IOX_EXPECTS(!m_chunkSender
                          .tryAddQueue(static_cast<ServerChunkQueueData_t*>(caProMessage.m_chunkQueueData),
                                       caProMessage.m_historyCapacity)
