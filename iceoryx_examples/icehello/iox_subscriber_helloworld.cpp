@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [include]
 
 #include <iostream>
@@ -36,7 +36,7 @@ int main()
     //! [initialize subscriber]
 
     // run until interrupted by Ctrl-C
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         //! [receive]
         auto takeResult = subscriber.take();

@@ -25,7 +25,7 @@
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
 #include "iox/logging.hpp"
 #include "iox/optional.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 
 namespace iox
 {
@@ -79,7 +79,7 @@ bool RouDiApp::checkAndOptimizeConfig(const RouDiConfig_t& config) noexcept
 
 bool RouDiApp::waitForSignal() noexcept
 {
-    iox::waitForTerminationRequest();
+    iox::posix::waitForTerminationRequest();
     return true;
 }
 

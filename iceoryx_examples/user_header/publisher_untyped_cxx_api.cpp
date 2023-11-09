@@ -17,7 +17,7 @@
 //! [iceoryx includes]
 #include "user_header_and_payload_types.hpp"
 
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [include differs from typed C++ API]
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 //! [include differs from typed C++ API]
@@ -42,7 +42,7 @@ int main()
     uint64_t timestamp = 73;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         auto fibonacciNext = fibonacciCurrent + fibonacciLast;
         fibonacciLast = fibonacciCurrent;

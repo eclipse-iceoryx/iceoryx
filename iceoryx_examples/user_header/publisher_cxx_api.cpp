@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <atomic>
@@ -40,7 +40,7 @@ int main()
     uint64_t timestamp = 42;
     uint64_t fibonacciLast = 0;
     uint64_t fibonacciCurrent = 1;
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         auto fibonacciNext = fibonacciCurrent + fibonacciLast;
         fibonacciLast = fibonacciCurrent;

@@ -35,6 +35,8 @@
 
 namespace iox
 {
+namespace posix
+{
 class NamedPipeBuilder;
 
 class NamedPipe
@@ -70,51 +72,51 @@ class NamedPipe
     /// @brief removes a named pipe artifact from the system
     /// @return true if the artifact was removed, false when no artifact was found and
     ///         IpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
-    static expected<bool, posix::IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+    static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
     /// @return on failure an error which describes the failure
-    expected<void, posix::IpcChannelError> trySend(const std::string& message) const noexcept;
+    expected<void, IpcChannelError> trySend(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<void, posix::IpcChannelError> send(const std::string& message) const noexcept;
+    expected<void, IpcChannelError> send(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe.
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<void, posix::IpcChannelError> timedSend(const std::string& message,
-                                                     const units::Duration& timeout) const noexcept;
+    expected<void, IpcChannelError> timedSend(const std::string& message,
+                                              const units::Duration& timeout) const noexcept;
 
     /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> tryReceive() const noexcept;
+    expected<std::string, IpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
     ///        received
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> receive() const noexcept;
+    expected<std::string, IpcChannelError> receive() const noexcept;
 
     /// @brief receives a message via the named pipe.
     /// @param[in] timeout the timeout on how long this method should retry to receive a message
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
     friend class NamedPipeBuilder;
 
     class NamedPipeData;
-    NamedPipe(posix::SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept;
+    NamedPipe(SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept;
 
     template <typename Prefix>
     static IpcChannelName_t mapToSharedMemoryName(const Prefix& p, const IpcChannelName_t& name) noexcept;
 
     /// @brief destroys an initialized named pipe.
     /// @return is always successful
-    expected<void, posix::IpcChannelError> destroy() noexcept;
+    expected<void, IpcChannelError> destroy() noexcept;
 
     class NamedPipeData
     {
@@ -127,10 +129,10 @@ class NamedPipe
         NamedPipeData& operator=(NamedPipeData&& rhs) = delete;
         ~NamedPipeData() = default;
 
-        posix::UnnamedSemaphore& sendSemaphore() noexcept;
-        posix::UnnamedSemaphore& receiveSemaphore() noexcept;
+        UnnamedSemaphore& sendSemaphore() noexcept;
+        UnnamedSemaphore& receiveSemaphore() noexcept;
 
-        expected<void, posix::IpcChannelError> initialize(const uint32_t maxMsgNumber) noexcept;
+        expected<void, IpcChannelError> initialize(const uint32_t maxMsgNumber) noexcept;
 
         bool waitForInitialization() const noexcept;
         bool hasValidState() const noexcept;
@@ -144,12 +146,12 @@ class NamedPipe
         static constexpr units::Duration WAIT_FOR_INIT_SLEEP_TIME = units::Duration::fromMilliseconds(1);
 
         std::atomic<uint64_t> initializationGuard{INVALID_DATA};
-        optional<posix::UnnamedSemaphore> m_sendSemaphore;
-        optional<posix::UnnamedSemaphore> m_receiveSemaphore;
+        optional<UnnamedSemaphore> m_sendSemaphore;
+        optional<UnnamedSemaphore> m_receiveSemaphore;
     };
 
   private:
-    posix::SharedMemoryObject m_sharedMemory;
+    SharedMemoryObject m_sharedMemory;
     NamedPipeData* m_data = nullptr;
 };
 
@@ -159,7 +161,7 @@ class NamedPipeBuilder
     IOX_BUILDER_PARAMETER(IpcChannelName_t, name, "")
 
     /// @brief Defines how the named pipe is opened, i.e. as client or server
-    IOX_BUILDER_PARAMETER(posix::IpcChannelSide, channelSide, posix::IpcChannelSide::CLIENT)
+    IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the named pipe
     IOX_BUILDER_PARAMETER(size_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
@@ -170,9 +172,10 @@ class NamedPipeBuilder
   public:
     /// @brief create a named pipe
     /// @return On success a 'NamedPipe' is returned and on failure an 'IpcChannelError'.
-    expected<NamedPipe, posix::IpcChannelError> create() const noexcept;
+    expected<NamedPipe, IpcChannelError> create() const noexcept;
 };
 
+} // namespace posix
 } // namespace iox
 
 #endif // IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP

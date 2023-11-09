@@ -18,8 +18,8 @@
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_interface_base.hpp"
-#include "iox/message_queue.hpp"
-#include "iox/named_pipe.hpp"
+#include "iox/posix/message_queue.hpp"
+#include "iox/posix/named_pipe.hpp"
 #include "iox/std_chrono_support.hpp"
 
 #include "test.hpp"

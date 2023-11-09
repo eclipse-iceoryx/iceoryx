@@ -21,7 +21,7 @@
 #include "iceoryx_posh/popo/publisher.hpp"
 //! [include publisher]
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 
 #include <iostream>
 
@@ -41,7 +41,7 @@ int main()
     //! [create publisher]
 
     double ct = 0.0;
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         ++ct;
         double sampleValue1 = ct + 89;

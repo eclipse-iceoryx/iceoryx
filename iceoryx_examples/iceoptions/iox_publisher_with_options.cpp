@@ -18,7 +18,7 @@
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 
 #include <iostream>
 
@@ -63,7 +63,7 @@ int main()
     double ct = 0.0;
 
     std::thread publishData([&]() {
-        while (!iox::hasTerminationRequested())
+        while (!iox::posix::hasTerminationRequested())
         {
             ++ct;
 
@@ -76,7 +76,7 @@ int main()
         }
     });
 
-    iox::waitForTerminationRequest();
+    iox::posix::waitForTerminationRequest();
 
     // this is optional, but since the iox::popo::ConsumerTooSlowPolicy::WAIT_FOR_CONSUMER option is used,
     // a slow subscriber might block the shutdown and this call unblocks the publisher

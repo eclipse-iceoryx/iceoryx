@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
-#define IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
+
+#ifndef IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP
+#define IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
@@ -24,6 +25,8 @@
 
 namespace iox
 {
+namespace posix
+{
 /// @brief The SignalWatcher waits for SIGINT and SIGTERM. One can wait until the
 ///        signal has occurred or ask the watcher if it has occurred.
 /// @code
@@ -31,7 +34,7 @@ namespace iox
 ///   #include <iceoryx_hoofs/posix/signal_watcher.hpp>
 ///   void loopUntilTerminationRequested()
 ///   {
-///       while(!iox::hasTerminationRequested())
+///       while(!iox::posix::hasTerminationRequested())
 ///       {
 ///           // your algorithm
 ///       }
@@ -40,7 +43,7 @@ namespace iox
 ///   // another possibility is to block until SIGINT or SIGTERM has occurred
 ///   void blockUntilCtrlC() {
 ///       // your objects which spawn threads
-///       iox::waitForTerminationRequest();
+///       iox::posix::waitForTerminationRequest();
 ///   }
 /// @endcode
 class SignalWatcher
@@ -68,11 +71,11 @@ class SignalWatcher
   private:
     friend void internalSignalHandler(int) noexcept;
     mutable std::atomic<uint64_t> m_numberOfWaiters{0U};
-    mutable optional<posix::UnnamedSemaphore> m_semaphore;
+    mutable optional<UnnamedSemaphore> m_semaphore;
 
     std::atomic_bool m_hasSignalOccurred{false};
-    posix::SignalGuard m_sigTermGuard;
-    posix::SignalGuard m_sigIntGuard;
+    SignalGuard m_sigTermGuard;
+    SignalGuard m_sigIntGuard;
 };
 
 /// @brief convenience function, calls SignalWatcher::getInstance().waitForSignal();
@@ -80,6 +83,7 @@ void waitForTerminationRequest() noexcept;
 
 /// @brief convenience function, calls SignalWatcher::getInstance().wasSignalTriggered();
 bool hasTerminationRequested() noexcept;
+} // namespace posix
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP

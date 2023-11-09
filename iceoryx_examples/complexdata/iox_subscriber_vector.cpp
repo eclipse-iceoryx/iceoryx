@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
@@ -31,7 +31,7 @@ int main()
     iox::popo::Subscriber<iox::vector<double, 5>> subscriber({"Radar", "FrontRight", "VectorData"});
 
     // run until interrupted by Ctrl-C
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         subscriber.take()
             .and_then([](auto& sample) {

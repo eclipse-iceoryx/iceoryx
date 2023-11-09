@@ -22,7 +22,7 @@
 //! [includes]
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [includes]
 
 #include <iostream>
@@ -39,7 +39,7 @@ int main()
     //! [create untyped publisher]
 
     double ct = 0.0;
-    while (!iox::hasTerminationRequested())
+    while (!iox::posix::hasTerminationRequested())
     {
         ++ct;
 

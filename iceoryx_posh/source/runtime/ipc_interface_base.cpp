@@ -242,7 +242,7 @@ bool IpcInterface<posix::UnixDomainSocket>::ipcChannelMapsToFile() noexcept
 }
 
 template <>
-bool IpcInterface<NamedPipe>::ipcChannelMapsToFile() noexcept
+bool IpcInterface<posix::NamedPipe>::ipcChannelMapsToFile() noexcept
 {
     return true;
 }
@@ -263,8 +263,8 @@ void IpcInterface<IpcChannelType>::cleanupOutdatedIpcChannel(const RuntimeName_t
 }
 
 template class IpcInterface<posix::UnixDomainSocket>;
-template class IpcInterface<NamedPipe>;
-template class IpcInterface<MessageQueue>;
+template class IpcInterface<posix::NamedPipe>;
+template class IpcInterface<posix::MessageQueue>;
 
 } // namespace runtime
 } // namespace iox

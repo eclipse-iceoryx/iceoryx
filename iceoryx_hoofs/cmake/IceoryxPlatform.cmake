@@ -80,7 +80,7 @@ function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
     # count      bytes template
     #     8        642 libacl.so.1
     #     1         24 iox::posix::UnixDomainSocket::timedReceive
-    #     1         24 iox::MessageQueue::receive
+    #     1         24 iox::posix::MessageQueue::receive
     if(NOT EXISTS ${BLACKLIST_FILE_PATH})
         file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_hoofs/cmake/IceoryxPlatform.cmake\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "#leak:libacl.so.1\n")

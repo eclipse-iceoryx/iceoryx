@@ -16,7 +16,7 @@
 
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -32,7 +32,7 @@ void sending()
     iox::popo::Publisher<CounterTopic> myPublisherLeft({"Radar", "FrontLeft", "Counter"});
     iox::popo::Publisher<CounterTopic> myPublisherRight({"Radar", "FrontRight", "Counter"});
 
-    for (uint32_t counter = 0U; !iox::hasTerminationRequested(); ++counter)
+    for (uint32_t counter = 0U; !iox::posix::hasTerminationRequested(); ++counter)
     {
         if (counter % 3 == 0)
         {
