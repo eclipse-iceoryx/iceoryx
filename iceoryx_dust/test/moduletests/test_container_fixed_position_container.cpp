@@ -109,22 +109,6 @@ struct FixedPositionContainer_test : public Test
     ComplexType::Statistics& stats = ComplexType::stats;
 };
 
-TEST_F(FixedPositionContainer_test, ContainerIsNotMovable)
-{
-    GTEST_SKIP() << "@deprecated iox-#2052 Add moveable feature";
-    ::testing::Test::RecordProperty("TEST_ID", "5c05f240-9822-427b-9eb5-69fd43f1ac28");
-    EXPECT_FALSE(std::is_move_constructible<Sut>::value);
-    EXPECT_FALSE(std::is_move_assignable<Sut>::value);
-}
-
-TEST_F(FixedPositionContainer_test, ContainerIsNotCopyable)
-{
-    GTEST_SKIP() << "@deprecated iox-#2052 Add copyable feature";
-    ::testing::Test::RecordProperty("TEST_ID", "1b421af5-d014-4f9b-98ed-fbfdf5a9beb8");
-    EXPECT_FALSE(std::is_copy_constructible<Sut>::value);
-    EXPECT_FALSE(std::is_copy_assignable<Sut>::value);
-}
-
 TEST_F(FixedPositionContainer_test, Capacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "17669b2f-d53b-4ac9-8190-b1c32f8ec4ba");
@@ -255,7 +239,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyCtorFromNonEmptyWithFirstAndMiddleA
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY - 3U));
 
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -435,7 +419,7 @@ TEST_F(FixedPositionContainer_test, UsingMoveCtorFromNonEmptyWithFirstAndMiddleA
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY - 3U));
 
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -572,6 +556,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromEmptyToNonEmptyContai
     EXPECT_THAT(copy_sut_complex.full(), Eq(0));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
     EXPECT_THAT(copy_sut_complex.size(), Eq(0));
+    EXPECT_THAT(copy_sut_complex.begin(), Eq(copy_sut_complex.end()));
 }
 
 TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromLargerSizeToSmallerSizeContainer)
@@ -597,7 +582,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromLargerSizeToSmallerSi
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -628,7 +613,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentBetweenContainersOfEqalSi
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -659,7 +644,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSmallerSizeToLargerSi
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -687,7 +672,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstInde
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -721,7 +706,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstInde
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -756,7 +741,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyToNonEmptyCon
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -793,7 +778,7 @@ TEST_F(FixedPositionContainer_test,
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -823,7 +808,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstAndM
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -859,7 +844,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstAndM
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -897,7 +882,7 @@ TEST_F(FixedPositionContainer_test,
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -938,7 +923,7 @@ TEST_F(
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -973,7 +958,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithLastErase
     EXPECT_THAT(copy_sut_complex.full(), Eq(false));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -1035,7 +1020,7 @@ TEST_F(FixedPositionContainer_test, UsingCopyAssignmentInsertionShouldFailWhenCa
     EXPECT_THAT(copy_sut_complex.full(), Eq(true));
     EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
     EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
-    auto it = copy_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    auto it = copy_sut_complex.begin();
     for (const auto& value : EXPECTED_VALUE)
     {
         EXPECT_THAT(it->value, Eq(value));
@@ -1662,6 +1647,25 @@ TEST_F(FixedPositionContainer_test, UsingMoveAssignmentAtNonCopyableTypeShouldCo
     move_sut_noncopy = std::move(sut_noncopy);
 
     EXPECT_THAT(move_sut_noncopy.size(), Eq(EXPECTED_SIZE));
+}
+
+TEST_F(FixedPositionContainer_test, IteratorsAfterMoveWorkAsExpected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "17b91183-9f1e-4ab4-ab27-e34f096674d8");
+
+    std::vector<DataType> EXPECTED_VALUE = {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U};
+
+    fillSutComplex();
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(sut_complex.begin(), Eq(sut_complex.end()));
+    auto it = move_sut_complex.begin();
+    for (SutComplex::IndexType i = 0U; it != move_sut_complex.end(); ++it, ++i)
+    {
+        EXPECT_THAT(it->value, Eq(EXPECTED_VALUE[i]));
+    }
 }
 
 // END test move assignment
