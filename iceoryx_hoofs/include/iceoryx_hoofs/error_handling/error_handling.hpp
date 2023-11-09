@@ -25,7 +25,7 @@ namespace iox
 #define HOOFS_ERRORS(error) \
     error(EXPECTS_ENSURES_FAILED)
 
-    // EXPECTS_ENSURES_FAILED is used as a temporary solution to make Expects/Ensures testable
+    // EXPECTS_ENSURES_FAILED is used as a temporary solution to make IOX_EXPECTS/IOX_ENSURES testable
 
 // clang-format on
 

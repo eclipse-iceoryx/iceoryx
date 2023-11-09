@@ -53,7 +53,7 @@ uint64_t Heartbeat::milliseconds_since_epoch() noexcept
     {
     };
 
-    cxx::EnsuresWithMsg(
+    IOX_ENSURES_WITH_MSG(
         !posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &timepoint).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'clock_gettime'!");
 

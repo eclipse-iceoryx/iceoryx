@@ -305,7 +305,7 @@ inline void WaitSet<Capacity>::removeTrigger(const uint64_t uniqueTriggerId) noe
         {
             trigger->invalidate();
             trigger.reset();
-            cxx::Ensures(m_indexRepository.push(uniqueTriggerId));
+            IOX_ENSURES(m_indexRepository.push(uniqueTriggerId));
             return;
         }
     }
@@ -348,7 +348,7 @@ WaitSet<Capacity>::createVectorWithTriggeredTriggers() noexcept
 
             if (!doRemoveNotificationId && trigger->isStateConditionSatisfied())
             {
-                cxx::Expects(triggers.push_back(&m_triggerArray[index]->getNotificationInfo()));
+                IOX_EXPECTS(triggers.push_back(&m_triggerArray[index]->getNotificationInfo()));
                 doRemoveNotificationId = (trigger->getTriggerType() == TriggerType::EVENT_BASED);
             }
 

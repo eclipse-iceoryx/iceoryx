@@ -329,7 +329,7 @@ template <typename T, uint64_t Capacity>
 inline T& forward_list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    cxx::Expects(isValidElementIdx(iter.m_iterListNodeIdx) && "Invalid list element");
+    IOX_EXPECTS(isValidElementIdx(iter.m_iterListNodeIdx) && "Invalid list element");
     return *iter;
 }
 
@@ -337,7 +337,7 @@ template <typename T, uint64_t Capacity>
 inline const T& forward_list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    cxx::Expects(isValidElementIdx(citer.m_iterListNodeIdx) && "Invalid list element");
+    IOX_EXPECTS(isValidElementIdx(citer.m_iterListNodeIdx) && "Invalid list element");
     return *citer;
 }
 
@@ -556,7 +556,7 @@ inline void forward_list<T, Capacity>::setNextIdx(const size_type idx, const siz
 template <typename T, uint64_t Capacity>
 inline const T* forward_list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    cxx::Expects(isValidElementIdx(idx) && "Invalid list element");
+    IOX_EXPECTS(isValidElementIdx(idx) && "Invalid list element");
 
     // safe since m_data entries are aligned to T
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -597,14 +597,14 @@ inline bool forward_list<T, Capacity>::isInvalidIterator(const const_iterator& i
 {
     // iterator's member m_iterListNodeIdx and nextIndex are not checked here to be <= END_INDEX as this
     // should (can) never happen though normal list operations.
-    cxx::Expects(!isInvalidElement(iter.m_iterListNodeIdx) && "invalidated iterator");
+    IOX_EXPECTS(!isInvalidElement(iter.m_iterListNodeIdx) && "invalidated iterator");
     return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool forward_list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
+    IOX_EXPECTS((this == iter.m_list) && "iterator of other list can't be used");
     return isInvalidIterator(iter);
 }
 

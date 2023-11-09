@@ -39,7 +39,7 @@ inline void Expect<Derived>::expect(const StringType& msg) const noexcept
     if (!derivedThis)
     {
         print_expect_message(&msg[0]);
-        cxx::Ensures(false);
+        IOX_ENSURES(false);
     }
 }
 
@@ -55,7 +55,7 @@ inline ValueType& ExpectWithValue<Derived, ValueType>::expect(const StringType& 
     if (!derivedThis)
     {
         print_expect_message(&msg[0]);
-        cxx::Ensures(false);
+        IOX_ENSURES(false);
     }
 
     return derivedThis.value();

@@ -40,19 +40,19 @@ iox_user_trigger_t iox_user_trigger_init(iox_user_trigger_storage_t* self)
 
 void iox_user_trigger_deinit(iox_user_trigger_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
 
     delete self;
 }
 
 void iox_user_trigger_trigger(iox_user_trigger_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     self->trigger();
 }
 
 bool iox_user_trigger_has_triggered(iox_user_trigger_t const self)
 {
-    iox::cxx::Expects(self != nullptr);
+    IOX_EXPECTS(self != nullptr);
     return self->hasTriggered();
 }

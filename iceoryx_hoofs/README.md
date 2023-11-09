@@ -154,7 +154,7 @@ For information about how to use the logger API see [error-handling.md](../doc/d
 |`errorHandler`           |          | Free function to call the error handler with a defined error and an error level, see header file for practical example. |
 |`ErrorHandler`           | i        | error handler class only for testing purposes, should not be used directly                                              |
 |`logger`                 |          |                                                                                                                         |
-|`requires`               |          | Base for `Expects`/`Ensures` from the C++ Core Guideline                                                                |
+|`requires`               |          | Base for `IOX_EXPECTS`/`IOX_ENSURES` from the C++ Core Guideline                                                                |
 
 ### Time (time)
 

@@ -94,11 +94,11 @@ class iox_sub_test : public Test
         constexpr uint32_t USER_PAYLOAD_SIZE{100U};
 
         auto chunkSettingsResult = ChunkSettings::create(USER_PAYLOAD_SIZE, iox::CHUNK_DEFAULT_USER_PAYLOAD_ALIGNMENT);
-        iox::cxx::Ensures(chunkSettingsResult.has_value());
+        IOX_ENSURES(chunkSettingsResult.has_value());
         auto& chunkSettings = chunkSettingsResult.value();
 
         auto getChunkResult = m_memoryManager.getChunk(chunkSettings);
-        iox::cxx::Ensures(getChunkResult.has_value());
+        IOX_ENSURES(getChunkResult.has_value());
         return getChunkResult.value();
     }
 

@@ -53,7 +53,7 @@ FileReader::FileReader(const std::string& fileName, const std::string& filePath,
         {
             m_fileStream.close();
             IOX_LOG(FATAL, "Could not open file '" << fileName << "' from path '" << filePath << "'. Exiting!");
-            cxx::Ensures(false);
+            IOX_ENSURES(false);
             return;
         }
         }

@@ -330,7 +330,7 @@ template <typename T, uint64_t Capacity>
 inline T& list<T, Capacity>::front() noexcept
 {
     auto iter = begin();
-    cxx::Expects(isValidElementIdx(iter.m_iterListNodeIdx) && "invalid list element");
+    IOX_EXPECTS(isValidElementIdx(iter.m_iterListNodeIdx) && "invalid list element");
     return *iter;
 }
 
@@ -338,7 +338,7 @@ template <typename T, uint64_t Capacity>
 inline const T& list<T, Capacity>::front() const noexcept
 {
     auto citer = cbegin();
-    cxx::Expects(isValidElementIdx(citer.m_iterListNodeIdx) && "invalid list element");
+    IOX_EXPECTS(isValidElementIdx(citer.m_iterListNodeIdx) && "invalid list element");
     return *citer;
 }
 
@@ -346,7 +346,7 @@ template <typename T, uint64_t Capacity>
 inline T& list<T, Capacity>::back() noexcept
 {
     auto iter = end();
-    cxx::Expects(isValidElementIdx((--iter).m_iterListNodeIdx) && "invalid list element");
+    IOX_EXPECTS(isValidElementIdx((--iter).m_iterListNodeIdx) && "invalid list element");
     return *iter;
 }
 
@@ -354,7 +354,7 @@ template <typename T, uint64_t Capacity>
 inline const T& list<T, Capacity>::back() const noexcept
 {
     auto citer = cend();
-    cxx::Expects(isValidElementIdx((--citer).m_iterListNodeIdx) && "invalid list element");
+    IOX_EXPECTS(isValidElementIdx((--citer).m_iterListNodeIdx) && "invalid list element");
     return *citer;
 }
 
@@ -653,7 +653,7 @@ inline void list<T, Capacity>::setNextIdx(const size_type idx, const size_type n
 template <typename T, uint64_t Capacity>
 inline const T* list<T, Capacity>::getDataPtrFromIdx(const size_type idx) const noexcept
 {
-    cxx::Expects(isValidElementIdx(idx) && "invalid list element");
+    IOX_EXPECTS(isValidElementIdx(idx) && "invalid list element");
 
     /// @NOLINTJUSTIFICATION provide type safe access to the encapsulated untyped m_data array
     /// @NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -684,14 +684,14 @@ inline bool list<T, Capacity>::isInvalidIterator(const const_iterator& iter) con
     // freeList / invalid elements will have the prevIdx set to INVALID_INDEX
     // additional check on e.g. nextIdx or m_iterListNodeIdx (<INVALID_INDEX) are omitted as this
     // should (can) never happen though normal list operations.
-    cxx::Expects((getPrevIdx(iter) < INVALID_INDEX) && "invalidated iterator");
+    IOX_EXPECTS((getPrevIdx(iter) < INVALID_INDEX) && "invalidated iterator");
     return false;
 }
 
 template <typename T, uint64_t Capacity>
 inline bool list<T, Capacity>::isInvalidIterOrDifferentLists(const const_iterator& iter) const noexcept
 {
-    cxx::Expects((this == iter.m_list) && "iterator of other list can't be used");
+    IOX_EXPECTS((this == iter.m_list) && "iterator of other list can't be used");
     return isInvalidIterator(iter);
 }
 

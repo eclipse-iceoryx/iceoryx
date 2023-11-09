@@ -425,4 +425,4 @@ int main()
   `Logger::customize().logLevelFromEnvOr(LogLevel::WARN).init()`
 - wrap `__FILE__`, `__LINE__` and `__FUNCTION__` into a `source_location` struct
   - where should this struct be placed
-  - could also be used by `Expects`, `Ensures`
+  - could also be used by `IOX_EXPECTS`, `IOX_ENSURES`
