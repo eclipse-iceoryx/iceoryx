@@ -29,7 +29,18 @@ namespace iox
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer() noexcept
 {
-    reset_member();
+    for (IndexType i = 0; i < CAPACITY;)
+    {
+        m_status[i] = SlotStatus::FREE;
+
+        IndexType next = static_cast<IndexType>(i + 1U);
+        m_next[i] = next;
+        i = next;
+    }
+    m_next[Index::LAST] = Index::INVALID;
+
+    m_begin_free = Index::FIRST;
+    m_begin_used = Index::INVALID;
 }
 
 template <typename T, uint64_t CAPACITY>
@@ -47,14 +58,22 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& rhs) noexcept
 {
-    reset_member();
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_status[i] = SlotStatus::FREE;
+    }
+
     *this = rhs;
 }
 
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& rhs) noexcept
 {
-    reset_member();
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_status[i] = SlotStatus::FREE;
+    }
+
     *this = std::move(rhs);
 }
 
@@ -164,23 +183,6 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     m_begin_free = static_cast<IndexType>(rhs.m_size);
     m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
     m_size = rhs.m_size;
-}
-
-template <typename T, uint64_t CAPACITY>
-inline void FixedPositionContainer<T, CAPACITY>::reset_member() noexcept
-{
-    for (IndexType i = 0; i < CAPACITY;)
-    {
-        m_status[i] = SlotStatus::FREE;
-
-        IndexType next = static_cast<IndexType>(i + 1U);
-        m_next[i] = next;
-        i = next;
-    }
-    m_next[Index::LAST] = Index::INVALID;
-
-    m_begin_free = Index::FIRST;
-    m_begin_used = Index::INVALID;
 }
 
 template <typename T, uint64_t CAPACITY>

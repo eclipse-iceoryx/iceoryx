@@ -318,9 +318,6 @@ class FixedPositionContainer final
     };
 
   private:
-    /// @brief Initialize member variables to prevent undefined or erroneous values.
-    void reset_member() noexcept;
-
     template <typename RhsType>
     void copy_and_move_impl(RhsType&& rhs) noexcept;
 
