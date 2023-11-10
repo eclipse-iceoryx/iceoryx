@@ -194,9 +194,6 @@ class FixedPositionContainer final
 
         friend class FixedPositionContainer;
 
-        template <IterMutability>
-        friend class IteratorBase;
-
         /// @brief Construct a const iterator from an iterator
         // NOLINTJUSTIFICATION conversion from non const iterator to const iterator follows the STL behavior
         // NOLINTNEXTLINE(hicpp-explicit-conversions)
