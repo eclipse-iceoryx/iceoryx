@@ -24,6 +24,8 @@
 #include "iox/detail/unique_id.hpp"
 #include "iox/not_null.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <thread>
 
 namespace iox
