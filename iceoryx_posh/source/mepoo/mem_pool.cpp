@@ -83,8 +83,8 @@ void MemPool::adjustMinFree() noexcept
 
 void* MemPool::getChunk() noexcept
 {
-    uint32_t l_index{0U};
-    if (!m_freeIndices.pop(l_index))
+    uint32_t index{0U};
+    if (!m_freeIndices.pop(index))
     {
         IOX_LOG(WARN,
                 "Mempool [m_chunkSize = " << m_chunkSize << ", numberOfChunks = " << m_numberOfChunks
@@ -97,7 +97,7 @@ void* MemPool::getChunk() noexcept
     m_usedChunks.fetch_add(1U, std::memory_order_relaxed);
     adjustMinFree();
 
-    return m_rawMemory.get() + l_index * m_chunkSize;
+    return m_rawMemory.get() + static_cast<uint64_t>(index) * m_chunkSize;
 }
 
 void MemPool::freeChunk(const void* chunk) noexcept
