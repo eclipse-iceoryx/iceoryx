@@ -1,6 +1,7 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
 // Copyright (c) 2021 by Perforce All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -204,6 +205,14 @@ inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type* varia
         return nullptr;
     }
 
+    return unsafe_get_at_index_unchecked<TypeIndex>();
+}
+
+template <typename... Types>
+template <uint64_t TypeIndex>
+inline typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+variant<Types...>::unsafe_get_at_index_unchecked() noexcept
+{
     using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
 
     // AXIVION Next Construct AutosarC++19_03-M5.2.8 : conversion to typed pointer is intentional, it is correctly aligned and points to sufficient memory for a T by design
@@ -219,6 +228,17 @@ variant<Types...>::get_at_index() const noexcept
     // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
     return const_cast<const T*>(const_cast<variant*>(this)->template get_at_index<TypeIndex>());
+}
+
+template <typename... Types>
+template <uint64_t TypeIndex>
+inline const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+variant<Types...>::unsafe_get_at_index_unchecked() const noexcept
+{
+    using T = typename internal::get_type_at_index<0, TypeIndex, Types...>::type;
+    // AXIVION Next Construct AutosarC++19_03-A5.2.3 : avoid code duplication
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    return const_cast<const T*>(const_cast<variant*>(this)->template unsafe_get_at_index_unchecked<TypeIndex>());
 }
 
 template <typename... Types>

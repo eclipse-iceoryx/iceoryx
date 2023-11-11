@@ -113,7 +113,7 @@ class VariantQueue
     uint64_t capacity() const noexcept;
 
   private:
-    VariantQueueTypes m_type;
+    const VariantQueueTypes m_type;
     fifo_t m_fifo;
 };
 } // namespace cxx
