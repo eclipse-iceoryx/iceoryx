@@ -71,7 +71,14 @@ SharedChunk ShmSafeUnmanagedChunk::cloneToSharedChunk() noexcept
     }
     auto chunkMgmt =
         RelativePointer<mepoo::ChunkManagement>(m_chunkManagement.offset(), segment_id_t{m_chunkManagement.id()});
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+#endif
     chunkMgmt->m_referenceCounter.fetch_add(1U, std::memory_order_relaxed);
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     return SharedChunk(chunkMgmt.get());
 }
 
