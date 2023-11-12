@@ -132,10 +132,6 @@ arch_linux_x64_build_task:
     folder: iox-tests-bin
     reupload_on_changes: true
     fingerprint_key: $CIRRUS_OS_archlinux_x64_test_binaries_cache
-  env:
-    # use clang on Arch Linux since GCC triggers some compiler warnings which abort the job
-    CC: clang
-    CXX: clang++
   build_script:
     <<: *IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
   populate_test_binary_folder_script:
