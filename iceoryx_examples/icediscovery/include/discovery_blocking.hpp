@@ -14,7 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#pragma once
+#ifndef IOX_EXAMPLES_DISCOVERY_BLOCKING_HPP
+#define IOX_EXAMPLES_DISCOVERY_BLOCKING_HPP
 
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
@@ -97,3 +98,5 @@ bool Discovery::waitUntil(const Condition& condition)
 //! [wait until condition]
 
 } // namespace discovery
+
+#endif // IOX_EXAMPLES_DISCOVERY_BLOCKING_HPP

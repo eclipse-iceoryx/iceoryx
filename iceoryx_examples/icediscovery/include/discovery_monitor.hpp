@@ -14,7 +14,8 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#pragma once
+#ifndef IOX_EXAMPLES_DISCOVERY_MONITORING_HPP
+#define IOX_EXAMPLES_DISCOVERY_MONITORING_HPP
 
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/runtime/service_discovery.hpp"
@@ -88,3 +89,5 @@ void Discovery::registerCallback(const Callback& callback)
 }
 
 } // namespace discovery
+
+#endif // IOX_EXAMPLES_DISCOVERY_BLOCKING_HPP
