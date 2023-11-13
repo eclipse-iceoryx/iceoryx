@@ -65,11 +65,11 @@ class FixedPositionContainer final
     FixedPositionContainer() noexcept;
     ~FixedPositionContainer() noexcept;
 
-    FixedPositionContainer(const FixedPositionContainer&) noexcept = delete;
-    FixedPositionContainer(FixedPositionContainer&&) noexcept = delete;
+    FixedPositionContainer(const FixedPositionContainer&) noexcept;
+    FixedPositionContainer(FixedPositionContainer&&) noexcept;
 
-    FixedPositionContainer& operator=(const FixedPositionContainer&) noexcept = delete;
-    FixedPositionContainer& operator=(FixedPositionContainer&&) noexcept = delete;
+    FixedPositionContainer& operator=(const FixedPositionContainer&) noexcept;
+    FixedPositionContainer& operator=(FixedPositionContainer&&) noexcept;
 
     /// @brief Clears the container and calls the destructor on all contained elements
     void clear() noexcept;
@@ -316,6 +316,10 @@ class FixedPositionContainer final
         std::reference_wrapper<Container> m_container;
         IndexType m_index;
     };
+
+  private:
+    template <typename RhsType>
+    void copy_and_move_impl(RhsType&& rhs) noexcept;
 
   private:
     UninitializedArray<T, CAPACITY> m_data;

@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu <dennis48161025@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,9 @@
 #define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 
 #include "iox/fixed_position_container.hpp"
+#if __cplusplus < 201703L
+#include "iox/detail/fixed_position_container_helper.hpp"
+#endif
 
 namespace iox
 {
@@ -49,6 +53,136 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
             m_data[i].~T();
         }
     }
+}
+
+template <typename T, uint64_t CAPACITY>
+inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& rhs) noexcept
+{
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_status[i] = SlotStatus::FREE;
+    }
+
+    *this = rhs;
+}
+
+template <typename T, uint64_t CAPACITY>
+inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& rhs) noexcept
+{
+    for (IndexType i = 0; i < CAPACITY; ++i)
+    {
+        m_status[i] = SlotStatus::FREE;
+    }
+
+    *this = std::move(rhs);
+}
+
+template <typename T, uint64_t CAPACITY>
+inline FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        copy_and_move_impl(rhs);
+    }
+    return *this;
+}
+
+template <typename T, uint64_t CAPACITY>
+inline FixedPositionContainer<T, CAPACITY>&
+FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noexcept
+{
+    if (this != &rhs)
+    {
+        copy_and_move_impl(std::move(rhs));
+
+        // clear rhs
+        rhs.clear();
+    }
+    return *this;
+}
+
+template <typename T, uint64_t CAPACITY>
+template <typename RhsType>
+inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
+{
+    // we already make sure rhs is always passed by std::move() for move case, therefore
+    // the result of "decltype(rhs)" is same as "decltype(std::forward<RhsType>(rhs))"
+    static_assert(std::is_rvalue_reference<decltype(rhs)>::value
+                      || (std::is_lvalue_reference<decltype(rhs)>::value
+                          && std::is_const<std::remove_reference_t<decltype(rhs)>>::value),
+                  "RhsType must be const lvalue reference or rvalue reference");
+
+    constexpr bool is_move = std::is_rvalue_reference<decltype(rhs)>::value;
+
+    IndexType i{Index::FIRST};
+    auto rhs_it = (std::forward<RhsType>(rhs)).begin();
+
+    // transfer src data to destination
+    for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+#if __cplusplus >= 201703L
+            if constexpr (is_move)
+            {
+                m_data[i] = std::move(*rhs_it);
+            }
+            else
+            {
+                m_data[i] = *rhs_it;
+            }
+#else
+            // We introduce a helper struct primarily due to the test case
+            // e1cc7c9f-c1b5-4047-811b-004302af5c00. It demands compile-time if-else branching
+            // for classes that are either non-copyable or non-moveable.
+            // Note: With C++17's 'if constexpr', the need for these helper structs can be eliminated.
+            detail::AssignmentHelper<is_move>::assign(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
+#endif
+        }
+        // use ctor to avoid UB for non-initialized free slots
+        else
+        {
+#if __cplusplus >= 201703L
+            if constexpr (is_move)
+            {
+                new (&m_data[i]) T(std::move(*rhs_it));
+            }
+            else
+            {
+                new (&m_data[i]) T(*rhs_it);
+            }
+#else
+            // Same as above
+            detail::CtorHelper<is_move>::construct(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
+#endif
+        }
+        m_status[i] = SlotStatus::USED;
+        m_next[i] = static_cast<IndexType>(i + 1U);
+    }
+
+    for (; i < CAPACITY; ++i)
+    {
+        if (m_status[i] == SlotStatus::USED)
+        {
+            m_data[i].~T();
+        }
+
+        m_status[i] = SlotStatus::FREE;
+
+        IndexType next = static_cast<IndexType>(i + 1U);
+        m_next[i] = next;
+    }
+
+    m_next[Index::LAST] = Index::INVALID;
+    if (!rhs.empty())
+    {
+        m_next[rhs.m_size - 1] = Index::INVALID;
+    }
+
+    m_begin_free = static_cast<IndexType>(rhs.m_size);
+    m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
+    m_size = rhs.m_size;
 }
 
 template <typename T, uint64_t CAPACITY>

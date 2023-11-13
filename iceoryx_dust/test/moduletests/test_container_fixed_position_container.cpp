@@ -1,4 +1,5 @@
 // Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
+// Copyright (c) 2023 by Dennis Liu <dennis48161025@gmail.com>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +29,38 @@ using namespace ::testing;
 using namespace iox;
 using namespace iox::testing;
 
+// should this places in other file?
+template <typename T>
+class MovableButNonCopyableTestClass
+{
+  public:
+    // moveable only class requires this
+    MovableButNonCopyableTestClass(const T value)
+        : value(value)
+    {
+    }
+
+    MovableButNonCopyableTestClass(const MovableButNonCopyableTestClass& rhs) = delete;
+    MovableButNonCopyableTestClass& operator=(const MovableButNonCopyableTestClass& rhs) = delete;
+
+    MovableButNonCopyableTestClass(MovableButNonCopyableTestClass&& rhs)
+    {
+        value = rhs.value;
+    }
+
+    MovableButNonCopyableTestClass& operator=(MovableButNonCopyableTestClass&& rhs)
+    {
+        if (this != &rhs)
+        {
+            value = std::move(rhs.value);
+        }
+        return *this;
+    }
+
+  public:
+    T value;
+};
+
 struct FixedPositionContainer_test : public Test
 {
     using DataType = uint64_t;
@@ -36,7 +69,10 @@ struct FixedPositionContainer_test : public Test
     using Sut = FixedPositionContainer<DataType, CAPACITY>;
 
     using ComplexType = LifetimeAndAssignmentTracker<DataType, 0>;
+    using NonCopyType = MovableButNonCopyableTestClass<DataType>;
+
     using SutComplex = FixedPositionContainer<ComplexType, CAPACITY>;
+    using SutNonCopy = FixedPositionContainer<NonCopyType, CAPACITY>;
 
     void SetUp() override
     {
@@ -68,29 +104,1572 @@ struct FixedPositionContainer_test : public Test
 
     Sut sut;
     SutComplex sut_complex;
+    SutNonCopy sut_noncopy;
 
     ComplexType::Statistics& stats = ComplexType::stats;
 };
-
-TEST_F(FixedPositionContainer_test, ContainerIsNotMovable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5c05f240-9822-427b-9eb5-69fd43f1ac28");
-    EXPECT_FALSE(std::is_move_constructible<Sut>::value);
-    EXPECT_FALSE(std::is_move_assignable<Sut>::value);
-}
-
-TEST_F(FixedPositionContainer_test, ContainerIsNotCopyable)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1b421af5-d014-4f9b-98ed-fbfdf5a9beb8");
-    EXPECT_FALSE(std::is_copy_constructible<Sut>::value);
-    EXPECT_FALSE(std::is_copy_assignable<Sut>::value);
-}
 
 TEST_F(FixedPositionContainer_test, Capacity)
 {
     ::testing::Test::RecordProperty("TEST_ID", "17669b2f-d53b-4ac9-8190-b1c32f8ec4ba");
     EXPECT_THAT(sut.capacity(), Eq(CAPACITY));
 }
+
+// BEGIN test copy constructor
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorEmptyContainerResultsInEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6c528ef3-9c2d-4eb2-93a9-2d998d0db380");
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorSingleElementContainerPreservesElement)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f3aaf452-77fa-4535-bf0b-37bedefc2bf6");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
+
+    sut_complex.emplace(EXPECTED_VALUE);
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorMultipleElementsContainerPreservesAllElements)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6261f53e-8089-4b9b-9b2d-9da0016a2f1e");
+
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    std::vector<DataType> EXPECTED_VALUE = {56U, 57U, 58U, 59U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorFullCapacityContainerPreservesAllElements)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "028704df-b2f3-4133-9c16-b9d2c6a79916");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY));
+    for (Sut::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(sut_complex.iter_from_index(i)->value));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorFromNonEmptyWithFirstIndexErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "acd52957-1d8a-4bd8-a960-e9c040d919c2");
+
+    std::vector<DataType> EXPECTED_VALUE = {63U, 64U, 65U, 66U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{3U};
+
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_EQ(copy_sut_complex.size(), EXPECTED_SIZE);
+    EXPECT_EQ(copy_sut_complex.begin()->value, 64U);
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorFromNonEmptyWithFirstAndMiddleAndLastErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "f21ff6d9-f50a-499f-912a-923bd4273b07");
+
+    std::vector<DataType> EXPECTED_VALUE = {1U, 2U, 3U, 5U, 6U, 7U, 8U};
+
+    fillSutComplex();
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY - 3U));
+
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyCtorWillNotChangeSourceContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8d60e04b-341f-4da1-8f3e-2736529d7843");
+
+    std::vector<DataType> EXPECTED_VALUE = {63U, 64U, 65U, 66U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+
+    SutComplex copy_sut_complex{sut_complex};
+
+    EXPECT_THAT(sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    auto it = sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+// END test copy constructor
+
+
+// BEGIN test move constructor
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromEmptyContainerResultsInEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "af8958fb-9a09-4987-b290-ce41abdc2354");
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.size(), Eq(0));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromSingleElementToEmptyContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "df6c1884-43c6-4d1e-b889-6cbf4b9ee726");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
+    sut_complex.emplace(EXPECTED_VALUE);
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    // Note: It is sufficient to do it only once for "sut_complex"
+    EXPECT_THAT(sut_complex.full(), Eq(false));
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+    EXPECT_THAT(sut_complex.size(), Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromMultipleElementsContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b9d929ae-23c8-4b5b-ba82-e5af12cdace4");
+
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromFullCapacityContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8a9ca6d1-5ac3-4e31-9cb9-0476176531e1");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
+    for (const auto& item : sut_complex)
+    {
+        EXPECTED_VALUE.emplace_back(item.value);
+    }
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromNonEmptyWithFirstIndexErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "de0eaa3c-bf30-4899-95ec-6c23bbd53a24");
+
+    std::vector<DataType> EXPECTED_VALUE = {63U, 64U, 65U, 66U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{3U};
+
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex move_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(64U));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorFromNonEmptyWithFirstAndMiddleAndLastErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "073e3bc6-1e33-46b8-860b-c35d1f599d11");
+
+    std::vector<DataType> EXPECTED_VALUE = {1U, 2U, 3U, 5U, 6U, 7U, 8U};
+
+    fillSutComplex();
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+
+    SutComplex copy_sut_complex{std::move(sut_complex)};
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(CAPACITY - 3U));
+
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveCtorAtNonCopyableTypeShouldCompile)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "e1cc7c9f-c1b5-4047-811b-004302af5c00");
+
+    constexpr uint64_t EXPECTED_SIZE{2U};
+    sut_noncopy.emplace(7U);
+    sut_noncopy.emplace(8U);
+
+    SutNonCopy move_sut_noncopy{std::move(sut_noncopy)};
+
+    EXPECT_THAT(move_sut_noncopy.size(), Eq(EXPECTED_SIZE));
+}
+
+// END test move constructor
+
+
+// BEGIN test copy assignment
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromEmptyContainerResultsInEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "013338e3-4330-49b4-8aa4-9b66517bb3bc");
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSingleElementContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6cf9e9d1-91a9-4403-a25a-52b64dd523be");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr uint64_t EXPECTED_SIZE{1U};
+    sut_complex.emplace(EXPECTED_VALUE);
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
+    EXPECT_THAT(copy_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromMultipleElementsContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "262ad71a-0ee2-4661-b2c8-a3cca9c1cf5e");
+
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_VALUE.size(); ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(sut_complex.size()));
+    for (SutComplex::IndexType i = 0; i < sut_complex.size(); ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromFullCapacityContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b46d0be7-5977-467e-adc4-2e9adc554fdd");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
+    for (const auto& item : sut_complex)
+    {
+        EXPECTED_VALUE.emplace_back(item.value);
+    }
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+        EXPECT_THAT(copy_sut_complex.iter_from_index(i), Ne(sut_complex.iter_from_index(i)));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveCTor, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromEmptyToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5d906d20-aacc-4536-86e7-bd4aafcdc2f7");
+
+    std::vector<DataType> EXPECTED_VALUE = {12U, 13U, 14U, 15U, 16U};
+    SutComplex copy_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(0));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(0));
+    EXPECT_THAT(copy_sut_complex.begin(), Eq(copy_sut_complex.end()));
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromLargerSizeToSmallerSizeContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cce5bca5-7bfd-4909-bd60-acfffbb1611e");
+
+    std::vector<DataType> EXPECTED_VALUE = {21U, 22U, 23U, 24U, 25U};
+    std::vector<DataType> DUMMY_VALUE = {94U, 95U, 96U};
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentBetweenContainersOfEqalSize)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "bd1b1c4b-20a4-464a-b036-8ce4764f3ac5");
+
+    std::vector<DataType> EXPECTED_VALUE = {29U, 28U, 27U, 26U};
+    std::vector<DataType> DUMMY_VALUE = {37U, 38U, 39U, 40U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromSmallerSizeToLargerSizeContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "412b4439-66dd-4e5c-93f7-511e1e965b78");
+
+    std::vector<DataType> EXPECTED_VALUE = {1U, 2U, 3U, 4U};
+    std::vector<DataType> DUMMY_VALUE = {31U, 32U, 33U, 34U, 35U, 36U, 37U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstIndexErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "929e7bae-f276-4ae5-b559-7bb518198e63");
+
+    std::vector<DataType> DUMMY_VALUE = {12U, 32U, 23U, 14U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE.begin() + 1, DUMMY_VALUE.end());
+    constexpr uint64_t EXPECTED_SIZE{3U};
+
+    for (const auto& value : DUMMY_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstIndexErasedToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "cd882c6e-1e46-495c-b2cf-24056c144d85");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {65U, 66U, 23U, 7U, 12U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {1U, 3U, 5U, 16U, 18U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyToNonEmptyContainerWithBothFirstIndexErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ad3d96da-e64a-4252-950c-a36f5333e42a");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {98U, 99U, 100U, 101U, 102U, 103U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {12U, 33U, 544U, 162U, 182U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+    copy_sut_complex.erase(SutComplex::Index::FIRST);
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test,
+       UsingCopyAssignmentFromNonEmptyWithFirstErasedToNonEmptyContainerWithFirstAndSecondErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a3ac8e6d-795e-4e41-bad3-aba39483d6d5");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {56U, 54U, 55U, 33U, 12U, 34U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {18U, 22U, 42U, 323U, 216U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+    copy_sut_complex.erase(SutComplex::Index::FIRST);
+    copy_sut_complex.erase(SutComplex::Index::FIRST + 1);
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "0c6138ce-861e-42d8-b7f2-ecd4ac01537e");
+
+    std::vector<DataType> DUMMY_VALUE = {17U, 26U, 32U, 357U, 30U, 21U, 18U, 100U, 67U, 79U};
+    std::vector<DataType> EXPECTED_VALUE = {26U, 32U, 357U, 21U, 18U, 100U, 67U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4127ad54-f272-4f61-9737-e41b92d7cf60");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {111U, 112U, 113U, 114U, 115U, 116U, 117U, 118U, 119U, 120U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {189U, 112U, 124U, 1735U, 10U, 11U, 14U, 164U, 123U, 12U};
+    std::vector<DataType> EXPECTED_VALUE = {112U, 113U, 114U, 116U, 117U, 118U, 119U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test,
+       UsingCopyAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainerWithFirstIndexErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "4aea0c73-98c7-45b1-81e0-713c18ea16de");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {101U, 102U, 103U, 104U, 105U, 106U, 107U, 108U, 109U, 110U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {89U, 12U, 24U, 735U, 0U, 1U, 4U, 64U, 23U, 2U};
+    std::vector<DataType> EXPECTED_VALUE = {102U, 103U, 104U, 106U, 107U, 108U, 109U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+    copy_sut_complex.erase(SutComplex::Index::FIRST);
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(
+    FixedPositionContainer_test,
+    UsingCopyAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainerWithNeighboringFirstAndOneBeforeMiddleAndOneBeforeLastErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "7e086470-8b0e-4c82-8c5d-7a9c45312729");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {121U, 122U, 123U, 124U, 125U, 126U, 127U, 128U, 129U, 130U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {79U, 2U, 14U, 725U, 40U, 15U, 34U, 54U, 13U, 32U};
+    std::vector<DataType> EXPECTED_VALUE = {122U, 123U, 124U, 126U, 127U, 128U, 129U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+    copy_sut_complex.erase(SutComplex::Index::FIRST + 1);
+    copy_sut_complex.erase(SutComplex::Index::LAST / 2 + 1);
+    copy_sut_complex.erase(SutComplex::Index::LAST - 1);
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentFromNonEmptyWithLastErasedToFullContainerWithFirstErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "82e562f9-89fe-4998-870f-c575da5a3f79");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {131U, 132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 140U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin(), DUMMY_VALUE_SRC.end() - 1);
+    constexpr uint64_t EXPECTED_SIZE{9U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+    copy_sut_complex.erase(SutComplex::Index::FIRST);
+
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentWillNotChangeSourceContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "22191ca0-2350-4901-b6f3-1786621f6a17");
+
+    std::vector<DataType> EXPECTED_VALUE = {63U, 64U, 65U, 66U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+
+    SutComplex copy_sut_complex;
+    copy_sut_complex = sut_complex;
+
+    EXPECT_THAT(sut_complex.size(), Eq(EXPECTED_SIZE));
+
+    auto it = sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+}
+
+TEST_F(FixedPositionContainer_test, UsingCopyAssignmentInsertionShouldFailWhenCapacityReached)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fcbe01f1-b3d4-4794-b291-efeeddd4db7f");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {131U, 132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 140U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U};
+    std::vector<DataType> EXPECTED_VALUE = {132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 77U, 88U};
+    constexpr uint64_t EXPECTED_SIZE{CAPACITY};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex copy_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        copy_sut_complex.emplace(value);
+    }
+
+    copy_sut_complex = sut_complex;
+
+    copy_sut_complex.emplace(77U);
+    copy_sut_complex.emplace(88U);
+
+    EXPECT_THAT(copy_sut_complex.full(), Eq(true));
+    EXPECT_THAT(copy_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(copy_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = copy_sut_complex.begin();
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    // should failed
+    auto failed_it = copy_sut_complex.emplace(1000000U);
+    EXPECT_THAT(failed_it, Eq(copy_sut_complex.end()));
+}
+
+// END test copy assignment
+
+
+// BEGIN test move assignment
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyContainerResultsInEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "711ced12-4b93-47d1-af37-cace03fac2c1");
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.size(), Eq(0));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromSingleElementContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a3902afc-5eba-4e10-8412-f09b7b5d17b8");
+
+    constexpr DataType EXPECTED_VALUE{42U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{1U};
+    sut_complex.emplace(EXPECTED_VALUE);
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    EXPECT_THAT(move_sut_complex.begin()->value, Eq(EXPECTED_VALUE));
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    EXPECT_THAT(stats.copyAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromMultipleElementsContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c44da583-1ed8-4c83-b5bb-dba5d64b21d9");
+
+    std::vector<DataType> EXPECTED_VALUE{56U, 57U, 58U, 59U};
+    constexpr SutComplex::IndexType EXPECTED_SIZE{4U};
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        sut_complex.emplace(EXPECTED_VALUE[i]);
+    }
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromFullCapacityContainerClearsOriginal)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3196b101-f03a-4029-abb8-77106f0b45d8");
+
+    fillSutComplex();
+    constexpr SutComplex::IndexType EXPECTED_SIZE{CAPACITY};
+    std::vector<DataType> EXPECTED_VALUE;
+    for (const auto& item : sut_complex)
+    {
+        EXPECTED_VALUE.emplace_back(item.value);
+    }
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    for (SutComplex::IndexType i = 0; i < EXPECTED_SIZE; ++i)
+    {
+        EXPECT_THAT(move_sut_complex.iter_from_index(i)->value, Eq(EXPECTED_VALUE[i]));
+    }
+
+    EXPECT_THAT(stats.copyCTor, Eq(0));
+    EXPECT_THAT(stats.moveCTor, Eq(EXPECTED_SIZE));
+    EXPECT_THAT(stats.moveAssignment, Eq(0));
+    // make sure clear() been called
+    EXPECT_THAT(stats.dTor, Eq(EXPECTED_SIZE));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromEmptyToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "998e06c0-6879-451e-a493-e3e26944feff");
+
+    std::vector<DataType> EXPECTED_VALUE = {12U, 13U, 14U, 15U, 16U};
+    SutComplex move_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(0));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(true));
+    EXPECT_THAT(move_sut_complex.size(), Eq(0));
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromLargerSizeToSmallerSizeContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "c4b5b538-740f-4543-b493-5ea87e0ea8cc");
+
+    std::vector<DataType> EXPECTED_VALUE = {21U, 22U, 23U, 24U, 25U};
+    std::vector<DataType> DUMMY_VALUE = {94U, 95U, 96U};
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    SutComplex move_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentBetweenContainersOfEqalSize)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "50030f15-aefc-4086-aca0-02c1d5e032a1");
+
+    std::vector<DataType> EXPECTED_VALUE = {29U, 28U, 27U, 26U};
+    std::vector<DataType> DUMMY_VALUE = {37U, 38U, 39U, 40U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    SutComplex move_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromSmallerSizeToLargerSizeContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "6759de7f-5555-4251-89a2-dbcc3c2f2efb");
+
+    std::vector<DataType> EXPECTED_VALUE = {1U, 2U, 3U, 4U};
+    std::vector<DataType> DUMMY_VALUE = {31U, 32U, 33U, 34U, 35U, 36U, 37U};
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    SutComplex move_sut_complex;
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    for (const auto& value : DUMMY_VALUE)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyWithFirstIndexErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "95c1839b-0755-458c-908b-89b59a914fb5");
+
+    std::vector<DataType> DUMMY_VALUE = {12U, 32U, 23U, 14U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE.begin() + 1, DUMMY_VALUE.end());
+    constexpr uint64_t EXPECTED_SIZE{3U};
+
+    for (const auto& value : DUMMY_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyWithFirstIndexErasedToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "db50dd57-6e56-4343-981b-debb4780d403");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {65U, 66U, 23U, 7U, 12U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {1U, 3U, 5U, 16U, 18U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{4U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyToNonEmptyContainerWithBothFirstIndexErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2655d41e-06d9-4e85-a356-a0ba256b35ee");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {98U, 99U, 100U, 101U, 102U, 103U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {12U, 33U, 544U, 162U, 182U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+    move_sut_complex.erase(SutComplex::Index::FIRST);
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test,
+       UsingMoveAssignmentFromNonEmptyWithFirstErasedToNonEmptyContainerWithFirstAndSecondErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8aa4a221-ed52-49e9-91c3-81d45d70edc5");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {56U, 54U, 55U, 33U, 12U, 34U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {18U, 22U, 42U, 323U, 216U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin() + 1, DUMMY_VALUE_SRC.end());
+    constexpr uint64_t EXPECTED_SIZE{5U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+    move_sut_complex.erase(SutComplex::Index::FIRST);
+    move_sut_complex.erase(SutComplex::Index::FIRST + 1);
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "646d08e5-d26a-4efe-96e1-fa79ef1549b7");
+
+    std::vector<DataType> DUMMY_VALUE = {17U, 26U, 32U, 357U, 30U, 21U, 18U, 100U, 67U, 79U};
+    std::vector<DataType> EXPECTED_VALUE = {26U, 32U, 357U, 21U, 18U, 100U, 67U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainer)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "62367ed3-a97a-4dae-82f3-e7bacd432b9b");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {111U, 112U, 113U, 114U, 115U, 116U, 117U, 118U, 119U, 120U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {189U, 112U, 124U, 1735U, 10U, 11U, 14U, 164U, 123U, 12U};
+    std::vector<DataType> EXPECTED_VALUE = {112U, 113U, 114U, 116U, 117U, 118U, 119U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test,
+       UsingMoveAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainerWithFirstIndexErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "3b57f4cc-7a79-4a0a-a1f2-0a2f1e943fdf");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {101U, 102U, 103U, 104U, 105U, 106U, 107U, 108U, 109U, 110U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {89U, 12U, 24U, 735U, 0U, 1U, 4U, 64U, 23U, 2U};
+    std::vector<DataType> EXPECTED_VALUE = {102U, 103U, 104U, 106U, 107U, 108U, 109U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+    move_sut_complex.erase(SutComplex::Index::FIRST);
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(
+    FixedPositionContainer_test,
+    UsingMoveAssignmentFromNonEmptyWithFirstAndMiddleAndLastErasedToNonEmptyContainerWithNeighboringFirstAndOneBeforeMiddleAndOneBeforeLastErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "74cf9827-99ea-45a8-884d-e8efff9b1290");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {121U, 122U, 123U, 124U, 125U, 126U, 127U, 128U, 129U, 130U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {79U, 2U, 14U, 725U, 40U, 15U, 34U, 54U, 13U, 32U};
+    std::vector<DataType> EXPECTED_VALUE = {122U, 123U, 124U, 126U, 127U, 128U, 129U};
+    constexpr uint64_t EXPECTED_SIZE{7U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST / 2);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+    move_sut_complex.erase(SutComplex::Index::FIRST + 1);
+    move_sut_complex.erase(SutComplex::Index::LAST / 2 + 1);
+    move_sut_complex.erase(SutComplex::Index::LAST - 1);
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentFromNonEmptyWithLastErasedToFullContainerWithFirstErased)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ca8b489c-c24d-478e-8720-f265687209ea");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {131U, 132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 140U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U};
+    std::vector<DataType> EXPECTED_VALUE(DUMMY_VALUE_SRC.begin(), DUMMY_VALUE_SRC.end() - 1);
+    constexpr uint64_t EXPECTED_SIZE{9U};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+    move_sut_complex.erase(SutComplex::Index::FIRST);
+
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(false));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentInsertionShouldFailWhenCapacityReached)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "ad438f8a-2b9e-45d3-8d89-feefbccf3f03");
+
+    std::vector<DataType> DUMMY_VALUE_SRC = {131U, 132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 140U};
+    std::vector<DataType> DUMMY_VALUE_DEST = {23U, 24U, 25U, 26U, 27U, 28U, 29U, 30U, 31U, 32U};
+    std::vector<DataType> EXPECTED_VALUE = {132U, 133U, 134U, 135U, 136U, 137U, 138U, 139U, 77U, 88U};
+    constexpr uint64_t EXPECTED_SIZE{CAPACITY};
+
+    for (const auto& value : DUMMY_VALUE_SRC)
+    {
+        sut_complex.emplace(value);
+    }
+    sut_complex.erase(SutComplex::Index::FIRST);
+    sut_complex.erase(SutComplex::Index::LAST);
+
+    SutComplex move_sut_complex;
+    for (const auto& value : DUMMY_VALUE_DEST)
+    {
+        move_sut_complex.emplace(value);
+    }
+
+    move_sut_complex = std::move(sut_complex);
+
+    move_sut_complex.emplace(77U);
+    move_sut_complex.emplace(88U);
+
+    EXPECT_THAT(move_sut_complex.full(), Eq(true));
+    EXPECT_THAT(move_sut_complex.empty(), Eq(false));
+    EXPECT_THAT(move_sut_complex.size(), Eq(EXPECTED_SIZE));
+    auto it = move_sut_complex.iter_from_index(SutComplex::Index::FIRST);
+    for (const auto& value : EXPECTED_VALUE)
+    {
+        EXPECT_THAT(it->value, Eq(value));
+        ++it;
+    }
+
+    EXPECT_THAT(sut_complex.empty(), Eq(true));
+
+    // should failed
+    auto failed_it = move_sut_complex.emplace(1000000U);
+    EXPECT_THAT(failed_it, Eq(move_sut_complex.end()));
+}
+
+TEST_F(FixedPositionContainer_test, UsingMoveAssignmentAtNonCopyableTypeShouldCompile)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "d4876d02-d855-4bcc-af39-3d2dc388c40d");
+
+    constexpr uint64_t EXPECTED_SIZE{2U};
+    sut_noncopy.emplace(7U);
+    sut_noncopy.emplace(8U);
+
+    SutNonCopy move_sut_noncopy;
+    move_sut_noncopy = std::move(sut_noncopy);
+
+    EXPECT_THAT(move_sut_noncopy.size(), Eq(EXPECTED_SIZE));
+}
+
+TEST_F(FixedPositionContainer_test, IteratorsAfterMoveWorkAsExpected)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "17b91183-9f1e-4ab4-ab27-e34f096674d8");
+
+    std::vector<DataType> EXPECTED_VALUE = {0U, 1U, 2U, 3U, 4U, 5U, 6U, 7U, 8U, 9U};
+
+    fillSutComplex();
+
+    SutComplex move_sut_complex;
+    move_sut_complex = std::move(sut_complex);
+
+    EXPECT_THAT(sut_complex.begin(), Eq(sut_complex.end()));
+    auto it = move_sut_complex.begin();
+    for (SutComplex::IndexType i = 0U; it != move_sut_complex.end(); ++it, ++i)
+    {
+        EXPECT_THAT(it->value, Eq(EXPECTED_VALUE[i]));
+    }
+}
+
+// END test move assignment
+
 
 // BEGIN test empty
 
