@@ -44,10 +44,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         mockRuntime().reset();
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(iox::PublisherPortUserType::MemberType_t*,
                 getMiddlewarePublisher,
                 (const iox::capro::ServiceDescription&,
@@ -82,9 +78,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
                 sendRequestToRouDi,
                 (const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&),
                 (noexcept, override));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
   private:
     PoshRuntimeMock(const iox::RuntimeName_t& name)
