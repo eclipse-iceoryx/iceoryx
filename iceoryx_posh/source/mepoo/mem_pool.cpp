@@ -104,7 +104,7 @@ void* MemPool::getChunk() noexcept
 void* MemPool::indexToPointer(uint32_t index, uint32_t chunkSize, void* const rawMemoryBase) noexcept
 {
     const auto offset = static_cast<uint64_t>(index) * chunkSize;
-    return static_cast<uint8_t*>(rawMemoryBase) + offset;
+    return static_cast<void*>(static_cast<uint8_t*>(rawMemoryBase) + offset);
 }
 
 uint32_t
