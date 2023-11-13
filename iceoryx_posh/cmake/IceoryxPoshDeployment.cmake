@@ -127,14 +127,10 @@ configure_option(
     NAME IOX_MAX_CLIENTS_PER_SERVER
     DEFAULT_VALUE 256
 )
-
-# note: don't change IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS value because it could break the C-Binding
-#configure_option(
-#    NAME IOX_MAX_NUMBER_OF_NOTIFIERS
-#    DEFAULT_VALUE 256
-#)
-set(IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS 256)
-
+configure_option(
+    NAME IOX_MAX_NUMBER_OF_NOTIFIERS
+    DEFAULT_VALUE 256
+)
 
 message(STATUS "[i] <<<<<<<<<<<<<< End iceoryx_posh configuration: >>>>>>>>>>>>>>")
 
