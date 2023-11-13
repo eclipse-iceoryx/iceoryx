@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2023 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -164,17 +165,35 @@ inline string<Capacity>& string<Capacity>::operator=(const char (&rhs)[N]) noexc
         return *this;
     }
 
-    std::memcpy(m_rawstring, rhs, N);
+    const auto sourceRawStringSize = static_cast<uint64_t>(strnlen(&rhs[0], N));
+    if (sourceRawStringSize <= Capacity)
+    {
+        m_rawstringSize = sourceRawStringSize;
+    }
+    else
+    {
+        m_rawstringSize = Capacity;
 
-    m_rawstringSize = std::min(Capacity, static_cast<uint64_t>(strnlen(&rhs[0], N)));
+        IOX_LOG(
+            WARN,
+            "iox::string: Assignment of array which is not zero-terminated! Last value of array overwritten with 0!");
+    }
+
+    // AXIVION DISABLE STYLE AutosarC++19_03-A16.0.1: pre-processor is required for setting gcc diagnostics, since gcc 8 incorrectly warns here about out of bounds array access
+    // AXIVION DISABLE STYLE AutosarC++19_03-A16.7.1: see rule 'A16.0.1' above
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+    std::memcpy(m_rawstring, rhs, m_rawstringSize);
+#if (defined(__GNUC__) && (__GNUC__ == 8)) && (__GNUC_MINOR__ >= 3)
+#pragma GCC diagnostic pop
+#endif
+    // AXIVION ENABLE STYLE AutosarC++19_03-A16.7.1
+    // AXIVION ENABLE STYLE AutosarC++19_03-A16.0.1
+
     m_rawstring[m_rawstringSize] = '\0';
 
-    if (rhs[m_rawstringSize] != '\0')
-    {
-        IOX_LOG(WARN,
-                "iox::string: Assignment of array which is not zero-terminated! Last value of array "
-                "overwritten with 0!");
-    }
     return *this;
 }
 

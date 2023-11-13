@@ -186,7 +186,14 @@ TYPED_TEST(stringTyped_test, SelfMoveAssignmentExcluded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ad45975-b68b-465a-b8c5-83dd8d8290d5");
     this->testSubject = "M";
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
+#endif
     this->testSubject = std::move(this->testSubject);
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     EXPECT_THAT(this->testSubject.size(), Eq(1U));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
