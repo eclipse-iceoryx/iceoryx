@@ -47,10 +47,6 @@ class MockTriggeHandle
         return *this;
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(bool, isValid, (), (const, noexcept));
     MOCK_METHOD(bool, wasTriggered, (), (const, noexcept));
     MOCK_METHOD(void, trigger, (), (noexcept));
@@ -58,23 +54,13 @@ class MockTriggeHandle
     MOCK_METHOD(void, invalidate, (), (noexcept));
     MOCK_METHOD(uint64_t, getUniqueId, (), (const, noexcept));
     MOCK_METHOD(iox::popo::ConditionVariableData*, getConditionVariableData, (), (noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
     explicit operator bool() const
     {
         return operatorBoolMock();
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(bool, operatorBoolMock, (), (const));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
     uint64_t triggerId{0};
 };

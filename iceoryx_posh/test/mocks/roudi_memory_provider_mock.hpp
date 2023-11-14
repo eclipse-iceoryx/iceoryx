@@ -49,14 +49,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
         dummyMemory = iox::alignedAlloc(alignment, size);
         return iox::ok(dummyMemory);
     }
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(void, createMemoryMock, (uint64_t, uint64_t), (noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
     iox::expected<void, iox::roudi::MemoryProviderError> destroyMemory() noexcept override
     {
@@ -70,14 +63,7 @@ class MemoryProviderTestImpl : public iox::roudi::MemoryProvider
 
         return iox::ok();
     }
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(void, destroyMemoryMock, (), (noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
     void* dummyMemory{nullptr};
 
