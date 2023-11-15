@@ -9,11 +9,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 # Minimize the number of layers (RUN, COPY and ADD create layers)
 # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#minimize-the-number-of-layers
 # Install additional packages
-RUN pacman -Syu --noconfirm \
-  clang \
-  cmake \
-  git \
-  ncurses \
+RUN \
+  pacman -Syu --noconfirm \
+    clang \
+    cmake \
+    git \
+    ncurses \
+  && pacman -U --noconfirm \
+    https://archive.archlinux.org/packages/g/gcc8-libs/gcc8-libs-8.3.0-4-x86_64.pkg.tar.xz \
+    https://archive.archlinux.org/packages/g/gcc8/gcc8-8.3.0-4-x86_64.pkg.tar.xz \
   && pacman -Scc --noconfirm \
   && useradd iox_roudi_test1 \
   && useradd iox_roudi_test2 \

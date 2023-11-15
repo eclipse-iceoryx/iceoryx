@@ -101,7 +101,7 @@
 - Fix musl libc compile (missing sys/stat.h include in mqueue.h for mode_t definition) [\#2072](https://github.com/eclipse-iceoryx/iceoryx/issues/2072)
 - cxx::Expects macro conflicts with Microsoft GSL Expects macro [#2080](https://github.com/eclipse-iceoryx/iceoryx/issues/2080)
 - Implement move/copy constructor and assignment for `FixedPositionContainer` [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
-
+- FixedPositionContainer fails to compile on QNX QCC [#2084](https://github.com/eclipse-iceoryx/iceoryx/issues/2084)
 
 **Refactoring:**
 
