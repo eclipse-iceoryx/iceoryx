@@ -17,10 +17,10 @@
 //! [iceoryx includes]
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <iostream>

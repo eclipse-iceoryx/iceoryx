@@ -17,10 +17,10 @@
 
 #include "iceoryx_posh/roudi/iceoryx_roudi_app.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
 #include "iceoryx_posh/roudi/iceoryx_roudi_components.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix/signal_watcher.hpp"
 #include "iox/scoped_static.hpp"
 
 namespace iox

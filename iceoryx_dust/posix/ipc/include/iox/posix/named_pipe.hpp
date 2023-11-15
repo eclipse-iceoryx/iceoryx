@@ -14,8 +14,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
-#define IOX_DUST_POSIX_WRAPPER_NAMED_PIPE_HPP
+
+#ifndef IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP
+#define IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
@@ -177,4 +178,4 @@ class NamedPipeBuilder
 } // namespace posix
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP

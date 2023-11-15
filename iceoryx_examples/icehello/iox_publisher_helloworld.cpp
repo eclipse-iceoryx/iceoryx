@@ -19,7 +19,7 @@
 //! [include topic]
 
 //! [include sig watcher]
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [include sig watcher]
 
 //! [include]

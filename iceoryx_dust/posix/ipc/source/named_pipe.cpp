@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+#include "iox/posix/named_pipe.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/deadline_timer.hpp"
 #include "iox/filesystem.hpp"

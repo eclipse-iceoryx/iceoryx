@@ -131,7 +131,7 @@ if(ADDRESS_SANITIZER OR THREAD_SANITIZER)
         elseif(THREAD_SANITIZER)
             set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_THREAD_SANITIZER_FLAGS} CACHE INTERNAL "")
         endif()
-        
+
         # unset local variables , to avoid polluting global space
         unset(ICEORYX_SANITIZER_BLACKLIST)
         unset(ICEORYX_SANITIZER_COMMON_FLAGS)

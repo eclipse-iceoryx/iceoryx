@@ -32,9 +32,9 @@
 #include "iox/optional.hpp"
 #include "iox/relative_pointer.hpp"
 
-#include "iceoryx_dust/posix_wrapper/message_queue.hpp"
-#include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
+#include "iox/posix/message_queue.hpp"
+#include "iox/posix/named_pipe.hpp"
 
 #include <cstdint>
 #include <cstdlib>

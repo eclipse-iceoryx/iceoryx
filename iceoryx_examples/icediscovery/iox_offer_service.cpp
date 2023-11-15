@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/posix/signal_watcher.hpp"
 
 constexpr char APP_NAME[] = "iox-offer-service";
 

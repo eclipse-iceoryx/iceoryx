@@ -17,7 +17,7 @@
 //! [iceoryx includes]
 #include "user_header_and_payload_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+#include "iox/posix/signal_watcher.hpp"
 //! [include differs from typed C++ API]
 #include "iceoryx_posh/popo/untyped_publisher.hpp"
 //! [include differs from typed C++ API]

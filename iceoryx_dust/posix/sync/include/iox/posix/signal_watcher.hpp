@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
-#define IOX_DUST_POSIX_WRAPPER_SIGNAL_WATCHER_HPP
+
+#ifndef IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP
+#define IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
@@ -85,4 +86,4 @@ bool hasTerminationRequested() noexcept;
 } // namespace posix
 } // namespace iox
 
-#endif
+#endif // IOX_DUST_POSIX_SYNC_SIGNAL_WATCHER_HPP

@@ -13,7 +13,8 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+
+#include "iox/posix/signal_watcher.hpp"
 #include "iceoryx_platform/unistd.hpp"
 
 namespace iox

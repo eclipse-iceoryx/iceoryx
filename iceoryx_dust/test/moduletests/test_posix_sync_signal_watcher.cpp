@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
+#include "iox/posix/signal_watcher.hpp"
 #include "test.hpp"
 #include <atomic>
 

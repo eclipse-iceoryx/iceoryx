@@ -16,9 +16,9 @@
 
 #include "topic_data.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/posix/signal_watcher.hpp"
 #include "iox/string.hpp"
 
 constexpr char APP_NAME[] = "iox-cpp-subscriber-complexdata";

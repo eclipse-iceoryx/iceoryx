@@ -15,8 +15,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
-#define IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
+
+#ifndef IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
+#define IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -149,4 +150,4 @@ class MessageQueueBuilder
 } // namespace posix
 } // namespace iox
 
-#endif // IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
+#endif // IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP

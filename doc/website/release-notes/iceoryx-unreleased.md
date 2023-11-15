@@ -1000,7 +1000,7 @@
     #include "iceoryx_hoofs/posix_wrapper/internal/message_queue.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
+    #include "iox/posix/message_queue.hpp"
     ```
 
     ```cpp
@@ -1008,7 +1008,7 @@
     #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+    #include "iox/posix/named_pipe.hpp"
     ```
 
     ```cpp
@@ -1016,7 +1016,7 @@
     #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+    #include "iox/posix/signal_watcher.hpp"
     ```
 
     ```cpp
