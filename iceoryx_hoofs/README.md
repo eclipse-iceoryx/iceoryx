@@ -11,7 +11,7 @@ The following sections have a column labeled `internal` to indicate that the API
 is not stable and can change anytime. You should never rely on it and there is no
 support if it is used and breaks your code after an update.
 
-Some modules contain STL constructs which are not part of the C++14 standard as well as convenience
+Some modules contain STL constructs which are not part of the C++17 standard as well as convenience
 constructs like the `NewType`. Since the classes re-implements some STL constructs,
 the C++ STL coding guidelines are used for all files in this module, to help the user
 to have a painless transition from the official STL types to ours.
