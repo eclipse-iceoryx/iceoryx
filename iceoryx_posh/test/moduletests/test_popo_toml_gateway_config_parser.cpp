@@ -64,7 +64,7 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
     )";
     tempFile.close();
 
-    iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.c_str()};
+    iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.u8string().c_str()};
 
     TomlGatewayConfigParser::parse(configFilePath)
         .and_then([](const auto&) { GTEST_SUCCEED() << "We got a config!"; })
