@@ -19,7 +19,7 @@
 //! [include custom discovery]
 
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 
 #include <iostream>
 

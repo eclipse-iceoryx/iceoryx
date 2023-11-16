@@ -19,7 +19,7 @@
 #include "iceoryx_posh/popo/user_trigger.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/optional.hpp"
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -112,7 +112,7 @@ int main()
 
     CounterService counterService;
 
-    iox::posix::waitForTerminationRequest();
+    iox::waitForTerminationRequest();
     //! [init]
 
     return (EXIT_SUCCESS);

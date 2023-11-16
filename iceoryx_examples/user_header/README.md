@@ -58,9 +58,9 @@ and the iceoryx includes for publisher and runtime.
 ```cpp
 #include "user_header_and_payload_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 ```
 
 Next, the iceoryx runtime is initialized. With this call, the application will be registered at `RouDi`,
@@ -87,7 +87,7 @@ if you prefer a more traditional approach.
 uint64_t timestamp = 42;
 uint64_t fibonacciLast = 0;
 uint64_t fibonacciCurrent = 1;
-while (!iox::posix::hasTerminationRequested())
+while (!iox::hasTerminationRequested())
 {
     auto fibonacciNext = fibonacciCurrent + fibonacciLast;
     fibonacciLast = fibonacciCurrent;
@@ -231,7 +231,7 @@ The main loop is quite simple. The publisher is periodically polled and the data
 Again, the user-header is accessed by the `getUserHeader` method of the sample.
 <!-- [geoffrey] [iceoryx_examples/user_header/subscriber_cxx_api.cpp] [poll subscriber for samples in a loop] -->
 ```cpp
-while (!iox::posix::hasTerminationRequested())
+while (!iox::hasTerminationRequested())
 {
     subscriber.take().and_then([&](auto& sample) {
         std::cout << APP_NAME << " got value: " << sample->fibonacci << " with timestamp "
