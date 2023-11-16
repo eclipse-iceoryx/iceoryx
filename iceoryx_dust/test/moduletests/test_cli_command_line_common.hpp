@@ -35,7 +35,7 @@ struct CmdArgs
         contents = std::make_unique<std::vector<std::string>>(arguments);
         for (uint64_t i = 0; i < static_cast<uint64_t>(argc); ++i)
         {
-            argv[i] = const_cast<char*>((*contents)[i].data());
+            argv[i] = (*contents)[i].data();
         }
     }
 
