@@ -1,4 +1,4 @@
-build --cxxopt="-std=c++14"
+build --cxxopt="-std=c++17"
 
 # For using clang
 build:clang --action_env=BAZEL_COMPILER=clang
