@@ -206,7 +206,7 @@ class PortUser_IntegrationTest : public Test
         static_cast<void>(subscriberPortRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage));
 
         // Subscription done and ready to receive samples
-        while (!finished)
+        while (!finished || subscriberPortUser.hasNewChunks())
         {
             // Try to receive chunk
             subscriberPortUser.tryGetChunk()
