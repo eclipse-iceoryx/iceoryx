@@ -57,7 +57,7 @@ iox_add_executable( TARGET                  ${PROJECT_PREFIX}_moduletests
                     INCLUDE_DIRECTORIES     .
                                             ${CMAKE_BINARY_DIR}/generated
                     LIBS                    ${TEST_LINK_LIBS}
-                    LIBS_LINUX              dl
+                    LIBS_LINUX              dl stdc++fs
                     STACK_SIZE              ${ICEORYX_POSH_TEST_STACK_SIZE}
                     FILES
                         ${MODULETESTS_SRC}
