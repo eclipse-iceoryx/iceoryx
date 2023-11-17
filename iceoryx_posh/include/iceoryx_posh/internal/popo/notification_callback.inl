@@ -34,7 +34,7 @@ inline void TranslateAndCallTypelessCallback<T, ContextDataType>::call(void* con
 
 template <typename T>
 inline void TranslateAndCallTypelessCallback<T, NoType_t>::call(void* const origin,
-                                                                void* const userType IOX_MAYBE_UNUSED,
+                                                                void* const userType [[maybe_unused]],
                                                                 GenericCallbackPtr_t underlyingCallback) noexcept
 {
     reinterpret_cast<typename NotificationCallback<T, NoType_t>::Ptr_t>(underlyingCallback)(static_cast<T*>(origin));

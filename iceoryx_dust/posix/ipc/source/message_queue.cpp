@@ -39,7 +39,7 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
         return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
     auto& sanitizedName = sanitzedNameResult.value();
-    IOX_MAYBE_UNUSED std::false_type m_name; // m_name shall not be used anymore but only sanitizedName
+    [[maybe_unused]] std::false_type m_name; // m_name shall not be used anymore but only sanitizedName
 
     if (m_maxMsgSize > MessageQueue::MAX_MESSAGE_SIZE)
     {
@@ -217,7 +217,7 @@ MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcC
     }
     const auto& sanitizedName = sanitizedNameResult.value();
     {
-        IOX_MAYBE_UNUSED std::false_type name; // name shall not be used anymore but only sanitizedName
+        [[maybe_unused]] std::false_type name; // name shall not be used anymore but only sanitizedName
 
         int32_t openFlags = O_RDWR;
         if (channelSide == IpcChannelSide::SERVER)

@@ -236,7 +236,7 @@ template <typename ChunkDistributorDataType>
 inline expected<void, ChunkDistributorError>
 ChunkDistributor<ChunkDistributorDataType>::deliverToQueue(const UniqueId uniqueQueueId,
                                                            const uint32_t lastKnownQueueIndex,
-                                                           mepoo::SharedChunk chunk IOX_MAYBE_UNUSED) noexcept
+                                                           mepoo::SharedChunk chunk [[maybe_unused]]) noexcept
 {
     bool retry{false};
     do

@@ -35,8 +35,8 @@ class MemoryProviderFailingCreation : public iox::roudi::MemoryProvider
   public:
     using MemoryProvider::getErrorString;
 
-    iox::expected<void*, MemoryProviderError> createMemory(const uint64_t size IOX_MAYBE_UNUSED,
-                                                           const uint64_t alignment IOX_MAYBE_UNUSED) noexcept override
+    iox::expected<void*, MemoryProviderError> createMemory(const uint64_t size [[maybe_unused]],
+                                                           const uint64_t alignment [[maybe_unused]]) noexcept override
     {
         return iox::err(MemoryProviderError::MEMORY_CREATION_FAILED);
     }

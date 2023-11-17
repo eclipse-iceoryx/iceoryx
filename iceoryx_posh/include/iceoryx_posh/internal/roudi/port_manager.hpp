@@ -193,8 +193,8 @@ class PortManager
     optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service) noexcept;
 
     template <typename T, std::enable_if_t<std::is_same<T, iox::build::ManyToManyPolicy>::value>* = nullptr>
-    optional<RuntimeName_t>
-    doesViolateCommunicationPolicy(const capro::ServiceDescription& service IOX_MAYBE_UNUSED) noexcept;
+    optional<RuntimeName_t> doesViolateCommunicationPolicy(const capro::ServiceDescription& service
+                                                           [[maybe_unused]]) noexcept;
 
     bool isInternal(const capro::ServiceDescription& service) const noexcept;
 

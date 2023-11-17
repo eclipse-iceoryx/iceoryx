@@ -360,9 +360,9 @@ class MyLogger : public iox::log::Logger
 
   private:
     void createLogMessageHeader(
-        const char* file IOX_MAYBE_UNUSED,
-        const int line IOX_MAYBE_UNUSED,
-        const char* function IOX_MAYBE_UNUSED,
+        const char* file [[maybe_unused]],
+        const int line [[maybe_unused]],
+        const char* function [[maybe_unused]],
         iox::log::LogLevel logLevel) noexcept override
     {
         switch(logLevel) {

@@ -30,14 +30,14 @@ using namespace iox;
 TEST(UniqueId_test, ConstructingUniqueIdWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "e7fb13d3-5c3f-4253-b485-482820aded15");
-    auto sut IOX_MAYBE_UNUSED = UniqueId();
+    auto sut [[maybe_unused]] = UniqueId();
 }
 
 TEST(UniqueId_test, ConversionToValueTypeWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5f68f612-08ef-4994-b954-1af1d1fb151d");
     auto sut = UniqueId();
-    auto value IOX_MAYBE_UNUSED = static_cast<UniqueId::value_type>(sut);
+    auto value [[maybe_unused]] = static_cast<UniqueId::value_type>(sut);
 }
 
 TEST(UniqueId_test, TwoConsecutiveCreatedUniqueIdsDifferByOne)

@@ -163,7 +163,7 @@ volatile bool keepRunning{true};
 using WaitSet = iox::popo::WaitSet<>;
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
-static void sigHandler(int sig IOX_MAYBE_UNUSED)
+static void sigHandler(int sig [[maybe_unused]])
 {
     keepRunning = false;
     if (waitsetSigHandlerAccess)

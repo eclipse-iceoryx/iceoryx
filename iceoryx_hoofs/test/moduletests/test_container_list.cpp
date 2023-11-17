@@ -1161,7 +1161,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
-    for (auto& x IOX_MAYBE_UNUSED : sut)
+    for (auto& x [[maybe_unused]] : sut)
     {
         ++loopCounter;
     }
@@ -2266,7 +2266,7 @@ TEST_F(list_test, invalidIteratorComparison)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); },
@@ -2302,7 +2302,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).value); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -2319,7 +2319,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->value == 12U); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
