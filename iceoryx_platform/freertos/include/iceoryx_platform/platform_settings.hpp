@@ -22,7 +22,6 @@
 
 #include <cstdint>
 #include <limits.h>
-#include <type_traits>
 
 #ifndef PATH_MAX
 #define PATH_MAX (2 * NAME_MAX)
@@ -53,9 +52,6 @@ constexpr const char IOX_LOCK_FILE_PATH_PREFIX[] = "/tmp/";
 
 constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
 constexpr uint64_t MAX_GROUP_NAME_LENGTH = 16;
-
-template <typename C, typename... Cargs>
-using invoke_result = std::result_of<C(Cargs...)>;
 } // namespace platform
 } // namespace iox
 
