@@ -51,6 +51,7 @@
 - Extend 'iceperf' with 'WaitSet' [#2003](https://github.com/eclipse-iceoryx/iceoryx/issues/2003)
 - Create iceoryx version header for the C-binding [#1014](https://github.com/eclipse-iceoryx/iceoryx/issues/1014)
 - Create macros to deprecate header and code constructs [#2057](https://github.com/eclipse-iceoryx/iceoryx/issues/2057)
+- Switch to C++17 on all platforms [#2066](https://github.com/eclipse-iceoryx/iceoryx/issues/2066)
 
 **Bugfixes:**
 

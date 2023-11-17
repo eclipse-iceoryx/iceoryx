@@ -15,7 +15,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 set_global(VAR ICEORYX_PLATFORM_STRING      VALUE "QNX")
-set_global(VAR ICEORYX_CXX_STANDARD         VALUE 14)
+set_global(VAR ICEORYX_CXX_STANDARD         VALUE 17)
 
 set_global(VAR ICEORYX_C_FLAGS              VALUE )
 set_global(VAR ICEORYX_CXX_FLAGS            VALUE )

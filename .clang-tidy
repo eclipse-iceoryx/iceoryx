@@ -98,7 +98,7 @@ hicpp-*,
 #        void bar(Foo& foo) {...}
 #
 # * rule: readability-use-anyofallof
-#   justification: requires C++20 and std::ranges but we only use C++14
+#   justification: requires C++20 and std::ranges but we only use C++17
 #
 # * rule: cppcoreguidelines-non-private-member-variables-in-classes
 #   justification: Sometimes it makes sense to have protected members to extend the base class.
