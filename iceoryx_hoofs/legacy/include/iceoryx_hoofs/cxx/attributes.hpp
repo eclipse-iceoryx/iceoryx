@@ -33,6 +33,13 @@ namespace internal
 /// @deprecated use 'iox::internal::IOX_DISCARD_RESULT_IMPL' instead of 'iox::cxx::internal::IOX_DISCARD_RESULT_IMPL'
 using iox::internal::IOX_DISCARD_RESULT_IMPL;
 } // namespace internal
+
+// #define IOX_NO_DISCARD [[nodiscard]]
+
+// #define IOX_FALLTHROUGH [[fallthrough]]
+
+// #define IOX_MAYBE_UNUSED [[maybe_unused]]
+
 } // namespace cxx
 } // namespace iox
 

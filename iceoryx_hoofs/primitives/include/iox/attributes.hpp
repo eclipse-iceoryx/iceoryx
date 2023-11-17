@@ -17,8 +17,6 @@
 #ifndef IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
 #define IOX_HOOFS_PRIMITIVES_ATTRIBUTES_HPP
 
-#include "iceoryx_platform/attributes.hpp"
-
 namespace iox
 {
 namespace internal
@@ -46,6 +44,12 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 ///     IOX_DISCARD_RESULT(foo()); // suppress compiler warning for unused return value
 /// @endcode
 #define IOX_DISCARD_RESULT(expr) ::iox::internal::IOX_DISCARD_RESULT_IMPL(expr)
+
+#define IOX_NO_DISCARD [[nodiscard]]
+
+#define IOX_FALLTHROUGH [[fallthrough]]
+
+#define IOX_MAYBE_UNUSED [[maybe_unused]]
 
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
