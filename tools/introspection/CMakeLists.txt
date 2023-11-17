@@ -21,6 +21,12 @@ set(IOX_VERSION_STRING "2.0.3")
 
 project(iceoryx_introspection VERSION ${IOX_VERSION_STRING})
 
+# Do not build the introspection on Windows due to missing ncurses
+if(WIN32)
+    message(STATUS "The introspection client is not supported on Windows")
+    return()
+endif()
+
 find_package(iceoryx_hoofs REQUIRED)
 find_package(iceoryx_posh REQUIRED)
 
@@ -88,8 +94,6 @@ target_compile_options(iceoryx_introspection PRIVATE ${ICEORYX_WARNINGS} ${ICEOR
 
 if(LINUX)
     set(LIB_TINFO tinfo)
-elseif(WIN32)
-    message(WARNING "Introspection not supported for windows." )
 else()
     set(LIB_TINFO "")
 endif()
