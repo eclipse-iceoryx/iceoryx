@@ -28,8 +28,8 @@ namespace iox
 /// namespace IOX_DEPRECATED_SINCE(3, "Please use the 'iox' namespace directly and the corresponding header.")
 namespace cxx
 {
-/// @deprecated use 'iox::byte' instead of 'iox::cxx::byte_t'
-using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'iox::byte' instead.") = byte;
+/// @deprecated use 'std::byte' instead of 'iox::cxx::byte_t'
+using byte_t IOX_DEPRECATED_SINCE(3, "Please use 'std::byte' instead.") = byte;
 
 } // namespace cxx
 namespace log

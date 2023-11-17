@@ -178,6 +178,7 @@
 - Improve process is alive detection [#1361](https://github.com/eclipse-iceoryx/iceoryx/issues/1361)
     - only partially
     - IPC call is replaced with heartbeat via shared memory
+- Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 
 **Workflow:**
 
@@ -1116,14 +1117,14 @@
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
 
-47. Renaming `byte_t` to `byte`
+47. Deprecating `byte_t` in favour of `std::byte`
 
     ```cpp
     // before
     iox::byte_t m_size;
 
     // after
-    iox::byte m_size;
+    std::byte m_size;
     ```
 
 48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
