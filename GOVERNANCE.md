@@ -9,9 +9,9 @@ An up to date list of the maintainers can be found at the [Eclipse project page]
 
 ## Monthly meetup
 
-The developer meetup is held monthly on the first Thursday from 17:00 - 18:00 CET. Everyone is welcome to join.
+The developer meetup is held monthly on the first Tuesday from 17:00 - 18:00 CET. Everyone is welcome to join.
 
-You can join by using this Zoom link: https://eclipse.zoom.us/j/95918504483?pwd=RWM5Y1pkeStKVDZsU09EY1hnclREUT09
+You can join by using this link: https://app.element.io/jitsi.html#conferenceDomain=meet.element.io&conferenceId=JitsiVtfrqukadefbqiqfxryxabai&userId=&roomId=!AooDAAwkyNWwkMElpt%3Agitter.im&roomName=eclipse%2Ficeoryx&startWithAudioMuted=true&startWithVideoMuted=true&language=en
 
 For a calendar event, you can subscribe to the [ROS calendar](https://calendar.google.com/calendar/u/0/embed?src=agf3kajirket8khktupm9go748@group.calendar.google.com&ctz=America/Los_Angeles).
 
@@ -49,7 +49,7 @@ If you have points that you want to discuss, please send your points to the [mai
 
 **Time:** 17:00 CET
 
-**Link:** https://eclipse.zoom.us/j/95918504483?pwd=RWM5Y1pkeStKVDZsU09EY1hnclREUT09
+**Link:** https://app.element.io/jitsi.html#conferenceDomain=meet.element.io&conferenceId=JitsiVtfrqukadefbqiqfxryxabai&userId=&roomId=!AooDAAwkyNWwkMElpt%3Agitter.im&roomName=eclipse%2Ficeoryx&startWithAudioMuted=true&startWithVideoMuted=true&language=en
 
 ## Attendees
 
