@@ -1,5 +1,6 @@
 // Copyright (c) 2019, 2021 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +54,96 @@ class MemPool_test : public Test
 
     MemPool sut;
 };
+
+TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexZeroWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "107222a6-7a48-44f1-93c5-9a1f56f3d319");
+
+    constexpr uint32_t INDEX{0};
+    constexpr uint32_t CHUNK_SIZE{128};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE};
+
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
+}
+
+TEST_F(MemPool_test, MempoolIndexToPointerConversionForIndexOneWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "fda231af-87a9-4292-be1e-e443aa7cff63");
+
+    constexpr uint32_t INDEX{1};
+    constexpr uint32_t CHUNK_SIZE{128};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE + CHUNK_SIZE};
+
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
+}
+
+TEST_F(MemPool_test, MempoolIndexToPointerConversionForMemoryOffsetsLargerThan4GBWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "2112326a-5ec3-4bc8-9aa3-500ffef202fd");
+
+    constexpr uint32_t INDEX{42};
+    constexpr uint32_t MB{1UL << 20};
+    constexpr uint64_t GB{1ULL << 30};
+    constexpr uint32_t CHUNK_SIZE{128 * MB};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const EXPECTED_CHUNK_PTR{RAW_MEMORY_BASE + static_cast<uint64_t>(INDEX) * CHUNK_SIZE};
+
+    const auto* chunk = MemPool::indexToPointer(INDEX, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(chunk, Eq(EXPECTED_CHUNK_PTR));
+    EXPECT_THAT(static_cast<const uint8_t*>(chunk) - RAW_MEMORY_BASE, Gt(5 * GB));
+}
+
+TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexZeroWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "37b23350-b562-4e89-a452-2f3d328bc016");
+
+    constexpr uint32_t CHUNK_SIZE{128};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE};
+    constexpr uint32_t EXPECTED_INDEX{0};
+
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(index, Eq(EXPECTED_INDEX));
+}
+
+TEST_F(MemPool_test, MempoolPointerToIndexConversionForIndexOneWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "64349d9a-1a97-4ba0-a04f-07c929befe38");
+
+    constexpr uint32_t CHUNK_SIZE{128};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE + CHUNK_SIZE};
+    constexpr uint32_t EXPECTED_INDEX{1};
+
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(index, Eq(EXPECTED_INDEX));
+}
+
+TEST_F(MemPool_test, MempoolPointeToIndexConversionForMemoryOffsetsLargerThan4GBWorks)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "45e09ada-97b9-435d-a59a-d377d4e4fb69");
+
+    constexpr uint32_t MB{1UL << 20};
+    constexpr uint64_t GB{1ULL << 30};
+    constexpr uint32_t CHUNK_SIZE{128 * MB};
+    uint8_t* const RAW_MEMORY_BASE{reinterpret_cast<uint8_t*>(0x7f60d90c5000ULL)};
+    constexpr uint32_t EXPECTED_INDEX{42};
+    uint8_t* const CHUNK_PTR{RAW_MEMORY_BASE + static_cast<uint64_t>(EXPECTED_INDEX) * CHUNK_SIZE};
+
+    const auto index = MemPool::pointerToIndex(CHUNK_PTR, CHUNK_SIZE, RAW_MEMORY_BASE);
+
+    EXPECT_THAT(index, Eq(EXPECTED_INDEX));
+    EXPECT_THAT(static_cast<const uint8_t*>(CHUNK_PTR) - RAW_MEMORY_BASE, Gt(5 * GB));
+}
 
 TEST_F(MemPool_test, MempoolCtorInitialisesTheObjectWithValuesPassedToTheCtor)
 {
