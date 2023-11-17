@@ -45,12 +45,6 @@ inline void IOX_DISCARD_RESULT_IMPL(T&&) noexcept
 /// @endcode
 #define IOX_DISCARD_RESULT(expr) ::iox::internal::IOX_DISCARD_RESULT_IMPL(expr)
 
-#define IOX_NO_DISCARD [[nodiscard]]
-
-#define IOX_FALLTHROUGH [[fallthrough]]
-
-#define IOX_MAYBE_UNUSED [[maybe_unused]]
-
 // NOLINTEND(cppcoreguidelines-macro-usage)
 
 #endif

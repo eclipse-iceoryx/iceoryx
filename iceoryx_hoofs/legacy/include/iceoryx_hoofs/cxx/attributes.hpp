@@ -34,11 +34,14 @@ namespace internal
 using iox::internal::IOX_DISCARD_RESULT_IMPL;
 } // namespace internal
 
-// #define IOX_NO_DISCARD [[nodiscard]]
+/// @deprecated use '[[nodiscard]]' instead of 'IOX_NO_DISCARD'
+#define IOX_NO_DISCARD [[nodiscard, IOX_NO_DISCARD_is_deprecated_use__nodiscard__attribute]]
 
-// #define IOX_FALLTHROUGH [[fallthrough]]
+/// @deprecated use '[[fallthrough]]' instead of 'IOX_FALLTHROUGH'
+#define IOX_FALLTHROUGH [[fallthrough, IOX_FALLTHROUGH_is_deprecated_use__fallthrough__attribute]]
 
-// #define IOX_MAYBE_UNUSED [[maybe_unused]]
+/// @deprecated use '[[maybe_unused]]' instead of 'IOX_MAYBE_UNUSED'
+#define IOX_MAYBE_UNUSED [[maybe_unused, IOX_MAYBE_UNUSED_is_deprecated_use__maybe_unused__attribute]]
 
 } // namespace cxx
 } // namespace iox
