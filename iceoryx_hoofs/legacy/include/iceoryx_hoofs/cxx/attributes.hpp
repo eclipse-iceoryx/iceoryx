@@ -38,7 +38,7 @@ using iox::internal::IOX_DISCARD_RESULT_IMPL;
 
 // #define IOX_FALLTHROUGH [[fallthrough]]
 
-// #define [[maybe_unused]] [[maybe_unused]]
+// #define IOX_MAYBE_UNUSED [[maybe_unused]]
 
 } // namespace cxx
 } // namespace iox

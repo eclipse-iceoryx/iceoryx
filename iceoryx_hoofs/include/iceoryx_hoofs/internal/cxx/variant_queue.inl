@@ -41,7 +41,7 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
