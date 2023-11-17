@@ -35,6 +35,10 @@ include(IceoryxPlatform)
 
 set(PREFIX iceoryx/v${CMAKE_PROJECT_VERSION})
 
+if(CMAKE_SYSTEM_NAME MATCHES Linux OR CMAKE_SYSTEM_NAME MATCHES Darwin)
+    option(BUILD_SHARED_LIBS "Create shared libraries by default" ON)
+endif()
+
 # cmake doesn't find ncurses under QNX; let the compiler complain if the header is missing
 if(NOT QNX)
     SET(CURSES_USE_NCURSES TRUE)
