@@ -116,7 +116,7 @@ struct PosixCallDetails
 
 /// @brief class which is created by the verificator to evaluate the result of a posix call
 template <typename ReturnType>
-class IOX_NO_DISCARD PosixCallEvaluator
+class [[nodiscard]] PosixCallEvaluator
 {
   public:
     /// @brief ignore specified errnos from the evaluation
@@ -150,7 +150,7 @@ class IOX_NO_DISCARD PosixCallEvaluator
 
 /// @brief class which verifies the return value of a posix function call
 template <typename ReturnType>
-class IOX_NO_DISCARD PosixCallVerificator
+class [[nodiscard]] PosixCallVerificator
 {
   public:
     /// @brief the posix function call defines success through a single value
@@ -180,7 +180,7 @@ class IOX_NO_DISCARD PosixCallVerificator
 };
 
 template <typename ReturnType, typename... FunctionArguments>
-class IOX_NO_DISCARD PosixCallBuilder
+class [[nodiscard]] PosixCallBuilder
 {
   public:
     /// @brief input function type
