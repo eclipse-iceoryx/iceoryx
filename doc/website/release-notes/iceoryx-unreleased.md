@@ -1244,3 +1244,8 @@
     IOX_EXPECTS(foo == true);
     IOX_ENSURES(foo == true);
     ```
+
+55. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
+
+    With the switch to C++17 `[[maybe_unused]]`, `[[fallthrough]]` and `[[no_discard]]`
+    are available and should be used instead of the macros.
