@@ -7,6 +7,7 @@
 **Notes**
 
 - The minimal supported GCC compiler is now 8.3
+- The required C++ standard is now C++17
 
 **Features:**
 
@@ -178,6 +179,7 @@
 - Improve process is alive detection [#1361](https://github.com/eclipse-iceoryx/iceoryx/issues/1361)
     - only partially
     - IPC call is replaced with heartbeat via shared memory
+- Setting IOX_NO_DISCARD in QNX [#638](https://github.com/eclipse-iceoryx/iceoryx/issues/638)
 - Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 
 **Workflow:**
