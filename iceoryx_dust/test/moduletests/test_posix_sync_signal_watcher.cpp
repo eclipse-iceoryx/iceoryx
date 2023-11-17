@@ -16,13 +16,14 @@
 
 #include "iceoryx_hoofs/testing/barrier.hpp"
 #include "iceoryx_hoofs/testing/watch_dog.hpp"
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 #include "test.hpp"
 #include <atomic>
 
 namespace
 {
 using namespace ::testing;
+using namespace iox;
 using namespace iox::posix;
 
 class SignalWatcherTester : public SignalWatcher

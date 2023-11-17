@@ -20,7 +20,7 @@
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <iostream>
@@ -76,7 +76,7 @@ int main()
     //! [attach listener]
 
     //! [wait for termination]
-    iox::posix::waitForTerminationRequest();
+    iox::waitForTerminationRequest();
     //! [wait for termination]
 
     //! [cleanup]

@@ -19,7 +19,7 @@
 
 #include "iceoryx_posh/popo/untyped_server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <iostream>
@@ -36,7 +36,7 @@ int main()
     //! [create server]
 
     //! [process requests in a loop]
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         //! [take request]
         server.take().and_then([&](auto& requestPayload) {

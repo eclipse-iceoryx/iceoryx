@@ -22,7 +22,7 @@
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iox/duration.hpp"
-#include "iox/posix/message_queue.hpp"
+#include "iox/message_queue.hpp"
 #include "iox/std_string_support.hpp"
 
 

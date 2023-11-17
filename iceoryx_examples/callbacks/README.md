@@ -74,7 +74,7 @@ Next thing is a `heartbeatThread` which will trigger our heartbeat trigger every
 <!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][create heartbeat]-->
 ```cpp
 std::thread heartbeatThread([&] {
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         heartbeat.trigger();
         std::this_thread::sleep_for(std::chrono::seconds(4));
@@ -133,7 +133,7 @@ was signaled.
 
 <!--[geoffrey][iceoryx_examples/callbacks/ice_callbacks_subscriber.cpp][wait for sigterm]-->
 ```cpp
-iox::posix::waitForTerminationRequest();
+iox::waitForTerminationRequest();
 ```
 
 When `waitForTerminationRequest` unblocks we clean up all resources and terminate the process
@@ -238,7 +238,7 @@ iox::runtime::PoshRuntime::initRuntime(APP_NAME);
 
 CounterService counterService;
 
-iox::posix::waitForTerminationRequest();
+iox::waitForTerminationRequest();
 ```
 
 Our `CounterService` has the following members:

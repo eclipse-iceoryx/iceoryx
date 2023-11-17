@@ -35,11 +35,11 @@ At first, the includes for the client port, request-response types, WaitSet, and
 ```cpp
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 ```
 
 Afterwards we prepare some `ContextData` where we can store the Fibonacci numbers
@@ -177,10 +177,10 @@ At first, the includes for the server port, Listener, request-response types and
 ```cpp
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/listener.hpp"
 #include "iceoryx_posh/popo/server.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 ```
 
 Then a callback is created that shall be called when the server receives a request.
@@ -246,7 +246,7 @@ With that the preparation is done and the main thread can just sleep or do other
 
 <!-- [geoffrey] [iceoryx_examples/request_response/server_cxx_listener.cpp][wait for termination] -->
 ```cpp
-iox::posix::waitForTerminationRequest();
+iox::waitForTerminationRequest();
 ```
 
 Once the user wants to shutdown the server, the server event is detached from the listener:

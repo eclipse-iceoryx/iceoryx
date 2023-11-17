@@ -14,12 +14,10 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iox/posix/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 #include "iceoryx_platform/unistd.hpp"
 
 namespace iox
-{
-namespace posix
 {
 void internalSignalHandler(int) noexcept
 {
@@ -45,10 +43,11 @@ void internalSignalHandler(int) noexcept
 
 SignalWatcher::SignalWatcher() noexcept
     : m_sigTermGuard(
-        registerSignalHandler(Signal::TERM, internalSignalHandler).expect("Unable to register Signal::TERM"))
-    , m_sigIntGuard(registerSignalHandler(Signal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
+        registerSignalHandler(posix::Signal::TERM, internalSignalHandler).expect("Unable to register Signal::TERM"))
+    , m_sigIntGuard(
+          registerSignalHandler(posix::Signal::INT, internalSignalHandler).expect("Unable to register Signal::INT"))
 {
-    UnnamedSemaphoreBuilder()
+    posix::UnnamedSemaphoreBuilder()
         .isInterProcessCapable(false)
         .create(m_semaphore)
 
@@ -89,5 +88,4 @@ bool hasTerminationRequested() noexcept
 {
     return SignalWatcher::getInstance().wasSignalTriggered();
 }
-} // namespace posix
 } // namespace iox

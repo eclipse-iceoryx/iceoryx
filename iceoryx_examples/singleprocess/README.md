@@ -72,7 +72,7 @@ iox::runtime::PoshRuntimeSingleProcess runtime("singleProcessDemo");
 ```cpp
 std::thread publisherThread(publisher), subscriberThread(subscriber);
 
-iox::posix::waitForTerminationRequest();
+iox::waitForTerminationRequest();
 
 publisherThread.join();
 subscriberThread.join();
@@ -105,7 +105,7 @@ After that, we are sending numbers in ascending order with a 100ms interval in a
 ```cpp
 uint64_t counter{0};
 constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
-while (!iox::posix::hasTerminationRequested())
+while (!iox::hasTerminationRequested())
 {
     publisher.loan().and_then([&](auto& sample) {
         sample->counter = counter++;
@@ -136,7 +136,7 @@ until someone terminates the application.
 <!--[geoffrey][iceoryx_examples/singleprocess/single_process.cpp][receive]-->
 ```cpp
 constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
-while (!iox::posix::hasTerminationRequested())
+while (!iox::hasTerminationRequested())
 {
     if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
     {
