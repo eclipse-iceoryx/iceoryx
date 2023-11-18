@@ -19,7 +19,9 @@
 
 #include "iox/vector.hpp"
 
+#include <cstring> // std::memcpy, std::memmove
 #include <iostream>
+#include <type_traits>
 
 namespace iox
 {
@@ -52,10 +54,14 @@ inline vector<T, Capacity>::vector(const uint64_t count) noexcept
     }
 
     m_size = std::min(count, Capacity);
-    for (uint64_t i{0U}; i < m_size; ++i)
+    // If the type is a trivial class without member initialization the constructor would not initialize the data
+    if constexpr (!(std::is_trivial<T>::value && std::is_class<T>::value))
     {
-        // AXIVION Next Line AutosarC++19_03-A18.5.2, FaultDetection-IndirectAssignmentOverflow : False positive, it is a placement new. Size guaranteed by T.
-        new (&at(i)) T();
+        for (uint64_t i{0U}; i < m_size; ++i)
+        {
+            // AXIVION Next Line AutosarC++19_03-A18.5.2, FaultDetection-IndirectAssignmentOverflow : False positive, it is a placement new. Size guaranteed by T.
+            new (&at_unchecked(i)) T();
+        }
     }
 }
 
@@ -84,19 +90,28 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(const vector& rhs) no
     {
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
-        // copy using copy assignment
-        for (; i < minSize; ++i)
+        if constexpr (std::is_trivially_copyable<T>::value)
         {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at(i) = rhs.at(i);
+            std::memcpy(data(), rhs.data(), rhsSize * sizeof(T));
+            i = rhsSize;
         }
-
-        // copy using copy ctor
-        for (; i < rhsSize; ++i)
+        else
         {
-            IOX_DISCARD_RESULT(emplace_back(rhs.at(i)));
+            const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
+            // copy using copy assignment
+            for (; i < minSize; ++i)
+            {
+                // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
+                at(i) = rhs.at(i);
+            }
+
+            // copy using copy ctor
+            for (; i < rhsSize; ++i)
+            {
+                IOX_DISCARD_RESULT(emplace_back(rhs.at(i)));
+            }
         }
 
         // delete remaining elements
@@ -114,19 +129,28 @@ inline vector<T, Capacity>& vector<T, Capacity>::operator=(vector&& rhs) noexcep
     {
         uint64_t i{0U};
         const uint64_t rhsSize{rhs.size()};
-        const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
 
-        // move using move assignment
-        for (; i < minSize; ++i)
+        if constexpr (std::is_trivially_copyable<T>::value)
         {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at(i) = std::move(rhs.at(i));
+            std::memcpy(data(), rhs.data(), rhsSize * sizeof(T));
+            i = rhsSize;
         }
-
-        // move using move ctor
-        for (; i < rhsSize; ++i)
+        else
         {
-            IOX_DISCARD_RESULT(emplace_back(std::move(rhs.at(i))));
+            const uint64_t minSize{algorithm::minVal(m_size, rhsSize)};
+
+            // move using move assignment
+            for (; i < minSize; ++i)
+            {
+                // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
+                at(i) = std::move(rhs.at(i));
+            }
+
+            // move using move ctor
+            for (; i < rhsSize; ++i)
+            {
+                IOX_DISCARD_RESULT(emplace_back(std::move(rhs.at(i))));
+            }
         }
 
         // delete remaining elements
@@ -168,8 +192,15 @@ inline bool vector<T, Capacity>::emplace_back(Targs&&... args) noexcept
 {
     if (m_size < Capacity)
     {
-        // AXIVION Next Line AutosarC++19_03-A5.0.1, FaultDetection-IndirectAssignmentOverflow: Size guaranteed by T. Evaluation order is inconsequential.
-        new (&at(m_size++)) T(std::forward<Targs>(args)...);
+        if constexpr (std::is_trivial<T>::value)
+        {
+            at_unchecked(m_size++) = T{std::forward<Targs>(args)...};
+        }
+        else
+        {
+            // AXIVION Next Line AutosarC++19_03-A5.0.1, FaultDetection-IndirectAssignmentOverflow: Size guaranteed by T. Evaluation order is inconsequential.
+            new (&at_unchecked(m_size++)) T{std::forward<Targs>(args)...};
+        }
         return true;
     }
     return false;
@@ -189,14 +220,26 @@ inline bool vector<T, Capacity>::emplace(const uint64_t position, Targs&&... arg
     {
         return emplace_back(std::forward<Targs>(args)...);
     }
-    IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
-    for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
+    if constexpr (std::is_trivial<T>::value)
     {
-        at_unchecked(i) = std::move(at_unchecked(i - 1U));
+        resize(size() + 1U);
+        const uint64_t dataLen{sizeBeforeEmplace - position};
+        std::memmove(data() + position + 1U, data() + position, dataLen * sizeof(T));
+        at_unchecked(position) = T{std::forward<Targs>(args)...};
     }
-
-    at(position).~T();
-    new (&at(position)) T(std::forward<Targs>(args)...);
+    else
+    {
+        IOX_DISCARD_RESULT(emplace_back(std::move(at_unchecked(sizeBeforeEmplace - 1U))));
+        for (uint64_t i{sizeBeforeEmplace - 1U}; i > position; --i)
+        {
+            at_unchecked(i) = std::move(at_unchecked(i - 1U));
+        }
+        if constexpr (!std::is_trivially_destructible<T>::value)
+        {
+            at_unchecked(position).~T();
+        }
+        new (&at_unchecked(position)) T(std::forward<Targs>(args)...);
+    }
     return true;
 }
 
@@ -218,7 +261,14 @@ inline bool vector<T, Capacity>::pop_back() noexcept
 {
     if (m_size > 0U)
     {
-        at_unchecked(--m_size).~T();
+        if constexpr (std::is_trivial<T>::value)
+        {
+            m_size--;
+        }
+        else
+        {
+            at_unchecked(--m_size).~T();
+        }
         return true;
     }
     return false;
@@ -359,13 +409,26 @@ inline bool vector<T, Capacity>::erase(iterator position) noexcept
         // AXIVION Next Line AutosarC++19_03-M5.0.9 : False positive. Pointer arithmetic occurs here.
         uint64_t index{static_cast<uint64_t>(position - begin())};
         uint64_t n{index};
-        while ((n + 1U) < size())
+        if constexpr (std::is_trivially_copyable<T>::value)
         {
-            // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
-            at(n) = std::move(at(n + 1U));
-            ++n;
+            if constexpr (!(std::is_trivially_destructible<T>::value))
+            {
+                at_unchecked(n).~T();
+            }
+            uint64_t dataLen{size() - n - 1U};
+            std::memmove(data() + n, data() + n + 1U, dataLen * sizeof(T));
         }
-        at(n).~T();
+        else
+        {
+            while ((n + 1U) < size())
+            {
+                // AXIVION Next Line AutosarC++19_03-A5.0.1 : Expands to basic variable assignment. Evaluation order is inconsequential.
+                at_unchecked(n) = std::move(at(n + 1U));
+                ++n;
+            }
+            at_unchecked(n).~T();
+        }
+
         m_size--;
         return true;
     }
@@ -391,9 +454,16 @@ inline const T& vector<T, Capacity>::at_unchecked(const uint64_t index) const no
 template <typename T, uint64_t Capacity>
 inline void vector<T, Capacity>::clearFrom(const uint64_t startPosition) noexcept
 {
-    while (m_size > startPosition)
+    if constexpr (std::is_trivially_destructible<T>::value)
     {
-        at_unchecked(--m_size).~T();
+        m_size = startPosition;
+    }
+    else
+    {
+        while (m_size > startPosition)
+        {
+            at_unchecked(--m_size).~T();
+        }
     }
 }
 
