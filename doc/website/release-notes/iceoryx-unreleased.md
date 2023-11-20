@@ -107,6 +107,7 @@
 - FixedPositionContainer fails to compile on QNX QCC [#2084](https://github.com/eclipse-iceoryx/iceoryx/issues/2084)
 - Chunk fails to be released when more than 4 GiB of chunks have been allocated [#2087](https://github.com/eclipse-iceoryx/iceoryx/issues/2087)
 - Fix clang-tidy errors from full-scan nightly build [#2060](https://github.com/eclipse-iceoryx/iceoryx/issues/2060)
+- Add public functions to create an 'access_rights' object from integer values [#2108](https://github.com/eclipse-iceoryx/iceoryx/issues/2108)
 
 **Refactoring:**
 
