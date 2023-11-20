@@ -150,9 +150,9 @@ ServerPortRouDi::handleCaProMessageForStateNotOffered(const capro::CaproMessage&
         getMembers()->m_offered.store(true, std::memory_order_relaxed);
         return caProMessage;
     case capro::CaproMessageType::STOP_OFFER:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case capro::CaproMessageType::CONNECT:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case capro::CaproMessageType::DISCONNECT:
         return capro::CaproMessage(capro::CaproMessageType::NACK, this->getCaProServiceDescription());
     default:

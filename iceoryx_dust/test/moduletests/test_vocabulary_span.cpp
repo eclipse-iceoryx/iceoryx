@@ -316,7 +316,7 @@ TEST(span_test, CheckIterOfSpan)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4760addf-87f1-46c2-901a-63cf4de3a6ea");
     static constexpr int arr[] = {1, 6, 1, 8, 0};
-    IOX_MAYBE_UNUSED constexpr span<const int> span(arr);
+    [[maybe_unused]] constexpr span<const int> span(arr);
 
     EXPECT_TRUE(1 == span.begin()[0]);      // First element needs to be '1'
     EXPECT_TRUE(1 == *(span.begin() += 0)); // First element needs to be '1'
@@ -334,7 +334,7 @@ TEST(span_test, CheckConstexprIterOfSpan)
                     "can only be run with clang!";
 #else
     static constexpr int arr[] = {1, 6, 1, 8, 0};
-    IOX_MAYBE_UNUSED constexpr span<const int> span(arr);
+    [[maybe_unused]] constexpr span<const int> span(arr);
 
     // Explicitly not use EXPECT_TRUE here to be able to execute the test case during compile-time
     static_assert(1 == span.begin()[0], "First element needs to be '1'");

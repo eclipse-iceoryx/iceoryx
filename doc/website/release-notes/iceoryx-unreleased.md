@@ -7,6 +7,7 @@
 **Notes**
 
 - The minimal supported GCC compiler is now 8.3
+- The required C++ standard is now C++17
 
 **Features:**
 
@@ -178,6 +179,8 @@
 - Improve process is alive detection [#1361](https://github.com/eclipse-iceoryx/iceoryx/issues/1361)
     - only partially
     - IPC call is replaced with heartbeat via shared memory
+- Setting IOX_NO_DISCARD in QNX [#638](https://github.com/eclipse-iceoryx/iceoryx/issues/638)
+- Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 
 **Workflow:**
 
@@ -1116,14 +1119,14 @@
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
 
-47. Renaming `byte_t` to `byte`
+47. Deprecating `byte_t` in favour of `std::byte`
 
     ```cpp
     // before
     iox::byte_t m_size;
 
     // after
-    iox::byte m_size;
+    std::byte m_size;
     ```
 
 48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
@@ -1244,3 +1247,8 @@
     IOX_EXPECTS(foo == true);
     IOX_ENSURES(foo == true);
     ```
+
+55. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
+
+    With the switch to C++17 `[[maybe_unused]]`, `[[fallthrough]]` and `[[no_discard]]`
+    are available and should be used instead of the macros.

@@ -52,13 +52,13 @@ class Counter
         ++numCreated;
     }
 
-    Counter(const Counter& rhs IOX_MAYBE_UNUSED)
+    Counter(const Counter& rhs [[maybe_unused]])
     {
         ++numCreated;
         ++numCopied;
     }
 
-    Counter(Counter&& rhs IOX_MAYBE_UNUSED) noexcept
+    Counter(Counter&& rhs [[maybe_unused]]) noexcept
     {
         ++numMoved;
     }

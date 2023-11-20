@@ -43,7 +43,7 @@ struct ContextData
 };
 //! [context data to store Fibonacci numbers and sequence ids]
 
-static void signalHandler(int sig IOX_MAYBE_UNUSED)
+static void signalHandler(int sig [[maybe_unused]])
 {
     keepRunning = false;
     if (waitsetSigHandlerAccess)

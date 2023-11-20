@@ -742,7 +742,7 @@ TEST_F(ServerPort_test, SendResponseWithValidClientQueueIdReleasesDeliversToTheC
             .or_else([&](auto error) { GTEST_FAIL() << "Expected response to be sent but got error: " << error; });
     });
 
-    auto maybeChunk IOX_MAYBE_UNUSED = clientResponseQueue.tryPop()
+    auto maybeChunk [[maybe_unused]] = clientResponseQueue.tryPop()
                                            .and_then([&](const auto& chunk) {
                                                auto data = *static_cast<uint64_t*>(chunk.getUserPayload());
                                                EXPECT_THAT(data, Eq(RESPONSE_DATA));

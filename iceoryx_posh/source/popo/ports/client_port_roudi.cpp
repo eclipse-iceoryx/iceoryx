@@ -67,7 +67,7 @@ optional<capro::CaproMessage> ClientPortRouDi::tryGetCaProMessage() noexcept
         }
         break;
     case ConnectionState::WAIT_FOR_OFFER:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case ConnectionState::CONNECTED:
         if (!currentConnectRequest)
         {
@@ -233,7 +233,7 @@ ClientPortRouDi::handleCaProMessageForStateDisconnectRequested(const capro::Capr
     switch (caProMessage.m_type)
     {
     case capro::CaproMessageType::ACK:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case capro::CaproMessageType::NACK:
         getMembers()->m_connectionState.store(ConnectionState::NOT_CONNECTED, std::memory_order_relaxed);
         return nullopt;

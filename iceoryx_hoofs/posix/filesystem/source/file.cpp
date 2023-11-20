@@ -16,10 +16,10 @@
 
 #include "iox/file.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
-#include "iceoryx_platform/attributes.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stdio.hpp"
+#include "iox/attributes.hpp"
 #include "iox/filesystem.hpp"
 
 namespace iox
@@ -242,7 +242,7 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
     case ENOENT:
         return ok(false);
     case EPERM:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case EACCES:
         IOX_LOG(ERROR, "Unable to remove file due to insufficient permissions.");
         return err(FileRemoveError::PermissionDenied);
@@ -291,7 +291,7 @@ expected<void, FileOffsetError> File::set_offset(const uint64_t offset) const no
     switch (result.error().errnum)
     {
     case EINVAL:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case ENXIO:
         IOX_LOG(ERROR, "Unable to set file offset position since it is beyond the file limits.");
         return err(FileOffsetError::OffsetBeyondFileLimits);

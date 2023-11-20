@@ -2988,10 +2988,10 @@ TEST_F(FixedPositionContainer_test, DereferencingEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "f2ccf248-97f8-4265-9bb4-9c8e7cb79e67");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = *sut.end(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *sut.end(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = *sut.cend(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *sut.cend(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -3002,7 +3002,7 @@ TEST_F(FixedPositionContainer_test, DereferencingInvalidIteratorCallsErrorHandle
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = *it; },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = *it; },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -3122,10 +3122,10 @@ TEST_F(FixedPositionContainer_test, ToPtrOnEndIteratorCallsErrorHandler)
 {
     ::testing::Test::RecordProperty("TEST_ID", "51b76d04-6c8c-486e-88c9-8b6b760c41d4");
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = sut.end().to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = sut.end().to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = sut.cend().to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = sut.cend().to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -3136,7 +3136,7 @@ TEST_F(FixedPositionContainer_test, ToPtrOnInvalidIteratorCallsErrorHandler)
     auto it = sut.emplace(135U);
     sut.erase(it);
 
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ IOX_MAYBE_UNUSED = it.to_ptr(); },
+    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { auto _ [[maybe_unused]] = it.to_ptr(); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
 }
 
@@ -3275,8 +3275,8 @@ TEST_F(FixedPositionContainer_test, IteratorDestructorDoesNotDestroyObjectItPoin
     fillSutComplex();
 
     {
-        auto it IOX_MAYBE_UNUSED = sut_complex.begin();
-        auto cit IOX_MAYBE_UNUSED = sut_complex.cbegin();
+        auto it [[maybe_unused]] = sut_complex.begin();
+        auto cit [[maybe_unused]] = sut_complex.cbegin();
     }
 
     EXPECT_THAT(stats.dTor, Eq(0));

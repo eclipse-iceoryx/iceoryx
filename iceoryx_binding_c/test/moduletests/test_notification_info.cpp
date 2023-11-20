@@ -97,7 +97,7 @@ class iox_notification_info_test : public Test
         return getChunkResult.value();
     }
 
-    static void triggerCallback(iox_sub_t sub IOX_MAYBE_UNUSED)
+    static void triggerCallback(iox_sub_t sub [[maybe_unused]])
     {
     }
 

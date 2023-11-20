@@ -750,7 +750,7 @@ TEST_F(PortManager_test, AcquireNodeDataAfterDestroyingPreviouslyAcquiredOnesIsS
 
     // first acquire all possible NodeData
     acquireMaxNumberOfNodes(
-        nodeName, runtimeName, [&](auto node, auto newNodeName IOX_MAYBE_UNUSED, auto newProcessName IOX_MAYBE_UNUSED) {
+        nodeName, runtimeName, [&](auto node, auto newNodeName [[maybe_unused]], auto newProcessName [[maybe_unused]]) {
             nodeContainer.push_back(node);
         });
 
