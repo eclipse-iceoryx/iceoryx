@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
@@ -694,29 +695,29 @@ TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringOfSizeCapaResultsInSizeCapa)
 TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringOutOfBoundFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "b25c35db-1c0d-4f0e-b4bc-b9430a6696f1");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [this] {
-            this->testSubject.unsafe_raw_access([](char* str, const auto info) -> uint64_t {
-                //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
-                strcpy(str, "M");
-                return info.total_size + 1U;
-            });
-        },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    runInTestThread([this] {
+        this->testSubject.unsafe_raw_access([](char* str, const auto info) -> uint64_t {
+            //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+            strcpy(str, "M");
+            return info.total_size + 1U;
+        });
+    });
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringWrongLenghtFail)
 {
     ::testing::Test::RecordProperty("TEST_ID", "411f5db1-18b8-45c3-9ad6-3c886fb12a26");
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>(
-        [this] {
-            this->testSubject.unsafe_raw_access([](char* str, const auto) -> uint64_t {
-                //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
-                strcpy(str, "M");
-                return 0U;
-            });
-        },
-        iox::HoofsError::EXPECTS_ENSURES_FAILED);
+
+    runInTestThread([this] {
+        this->testSubject.unsafe_raw_access([](char* str, const auto) -> uint64_t {
+            //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+            strcpy(str, "M");
+            return 0U;
+        });
+    });
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 /// @note template <uint64_t N>

@@ -245,10 +245,14 @@ string<Capacity>::unsafe_raw_access(const iox::function_ref<uint64_t(char*, cons
     iox::BufferInfo info{m_rawstringSize, Capacity + 1};
     uint64_t len = func(m_rawstring, info);
 
-    IOX_EXPECTS_WITH_MSG(Capacity >= len,
-                         "unsafe_auto_raw_access failed. Data wrote outside the maximun string capacity of "
-                             << Capacity);
-    IOX_EXPECTS_WITH_MSG(m_rawstring[len] == '\0', "String does not have the terminator at the returned size");
+    if (len > Capacity)
+    {
+        IOX_PANIC("'unsafe_auto_raw_access' failed. Data wrote outside the maximun string capacity.");
+    }
+    else if (m_rawstring[len] != '\0')
+    {
+        IOX_PANIC("String does not have the terminator at the returned size");
+    }
     m_rawstringSize = len;
 }
 
