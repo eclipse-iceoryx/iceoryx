@@ -19,6 +19,7 @@
 
 #include "iceoryx_hoofs/cxx/requires.hpp"
 #include "iox/algorithm.hpp"
+#include "iox/detail/fixed_position_container_helper.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <cstdint>
@@ -315,7 +316,7 @@ class FixedPositionContainer final
     };
 
   private:
-    template <typename RhsType>
+    template <detail::SpecialCreationOperations Opt, typename RhsType>
     void copy_and_move_impl(RhsType&& rhs) noexcept;
 
   private:

@@ -17,81 +17,146 @@
 #ifndef IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_HELPER_HPP
 #define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_HELPER_HPP
 
+#include <functional>
 #include <utility>
 
 namespace iox
 {
 namespace detail
 {
-template <bool IsMove>
-struct AssignmentHelper;
 
-template <>
-struct AssignmentHelper<true>
+enum class SpecialCreationOperations
 {
-    template <typename T>
-    static void assign(T& dest, T&& src)
-    {
-        dest = std::forward<T>(src);
-    }
+    CopyConstructor,
+    CopyAssignment,
+    MoveConstructor,
+    MoveAssignment,
 };
 
-template <>
-struct AssignmentHelper<false>
+/// @brief SpecialCreationHelper is a template structure used to create or assign objects based on the provided
+/// operation type (Opt).
+/// @tparam Opt The operation type that determines how objects are created or assigned.
+template <SpecialCreationOperations Opt>
+struct SpecialCreationHelper
 {
-    template <typename T>
-    static void assign(T& dest, const T& src)
+    /// @brief Creates or assigns an object to 'dest' based on the specail operation type.
+    /// @tparam T The type of the object to be created or assigned.
+    /// @tparam V The type of the source object, kept as a universal reference to preserve its lvalue or rvalue nature.
+    /// @param[out] dest The destination object where the new object is created or to which the source object is
+    /// assigned.
+    /// @param[in] src The source object, either for copy or move operations.
+    template <typename T, typename V>
+    static inline void create(T& dest, V&& src) noexcept
     {
-        dest = src;
+        if constexpr (is_ctor())
+        {
+            ctor_create(dest, std::forward<V>(src));
+        }
+        else
+        {
+            assignment_create(dest, std::forward<V>(src));
+        }
     }
-};
 
-template <bool IsMove>
-struct CtorHelper;
-
-template <>
-struct CtorHelper<true>
-{
-    template <typename T>
-    static void construct(T& dest, T&& src)
+    /// @brief Force to use constructor to create an object at the destination.
+    /// @tparam T The type of the object to be constructed.
+    /// @tparam V The type of the source object, used for move or copy construction.
+    /// @param[out] dest The destination object where the new object is constructed.
+    /// @param[in] src The source object, either for move or copy construction.
+    template <typename T, typename V>
+    static inline void ctor_create(T& dest, V&& src) noexcept
     {
-        new (&dest) T(std::forward<T>(src));
-    }
-};
+        if constexpr (is_move())
+        {
+            static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
+            static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
+            new (&dest) T(std::forward<V>(src));
+        }
+        else
+        {
+            // TODO: enable this when move_or_copy_it / move_or_copy works
+            // static_assert(std::is_lvalue_reference_v<decltype(src.get())>, "src should be lvalue reference");
+            // static_assert(std::is_const_v<std::remove_reference_t<decltype(src.get())>>, "src should has const
+            // modifier"); static_assert(std::is_convertible_v<V, T>, "Source type is not convertible to destination
+            // type"); new (&dest) T(src.get());
 
-template <>
-struct CtorHelper<false>
-{
-    template <typename T>
-    static void construct(T& dest, const T& src)
+            static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
+            static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
+            static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
+            new (&dest) T(src);
+        }
+    }
+
+    /// @brief Force to use assignment to assign an object to the destination.
+    /// @tparam T The type of the destination object.
+    /// @tparam V The type of the source object, used for move or copy assignment.
+    /// @param dest The destination object where the source object is assigned.
+    /// @param src The source object, either for move or copy assignment.
+    template <typename T, typename V>
+    static inline void assignment_create(T& dest, V&& src) noexcept
     {
-        new (&dest) T(src);
+        if constexpr (is_move())
+        {
+            static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
+            dest = std::forward<V>(src);
+        }
+        else
+        {
+            // TODO: enable this when move_or_copy_it / move_or_copy works
+            // static_assert(std::is_lvalue_reference_v<decltype(src.get())>, "src should be lvalue reference");
+            // static_assert(std::is_const_v<std::remove_reference_t<decltype(src.get())>>, "src should has const
+            // modifier"); dest = src.get();
+
+            static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
+            static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
+            dest = src;
+        }
     }
-};
 
-template <bool IsMove>
-struct MoveHelper;
-
-template <>
-struct MoveHelper<true>
-{
-    template <typename Iterator>
-    static auto move_or_copy(Iterator& it) -> decltype(std::move(*it))
+    /// @brief Checks if the current special operation is a constructor call.
+    /// @return True if the operation is a copy or move constructor, false otherwise.
+    static constexpr bool is_ctor() noexcept
     {
-        return std::move(*it);
+        return Opt == SpecialCreationOperations::CopyConstructor || Opt == SpecialCreationOperations::MoveConstructor;
     }
-};
 
-template <>
-struct MoveHelper<false>
-{
-    template <typename Iterator>
-    static auto move_or_copy(Iterator& it) -> decltype(*it)
+    /// @brief Checks if the current special operation is a move operation.
+    /// @return True if the operation is a move constructor or move assignment, false otherwise.
+    static constexpr bool is_move() noexcept
     {
-        return *it;
+        return Opt == SpecialCreationOperations::MoveAssignment || Opt == SpecialCreationOperations::MoveConstructor;
     }
-};
 
+    // template <typename T>
+    // static inline constexpr auto move_or_copy(T&& value) noexcept
+    // {
+    //     if constexpr (is_move())
+    //     {
+    //         // FIXME: See https://godbolt.org/z/hz9Kbb8nr.
+    //         return std::move(std::forward<T>(value));
+    //     }
+    //     else
+    //     {
+    //         return std::cref(std::forward<T>(value));
+    //     }
+    // }
+
+    // template <typename Iterator>
+    // static inline constexpr auto move_or_copy_it(Iterator& it) noexcept
+    // {
+    //     if constexpr (is_move())
+    //     {
+    //         // FIXME: Twice time movector will be called.
+    //         return std::move(*it);
+    //     }
+    //     else
+    //     {
+    //         // std::cref fix twice time copyCtor problem?
+    //         // See https://godbolt.org/z/W41ndvhh5
+    //         return std::cref(*it);
+    //     }
+    // }
+};
+} // namespace detail
+} // namespace iox
 #endif
-}
-}
