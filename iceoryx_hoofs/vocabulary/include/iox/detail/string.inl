@@ -239,6 +239,21 @@ inline bool string<Capacity>::unsafe_assign(const char* const str) noexcept
 }
 
 template <uint64_t Capacity>
+inline void
+string<Capacity>::unsafe_raw_access(const iox::function_ref<uint64_t(char*, const iox::BufferInfo info)>& func) noexcept
+{
+    iox::BufferInfo info{m_rawstringSize, Capacity + 1};
+    uint64_t len = func(m_rawstring, info);
+
+    IOX_EXPECTS_WITH_MSG(Capacity >= len,
+                         "unsafe_auto_raw_access failed. Data wrote outside the maximun string capacity of "
+                             << Capacity);
+    IOX_EXPECTS_WITH_MSG(m_rawstring[len] == '\0', "String does not have the terminator at the returned size");
+    m_rawstringSize = len;
+}
+
+
+template <uint64_t Capacity>
 template <typename T>
 inline IsStringOrCharArray<T, int64_t> string<Capacity>::compare(const T& other) const noexcept
 {
