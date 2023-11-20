@@ -191,11 +191,11 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
 
 inline constexpr access_rights access_rights::from_value_sanitized(const access_rights::value_type value) noexcept
 {
-    if (value != detail::UNKNOWN)
+    if ((value & detail::UNKNOWN) == detail::UNKNOWN)
     {
-        return access_rights{static_cast<value_type>(value & detail::MASK)};
+        return access_rights{detail::UNKNOWN};
     }
-    return access_rights{value};
+    return access_rights{static_cast<value_type>(value & detail::MASK)};
 }
 
 inline constexpr access_rights::value_type access_rights::value() const noexcept

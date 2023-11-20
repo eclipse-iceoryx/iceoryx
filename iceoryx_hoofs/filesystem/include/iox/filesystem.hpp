@@ -118,13 +118,15 @@ class access_rights final
     ~access_rights() noexcept = default;
 
     /// @brief Creates an 'access_rights' object from a sanitized value, ensuring that only the bits defined in
-    /// 'iox::perms::mask' are set when the value is not 'iox::perm::unknown'.
+    /// 'iox::perms::mask' are set when the 'iox::perm::unknown' bit is not set. If the 'iox::perm::unknown' bit is set
+    /// all other bits will be reset.
     /// @param[in] value for the 'access_rights'
     /// @return the 'access_rights' object
     static constexpr access_rights from_value_sanitized(const value_type value) noexcept;
 
     /// @brief Creates an 'access_rights' object from an unchecked value. The user has to ensure that only the bits
-    /// defined in 'iox::perms::mask' are set when the value is not 'iox::perm::unknown'.
+    /// defined in 'iox::perms::mask' are set when the 'iox::perm::unknown' bit is not set. If the 'iox::perm::unknown'
+    /// bit is set all other bits should be reset.
     /// @param[in] value for the 'access_rights'
     /// @return the 'access_rights' object
     static constexpr access_rights unsafe_from_value_unchecked(const value_type value) noexcept
@@ -165,7 +167,12 @@ class access_rights final
 
         static constexpr value_type MASK{07777};
 
-        static constexpr value_type UNKNOWN{0xFFFFU};
+        // intentionally different from 'std::filesystem::perms::unknown' to prevent unexpected results. Combining a
+        // permission set to 'std::filesystem::perms::unknown' with other permission flags using bitwise OR may result
+        // in a value that is not representative of a valid permission state. By setting the value to '0x8000' only the
+        // MSB is 1 and all bits representing permissions are set to 0 and a bitwise OR will therefore also always
+        // result in a 0.
+        static constexpr value_type UNKNOWN{0x8000U};
 
         // AXIVION ENABLE STYLE AutosarC++19_03-M2.13.2
     };
