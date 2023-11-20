@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
-#include "iceoryx_hoofs/testing/fatal_failure.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iox/attributes.hpp"
 #include "iox/function_ref.hpp"
 #include "test.hpp"
@@ -171,8 +171,10 @@ TEST_F(function_refDeathTest, CallMovedFromLeadsToTermination)
 
     // NOLINTJUSTIFICATION Use after move is tested here
     // NOLINTBEGIN(bugprone-use-after-move, hicpp-invalid-access-moved)
-    IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { sut1(); }, iox::HoofsError::EXPECTS_ENSURES_FAILED);
+    runInTestThread([&] { sut1(); });
     // NOLINTEND(bugprone-use-after-move, hicpp-invalid-access-moved)
+
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 TEST_F(function_refTest, CreateValidAndSwapResultEqual)

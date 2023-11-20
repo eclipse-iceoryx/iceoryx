@@ -105,6 +105,7 @@
 - Implement move/copy constructor and assignment for `FixedPositionContainer` [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
 - FixedPositionContainer fails to compile on QNX QCC [#2084](https://github.com/eclipse-iceoryx/iceoryx/issues/2084)
 - Chunk fails to be released when more than 4 GiB of chunks have been allocated [#2087](https://github.com/eclipse-iceoryx/iceoryx/issues/2087)
+- Fix clang-tidy errors from full-scan nightly build [#2060](https://github.com/eclipse-iceoryx/iceoryx/issues/2060)
 
 **Refactoring:**
 
