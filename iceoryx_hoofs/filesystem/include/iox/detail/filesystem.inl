@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -188,53 +189,62 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
     return false;
 }
 
-constexpr access_rights::value_type access_rights::value() const noexcept
+inline constexpr access_rights access_rights::from_value_sanitized(const access_rights::value_type value) noexcept
+{
+    if (value != detail::UNKNOWN)
+    {
+        return access_rights{static_cast<value_type>(value & detail::MASK)};
+    }
+    return access_rights{value};
+}
+
+inline constexpr access_rights::value_type access_rights::value() const noexcept
 {
     return m_value;
 }
 
-constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr bool operator==(const access_rights lhs, const access_rights rhs) noexcept
 {
     return lhs.value() == rhs.value();
 }
 
-constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr bool operator!=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return !(lhs == rhs);
 }
 
-constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator|(const access_rights lhs, const access_rights rhs) noexcept
 {
     return access_rights(lhs.value() | rhs.value());
 }
 
-constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator&(const access_rights lhs, const access_rights rhs) noexcept
 {
     return access_rights(lhs.value() & rhs.value());
 }
 
-constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator^(const access_rights lhs, const access_rights rhs) noexcept
 {
     return access_rights(lhs.value() ^ rhs.value());
 }
 
-constexpr access_rights operator~(const access_rights value) noexcept
+inline constexpr access_rights operator~(const access_rights value) noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A4.7.1, AutosarC++19_03-M0.3.1, FaultDetection-IntegerOverflow : Cast is safe and required due to integer promotion
     return access_rights(static_cast<access_rights::value_type>(~value.value()));
 }
 
-constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator|=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator|(lhs, rhs);
 }
 
-constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator&=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator&(lhs, rhs);
 }
 
-constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept
+inline constexpr access_rights operator^=(const access_rights lhs, const access_rights rhs) noexcept
 {
     return operator^(lhs, rhs);
 }

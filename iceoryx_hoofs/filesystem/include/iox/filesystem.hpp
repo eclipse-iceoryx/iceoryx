@@ -1,4 +1,5 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -116,136 +117,55 @@ class access_rights final
 
     ~access_rights() noexcept = default;
 
+    /// @brief Creates an 'access_rights' object from a sanitized value, ensuring that only the bits defined in
+    /// 'iox::perms::mask' are set when the value is not 'iox::perm::unknown'.
+    /// @param[in] value for the 'access_rights'
+    /// @return the 'access_rights' object
+    static constexpr access_rights from_value_sanitized(const value_type value) noexcept;
+
+    /// @brief Creates an 'access_rights' object from an unchecked value. The user has to ensure that only the bits
+    /// defined in 'iox::perms::mask' are set when the value is not 'iox::perm::unknown'.
+    /// @param[in] value for the 'access_rights'
+    /// @return the 'access_rights' object
+    static constexpr access_rights unsafe_from_value_unchecked(const value_type value) noexcept
+    {
+        // the code cannot be moved to the '*.inl' file since the function is used in the 'perms' namespace to define
+        // the 'access_rights' constants
+        return access_rights{value};
+    }
+
     constexpr value_type value() const noexcept;
 
     struct detail
     {
         // AXIVION DISABLE STYLE AutosarC++19_03-M2.13.2 : Filesystem permissions are defined in octal representation
 
-        // the code cannot be moved to the '*.inl' file since the functions are used in the 'perms' namespace to define
-        // the respective constants
+        static constexpr value_type NONE{0};
 
-        /// @note Implementation detail! Please use 'iox::perms::none'.
-        static constexpr access_rights none() noexcept
-        {
-            constexpr value_type VALUE{0};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type OWNER_READ{0400};
+        static constexpr value_type OWNER_WRITE{0200};
+        static constexpr value_type OWNER_EXEC{0100};
+        static constexpr value_type OWNER_ALL{0700};
 
-        /// @note Implementation detail! Please use 'iox::perms::owner_read'.
-        static constexpr access_rights owner_read() noexcept
-        {
-            constexpr value_type VALUE{0400};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::owner_write'.
-        static constexpr access_rights owner_write() noexcept
-        {
-            constexpr value_type VALUE{0200};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::owner_exec'.
-        static constexpr access_rights owner_exec() noexcept
-        {
-            constexpr value_type VALUE{0100};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::owner_all'.
-        static constexpr access_rights owner_all() noexcept
-        {
-            constexpr value_type VALUE{0700};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type GROUP_READ{040};
+        static constexpr value_type GROUP_WRITE{020};
+        static constexpr value_type GROUP_EXEC{010};
+        static constexpr value_type GROUP_ALL{070};
 
-        /// @note Implementation detail! Please use 'iox::perms::group_read'.
-        static constexpr access_rights group_read() noexcept
-        {
-            constexpr value_type VALUE{040};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::group_write'.
-        static constexpr access_rights group_write() noexcept
-        {
-            constexpr value_type VALUE{020};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::group_exec'.
-        static constexpr access_rights group_exec() noexcept
-        {
-            constexpr value_type VALUE{010};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::group_all'.
-        static constexpr access_rights group_all() noexcept
-        {
-            constexpr value_type VALUE{070};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type OTHERS_READ{04};
+        static constexpr value_type OTHERS_WRITE{02};
+        static constexpr value_type OTHERS_EXEC{01};
+        static constexpr value_type OTHERS_ALL{07};
 
-        /// @note Implementation detail! Please use 'iox::perms::others_read'.
-        static constexpr access_rights others_read() noexcept
-        {
-            constexpr value_type VALUE{04};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::others_write'.
-        static constexpr access_rights others_write() noexcept
-        {
-            constexpr value_type VALUE{02};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::others_exec'.
-        static constexpr access_rights others_exec() noexcept
-        {
-            constexpr value_type VALUE{01};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::others_all'.
-        static constexpr access_rights others_all() noexcept
-        {
-            constexpr value_type VALUE{07};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type ALL{0777};
 
-        /// @note Implementation detail! Please use 'iox::perms::all'.
-        static constexpr access_rights all() noexcept
-        {
-            constexpr value_type VALUE{0777};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type SET_UID{04000};
+        static constexpr value_type SET_GID{02000};
+        static constexpr value_type STICKY_BIT{01000};
 
-        /// @note Implementation detail! Please use 'iox::perms::set_uid'.
-        static constexpr access_rights set_uid() noexcept
-        {
-            constexpr value_type VALUE{04000};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::set_gid'.
-        static constexpr access_rights set_gid() noexcept
-        {
-            constexpr value_type VALUE{02000};
-            return access_rights{VALUE};
-        }
-        /// @note Implementation detail! Please use 'iox::perms::sticky_bit'.
-        static constexpr access_rights sticky_bit() noexcept
-        {
-            constexpr value_type VALUE{01000};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type MASK{07777};
 
-        /// @note Implementation detail! Please use 'iox::perms::mask'.
-        static constexpr access_rights mask() noexcept
-        {
-            constexpr value_type VALUE{07777};
-            return access_rights{VALUE};
-        }
-
-        /// @note Implementation detail! Please use 'iox::perms::unknown'.
-        static constexpr access_rights unknown() noexcept
-        {
-            constexpr value_type VALUE{0xFFFFU};
-            return access_rights{VALUE};
-        }
+        static constexpr value_type UNKNOWN{0xFFFFU};
 
         // AXIVION ENABLE STYLE AutosarC++19_03-M2.13.2
     };
@@ -278,55 +198,55 @@ namespace perms
 // AXIVION DISABLE STYLE AutosarC++19_03-A2.10.5 : Name reuse is intentional since they refer to the same value. Additionally, different namespaces are used.
 
 /// @brief Deny everything
-static constexpr access_rights none{access_rights::detail::none()};
+static constexpr auto none{access_rights::unsafe_from_value_unchecked(access_rights::detail::NONE)};
 
 /// @brief owner has read permission
-static constexpr access_rights owner_read{access_rights::detail::owner_read()};
+static constexpr auto owner_read{access_rights::unsafe_from_value_unchecked(access_rights::detail::OWNER_READ)};
 /// @brief owner has write permission
-static constexpr access_rights owner_write{access_rights::detail::owner_write()};
+static constexpr auto owner_write{access_rights::unsafe_from_value_unchecked(access_rights::detail::OWNER_WRITE)};
 /// @brief owner has execution permission
-static constexpr access_rights owner_exec{access_rights::detail::owner_exec()};
+static constexpr auto owner_exec{access_rights::unsafe_from_value_unchecked(access_rights::detail::OWNER_EXEC)};
 /// @brief owner has all permissions
-static constexpr access_rights owner_all{access_rights::detail::owner_all()};
+static constexpr auto owner_all{access_rights::unsafe_from_value_unchecked(access_rights::detail::OWNER_ALL)};
 
 /// @brief group has read permission
-static constexpr access_rights group_read{access_rights::detail::group_read()};
+static constexpr auto group_read{access_rights::unsafe_from_value_unchecked(access_rights::detail::GROUP_READ)};
 /// @brief group has write permission
-static constexpr access_rights group_write{access_rights::detail::group_write()};
+static constexpr auto group_write{access_rights::unsafe_from_value_unchecked(access_rights::detail::GROUP_WRITE)};
 /// @brief group has execution permission
-static constexpr access_rights group_exec{access_rights::detail::group_exec()};
+static constexpr auto group_exec{access_rights::unsafe_from_value_unchecked(access_rights::detail::GROUP_EXEC)};
 /// @brief group has all permissions
-static constexpr access_rights group_all{access_rights::detail::group_all()};
+static constexpr auto group_all{access_rights::unsafe_from_value_unchecked(access_rights::detail::GROUP_ALL)};
 
 /// @brief others have read permission
-static constexpr access_rights others_read{access_rights::detail::others_read()};
+static constexpr auto others_read{access_rights::unsafe_from_value_unchecked(access_rights::detail::OTHERS_READ)};
 /// @brief others have write permission
-static constexpr access_rights others_write{access_rights::detail::others_write()};
+static constexpr auto others_write{access_rights::unsafe_from_value_unchecked(access_rights::detail::OTHERS_WRITE)};
 /// @brief others have execution permission
-static constexpr access_rights others_exec{access_rights::detail::others_exec()};
+static constexpr auto others_exec{access_rights::unsafe_from_value_unchecked(access_rights::detail::OTHERS_EXEC)};
 /// @brief others have all permissions
-static constexpr access_rights others_all{access_rights::detail::others_all()};
+static constexpr auto others_all{access_rights::unsafe_from_value_unchecked(access_rights::detail::OTHERS_ALL)};
 
 /// @brief all permissions for everyone
-static constexpr access_rights all{access_rights::detail::all()};
+static constexpr auto all{access_rights::unsafe_from_value_unchecked(access_rights::detail::ALL)};
 
 /// @brief set uid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr access_rights set_uid{access_rights::detail::set_uid()};
+static constexpr auto set_uid{access_rights::unsafe_from_value_unchecked(access_rights::detail::SET_UID)};
 /// @brief set gid bit
 /// @note introduction into setgit/setuid: https://en.wikipedia.org/wiki/Setuid
 // AXIVION Next Construct AutosarC++19_03-M2.10.1: The constant is in a namespace and mimics the C++17 STL equivalent
-static constexpr access_rights set_gid{access_rights::detail::set_gid()};
+static constexpr auto set_gid{access_rights::unsafe_from_value_unchecked(access_rights::detail::SET_GID)};
 /// @brief set sticky bit
 /// @note sticky bit introduction: https://en.wikipedia.org/wiki/Sticky_bit
-static constexpr access_rights sticky_bit{access_rights::detail::sticky_bit()};
+static constexpr auto sticky_bit{access_rights::unsafe_from_value_unchecked(access_rights::detail::STICKY_BIT)};
 
 /// @brief all permissions for everyone as well as uid, gid and sticky bit
-static constexpr access_rights mask{access_rights::detail::mask()};
+static constexpr auto mask{access_rights::unsafe_from_value_unchecked(access_rights::detail::MASK)};
 
 /// @brief unknown permissions
-static constexpr access_rights unknown{access_rights::detail::unknown()};
+static constexpr auto unknown{access_rights::unsafe_from_value_unchecked(access_rights::detail::UNKNOWN)};
 
 // AXIVION ENABLE STYLE AutosarC++19_03-A2.10.5
 } // namespace perms
