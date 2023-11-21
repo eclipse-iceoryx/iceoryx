@@ -120,7 +120,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
             // operation. Therefore, creation can be carried out according to the option specified by Opt.
 
-            // @todo iox-2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
+            // @todo iox-#2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
             // Helper::create(m_data[i], Helper::move_or_copy_it(rhs_it));
 
             if constexpr (is_move)
@@ -137,7 +137,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
             // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
 
-            // @todo iox-2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
+            // @todo iox-#2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
             // Helper::ctor_create(m_data[i], Helper::move_or_copy_it(rhs_it));
 
             if constexpr (is_move)

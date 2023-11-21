@@ -74,7 +74,7 @@ struct SpecialCreationHelper
         }
         else
         {
-            // @todo iox-2052: enable this when move_or_copy_it / move_or_copy works
+            // @todo iox-#2052: enable this when move_or_copy_it / move_or_copy works
             // static_assert(std::is_lvalue_reference_v<decltype(src.get())>, "src should be lvalue reference");
             // static_assert(std::is_const_v<std::remove_reference_t<decltype(src.get())>>, "src should has const
             // modifier"); static_assert(std::is_convertible_v<V, T>, "Source type is not convertible to destination
@@ -102,7 +102,7 @@ struct SpecialCreationHelper
         }
         else
         {
-            // @todo iox-2052: enable this when move_or_copy_it / move_or_copy works
+            // @todo iox-#2052: enable this when move_or_copy_it / move_or_copy works
             // static_assert(std::is_lvalue_reference_v<decltype(src.get())>, "src should be lvalue reference");
             // static_assert(std::is_const_v<std::remove_reference_t<decltype(src.get())>>, "src should has const
             // modifier"); dest = src.get();
