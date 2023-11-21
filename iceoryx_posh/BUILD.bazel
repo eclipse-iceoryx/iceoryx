@@ -29,7 +29,6 @@ configure_file(
         # FIXME: for values see "iceoryx_posh/cmake/IceoryxPoshDeployment.cmake" ... for now some nice defaults
         "@platforms//os:macos": {
             "IOX_COMMUNICATION_POLICY": "ManyToManyPolicy",
-            "IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS": "256",
             "IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY": "8",
             "IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY": "256",
             "IOX_MAX_CLIENTS_PER_SERVER": "256",
@@ -40,6 +39,7 @@ configure_file(
             "IOX_MAX_NODE_PER_PROCESS": "50",
             "IOX_MAX_NUMBER_OF_CONDITION_VARIABLES": "1024",
             "IOX_MAX_NUMBER_OF_MEMPOOLS": "32",
+            "IOX_MAX_NUMBER_OF_NOTIFIERS": "256",
             "IOX_MAX_PROCESS_NUMBER": "300",
             "IOX_MAX_PUBLISHERS": "512",
             "IOX_MAX_PUBLISHER_HISTORY": "16",
@@ -53,7 +53,6 @@ configure_file(
         },
         "//conditions:default": {
             "IOX_COMMUNICATION_POLICY": "ManyToManyPolicy",
-            "IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS": "256",
             "IOX_MAX_CHUNKS_ALLOCATED_PER_PUBLISHER_SIMULTANEOUSLY": "8",
             "IOX_MAX_CHUNKS_HELD_PER_SUBSCRIBER_SIMULTANEOUSLY": "256",
             "IOX_MAX_CLIENTS_PER_SERVER": "256",
@@ -64,6 +63,7 @@ configure_file(
             "IOX_MAX_NODE_PER_PROCESS": "50",
             "IOX_MAX_NUMBER_OF_CONDITION_VARIABLES": "1024",
             "IOX_MAX_NUMBER_OF_MEMPOOLS": "32",
+            "IOX_MAX_NUMBER_OF_NOTIFIERS": "256",
             "IOX_MAX_PROCESS_NUMBER": "300",
             "IOX_MAX_PUBLISHERS": "512",
             "IOX_MAX_PUBLISHER_HISTORY": "16",
