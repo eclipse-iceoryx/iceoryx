@@ -17,10 +17,10 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/attributes.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 
 #include <bitset>

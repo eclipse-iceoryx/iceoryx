@@ -34,8 +34,8 @@ SharedMemoryUser::SharedMemoryUser(const size_t topicSize,
     posix::SharedMemoryObjectBuilder()
         .name(roudi::SHM_NAME)
         .memorySizeInBytes(topicSize)
-        .accessMode(posix::AccessMode::READ_WRITE)
-        .openMode(posix::OpenMode::OPEN_EXISTING)
+        .accessMode(AccessMode::READ_WRITE)
+        .openMode(OpenMode::OPEN_EXISTING)
         .permissions(SHM_SEGMENT_PERMISSIONS)
         .create()
         .and_then([this, segmentId, segmentManagerAddressOffset](auto& sharedMemoryObject) {
@@ -71,12 +71,12 @@ void SharedMemoryUser::openDataSegments(const uint64_t segmentId,
     auto segmentMapping = segmentManager->getSegmentMappings(posix::PosixUser::getUserOfCurrentProcess());
     for (const auto& segment : segmentMapping)
     {
-        auto accessMode = segment.m_isWritable ? posix::AccessMode::READ_WRITE : posix::AccessMode::READ_ONLY;
+        auto accessMode = segment.m_isWritable ? AccessMode::READ_WRITE : AccessMode::READ_ONLY;
         posix::SharedMemoryObjectBuilder()
             .name(segment.m_sharedMemoryName)
             .memorySizeInBytes(segment.m_size)
             .accessMode(accessMode)
-            .openMode(posix::OpenMode::OPEN_EXISTING)
+            .openMode(OpenMode::OPEN_EXISTING)
             .permissions(SHM_SEGMENT_PERMISSIONS)
             .create()
             .and_then([this, &segment](auto& sharedMemoryObject) {

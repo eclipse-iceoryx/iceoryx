@@ -17,8 +17,8 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iox/builder.hpp"
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/expected.hpp"
 #include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
@@ -31,6 +31,12 @@ namespace iox
 {
 namespace posix
 {
+
+using AccessMode IOX_DEPRECATED_SINCE(3,
+                                      "Please use 'iox::AccessMode' from 'iox/filesystem.hpp' instead.") = AccessMode;
+
+using OpenMode IOX_DEPRECATED_SINCE(3, "Please use 'iox::OpenMode' from 'iox/filesystem.hpp' instead.") = OpenMode;
+
 class SharedMemoryObject;
 enum class SharedMemoryError
 {

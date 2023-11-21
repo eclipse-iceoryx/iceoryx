@@ -73,8 +73,8 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
         typename SharedMemoryObjectType::Builder()
             .name(writerGroup.getName())
             .memorySizeInBytes(MemoryManager::requiredChunkMemorySize(mempoolConfig))
-            .accessMode(posix::AccessMode::READ_WRITE)
-            .openMode(posix::OpenMode::PURGE_AND_CREATE)
+            .accessMode(AccessMode::READ_WRITE)
+            .openMode(OpenMode::PURGE_AND_CREATE)
             .permissions(SEGMENT_PERMISSIONS)
             .create()
             .and_then([this](auto& sharedMemoryObject) {

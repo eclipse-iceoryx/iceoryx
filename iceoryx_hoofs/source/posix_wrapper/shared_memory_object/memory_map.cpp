@@ -17,7 +17,7 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
-#include "iceoryx_hoofs/posix_wrapper/types.hpp"
+#include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
 
 #include <bitset>

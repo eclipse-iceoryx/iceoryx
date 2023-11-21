@@ -30,8 +30,8 @@ namespace roudi
 constexpr access_rights PosixShmMemoryProvider::SHM_MEMORY_PERMISSIONS;
 
 PosixShmMemoryProvider::PosixShmMemoryProvider(const ShmName_t& shmName,
-                                               const posix::AccessMode accessMode,
-                                               const posix::OpenMode openMode) noexcept
+                                               const AccessMode accessMode,
+                                               const OpenMode openMode) noexcept
     : m_shmName(shmName)
     , m_accessMode(accessMode)
     , m_openMode(openMode)

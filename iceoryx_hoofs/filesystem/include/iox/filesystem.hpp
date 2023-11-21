@@ -90,6 +90,53 @@ bool isValidPathToDirectory(const string<StringCapacity>& name) noexcept;
 template <uint64_t StringCapacity>
 bool doesEndWithPathSeparator(const string<StringCapacity>& name) noexcept;
 
+
+enum class AccessMode : uint64_t
+{
+    READ_ONLY = 0U,
+    READ_WRITE = 1U,
+    WRITE_ONLY = 2U
+};
+
+/// @brief describes how the shared memory is opened or created
+enum class OpenMode : uint64_t
+{
+    /// @brief creates the shared memory, if it exists already the construction will fail
+    EXCLUSIVE_CREATE = 0U,
+    /// @brief creates the shared memory, if it exists it will be deleted and recreated
+    PURGE_AND_CREATE = 1U,
+    /// @brief creates the shared memory, if it does not exist otherwise it opens it
+    OPEN_OR_CREATE = 2U,
+    /// @brief opens the shared memory, if it does not exist it will fail
+    OPEN_EXISTING = 3U
+};
+
+/// @brief converts OpenMode into a string literal
+/// @return string literal of the OpenMode value
+constexpr const char* asStringLiteral(const OpenMode mode) noexcept;
+
+/// @brief converts AccessMode into a string literal
+/// @return string literal of the AccessMode value
+constexpr const char* asStringLiteral(const AccessMode mode) noexcept;
+
+/// @brief converts the AccessMode into the corresponding O_** flags.
+/// @param[in] accessMode the accessMode which should be converted
+int convertToOflags(const AccessMode accessMode) noexcept;
+
+/// @brief converts the OpenMode into the corresponding O_** flags.
+/// @param[in] openMode the openMode which should be converted
+int convertToOflags(const OpenMode openMode) noexcept;
+
+/// @brief converts the AccessMode into the corresponding PROT_** flags.
+/// @param[in] accessMode the accessMode which should be converted
+int convertToProtFlags(const AccessMode accessMode) noexcept;
+
+/// @brief converts the AccessMode and OpenMode into the corresponding O_** flags
+/// @param[in] accessMode the accessMode which should be converted
+/// @param[in] openMode the openMode which should be converted
+int convertToOflags(const AccessMode accessMode, const OpenMode openMode) noexcept;
+
+
 /// @brief this class implements the filesystem perms feature of C++17 but as a new type
 ///        instead of an enum.
 ///        The class satisfies also all requirements of the BitmaskType, this means

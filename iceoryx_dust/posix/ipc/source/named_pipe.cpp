@@ -27,10 +27,8 @@
 
 namespace iox
 {
-using posix::AccessMode;
 using posix::IpcChannelError;
 using posix::IpcChannelSide;
-using posix::OpenMode;
 using posix::SemaphoreWaitState;
 using posix::SharedMemory;
 using posix::SharedMemoryObject;
