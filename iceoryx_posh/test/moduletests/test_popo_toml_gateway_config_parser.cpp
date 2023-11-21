@@ -26,9 +26,7 @@
 #include <cpptoml.h>
 #include <limits> // workaround for missing include in cpptoml.h
 
-#if __cplusplus >= 201703L
 #include <filesystem>
-#endif
 
 #include <fstream>
 #include <string>
@@ -54,9 +52,6 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "78b50f73-f17f-45e2-a091-aaad6c536c3a");
 
-#if __cplusplus < 201703L
-    GTEST_SKIP() << "The test uses std::filesystem which is only available with C++17";
-#else
     auto tempFilePath = std::filesystem::temp_directory_path();
     tempFilePath.append("test_gateway_config.toml");
 
@@ -69,7 +64,7 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
     )";
     tempFile.close();
 
-    iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.c_str()};
+    iox::roudi::ConfigFilePathString_t configFilePath{iox::TruncateToCapacity, tempFilePath.u8string().c_str()};
 
     TomlGatewayConfigParser::parse(configFilePath)
         .and_then([](const auto&) { GTEST_SUCCEED() << "We got a config!"; })
@@ -77,7 +72,6 @@ TEST_F(TomlGatewayConfigParserTest, ParsingFileIsSuccessful)
             GTEST_FAIL() << "Expected a config but got error: "
                          << iox::config::TOML_GATEWAY_CONFIG_FILE_PARSE_ERROR_STRINGS[static_cast<uint64_t>(error)];
         });
-#endif
 }
 
 class TomlGatewayConfigParserSuiteTest : public TestWithParam<CheckCharactersValidity_t>

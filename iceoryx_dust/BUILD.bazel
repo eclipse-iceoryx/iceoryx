@@ -20,7 +20,7 @@ load("//bazel:configure_file.bzl", "configure_file")
 configure_file(
     name = "iceoryx_dust_deployment_hpp",
     src = "cmake/iceoryx_dust_deployment.hpp.in",
-    out = "include/iox/iceoryx_dust_deployment.hpp",
+    out = "generated/include/iox/iceoryx_dust_deployment.hpp",
     config = {
         "IOX_MAX_NAMED_PIPE_MESSAGE_SIZE": "4096",
         "IOX_MAX_NAMED_PIPE_NUMBER_OF_MESSAGES": "10",
@@ -32,18 +32,20 @@ cc_library(
     srcs = glob([
         "cli/source/**/*.cpp",
         "filesystem/source/**/*.cpp",
-        "source/**/*.cpp",
-        "source/**/*.hpp",
+        "posix/ipc/source/**/*.cpp",
+        "posix/sync/source/**/*.cpp",
     ]),
-    hdrs = glob(["include/**"]) + glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["vocabulary/**"]) + [
+    hdrs = glob(["cli/**"]) + glob(["container/**"]) + glob(["filesystem/**"]) + glob(["memory/**"]) + glob(["utility/**"]) + glob(["posix/ipc/**"]) + glob(["posix/sync/**"]) + glob(["vocabulary/**"]) + [
         ":iceoryx_dust_deployment_hpp",
     ],
     includes = [
         "cli/include/",
         "container/include/",
         "filesystem/include/",
-        "include",
+        "generated/include/",
         "memory/include/",
+        "posix/ipc/include/",
+        "posix/sync/include/",
         "utility/include/",
         "vocabulary/include/",
     ],

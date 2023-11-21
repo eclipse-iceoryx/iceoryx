@@ -21,6 +21,7 @@
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iceoryx_posh/roudi/cmd_line_args.hpp"
+#include "iox/detail/deprecation_marker.hpp"
 #include "iox/logging.hpp"
 
 #include <cstdint>
@@ -47,9 +48,8 @@ class RouDiApp
 
   protected:
     /// @brief waits for the next signal to RouDi daemon
-    [[deprecated("in 3.0, removed in 4.0, use iox::posix::waitForTerminationRequest() from "
-                 "'iceoryx_dust/posix_wrapper/signal_watcher.hpp'")]] bool
-    waitForSignal() noexcept;
+    IOX_DEPRECATED_SINCE(3, "Please use iox::posix::waitForTerminationRequest() from 'iox/signal_watcher.hpp'")
+    bool waitForSignal() noexcept;
 
     iox::log::LogLevel m_logLevel{iox::log::LogLevel::WARN};
     roudi::MonitoringMode m_monitoringMode{roudi::MonitoringMode::ON};

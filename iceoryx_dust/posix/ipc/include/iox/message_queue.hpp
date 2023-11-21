@@ -15,8 +15,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
-#define IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
+
+#ifndef IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
+#define IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_platform/fcntl.hpp"
@@ -29,14 +30,12 @@
 
 namespace iox
 {
-namespace posix
-{
 class MessageQueueBuilder;
 
 /// @brief Wrapper class for posix message queue
 ///
 /// @code
-///     auto mq = iox::posix::MessageQueueBuilder()
+///     auto mq = iox::MessageQueueBuilder()
 ///                 .name("/MqName123")
 ///                 .channelSide(iox::posix::IpcChannelSide::CLIENT)
 ///                 .create();
@@ -68,27 +67,28 @@ class MessageQueue
 
     ~MessageQueue() noexcept;
 
-    static expected<bool, IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+    static expected<bool, posix::IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
 
     /// @brief send a message to queue using std::string.
     /// @return true if sent without errors, false otherwise
-    expected<void, IpcChannelError> send(const std::string& msg) const noexcept;
+    expected<void, posix::IpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @todo iox-#1693 zero copy receive with receive(iox::string&); iox::string would be the buffer for mq_receive
 
     /// @brief receive message from queue using std::string.
     /// @return number of characters received. In case of an error, returns -1 and msg is empty.
-    expected<std::string, IpcChannelError> receive() const noexcept;
+    expected<std::string, posix::IpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message from queue for a given timeout duration using std::string. Only defined
     /// for NON_BLOCKING == false.
     /// @return optional containing the received string. In case of an error, nullopt type is returned.
-    expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    expected<std::string, posix::IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
     /// @brief try to send a message to the queue for a given timeout duration using std::string
-    expected<void, IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    expected<void, posix::IpcChannelError> timedSend(const std::string& msg,
+                                                     const units::Duration& timeout) const noexcept;
 
-    static expected<bool, IpcChannelError> isOutdated() noexcept;
+    static expected<bool, posix::IpcChannelError> isOutdated() noexcept;
 
   private:
     friend class MessageQueueBuilder;
@@ -96,23 +96,24 @@ class MessageQueue
     MessageQueue(const IpcChannelName_t& name,
                  const mq_attr attributes,
                  mqd_t mqDescriptor,
-                 const IpcChannelSide channelSide) noexcept;
+                 const posix::IpcChannelSide channelSide) noexcept;
 
-    static expected<mqd_t, IpcChannelError>
-    open(const IpcChannelName_t& name, mq_attr& attributes, const IpcChannelSide channelSide) noexcept;
+    static expected<mqd_t, posix::IpcChannelError>
+    open(const IpcChannelName_t& name, mq_attr& attributes, const posix::IpcChannelSide channelSide) noexcept;
 
-    expected<void, IpcChannelError> close() noexcept;
-    expected<void, IpcChannelError> unlink() noexcept;
-    IpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
-    static IpcChannelError errnoToEnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
-    static expected<IpcChannelName_t, IpcChannelError> sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
-    expected<void, IpcChannelError> destroy() noexcept;
+    expected<void, posix::IpcChannelError> close() noexcept;
+    expected<void, posix::IpcChannelError> unlink() noexcept;
+    posix::IpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
+    static posix::IpcChannelError errnoToEnum(const IpcChannelName_t& name, const int32_t errnum) noexcept;
+    static expected<IpcChannelName_t, posix::IpcChannelError>
+    sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept;
+    expected<void, posix::IpcChannelError> destroy() noexcept;
 
   private:
     IpcChannelName_t m_name;
     mq_attr m_attributes{};
     mqd_t m_mqDescriptor = INVALID_DESCRIPTOR;
-    IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
+    posix::IpcChannelSide m_channelSide = posix::IpcChannelSide::CLIENT;
 
 #ifdef __QNX__
     static constexpr int TIMEOUT_ERRNO = EINTR;
@@ -132,7 +133,7 @@ class MessageQueueBuilder
     IOX_BUILDER_PARAMETER(IpcChannelName_t, name, "")
 
     /// @brief Defines how the message queue is opened, i.e. as client or server
-    IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
+    IOX_BUILDER_PARAMETER(posix::IpcChannelSide, channelSide, posix::IpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the message queue
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, MessageQueue::MAX_MESSAGE_SIZE)
@@ -143,10 +144,9 @@ class MessageQueueBuilder
   public:
     /// @brief create a message queue
     /// @return On success a 'MessageQueue' is returned and on failure an 'IpcChannelError'.
-    expected<MessageQueue, IpcChannelError> create() const noexcept;
+    expected<MessageQueue, posix::IpcChannelError> create() const noexcept;
 };
 
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_DUST_POSIX_WRAPPER_MESSAGE_QUEUE_HPP
+#endif // IOX_DUST_POSIX_IPC_MESSAGE_QUEUE_HPP

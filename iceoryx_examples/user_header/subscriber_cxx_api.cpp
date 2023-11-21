@@ -17,9 +17,9 @@
 //! [iceoryx includes]
 #include "user_header_and_payload_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <atomic>
@@ -37,7 +37,7 @@ int main()
     //! [create subscriber]
 
     //! [poll subscriber for samples in a loop]
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         //! [take sample]
         subscriber.take().and_then([&](auto& sample) {

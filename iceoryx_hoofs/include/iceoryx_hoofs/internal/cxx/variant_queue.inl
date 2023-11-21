@@ -1,5 +1,6 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2020 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +41,7 @@ inline VariantQueue<ValueType, Capacity>::VariantQueue(const VariantQueueTypes t
         break;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
-        IOX_FALLTHROUGH;
+        [[fallthrough]];
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
         m_fifo.template emplace<concurrent::ResizeableLockFreeQueue<ValueType, Capacity>>();
@@ -56,34 +57,38 @@ optional<ValueType> VariantQueue<ValueType, Capacity>::push(const ValueType& val
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        auto hadSpace =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
-                ->push(value);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>();
+        auto hadSpace = queue->push(value);
 
         return (hadSpace) ? nullopt : make_optional<ValueType>(value);
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         ValueType overriddenValue;
-        auto hadSpace =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-                ->push(value, overriddenValue);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        auto hadSpace = queue->push(value, overriddenValue);
 
         return (hadSpace) ? nullopt : make_optional<ValueType>(overriddenValue);
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     {
-        auto hadSpace =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-                ->tryPush(value);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        auto hadSpace = queue->tryPush(value);
 
         return (hadSpace) ? nullopt : make_optional<ValueType>(value);
     }
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->push(value);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        return queue->push(value);
     }
     }
 
@@ -97,25 +102,28 @@ inline optional<ValueType> VariantQueue<ValueType, Capacity>::pop() noexcept
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
-            ->pop();
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>();
+        return queue->pop();
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
         ValueType returnType;
-        auto hasReturnType =
-            m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-                ->pop(returnType);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        auto hasReturnType = queue->pop(returnType);
 
         return (hasReturnType) ? make_optional<ValueType>(returnType) : nullopt;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->pop();
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        return queue->pop();
     }
     }
 
@@ -129,22 +137,25 @@ inline bool VariantQueue<ValueType, Capacity>::empty() const noexcept
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
-            ->empty();
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>();
+        return queue->empty();
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-            ->empty();
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        return queue->empty();
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->empty();
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        return queue->empty();
     }
     }
 
@@ -158,25 +169,25 @@ inline uint64_t VariantQueue<ValueType, Capacity>::size() noexcept
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
-            ->size();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>();
+        return queue->size();
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-            ->size();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        return queue->size();
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->size();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        return queue->size();
     }
     }
 
@@ -197,17 +208,20 @@ inline bool VariantQueue<ValueType, Capacity>::setCapacity(const uint64_t newCap
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
-        m_fifo.template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-            ->setCapacity(newCapacity);
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        queue->setCapacity(newCapacity);
         return true;
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
         // we may discard elements in the queue if the size is reduced and the fifo contains too many elements
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->setCapacity(newCapacity);
+        return queue->setCapacity(newCapacity);
     }
     }
     return false;
@@ -220,25 +234,25 @@ inline uint64_t VariantQueue<ValueType, Capacity>::capacity() const noexcept
     {
     case VariantQueueTypes::FiFo_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>()
-            ->capacity();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_SingleProducerSingleConsumer)>();
+        return queue->capacity();
     }
     case VariantQueueTypes::SoFi_SingleProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>()
-            ->capacity();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::SoFi_SingleProducerSingleConsumer)>();
+        return queue->capacity();
     }
     case VariantQueueTypes::FiFo_MultiProducerSingleConsumer:
     case VariantQueueTypes::SoFi_MultiProducerSingleConsumer:
     {
-        return m_fifo
-            .template get_at_index<static_cast<uint64_t>(VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>()
-            ->capacity();
-        break;
+        // SAFETY: 'm_type' ist 'const' and does not change after construction
+        auto* queue = m_fifo.template unsafe_get_at_index_unchecked<static_cast<uint64_t>(
+            VariantQueueTypes::FiFo_MultiProducerSingleConsumer)>();
+        return queue->capacity();
     }
     }
 

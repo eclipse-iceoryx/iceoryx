@@ -7,6 +7,7 @@
 **Notes**
 
 - The minimal supported GCC compiler is now 8.3
+- The required C++ standard is now C++17
 
 **Features:**
 
@@ -51,6 +52,8 @@
 - Extend 'iceperf' with 'WaitSet' [#2003](https://github.com/eclipse-iceoryx/iceoryx/issues/2003)
 - Create iceoryx version header for the C-binding [#1014](https://github.com/eclipse-iceoryx/iceoryx/issues/1014)
 - Create macros to deprecate header and code constructs [#2057](https://github.com/eclipse-iceoryx/iceoryx/issues/2057)
+- Switch to C++17 on all platforms [#2066](https://github.com/eclipse-iceoryx/iceoryx/issues/2066)
+- Implement `unsafe_raw_access` in `iox::string` and add `BufferInfo` struct [#1431](https://github.com/eclipse-iceoryx/iceoryx/issues/1431)
 
 **Bugfixes:**
 
@@ -100,6 +103,10 @@
 - LockFreeQueue fails to support move-only types [\#2067](https://github.com/eclipse-iceoryx/iceoryx/issues/2067)
 - Fix musl libc compile (missing sys/stat.h include in mqueue.h for mode_t definition) [\#2072](https://github.com/eclipse-iceoryx/iceoryx/issues/2072)
 - cxx::Expects macro conflicts with Microsoft GSL Expects macro [#2080](https://github.com/eclipse-iceoryx/iceoryx/issues/2080)
+- Implement move/copy constructor and assignment for `FixedPositionContainer` [#2052](https://github.com/eclipse-iceoryx/iceoryx/issues/2052)
+- FixedPositionContainer fails to compile on QNX QCC [#2084](https://github.com/eclipse-iceoryx/iceoryx/issues/2084)
+- Chunk fails to be released when more than 4 GiB of chunks have been allocated [#2087](https://github.com/eclipse-iceoryx/iceoryx/issues/2087)
+- Fix clang-tidy errors from full-scan nightly build [#2060](https://github.com/eclipse-iceoryx/iceoryx/issues/2060)
 
 **Refactoring:**
 
@@ -173,6 +180,8 @@
     - only partially
     - IPC call is replaced with heartbeat via shared memory
 - Removed IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS and made IOX_MAX_NUMBER_OF_NOTIFIERS configurable again [#2083](https://github.com/eclipse-iceoryx/iceoryx/issues/2083)
+- Setting IOX_NO_DISCARD in QNX [#638](https://github.com/eclipse-iceoryx/iceoryx/issues/638)
+- Replace `iox::byte_t` with std::byte [#1900](https://github.com/eclipse-iceoryx/iceoryx/issues/1900)
 
 **Workflow:**
 
@@ -999,7 +1008,7 @@
     #include "iceoryx_hoofs/posix_wrapper/internal/message_queue.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/message_queue.hpp"
+    #include "iox/message_queue.hpp"
     ```
 
     ```cpp
@@ -1007,7 +1016,7 @@
     #include "iceoryx_hoofs/posix_wrapper/named_pipe.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/named_pipe.hpp"
+    #include "iox/named_pipe.hpp"
     ```
 
     ```cpp
@@ -1015,7 +1024,7 @@
     #include "iceoryx_hoofs/posix_wrapper/signal_watcher.hpp"
 
     // after
-    #include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+    #include "iox/signal_watcher.hpp"
     ```
 
     ```cpp
@@ -1111,14 +1120,14 @@
     iox::access_rights foo { iox::perms::owner_all | iox::perms::group_read };
     ```
 
-47. Renaming `byte_t` to `byte`
+47. Deprecating `byte_t` in favour of `std::byte`
 
     ```cpp
     // before
     iox::byte_t m_size;
 
     // after
-    iox::byte m_size;
+    std::byte m_size;
     ```
 
 48. Move conversion methods from `duration.hpp` to `iceoryx_dust`
@@ -1239,3 +1248,8 @@
     IOX_EXPECTS(foo == true);
     IOX_ENSURES(foo == true);
     ```
+
+55. `IOX_MAYBE_UNUSED`, `IOX_FALLTHROUGH` and `IOX_NO_DISCARD` are deprecated
+
+    With the switch to C++17 `[[maybe_unused]]`, `[[fallthrough]]` and `[[no_discard]]`
+    are available and should be used instead of the macros.

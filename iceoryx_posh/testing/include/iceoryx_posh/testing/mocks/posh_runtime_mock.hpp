@@ -28,10 +28,10 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static std::unique_ptr<PoshRuntimeMock> create(const iox::RuntimeName_t& name)
     {
         auto& runtime = mockRuntime();
-        IOX_EXPECTS(!runtime.has_value() && "Using multiple PoshRuntimeMock in parallel is not supported!");
-        IOX_EXPECTS(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory
-                    && "The PoshRuntimeMock can only be used in combination with the "
-                       "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
+        IOX_EXPECTS_WITH_MSG(!runtime.has_value(), "Using multiple PoshRuntimeMock in parallel is not supported!");
+        IOX_EXPECTS_WITH_MSG(PoshRuntime::getRuntimeFactory() == PoshRuntime::defaultRuntimeFactory,
+                             "The PoshRuntimeMock can only be used in combination with the "
+                             "PoshRuntime::defaultRuntimeFactory! Someone else already switched the factory!");
 
         runtime = new PoshRuntimeMock(name);
         PoshRuntime::setRuntimeFactory(mockRuntimeFactory);
@@ -44,10 +44,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
         mockRuntime().reset();
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(iox::PublisherPortUserType::MemberType_t*,
                 getMiddlewarePublisher,
                 (const iox::capro::ServiceDescription&,
@@ -82,9 +78,6 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
                 sendRequestToRouDi,
                 (const iox::runtime::IpcMessage&, iox::runtime::IpcMessage&),
                 (noexcept, override));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
   private:
     PoshRuntimeMock(const iox::RuntimeName_t& name)
@@ -95,8 +88,9 @@ class PoshRuntimeMock : public iox::runtime::PoshRuntime
     static PoshRuntime& mockRuntimeFactory(iox::optional<const iox::RuntimeName_t*> name) noexcept
     {
         auto& runtime = mockRuntime();
-        IOX_EXPECTS(!name.has_value() && "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
-        IOX_EXPECTS(runtime.has_value() && "This should never happen! If you see this, something went horribly wrong!");
+        IOX_EXPECTS_WITH_MSG(!name.has_value(), "PoshRuntime::initRuntime must not be used with a PoshRuntimeMock!");
+        IOX_EXPECTS_WITH_MSG(runtime.has_value(),
+                             "This should never happen! If you see this, something went horribly wrong!");
         return *runtime.value();
     }
 

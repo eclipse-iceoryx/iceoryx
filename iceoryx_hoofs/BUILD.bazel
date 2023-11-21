@@ -21,7 +21,7 @@ load("//bazel:configure_version.bzl", "configure_version")
 configure_file(
     name = "iceoryx_hoofs_deployment_hpp",
     src = "cmake/iceoryx_hoofs_deployment.hpp.in",
-    out = "include/iox/iceoryx_hoofs_deployment.hpp",
+    out = "generated/include/iox/iceoryx_hoofs_deployment.hpp",
     config = {
         # FIXME: for values see "iceoryx_hoofs/cmake/IceoryxHoofsDeployment.cmake" ... for now some nice defaults
         "IOX_MINIMAL_LOG_LEVEL": "TRACE",
@@ -31,7 +31,7 @@ configure_file(
 configure_version(
     name = "iceoryx_versions_h",
     src = "cmake/iceoryx_versions.h.in",
-    out = "include/iceoryx_versions.h",
+    out = "generated/include/iceoryx_versions.h",
     version_from = "//:VERSION",
 )
 
@@ -62,6 +62,7 @@ cc_library(
         "design/include",
         "filesystem/include",
         "functional/include",
+        "generated/include",
         "include/",
         "legacy/include/",
         "memory/include/",

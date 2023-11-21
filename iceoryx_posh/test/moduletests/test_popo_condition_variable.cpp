@@ -437,7 +437,7 @@ TIMING_TEST_F(ConditionVariable_test, SecondWaitBlocksUntilNewNotification, Repe
 })
 
 void waitReturnsSortedListWhenTriggeredInOrder(ConditionVariable_test& test,
-                                               const iox::function_ref<ConditionListener::NotificationVector_t()>& wait)
+                                               const iox::function_ref<ConditionListener::NotificationVector_t()> wait)
 {
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
     {
@@ -466,7 +466,7 @@ TEST_F(ConditionVariable_test, TimedWaitReturnsSortedListWhenTriggeredInOrder)
 }
 
 void waitReturnsSortedListWhenTriggeredInReverseOrder(
-    ConditionVariable_test& test, const iox::function_ref<ConditionListener::NotificationVector_t()>& wait)
+    ConditionVariable_test& test, const iox::function_ref<ConditionListener::NotificationVector_t()> wait)
 {
     for (uint64_t i = 0U; i < test.m_notifiers.size(); ++i)
     {

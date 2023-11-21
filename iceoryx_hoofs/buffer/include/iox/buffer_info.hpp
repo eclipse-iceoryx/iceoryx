@@ -1,4 +1,4 @@
-// Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright 2023, Eclipse Foundation and the iceoryx contributors. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,14 +13,20 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
+#ifndef IOX_HOOFS_BUFFER_BUFFER_INFO_HPP
+#define IOX_HOOFS_BUFFER_BUFFER_INFO_HPP
 
-#ifndef IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
-#define IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
+#include <cstdint>
 
-#define IOX_NO_DISCARD [[nodiscard]]
+namespace iox
+{
+/// @brief struct used to define the used size and total size of a buffer
+struct BufferInfo
+{
+    uint64_t used_size{0};
+    uint64_t total_size{0};
+};
 
-#define IOX_FALLTHROUGH [[fallthrough]]
+} // namespace iox
 
-#define IOX_MAYBE_UNUSED [[maybe_unused]]
-
-#endif // IOX_HOOFS_MAC_PLATFORM_ATTRIBUTES_HPP
+#endif

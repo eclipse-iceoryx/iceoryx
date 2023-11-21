@@ -152,7 +152,7 @@ TEST_F(Serialization_test, SerializeSerializableClass)
     struct A
     {
         A() = default;
-        explicit A(const iox::Serialization& serialized IOX_MAYBE_UNUSED)
+        explicit A(const iox::Serialization& serialized [[maybe_unused]])
         {
         }
         // NOLINTNEXTLINE(hicpp-explicit-conversions) required by the Serialization API

@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/iceoryx_posh_config.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/runtime/posh_runtime_single_process.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
+#include "iox/signal_watcher.hpp"
 
 #include <atomic>
 #include <chrono>
@@ -59,7 +59,7 @@ void publisher()
     //! [send]
     uint64_t counter{0};
     constexpr const char GREEN_RIGHT_ARROW[] = "\033[32m->\033[m ";
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         publisher.loan().and_then([&](auto& sample) {
             sample->counter = counter++;
@@ -83,7 +83,7 @@ void subscriber()
 
     //! [receive]
     constexpr const char ORANGE_LEFT_ARROW[] = "\033[33m<-\033[m ";
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         if (iox::SubscribeState::SUBSCRIBED == subscriber.getSubscriptionState())
         {
@@ -136,7 +136,7 @@ int main()
     //! [run]
     std::thread publisherThread(publisher), subscriberThread(subscriber);
 
-    iox::posix::waitForTerminationRequest();
+    iox::waitForTerminationRequest();
 
     publisherThread.join();
     subscriberThread.join();

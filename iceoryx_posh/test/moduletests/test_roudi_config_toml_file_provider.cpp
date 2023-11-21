@@ -21,9 +21,7 @@
 
 #include "test.hpp"
 
-#if __cplusplus >= 201703L
 #include <filesystem>
-#endif
 
 #include <fstream>
 #include <string>
@@ -73,9 +71,6 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
 {
     ::testing::Test::RecordProperty("TEST_ID", "37f5a397-a289-4bc1-86a7-d95851a5ab47");
 
-#if __cplusplus < 201703L
-    GTEST_SKIP() << "The test uses std::filesystem which is only available with C++17";
-#else
     auto tempFilePath = std::filesystem::temp_directory_path();
     tempFilePath.append("test_roudi_config.toml");
 
@@ -92,7 +87,8 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
     )";
     tempFile.close();
 
-    cmdLineArgs.configFilePath = iox::roudi::ConfigFilePathString_t(iox::TruncateToCapacity, tempFilePath.c_str());
+    cmdLineArgs.configFilePath =
+        iox::roudi::ConfigFilePathString_t(iox::TruncateToCapacity, tempFilePath.u8string().c_str());
 
     iox::config::TomlRouDiConfigFileProvider sut(cmdLineArgs);
 
@@ -100,7 +96,6 @@ TEST_F(RoudiConfigTomlFileProvider_test, ParsingFileIsSuccessful)
         GTEST_FAIL() << "Expected a config but got error: "
                      << iox::roudi::ROUDI_CONFIG_FILE_PARSE_ERROR_STRINGS[static_cast<uint64_t>(error)];
     });
-#endif
 }
 
 constexpr const char* CONFIG_NO_GENERAL_SECTION = R"(

@@ -19,6 +19,7 @@
 #define IOX_POSH_ROUDI_ENVIRONMENT_ROUDI_ENVIRONMENT_HPP
 
 #include "iceoryx_posh/roudi_env/roudi_env.hpp"
+#include "iox/detail/deprecation_marker.hpp"
 
 #include <chrono>
 
@@ -27,8 +28,7 @@ namespace iox
 namespace roudi
 {
 /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'iox::roudi_env::RouDiEnv'
-class [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'iox::roudi_env::RouDiEnv'")]] RouDiEnvironment
-    : public roudi_env::RouDiEnv
+class IOX_DEPRECATED_SINCE(3, "Please port to 'iox::roudi_env::RouDiEnv'") RouDiEnvironment : public roudi_env::RouDiEnv
 {
   public:
     using ParentType = roudi_env::RouDiEnv;
@@ -36,22 +36,21 @@ class [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'iox::roud
     using ParentType::operator=;
 
     /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'setDiscoveryLoopWaitToFinishTimeout'
-    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'setDiscoveryLoopWaitToFinishTimeout'")]] void
-    SetInterOpWaitingTime(const std::chrono::milliseconds& v) noexcept
+    IOX_DEPRECATED_SINCE(3, "Please port to 'setDiscoveryLoopWaitToFinishTimeout'")
+    void SetInterOpWaitingTime(const std::chrono::milliseconds& v) noexcept
     {
         setDiscoveryLoopWaitToFinishTimeout(units::Duration::fromMilliseconds(v.count()));
     }
 
     /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'triggerDiscoveryLoopAndWaitToFinish'
-    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'triggerDiscoveryLoopAndWaitToFinish'")]] void
-    InterOpWait() noexcept
+    IOX_DEPRECATED_SINCE(3, "Please port to 'triggerDiscoveryLoopAndWaitToFinish'") void InterOpWait() noexcept
     {
         triggerDiscoveryLoopAndWaitToFinish();
     }
 
     /// @deprecated Deprecated in 3.0, removed in 4.0, please port to 'cleanupAppResources'
-    [[deprecated("Deprecated in 3.0, removed in 4.0, please port to 'cleanupAppResources'")]] void CleanupAppResources(
-        const RuntimeName_t& name) noexcept
+    IOX_DEPRECATED_SINCE(3, "Please port to 'cleanupAppResources'")
+    void CleanupAppResources(const RuntimeName_t& name) noexcept
     {
         cleanupAppResources(name);
     }

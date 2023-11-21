@@ -36,11 +36,11 @@ using namespace iox::posix;
 class MePooSegmentMock
 {
   public:
-    MePooSegmentMock(const MePooConfig& mempoolConfig IOX_MAYBE_UNUSED,
-                     iox::BumpAllocator& managementAllocator IOX_MAYBE_UNUSED,
-                     const PosixGroup& readerGroup IOX_MAYBE_UNUSED,
-                     const PosixGroup& writerGroup IOX_MAYBE_UNUSED,
-                     const MemoryInfo& memoryInfo IOX_MAYBE_UNUSED) noexcept
+    MePooSegmentMock(const MePooConfig& mempoolConfig [[maybe_unused]],
+                     iox::BumpAllocator& managementAllocator [[maybe_unused]],
+                     const PosixGroup& readerGroup [[maybe_unused]],
+                     const PosixGroup& writerGroup [[maybe_unused]],
+                     const MemoryInfo& memoryInfo [[maybe_unused]]) noexcept
     {
     }
 };

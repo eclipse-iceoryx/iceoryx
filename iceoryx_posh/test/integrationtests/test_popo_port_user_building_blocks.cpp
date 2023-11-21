@@ -111,9 +111,9 @@ class PortUser_IntegrationTest : public Test
 
     Watchdog m_deadlockWatchdog{DEADLOCK_TIMEOUT};
 
-    uint64_t m_receiveCounter{0U};
+    std::atomic<uint64_t> m_receiveCounter{0U};
     std::atomic<uint64_t> m_sendCounter{0U};
-    std::atomic<uint64_t> m_publisherRunFinished{0U};
+    std::atomic<bool> m_publisherRunFinished{false};
 
     // Memory objects
     iox::BumpAllocator m_memoryAllocator{g_memory, MEMORY_SIZE};
@@ -178,9 +178,7 @@ class PortUser_IntegrationTest : public Test
     }
 
     template <typename SubscriberPortType>
-    void subscriberThread(uint32_t numberOfPublishers,
-                          SubscriberPortType& subscriberPortRouDi,
-                          SubscriberPortUser& subscriberPortUser)
+    void subscriberThread(SubscriberPortType& subscriberPortRouDi, SubscriberPortUser& subscriberPortUser)
     {
         bool finished{false};
 
@@ -208,22 +206,19 @@ class PortUser_IntegrationTest : public Test
         static_cast<void>(subscriberPortRouDi.dispatchCaProMessageAndGetPossibleResponse(caproMessage));
 
         // Subscription done and ready to receive samples
-        while (!finished)
+        while (!finished || subscriberPortUser.hasNewChunks())
         {
             // Try to receive chunk
             subscriberPortUser.tryGetChunk()
                 .and_then([&](auto& chunkHeader) {
-                    m_receiveCounter++;
+                    m_receiveCounter.fetch_add(1, std::memory_order_relaxed);
                     subscriberPortUser.releaseChunk(chunkHeader);
                 })
                 .or_else([&](auto& result) {
                     if (result == ChunkReceiveResult::NO_CHUNK_AVAILABLE)
                     {
                         // Nothing received -> check if publisher(s) still running
-                        if (m_publisherRunFinished.load(std::memory_order_relaxed) == numberOfPublishers)
-                        {
-                            finished = true;
-                        }
+                        finished = m_publisherRunFinished.load(std::memory_order_relaxed);
                     }
                     else
                     {
@@ -298,8 +293,17 @@ class PortUser_IntegrationTest : public Test
         }
 
         // Subscriber is ready to receive -> start sending samples
-        for (size_t i = 0U; i < ITERATIONS; i++)
+        size_t i = 0U;
+        while (i < ITERATIONS)
         {
+            // slow down to ensure there is no overflow
+            auto receiveCounter = m_receiveCounter.load(std::memory_order_relaxed);
+            auto sendCounter = m_sendCounter.load(std::memory_order_seq_cst);
+            if (sendCounter - receiveCounter > 100)
+            {
+                std::this_thread::yield();
+                continue;
+            }
             publisherPortUser
                 .tryAllocateChunk(sizeof(DummySample),
                                   alignof(DummySample),
@@ -310,66 +314,64 @@ class PortUser_IntegrationTest : public Test
                     new (sample) DummySample();
                     static_cast<DummySample*>(sample)->m_dummy = i;
                     publisherPortUser.sendChunk(chunkHeader);
-                    m_sendCounter++;
+                    m_sendCounter.fetch_add(1, std::memory_order_relaxed);
                 })
                 .or_else([](auto error) {
                     // Errors shall never occur
                     GTEST_FAIL() << "Error in tryAllocateChunk(): " << static_cast<uint32_t>(error);
                 });
 
-            /// Add some jitter to make thread breathe
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 4));
-        }
+            ++i;
 
-        // Signal the subscriber thread we're done
-        m_publisherRunFinished++;
+            /// Add some jitter to make thread breathe
+            /// On Windows even when asked for short sleeps the OS suspends the execution for multiple milliseconds;
+            /// therefore lets sleep only every second iteration
+            if (i % 2 == 0)
+            {
+                std::this_thread::sleep_for(std::chrono::microseconds(100 + rand() % 50));
+            }
+        }
     }
 };
 
-TIMING_TEST_F(PortUser_IntegrationTest, SingleProducer, Repeat(5), [&] {
+TEST_F(PortUser_IntegrationTest, SingleProducer)
+{
     ::testing::Test::RecordProperty("TEST_ID", "bb62ac02-2b7d-4d1c-8699-9f5ba4d9bd5a");
 
-    std::thread subscribingThread([this] {
-        constexpr uint32_t NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER = 1U;
-        subscriberThread(NUMBER_OF_PUBLISHERS_SINGLE_PRODUCER,
-                         m_subscriberPortRouDiSingleProducer,
-                         m_subscriberPortUserSingleProducer);
-    });
+    std::thread subscribingThread(
+        [this] { subscriberThread(m_subscriberPortRouDiSingleProducer, m_subscriberPortUserSingleProducer); });
     std::thread publishingThread([this] {
         constexpr uint32_t INDEX_OF_PUBLISHER_SINGLE_PRODUCER = 0U;
         publisherThread(
             INDEX_OF_PUBLISHER_SINGLE_PRODUCER, m_publisherPortRouDiVector.front(), m_publisherPortUserVector.front());
     });
 
+    if (publishingThread.joinable())
+    {
+        publishingThread.join();
+    }
+    m_publisherRunFinished.store(true, std::memory_order_relaxed);
+
     if (subscribingThread.joinable())
     {
         subscribingThread.join();
     }
 
-    if (publishingThread.joinable())
-    {
-        publishingThread.join();
-    }
+    EXPECT_THAT(m_receiveCounter.load(std::memory_order_relaxed), Eq(m_sendCounter.load(std::memory_order_relaxed)));
+    EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
+}
 
-    TIMING_TEST_EXPECT_TRUE(m_sendCounter.load(std::memory_order_relaxed) == m_receiveCounter);
-    TIMING_TEST_EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
-})
-
-TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
+TEST_F(PortUser_IntegrationTest, MultiProducer)
+{
     ::testing::Test::RecordProperty("TEST_ID", "d27279d3-26c0-4489-9208-bd361120525a");
-    std::thread subscribingThread([this] {
-        subscriberThread(NUMBER_OF_PUBLISHERS, m_subscriberPortRouDiMultiProducer, m_subscriberPortUserMultiProducer);
-    });
+
+    std::thread subscribingThread(
+        [this] { subscriberThread(m_subscriberPortRouDiMultiProducer, m_subscriberPortUserMultiProducer); });
 
     for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
     {
         m_publisherThreadVector.emplace_back(
             [i, this] { publisherThread(i, m_publisherPortRouDiVector[i], m_publisherPortUserVector[i]); });
-    }
-
-    if (subscribingThread.joinable())
-    {
-        subscribingThread.join();
     }
 
     for (uint32_t i = 0U; i < NUMBER_OF_PUBLISHERS; i++)
@@ -379,9 +381,15 @@ TIMING_TEST_F(PortUser_IntegrationTest, MultiProducer, Repeat(5), [&] {
             m_publisherThreadVector[i].join();
         }
     }
+    m_publisherRunFinished.store(true, std::memory_order_relaxed);
 
-    TIMING_TEST_EXPECT_TRUE(m_sendCounter.load(std::memory_order_relaxed) == m_receiveCounter);
-    TIMING_TEST_EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
-})
+    if (subscribingThread.joinable())
+    {
+        subscribingThread.join();
+    }
+
+    EXPECT_THAT(m_receiveCounter.load(std::memory_order_relaxed), Eq(m_sendCounter.load(std::memory_order_relaxed)));
+    EXPECT_FALSE(PortUser_IntegrationTest::m_subscriberPortUserMultiProducer.hasLostChunksSinceLastCall());
+}
 
 } // namespace

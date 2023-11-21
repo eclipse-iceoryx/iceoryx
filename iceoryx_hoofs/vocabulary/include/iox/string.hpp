@@ -17,8 +17,11 @@
 #ifndef IOX_HOOFS_VOCABULARY_STRING_HPP
 #define IOX_HOOFS_VOCABULARY_STRING_HPP
 
+#include "iceoryx_hoofs/error_reporting/error_reporting_macros.hpp"
+#include "iox/buffer_info.hpp"
 #include "iox/detail/string_internal.hpp"
 #include "iox/detail/string_type_traits.hpp"
+#include "iox/function.hpp"
 #include "iox/log/logstream.hpp"
 #include "iox/optional.hpp"
 #include "iox/type_traits.hpp"
@@ -422,6 +425,21 @@ class string final
     /// @return true if the appending succeeds, otherwise false
     template <typename T>
     IsStringOrCharArrayOrChar<T, bool> unsafe_append(const T& str) noexcept;
+
+    /// @brief direct access to the string's raw pointer. The access resizes the data with the value returned by the
+    /// passed function. If the data written has not the terminator at the returned size, a FATAL error occurs.
+    ///
+    /// @param [in] function func is a function composed by the raw data pointer and the BufferInfo with current size
+    /// and total size, including the space for the zero termination. The return value is the string length.
+    ///
+    /// @code
+    ///     iox::string<100> s;
+    ///     s.unsafe_raw_access([] (auto* str, const auto info) {
+    ///         strncpy(str, "Hello World", info.total_size);
+    ///         return strlen("Hello World");
+    ///     });
+    /// @endcode
+    void unsafe_raw_access(const iox::function_ref<uint64_t(char*, const iox::BufferInfo info)>& func) noexcept;
 
     /// @brief inserts a iox::string or char array in the range [str[0], str[count]) at position pos. The insertion
     /// fails if the string capacity would be exceeded or pos is greater than the string size or count is greater than

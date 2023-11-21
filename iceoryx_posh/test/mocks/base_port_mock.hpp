@@ -44,19 +44,12 @@ class MockBasePort
         return *this;
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(const iox::capro::ServiceDescription&, getCaProServiceDescription, (), (const, noexcept));
     MOCK_METHOD(const iox::RuntimeName_t&, getRuntimeName, (), (const, noexcept));
     MOCK_METHOD(iox::popo::UniquePortId, getUniqueID, (), (const, noexcept));
     MOCK_METHOD(const iox::NodeName_t&, getNodeName, (), (const, noexcept));
     MOCK_METHOD(void, destroy, (), (noexcept));
     MOCK_METHOD(bool, toBeDestroyed, (), (const, noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
     explicit operator bool() const
     {

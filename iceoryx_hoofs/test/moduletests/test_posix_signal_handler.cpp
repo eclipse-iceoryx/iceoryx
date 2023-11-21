@@ -82,7 +82,7 @@ TYPED_TEST(SignalHandler_test, RegisteringSignalGuardCallbackWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "7836be02-28ab-43b7-b7a7-7c43c4830eb4");
     Signal signalValue = TestFixture::SIGNAL_VALUE;
-    auto signalGuard IOX_MAYBE_UNUSED = registerSignalHandler(signalValue, this->signalHandler1);
+    auto signalGuard [[maybe_unused]] = registerSignalHandler(signalValue, this->signalHandler1);
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);
 
@@ -96,7 +96,7 @@ TYPED_TEST(SignalHandler_test, WhenSignalGuardGoesOutOfScopePreviousStateIsResto
     Signal signalValue = TestFixture::SIGNAL_VALUE;
     this->registerSignal(static_cast<int>(signalValue), this->signalHandler2);
     {
-        auto signalGuard IOX_MAYBE_UNUSED = registerSignalHandler(signalValue, this->signalHandler1);
+        auto signalGuard [[maybe_unused]] = registerSignalHandler(signalValue, this->signalHandler1);
     }
 
     ASSERT_EQ(raise(static_cast<int>(signalValue)), 0);

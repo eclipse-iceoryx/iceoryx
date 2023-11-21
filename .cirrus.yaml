@@ -13,6 +13,18 @@
 ---
 
 #
+# Filter to run the CI only on the master and release branches or for pull request to the master, release* and iox-* branches
+#
+
+only_if: $CIRRUS_BRANCH == 'master'
+         || $CIRRUS_BRANCH == 'release*'
+         || ($CIRRUS_PR != '' && ($CIRRUS_BASE_BRANCH == 'master'
+                                  || $CIRRUS_BASE_BRANCH == 'release*'
+                                  || $CIRRUS_BASE_BRANCH == 'iox-*'
+                                  )
+            )
+
+#
 # Templates
 #
 
@@ -31,23 +43,41 @@ iox_common_cpu_and_memory_config_for_tests_template: &IOX_COMMON_CPU_AND_MEMORY_
 
 # Build and Test
 
-iox_posix_clean_build_script_template: &IOX_POSIX_CLEAN_BUILD
-  - echo "#### Deleting build and iox-tests-bin dir"
-  - if [[ -d "build" ]]; then rm -rf build; fi
-  - if [[ -d "iox-tests-bin" ]]; then rm -rf iox-tests-vin; fi
-  - echo "#### Running cmake to configure build"
-  - cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DCMAKE_INSTALL_PREFIX=build/install
-  - echo "#### Running cmake to build with CIRRUS_CPU = " $CIRRUS_CPU
-  - cmake --build build --target install -j $CIRRUS_CPU
+iox_posix_pre_cmake_config_script_template: &IOX_POSIX_PRE_CMAKE_CONFIG
+  echo "#### Deleting build and iox-tests-bin dir"
+  && if [[ -d "build" ]]; then rm -rf build; fi
+  && if [[ -d "iox-tests-bin" ]]; then rm -rf iox-tests-vin; fi
 
-iox_posix_clean_build_with_additional_user_template: &IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
-  - echo "#### Deleting build and iox-tests-bin dir"
-  - if [[ -d "build" ]]; then rm -rf build; fi
-  - if [[ -d "iox-tests-bin" ]]; then rm -rf iox-tests-vin; fi
-  - echo "#### Running cmake to configure build"
-  - cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DTEST_ADD_USER=ON -DCMAKE_INSTALL_PREFIX=build/install
-  - echo "#### Running cmake to build with CIRRUS_CPU = " $CIRRUS_CPU
-  - cmake --build build --target install -j $CIRRUS_CPU
+iox_posix_post_cmake_config_script_template: &IOX_POSIX_POST_CMAKE_CONFIG
+  echo "#### Running cmake to build with CIRRUS_CPU = " $CIRRUS_CPU
+  && cmake --build build --target install -j $CIRRUS_CPU
+
+iox_posix_cmake_config_strict_with_no_additional_user_script_template: &IOX_POSIX_CMAKE_CONFIG_STRICT_WITH_NO_ADDITIONAL_USER
+  echo "#### Running cmake to configure build"
+  && cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DTEST_ADD_USER=OFF -DCMAKE_INSTALL_PREFIX=build/install
+
+iox_posix_cmake_config_strict_with_additional_user_script_template: &IOX_POSIX_CMAKE_CONFIG_STRICT_WITH_ADDITIONAL_USER
+  echo "#### Running cmake to configure build"
+  && cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=ON -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DTEST_ADD_USER=ON -DCMAKE_INSTALL_PREFIX=build/install
+
+iox_posix_cmake_config_no_strict_with_additional_user_script_template: &IOX_POSIX_CMAKE_CONFIG_NO_STRICT_WITH_ADDITIONAL_USER
+  echo "#### Running cmake to configure build"
+  && cmake -Bbuild -Hiceoryx_meta -DBUILD_STRICT=OFF -DBINDING_C=ON -DINTROSPECTION=ON -DEXAMPLES=ON -DBUILD_TEST=ON -DTEST_ADD_USER=ON -DCMAKE_INSTALL_PREFIX=build/install
+
+iox_posix_clean_build_strict_with_no_additional_user_template: &IOX_POSIX_CLEAN_BUILD_STRICT_WITH_NO_ADDITIONAL_USER
+  - *IOX_POSIX_PRE_CMAKE_CONFIG
+  - *IOX_POSIX_CMAKE_CONFIG_STRICT_WITH_NO_ADDITIONAL_USER
+  - *IOX_POSIX_POST_CMAKE_CONFIG
+
+iox_posix_clean_build_strict_with_additional_user_template: &IOX_POSIX_CLEAN_BUILD_STRICT_WITH_ADDITIONAL_USER
+  - *IOX_POSIX_PRE_CMAKE_CONFIG
+  - *IOX_POSIX_CMAKE_CONFIG_STRICT_WITH_ADDITIONAL_USER
+  - *IOX_POSIX_POST_CMAKE_CONFIG
+
+iox_posix_clean_build_no_strict_with_additional_user_template: &IOX_POSIX_CLEAN_BUILD_NO_STRICT_WITH_ADDITIONAL_USER
+  - *IOX_POSIX_PRE_CMAKE_CONFIG
+  - *IOX_POSIX_CMAKE_CONFIG_NO_STRICT_WITH_ADDITIONAL_USER
+  - *IOX_POSIX_POST_CMAKE_CONFIG
 
 iox_prepare_test_binaries_for_cache_template: &IOX_PREPARE_TEST_BINARIES_FOR_CACHE
   - mkdir -p iox-tests-bin
@@ -101,7 +131,7 @@ ubuntu_22_04_aarch64_build_task:
     reupload_on_changes: true
     fingerprint_key: $CIRRUS_OS_ubuntu_22_04_aarch64_test_binaries_cache
   build_script:
-    <<: *IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
+    <<: *IOX_POSIX_CLEAN_BUILD_STRICT_WITH_ADDITIONAL_USER
   populate_test_binary_folder_script:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 
@@ -119,6 +149,42 @@ ubuntu_22_04_aarch64_test_task:
     <<: *IOX_RUN_TESTS
 
 #
+# Arch Linux x64 gcc 8.3 aka QNX canary build
+#
+
+arch_linux_x64_gcc_8_3_aka_qnx_canary_build_task:
+  depends_on: preflight_check
+  container:
+    dockerfile: tools/ci/docker/archlinux-base-devel
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_BUILDS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: true
+    fingerprint_key: $CIRRUS_OS_archlinux_x64_gcc_8_3_aka_qnx_canary_test_binaries_cache
+  env:
+    # use GCC 8.3 which corresponds to QCC 8.3 on QNX 7.1
+    CC: gcc-8
+    CXX: g++-8
+  build_script:
+    <<: *IOX_POSIX_CLEAN_BUILD_STRICT_WITH_ADDITIONAL_USER
+  populate_test_binary_folder_script:
+    <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
+
+arch_linux_x64_gcc_8_3_aka_qnx_canary_test_task:
+  depends_on: arch_linux_x64_gcc_8_3_aka_qnx_canary_build
+  container:
+    dockerfile: tools/ci/docker/archlinux-base-devel
+    <<: *IOX_COMMON_CPU_AND_MEMORY_CONFIG_FOR_TESTS
+  <<: *IOX_TASK_TIMEOUT
+  test_binaries_cache:
+    folder: iox-tests-bin
+    reupload_on_changes: false
+    fingerprint_key: $CIRRUS_OS_archlinux_x64_gcc_8_3_aka_qnx_canary_test_binaries_cache
+  test_script:
+    <<: *IOX_RUN_TESTS
+
+#
 # Arch Linux x64
 #
 
@@ -132,12 +198,8 @@ arch_linux_x64_build_task:
     folder: iox-tests-bin
     reupload_on_changes: true
     fingerprint_key: $CIRRUS_OS_archlinux_x64_test_binaries_cache
-  env:
-    # use clang on Arch Linux since GCC triggers some compiler warnings which abort the job
-    CC: clang
-    CXX: clang++
   build_script:
-    <<: *IOX_POSIX_CLEAN_BUILD_WITH_ADDITIONAL_USER
+    <<: *IOX_POSIX_CLEAN_BUILD_STRICT_WITH_ADDITIONAL_USER
   populate_test_binary_folder_script:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 
@@ -172,7 +234,7 @@ freebsd_x64_build_task:
     - pkg install -y cmake git ncurses bash wget
     - ln -s /usr/local/bin/bash /bin/bash
   build_script:
-    <<: *IOX_POSIX_CLEAN_BUILD
+    <<: *IOX_POSIX_CLEAN_BUILD_STRICT_WITH_NO_ADDITIONAL_USER
   populate_test_binary_folder_script:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 
@@ -206,7 +268,7 @@ macos_aarch64_build_task:
   setup_script:
     - brew install ncurses
   build_script:
-    <<: *IOX_POSIX_CLEAN_BUILD
+    <<: *IOX_POSIX_CLEAN_BUILD_STRICT_WITH_NO_ADDITIONAL_USER
   populate_test_binary_folder_script:
     <<: *IOX_PREPARE_TEST_BINARIES_FOR_CACHE
 

@@ -17,9 +17,9 @@
 //! [iceoryx includes]
 #include "request_and_response_types.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/client.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 //! [iceoryx includes]
 
 #include <iostream>
@@ -40,7 +40,7 @@ int main()
     uint64_t fibonacciCurrent = 1;
     int64_t requestSequenceId = 0;
     int64_t expectedResponseSequenceId = requestSequenceId;
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     {
         //! [send request]
         client.loan()

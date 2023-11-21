@@ -33,11 +33,11 @@ using namespace iox::runtime;
 using namespace iox::roudi_env;
 using namespace iox::testing;
 
-void onSampleReceivedCallback(Subscriber<int>* subscriber IOX_MAYBE_UNUSED)
+void onSampleReceivedCallback(Subscriber<int>* subscriber [[maybe_unused]])
 {
 }
 
-void onSampleReceivedCallbackForUntypedSub(UntypedSubscriber* subscriber IOX_MAYBE_UNUSED)
+void onSampleReceivedCallbackForUntypedSub(UntypedSubscriber* subscriber [[maybe_unused]])
 {
 }
 

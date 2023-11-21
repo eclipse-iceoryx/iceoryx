@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 - 2022 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,6 +22,7 @@
 #include "iox/detail/variant_internal.hpp"
 #include "iox/iceoryx_hoofs_types.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -214,6 +216,15 @@ class variant final
 
     /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
     /// @tparam[in] TypeIndex index of the stored type
+    /// @return a pointer to the type at index
+    /// @attention this function is unsafe and does not check if the type at the index is the current active one; only
+    /// use this function when it is ensured that the type at index is indeed the current active one; it is undefined
+    /// behavior to call this on an index which is not the active type
+    template <uint64_t TypeIndex>
+    typename internal::get_type_at_index<0, TypeIndex, Types...>::type* unsafe_get_at_index_unchecked() noexcept;
+
+    /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
+    /// @tparam[in] TypeIndex index of the stored type
     /// @return if the variant does contain the type at index TypeIndex it returns a valid
     ///             pointer, if it does contain no type at all or a different type it returns
     ///             nullptr.
@@ -223,6 +234,16 @@ class variant final
     /// @endcode
     template <uint64_t TypeIndex>
     const typename internal::get_type_at_index<0, TypeIndex, Types...>::type* get_at_index() const noexcept;
+
+    /// @brief returns a pointer to the type stored at index TypeIndex. (not stl compliant)
+    /// @tparam[in] TypeIndex index of the stored type
+    /// @return a const pointer to the type at index
+    /// @attention this function is unsafe and does not check if the type at the index is the current active one; only
+    /// use this function when it is ensured that the type at index is indeed the current active one; it is undefined
+    /// behavior to call this on an index which is not the active type
+    template <uint64_t TypeIndex>
+    const typename internal::get_type_at_index<0, TypeIndex, Types...>::type*
+    unsafe_get_at_index_unchecked() const noexcept;
 
     /// @brief returns a pointer to the type T stored in the variant. (not stl compliant)
     /// @tparam[in] T type of the returned pointer
@@ -266,7 +287,7 @@ class variant final
         // AXIVION Next Construct AutosarC++19_03-M0.1.3 : data provides the actual storage and is accessed via m_storage since &m_storage.data = &m_storage
         // AXIVION Next Construct AutosarC++19_03-A18.1.1 : safe access is guaranteed since the c-array is wrapped inside the variant class
         // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,hicpp-avoid-c-arrays)
-        iox::byte data[TYPE_SIZE];
+        std::byte data[TYPE_SIZE];
     };
     storage_t m_storage{};
     uint64_t m_type_index{INVALID_VARIANT_INDEX};

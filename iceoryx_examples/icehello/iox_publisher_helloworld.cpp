@@ -19,7 +19,7 @@
 //! [include topic]
 
 //! [include sig watcher]
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 //! [include sig watcher]
 
 //! [include]
@@ -43,7 +43,7 @@ int main()
 
     double ct = 0.0;
     //! [wait for term]
-    while (!iox::posix::hasTerminationRequested())
+    while (!iox::hasTerminationRequested())
     //! [wait for term]
     {
         ++ct;

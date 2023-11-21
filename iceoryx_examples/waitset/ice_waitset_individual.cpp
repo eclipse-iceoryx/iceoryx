@@ -29,7 +29,7 @@ std::atomic_bool keepRunning{true};
 using WaitSet = iox::popo::WaitSet<>;
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
+static void sigHandler(int f_sig [[maybe_unused]])
 {
     keepRunning = false;
     if (waitsetSigHandlerAccess)

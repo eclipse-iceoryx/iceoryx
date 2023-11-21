@@ -14,9 +14,9 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/publisher.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 #include "topic_data.hpp"
 
 #include <chrono>
@@ -27,7 +27,7 @@ void sending()
     iox::runtime::PoshRuntime::initRuntime("iox-cpp-publisher-waitset");
     iox::popo::Publisher<CounterTopic> myPublisher({"Radar", "FrontLeft", "Counter"});
 
-    for (uint32_t counter = 0U; !iox::posix::hasTerminationRequested(); ++counter)
+    for (uint32_t counter = 0U; !iox::hasTerminationRequested(); ++counter)
     {
         myPublisher.publishCopyOf(CounterTopic{counter})
             .and_then([&] { std::cout << "Sending: " << counter << std::endl; })

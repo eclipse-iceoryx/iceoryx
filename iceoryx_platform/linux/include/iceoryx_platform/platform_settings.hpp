@@ -18,7 +18,6 @@
 
 #include <cstdint>
 #include <linux/limits.h>
-#include <type_traits>
 
 namespace iox
 {
@@ -41,14 +40,6 @@ constexpr const char IOX_TEMP_DIR[] = "/tmp/";
 
 constexpr uint64_t MAX_USER_NAME_LENGTH = 32;
 constexpr uint64_t MAX_GROUP_NAME_LENGTH = 32;
-
-#if __cplusplus >= 201703L
-template <typename C, typename... Cargs>
-using invoke_result = std::invoke_result<C, Cargs...>;
-#else
-template <typename C, typename... Cargs>
-using invoke_result = std::result_of<C(Cargs...)>;
-#endif
 } // namespace platform
 } // namespace iox
 

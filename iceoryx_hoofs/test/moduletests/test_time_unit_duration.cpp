@@ -1390,10 +1390,10 @@ TEST(Duration_test, AddDurationDoesNotChangeOriginalObject)
     constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
     auto sut1 = EXPECTED_DURATION;
-    const auto result1 IOX_MAYBE_UNUSED = sut1 + 15_s;
+    const auto result1 [[maybe_unused]] = sut1 + 15_s;
 
     auto sut2 = EXPECTED_DURATION;
-    const auto result2 IOX_MAYBE_UNUSED = 15_s + sut1;
+    const auto result2 [[maybe_unused]] = 15_s + sut1;
 
     EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
@@ -1592,10 +1592,10 @@ TEST(Duration_test, SubtractDurationDoesNotChangeOriginalObject)
     constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
     auto sut1 = EXPECTED_DURATION;
-    const auto result1 IOX_MAYBE_UNUSED = sut1 - 5_s;
+    const auto result1 [[maybe_unused]] = sut1 - 5_s;
 
     auto sut2 = EXPECTED_DURATION;
-    const auto result2 IOX_MAYBE_UNUSED = 35_s + sut1;
+    const auto result2 [[maybe_unused]] = 35_s + sut1;
 
     EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));
@@ -1783,10 +1783,10 @@ TEST(Duration_test, MultiplyDurationDoesNotChangeOriginalObject)
     constexpr Duration EXPECTED_DURATION{13_s + 42_ns};
 
     auto sut1 = EXPECTED_DURATION;
-    auto result1 IOX_MAYBE_UNUSED = sut1 * 0;
+    auto result1 [[maybe_unused]] = sut1 * 0;
 
     auto sut2 = EXPECTED_DURATION;
-    auto result2 IOX_MAYBE_UNUSED = sut2 * 0;
+    auto result2 [[maybe_unused]] = sut2 * 0;
 
     EXPECT_THAT(sut1, Eq(EXPECTED_DURATION));
     EXPECT_THAT(sut2, Eq(EXPECTED_DURATION));

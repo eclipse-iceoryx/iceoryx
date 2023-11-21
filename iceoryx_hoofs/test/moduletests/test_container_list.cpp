@@ -548,7 +548,7 @@ TEST_F(list_test, EmplaceBackWithOneElements)
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
-        EXPECT_THAT(sut1.emplace_back(cnt), Eq(TestListElement{cnt}));
+        EXPECT_THAT(sut1.emplace_back(cnt).value, Eq(cnt));
         ++cnt;
     }
 
@@ -561,7 +561,7 @@ TEST_F(list_test, EmplaceBackWithOneElements)
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(stats.cTor, Eq(0U));
-    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceBackWithSomeElements)
@@ -577,7 +577,7 @@ TEST_F(list_test, EmplaceBackWithSomeElements)
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
-        EXPECT_THAT(sut1.emplace_back(cnt), Eq(TestListElement{cnt}));
+        EXPECT_THAT(sut1.emplace_back(cnt).value, Eq(cnt));
         ++cnt;
     }
 
@@ -590,7 +590,7 @@ TEST_F(list_test, EmplaceBackWithSomeElements)
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(stats.cTor, Eq(0U));
-    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceBackWithCapacityElements)
@@ -603,7 +603,7 @@ TEST_F(list_test, EmplaceBackWithCapacityElements)
 
     for (uint64_t i = 0U; i < ELEMENT_COUNT; ++i)
     {
-        EXPECT_THAT(sut1.emplace_back(cnt), Eq(TestListElement{cnt}));
+        EXPECT_THAT(sut1.emplace_back(cnt).value, Eq(cnt));
         ++cnt;
     }
 
@@ -616,7 +616,7 @@ TEST_F(list_test, EmplaceBackWithCapacityElements)
 
     EXPECT_THAT(sut1.size(), Eq(ELEMENT_COUNT));
     EXPECT_THAT(stats.cTor, Eq(0U));
-    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT * 2U));
+    EXPECT_THAT(stats.customCTor, Eq(ELEMENT_COUNT));
 }
 
 TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
@@ -631,7 +631,7 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
     {
         if (i < CAPACITY)
         {
-            EXPECT_THAT(sut1.emplace_back(cnt), Eq(TestListElement{cnt}));
+            EXPECT_THAT(sut1.emplace_back(cnt).value, Eq(cnt));
         }
         else
         {
@@ -650,7 +650,7 @@ TEST_F(list_test, EmplaceBackWithMoreThanCapacityElements)
 
     EXPECT_THAT(sut1.size(), Eq(CAPACITY));
     EXPECT_THAT(stats.cTor, Eq(0U));
-    EXPECT_THAT(stats.customCTor, Eq(CAPACITY * 2U));
+    EXPECT_THAT(stats.customCTor, Eq(CAPACITY));
 }
 
 TEST_F(list_test, EmplaceWithWrongListIterator)
@@ -1161,7 +1161,7 @@ TEST_F(list_test, InsertSomeElementsListLValue)
     }
     sut.insert(iter, a);
 
-    for (auto& x IOX_MAYBE_UNUSED : sut)
+    for (auto& x [[maybe_unused]] : sut)
     {
         ++loopCounter;
     }
@@ -1485,7 +1485,7 @@ TEST_F(list_test, IteratorTraitsGetValueType)
 TEST_F(list_test, IteratorTraitsCheckIteratorCategoryOnConstIterator)
 {
     ::testing::Test::RecordProperty("TEST_ID", "295e6406-93bc-4a12-9b03-33e5d494b2c2");
-    auto iter = sut.cbegin();
+    auto iter [[maybe_unused]] = sut.cbegin();
     ASSERT_NE(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::random_access_iterator_tag));
     EXPECT_EQ(typeid(std::iterator_traits<decltype(iter)>::iterator_category), typeid(std::bidirectional_iterator_tag));
 }
@@ -2266,7 +2266,7 @@ TEST_F(list_test, invalidIteratorComparison)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(sut.cbegin() == iter); },
@@ -2302,7 +2302,7 @@ TEST_F(list_test, invalidIteratorDereferencing)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT((*iter).value); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);
@@ -2319,7 +2319,7 @@ TEST_F(list_test, invalidIteratorAddressOfOperator)
 
     auto iter = sut.cbegin();
     ++iter;
-    auto iter2 IOX_MAYBE_UNUSED = sut.erase(iter);
+    auto iter2 [[maybe_unused]] = sut.erase(iter);
 
     IOX_EXPECT_FATAL_FAILURE<iox::HoofsError>([&] { IOX_DISCARD_RESULT(iter->value == 12U); },
                                               iox::HoofsError::EXPECTS_ENSURES_FAILED);

@@ -59,13 +59,13 @@ inline PosixCallDetails<ReturnType>::PosixCallDetails(const char* posixFunctionN
 /// of "strerror_r", the posix compliant one which returns an int and stores the message in the buffer
 /// and a gnu version which returns a pointer to the message and sometimes stores the message
 /// in the buffer
-inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode IOX_MAYBE_UNUSED,
+inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const int returnCode [[maybe_unused]],
                                                                  char* const buffer)
 {
     return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity, buffer);
 }
 
-inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg, char* const buffer IOX_MAYBE_UNUSED)
+inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg, char* const buffer [[maybe_unused]])
 {
     return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity, msg);
 }

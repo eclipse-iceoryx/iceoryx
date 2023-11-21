@@ -34,7 +34,7 @@ using WaitSet = iox::popo::WaitSet<NUMBER_OF_SUBSCRIBERS>;
 
 volatile WaitSet* waitsetSigHandlerAccess{nullptr};
 
-static void sigHandler(int f_sig IOX_MAYBE_UNUSED)
+static void sigHandler(int f_sig [[maybe_unused]])
 {
     keepRunning = false;
     if (waitsetSigHandlerAccess)

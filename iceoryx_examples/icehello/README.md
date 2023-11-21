@@ -65,14 +65,14 @@ In iceoryx, a publisher and a subscriber are connected only if all three IDs mat
 For exiting on Ctrl+C, we use the `SignalWatcher`
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][include sig watcher]-->
 ```cpp
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
+#include "iox/signal_watcher.hpp"
 ```
 
 and loop in our `while` loop until it states that `SIGINT` or `SIGTERM` was sent via
 the function `hasTerminationRequested`.
 <!--[geoffrey][iceoryx_examples/icehello/iox_publisher_helloworld.cpp][wait for term]-->
 ```cpp
-while (!iox::posix::hasTerminationRequested())
+while (!iox::hasTerminationRequested())
 ```
 
 In order to send our sample, we loan some shared memory inside the `while` loop:
@@ -125,9 +125,9 @@ The subscriber needs to have similar includes, but unlike the publisher `subscri
 ```cpp
 #include "topic_data.hpp"
 
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
 #include "iceoryx_posh/popo/subscriber.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
+#include "iox/signal_watcher.hpp"
 ```
 
 As well as the publisher, the subscriber needs to register with the daemon RouDi:

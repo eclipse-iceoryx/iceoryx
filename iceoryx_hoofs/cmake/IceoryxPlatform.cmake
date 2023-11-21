@@ -80,7 +80,7 @@ function(iox_create_lsan_runtime_blacklist BLACKLIST_FILE_PATH)
     # count      bytes template
     #     8        642 libacl.so.1
     #     1         24 iox::posix::UnixDomainSocket::timedReceive
-    #     1         24 iox::posix::MessageQueue::receive
+    #     1         24 iox::MessageQueue::receive
     if(NOT EXISTS ${BLACKLIST_FILE_PATH})
         file(WRITE  ${BLACKLIST_FILE_PATH} "# This file is auto-generated from iceoryx_hoofs/cmake/IceoryxPlatform.cmake\n")
         file(APPEND ${BLACKLIST_FILE_PATH} "#leak:libacl.so.1\n")
@@ -131,7 +131,7 @@ if(ADDRESS_SANITIZER OR THREAD_SANITIZER)
         elseif(THREAD_SANITIZER)
             set(ICEORYX_SANITIZER_FLAGS ${ICEORYX_SANITIZER_COMMON_FLAGS} ${ICEORYX_THREAD_SANITIZER_FLAGS} CACHE INTERNAL "")
         endif()
-        
+
         # unset local variables , to avoid polluting global space
         unset(ICEORYX_SANITIZER_BLACKLIST)
         unset(ICEORYX_SANITIZER_COMMON_FLAGS)

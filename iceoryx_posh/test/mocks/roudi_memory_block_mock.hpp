@@ -25,17 +25,10 @@
 class MemoryBlockMock final : public iox::roudi::MemoryBlock
 {
   public:
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(uint64_t, size, (), (const, noexcept, override));
     MOCK_METHOD(uint64_t, alignment, (), (const, noexcept, override));
     MOCK_METHOD(void, onMemoryAvailable, (iox::not_null<void*>), (noexcept, override));
     MOCK_METHOD(void, destroy, (), (noexcept, override));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 };
 
 #endif // IOX_POSH_MOCKS_ROUDI_MEMORY_BLOCK_MOCK_HPP

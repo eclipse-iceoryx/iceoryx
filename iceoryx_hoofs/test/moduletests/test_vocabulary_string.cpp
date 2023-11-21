@@ -16,9 +16,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/error_handling/error_handling.hpp"
+#include "iceoryx_hoofs/testing/error_reporting/testing_support.hpp"
 #include "iceoryx_hoofs/testing/fatal_failure.hpp"
 #include "iox/string.hpp"
 #include "test.hpp"
+#include <cstring>
 
 namespace
 {
@@ -186,7 +188,14 @@ TYPED_TEST(stringTyped_test, SelfMoveAssignmentExcluded)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0ad45975-b68b-465a-b8c5-83dd8d8290d5");
     this->testSubject = "M";
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wself-move"
+#endif
     this->testSubject = std::move(this->testSubject);
+#if (defined(__GNUC__) && __GNUC__ == 13 && !defined(__clang__))
+#pragma GCC diagnostic pop
+#endif
     EXPECT_THAT(this->testSubject.size(), Eq(1U));
     EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
 }
@@ -634,6 +643,81 @@ TYPED_TEST(stringTyped_test, UnsafeAssignOfNullptrFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "140e5402-c6b5-4a07-a0f7-2a10f6d307fb");
     EXPECT_THAT(this->testSubject.unsafe_assign(nullptr), Eq(false));
+}
+
+/// @note void unsafe_raw_access(const std::function<void(char*, const uint64_t, const uint64_t)>& func) noexcept
+TYPED_TEST(stringTyped_test, UnsafeRawAccessOfCStringOfSize0ResultsInSize0)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "43e10399-445d-42af-80b1-25071590de0a");
+    this->testSubject.unsafe_raw_access([this](char* str, const auto info) -> uint64_t {
+        //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+        strcpy(str, "");
+        EXPECT_THAT(info.used_size, this->testSubject.size());
+        using MyString = typename TestFixture::stringType;
+        EXPECT_THAT(info.total_size, MyString::capacity() + 1); // real buffer size
+        return 0U;
+    });
+    EXPECT_THAT(this->testSubject.size(), Eq(0U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq(""));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeRawAccessOfCStringOfSize1ResultsInSize1)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "a3a3395e-2b69-400c-876a-1fdf70cf2d4a");
+    this->testSubject.unsafe_raw_access([this](char* str, const auto info) -> uint64_t {
+        //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+        strcpy(str, "M");
+        EXPECT_THAT(info.used_size, this->testSubject.size());
+        using MyString = typename TestFixture::stringType;
+        EXPECT_THAT(info.total_size, MyString::capacity() + 1); // real buffer size
+        return 1U;
+    });
+    EXPECT_THAT(this->testSubject.size(), Eq(1U));
+    EXPECT_THAT(this->testSubject.c_str(), StrEq("M"));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringOfSizeCapaResultsInSizeCapa)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "49faad68-52fa-4024-993c-49b05e7cb971");
+    using MyString = typename TestFixture::stringType;
+    constexpr auto STRINGCAP = MyString::capacity();
+    std::vector<char> testCharstring(STRINGCAP, 'M');
+    testCharstring.emplace_back('\0');
+    this->testSubject.unsafe_raw_access([&](char* str, const auto) -> uint64_t {
+        //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+        strcpy(str, testCharstring.data());
+        return STRINGCAP;
+    });
+    EXPECT_THAT(this->testSubject.unsafe_assign(testCharstring.data()), Eq(true));
+    EXPECT_THAT(this->testSubject.size(), Eq(STRINGCAP));
+}
+
+TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringOutOfBoundFail)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "b25c35db-1c0d-4f0e-b4bc-b9430a6696f1");
+
+    runInTestThread([this] {
+        this->testSubject.unsafe_raw_access([](char* str, const auto info) -> uint64_t {
+            //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+            strcpy(str, "M");
+            return info.total_size + 1U;
+        });
+    });
+    IOX_TESTING_EXPECT_PANIC();
+}
+
+TYPED_TEST(stringTyped_test, UnsafeRawAccessCStringWrongLenghtFail)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "411f5db1-18b8-45c3-9ad6-3c886fb12a26");
+
+    runInTestThread([this] {
+        this->testSubject.unsafe_raw_access([](char* str, const auto) -> uint64_t {
+            //NOLINTNEXTLINE(clang-analyzer-security.insecureAPI.strcpy,-warnings-as-errors)
+            strcpy(str, "M");
+            return 0U;
+        });
+    });
+    IOX_TESTING_EXPECT_PANIC();
 }
 
 /// @note template <uint64_t N>

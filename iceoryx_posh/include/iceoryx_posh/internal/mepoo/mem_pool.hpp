@@ -1,5 +1,6 @@
 // Copyright (c) 2019 by Robert Bosch GmbH. All rights reserved.
 // Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,11 +70,26 @@ class MemPool
 
     void freeChunk(const void* chunk) noexcept;
 
+    /// @brief Converts an index to a chunk in the MemPool to a pointer
+    /// @param[in] index of the chunk
+    /// @param[in] chunkSize is the size of the chunk
+    /// @param[in] rawMemoryBase it the pointer to the raw memory of the MemPool
+    /// @return the pointer to the chunk
+    static void* indexToPointer(const uint32_t index, const uint32_t chunkSize, void* const rawMemoryBase) noexcept;
+
+    /// @brief Converts a pointer to a chunk in the MemPool to an index
+    /// @param[in] chunk is the pointer to the chunk
+    /// @param[in] chunkSize is the size of the chunk
+    /// @param[in] rawMemoryBase it the pointer to the raw memory of the MemPool
+    /// @return the index to the chunk
+    static uint32_t
+    pointerToIndex(const void* const chunk, const uint32_t chunkSize, const void* const rawMemoryBase) noexcept;
+
   private:
     void adjustMinFree() noexcept;
     bool isMultipleOfAlignment(const uint32_t value) const noexcept;
 
-    RelativePointer<uint8_t> m_rawMemory;
+    RelativePointer<void> m_rawMemory;
 
     uint32_t m_chunkSize{0U};
     /// needs to be 32 bit since loffli supports only 32 bit numbers

@@ -24,8 +24,6 @@
 
 namespace iox
 {
-namespace posix
-{
 /// @brief The SignalWatcher waits for SIGINT and SIGTERM. One can wait until the
 ///        signal has occurred or ask the watcher if it has occurred.
 /// @code
@@ -33,7 +31,7 @@ namespace posix
 ///   #include <iceoryx_hoofs/posix/signal_watcher.hpp>
 ///   void loopUntilTerminationRequested()
 ///   {
-///       while(!iox::posix::hasTerminationRequested())
+///       while(!iox::hasTerminationRequested())
 ///       {
 ///           // your algorithm
 ///       }
@@ -42,7 +40,7 @@ namespace posix
 ///   // another possibility is to block until SIGINT or SIGTERM has occurred
 ///   void blockUntilCtrlC() {
 ///       // your objects which spawn threads
-///       iox::posix::waitForTerminationRequest();
+///       iox::waitForTerminationRequest();
 ///   }
 /// @endcode
 class SignalWatcher
@@ -70,11 +68,11 @@ class SignalWatcher
   private:
     friend void internalSignalHandler(int) noexcept;
     mutable std::atomic<uint64_t> m_numberOfWaiters{0U};
-    mutable optional<UnnamedSemaphore> m_semaphore;
+    mutable optional<posix::UnnamedSemaphore> m_semaphore;
 
     std::atomic_bool m_hasSignalOccurred{false};
-    SignalGuard m_sigTermGuard;
-    SignalGuard m_sigIntGuard;
+    posix::SignalGuard m_sigTermGuard;
+    posix::SignalGuard m_sigIntGuard;
 };
 
 /// @brief convenience function, calls SignalWatcher::getInstance().waitForSignal();
@@ -82,7 +80,6 @@ void waitForTerminationRequest() noexcept;
 
 /// @brief convenience function, calls SignalWatcher::getInstance().wasSignalTriggered();
 bool hasTerminationRequested() noexcept;
-} // namespace posix
 } // namespace iox
 
 #endif

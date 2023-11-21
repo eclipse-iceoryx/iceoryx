@@ -11,7 +11,7 @@ The following sections have a column labeled `internal` to indicate that the API
 is not stable and can change anytime. You should never rely on it and there is no
 support if it is used and breaks your code after an update.
 
-Some modules contain STL constructs which are not part of the C++14 standard as well as convenience
+Some modules contain STL constructs which are not part of the C++17 standard as well as convenience
 constructs like the `NewType`. Since the classes re-implements some STL constructs,
 the C++ STL coding guidelines are used for all files in this module, to help the user
 to have a painless transition from the official STL types to ours.
@@ -84,7 +84,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |`type_traits`          |          | Extended support for evaluating types on compile-time.                                                                                                                                                                                |
 |`types`                |          | Declares essential building block types like `byte`.                                                                                                                                                                                |
-|`attributes`           |          | C++17 and C++20 attributes are sometimes available through compiler extensions. The attribute macros defined in here (like `IOX_FALLTHROUGH`, `IOX_MAYBE_UNUSED` ... ) make sure that we are able to use them if the compiler supports it. |
+|`attributes`           |          | C++20 and C++23 attributes are sometimes available through compiler extensions. The attribute macros defined in here make sure that we are able to use them if the compiler supports it. |
 |`algorithm`            |          | Implements `min` and `max` for an arbitrary number of values of the same type. For instance `min(1,2,3,4,5);`                                                                                                                         |
 |`size`                 |          | Helper functions to determine the size in generic ways                                                                                                                                                                                |
 

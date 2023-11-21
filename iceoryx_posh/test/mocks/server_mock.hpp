@@ -46,10 +46,6 @@ class MockServerPortUser : public MockBasePort
         return *this;
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD((iox::expected<const iox::popo::RequestHeader*, iox::popo::ServerRequestResult>),
                 getRequest,
                 (),
@@ -74,9 +70,6 @@ class MockServerPortUser : public MockBasePort
     MOCK_METHOD(void, setConditionVariable, (iox::popo::ConditionVariableData&, const uint64_t), (noexcept));
     MOCK_METHOD(void, unsetConditionVariable, (), (noexcept));
     MOCK_METHOD(bool, isConditionVariableSet, (), (const, noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 };
 
 class MockBaseServer
@@ -90,10 +83,6 @@ class MockBaseServer
     {
     }
 
-#ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-zero-variadic-macro-arguments"
-#endif
     MOCK_METHOD(iox::popo::uid_t, getUid, (), (const, noexcept));
     MOCK_METHOD(const iox::capro::ServiceDescription&, getServiceDescription, (), (const, noexcept));
     MOCK_METHOD(void, offer, (), (noexcept));
@@ -113,9 +102,6 @@ class MockBaseServer
     MOCK_METHOD(void, disableState, (const iox::popo::ServerState), (noexcept));
     MOCK_METHOD(void, enableEvent, (iox::popo::TriggerHandle&&, const iox::popo::ServerEvent), (noexcept));
     MOCK_METHOD(void, disableEvent, (const iox::popo::ServerEvent), (noexcept));
-#ifdef __clang__
-#pragma GCC diagnostic pop
-#endif
 
 
     const PortType& port() const noexcept
