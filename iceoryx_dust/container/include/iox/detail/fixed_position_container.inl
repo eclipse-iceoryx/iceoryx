@@ -92,8 +92,8 @@ template <detail::SpecialCreationOperations Opt, typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
     static_assert(
-        std::is_rvalue_reference_v<
-            decltype(rhs)> || (std::is_lvalue_reference_v<decltype(rhs)> && std::is_const_v<std::remove_reference_t<decltype(rhs)>>),
+        std::is_rvalue_reference<decltype(rhs)>::value
+            || (std::is_lvalue_reference_v<decltype(rhs)> && std::is_const_v<std::remove_reference_t<decltype(rhs)>>),
         "RhsType must be const lvalue reference or rvalue reference");
 
     // alias helper struct
@@ -120,7 +120,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
             // operation. Therefore, creation can be carried out according to the option specified by Opt.
 
-            // TODO: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
+            // @todo iox-2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
             // Helper::create(m_data[i], Helper::move_or_copy_it(rhs_it));
 
             if constexpr (is_move)
@@ -137,7 +137,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
             // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
             // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
 
-            // TODO: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
+            // @todo iox-2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
             // Helper::ctor_create(m_data[i], Helper::move_or_copy_it(rhs_it));
 
             if constexpr (is_move)
