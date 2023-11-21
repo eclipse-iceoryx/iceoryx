@@ -172,7 +172,7 @@
 - Improve process is alive detection [#1361](https://github.com/eclipse-iceoryx/iceoryx/issues/1361)
     - only partially
     - IPC call is replaced with heartbeat via shared memory
-- Removed IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS and made IOX_MAX_NUMBER_OF_NOTIFIERS configurable again (https://github.com/eclipse-iceoryx/iceoryx/issues/2083)
+- Removed IOX_INTERNAL_MAX_NUMBER_OF_NOTIFIERS and made IOX_MAX_NUMBER_OF_NOTIFIERS configurable again [#2083](https://github.com/eclipse-iceoryx/iceoryx/issues/2083)
 
 **Workflow:**
 
