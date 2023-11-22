@@ -54,6 +54,7 @@
 - Create macros to deprecate header and code constructs [#2057](https://github.com/eclipse-iceoryx/iceoryx/issues/2057)
 - Switch to C++17 on all platforms [#2066](https://github.com/eclipse-iceoryx/iceoryx/issues/2066)
 - Implement `unsafe_raw_access` in `iox::string` and add `BufferInfo` struct [#1431](https://github.com/eclipse-iceoryx/iceoryx/issues/1431)
+- Add the introspection to the ROS release [\#2099](https://github.com/eclipse-iceoryx/iceoryx/issues/2099)
 
 **Bugfixes:**
 
