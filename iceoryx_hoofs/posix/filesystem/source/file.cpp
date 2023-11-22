@@ -15,12 +15,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/file.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/errno.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stdio.hpp"
 #include "iox/attributes.hpp"
 #include "iox/filesystem.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -43,9 +43,9 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
 // NOLINTBEGIN(readability-function-size,readability-function-cognitive-complexity)
 expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
 {
-    auto result = posix::posixCall(iox_open)(name.as_string().c_str(),
-                                             convertToOflags(m_access_mode, m_open_mode),
-                                             static_cast<iox_mode_t>(m_permissions.value()))
+    auto result = IOX_POSIX_CALL(iox_open)(name.as_string().c_str(),
+                                           convertToOflags(m_access_mode, m_open_mode),
+                                           static_cast<iox_mode_t>(m_permissions.value()))
                       .failureReturnValue(-1)
                       .evaluate();
 
@@ -163,7 +163,7 @@ void File::close_fd() noexcept
         return;
     }
 
-    auto result = posix::posixCall(iox_close)(m_file_descriptor).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_close)(m_file_descriptor).failureReturnValue(-1).evaluate();
     m_file_descriptor = INVALID_FILE_DESCRIPTOR;
 
     if (!result.has_error())
@@ -194,7 +194,7 @@ void File::close_fd() noexcept
 
 expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 {
-    auto result = posix::posixCall(iox_access)(file.as_string().c_str(), F_OK).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_access)(file.as_string().c_str(), F_OK).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {
@@ -227,7 +227,7 @@ expected<bool, FileAccessError> File::does_exist(const FilePath& file) noexcept
 
 expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 {
-    auto result = posix::posixCall(iox_remove)(file.as_string().c_str())
+    auto result = IOX_POSIX_CALL(iox_remove)(file.as_string().c_str())
                       .failureReturnValue(-1)
                       .suppressErrorMessagesForErrnos(ENOENT)
                       .evaluate();
@@ -272,7 +272,7 @@ expected<bool, FileRemoveError> File::remove(const FilePath& file) noexcept
 
 expected<void, FileOffsetError> File::set_offset(const uint64_t offset) const noexcept
 {
-    auto result = posix::posixCall(iox_lseek)(m_file_descriptor, static_cast<iox_off_t>(offset), IOX_SEEK_SET)
+    auto result = IOX_POSIX_CALL(iox_lseek)(m_file_descriptor, static_cast<iox_off_t>(offset), IOX_SEEK_SET)
                       .failureReturnValue(-1)
                       .evaluate();
 
@@ -329,7 +329,7 @@ File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffe
         return err(FileReadError::OffsetFailure);
     }
 
-    auto result = posix::posixCall(iox_read)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_read)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {
@@ -383,7 +383,7 @@ File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_
         return err(FileWriteError::OffsetFailure);
     }
 
-    auto result = posix::posixCall(iox_write)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_write)(m_file_descriptor, buffer, buffer_len).failureReturnValue(-1).evaluate();
 
     if (!result.has_error())
     {

@@ -19,7 +19,7 @@
 #ifndef IOX_DUST_UTILITY_CONVERT_HPP
 #define IOX_DUST_UTILITY_CONVERT_HPP
 
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/string.hpp"
 
 #include <climits>

@@ -18,10 +18,10 @@
 #include "test.hpp"
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/posix_call.hpp"
 
 #include <fcntl.h>
 
@@ -63,9 +63,9 @@ class SharedMemory_Test : public Test
     createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
     {
         // NOLINTBEGIN(hicpp-signed-bitwise) enum types defined by POSIX are required
-        auto result = iox::posix::posixCall(iox_shm_open)((std::string("/") + name.c_str()).c_str(),
-                                                          O_RDWR | O_CREAT,
-                                                          S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+        auto result = IOX_POSIX_CALL(iox_shm_open)((std::string("/") + name.c_str()).c_str(),
+                                                   O_RDWR | O_CREAT,
+                                                   S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
                           .failureReturnValue(SharedMemory::INVALID_HANDLE)
                           .evaluate();
         // NOLINTEND(hicpp-signed-bitwise)

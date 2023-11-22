@@ -17,10 +17,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/scope_guard.hpp"
 
 #include <chrono>
@@ -87,7 +87,7 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocketBuilderNoPathPrefix:
     ScopeGuard umaskGuard([&umaskSaved] { umask(umaskSaved); });
 
     auto socketCall =
-        posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0).failureReturnValue(UnixDomainSocket::ERROR_CODE).evaluate();
+        IOX_POSIX_CALL(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0).failureReturnValue(UnixDomainSocket::ERROR_CODE).evaluate();
 
     if (socketCall.has_error())
     {
@@ -102,7 +102,7 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocketBuilderNoPathPrefix:
         auto bindCall =
             // NOLINTJUSTIFICATION enforced by POSIX API
             // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-            posixCall(iox_bind)(sockfd, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
+            IOX_POSIX_CALL(iox_bind)(sockfd, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
                 .failureReturnValue(UnixDomainSocket::ERROR_CODE)
                 .evaluate();
 
@@ -122,7 +122,7 @@ expected<UnixDomainSocket, IpcChannelError> UnixDomainSocketBuilderNoPathPrefix:
     auto connectCall =
         // NOLINTJUSTIFICATION enforced by POSIX API
         // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-        posixCall(iox_connect)(sockfd, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
+        IOX_POSIX_CALL(iox_connect)(sockfd, reinterpret_cast<struct sockaddr*>(&sockAddr), sizeof(sockAddr))
             .failureReturnValue(UnixDomainSocket::ERROR_CODE)
             .suppressErrorMessagesForErrnos(ENOENT, ECONNREFUSED)
             .evaluate();
@@ -215,7 +215,8 @@ expected<bool, IpcChannelError> UnixDomainSocket::unlinkIfExists(const NoPathPre
         return err(IpcChannelError::INVALID_CHANNEL_NAME);
     }
 
-    auto unlinkCall = posixCall(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
+    auto unlinkCall =
+        IOX_POSIX_CALL(unlink)(name.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate();
 
     if (unlinkCall.has_error())
     {
@@ -239,13 +240,13 @@ expected<void, IpcChannelError> UnixDomainSocket::closeFileDescriptor(const UdsN
 {
     if (sockfd != INVALID_FD)
     {
-        auto closeCall = posixCall(iox_closesocket)(sockfd).failureReturnValue(ERROR_CODE).evaluate();
+        auto closeCall = IOX_POSIX_CALL(iox_closesocket)(sockfd).failureReturnValue(ERROR_CODE).evaluate();
 
         if (!closeCall.has_error())
         {
             if (IpcChannelSide::SERVER == channelSide)
             {
-                auto unlinkCall = posixCall(unlink)(&(sockAddr.sun_path[0]))
+                auto unlinkCall = IOX_POSIX_CALL(unlink)(&(sockAddr.sun_path[0]))
                                       .failureReturnValue(ERROR_CODE)
                                       .ignoreErrnos(ENOENT)
                                       .evaluate();
@@ -294,7 +295,7 @@ expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& m
     }
 
     auto tv = timeout.timeval();
-    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
+    auto setsockoptCall = IOX_POSIX_CALL(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -303,7 +304,7 @@ expected<void, IpcChannelError> UnixDomainSocket::timedSend(const std::string& m
     {
         return err(errnoToEnum(setsockoptCall.error().errnum));
     }
-    auto sendCall = posixCall(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
+    auto sendCall = IOX_POSIX_CALL(iox_sendto)(m_sockfd, msg.c_str(), msg.size() + NULL_TERMINATOR_SIZE, 0, nullptr, 0)
                         .failureReturnValue(ERROR_CODE)
                         .evaluate();
 
@@ -334,7 +335,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
     }
 
     auto tv = timeout.timeval();
-    auto setsockoptCall = posixCall(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
+    auto setsockoptCall = IOX_POSIX_CALL(iox_setsockopt)(m_sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv))
                               .failureReturnValue(ERROR_CODE)
                               .ignoreErrnos(EWOULDBLOCK)
                               .evaluate();
@@ -347,7 +348,7 @@ expected<std::string, IpcChannelError> UnixDomainSocket::timedReceive(const unit
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char message[MAX_MESSAGE_SIZE + 1];
 
-    auto recvCall = posixCall(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
+    auto recvCall = IOX_POSIX_CALL(iox_recvfrom)(m_sockfd, &message[0], MAX_MESSAGE_SIZE, 0, nullptr, nullptr)
                         .failureReturnValue(ERROR_CODE)
                         .suppressErrorMessagesForErrnos(EAGAIN, EWOULDBLOCK)
                         .evaluate();

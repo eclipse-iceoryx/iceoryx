@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -31,7 +31,7 @@ static string<NamedSemaphore::Name_t::capacity() + 1> createNameWithSlash(const 
 
 static expected<void, SemaphoreError> unlink(const NamedSemaphore::Name_t& name) noexcept
 {
-    auto result = posixCall(iox_sem_unlink)(createNameWithSlash(name).c_str())
+    auto result = IOX_POSIX_CALL(iox_sem_unlink)(createNameWithSlash(name).c_str())
                       .failureReturnValue(-1)
                       .ignoreErrnos(ENOENT)
                       .evaluate();
@@ -57,7 +57,7 @@ static expected<bool, SemaphoreError>
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
 tryOpenExistingSemaphore(optional<NamedSemaphore>& uninitializedSemaphore, const NamedSemaphore::Name_t& name) noexcept
 {
-    auto result = posixCall(iox_sem_open)(createNameWithSlash(name).c_str(), 0)
+    auto result = IOX_POSIX_CALL(iox_sem_open)(createNameWithSlash(name).c_str(), 0)
                       .failureReturnValue(IOX_SEM_FAILED)
                       .ignoreErrnos(ENOENT)
                       .evaluate();
@@ -109,10 +109,10 @@ static expected<void, SemaphoreError> createSemaphore(optional<NamedSemaphore>& 
                                                       const access_rights permissions,
                                                       const uint32_t initialValue) noexcept
 {
-    auto result = posixCall(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
-                                              convertToOflags(openMode),
-                                              permissions.value(),
-                                              static_cast<unsigned int>(initialValue))
+    auto result = IOX_POSIX_CALL(iox_sem_open_ext)(createNameWithSlash(name).c_str(),
+                                                   convertToOflags(openMode),
+                                                   permissions.value(),
+                                                   static_cast<unsigned int>(initialValue))
                       .failureReturnValue(IOX_SEM_FAILED)
                       .evaluate();
 
@@ -230,7 +230,7 @@ NamedSemaphore::NamedSemaphore(iox_sem_t* handle, const Name_t& name, const bool
 
 NamedSemaphore::~NamedSemaphore() noexcept
 {
-    if (posixCall(iox_sem_close)(m_handle).failureReturnValue(-1).evaluate().has_error())
+    if (IOX_POSIX_CALL(iox_sem_close)(m_handle).failureReturnValue(-1).evaluate().has_error())
     {
         IOX_LOG(ERROR, "This should never happen. Unable to close named semaphore \"" << m_name << '"');
     }

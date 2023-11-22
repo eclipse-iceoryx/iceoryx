@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/memory_map.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 #include <bitset>
 
@@ -30,12 +30,12 @@ expected<MemoryMap, MemoryMapError> MemoryMapBuilder::create() noexcept
 {
     // AXIVION Next Construct AutosarC++19_03-A5.2.3, CertC++-EXP55 : Incompatibility with POSIX definition of mmap
     // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast) low-level memory management
-    auto result = posixCall(mmap)(const_cast<void*>(m_baseAddressHint),
-                                  m_length,
-                                  convertToProtFlags(m_accessMode),
-                                  static_cast<int32_t>(m_flags),
-                                  m_fileDescriptor,
-                                  m_offset)
+    auto result = IOX_POSIX_CALL(mmap)(const_cast<void*>(m_baseAddressHint),
+                                       m_length,
+                                       convertToProtFlags(m_accessMode),
+                                       static_cast<int32_t>(m_flags),
+                                       m_fileDescriptor,
+                                       m_offset)
 
                       // NOLINTJUSTIFICATION cast required, type of error MAP_FAILED defined by POSIX to be void*
                       // NOLINTBEGIN(cppcoreguidelines-pro-type-cstyle-cast, performance-no-int-to-ptr)
@@ -176,7 +176,7 @@ bool MemoryMap::destroy() noexcept
 {
     if (m_baseAddress != nullptr)
     {
-        auto unmapResult = posixCall(munmap)(m_baseAddress, m_length).failureReturnValue(-1).evaluate();
+        auto unmapResult = IOX_POSIX_CALL(munmap)(m_baseAddress, m_length).failureReturnValue(-1).evaluate();
         m_baseAddress = nullptr;
         m_length = 0U;
 

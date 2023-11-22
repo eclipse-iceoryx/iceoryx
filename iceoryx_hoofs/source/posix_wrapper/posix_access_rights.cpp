@@ -16,13 +16,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/uninitialized_array.hpp"
 
 #include <limits>
@@ -63,7 +63,7 @@ PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
 
 optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
 {
-    auto getgrnamCall = posixCall(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getgrnamCall = IOX_POSIX_CALL(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getgrnamCall.has_error())
     {
@@ -76,7 +76,7 @@ optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noex
 
 optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
 {
-    auto getgrgidCall = posixCall(getgrgid)(id).failureReturnValue(nullptr).evaluate();
+    auto getgrgidCall = IOX_POSIX_CALL(getgrgid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getgrgidCall.has_error())
     {
@@ -110,7 +110,7 @@ bool PosixGroup::doesExist() const noexcept
 
 optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
-    auto getpwnamCall = posixCall(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
+    auto getpwnamCall = IOX_POSIX_CALL(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
 
     if (getpwnamCall.has_error())
     {
@@ -122,7 +122,7 @@ optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 
 optional<PosixUser::userName_t> PosixUser::getUserName(uid_t id) noexcept
 {
-    auto getpwuidCall = posixCall(getpwuid)(id).failureReturnValue(nullptr).evaluate();
+    auto getpwuidCall = IOX_POSIX_CALL(getpwuid)(id).failureReturnValue(nullptr).evaluate();
 
     if (getpwuidCall.has_error())
     {
@@ -140,7 +140,7 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
         return groupVector_t();
     }
 
-    auto getpwnamCall = posixCall(getpwnam)(userName->c_str()).failureReturnValue(nullptr).evaluate();
+    auto getpwnamCall = IOX_POSIX_CALL(getpwnam)(userName->c_str()).failureReturnValue(nullptr).evaluate();
     if (getpwnamCall.has_error())
     {
         IOX_LOG(ERROR, "Error: getpwnam call failed");
@@ -151,9 +151,10 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
     auto numGroups = MaxNumberOfGroups;
 
-    auto getgrouplistCall = posixCall(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
-                                .failureReturnValue(-1)
-                                .evaluate();
+    auto getgrouplistCall =
+        IOX_POSIX_CALL(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
+            .failureReturnValue(-1)
+            .evaluate();
     if (getgrouplistCall.has_error())
     {
         IOX_LOG(ERROR, "Error: Could not obtain group list");

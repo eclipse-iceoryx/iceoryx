@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/signal_handler.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -47,10 +47,10 @@ void SignalGuard::restorePreviousAction() noexcept
     if (m_doRestorePreviousAction)
     {
         m_doRestorePreviousAction = false;
-        posixCall(sigaction)(static_cast<int>(m_signal), &m_previousAction, nullptr)
-            .successReturnValue(0)
-            .evaluate()
-            .or_else([](auto&) { IOX_LOG(ERROR, "Unable to restore the previous signal handling state!"); });
+        IOX_POSIX_CALL(sigaction)
+        (static_cast<int>(m_signal), &m_previousAction, nullptr).successReturnValue(0).evaluate().or_else([](auto&) {
+            IOX_LOG(ERROR, "Unable to restore the previous signal handling state!");
+        });
     }
 }
 
@@ -61,7 +61,7 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signa
 
 
     // sigemptyset fails when a nullptr is provided and this should never happen with this logic
-    if (posixCall(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
+    if (IOX_POSIX_CALL(sigemptyset)(&action.sa_mask).successReturnValue(0).evaluate().has_error())
     {
         IOX_LOG(ERROR,
                 "This should never happen! Unable to create an empty sigaction set while registering a signal handler "
@@ -80,7 +80,7 @@ expected<SignalGuard, SignalGuardError> registerSignalHandler(const Signal signa
 
     // sigaction fails when action is a nullptr (which we ensure that its not) or when the signal SIGSTOP or SIGKILL
     // should be registered which can also never happen - ensured by the enum class.
-    if (posixCall(sigaction)(static_cast<int>(signal), &action, &previousAction)
+    if (IOX_POSIX_CALL(sigaction)(static_cast<int>(signal), &action, &previousAction)
             .successReturnValue(0)
             .evaluate()
             .has_error())

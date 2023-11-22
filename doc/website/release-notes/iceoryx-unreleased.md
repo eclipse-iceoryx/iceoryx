@@ -1255,3 +1255,13 @@
 
     With the switch to C++17 `[[maybe_unused]]`, `[[fallthrough]]` and `[[no_discard]]`
     are available and should be used instead of the macros.
+
+56. `posixCall` macro is renamed to `IOX_POSIX_CALL`
+
+    ```cpp
+    // before
+    iox::posix::posixCall(open)("/hypnotoad");
+
+    // after
+    IOX_POSIX_CALL(open)("/hypnotoad");
+    ```

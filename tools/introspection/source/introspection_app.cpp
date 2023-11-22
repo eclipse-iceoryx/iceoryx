@@ -228,16 +228,14 @@ void IntrospectionApp::waitForUserInput(int32_t timeoutMs)
     fileDesc.fd = STDIN_FILENO;
     fileDesc.events = POLLIN;
     constexpr size_t nFileDesc = 1u;
-    iox::posix::posixCall(poll)(&fileDesc, nFileDesc, timeoutMs)
-        .failureReturnValue(-1)
-        .evaluate()
-        .and_then([&](auto eventCount) {
-            if (static_cast<size_t>(eventCount.value) == nFileDesc && fileDesc.revents == POLLIN)
-            {
-                this->updateDisplayYX();
-                this->refreshTerminal();
-            }
-        });
+    IOX_POSIX_CALL(poll)
+    (&fileDesc, nFileDesc, timeoutMs).failureReturnValue(-1).evaluate().and_then([&](auto eventCount) {
+        if (static_cast<size_t>(eventCount.value) == nFileDesc && fileDesc.revents == POLLIN)
+        {
+            this->updateDisplayYX();
+            this->refreshTerminal();
+        }
+    });
 }
 
 void IntrospectionApp::prettyPrint(const std::string& str, const PrettyOptions pr)
@@ -792,8 +790,8 @@ void IntrospectionApp::runIntrospection(const iox::units::Duration updatePeriod,
         }
     }
 
-    iox::posix::posixCall(getchar)().failureReturnValue(EOF).evaluate().expect(
-        "unable to exit the introspection client since getchar failed");
+    IOX_POSIX_CALL(getchar)
+    ().failureReturnValue(EOF).evaluate().expect("unable to exit the introspection client since getchar failed");
     closeTerminal();
 }
 

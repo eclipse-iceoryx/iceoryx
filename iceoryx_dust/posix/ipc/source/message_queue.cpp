@@ -17,10 +17,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iox/message_queue.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/std_string_support.hpp"
 
 #include <chrono>
@@ -48,7 +48,8 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
 
     if (m_channelSide == IpcChannelSide::SERVER)
     {
-        posix::posixCall(mq_unlink)(sanitizedName.c_str())
+        IOX_POSIX_CALL(mq_unlink)
+        (sanitizedName.c_str())
             .failureReturnValue(MessageQueue::ERROR_CODE)
             .ignoreErrnos(ENOENT)
             .evaluate()
@@ -135,7 +136,7 @@ expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelNam
     }
 
 
-    auto mqCall = posix::posixCall(mq_unlink)(sanitizedIpcChannelName->c_str())
+    auto mqCall = IOX_POSIX_CALL(mq_unlink)(sanitizedIpcChannelName->c_str())
                       .failureReturnValue(ERROR_CODE)
                       .ignoreErrnos(ENOENT)
                       .evaluate();
@@ -177,9 +178,8 @@ expected<void, IpcChannelError> MessageQueue::send(const std::string& msg) const
         return err(IpcChannelError::MESSAGE_TOO_LONG);
     }
 
-    auto mqCall = posix::posixCall(mq_send)(m_mqDescriptor, msg.c_str(), messageSize, 1U)
-                      .failureReturnValue(ERROR_CODE)
-                      .evaluate();
+    auto mqCall =
+        IOX_POSIX_CALL(mq_send)(m_mqDescriptor, msg.c_str(), messageSize, 1U).failureReturnValue(ERROR_CODE).evaluate();
 
     if (mqCall.has_error())
     {
@@ -195,7 +195,7 @@ expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     char message[MAX_MESSAGE_SIZE];
 
-    auto mqCall = posix::posixCall(mq_receive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr)
+    auto mqCall = IOX_POSIX_CALL(mq_receive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr)
                       .failureReturnValue(ERROR_CODE)
                       .evaluate();
 
@@ -230,7 +230,7 @@ MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcC
         // the mask will be applied to the permissions, therefore we need to set it to 0
         mode_t umaskSaved = umask(0);
         auto mqCall =
-            posix::posixCall(iox_mq_open4)(sanitizedName.c_str(), openFlags, MessageQueue::FILE_MODE, &attributes)
+            IOX_POSIX_CALL(iox_mq_open4)(sanitizedName.c_str(), openFlags, MessageQueue::FILE_MODE, &attributes)
                 .failureReturnValue(MessageQueue::INVALID_DESCRIPTOR)
                 .suppressErrorMessagesForErrnos(ENOENT)
                 .evaluate();
@@ -248,7 +248,7 @@ MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcC
 
 expected<void, IpcChannelError> MessageQueue::close() noexcept
 {
-    auto mqCall = posix::posixCall(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
+    auto mqCall = IOX_POSIX_CALL(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
 
     if (mqCall.has_error())
     {
@@ -265,7 +265,7 @@ expected<void, IpcChannelError> MessageQueue::unlink() noexcept
         return ok();
     }
 
-    auto mqCall = posix::posixCall(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
+    auto mqCall = IOX_POSIX_CALL(mq_unlink)(m_name.c_str()).failureReturnValue(ERROR_CODE).evaluate();
     if (mqCall.has_error())
     {
         return err(errnoToEnum(mqCall.error().errnum));
@@ -281,7 +281,7 @@ expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::D
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
     char message[MAX_MESSAGE_SIZE];
 
-    auto mqCall = posix::posixCall(mq_timedreceive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr, &timeOut)
+    auto mqCall = IOX_POSIX_CALL(mq_timedreceive)(m_mqDescriptor, &message[0], MAX_MESSAGE_SIZE, nullptr, &timeOut)
                       .failureReturnValue(ERROR_CODE)
                       // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
                       .ignoreErrnos(TIMEOUT_ERRNO)
@@ -313,7 +313,7 @@ expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
 
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
 
-    auto mqCall = posix::posixCall(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
+    auto mqCall = IOX_POSIX_CALL(mq_timedsend)(m_mqDescriptor, msg.c_str(), messageSize, 1U, &timeOut)
                       .failureReturnValue(ERROR_CODE)
                       // don't use the suppressErrorMessagesForErrnos method since QNX used EINTR instead of ETIMEDOUT
                       .ignoreErrnos(TIMEOUT_ERRNO)
@@ -393,7 +393,7 @@ expected<IpcChannelName_t, IpcChannelError> MessageQueue::sanitizeIpcChannelName
 {
     /// @todo iox-#832 the check for the longest valid queue name is missing
     /// the name for the mqeue is limited by MAX_PATH
-    /// The mq_open call is wrapped by posixCall to throw then an ENAMETOOLONG error
+    /// The mq_open call is wrapped by IOX_POSIX_CALL to throw then an ENAMETOOLONG error
     /// See: https://pubs.opengroup.org/onlinepubs/9699919799/functions/mq_open.html
     if (name.empty() || name.size() < SHORTEST_VALID_QUEUE_NAME)
     {
