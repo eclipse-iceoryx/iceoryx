@@ -19,7 +19,6 @@
 #define IOX_DUST_POSIX_IPC_NAMED_PIPE_HPP
 
 #include "iceoryx_hoofs/concurrent/lockfree_queue.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iceoryx_platform/semaphore.hpp"
@@ -28,6 +27,7 @@
 #include "iox/expected.hpp"
 #include "iox/iceoryx_dust_deployment.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_ipc_channel.hpp"
 #include "iox/string.hpp"
 #include "iox/uninitialized_array.hpp"
 
@@ -69,39 +69,40 @@ class NamedPipe
 
     /// @brief removes a named pipe artifact from the system
     /// @return true if the artifact was removed, false when no artifact was found and
-    ///         IpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
-    static expected<bool, posix::IpcChannelError> unlinkIfExists(const IpcChannelName_t& name) noexcept;
+    ///         PosixIpcChannelError::INTERNAL_LOGIC_ERROR when shm_unlink failed
+    static expected<bool, PosixIpcChannelError> unlinkIfExists(const PosixIpcChannelName_t& name) noexcept;
 
-    /// @brief tries to send a message via the named pipe. if the pipe is full IpcChannelError::TIMEOUT is returned
+    /// @brief tries to send a message via the named pipe. if the pipe is full PosixIpcChannelError::TIMEOUT is returned
     /// @return on failure an error which describes the failure
-    expected<void, posix::IpcChannelError> trySend(const std::string& message) const noexcept;
+    expected<void, PosixIpcChannelError> trySend(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe. if the pipe is full this call is blocking until the message could be
     ///        delivered
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<void, posix::IpcChannelError> send(const std::string& message) const noexcept;
+    expected<void, PosixIpcChannelError> send(const std::string& message) const noexcept;
 
     /// @brief sends a message via the named pipe.
     /// @param[in] message the message which should be sent, is not allowed to be longer then MAX_MESSAGE_SIZE
     /// @param[in] timeout the timeout on how long this method should retry to send the message
     /// @return success when message was sent otherwise an error which describes the failure
-    expected<void, posix::IpcChannelError> timedSend(const std::string& message,
-                                                     const units::Duration& timeout) const noexcept;
+    expected<void, PosixIpcChannelError> timedSend(const std::string& message,
+                                                   const units::Duration& timeout) const noexcept;
 
-    /// @brief tries to receive a message via the named pipe. if the pipe is empty IpcChannelError::TIMEOUT is returned
+    /// @brief tries to receive a message via the named pipe. if the pipe is empty PosixIpcChannelError::TIMEOUT is
+    /// returned
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> tryReceive() const noexcept;
+    expected<std::string, PosixIpcChannelError> tryReceive() const noexcept;
 
     /// @brief receives a message via the named pipe. if the pipe is empty this call is blocking until a message was
     ///        received
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> receive() const noexcept;
+    expected<std::string, PosixIpcChannelError> receive() const noexcept;
 
     /// @brief receives a message via the named pipe.
     /// @param[in] timeout the timeout on how long this method should retry to receive a message
     /// @return on success a string containing the message, otherwise an error which describes the failure
-    expected<std::string, posix::IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    expected<std::string, PosixIpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
     friend class NamedPipeBuilder;
@@ -110,11 +111,11 @@ class NamedPipe
     NamedPipe(posix::SharedMemoryObject&& sharedMemory, NamedPipeData* data) noexcept;
 
     template <typename Prefix>
-    static IpcChannelName_t mapToSharedMemoryName(const Prefix& p, const IpcChannelName_t& name) noexcept;
+    static PosixIpcChannelName_t mapToSharedMemoryName(const Prefix& p, const PosixIpcChannelName_t& name) noexcept;
 
     /// @brief destroys an initialized named pipe.
     /// @return is always successful
-    expected<void, posix::IpcChannelError> destroy() noexcept;
+    expected<void, PosixIpcChannelError> destroy() noexcept;
 
     class NamedPipeData
     {
@@ -130,7 +131,7 @@ class NamedPipe
         posix::UnnamedSemaphore& sendSemaphore() noexcept;
         posix::UnnamedSemaphore& receiveSemaphore() noexcept;
 
-        expected<void, posix::IpcChannelError> initialize(const uint32_t maxMsgNumber) noexcept;
+        expected<void, PosixIpcChannelError> initialize(const uint32_t maxMsgNumber) noexcept;
 
         bool waitForInitialization() const noexcept;
         bool hasValidState() const noexcept;
@@ -156,10 +157,10 @@ class NamedPipe
 class NamedPipeBuilder
 {
     /// @brief Defines the named pipe name
-    IOX_BUILDER_PARAMETER(IpcChannelName_t, name, "")
+    IOX_BUILDER_PARAMETER(PosixIpcChannelName_t, name, "")
 
     /// @brief Defines how the named pipe is opened, i.e. as client or server
-    IOX_BUILDER_PARAMETER(posix::IpcChannelSide, channelSide, posix::IpcChannelSide::CLIENT)
+    IOX_BUILDER_PARAMETER(PosixIpcChannelSide, channelSide, PosixIpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the named pipe
     IOX_BUILDER_PARAMETER(size_t, maxMsgSize, NamedPipe::MAX_MESSAGE_SIZE)
@@ -169,8 +170,8 @@ class NamedPipeBuilder
 
   public:
     /// @brief create a named pipe
-    /// @return On success a 'NamedPipe' is returned and on failure an 'IpcChannelError'.
-    expected<NamedPipe, posix::IpcChannelError> create() const noexcept;
+    /// @return On success a 'NamedPipe' is returned and on failure an 'PosixIpcChannelError'.
+    expected<NamedPipe, PosixIpcChannelError> create() const noexcept;
 };
 
 } // namespace iox

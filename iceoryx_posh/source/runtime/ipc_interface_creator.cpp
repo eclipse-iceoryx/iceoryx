@@ -53,7 +53,7 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
     // of the process)
     cleanupOutdatedIpcChannel(runtimeName);
 
-    openIpcChannel(posix::IpcChannelSide::SERVER);
+    openIpcChannel(PosixIpcChannelSide::SERVER);
 }
 } // namespace runtime
 } // namespace iox

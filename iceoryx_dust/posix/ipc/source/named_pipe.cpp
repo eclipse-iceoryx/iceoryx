@@ -27,8 +27,6 @@
 
 namespace iox
 {
-using posix::IpcChannelError;
-using posix::IpcChannelSide;
 using posix::SemaphoreWaitState;
 using posix::SharedMemory;
 using posix::SharedMemoryObject;
@@ -43,14 +41,14 @@ constexpr units::Duration NamedPipe::CYCLE_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_SLEEP_TIME;
 constexpr units::Duration NamedPipe::NamedPipeData::WAIT_FOR_INIT_TIMEOUT;
 
-expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
+expected<NamedPipe, PosixIpcChannelError> NamedPipeBuilder::create() const noexcept
 {
     if (m_name.size() + strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]) > NamedPipe::MAX_MESSAGE_SIZE)
     {
         IOX_LOG(ERROR,
                 "The named pipe name: '" << m_name << "' is too long. Maxium name length is: "
                                          << NamedPipe::MAX_MESSAGE_SIZE - strlen(&NamedPipe::NAMED_PIPE_PREFIX[0]));
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     // leading slash is allowed even though it is not a valid file name
@@ -61,7 +59,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
     if (!isValidPipeName)
     {
         IOX_LOG(ERROR, "The named pipe name: '" << m_name << "' is not a valid file path name.");
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
 
     if (m_maxMsgSize > NamedPipe::MAX_MESSAGE_SIZE)
@@ -69,7 +67,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
         IOX_LOG(ERROR,
                 "A message size of " << m_maxMsgSize << " exceeds the maximum message size for named pipes of "
                                      << NamedPipe::MAX_MESSAGE_SIZE);
-        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
+        return err(PosixIpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
     if (m_maxMsgNumber > NamedPipe::MAX_NUMBER_OF_MESSAGES)
@@ -78,7 +76,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
                 "A message amount of " << m_maxMsgNumber
                                        << " exceeds the maximum number of messages for named pipes of "
                                        << NamedPipe::MAX_NUMBER_OF_MESSAGES);
-        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
+        return err(PosixIpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
     auto namedPipeShmName = NamedPipe::mapToSharedMemoryName(NamedPipe::NAMED_PIPE_PREFIX, m_name);
@@ -87,15 +85,16 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
             .name(namedPipeShmName)
             .memorySizeInBytes(sizeof(NamedPipe::NamedPipeData) + alignof(NamedPipe::NamedPipeData))
             .accessMode(AccessMode::READ_WRITE)
-            .openMode((m_channelSide == IpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE : OpenMode::OPEN_EXISTING)
+            .openMode((m_channelSide == PosixIpcChannelSide::SERVER) ? OpenMode::OPEN_OR_CREATE
+                                                                     : OpenMode::OPEN_EXISTING)
             .permissions(perms::owner_all | perms::group_all)
             .create();
 
     if (sharedMemoryResult.has_error())
     {
         IOX_LOG(ERROR, "Unable to open shared memory: '" << namedPipeShmName << "' for named pipe '" << m_name << "'");
-        return err((m_channelSide == IpcChannelSide::CLIENT) ? IpcChannelError::NO_SUCH_CHANNEL
-                                                             : IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err((m_channelSide == PosixIpcChannelSide::CLIENT) ? PosixIpcChannelError::NO_SUCH_CHANNEL
+                                                                  : PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
     auto& sharedMemory = sharedMemoryResult.value();
 
@@ -106,7 +105,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
     if (allocationResult.has_error())
     {
         IOX_LOG(ERROR, "Unable to allocate memory for named pipe '" << m_name << "'");
-        return err(IpcChannelError::MEMORY_ALLOCATION_FAILED);
+        return err(PosixIpcChannelError::MEMORY_ALLOCATION_FAILED);
     }
     auto* data = static_cast<NamedPipe::NamedPipeData*>(allocationResult.value());
 
@@ -123,7 +122,7 @@ expected<NamedPipe, IpcChannelError> NamedPipeBuilder::create() const noexcept
     {
         if (!data->waitForInitialization())
         {
-            return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+            return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
         }
     }
 
@@ -163,9 +162,9 @@ NamedPipe::~NamedPipe() noexcept
 }
 
 template <typename Prefix>
-IpcChannelName_t NamedPipe::mapToSharedMemoryName(const Prefix& p, const IpcChannelName_t& name) noexcept
+PosixIpcChannelName_t NamedPipe::mapToSharedMemoryName(const Prefix& p, const PosixIpcChannelName_t& name) noexcept
 {
-    IpcChannelName_t channelName = p;
+    PosixIpcChannelName_t channelName = p;
 
     if (name[0] == '/')
     {
@@ -179,7 +178,7 @@ IpcChannelName_t NamedPipe::mapToSharedMemoryName(const Prefix& p, const IpcChan
     return channelName;
 }
 
-expected<void, IpcChannelError> NamedPipe::destroy() noexcept
+expected<void, PosixIpcChannelError> NamedPipe::destroy() noexcept
 {
     if (m_data)
     {
@@ -192,22 +191,22 @@ expected<void, IpcChannelError> NamedPipe::destroy() noexcept
     return ok();
 }
 
-expected<bool, IpcChannelError> NamedPipe::unlinkIfExists(const IpcChannelName_t& name) noexcept
+expected<bool, PosixIpcChannelError> NamedPipe::unlinkIfExists(const PosixIpcChannelName_t& name) noexcept
 {
     auto result = SharedMemory::unlinkIfExist(mapToSharedMemoryName(NAMED_PIPE_PREFIX, name));
     if (result.has_error())
     {
-        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     return ok(*result);
 }
 
-expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
+expected<void, PosixIpcChannelError> NamedPipe::trySend(const std::string& message) const noexcept
 {
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return err(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
     auto result = m_data->sendSemaphore().tryWait();
@@ -219,14 +218,14 @@ expected<void, IpcChannelError> NamedPipe::trySend(const std::string& message) c
         IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
         return ok();
     }
-    return err(IpcChannelError::TIMEOUT);
+    return err(PosixIpcChannelError::TIMEOUT);
 }
 
-expected<void, IpcChannelError> NamedPipe::send(const std::string& message) const noexcept
+expected<void, PosixIpcChannelError> NamedPipe::send(const std::string& message) const noexcept
 {
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return err(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
     IOX_EXPECTS(!m_data->sendSemaphore().wait().has_error());
@@ -236,12 +235,12 @@ expected<void, IpcChannelError> NamedPipe::send(const std::string& message) cons
     return ok();
 }
 
-expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
-                                                     const units::Duration& timeout) const noexcept
+expected<void, PosixIpcChannelError> NamedPipe::timedSend(const std::string& message,
+                                                          const units::Duration& timeout) const noexcept
 {
     if (message.size() > MAX_MESSAGE_SIZE)
     {
-        return err(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
     auto result = m_data->sendSemaphore().timedWait(timeout);
@@ -253,10 +252,10 @@ expected<void, IpcChannelError> NamedPipe::timedSend(const std::string& message,
         IOX_EXPECTS(!m_data->receiveSemaphore().post().has_error());
         return ok();
     }
-    return err(IpcChannelError::TIMEOUT);
+    return err(PosixIpcChannelError::TIMEOUT);
 }
 
-expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
+expected<std::string, PosixIpcChannelError> NamedPipe::receive() const noexcept
 {
     IOX_EXPECTS(!m_data->receiveSemaphore().wait().has_error());
     auto message = m_data->messages.pop();
@@ -265,10 +264,10 @@ expected<std::string, IpcChannelError> NamedPipe::receive() const noexcept
         IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
         return ok<std::string>(message->c_str());
     }
-    return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+    return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
 }
 
-expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
+expected<std::string, PosixIpcChannelError> NamedPipe::tryReceive() const noexcept
 {
     auto result = m_data->receiveSemaphore().tryWait();
     IOX_EXPECTS(!result.has_error());
@@ -281,13 +280,13 @@ expected<std::string, IpcChannelError> NamedPipe::tryReceive() const noexcept
             IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
             return ok<std::string>(message->c_str());
         }
-        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
-    return err(IpcChannelError::TIMEOUT);
+    return err(PosixIpcChannelError::TIMEOUT);
 }
 
-expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
+expected<std::string, PosixIpcChannelError> NamedPipe::timedReceive(const units::Duration& timeout) const noexcept
 {
     auto result = m_data->receiveSemaphore().timedWait(timeout);
     IOX_EXPECTS(!result.has_error());
@@ -300,12 +299,12 @@ expected<std::string, IpcChannelError> NamedPipe::timedReceive(const units::Dura
             IOX_EXPECTS(!m_data->sendSemaphore().post().has_error());
             return ok<std::string>(message->c_str());
         }
-        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
-    return err(IpcChannelError::TIMEOUT);
+    return err(PosixIpcChannelError::TIMEOUT);
 }
 
-expected<void, IpcChannelError> NamedPipe::NamedPipeData::initialize(const uint32_t maxMsgNumber) noexcept
+expected<void, PosixIpcChannelError> NamedPipe::NamedPipeData::initialize(const uint32_t maxMsgNumber) noexcept
 {
     auto signalError = [&](const char* name) {
         IOX_LOG(ERROR, "Unable to create '" << name << "' semaphore for named pipe");
@@ -318,13 +317,13 @@ expected<void, IpcChannelError> NamedPipe::NamedPipeData::initialize(const uint3
             .has_error())
     {
         signalError("send");
-        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     if (UnnamedSemaphoreBuilder().initialValue(0U).isInterProcessCapable(true).create(m_receiveSemaphore).has_error())
     {
         signalError("receive");
-        return err(IpcChannelError::INTERNAL_LOGIC_ERROR);
+        return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);
     }
 
     initializationGuard.store(VALID_DATA);

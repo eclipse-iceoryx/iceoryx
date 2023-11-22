@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if !defined(_WIN32)
-#include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_platform/socket.hpp"
 #include "iox/posix_call.hpp"
+#include "iox/unix_domain_socket.hpp"
 
 #include "test.hpp"
 
@@ -32,12 +32,11 @@ namespace
 using namespace ::testing;
 using namespace ::testing::internal;
 using namespace iox;
-using namespace iox::posix;
 using namespace iox::units::duration_literals;
 using namespace iox::units;
 
-using sendCall_t = std::function<expected<void, IpcChannelError>(const std::string&)>;
-using receiveCall_t = std::function<expected<std::string, IpcChannelError>()>;
+using sendCall_t = std::function<expected<void, PosixIpcChannelError>(const std::string&)>;
+using receiveCall_t = std::function<expected<std::string, PosixIpcChannelError>()>;
 
 // NOLINTJUSTIFICATION used only for test purposes
 // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
@@ -113,14 +112,14 @@ class UnixDomainSocket_test : public Test
     static constexpr uint64_t MaxMsgNumber = 10U;
     UnixDomainSocket server{UnixDomainSocketBuilder()
                                 .name(goodName)
-                                .channelSide(IpcChannelSide::SERVER)
+                                .channelSide(PosixIpcChannelSide::SERVER)
                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
                                 .maxMsgNumber(MaxMsgNumber)
                                 .create()
                                 .expect("Failed to create UnixDomainSocket")};
     UnixDomainSocket client{UnixDomainSocketBuilder()
                                 .name(goodName)
-                                .channelSide(IpcChannelSide::CLIENT)
+                                .channelSide(PosixIpcChannelSide::CLIENT)
                                 .maxMsgSize(UnixDomainSocket::MAX_MESSAGE_SIZE)
                                 .maxMsgNumber(MaxMsgNumber)
                                 .create()
@@ -134,7 +133,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameLeadsToInvalidChannelNameErro
     ::testing::Test::RecordProperty("TEST_ID", "bdc1e253-2750-4b07-a528-83ca50246b29");
     auto ret = UnixDomainSocket::unlinkIfExists(UnixDomainSocket::NoPathPrefix, "");
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(PosixIpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidChannelNameError)
@@ -142,7 +141,7 @@ TEST_F(UnixDomainSocket_test, UnlinkEmptySocketNameWithPathPrefixLeadsToInvalidC
     ::testing::Test::RecordProperty("TEST_ID", "97793649-ac88-4e73-a0bc-602dca302746");
     auto ret = UnixDomainSocket::unlinkIfExists("");
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(PosixIpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvalidChannelNameError)
@@ -157,7 +156,7 @@ TEST_F(UnixDomainSocket_test, UnlinkTooLongSocketNameWithPathPrefixLeadsToInvali
     }
     auto ret = UnixDomainSocket::unlinkIfExists(longSocketName);
     ASSERT_TRUE(ret.has_error());
-    EXPECT_THAT(ret.error(), Eq(IpcChannelError::INVALID_CHANNEL_NAME));
+    EXPECT_THAT(ret.error(), Eq(PosixIpcChannelError::INVALID_CHANNEL_NAME));
 }
 
 TEST_F(UnixDomainSocket_test, UnlinkExistingSocketIsSuccessful)
@@ -188,7 +187,7 @@ void sendOnServerLeadsToError(const sendCall_t& send)
     std::string message{"Foo"};
     auto result = send(message);
     EXPECT_TRUE(result.has_error());
-    EXPECT_THAT(result.error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
+    EXPECT_THAT(result.error(), Eq(PosixIpcChannelError::INTERNAL_LOGIC_ERROR));
 }
 
 TEST_F(UnixDomainSocket_test, TimedSendOnServerLeadsToError)
@@ -380,7 +379,7 @@ void unableToSendTooLongMessage(const sendCall_t& send)
     std::string message(UnixDomainSocket::MAX_MESSAGE_SIZE + 1, 'x');
     auto result = send(message);
     ASSERT_TRUE(result.has_error());
-    EXPECT_EQ(result.error(), IpcChannelError::MESSAGE_TOO_LONG);
+    EXPECT_EQ(result.error(), PosixIpcChannelError::MESSAGE_TOO_LONG);
 }
 
 TEST_F(UnixDomainSocket_test, UnableToSendTooLongMessageWithSend)
@@ -401,7 +400,7 @@ void receivingOnClientLeadsToError(const receiveCall_t& receive)
 {
     auto result = receive();
     EXPECT_TRUE(result.has_error());
-    ASSERT_THAT(result.error(), Eq(IpcChannelError::INTERNAL_LOGIC_ERROR));
+    ASSERT_THAT(result.error(), Eq(PosixIpcChannelError::INTERNAL_LOGIC_ERROR));
 }
 
 TEST_F(UnixDomainSocket_test, ReceivingOnClientLeadsToErrorWithReceive)
@@ -426,7 +425,7 @@ TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocks, Repeat(5), [&] {
     TIMING_TEST_EXPECT_TRUE(end - start >= WAIT_IN_MS);
 
     TIMING_TEST_ASSERT_TRUE(msg.has_error());
-    TIMING_TEST_EXPECT_TRUE(msg.error() == IpcChannelError::TIMEOUT);
+    TIMING_TEST_EXPECT_TRUE(msg.error() == PosixIpcChannelError::TIMEOUT);
 })
 
 TIMING_TEST_F(UnixDomainSocket_test, TimedReceiveBlocksUntilMessageIsReceived, Repeat(5), [&] {

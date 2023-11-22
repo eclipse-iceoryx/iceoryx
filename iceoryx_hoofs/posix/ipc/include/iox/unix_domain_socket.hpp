@@ -15,10 +15,10 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
+#ifndef IOX_HOOFS_POSIX_IPC_UNIX_DOMAIN_SOCKET_HPP
+#define IOX_HOOFS_POSIX_IPC_UNIX_DOMAIN_SOCKET_HPP
+
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/socket.hpp"
@@ -28,10 +28,9 @@
 #include "iox/duration.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_ipc_channel.hpp"
 
 namespace iox
-{
-namespace posix
 {
 class UnixDomainSocketBuilder;
 
@@ -64,63 +63,64 @@ class UnixDomainSocket
 
     /// @brief unlink the provided unix domain socket
     /// @param name of the unix domain socket to unlink
-    /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
-    static expected<bool, IpcChannelError> unlinkIfExists(const UdsName_t& name) noexcept;
+    /// @return true if the unix domain socket could be unlinked, false otherwise, PosixIpcChannelError if error occured
+    static expected<bool, PosixIpcChannelError> unlinkIfExists(const UdsName_t& name) noexcept;
 
     /// @brief unlink the provided unix domain socket
     /// @param NoPathPrefix signalling that this method does not add a path prefix
     /// @param name of the unix domain socket to unlink
-    /// @return true if the unix domain socket could be unlinked, false otherwise, IpcChannelError if error occured
-    static expected<bool, IpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
+    /// @return true if the unix domain socket could be unlinked, false otherwise, PosixIpcChannelError if error occured
+    static expected<bool, PosixIpcChannelError> unlinkIfExists(const NoPathPrefix_t, const UdsName_t& name) noexcept;
 
     /// @brief send a message using std::string.
     /// @param msg to send
-    /// @return IpcChannelError if error occured
-    expected<void, IpcChannelError> send(const std::string& msg) const noexcept;
+    /// @return PosixIpcChannelError if error occured
+    expected<void, PosixIpcChannelError> send(const std::string& msg) const noexcept;
 
     /// @brief try to send a message for a given timeout duration using std::string
     /// @param msg to send
     /// @param timout for the send operation
-    /// @return IpcChannelError if error occured
-    expected<void, IpcChannelError> timedSend(const std::string& msg, const units::Duration& timeout) const noexcept;
+    /// @return PosixIpcChannelError if error occured
+    expected<void, PosixIpcChannelError> timedSend(const std::string& msg,
+                                                   const units::Duration& timeout) const noexcept;
 
     /// @brief receive message using std::string.
-    /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    expected<std::string, IpcChannelError> receive() const noexcept;
+    /// @return received message. In case of an error, PosixIpcChannelError is returned and msg is empty.
+    expected<std::string, PosixIpcChannelError> receive() const noexcept;
 
     /// @brief try to receive message for a given timeout duration using std::string.
     /// @param timout for the receive operation
-    /// @return received message. In case of an error, IpcChannelError is returned and msg is empty.
-    expected<std::string, IpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
+    /// @return received message. In case of an error, PosixIpcChannelError is returned and msg is empty.
+    expected<std::string, PosixIpcChannelError> timedReceive(const units::Duration& timeout) const noexcept;
 
   private:
     friend class UnixDomainSocketBuilderNoPathPrefix;
 
     UnixDomainSocket(const UdsName_t& name,
-                     const IpcChannelSide channelSide,
+                     const PosixIpcChannelSide channelSide,
                      const int32_t sockfd,
                      const sockaddr_un sockAddr,
                      const uint64_t maxMsgSize) noexcept;
 
-    expected<void, IpcChannelError> destroy() noexcept;
+    expected<void, PosixIpcChannelError> destroy() noexcept;
 
-    expected<void, IpcChannelError> initalizeSocket() noexcept;
+    expected<void, PosixIpcChannelError> initalizeSocket() noexcept;
 
-    IpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
-    static IpcChannelError errnoToEnum(const UdsName_t& name, const int32_t errnum) noexcept;
+    PosixIpcChannelError errnoToEnum(const int32_t errnum) const noexcept;
+    static PosixIpcChannelError errnoToEnum(const UdsName_t& name, const int32_t errnum) noexcept;
 
-    expected<void, IpcChannelError> closeFileDescriptor() noexcept;
-    static expected<void, IpcChannelError> closeFileDescriptor(const UdsName_t& name,
-                                                               const int sockfd,
-                                                               const sockaddr_un& sockAddr,
-                                                               IpcChannelSide channelSide) noexcept;
+    expected<void, PosixIpcChannelError> closeFileDescriptor() noexcept;
+    static expected<void, PosixIpcChannelError> closeFileDescriptor(const UdsName_t& name,
+                                                                    const int sockfd,
+                                                                    const sockaddr_un& sockAddr,
+                                                                    PosixIpcChannelSide channelSide) noexcept;
 
   private:
     static constexpr int32_t ERROR_CODE = -1;
     static constexpr int32_t INVALID_FD = -1;
 
     UdsName_t m_name;
-    IpcChannelSide m_channelSide = IpcChannelSide::CLIENT;
+    PosixIpcChannelSide m_channelSide = PosixIpcChannelSide::CLIENT;
     int32_t m_sockfd{INVALID_FD};
     sockaddr_un m_sockAddr{};
     uint64_t m_maxMessageSize{MAX_MESSAGE_SIZE};
@@ -129,10 +129,10 @@ class UnixDomainSocket
 class UnixDomainSocketBuilder
 {
     /// @brief Defines the socket name
-    IOX_BUILDER_PARAMETER(IpcChannelName_t, name, "")
+    IOX_BUILDER_PARAMETER(PosixIpcChannelName_t, name, "")
 
     /// @brief Defines how the socket is opened, i.e. as client or server
-    IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
+    IOX_BUILDER_PARAMETER(PosixIpcChannelSide, channelSide, PosixIpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the socket
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, UnixDomainSocket::MAX_MESSAGE_SIZE)
@@ -142,8 +142,8 @@ class UnixDomainSocketBuilder
 
   public:
     /// @brief create a unix domain socket
-    /// @return On success a 'UnixDomainSocket' is returned and on failure an 'IpcChannelError'.
-    expected<UnixDomainSocket, IpcChannelError> create() const noexcept;
+    /// @return On success a 'UnixDomainSocket' is returned and on failure an 'PosixIpcChannelError'.
+    expected<UnixDomainSocket, PosixIpcChannelError> create() const noexcept;
 };
 
 class UnixDomainSocketBuilderNoPathPrefix
@@ -152,7 +152,7 @@ class UnixDomainSocketBuilderNoPathPrefix
     IOX_BUILDER_PARAMETER(UnixDomainSocket::UdsName_t, name, "")
 
     /// @brief Defines how the socket is opened, i.e. as client or server
-    IOX_BUILDER_PARAMETER(IpcChannelSide, channelSide, IpcChannelSide::CLIENT)
+    IOX_BUILDER_PARAMETER(PosixIpcChannelSide, channelSide, PosixIpcChannelSide::CLIENT)
 
     /// @brief Defines the max message size of the socket
     IOX_BUILDER_PARAMETER(uint64_t, maxMsgSize, UnixDomainSocket::MAX_MESSAGE_SIZE)
@@ -162,11 +162,10 @@ class UnixDomainSocketBuilderNoPathPrefix
 
   public:
     /// @brief create a unix domain socket
-    /// @return On success a 'UnixDomainSocket' is returned and on failure an 'IpcChannelError'.
-    expected<UnixDomainSocket, IpcChannelError> create() const noexcept;
+    /// @return On success a 'UnixDomainSocket' is returned and on failure an 'PosixIpcChannelError'.
+    expected<UnixDomainSocket, PosixIpcChannelError> create() const noexcept;
 };
 
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_UNIX_DOMAIN_SOCKET_HPP
+#endif // IOX_HOOFS_POSIX_IPC_UNIX_DOMAIN_SOCKET_HPP

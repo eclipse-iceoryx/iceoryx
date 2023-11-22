@@ -26,7 +26,7 @@ IpcInterfaceUser::IpcInterfaceUser(const RuntimeName_t& name,
                                    const uint64_t messageSize) noexcept
     : IpcInterfaceBase(name, maxMessages, messageSize)
 {
-    openIpcChannel(posix::IpcChannelSide::CLIENT);
+    openIpcChannel(PosixIpcChannelSide::CLIENT);
 }
 } // namespace runtime
 } // namespace iox

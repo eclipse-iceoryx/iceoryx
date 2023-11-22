@@ -28,25 +28,22 @@
 
 namespace iox
 {
-using posix::IpcChannelError;
-using posix::IpcChannelSide;
-
-expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noexcept
+expected<MessageQueue, PosixIpcChannelError> MessageQueueBuilder::create() const noexcept
 {
     auto sanitzedNameResult = MessageQueue::sanitizeIpcChannelName(m_name);
     if (sanitzedNameResult.has_error())
     {
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
     auto& sanitizedName = sanitzedNameResult.value();
     [[maybe_unused]] std::false_type m_name; // m_name shall not be used anymore but only sanitizedName
 
     if (m_maxMsgSize > MessageQueue::MAX_MESSAGE_SIZE)
     {
-        return err(IpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
+        return err(PosixIpcChannelError::MAX_MESSAGE_SIZE_EXCEEDED);
     }
 
-    if (m_channelSide == IpcChannelSide::SERVER)
+    if (m_channelSide == PosixIpcChannelSide::SERVER)
     {
         IOX_POSIX_CALL(mq_unlink)
         (sanitizedName.c_str())
@@ -82,10 +79,10 @@ expected<MessageQueue, IpcChannelError> MessageQueueBuilder::create() const noex
     return ok(MessageQueue{std::move(sanitizedName), attributes, mqDescriptor, m_channelSide});
 }
 
-MessageQueue::MessageQueue(const IpcChannelName_t& name,
+MessageQueue::MessageQueue(const PosixIpcChannelName_t& name,
                            const mq_attr attributes,
                            mqd_t mqDescriptor,
-                           const IpcChannelSide channelSide) noexcept
+                           const PosixIpcChannelSide channelSide) noexcept
     : m_name(name)
     , m_attributes(attributes)
     , m_mqDescriptor(mqDescriptor)
@@ -127,12 +124,12 @@ MessageQueue& MessageQueue::operator=(MessageQueue&& other) noexcept
     return *this;
 }
 
-expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelName_t& name) noexcept
+expected<bool, PosixIpcChannelError> MessageQueue::unlinkIfExists(const PosixIpcChannelName_t& name) noexcept
 {
     auto sanitizedIpcChannelName = sanitizeIpcChannelName(name);
     if (sanitizedIpcChannelName.has_error())
     {
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
 
 
@@ -148,7 +145,7 @@ expected<bool, IpcChannelError> MessageQueue::unlinkIfExists(const IpcChannelNam
     return ok(mqCall->errnum != ENOENT);
 }
 
-expected<void, IpcChannelError> MessageQueue::destroy() noexcept
+expected<void, PosixIpcChannelError> MessageQueue::destroy() noexcept
 {
     if (m_mqDescriptor != INVALID_DESCRIPTOR)
     {
@@ -170,12 +167,12 @@ expected<void, IpcChannelError> MessageQueue::destroy() noexcept
     return ok();
 }
 
-expected<void, IpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
+expected<void, PosixIpcChannelError> MessageQueue::send(const std::string& msg) const noexcept
 {
     const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
     {
-        return err(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
     auto mqCall =
@@ -189,7 +186,7 @@ expected<void, IpcChannelError> MessageQueue::send(const std::string& msg) const
     return ok();
 }
 
-expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
+expected<std::string, PosixIpcChannelError> MessageQueue::receive() const noexcept
 {
     /// NOLINTJUSTIFICATION required as raw memory buffer for mq_receive
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays,cppcoreguidelines-avoid-c-arrays)
@@ -207,20 +204,21 @@ expected<std::string, IpcChannelError> MessageQueue::receive() const noexcept
     return ok(std::string(&(message[0])));
 }
 
-expected<mqd_t, IpcChannelError>
-MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcChannelSide channelSide) noexcept
+expected<mqd_t, PosixIpcChannelError> MessageQueue::open(const PosixIpcChannelName_t& name,
+                                                         mq_attr& attributes,
+                                                         const PosixIpcChannelSide channelSide) noexcept
 {
     auto sanitizedNameResult = sanitizeIpcChannelName(name);
     if (sanitizedNameResult.has_error())
     {
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
     const auto& sanitizedName = sanitizedNameResult.value();
     {
         [[maybe_unused]] std::false_type name; // name shall not be used anymore but only sanitizedName
 
         int32_t openFlags = O_RDWR;
-        if (channelSide == IpcChannelSide::SERVER)
+        if (channelSide == PosixIpcChannelSide::SERVER)
         {
             /// NOLINTJUSTIFICATION used in internal implementation which wraps the posix functionality
             /// NOLINTNEXTLINE(hicpp-signed-bitwise)
@@ -246,7 +244,7 @@ MessageQueue::open(const IpcChannelName_t& name, mq_attr& attributes, const IpcC
     }
 }
 
-expected<void, IpcChannelError> MessageQueue::close() noexcept
+expected<void, PosixIpcChannelError> MessageQueue::close() noexcept
 {
     auto mqCall = IOX_POSIX_CALL(mq_close)(m_mqDescriptor).failureReturnValue(ERROR_CODE).evaluate();
 
@@ -258,9 +256,9 @@ expected<void, IpcChannelError> MessageQueue::close() noexcept
     return ok();
 }
 
-expected<void, IpcChannelError> MessageQueue::unlink() noexcept
+expected<void, PosixIpcChannelError> MessageQueue::unlink() noexcept
 {
-    if (m_channelSide == IpcChannelSide::CLIENT)
+    if (m_channelSide == PosixIpcChannelSide::CLIENT)
     {
         return ok();
     }
@@ -274,7 +272,7 @@ expected<void, IpcChannelError> MessageQueue::unlink() noexcept
     return ok();
 }
 
-expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const noexcept
+expected<std::string, PosixIpcChannelError> MessageQueue::timedReceive(const units::Duration& timeout) const noexcept
 {
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
     /// NOLINTJUSTIFICATION required as internal buffer for receive
@@ -300,15 +298,15 @@ expected<std::string, IpcChannelError> MessageQueue::timedReceive(const units::D
     return ok(std::string(&(message[0])));
 }
 
-expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
-                                                        const units::Duration& timeout) const noexcept
+expected<void, PosixIpcChannelError> MessageQueue::timedSend(const std::string& msg,
+                                                             const units::Duration& timeout) const noexcept
 {
     const uint64_t messageSize = msg.size() + NULL_TERMINATOR_SIZE;
     if (messageSize > static_cast<uint64_t>(m_attributes.mq_msgsize))
     {
         IOX_LOG(ERROR,
                 "the message '" << msg << "' which should be sent to the message queue '" << m_name << "' is too long");
-        return err(IpcChannelError::MESSAGE_TOO_LONG);
+        return err(PosixIpcChannelError::MESSAGE_TOO_LONG);
     }
 
     timespec timeOut = timeout.timespec(units::TimeSpecReference::Epoch);
@@ -332,64 +330,65 @@ expected<void, IpcChannelError> MessageQueue::timedSend(const std::string& msg,
     return ok();
 }
 
-expected<bool, IpcChannelError> MessageQueue::isOutdated() noexcept
+expected<bool, PosixIpcChannelError> MessageQueue::isOutdated() noexcept
 {
     return ok(false);
 }
 
-IpcChannelError MessageQueue::errnoToEnum(const int32_t errnum) const noexcept
+PosixIpcChannelError MessageQueue::errnoToEnum(const int32_t errnum) const noexcept
 {
     return errnoToEnum(m_name, errnum);
 }
 
-IpcChannelError MessageQueue::errnoToEnum(const IpcChannelName_t& name, const int32_t errnum) noexcept
+PosixIpcChannelError MessageQueue::errnoToEnum(const PosixIpcChannelName_t& name, const int32_t errnum) noexcept
 {
     switch (errnum)
     {
     case EACCES:
     {
         IOX_LOG(ERROR, "access denied to message queue '" << name << "'");
-        return IpcChannelError::ACCESS_DENIED;
+        return PosixIpcChannelError::ACCESS_DENIED;
     }
     case EAGAIN:
     {
         IOX_LOG(ERROR, "the message queue '" << name << "' is full");
-        return IpcChannelError::CHANNEL_FULL;
+        return PosixIpcChannelError::CHANNEL_FULL;
     }
     case ETIMEDOUT:
     {
         // no error message needed since this is a normal use case
-        return IpcChannelError::TIMEOUT;
+        return PosixIpcChannelError::TIMEOUT;
     }
     case EEXIST:
     {
         IOX_LOG(ERROR, "message queue '" << name << "' already exists");
-        return IpcChannelError::CHANNEL_ALREADY_EXISTS;
+        return PosixIpcChannelError::CHANNEL_ALREADY_EXISTS;
     }
     case EINVAL:
     {
         IOX_LOG(ERROR, "provided invalid arguments for message queue '" << name << "'");
-        return IpcChannelError::INVALID_ARGUMENTS;
+        return PosixIpcChannelError::INVALID_ARGUMENTS;
     }
     case ENOENT:
     {
         // no error message needed since this is a normal use case
-        return IpcChannelError::NO_SUCH_CHANNEL;
+        return PosixIpcChannelError::NO_SUCH_CHANNEL;
     }
     case ENAMETOOLONG:
     {
         IOX_LOG(ERROR, "message queue name '" << name << "' is too long");
-        return IpcChannelError::INVALID_CHANNEL_NAME;
+        return PosixIpcChannelError::INVALID_CHANNEL_NAME;
     }
     default:
     {
         IOX_LOG(ERROR, "internal logic error in message queue '" << name << "' occurred");
-        return IpcChannelError::INTERNAL_LOGIC_ERROR;
+        return PosixIpcChannelError::INTERNAL_LOGIC_ERROR;
     }
     }
 }
 
-expected<IpcChannelName_t, IpcChannelError> MessageQueue::sanitizeIpcChannelName(const IpcChannelName_t& name) noexcept
+expected<PosixIpcChannelName_t, PosixIpcChannelError>
+MessageQueue::sanitizeIpcChannelName(const PosixIpcChannelName_t& name) noexcept
 {
     /// @todo iox-#832 the check for the longest valid queue name is missing
     /// the name for the mqeue is limited by MAX_PATH
@@ -397,13 +396,13 @@ expected<IpcChannelName_t, IpcChannelError> MessageQueue::sanitizeIpcChannelName
     /// See: https://pubs.opengroup.org/onlinepubs/9699919799/functions/mq_open.html
     if (name.empty() || name.size() < SHORTEST_VALID_QUEUE_NAME)
     {
-        return err(IpcChannelError::INVALID_CHANNEL_NAME);
+        return err(PosixIpcChannelError::INVALID_CHANNEL_NAME);
     }
     // name is checked for emptiness, so it's ok to get a first member
     // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-pointer-arithmetic)
     if (name.c_str()[0] != '/')
     {
-        return ok(IpcChannelName_t("/").append(iox::TruncateToCapacity, name));
+        return ok(PosixIpcChannelName_t("/").append(iox::TruncateToCapacity, name));
     }
 
     return ok(name);

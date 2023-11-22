@@ -63,7 +63,7 @@ class CMqInterfaceStartupRace_test : public Test
     {
         platform::IoxIpcChannelType::Builder_t()
             .name(roudi::IPC_CHANNEL_ROUDI_NAME)
-            .channelSide(IpcChannelSide::SERVER)
+            .channelSide(PosixIpcChannelSide::SERVER)
             .create()
             .and_then([this](auto& channel) { this->m_roudiQueue.emplace(std::move(channel)); });
         ASSERT_THAT(m_roudiQueue.has_value(), true);
@@ -107,7 +107,7 @@ class CMqInterfaceStartupRace_test : public Test
         {
             platform::IoxIpcChannelType::Builder_t()
                 .name(MqAppName)
-                .channelSide(IpcChannelSide::CLIENT)
+                .channelSide(PosixIpcChannelSide::CLIENT)
                 .create()
                 .and_then([this](auto& channel) { this->m_appQueue.emplace(std::move(channel)); });
         }
@@ -152,7 +152,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
 
         auto m_roudiQueue2 = platform::IoxIpcChannelType::Builder_t()
                                  .name(roudi::IPC_CHANNEL_ROUDI_NAME)
-                                 .channelSide(IpcChannelSide::SERVER)
+                                 .channelSide(PosixIpcChannelSide::SERVER)
                                  .create();
 
         // check if the app retries to register at RouDi
@@ -204,7 +204,7 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
 
         auto newRoudi = platform::IoxIpcChannelType::Builder_t()
                             .name(roudi::IPC_CHANNEL_ROUDI_NAME)
-                            .channelSide(IpcChannelSide::SERVER)
+                            .channelSide(PosixIpcChannelSide::SERVER)
                             .create();
 
         // check if the app retries to register at RouDi

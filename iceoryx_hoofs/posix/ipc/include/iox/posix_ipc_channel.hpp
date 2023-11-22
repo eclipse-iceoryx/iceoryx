@@ -14,11 +14,11 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
+
+#ifndef IOX_HOOFS_POSIX_IPC_POSIX_IPC_CHANNEL_HPP
+#define IOX_HOOFS_POSIX_IPC_POSIX_IPC_CHANNEL_HPP
 
 #include "iox/string.hpp"
-
 
 namespace iox
 {
@@ -31,10 +31,9 @@ constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 98U;
 constexpr uint32_t MAX_IPC_CHANNEL_NAME_LENGTH = 100U;
 #endif
 
-using IpcChannelName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
-namespace posix
-{
-enum class IpcChannelError : uint8_t
+using PosixIpcChannelName_t = string<MAX_IPC_CHANNEL_NAME_LENGTH>;
+
+enum class PosixIpcChannelError : uint8_t
 {
     NOT_INITIALIZED,
     ACCESS_DENIED,
@@ -57,14 +56,12 @@ enum class IpcChannelError : uint8_t
     UNDEFINED
 };
 
-enum class IpcChannelSide : uint8_t
+enum class PosixIpcChannelSide : uint8_t
 {
     CLIENT,
     SERVER
 };
 
-
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_IPC_CHANNEL_HPP
+#endif // IOX_HOOFS_POSIX_IPC_POSIX_IPC_CHANNEL_HPP

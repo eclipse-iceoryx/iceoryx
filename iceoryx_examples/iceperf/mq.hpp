@@ -19,12 +19,12 @@
 
 #include "base.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/ipc_channel.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mqueue.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iox/duration.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_ipc_channel.hpp"
 
 #include <string>
 
@@ -48,7 +48,7 @@ class MQ : public IcePerfBase
   private:
     static constexpr const char* PREFIX{"/"};
     void initMqAttributes() noexcept;
-    void open(const std::string& name, const iox::posix::IpcChannelSide channelSide) noexcept;
+    void open(const std::string& name, const iox::PosixIpcChannelSide channelSide) noexcept;
     void send(const char* buffer, uint32_t length) noexcept;
     void receive(char* buffer) noexcept;
     void sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept override;
