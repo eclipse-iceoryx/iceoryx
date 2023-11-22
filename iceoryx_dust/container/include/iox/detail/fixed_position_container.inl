@@ -18,10 +18,8 @@
 #ifndef IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 #define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_INL
 
-#include "iox/fixed_position_container.hpp"
-#if __cplusplus < 201703L
 #include "iox/detail/fixed_position_container_helper.hpp"
-#endif
+#include "iox/fixed_position_container.hpp"
 
 namespace iox
 {
@@ -58,23 +56,13 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& rhs) noexcept
 {
-    for (IndexType i = 0; i < CAPACITY; ++i)
-    {
-        m_status[i] = SlotStatus::FREE;
-    }
-
-    *this = rhs;
+    copy_and_move_impl<detail::MoveAndCopyOperations::CopyConstructor>(rhs);
 }
 
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& rhs) noexcept
 {
-    for (IndexType i = 0; i < CAPACITY; ++i)
-    {
-        m_status[i] = SlotStatus::FREE;
-    }
-
-    *this = std::move(rhs);
+    copy_and_move_impl<detail::MoveAndCopyOperations::MoveConstructor>(std::move(rhs));
 }
 
 template <typename T, uint64_t CAPACITY>
@@ -83,7 +71,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
 {
     if (this != &rhs)
     {
-        copy_and_move_impl(rhs);
+        copy_and_move_impl<detail::MoveAndCopyOperations::CopyAssignment>(rhs);
     }
     return *this;
 }
@@ -94,73 +82,67 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 {
     if (this != &rhs)
     {
-        copy_and_move_impl(std::move(rhs));
-
-        // clear rhs
-        rhs.clear();
+        copy_and_move_impl<detail::MoveAndCopyOperations::MoveAssignment>(std::move(rhs));
     }
     return *this;
 }
 
 template <typename T, uint64_t CAPACITY>
-template <typename RhsType>
+template <detail::MoveAndCopyOperations Opt, typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
-    // we already make sure rhs is always passed by std::move() for move case, therefore
-    // the result of "decltype(rhs)" is same as "decltype(std::forward<RhsType>(rhs))"
-    static_assert(std::is_rvalue_reference<decltype(rhs)>::value
-                      || (std::is_lvalue_reference<decltype(rhs)>::value
-                          && std::is_const<std::remove_reference_t<decltype(rhs)>>::value),
-                  "RhsType must be const lvalue reference or rvalue reference");
+    // alias helper struct
+    using Helper = detail::MoveAndCopyHelper<Opt>;
 
-    constexpr bool is_move = std::is_rvalue_reference<decltype(rhs)>::value;
+    constexpr bool is_ctor = Helper::is_ctor();
+    constexpr bool is_move = Helper::is_move();
+
+    // status array is not yet initialized for constructor creation
+    if constexpr (is_ctor)
+    {
+        for (IndexType i = 0; i < CAPACITY; ++i)
+        {
+            m_status[i] = SlotStatus::FREE;
+        }
+    }
 
     IndexType i{Index::FIRST};
     auto rhs_it = (std::forward<RhsType>(rhs)).begin();
 
-    // transfer src data to destination
     for (; rhs_it.to_index() != Index::INVALID; ++i, ++rhs_it)
     {
         if (m_status[i] == SlotStatus::USED)
         {
-#if __cplusplus >= 201703L
+            // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
+            // operation. Therefore, creation can be carried out according to the option specified by Opt.
             if constexpr (is_move)
             {
-                m_data[i] = std::move(*rhs_it);
+                Helper::transfer(m_data[i], std::move(*rhs_it));
             }
             else
             {
-                m_data[i] = *rhs_it;
+                Helper::transfer(m_data[i], *rhs_it);
             }
-#else
-            // We introduce a helper struct primarily due to the test case
-            // e1cc7c9f-c1b5-4047-811b-004302af5c00. It demands compile-time if-else branching
-            // for classes that are either non-copyable or non-moveable.
-            // Note: With C++17's 'if constexpr', the need for these helper structs can be eliminated.
-            detail::AssignmentHelper<is_move>::assign(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
-#endif
         }
-        // use ctor to avoid UB for non-initialized free slots
         else
         {
-#if __cplusplus >= 201703L
+            // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
+            // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
             if constexpr (is_move)
             {
-                new (&m_data[i]) T(std::move(*rhs_it));
+                Helper::ctor_create(m_data[i], std::move(*rhs_it));
             }
             else
             {
-                new (&m_data[i]) T(*rhs_it);
+                Helper::ctor_create(m_data[i], *rhs_it);
             }
-#else
-            // Same as above
-            detail::CtorHelper<is_move>::construct(m_data[i], detail::MoveHelper<is_move>::move_or_copy(rhs_it));
-#endif
         }
+
         m_status[i] = SlotStatus::USED;
         m_next[i] = static_cast<IndexType>(i + 1U);
     }
 
+    // reset rest
     for (; i < CAPACITY; ++i)
     {
         if (m_status[i] == SlotStatus::USED)
@@ -174,6 +156,7 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         m_next[i] = next;
     }
 
+    // correct m_next
     m_next[Index::LAST] = Index::INVALID;
     if (!rhs.empty())
     {
@@ -183,6 +166,12 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     m_begin_free = static_cast<IndexType>(rhs.m_size);
     m_begin_used = rhs.empty() ? Index::INVALID : Index::FIRST;
     m_size = rhs.m_size;
+
+    // reset rhs if is_move is true
+    if constexpr (is_move)
+    {
+        rhs.clear();
+    }
 }
 
 template <typename T, uint64_t CAPACITY>
