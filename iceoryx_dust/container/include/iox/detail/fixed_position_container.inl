@@ -56,13 +56,13 @@ inline FixedPositionContainer<T, CAPACITY>::~FixedPositionContainer() noexcept
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(const FixedPositionContainer& rhs) noexcept
 {
-    copy_and_move_impl<detail::SpecialCreationOperations::CopyConstructor>(rhs);
+    copy_and_move_impl<detail::MoveAndCopyOperations::CopyConstructor>(rhs);
 }
 
 template <typename T, uint64_t CAPACITY>
 inline FixedPositionContainer<T, CAPACITY>::FixedPositionContainer(FixedPositionContainer&& rhs) noexcept
 {
-    copy_and_move_impl<detail::SpecialCreationOperations::MoveConstructor>(std::move(rhs));
+    copy_and_move_impl<detail::MoveAndCopyOperations::MoveConstructor>(std::move(rhs));
 }
 
 template <typename T, uint64_t CAPACITY>
@@ -71,7 +71,7 @@ FixedPositionContainer<T, CAPACITY>::operator=(const FixedPositionContainer& rhs
 {
     if (this != &rhs)
     {
-        copy_and_move_impl<detail::SpecialCreationOperations::CopyAssignment>(rhs);
+        copy_and_move_impl<detail::MoveAndCopyOperations::CopyAssignment>(rhs);
     }
     return *this;
 }
@@ -82,26 +82,22 @@ FixedPositionContainer<T, CAPACITY>::operator=(FixedPositionContainer&& rhs) noe
 {
     if (this != &rhs)
     {
-        copy_and_move_impl<detail::SpecialCreationOperations::MoveAssignment>(std::move(rhs));
+        copy_and_move_impl<detail::MoveAndCopyOperations::MoveAssignment>(std::move(rhs));
     }
     return *this;
 }
 
 template <typename T, uint64_t CAPACITY>
-template <detail::SpecialCreationOperations Opt, typename RhsType>
+template <detail::MoveAndCopyOperations Opt, typename RhsType>
 inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rhs) noexcept
 {
-    static_assert(
-        std::is_rvalue_reference<decltype(rhs)>::value
-            || (std::is_lvalue_reference_v<decltype(rhs)> && std::is_const_v<std::remove_reference_t<decltype(rhs)>>),
-        "RhsType must be const lvalue reference or rvalue reference");
-
     // alias helper struct
-    using Helper = detail::SpecialCreationHelper<Opt>;
+    using Helper = detail::MoveAndCopyHelper<Opt>;
 
     constexpr bool is_ctor = Helper::is_ctor();
     constexpr bool is_move = Helper::is_move();
 
+    // status array is not yet initialized for constructor creation
     if constexpr (is_ctor)
     {
         for (IndexType i = 0; i < CAPACITY; ++i)
@@ -119,27 +115,19 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         {
             // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
             // operation. Therefore, creation can be carried out according to the option specified by Opt.
-
-            // @todo iox-#2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
-            // Helper::create(m_data[i], Helper::move_or_copy_it(rhs_it));
-
             if constexpr (is_move)
             {
-                Helper::create(m_data[i], std::move(*rhs_it));
+                Helper::transfer(m_data[i], std::move(*rhs_it));
             }
             else
             {
-                Helper::create(m_data[i], *rhs_it);
+                Helper::transfer(m_data[i], *rhs_it);
             }
         }
         else
         {
             // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
             // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
-
-            // @todo iox-#2052: moveCtor will failed if using move_or_copy_it. Twice time moveCtor will be called.
-            // Helper::ctor_create(m_data[i], Helper::move_or_copy_it(rhs_it));
-
             if constexpr (is_move)
             {
                 Helper::ctor_create(m_data[i], std::move(*rhs_it));

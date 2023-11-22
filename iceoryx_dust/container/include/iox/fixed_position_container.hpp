@@ -316,7 +316,7 @@ class FixedPositionContainer final
     };
 
   private:
-    template <detail::SpecialCreationOperations Opt, typename RhsType>
+    template <detail::MoveAndCopyOperations Opt, typename RhsType>
     void copy_and_move_impl(RhsType&& rhs) noexcept;
 
   private:
