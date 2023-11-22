@@ -17,12 +17,12 @@
 #ifndef IOX_POSH_MEPOO_MEPOO_SEGMENT_HPP
 #define IOX_POSH_MEPOO_MEPOO_SEGMENT_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
+#include "iox/detail/posix_acl.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/posix_group.hpp"
 

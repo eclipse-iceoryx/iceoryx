@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #if defined(__linux__)
-#include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/detail/posix_acl.hpp"
 #include "iox/posix_call.hpp"
 #include "test.hpp"
 
@@ -27,11 +27,10 @@
 namespace
 {
 using namespace iox;
-using namespace iox::posix;
 
 constexpr const char* TestFileName = "/tmp/AclTestFile.tmp";
 
-class AccessController_test : public ::testing::Test
+class PosixAcl_test : public ::testing::Test
 {
   public:
     void SetUp() override
@@ -46,7 +45,7 @@ class AccessController_test : public ::testing::Test
         IOX_DISCARD_RESULT(std::remove(TestFileName));
     }
 
-    iox::posix::AccessController m_accessController;
+    PosixAcl m_accessController;
     FILE* m_fileStream{nullptr};
     int m_fileDescriptor{0};
 };
@@ -81,21 +80,21 @@ std::unique_ptr<PwUidResult> iox_getpwuid(const uid_t uid)
     return result;
 }
 
-TEST_F(AccessController_test, writeStandardPermissions)
+TEST_F(PosixAcl_test, writeStandardPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "4313fc8d-b819-4c77-b811-80e2a41cf3bd");
     // should fail beacuse no access rights have been specified yet
     bool result = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_FALSE(result);
 
-    m_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::USER, PosixAcl::Permission::READWRITE);
 
     // should fail because group and others is missing
     result = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_FALSE(result);
 
-    m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::NONE);
-    m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::READ);
+    m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::NONE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::READ);
 
     // should succeed now
     result = m_accessController.writePermissionsToFile(m_fileDescriptor);
@@ -118,11 +117,11 @@ TEST_F(AccessController_test, writeStandardPermissions)
     acl_free(fileACL);
 }
 
-TEST_F(AccessController_test, writeSpecialUserPermissions)
+TEST_F(PosixAcl_test, writeSpecialUserPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "9e9413e6-8f08-43ef-8fc2-e25b041e6f53");
-    bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_USER,
-                                                            AccessController::Permission::READWRITE);
+    bool entryAdded =
+        m_accessController.addPermissionEntry(PosixAcl::Category::SPECIFIC_USER, PosixAcl::Permission::READWRITE);
     // no name specified
     EXPECT_FALSE(entryAdded);
 
@@ -130,7 +129,7 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     ASSERT_TRUE(name);
     PosixUser::userName_t currentUserName(iox::TruncateToCapacity, name->pwd.pw_name);
 
-    entryAdded = m_accessController.addUserPermission(AccessController::Permission::READWRITE, currentUserName);
+    entryAdded = m_accessController.addUserPermission(PosixAcl::Permission::READWRITE, currentUserName);
     EXPECT_TRUE(entryAdded);
 
     bool entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
@@ -138,9 +137,9 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     EXPECT_FALSE(entriesWrittenToFile);
 
     // add standard permissions
-    m_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
-    m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
-    m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::USER, PosixAcl::Permission::READWRITE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);
+    m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);
 
     entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_TRUE(entriesWrittenToFile);
@@ -163,17 +162,17 @@ TEST_F(AccessController_test, writeSpecialUserPermissions)
     acl_free(localACL);
 }
 
-TEST_F(AccessController_test, writeSpecialGroupPermissions)
+TEST_F(PosixAcl_test, writeSpecialGroupPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bb7cfb3f-0ec1-40f8-9ecf-9b0d28e6b38d");
-    bool entryAdded = m_accessController.addPermissionEntry(AccessController::Category::SPECIFIC_GROUP,
-                                                            AccessController::Permission::READWRITE);
+    bool entryAdded =
+        m_accessController.addPermissionEntry(PosixAcl::Category::SPECIFIC_GROUP, PosixAcl::Permission::READWRITE);
     // no name specified
     EXPECT_FALSE(entryAdded);
 
     PosixGroup::groupName_t groupName = "root";
 
-    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
+    entryAdded = m_accessController.addGroupPermission(PosixAcl::Permission::READWRITE, groupName);
     EXPECT_TRUE(entryAdded);
 
     bool entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
@@ -181,9 +180,9 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     EXPECT_FALSE(entriesWrittenToFile);
 
     // add standard permissions
-    m_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
-    m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
-    m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::USER, PosixAcl::Permission::READWRITE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);
+    m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);
 
     entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_TRUE(entriesWrittenToFile);
@@ -205,7 +204,7 @@ TEST_F(AccessController_test, writeSpecialGroupPermissions)
     acl_free(localACL);
 }
 
-TEST_F(AccessController_test, writeSpecialPermissionsWithID)
+TEST_F(PosixAcl_test, writeSpecialPermissionsWithID)
 {
     ::testing::Test::RecordProperty("TEST_ID", "ef0c7e17-de0e-4cfb-aafa-3e68580660e5");
 
@@ -216,18 +215,18 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
     gid_t groupId = 0; // root
 
     bool entryAdded = m_accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_USER, AccessController::Permission::READWRITE, currentUserId);
+        PosixAcl::Category::SPECIFIC_USER, PosixAcl::Permission::READWRITE, currentUserId);
 
     EXPECT_TRUE(entryAdded);
 
     entryAdded = m_accessController.addPermissionEntry(
-        AccessController::Category::SPECIFIC_GROUP, AccessController::Permission::READWRITE, groupId);
+        PosixAcl::Category::SPECIFIC_GROUP, PosixAcl::Permission::READWRITE, groupId);
 
     EXPECT_TRUE(entryAdded);
 
-    m_accessController.addPermissionEntry(AccessController::Category::USER, AccessController::Permission::READWRITE);
-    m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
-    m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::USER, PosixAcl::Permission::READWRITE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);
+    m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);
 
     bool entriesWrittenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
 
@@ -251,34 +250,34 @@ TEST_F(AccessController_test, writeSpecialPermissionsWithID)
     acl_free(localACL);
 }
 
-TEST_F(AccessController_test, addNameInWrongPlace)
+TEST_F(PosixAcl_test, addNameInWrongPlace)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2d2dbb0d-1fb6-4569-8651-d341a4525ea6");
     auto name = iox_getpwuid(geteuid());
     ASSERT_TRUE(name);
     std::string currentUserName(name->pwd.pw_name);
 
-    m_accessController.addPermissionEntry(AccessController::Category::GROUP, AccessController::Permission::READ);
-    m_accessController.addPermissionEntry(AccessController::Category::OTHERS, AccessController::Permission::NONE);
+    m_accessController.addPermissionEntry(PosixAcl::Category::GROUP, PosixAcl::Permission::READ);
+    m_accessController.addPermissionEntry(PosixAcl::Category::OTHERS, PosixAcl::Permission::NONE);
 
     bool writtenToFile = m_accessController.writePermissionsToFile(m_fileDescriptor);
     EXPECT_FALSE(writtenToFile);
 }
 
-TEST_F(AccessController_test, addManyPermissions)
+TEST_F(PosixAcl_test, addManyPermissions)
 {
     ::testing::Test::RecordProperty("TEST_ID", "998c828b-8b9e-4677-9c36-4a1251c11241");
     PosixGroup::groupName_t groupName = "root";
 
     bool entryAdded{false};
-    for (int i = 0; i < AccessController::MaxNumOfPermissions; ++i)
+    for (int i = 0; i < PosixAcl::MaxNumOfPermissions; ++i)
     {
-        entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
+        entryAdded = m_accessController.addGroupPermission(PosixAcl::Permission::READWRITE, groupName);
 
         ASSERT_TRUE(entryAdded);
     }
 
-    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, groupName);
+    entryAdded = m_accessController.addGroupPermission(PosixAcl::Permission::READWRITE, groupName);
 
     EXPECT_FALSE(entryAdded);
 
@@ -288,15 +287,15 @@ TEST_F(AccessController_test, addManyPermissions)
     EXPECT_FALSE(entriesWrittenToFile);
 }
 
-TEST_F(AccessController_test, addStrangeNames)
+TEST_F(PosixAcl_test, addStrangeNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "916c4d31-9ce3-4412-8d78-8e8f529589ef");
     bool entryAdded =
-        m_accessController.addUserPermission(AccessController::Permission::READWRITE, "VeryUnlikelyThatThisUserExists");
+        m_accessController.addUserPermission(PosixAcl::Permission::READWRITE, "VeryUnlikelyThatThisUserExists");
     // non-existing user name specified
     EXPECT_FALSE(entryAdded);
 
-    entryAdded = m_accessController.addGroupPermission(AccessController::Permission::READWRITE, "NonExistingGroup");
+    entryAdded = m_accessController.addGroupPermission(PosixAcl::Permission::READWRITE, "NonExistingGroup");
     // non-existing group name specified
     EXPECT_FALSE(entryAdded);
 }
