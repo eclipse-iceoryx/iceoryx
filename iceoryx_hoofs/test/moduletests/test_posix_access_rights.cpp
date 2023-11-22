@@ -15,7 +15,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iox/posix_call.hpp"
 #include "test.hpp"
 
@@ -29,6 +28,8 @@ using namespace ::testing;
 
 const std::string TestFileName = "/tmp/PosixAccessRights_test.tmp";
 
+// NOTE: This test is not related to 'PosixGroup' and 'PosixUser' but only to test whether the '/tmp' directory is
+// accessible
 class PosixAccessRights_test : public Test
 {
   public:

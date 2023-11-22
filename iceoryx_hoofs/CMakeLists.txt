@@ -61,6 +61,7 @@ iox_add_library(
                                 ${PROJECT_SOURCE_DIR}/functional/include
                                 ${PROJECT_SOURCE_DIR}/reporting/include
 
+                                ${PROJECT_SOURCE_DIR}/posix/auth/include
                                 ${PROJECT_SOURCE_DIR}/posix/design/include
                                 ${PROJECT_SOURCE_DIR}/posix/filesystem/include
                                 ${PROJECT_SOURCE_DIR}/posix/time/include
@@ -82,6 +83,7 @@ iox_add_library(
                                 functional/include/
                                 reporting/include/
 
+                                posix/auth/include/
                                 posix/design/include/
                                 posix/filesystem/include/
                                 posix/time/include/
@@ -103,7 +105,6 @@ iox_add_library(
         source/posix_wrapper/file_lock.cpp
         source/posix_wrapper/mutex.cpp
         source/posix_wrapper/named_semaphore.cpp
-        source/posix_wrapper/posix_access_rights.cpp
         source/posix_wrapper/scheduler.cpp
         source/posix_wrapper/semaphore_interface.cpp
         source/posix_wrapper/shared_memory_object.cpp
@@ -118,6 +119,8 @@ iox_add_library(
         time/source/duration.cpp
         utility/source/unique_id.cpp
 
+        posix/auth/source/posix_group.cpp
+        posix/auth/source/posix_user.cpp
         posix/design/source/file_management_interface.cpp
         posix/filesystem/source/file.cpp
         posix/time/source/adaptive_wait.cpp

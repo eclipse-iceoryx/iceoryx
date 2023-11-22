@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_hoofs/testing/test_definitions.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -25,6 +24,7 @@
 #include "iceoryx_posh/internal/mepoo/mepoo_segment.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/expected.hpp"
+#include "iox/posix_group.hpp"
 #include "test.hpp"
 
 
@@ -34,6 +34,7 @@
 namespace
 {
 using namespace ::testing;
+using namespace iox;
 using namespace iox::mepoo;
 using namespace iox::posix;
 
@@ -195,7 +196,7 @@ TEST_F(MePooSegment_test, GetReaderGroup)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    EXPECT_THAT(sut->getReaderGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test1")));
+    EXPECT_THAT(sut->getReaderGroup(), Eq(iox::PosixGroup("iox_roudi_test1")));
 }
 
 TEST_F(MePooSegment_test, GetWriterGroup)
@@ -204,7 +205,7 @@ TEST_F(MePooSegment_test, GetWriterGroup)
     GTEST_SKIP_FOR_ADDITIONAL_USER() << "This test requires the -DTEST_WITH_ADDITIONAL_USER=ON cmake argument";
 
     auto sut = createSut();
-    EXPECT_THAT(sut->getWriterGroup(), Eq(iox::posix::PosixGroup("iox_roudi_test2")));
+    EXPECT_THAT(sut->getWriterGroup(), Eq(iox::PosixGroup("iox_roudi_test2")));
 }
 
 TEST_F(MePooSegment_test, GetMemoryManager)

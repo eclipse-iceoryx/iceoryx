@@ -17,11 +17,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/roudi/roudi_config_toml_file_provider.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_platform/getopt.hpp"
 #include "iox/file_reader.hpp"
 #include "iox/into.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_group.hpp"
 #include "iox/std_string_support.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
@@ -124,7 +124,7 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
         return iox::err(iox::roudi::RouDiConfigFileParseError::MAX_NUMBER_OF_SEGMENTS_EXCEEDED);
     }
 
-    auto groupOfCurrentProcess = iox::posix::PosixGroup::getGroupOfCurrentProcess().getName();
+    auto groupOfCurrentProcess = PosixGroup::getGroupOfCurrentProcess().getName();
     iox::RouDiConfig_t parsedConfig;
     for (auto segment : *segments)
     {
@@ -157,8 +157,8 @@ TomlRouDiConfigFileProvider::parse(std::istream& stream) noexcept
             mempoolConfig.addMemPool({*chunkSize, *chunkCount});
         }
         parsedConfig.m_sharedMemorySegments.push_back(
-            {iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, reader.c_str(), reader.size()),
-             iox::posix::PosixGroup::groupName_t(iox::TruncateToCapacity, writer.c_str(), writer.size()),
+            {PosixGroup::groupName_t(iox::TruncateToCapacity, reader.c_str(), reader.size()),
+             PosixGroup::groupName_t(iox::TruncateToCapacity, writer.c_str(), writer.size()),
              mempoolConfig});
     }
 

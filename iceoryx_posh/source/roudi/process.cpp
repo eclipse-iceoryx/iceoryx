@@ -27,7 +27,7 @@ namespace roudi
 {
 Process::Process(const RuntimeName_t& name,
                  const uint32_t pid,
-                 const posix::PosixUser& user,
+                 const PosixUser& user,
                  const HeartbeatPoolIndexType heartbeatPoolIndex,
                  const uint64_t sessionId) noexcept
     : m_pid(pid)
@@ -63,7 +63,7 @@ uint64_t Process::getSessionId() noexcept
     return m_sessionId.load(std::memory_order_relaxed);
 }
 
-posix::PosixUser Process::getUser() const noexcept
+PosixUser Process::getUser() const noexcept
 {
     return m_user;
 }

@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     mepooConfig.addMemPool({ONE_MEGABYTE * 4, 10});
 
     /// We want to use the Shared Memory Segment for the current user
-    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+    auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
 
     /// Create an Entry for a new Shared Memory Segment from the MempoolConfig and add it to the RouDiConfig
     roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
@@ -59,12 +59,12 @@ int main(int argc, char* argv[])
     /// These names defines groups whose members are either to read/write from/to the respective shared memory segment.
     /// @note the groups needs to be registered in /etc/groups.
     /// @code
-    /// iox::posix::PosixGroup::string_t readerGroup{iox::TruncateToCapacity, "readerGroup"};
-    /// iox::posix::PosixGroup::string_t writerGroup{iox::TruncateToCapacity, "writerGroup"};
+    /// iox::PosixGroup::string_t readerGroup{iox::TruncateToCapacity, "readerGroup"};
+    /// iox::PosixGroup::string_t writerGroup{iox::TruncateToCapacity, "writerGroup"};
     /// iox::mepoo::SegmentConfig::SegmentEntry segentry({readerGroup, writerGroup, mepooConfig});
     /// roudiConfig.m_sharedMemorySegments.push_back(
-    /// {iox::posix::PosixGroup::string_t(iox::TruncateToCapacity, reader),
-    ///  iox::posix::PosixGroup::string_t(iox::TruncateToCapacity, writer),
+    /// {iox::PosixGroup::string_t(iox::TruncateToCapacity, reader),
+    ///  iox::PosixGroup::string_t(iox::TruncateToCapacity, writer),
     ///  mempoolConfig})
     /// @endcode
 

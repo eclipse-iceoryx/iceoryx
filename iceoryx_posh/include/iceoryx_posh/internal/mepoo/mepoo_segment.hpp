@@ -19,12 +19,12 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
 #include "iceoryx_posh/internal/mepoo/memory_manager.hpp"
 #include "iceoryx_posh/mepoo/memory_info.hpp"
 #include "iceoryx_posh/mepoo/mepoo_config.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/filesystem.hpp"
+#include "iox/posix_group.hpp"
 
 namespace iox
 {
@@ -36,12 +36,12 @@ class MePooSegment
   public:
     MePooSegment(const MePooConfig& mempoolConfig,
                  BumpAllocator& managementAllocator,
-                 const posix::PosixGroup& readerGroup,
-                 const posix::PosixGroup& writerGroup,
+                 const PosixGroup& readerGroup,
+                 const PosixGroup& writerGroup,
                  const iox::mepoo::MemoryInfo& memoryInfo = iox::mepoo::MemoryInfo()) noexcept;
 
-    posix::PosixGroup getWriterGroup() const noexcept;
-    posix::PosixGroup getReaderGroup() const noexcept;
+    PosixGroup getWriterGroup() const noexcept;
+    PosixGroup getReaderGroup() const noexcept;
     const SharedMemoryObjectType& getSharedMemoryObject() const noexcept;
     MemoryManagerType& getMemoryManager() noexcept;
 
@@ -49,13 +49,13 @@ class MePooSegment
 
   protected:
     SharedMemoryObjectType createSharedMemoryObject(const MePooConfig& mempoolConfig,
-                                                    const posix::PosixGroup& writerGroup) noexcept;
+                                                    const PosixGroup& writerGroup) noexcept;
 
   protected:
     SharedMemoryObjectType m_sharedMemoryObject;
     MemoryManagerType m_memoryManager;
-    posix::PosixGroup m_readerGroup;
-    posix::PosixGroup m_writerGroup;
+    PosixGroup m_readerGroup;
+    PosixGroup m_writerGroup;
     uint64_t m_segmentId;
     iox::mepoo::MemoryInfo m_memoryInfo;
 

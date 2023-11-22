@@ -60,7 +60,6 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 |`filesystem`           |          | Implementation of C++17 filesystem features for instance `iox::access_rights` and `iox::perms` to abstract file permissions                                                                                                                                    |
 |`AccessController`     | i        | Interface for Access Control Lists (ACL).                                                                                                                                                                                             |
 |`FileLock`             |          | File lock C++ wrapping class.                                                                                                                                                                                                         |
-|`posix_access_rights`  |          | Rights and user management interface.                                                                                                                                                                                                 |
 
 ### Functional (functional)
 
@@ -173,6 +172,13 @@ setTimeout(5_ms); // 5 milliseconds
 |`Duration`           | i        | Represents the unit time, is convertible to `timespec` and `timeval`. User defined literals are available for convenience and readability.  |
 |`deadline_timer      |          | Polling based timer to check for an elapsed deadline.                                                                                       |
 |`adaptive_wait`      | i        | Building block to realize busy waiting loops with low CPU load.                                                                             |
+
+### Authentication (auth)
+
+| class                 | internal | description                                                                                                                                                                                                                           |
+|:---------------------:|:--------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|`posix_group`          |          | Access to user information.                                                                                                                                                                                                 |
+|`posix_user`           |          | Access to group information.                                                                                                                                                                                                 |
 
 <center>
 [Check out iceoryx_hoofs on GitHub :fontawesome-brands-github:](https://github.com/eclipse-iceoryx/iceoryx/tree/master/iceoryx_hoofs/){ .md-button } <!--NOLINT required only for the website, github URL required-->

@@ -36,8 +36,8 @@ template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
     const MePooConfig& mempoolConfig,
     BumpAllocator& managementAllocator,
-    const posix::PosixGroup& readerGroup,
-    const posix::PosixGroup& writerGroup,
+    const PosixGroup& readerGroup,
+    const PosixGroup& writerGroup,
     const iox::mepoo::MemoryInfo& memoryInfo) noexcept
     : m_sharedMemoryObject(std::move(createSharedMemoryObject(mempoolConfig, writerGroup)))
     , m_readerGroup(readerGroup)
@@ -67,7 +67,7 @@ inline MePooSegment<SharedMemoryObjectType, MemoryManagerType>::MePooSegment(
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
 inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManagerType>::createSharedMemoryObject(
-    const MePooConfig& mempoolConfig, const posix::PosixGroup& writerGroup) noexcept
+    const MePooConfig& mempoolConfig, const PosixGroup& writerGroup) noexcept
 {
     return std::move(
         typename SharedMemoryObjectType::Builder()
@@ -98,13 +98,13 @@ inline SharedMemoryObjectType MePooSegment<SharedMemoryObjectType, MemoryManager
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline posix::PosixGroup MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getWriterGroup() const noexcept
+inline PosixGroup MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getWriterGroup() const noexcept
 {
     return m_writerGroup;
 }
 
 template <typename SharedMemoryObjectType, typename MemoryManagerType>
-inline posix::PosixGroup MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getReaderGroup() const noexcept
+inline PosixGroup MePooSegment<SharedMemoryObjectType, MemoryManagerType>::getReaderGroup() const noexcept
 {
     return m_readerGroup;
 }

@@ -14,12 +14,14 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
+
+#ifndef IOX_HOOFS_POSIX_AUTH_POSIX_USER_HPP
+#define IOX_HOOFS_POSIX_AUTH_POSIX_USER_HPP
 
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iox/optional.hpp"
+#include "iox/posix_group.hpp"
 #include "iox/string.hpp"
 #include "iox/vector.hpp"
 
@@ -27,38 +29,11 @@
 
 namespace iox
 {
-namespace posix
-{
-static constexpr int MaxNumberOfGroups = 888;
-
-class PosixGroup
-{
-  public:
-    using groupName_t = string<platform::MAX_GROUP_NAME_LENGTH>;
-    explicit PosixGroup(const gid_t id) noexcept;
-    explicit PosixGroup(const groupName_t& name) noexcept;
-
-    bool operator==(const PosixGroup& other) const noexcept;
-
-    groupName_t getName() const noexcept;
-    gid_t getID() const noexcept;
-
-    bool doesExist() const noexcept;
-
-    static PosixGroup getGroupOfCurrentProcess() noexcept;
-
-    static optional<uid_t> getGroupID(const groupName_t& name) noexcept;
-    static optional<groupName_t> getGroupName(gid_t id) noexcept;
-
-  private:
-    gid_t m_id;
-    bool m_doesExist{false};
-};
-
 class PosixUser
 {
   public:
-    using groupVector_t = vector<PosixGroup, MaxNumberOfGroups>;
+    static constexpr uint64_t MAX_NUMBER_OF_GROUPS = 888;
+    using groupVector_t = vector<PosixGroup, MAX_NUMBER_OF_GROUPS>;
 
     using userName_t = string<platform::MAX_USER_NAME_LENGTH>;
 
@@ -81,7 +56,6 @@ class PosixUser
     bool m_doesExist{false};
 };
 
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_ACCESS_RIGHTS_HPP
+#endif // IOX_HOOFS_POSIX_AUTH_POSIX_USER_HPP

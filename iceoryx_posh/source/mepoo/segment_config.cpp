@@ -15,7 +15,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/mepoo/segment_config.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iox/posix_group.hpp"
 
 namespace iox
 {
@@ -23,7 +23,7 @@ namespace mepoo
 {
 SegmentConfig& SegmentConfig::setDefaults() noexcept
 {
-    auto groupName = posix::PosixGroup::getGroupOfCurrentProcess().getName();
+    auto groupName = PosixGroup::getGroupOfCurrentProcess().getName();
     m_sharedMemorySegments.push_back({groupName, groupName, MePooConfig().setDefaults()});
     return *this;
 }

@@ -98,7 +98,7 @@ class Mepoo_IntegrationTest : public Test
                     {testMempoolConfig[i].chunkSize, testMempoolConfig[i].chunkCount});
             }
 
-            auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+            auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
             iox::RouDiConfig_t roudiConfig;
             roudiConfig.m_sharedMemorySegments.push_back(
                 {currentGroup.getName(), currentGroup.getName(), mempoolConfig});

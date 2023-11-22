@@ -15,12 +15,11 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
+#include "iox/posix_user.hpp"
 #include "iceoryx_platform/grp.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/types.hpp"
-#include "iceoryx_platform/unistd.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 #include "iox/uninitialized_array.hpp"
@@ -29,85 +28,6 @@
 
 namespace iox
 {
-namespace posix
-{
-PosixGroup::PosixGroup(gid_t id) noexcept
-    : m_id(id)
-    , m_doesExist(getGroupName(id).has_value())
-{
-}
-
-PosixGroup::PosixGroup(const PosixGroup::groupName_t& name) noexcept
-{
-    auto id = getGroupID(name);
-    if (id.has_value())
-    {
-        m_id = id.value();
-    }
-    else
-    {
-        IOX_LOG(ERROR, "Error: Group name not found");
-        m_id = std::numeric_limits<gid_t>::max();
-    }
-}
-
-bool PosixGroup::operator==(const PosixGroup& other) const noexcept
-{
-    return (m_id == other.m_id);
-}
-
-PosixGroup PosixGroup::getGroupOfCurrentProcess() noexcept
-{
-    return PosixGroup(getgid());
-}
-
-optional<gid_t> PosixGroup::getGroupID(const PosixGroup::groupName_t& name) noexcept
-{
-    auto getgrnamCall = IOX_POSIX_CALL(getgrnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
-
-    if (getgrnamCall.has_error())
-    {
-        IOX_LOG(ERROR, "Error: Could not find group '" << name << "'.");
-        return nullopt_t();
-    }
-
-    return make_optional<gid_t>(getgrnamCall->value->gr_gid);
-}
-
-optional<PosixGroup::groupName_t> PosixGroup::getGroupName(gid_t id) noexcept
-{
-    auto getgrgidCall = IOX_POSIX_CALL(getgrgid)(id).failureReturnValue(nullptr).evaluate();
-
-    if (getgrgidCall.has_error())
-    {
-        IOX_LOG(ERROR, "Error: Could not find group with id '" << id << "'.");
-        return nullopt_t();
-    }
-
-    return make_optional<groupName_t>(groupName_t(iox::TruncateToCapacity, getgrgidCall->value->gr_name));
-}
-
-PosixGroup::groupName_t PosixGroup::getName() const noexcept
-{
-    auto name = getGroupName(m_id);
-    if (name.has_value())
-    {
-        return name.value();
-    }
-
-    return groupName_t();
-}
-
-gid_t PosixGroup::getID() const noexcept
-{
-    return m_id;
-}
-
-bool PosixGroup::doesExist() const noexcept
-{
-    return m_doesExist;
-}
-
 optional<uid_t> PosixUser::getUserID(const userName_t& name) noexcept
 {
     auto getpwnamCall = IOX_POSIX_CALL(getpwnam)(name.c_str()).failureReturnValue(nullptr).evaluate();
@@ -148,8 +68,8 @@ PosixUser::groupVector_t PosixUser::getGroups() const noexcept
     }
 
     gid_t userDefaultGroup = getpwnamCall->value->pw_gid;
-    UninitializedArray<gid_t, MaxNumberOfGroups> groups{}; // groups is initialized in iox_getgrouplist
-    auto numGroups = MaxNumberOfGroups;
+    UninitializedArray<gid_t, MAX_NUMBER_OF_GROUPS> groups{}; // groups is initialized in iox_getgrouplist
+    int numGroups = MAX_NUMBER_OF_GROUPS;
 
     auto getgrouplistCall =
         IOX_POSIX_CALL(iox_getgrouplist)(userName->c_str(), userDefaultGroup, &groups[0], &numGroups)
@@ -222,5 +142,4 @@ PosixUser PosixUser::getUserOfCurrentProcess() noexcept
     return PosixUser(geteuid());
 }
 
-} // namespace posix
 } // namespace iox

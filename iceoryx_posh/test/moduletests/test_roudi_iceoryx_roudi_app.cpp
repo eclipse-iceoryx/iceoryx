@@ -245,7 +245,7 @@ TEST_F(IceoryxRoudiApp_test, VerifyConstructorUsingConfigWithSegmentWithoutMemPo
     ASSERT_FALSE(cmdLineArgs.has_error());
 
     iox::mepoo::MePooConfig mempoolConfig;
-    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+    auto currentGroup = PosixGroup::getGroupOfCurrentProcess();
 
     iox::RouDiConfig_t roudiConfig;
 

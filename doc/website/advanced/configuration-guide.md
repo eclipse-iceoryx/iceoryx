@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
     mepooConfig.addMemPool({128, 10000}); // payload in bytes, chunk count
     mepooConfig.addMemPool({265, 10000});
 
-    auto currentGroup = iox::posix::PosixGroup::getGroupOfCurrentProcess();
+    auto currentGroup = iox::PosixGroup::getGroupOfCurrentProcess();
     roudiConfig.m_sharedMemorySegments.push_back({currentGroup.getName(), currentGroup.getName(), mepooConfig});
 
     // configure the chunk count for the introspection; each introspection topic gets this number of chunks
