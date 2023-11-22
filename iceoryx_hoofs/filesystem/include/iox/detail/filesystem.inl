@@ -1,5 +1,4 @@
 // Copyright (c) 2022 by Apex.AI Inc. All rights reserved.
-// Copyright (c) 2023 by Mathias Kraus <elboberido@m-hias.de>. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -187,15 +186,6 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
         }
     }
     return false;
-}
-
-inline constexpr access_rights access_rights::from_value_sanitized(const access_rights::value_type value) noexcept
-{
-    if ((value & detail::UNKNOWN) == detail::UNKNOWN)
-    {
-        return access_rights{detail::UNKNOWN};
-    }
-    return access_rights{static_cast<value_type>(value & detail::MASK)};
 }
 
 inline constexpr access_rights::value_type access_rights::value() const noexcept

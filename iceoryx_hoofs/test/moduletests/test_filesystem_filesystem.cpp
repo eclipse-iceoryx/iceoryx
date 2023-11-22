@@ -591,23 +591,6 @@ TEST(filesystem_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhen
                                   iox::RelativePathComponents::REJECT));
 }
 
-TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueUnknown)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "6e510e0e-1a0c-40a3-bab0-941a78d745d8");
-    constexpr auto TEST_VALUE = access_rights::detail::UNKNOWN;
-
-    EXPECT_THAT(access_rights::from_value_sanitized(TEST_VALUE).value(), Eq(TEST_VALUE));
-}
-
-TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueUnknownWithExtraBitsSet)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "1af33cc5-c870-4fef-ad23-6525296d6792");
-    constexpr auto TEST_VALUE_SANITIZED = access_rights::detail::UNKNOWN;
-    constexpr auto TEST_VALUE = TEST_VALUE_SANITIZED | static_cast<access_rights::value_type>(0x0101U);
-
-    EXPECT_THAT(access_rights::from_value_sanitized(TEST_VALUE).value(), Eq(TEST_VALUE_SANITIZED));
-}
-
 TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueInRangeOfPermsMask)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5a6c2ece-9cd7-4779-ad0b-16372aebd407");
@@ -619,18 +602,10 @@ TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueInRangeOfPermsM
 TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueOutOfRangeOfPermsMask)
 {
     ::testing::Test::RecordProperty("TEST_ID", "8a291709-a75c-4afa-96d8-d57a0d40696c");
-    constexpr auto TEST_VALUE_SANITIZED = access_rights::detail::OWNER_EXEC;
+    constexpr auto TEST_VALUE_SANITIZED = access_rights::detail::OWNER_WRITE;
     constexpr auto TEST_VALUE = TEST_VALUE_SANITIZED | static_cast<access_rights::value_type>(010000);
 
     EXPECT_THAT(access_rights::from_value_sanitized(TEST_VALUE).value(), Eq(TEST_VALUE_SANITIZED));
-}
-
-TEST(filesystem_test, accessRightsUnsafeFromValueUncheckedWorkForAnyValue)
-{
-    ::testing::Test::RecordProperty("TEST_ID", "5f34cef3-f778-4eed-bb78-42decdb8f7bb");
-    constexpr auto TEST_VALUE = access_rights::detail::OWNER_WRITE | static_cast<access_rights::value_type>(010000);
-
-    EXPECT_THAT(access_rights::unsafe_from_value_unchecked(TEST_VALUE).value(), Eq(TEST_VALUE));
 }
 
 TEST(filesystem_test, permsBinaryOrEqualToBinaryOrOfUnderlyingType)
