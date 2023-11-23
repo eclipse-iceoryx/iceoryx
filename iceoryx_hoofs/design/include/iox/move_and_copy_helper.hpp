@@ -14,15 +14,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_HELPER_HPP
-#define IOX_DUST_CONTAINER_DETAIL_FIXED_POSITION_CONTAINER_HELPER_HPP
+#ifndef IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_HPP
+#define IOX_HOOFS_DESIGN_MOVE_AND_COPY_HELPER_HPP
 
 #include <functional>
 #include <utility>
 
 namespace iox
-{
-namespace detail
 {
 
 enum class MoveAndCopyOperations
@@ -37,8 +35,9 @@ enum class MoveAndCopyOperations
 /// operation type (Opt).
 /// @tparam Opt The operation type that determines how objects are created or assigned.
 template <MoveAndCopyOperations Opt>
-struct MoveAndCopyHelper
+class MoveAndCopyHelper final
 {
+  public:
     /// @brief Creates or assigns an object to 'dest' based on the specail operation type.
     /// @tparam T The type of the object to be created or assigned.
     /// @tparam V The type of the source object, kept as a universal reference to preserve its lvalue or rvalue nature.
@@ -46,17 +45,7 @@ struct MoveAndCopyHelper
     /// assigned.
     /// @param[in] src The source object, either for copy or move operations.
     template <typename T, typename V>
-    static inline void transfer(T& dest, V&& src) noexcept
-    {
-        if constexpr (is_ctor())
-        {
-            ctor_create(dest, std::forward<V>(src));
-        }
-        else
-        {
-            assignment_create(dest, std::forward<V>(src));
-        }
-    }
+    static void transfer(T& dest, V&& src) noexcept;
 
     /// @brief Force to use constructor to create an object at the destination.
     /// @tparam T The type of the object to be constructed.
@@ -64,22 +53,7 @@ struct MoveAndCopyHelper
     /// @param[out] dest The destination object where the new object is constructed.
     /// @param[in] src The source object, either for move or copy construction.
     template <typename T, typename V>
-    static inline void ctor_create(T& dest, V&& src) noexcept
-    {
-        if constexpr (is_move())
-        {
-            static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
-            static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
-            new (&dest) T(std::forward<V>(src));
-        }
-        else
-        {
-            static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
-            static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
-            static_assert(std::is_convertible_v<V, T>, "src type is not convertible to dest type");
-            new (&dest) T(src);
-        }
-    }
+    static void ctor_create(T& dest, V&& src) noexcept;
 
     /// @brief Force to use assignment to assign an object to the destination.
     /// @tparam T The type of the destination object.
@@ -87,35 +61,19 @@ struct MoveAndCopyHelper
     /// @param dest The destination object where the source object is assigned.
     /// @param src The source object, either for move or copy assignment.
     template <typename T, typename V>
-    static inline void assignment_create(T& dest, V&& src) noexcept
-    {
-        if constexpr (is_move())
-        {
-            static_assert(std::is_rvalue_reference_v<decltype(src)>, "src should be rvalue reference");
-            dest = std::forward<V>(src);
-        }
-        else
-        {
-            static_assert(std::is_lvalue_reference_v<decltype(src)>, "src should be lvalue reference");
-            static_assert(std::is_const_v<std::remove_reference_t<decltype(src)>>, "src should has 'const' modifier");
-            dest = src;
-        }
-    }
+    static void assignment_create(T& dest, V&& src) noexcept;
 
     /// @brief Checks if the current special operation is a constructor call.
     /// @return True if the operation is a copy or move constructor, false otherwise.
-    static constexpr bool is_ctor() noexcept
-    {
-        return Opt == MoveAndCopyOperations::CopyConstructor || Opt == MoveAndCopyOperations::MoveConstructor;
-    }
+    static constexpr bool is_ctor() noexcept;
 
     /// @brief Checks if the current special operation is a move operation.
     /// @return True if the operation is a move constructor or move assignment, false otherwise.
-    static constexpr bool is_move() noexcept
-    {
-        return Opt == MoveAndCopyOperations::MoveAssignment || Opt == MoveAndCopyOperations::MoveConstructor;
-    }
+    static constexpr bool is_move() noexcept;
 };
-} // namespace detail
+
 } // namespace iox
+
+#include "iox/detail/move_and_copy_helper.inl"
+
 #endif
