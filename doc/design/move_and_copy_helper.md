@@ -2,7 +2,7 @@
 
 ## Summary and problem description
 
-Currently, some classes in our codebase use assignment in the constructor (ctor) to avoid code duplication, as seen in issue #1517 . However, it's noted in issue #1686 that self-assignment cannot happen in the ctor. Therefore, an alternative approach should be adopted to replace the current implementation.
+Currently, some classes in our codebase use assignment in the constructor (ctor) to avoid code duplication, as seen in issue [#1517](https://github.com/eclipse-iceoryx/iceoryx/issues/1517) . However, it's noted in issue [#1686](https://github.com/eclipse-iceoryx/iceoryx/issues/1686) that self-assignment cannot happen in the ctor. Therefore, an alternative approach should be adopted to replace the current implementation.
 
 One method involves placing the shared logical code within a separate function, hereafter referred to as `copy_and_move_impl`. This function is then called within the ctor and assignment operations, using template parameters to specify the method of member initialization.
 
@@ -13,6 +13,7 @@ When a class performs highly consistent tasks during construction (ctor) and ass
 ## Terminology
 
 - `MoveAndCopyOperations`: an enum class, including
+
     - `CopyConstructor`
     - `MoveConstructor`
     - `CopyAssignment`
@@ -119,12 +120,11 @@ void Test::copy_and_move_impl(RhsType&& rhs)
         }
     }
 }
+```
 
 For more examples, see
 
 - `iceoryx_dust/container/detail/fixed_position_container.inl`
-
-```
 
 ## Open issues
 
