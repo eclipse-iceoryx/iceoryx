@@ -13,7 +13,8 @@
     <buildtool_depend>cmake</buildtool_depend>
 
     <depend>iceoryx_posh</depend>
-    <depend>ncurses</depend>
+    <depend>iceoryx_hoofs</depend>
+    <depend>libncurses-dev</depend>
 
     <doc_depend>doxygen</doc_depend>
 
