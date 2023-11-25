@@ -591,14 +591,31 @@ TEST(filesystem_test_isValidPathEntry, StringWithRelativeComponentsIsInvalidWhen
                                   iox::RelativePathComponents::REJECT));
 }
 
+TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueInRangeOfPermsMask)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "5a6c2ece-9cd7-4779-ad0b-16372aebd407");
+    constexpr auto TEST_VALUE = access_rights::detail::OWNER_READ;
+
+    EXPECT_THAT(access_rights::from_value_sanitized(TEST_VALUE).value(), Eq(TEST_VALUE));
+}
+
+TEST(filesystem_test, accessRightsFromValueSanitizedWorksForValueOutOfRangeOfPermsMask)
+{
+    ::testing::Test::RecordProperty("TEST_ID", "8a291709-a75c-4afa-96d8-d57a0d40696c");
+    constexpr auto TEST_VALUE_SANITIZED = access_rights::detail::OWNER_WRITE;
+    constexpr auto TEST_VALUE = TEST_VALUE_SANITIZED | static_cast<access_rights::value_type>(010000);
+
+    EXPECT_THAT(access_rights::from_value_sanitized(TEST_VALUE).value(), Eq(TEST_VALUE_SANITIZED));
+}
+
 TEST(filesystem_test, permsBinaryOrEqualToBinaryOrOfUnderlyingType)
 {
     ::testing::Test::RecordProperty("TEST_ID", "0b72fcec-c2b3-4a45-801f-542ff3195a2f");
     constexpr access_rights TEST_VALUE_LHS = perms::others_write;
     constexpr access_rights TEST_VALUE_RHS = perms::group_all;
 
-    constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    constexpr auto BASE_VALUE_LHS = iox::access_rights::detail::OTHERS_WRITE;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::GROUP_ALL;
 
     EXPECT_THAT((TEST_VALUE_LHS | TEST_VALUE_RHS).value(), Eq(BASE_VALUE_LHS | BASE_VALUE_RHS));
 }
@@ -609,8 +626,8 @@ TEST(filesystem_test, permsBinaryAndEqualToBinaryAndOfUnderlyingType)
     constexpr access_rights TEST_VALUE_LHS = perms::others_read;
     constexpr access_rights TEST_VALUE_RHS = perms::mask;
 
-    constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    constexpr auto BASE_VALUE_LHS = iox::access_rights::detail::OTHERS_READ;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::MASK;
 
     EXPECT_THAT((TEST_VALUE_LHS & TEST_VALUE_RHS).value(), Eq(BASE_VALUE_LHS & BASE_VALUE_RHS));
 }
@@ -621,8 +638,8 @@ TEST(filesystem_test, permsBinaryExclusiveOrEqualToBinaryExclusiveOrOfUnderlying
     constexpr access_rights TEST_VALUE_LHS = perms::set_gid;
     constexpr access_rights TEST_VALUE_RHS = perms::set_uid;
 
-    constexpr auto BASE_VALUE_LHS = TEST_VALUE_LHS.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    constexpr auto BASE_VALUE_LHS = iox::access_rights::detail::SET_GID;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::SET_UID;
 
     EXPECT_THAT((TEST_VALUE_LHS ^ TEST_VALUE_RHS).value(), Eq(BASE_VALUE_LHS ^ BASE_VALUE_RHS));
 }
@@ -632,8 +649,8 @@ TEST(filesystem_test, permsBinaryComplementEqualToBinaryComplementOfUnderlyingTy
     ::testing::Test::RecordProperty("TEST_ID", "c313cf42-4cf0-4836-95ff-129111a707b0");
     constexpr access_rights TEST_VALUE = perms::owner_read;
 
-    constexpr access_rights::value_type BASE_VALUE = 0x0100;
-    constexpr access_rights::value_type EXPECTED_VALUE = 0xFEFF;
+    constexpr auto BASE_VALUE = iox::access_rights::detail::OWNER_READ;
+    constexpr auto EXPECTED_VALUE = static_cast<access_rights::value_type>(~BASE_VALUE);
 
     ASSERT_THAT(TEST_VALUE.value(), Eq(BASE_VALUE));
 
@@ -646,8 +663,8 @@ TEST(filesystem_test, permsBinaryOrAssignmentEqualToBinaryOrAssignmentOfUnderlyi
     constexpr access_rights TEST_VALUE = perms::sticky_bit;
     constexpr access_rights TEST_VALUE_RHS = perms::group_read;
 
-    auto sutBaseValue = TEST_VALUE.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    auto sutBaseValue = iox::access_rights::detail::STICKY_BIT;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::GROUP_READ;
 
     access_rights sut = TEST_VALUE;
 
@@ -660,8 +677,8 @@ TEST(filesystem_test, permsBinaryAndAssignmentEqualToBinaryAndAssignmentOfUnderl
     constexpr access_rights TEST_VALUE = perms::others_exec;
     constexpr access_rights TEST_VALUE_RHS = perms::others_all;
 
-    auto sutBaseValue = TEST_VALUE.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    auto sutBaseValue = iox::access_rights::detail::OTHERS_EXEC;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::OTHERS_ALL;
 
     access_rights sut = TEST_VALUE;
 
@@ -674,8 +691,8 @@ TEST(filesystem_test, permsBinaryExclusiveOrAssignmentEqualToBinaryExclusiveOrAs
     constexpr access_rights TEST_VALUE = perms::none;
     constexpr access_rights TEST_VALUE_RHS = perms::owner_all;
 
-    auto sutBaseValue = TEST_VALUE.value();
-    constexpr auto BASE_VALUE_RHS = TEST_VALUE_RHS.value();
+    auto sutBaseValue = iox::access_rights::detail::NONE;
+    constexpr auto BASE_VALUE_RHS = iox::access_rights::detail::OWNER_ALL;
 
     access_rights sut = TEST_VALUE;
 

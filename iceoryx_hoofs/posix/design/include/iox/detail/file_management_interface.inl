@@ -45,8 +45,8 @@ inline expected<access_rights, FileStatError> FileManagementInterface<Derived>::
 
     // st_mode also contains the file type, since we only would like to acquire the permissions
     // we have to remove the file type
-    constexpr uint16_t ONLY_FILE_PERMISSIONS = 0777;
-    return ok(access_rights(static_cast<access_rights::value_type>(result->st_mode & ONLY_FILE_PERMISSIONS)));
+    auto permissions_only = static_cast<access_rights::value_type>(result->st_mode & iox::perms::all.value());
+    return ok(access_rights::from_value_sanitized(permissions_only));
 }
 
 template <typename Derived>
