@@ -26,7 +26,7 @@ namespace iox
 {
 expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noexcept
 {
-    if (m_open_mode == posix::OpenMode::PURGE_AND_CREATE)
+    if (m_open_mode == OpenMode::PURGE_AND_CREATE)
     {
         if (File::remove(name).has_error())
         {
@@ -44,7 +44,7 @@ expected<File, FileCreationError> FileBuilder::create(const FilePath& name) noex
 expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexcept
 {
     auto result = posix::posixCall(iox_open)(name.as_string().c_str(),
-                                             posix::convertToOflags(m_access_mode, m_open_mode),
+                                             convertToOflags(m_access_mode, m_open_mode),
                                              static_cast<iox_mode_t>(m_permissions.value()))
                       .failureReturnValue(-1)
                       .evaluate();
@@ -59,7 +59,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             return err(FileCreationError::PermissionDenied);
         }
 
-        if (m_access_mode == posix::AccessMode::READ_ONLY || m_access_mode == posix::AccessMode::READ_WRITE)
+        if (m_access_mode == AccessMode::READ_ONLY || m_access_mode == AccessMode::READ_WRITE)
         {
             if ((perms->value() & perms::owner_read.value()) == 0)
             {
@@ -68,7 +68,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
             }
         }
 
-        if (m_access_mode == posix::AccessMode::WRITE_ONLY || m_access_mode == posix::AccessMode::READ_WRITE)
+        if (m_access_mode == AccessMode::WRITE_ONLY || m_access_mode == AccessMode::READ_WRITE)
         {
             if ((perms->value() & perms::owner_write.value()) == 0)
             {
@@ -125,7 +125,7 @@ expected<File, FileCreationError> FileBuilder::open(const FilePath& name) noexce
 }
 // NOLINTEND(readability-function-size,readability-function-cognitive-complexity)
 
-File::File(const int file_descriptor, const posix::AccessMode access_mode) noexcept
+File::File(const int file_descriptor, const AccessMode access_mode) noexcept
     : m_file_descriptor{file_descriptor}
     , m_access_mode{access_mode}
 {
@@ -317,7 +317,7 @@ expected<uint64_t, FileReadError> File::read(uint8_t* const buffer, const uint64
 expected<uint64_t, FileReadError>
 File::read_at(const uint64_t offset, uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
-    if (m_access_mode == posix::AccessMode::WRITE_ONLY)
+    if (m_access_mode == AccessMode::WRITE_ONLY)
     {
         IOX_LOG(ERROR, "Unable to read from file since it is opened for writing only.");
         return err(FileReadError::NotOpenedForReading);
@@ -371,7 +371,7 @@ expected<uint64_t, FileWriteError> File::write(const uint8_t* const buffer, cons
 expected<uint64_t, FileWriteError>
 File::write_at(const uint64_t offset, const uint8_t* const buffer, const uint64_t buffer_len) const noexcept
 {
-    if (m_access_mode == posix::AccessMode::READ_ONLY)
+    if (m_access_mode == AccessMode::READ_ONLY)
     {
         IOX_LOG(ERROR, "Unable to write to file since it is opened for reading only.");
         return err(FileWriteError::NotOpenedForWriting);

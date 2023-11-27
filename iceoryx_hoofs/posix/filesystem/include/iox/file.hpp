@@ -14,7 +14,6 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iox/builder.hpp"
 #include "iox/file_management_interface.hpp"
 #include "iox/file_path.hpp"
@@ -161,7 +160,7 @@ class File : public FileManagementInterface<File>
 
   private:
     friend class FileBuilder;
-    explicit File(const int file_descriptor, const posix::AccessMode access_mode) noexcept;
+    explicit File(const int file_descriptor, const AccessMode access_mode) noexcept;
     void close_fd() noexcept;
 
     expected<void, FileOffsetError> set_offset(const uint64_t offset) const noexcept;
@@ -170,15 +169,12 @@ class File : public FileManagementInterface<File>
     static constexpr int INVALID_FILE_DESCRIPTOR{-1};
 
     int m_file_descriptor{INVALID_FILE_DESCRIPTOR};
-    posix::AccessMode m_access_mode{posix::AccessMode::READ_ONLY};
+    AccessMode m_access_mode{AccessMode::READ_ONLY};
 };
 
 class FileBuilder
 {
   private:
-    using AccessMode = posix::AccessMode;
-    using OpenMode = posix::OpenMode;
-
     IOX_BUILDER_PARAMETER(Ownership, owner, Ownership::from_process())
     IOX_BUILDER_PARAMETER(access_rights, permissions, perms::owner_read)
     IOX_BUILDER_PARAMETER(AccessMode, access_mode, AccessMode::READ_ONLY)

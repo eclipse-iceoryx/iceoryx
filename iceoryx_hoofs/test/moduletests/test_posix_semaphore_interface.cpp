@@ -93,7 +93,7 @@ struct NamedSemaphoreTest
         return iox::posix::NamedSemaphoreBuilder()
             .initialValue(initialValue)
             .name("TestSemaphore")
-            .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+            .openMode(iox::OpenMode::PURGE_AND_CREATE)
             .permissions(iox::perms::owner_all)
             .create(sut);
     }

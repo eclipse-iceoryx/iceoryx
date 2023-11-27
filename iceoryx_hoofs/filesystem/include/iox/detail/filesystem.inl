@@ -187,6 +187,38 @@ inline bool doesEndWithPathSeparator(const iox::string<StringCapacity>& name) no
     }
     return false;
 }
+inline constexpr const char* asStringLiteral(const OpenMode mode) noexcept
+{
+    switch (mode)
+    {
+    case OpenMode::EXCLUSIVE_CREATE:
+        return "OpenMode::EXCLUSIVE_CREATE";
+    case OpenMode::PURGE_AND_CREATE:
+        return "OpenMode::PURGE_AND_CREATE";
+    case OpenMode::OPEN_OR_CREATE:
+        return "OpenMode::OPEN_OR_CREATE";
+    case OpenMode::OPEN_EXISTING:
+        return "OpenMode::OPEN_EXISTING";
+    }
+
+    return "OpenMode::UNDEFINED_VALUE";
+}
+
+inline constexpr const char* asStringLiteral(const AccessMode mode) noexcept
+{
+    switch (mode)
+    {
+    case AccessMode::READ_ONLY:
+        return "AccessMode::READ_ONLY";
+    case AccessMode::READ_WRITE:
+        return "AccessMode::READ_WRITE";
+    case AccessMode::WRITE_ONLY:
+        return "AccessMode::WRITE_ONLY";
+    }
+
+    return "AccessMode::UNDEFINED_VALUE";
+}
+
 
 inline constexpr access_rights::value_type access_rights::value() const noexcept
 {

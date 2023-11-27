@@ -46,8 +46,8 @@ class MePooSegment_test : public Test
         using Builder = SharedMemoryObject_MOCKBuilder;
         using createFct = std::function<void(const SharedMemory::Name_t,
                                              const uint64_t,
-                                             const iox::posix::AccessMode,
-                                             const iox::posix::OpenMode,
+                                             const iox::AccessMode,
+                                             const iox::OpenMode,
                                              const void*,
                                              const iox::access_rights)>;
         SharedMemoryObject_MOCK(const SharedMemory::Name_t& name,
@@ -155,13 +155,13 @@ TEST_F(MePooSegment_test, SharedMemoryCreationParameter)
 
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [](const SharedMemory::Name_t f_name,
                                                                        const uint64_t,
-                                                                       const iox::posix::AccessMode f_accessMode,
-                                                                       const iox::posix::OpenMode openMode,
+                                                                       const iox::AccessMode f_accessMode,
+                                                                       const iox::OpenMode openMode,
                                                                        const void*,
                                                                        const iox::access_rights) {
         EXPECT_THAT(f_name, Eq(SharedMemory::Name_t("iox_roudi_test2")));
-        EXPECT_THAT(f_accessMode, Eq(iox::posix::AccessMode::READ_WRITE));
-        EXPECT_THAT(openMode, Eq(iox::posix::OpenMode::PURGE_AND_CREATE));
+        EXPECT_THAT(f_accessMode, Eq(iox::AccessMode::READ_WRITE));
+        EXPECT_THAT(openMode, Eq(iox::OpenMode::PURGE_AND_CREATE));
     };
     SUT sut{mepooConfig, m_managementAllocator, PosixGroup{"iox_roudi_test1"}, PosixGroup{"iox_roudi_test2"}};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator =
@@ -176,8 +176,8 @@ TEST_F(MePooSegment_test, GetSharedMemoryObject)
     uint64_t memorySizeInBytes{0};
     MePooSegment_test::SharedMemoryObject_MOCK::createVerificator = [&](const SharedMemory::Name_t,
                                                                         const uint64_t f_memorySizeInBytes,
-                                                                        const iox::posix::AccessMode,
-                                                                        const iox::posix::OpenMode,
+                                                                        const iox::AccessMode,
+                                                                        const iox::OpenMode,
                                                                         const void*,
                                                                         const iox::access_rights) {
         memorySizeInBytes = f_memorySizeInBytes;

@@ -48,11 +48,11 @@ class SharedMemory_Test : public Test
     static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
     static iox::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
-    createSut(const iox::posix::SharedMemory::Name_t& name, const iox::posix::OpenMode openMode)
+    createSut(const iox::posix::SharedMemory::Name_t& name, const iox::OpenMode openMode)
     {
         return iox::posix::SharedMemoryBuilder()
             .name(name)
-            .accessMode(iox::posix::AccessMode::READ_WRITE)
+            .accessMode(iox::AccessMode::READ_WRITE)
             .openMode(openMode)
             .filePermissions(perms::owner_all)
             .size(128)
@@ -99,21 +99,21 @@ constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
 TEST_F(SharedMemory_Test, CTorWithValidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "158f1ee6-cc8c-4e80-a288-6e23a74cd66e");
-    auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
     EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76ed82b1-eef7-4a5a-8794-b333c679e726");
-    EXPECT_THAT(createSut("", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
-    EXPECT_THAT(createSut("/ignatz", iox::posix::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSut("", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
+    EXPECT_THAT(createSut("/ignatz", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
 TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "53c66249-4f3a-4220-9cc0-001be53546d3");
-    auto sut = createSut("/schlomo", iox::posix::OpenMode::OPEN_EXISTING);
+    auto sut = createSut("/schlomo", iox::OpenMode::OPEN_EXISTING);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
@@ -121,7 +121,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2844c9c5-856e-4b51-890d-1418f79f1a80");
 
-    auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     int handle = sut->getHandle();
     {
@@ -133,7 +133,7 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
 TEST_F(SharedMemory_Test, getHandleOfValidObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fec2518-70f7-412b-8be2-3174e6ada050");
-    auto sut = createSut(SUT_SHM_NAME, iox::posix::OpenMode::PURGE_AND_CREATE);
+    auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
 }
@@ -256,8 +256,8 @@ TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
     auto sut = iox::posix::SharedMemoryBuilder()
                    .name("readOnlyShmMem")
                    .size(100)
-                   .accessMode(iox::posix::AccessMode::READ_ONLY)
-                   .openMode(iox::posix::OpenMode::PURGE_AND_CREATE)
+                   .accessMode(iox::AccessMode::READ_ONLY)
+                   .openMode(iox::OpenMode::PURGE_AND_CREATE)
                    .create();
 
     ASSERT_TRUE(sut.has_error());

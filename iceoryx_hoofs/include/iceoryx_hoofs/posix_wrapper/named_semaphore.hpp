@@ -17,7 +17,6 @@
 #define IOX_HOOFS_POSIX_WRAPPER_NAMED_SEMAPHORE_HPP
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
-#include "iceoryx_hoofs/posix_wrapper/types.hpp"
 #include "iceoryx_platform/platform_settings.hpp"
 #include "iox/builder.hpp"
 #include "iox/expected.hpp"
