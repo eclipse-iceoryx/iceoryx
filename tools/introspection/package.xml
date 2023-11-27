@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-    <name>iceoryx_binding_c</name>
+    <name>iceoryx_introspection</name>
     <version>2.0.4</version>
-    <description>Eclipse iceoryx inter-process-communication (IPC) middleware C-Language Binding</description>
+    <description>Eclipse iceoryx inter-process-communication (IPC) middleware introspection client</description>
     <maintainer email="iceoryx-oss-support@apex.ai">Eclipse Foundation, Inc.</maintainer>
     <license>Apache 2.0</license>
     <url type="website">https://iceoryx.io</url>
@@ -12,8 +12,9 @@
 
     <buildtool_depend>cmake</buildtool_depend>
 
-    <build_depend>iceoryx_posh</build_depend>
-    <build_depend>iceoryx_hoofs</build_depend>
+    <depend>iceoryx_posh</depend>
+    <depend>iceoryx_hoofs</depend>
+    <depend>libncurses-dev</depend>
 
     <doc_depend>doxygen</doc_depend>
 

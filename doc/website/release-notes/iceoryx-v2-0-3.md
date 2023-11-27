@@ -1,6 +1,6 @@
 # iceoryx v2.0.3
 
-## [v2.0.3](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.2) (tbd)
+## [v2.0.3](https://github.com/eclipse-iceoryx/iceoryx/tree/v2.0.3) (2023-02-02)
 
 [Full Changelog](https://github.com/eclipse-iceoryx/iceoryx/compare/v2.0.2...v2.0.3)
 
