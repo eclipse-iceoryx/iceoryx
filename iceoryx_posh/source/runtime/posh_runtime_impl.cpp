@@ -234,12 +234,12 @@ PoshRuntimeImpl::getMiddlewareSubscriber(const capro::ServiceDescription& servic
         options.queueCapacity = 1U;
     }
 
-    if (subscriberOptions.historyRequest > subscriberOptions.queueCapacity)
+    if (subscriberOptions.historyRequest > options.queueCapacity)
     {
         IOX_LOG(WARN,
                 "Requested historyRequest for "
                     << service << " is larger than queueCapacity. Clamping historyRequest to queueCapacity!");
-        options.historyRequest = subscriberOptions.queueCapacity;
+        options.historyRequest = options.queueCapacity;
     }
 
     if (options.nodeName.empty())
