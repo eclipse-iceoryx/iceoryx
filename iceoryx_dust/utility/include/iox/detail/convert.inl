@@ -163,7 +163,7 @@ inline bool convert::fromString<float>(const char* v, float& dest) noexcept
         return false;
     }
 
-    return !posix::posixCall(strtof)(v, nullptr)
+    return !IOX_POSIX_CALL(strtof)(v, nullptr)
                 .failureReturnValue(HUGE_VALF, -HUGE_VALF)
                 .evaluate()
                 .and_then([&](auto& r) { dest = r.value; })
@@ -178,7 +178,7 @@ inline bool convert::fromString<double>(const char* v, double& dest) noexcept
         return false;
     }
 
-    return !posix::posixCall(strtod)(v, nullptr)
+    return !IOX_POSIX_CALL(strtod)(v, nullptr)
                 .failureReturnValue(HUGE_VAL, -HUGE_VAL)
                 .evaluate()
                 .and_then([&](auto& r) { dest = r.value; })
@@ -193,7 +193,7 @@ inline bool convert::fromString<long double>(const char* v, long double& dest) n
         return false;
     }
 
-    return !posix::posixCall(strtold)(v, nullptr)
+    return !IOX_POSIX_CALL(strtold)(v, nullptr)
                 .failureReturnValue(HUGE_VALL, -HUGE_VALL)
                 .evaluate()
                 .and_then([&](auto& r) { dest = r.value; })
@@ -208,7 +208,7 @@ inline bool convert::fromString<uint64_t>(const char* v, uint64_t& dest) noexcep
         return false;
     }
 
-    auto call = posix::posixCall(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
 
     if (call.has_error())
     {
@@ -259,7 +259,7 @@ inline bool convert::fromString<uint32_t>(const char* v, uint32_t& dest) noexcep
         return false;
     }
 
-    auto call = posix::posixCall(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoull)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULLONG_MAX).evaluate();
 
     if (call.has_error())
     {
@@ -284,7 +284,7 @@ inline bool convert::fromString<uint16_t>(const char* v, uint16_t& dest) noexcep
         return false;
     }
 
-    auto call = posix::posixCall(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
 
     if (call.has_error())
     {
@@ -309,7 +309,7 @@ inline bool convert::fromString<uint8_t>(const char* v, uint8_t& dest) noexcept
         return false;
     }
 
-    auto call = posix::posixCall(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
+    auto call = IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE).failureReturnValue(ULONG_MAX).evaluate();
 
     if (call.has_error())
     {
@@ -334,8 +334,7 @@ inline bool convert::fromString<int64_t>(const char* v, int64_t& dest) noexcept
         return false;
     }
 
-    auto call =
-        posix::posixCall(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
     if (call.has_error())
     {
         return false;
@@ -359,8 +358,7 @@ inline bool convert::fromString<int32_t>(const char* v, int32_t& dest) noexcept
         return false;
     }
 
-    auto call =
-        posix::posixCall(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtoll)(v, nullptr, STRTOULL_BASE).failureReturnValue(LLONG_MAX, LLONG_MIN).evaluate();
     if (call.has_error())
     {
         return false;
@@ -384,7 +382,7 @@ inline bool convert::fromString<int16_t>(const char* v, int16_t& dest) noexcept
         return false;
     }
 
-    auto call = posix::posixCall(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
     if (call.has_error())
     {
         return false;
@@ -408,7 +406,7 @@ inline bool convert::fromString<int8_t>(const char* v, int8_t& dest) noexcept
         return false;
     }
 
-    auto call = posix::posixCall(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
+    auto call = IOX_POSIX_CALL(strtol)(v, nullptr, STRTOULL_BASE).failureReturnValue(LONG_MAX, LONG_MIN).evaluate();
     if (call.has_error())
     {
         return false;
@@ -432,7 +430,7 @@ inline bool convert::fromString<bool>(const char* v, bool& dest) noexcept
         return false;
     }
 
-    return !posix::posixCall(strtoul)(v, nullptr, STRTOULL_BASE)
+    return !IOX_POSIX_CALL(strtoul)(v, nullptr, STRTOULL_BASE)
                 .failureReturnValue(ULONG_MAX)
                 .evaluate()
                 .and_then([&](auto& r) { dest = static_cast<bool>(r.value); })

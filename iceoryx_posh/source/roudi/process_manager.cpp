@@ -17,13 +17,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/process_manager.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/signal.hpp"
 #include "iceoryx_platform/types.hpp"
 #include "iceoryx_platform/wait.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "iox/detail/convert.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/relative_pointer.hpp"
 #include "iox/std_chrono_support.hpp"
 #include "iox/vector.hpp"
@@ -166,8 +166,8 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
 {
     static constexpr int32_t ERROR_CODE = -1;
 
-    return !posix::posixCall(kill)(static_cast<pid_t>(process.getPid()),
-                                   (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
+    return !IOX_POSIX_CALL(kill)(static_cast<pid_t>(process.getPid()),
+                                 (shutdownPolicy == ShutdownPolicy::SIG_KILL) ? SIGKILL : SIGTERM)
                 .failureReturnValue(ERROR_CODE)
                 .ignoreErrnos(ESRCH)
                 .evaluate()
@@ -180,7 +180,7 @@ bool ProcessManager::requestShutdownOfProcess(Process& process, ShutdownPolicy s
 bool ProcessManager::probeProcessAliveWithSigTerm(const Process& process) noexcept
 {
     static constexpr int32_t ERROR_CODE = -1;
-    auto checkCommand = posix::posixCall(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
+    auto checkCommand = IOX_POSIX_CALL(kill)(static_cast<pid_t>(process.getPid()), SIGTERM)
                             .failureReturnValue(ERROR_CODE)
                             .ignoreErrnos(ESRCH)
                             .evaluate()

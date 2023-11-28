@@ -13,31 +13,30 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
-#define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL
 
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#ifndef IOX_HOOFS_POSIX_DESIGN_POSIX_CALL_INL
+#define IOX_HOOFS_POSIX_DESIGN_POSIX_CALL_INL
+
 #include "iceoryx_platform/errno.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
-namespace posix
-{
-namespace internal
+namespace detail
 {
 template <typename ReturnType, typename... FunctionArguments>
 inline PosixCallBuilder<ReturnType, FunctionArguments...>
-/// NOLINTJUSTIFICATION this function is never used directly, only be the macro posixCall
+/// NOLINTJUSTIFICATION this function is never used directly, only be the macro IOX_POSIX_CALL
 /// NOLINTNEXTLINE(readability-function-size)
-createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
+createPosixCallBuilder(ReturnType (*IOX_POSIX_CALL)(FunctionArguments...),
                        const char* posixFunctionName,
                        const char* file,
                        const int32_t line,
                        const char* callingFunction) noexcept
 {
     return PosixCallBuilder<ReturnType, FunctionArguments...>(
-        posixCall, posixFunctionName, file, line, callingFunction);
+        IOX_POSIX_CALL, posixFunctionName, file, line, callingFunction);
 }
 
 template <typename ReturnType>
@@ -69,7 +68,7 @@ inline string<POSIX_CALL_ERROR_STRING_SIZE> errorLiteralToString(const char* msg
 {
     return string<POSIX_CALL_ERROR_STRING_SIZE>(TruncateToCapacity, msg);
 }
-} // namespace internal
+} // namespace detail
 
 template <typename T>
 inline string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadableErrnum() const noexcept
@@ -77,16 +76,16 @@ inline string<POSIX_CALL_ERROR_STRING_SIZE> PosixCallResult<T>::getHumanReadable
     /// NOLINTJUSTIFICATION needed by POSIX function which is wrapped here
     /// NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char buffer[POSIX_CALL_ERROR_STRING_SIZE];
-    return internal::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
+    return detail::errorLiteralToString(strerror_r(errnum, &buffer[0], POSIX_CALL_ERROR_STRING_SIZE), &buffer[0]);
 }
 
 template <typename ReturnType, typename... FunctionArguments>
-inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(FunctionType_t posixCall,
+inline PosixCallBuilder<ReturnType, FunctionArguments...>::PosixCallBuilder(FunctionType_t IOX_POSIX_CALL,
                                                                             const char* posixFunctionName,
                                                                             const char* file,
                                                                             const int32_t line,
                                                                             const char* callingFunction) noexcept
-    : m_posixCall{posixCall}
+    : m_IOX_POSIX_CALL{IOX_POSIX_CALL}
     , m_details{posixFunctionName, file, line, callingFunction}
 {
 }
@@ -98,7 +97,7 @@ PosixCallBuilder<ReturnType, FunctionArguments...>::operator()(FunctionArguments
     for (uint64_t i = 0U; i < POSIX_CALL_EINTR_REPETITIONS; ++i)
     {
         errno = 0;
-        m_details.result.value = m_posixCall(arguments...);
+        m_details.result.value = m_IOX_POSIX_CALL(arguments...);
         m_details.result.errnum = errno;
 
         if (m_details.result.errnum != EINTR)
@@ -111,7 +110,7 @@ PosixCallBuilder<ReturnType, FunctionArguments...>::operator()(FunctionArguments
 }
 
 template <typename ReturnType>
-inline PosixCallVerificator<ReturnType>::PosixCallVerificator(internal::PosixCallDetails<ReturnType>& details) noexcept
+inline PosixCallVerificator<ReturnType>::PosixCallVerificator(detail::PosixCallDetails<ReturnType>& details) noexcept
     : m_details{details}
 {
 }
@@ -148,7 +147,7 @@ inline PosixCallEvaluator<ReturnType> PosixCallVerificator<ReturnType>::returnVa
 }
 
 template <typename ReturnType>
-inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(internal::PosixCallDetails<ReturnType>& details) noexcept
+inline PosixCallEvaluator<ReturnType>::PosixCallEvaluator(detail::PosixCallDetails<ReturnType>& details) noexcept
     : m_details{details}
 {
 }
@@ -199,7 +198,6 @@ PosixCallEvaluator<ReturnType>::evaluate() const&& noexcept
     return err<PosixCallResult<ReturnType>>(m_details.result);
 }
 
-} // namespace posix
 } // namespace iox
 
 #endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_INL

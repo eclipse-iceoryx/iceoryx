@@ -16,7 +16,7 @@
 
 #include "iox/file_management_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -25,7 +25,7 @@ namespace details
 expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
 {
     iox_stat file_status = {};
-    auto result = posix::posixCall(iox_fstat)(fildes, &file_status).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_fstat)(fildes, &file_status).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {
@@ -50,7 +50,7 @@ expected<iox_stat, FileStatError> get_file_status(const int fildes) noexcept
 
 expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, const gid_t gid) noexcept
 {
-    auto result = posix::posixCall(iox_fchown)(fildes, uid, gid).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_fchown)(fildes, uid, gid).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {
@@ -84,7 +84,7 @@ expected<void, FileSetOwnerError> set_owner(const int fildes, const uid_t uid, c
 
 expected<void, FileSetPermissionError> set_permissions(const int fildes, const access_rights perms) noexcept
 {
-    auto result = posix::posixCall(iox_fchmod)(fildes, perms.value()).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_fchmod)(fildes, perms.value()).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {

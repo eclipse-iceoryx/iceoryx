@@ -19,7 +19,7 @@
 #include "iox/detail/deprecation_marker.hpp"
 #include "iox/vector.hpp"
 
-IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/.hpp' instead.")
+IOX_DEPRECATED_HEADER_SINCE(3, "Please include 'iox/vector.hpp' instead.")
 
 namespace iox
 {

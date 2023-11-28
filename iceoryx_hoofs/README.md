@@ -138,7 +138,7 @@ The module structure is a logical grouping. It is replicated for `concurrent` an
 | class                 | internal | description                                                         |
 |:---------------------:|:--------:|:--------------------------------------------------------------------|
 |`Builder`              |          | Macro which generates a setter method useful for a builder pattern. |
-|`posixCall`            |          | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
+|`IOX_POSIX_CALL`       |          | Wrapper around C and POSIX function calls which performs a full error handling. Additionally, this wrapper makes sure that `EINTR` handling is performed correctly by repeating the system call. |
 |`functional_interface` |          | Constructs to easily add functional interfaces like `and_then` to object container.                                                                                                                                                   |
 |`NewType<T, Policies>` |          | C++11 implementation of [Haskells NewType-pattern](https://wiki.haskell.org/Newtype).                                                                                                                                                 |
 |`StaticLifetimeGuard`  |          | Static instance manager which solves the singleton lifetime problem. |

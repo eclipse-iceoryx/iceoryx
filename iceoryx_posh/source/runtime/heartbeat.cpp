@@ -16,9 +16,9 @@
 
 #include "iceoryx_posh/internal/runtime/heartbeat.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/time.hpp"
 #include "iox/duration.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -54,7 +54,7 @@ uint64_t Heartbeat::milliseconds_since_epoch() noexcept
     };
 
     IOX_ENSURES_WITH_MSG(
-        !posix::posixCall(clock_gettime)(CLOCK_MONOTONIC, &timepoint).failureReturnValue(-1).evaluate().has_error(),
+        !IOX_POSIX_CALL(clock_gettime)(CLOCK_MONOTONIC, &timepoint).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'clock_gettime'!");
 
     return units::Duration(timepoint).toMilliseconds();

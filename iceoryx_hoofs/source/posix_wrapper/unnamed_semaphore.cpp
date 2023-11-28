@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -35,9 +35,9 @@ UnnamedSemaphoreBuilder::create(optional<UnnamedSemaphore>& uninitializedSemapho
 
     uninitializedSemaphore.emplace();
 
-    auto result = posixCall(iox_sem_init)(&uninitializedSemaphore.value().m_handle,
-                                          (m_isInterProcessCapable) ? 1 : 0,
-                                          static_cast<unsigned int>(m_initialValue))
+    auto result = IOX_POSIX_CALL(iox_sem_init)(&uninitializedSemaphore.value().m_handle,
+                                               (m_isInterProcessCapable) ? 1 : 0,
+                                               static_cast<unsigned int>(m_initialValue))
                       .failureReturnValue(-1)
                       .evaluate();
 
@@ -67,7 +67,7 @@ UnnamedSemaphore::~UnnamedSemaphore() noexcept
 {
     if (m_destroyHandle)
     {
-        auto result = posixCall(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
+        auto result = IOX_POSIX_CALL(iox_sem_destroy)(getHandle()).failureReturnValue(-1).evaluate();
         if (result.has_error())
         {
             switch (result.error().errnum)

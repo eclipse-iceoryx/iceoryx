@@ -16,9 +16,9 @@
 
 #include "iceoryx_hoofs/internal/posix_wrapper/semaphore_interface.hpp"
 #include "iceoryx_hoofs/posix_wrapper/named_semaphore.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/posix_wrapper/unnamed_semaphore.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -55,7 +55,7 @@ iox_sem_t* SemaphoreInterface<SemaphoreChild>::getHandle() noexcept
 template <typename SemaphoreChild>
 expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::post() noexcept
 {
-    auto result = posixCall(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_post)(getHandle()).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {
@@ -70,7 +70,7 @@ expected<SemaphoreWaitState, SemaphoreError>
 SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) noexcept
 {
     const timespec timeoutAsTimespec = timeout.timespec(units::TimeSpecReference::Epoch);
-    auto result = posixCall(iox_sem_timedwait)(getHandle(), &timeoutAsTimespec)
+    auto result = IOX_POSIX_CALL(iox_sem_timedwait)(getHandle(), &timeoutAsTimespec)
                       .failureReturnValue(-1)
                       .ignoreErrnos(ETIMEDOUT)
                       .evaluate();
@@ -86,7 +86,7 @@ SemaphoreInterface<SemaphoreChild>::timedWait(const units::Duration& timeout) no
 template <typename SemaphoreChild>
 expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noexcept
 {
-    auto result = posixCall(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_trywait)(getHandle()).failureReturnValue(-1).ignoreErrnos(EAGAIN).evaluate();
 
     if (result.has_error())
     {
@@ -99,7 +99,7 @@ expected<bool, SemaphoreError> SemaphoreInterface<SemaphoreChild>::tryWait() noe
 template <typename SemaphoreChild>
 expected<void, SemaphoreError> SemaphoreInterface<SemaphoreChild>::wait() noexcept
 {
-    auto result = posixCall(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
+    auto result = IOX_POSIX_CALL(iox_sem_wait)(getHandle()).failureReturnValue(-1).evaluate();
 
     if (result.has_error())
     {

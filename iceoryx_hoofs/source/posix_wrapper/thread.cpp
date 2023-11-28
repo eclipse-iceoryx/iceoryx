@@ -15,8 +15,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/thread.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -24,7 +24,8 @@ namespace posix
 {
 void setThreadName(std::thread::native_handle_type thread, const ThreadName_t& name) noexcept
 {
-    posixCall(iox_pthread_setname_np)(thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
+    IOX_POSIX_CALL(iox_pthread_setname_np)
+    (thread, name.c_str()).successReturnValue(0).evaluate().or_else([](auto& r) {
         // String length limit is ensured through iox::string
         // ERANGE (string too long) intentionally not handled to avoid untestable and dead code
         IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
@@ -38,15 +39,13 @@ ThreadName_t getThreadName(std::thread::native_handle_type thread) noexcept
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays)
     char tempName[MAX_THREAD_NAME_LENGTH + 1U];
 
-    posixCall(iox_pthread_getname_np)(thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U)
-        .successReturnValue(0)
-        .evaluate()
-        .or_else([](auto& r) {
-            // String length limit is ensured through MAX_THREAD_NAME_LENGTH
-            // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
-            IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
-            IOX_ENSURES(false && "internal logic error");
-        });
+    IOX_POSIX_CALL(iox_pthread_getname_np)
+    (thread, &tempName[0], MAX_THREAD_NAME_LENGTH + 1U).successReturnValue(0).evaluate().or_else([](auto& r) {
+        // String length limit is ensured through MAX_THREAD_NAME_LENGTH
+        // ERANGE (string too small) intentionally not handled to avoid untestable and dead code
+        IOX_LOG(ERROR, "This should never happen! " << r.getHumanReadableErrnum());
+        IOX_ENSURES(false && "internal logic error");
+    });
 
     return ThreadName_t(TruncateToCapacity, &tempName[0]);
 }
@@ -59,7 +58,7 @@ expected<void, ThreadError> ThreadBuilder::create(optional<Thread>& uninitialize
     const iox_pthread_attr_t* threadAttributes = nullptr;
 
     auto createResult =
-        posixCall(iox_pthread_create)(
+        IOX_POSIX_CALL(iox_pthread_create)(
             &uninitializedThread->m_threadHandle, threadAttributes, Thread::startRoutine, &uninitializedThread.value())
             .successReturnValue(0)
             .evaluate();
@@ -85,7 +84,7 @@ Thread::~Thread() noexcept
 {
     if (m_isThreadConstructed)
     {
-        auto joinResult = posixCall(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
+        auto joinResult = IOX_POSIX_CALL(iox_pthread_join)(m_threadHandle, nullptr).successReturnValue(0).evaluate();
         if (joinResult.has_error())
         {
             switch (joinResult.error().errnum)
@@ -135,13 +134,11 @@ void* Thread::startRoutine(void* callable)
     auto* self = static_cast<Thread*>(callable);
     auto threadHandle = iox_pthread_self();
 
-    posixCall(iox_pthread_setname_np)(threadHandle, self->m_threadName.c_str())
-        .successReturnValue(0)
-        .evaluate()
-        .or_else([&self](auto&) {
-            IOX_LOG(WARN, "failed to set thread name " << self->m_threadName);
-            self->m_threadName.clear();
-        });
+    IOX_POSIX_CALL(iox_pthread_setname_np)
+    (threadHandle, self->m_threadName.c_str()).successReturnValue(0).evaluate().or_else([&self](auto&) {
+        IOX_LOG(WARN, "failed to set thread name " << self->m_threadName);
+        self->m_threadName.clear();
+    });
 
     self->m_callable();
     return nullptr;

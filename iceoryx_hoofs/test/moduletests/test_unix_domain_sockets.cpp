@@ -17,9 +17,9 @@
 
 #if !defined(_WIN32)
 #include "iceoryx_hoofs/internal/posix_wrapper/unix_domain_socket.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_hoofs/testing/timing_test.hpp"
 #include "iceoryx_platform/socket.hpp"
+#include "iox/posix_call.hpp"
 
 #include "test.hpp"
 
@@ -70,15 +70,17 @@ class UnixDomainSocket_test : public Test
         sockAddr.sun_family = AF_LOCAL;
         strncpy(&(sockAddr.sun_path[0]), name.c_str(), name.size());
 
-        iox::posix::posixCall(iox_socket)(AF_LOCAL, SOCK_DGRAM, 0)
+        IOX_POSIX_CALL(iox_socket)
+        (AF_LOCAL, SOCK_DGRAM, 0)
             .failureReturnValue(ERROR_CODE)
             .evaluate()
             .and_then([&](auto& r) {
-                iox::posix::posixCall(iox_bind)(r.value,
-                                                // NOLINTJUSTIFICATION enforced by POSIX API
-                                                // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
-                                                reinterpret_cast<struct sockaddr*>(&sockAddr),
-                                                sizeof(sockAddr))
+                IOX_POSIX_CALL(iox_bind)
+                (r.value,
+                 // NOLINTJUSTIFICATION enforced by POSIX API
+                 // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+                 reinterpret_cast<struct sockaddr*>(&sockAddr),
+                 sizeof(sockAddr))
                     .failureReturnValue(ERROR_CODE)
                     .evaluate()
                     .or_else([&](auto&) {

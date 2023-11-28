@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
+
+#ifndef IOX_HOOFS_POSIX_DESIGN_POSIX_CALL_HPP
+#define IOX_HOOFS_POSIX_DESIGN_POSIX_CALL_HPP
 
 #include "iox/algorithm.hpp"
 #include "iox/attributes.hpp"
@@ -25,8 +26,6 @@
 #include <cstring>
 
 namespace iox
-{
-namespace posix
 {
 static constexpr uint32_t POSIX_CALL_ERROR_STRING_SIZE = 128U;
 static constexpr uint64_t POSIX_CALL_EINTR_REPETITIONS = 5U;
@@ -52,14 +51,15 @@ struct PosixCallResult
     int32_t errnum = POSIX_CALL_INVALID_ERRNO;
 };
 
-namespace internal
+namespace detail
 {
 template <typename ReturnType, typename... FunctionArguments>
-PosixCallBuilder<ReturnType, FunctionArguments...> createPosixCallBuilder(ReturnType (*posixCall)(FunctionArguments...),
-                                                                          const char* posixFunctionName,
-                                                                          const char* file,
-                                                                          const int32_t line,
-                                                                          const char* callingFunction) noexcept;
+PosixCallBuilder<ReturnType, FunctionArguments...>
+createPosixCallBuilder(ReturnType (*IOX_POSIX_CALL)(FunctionArguments...),
+                       const char* posixFunctionName,
+                       const char* file,
+                       const int32_t line,
+                       const char* callingFunction) noexcept;
 
 template <typename ReturnType>
 struct PosixCallDetails
@@ -75,44 +75,7 @@ struct PosixCallDetails
 
     PosixCallResult<ReturnType> result;
 };
-} // namespace internal
-
-/// @brief Calling a posix function with automated error handling. If the posix function returns
-///        void you do not need to use posixCall since it cannot fail, (see: man errno).
-///        We use a builder pattern to create a design which sets the usage contract so that it
-///        cannot be used in the wrong way.
-/// @code
-///        iox::posix::posixCall(sem_timedwait)(handle, timeout)
-///             .successReturnValue(0)
-///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
-///             .evaluate()
-///             .and_then([](auto & result){
-///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
-///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
-///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror(errno)
-///             })
-///             .or_else([](auto & result){
-///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
-///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
-///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror(errno)
-///             })
-///
-///        // when your posix call signals failure with one specific return value use
-///        // .failureReturnValue(_) instead of .successReturnValue(_)
-///        // when your posix call signals failure by returning the errno value instead of setting the errno use
-///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
-/// @endcode
-/// NOLINTJUSTIFICATION a template or constexpr function does not have access to source code origin file, line, function
-///                     name
-/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
-#define posixCall(f)                                                                                                   \
-    internal::createPosixCallBuilder(                                                                                  \
-        &(f),                                                                                                          \
-        (#f),                                                                                                          \
-        __FILE__,                                                                                                      \
-        __LINE__,                                                                                                      \
-        __PRETTY_FUNCTION__) // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
-                             // needed for source code location, safely wrapped in macro
+} // namespace detail
 
 /// @brief class which is created by the verificator to evaluate the result of a posix call
 template <typename ReturnType>
@@ -142,10 +105,10 @@ class [[nodiscard]] PosixCallEvaluator
     template <typename>
     friend class PosixCallVerificator;
 
-    explicit PosixCallEvaluator(internal::PosixCallDetails<ReturnType>& details) noexcept;
+    explicit PosixCallEvaluator(detail::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
-    internal::PosixCallDetails<ReturnType>& m_details;
+    detail::PosixCallDetails<ReturnType>& m_details;
 };
 
 /// @brief class which verifies the return value of a posix function call
@@ -173,10 +136,10 @@ class [[nodiscard]] PosixCallVerificator
     template <typename, typename...>
     friend class PosixCallBuilder;
 
-    explicit PosixCallVerificator(internal::PosixCallDetails<ReturnType>& details) noexcept;
+    explicit PosixCallVerificator(detail::PosixCallDetails<ReturnType>& details) noexcept;
 
   private:
-    internal::PosixCallDetails<ReturnType>& m_details;
+    detail::PosixCallDetails<ReturnType>& m_details;
 };
 
 template <typename ReturnType, typename... FunctionArguments>
@@ -195,25 +158,61 @@ class [[nodiscard]] PosixCallBuilder
   private:
     template <typename ReturnTypeFriend, typename... FunctionArgumentsFriend>
     friend PosixCallBuilder<ReturnTypeFriend, FunctionArgumentsFriend...>
-    internal::createPosixCallBuilder(ReturnTypeFriend (*posixCall)(FunctionArgumentsFriend...),
-                                     const char* posixFunctionName,
-                                     const char* file,
-                                     const int32_t line,
-                                     const char* callingFunction) noexcept;
+    detail::createPosixCallBuilder(ReturnTypeFriend (*IOX_POSIX_CALL)(FunctionArgumentsFriend...),
+                                   const char* posixFunctionName,
+                                   const char* file,
+                                   const int32_t line,
+                                   const char* callingFunction) noexcept;
 
-    PosixCallBuilder(FunctionType_t posixCall,
+    PosixCallBuilder(FunctionType_t IOX_POSIX_CALL,
                      const char* posixFunctionName,
                      const char* file,
                      const int32_t line,
                      const char* callingFunction) noexcept;
 
   private:
-    FunctionType_t m_posixCall = nullptr;
-    internal::PosixCallDetails<ReturnType> m_details;
+    FunctionType_t m_IOX_POSIX_CALL = nullptr;
+    detail::PosixCallDetails<ReturnType> m_details;
 };
-} // namespace posix
 } // namespace iox
 
-#include "iceoryx_hoofs/internal/posix_wrapper/posix_call.inl"
+#include "iox/detail/posix_call.inl"
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_POSIX_CALL_HPP
+/// @brief Calling a posix function with automated error handling. If the posix function returns
+///        void you do not need to use 'IOX_POSIX_CALL' since it cannot fail, (see: man errno).
+///        We use a builder pattern to create a design which sets the usage contract so that it
+///        cannot be used in the wrong way.
+/// @code
+///        IOX_POSIX_CALL(sem_timedwait)(handle, timeout)
+///             .successReturnValue(0)
+///             .ignoreErrnos(ETIMEDOUT) // can be a comma separated list of errnos
+///             .evaluate()
+///             .and_then([](auto & result){
+///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
+///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
+///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror(errno)
+///             })
+///             .or_else([](auto & result){
+///                 IOX_LOG(INFO, result.value); // return value of sem_timedwait
+///                 IOX_LOG(INFO, result.errno); // errno which was set by sem_timedwait
+///                 IOX_LOG(INFO, result.getHumanReadableErrnum()); // get string returned by strerror(errno)
+///             })
+///
+///        // when your posix call signals failure with one specific return value use
+///        // .failureReturnValue(_) instead of .successReturnValue(_)
+///        // when your posix call signals failure by returning the errno value instead of setting the errno use
+///        // .returnValueMatchesErrno() instead of .successReturnValue(_)
+/// @endcode
+/// NOLINTJUSTIFICATION a template or constexpr function does not have access to source code origin file, line, function
+///                     name
+/// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
+#define IOX_POSIX_CALL(f)                                                                                              \
+    iox::detail::createPosixCallBuilder(                                                                               \
+        &(f),                                                                                                          \
+        (#f),                                                                                                          \
+        __FILE__,                                                                                                      \
+        __LINE__,                                                                                                      \
+        __PRETTY_FUNCTION__) // NOLINT(cppcoreguidelines-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay)
+// needed for source code location, safely wrapped in macro
+
+#endif // IOX_HOOFS_POSIX_DESIGN_POSIX_CALL_HPP

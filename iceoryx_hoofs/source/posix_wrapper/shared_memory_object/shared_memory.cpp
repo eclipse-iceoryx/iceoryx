@@ -16,7 +16,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/stat.hpp"
@@ -24,6 +23,7 @@
 #include "iceoryx_platform/unistd.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/scope_guard.hpp"
 
 #include <cassert>
@@ -88,14 +88,14 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 
         if (m_openMode == OpenMode::PURGE_AND_CREATE)
         {
-            IOX_DISCARD_RESULT(posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+            IOX_DISCARD_RESULT(IOX_POSIX_CALL(iox_shm_unlink)(nameWithLeadingSlash.c_str())
                                    .failureReturnValue(SharedMemory::INVALID_HANDLE)
                                    .ignoreErrnos(ENOENT)
                                    .evaluate());
         }
 
         auto result =
-            posixCall(iox_shm_open)(
+            IOX_POSIX_CALL(iox_shm_open)(
                 nameWithLeadingSlash.c_str(),
                 convertToOflags(m_accessMode,
                                 (m_openMode == OpenMode::OPEN_OR_CREATE) ? OpenMode::EXCLUSIVE_CREATE : m_openMode),
@@ -110,9 +110,9 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
             if (m_openMode == OpenMode::OPEN_OR_CREATE && result.error().errnum == EEXIST)
             {
                 hasOwnership = false;
-                result = posixCall(iox_shm_open)(nameWithLeadingSlash.c_str(),
-                                                 convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
-                                                 m_filePermissions.value())
+                result = IOX_POSIX_CALL(iox_shm_open)(nameWithLeadingSlash.c_str(),
+                                                      convertToOflags(m_accessMode, OpenMode::OPEN_EXISTING),
+                                                      m_filePermissions.value())
                              .failureReturnValue(SharedMemory::INVALID_HANDLE)
                              .evaluate();
             }
@@ -129,23 +129,22 @@ expected<SharedMemory, SharedMemoryError> SharedMemoryBuilder::create() noexcept
 
     if (hasOwnership)
     {
-        auto result = posixCall(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
+        auto result = IOX_POSIX_CALL(ftruncate)(sharedMemoryFileHandle, static_cast<int64_t>(m_size))
                           .failureReturnValue(SharedMemory::INVALID_HANDLE)
                           .evaluate();
         if (result.has_error())
         {
             printError();
 
-            posixCall(iox_shm_close)(sharedMemoryFileHandle)
-                .failureReturnValue(SharedMemory::INVALID_HANDLE)
-                .evaluate()
-                .or_else([&](auto& r) {
-                    IOX_LOG(ERROR,
-                            "Unable to close filedescriptor (close failed) : "
-                                << r.getHumanReadableErrnum() << " for SharedMemory \"" << m_name << "\"");
-                });
+            IOX_POSIX_CALL(iox_shm_close)
+            (sharedMemoryFileHandle).failureReturnValue(SharedMemory::INVALID_HANDLE).evaluate().or_else([&](auto& r) {
+                IOX_LOG(ERROR,
+                        "Unable to close filedescriptor (close failed) : " << r.getHumanReadableErrnum()
+                                                                           << " for SharedMemory \"" << m_name << "\"");
+            });
 
-            posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+            IOX_POSIX_CALL(iox_shm_unlink)
+            (nameWithLeadingSlash.c_str())
                 .failureReturnValue(SharedMemory::INVALID_HANDLE)
                 .evaluate()
                 .or_else([&](auto&) {
@@ -225,7 +224,7 @@ expected<bool, SharedMemoryError> SharedMemory::unlinkIfExist(const Name_t& name
 {
     auto nameWithLeadingSlash = addLeadingSlash(name);
 
-    auto result = posixCall(iox_shm_unlink)(nameWithLeadingSlash.c_str())
+    auto result = IOX_POSIX_CALL(iox_shm_unlink)(nameWithLeadingSlash.c_str())
                       .failureReturnValue(INVALID_HANDLE)
                       .ignoreErrnos(ENOENT)
                       .evaluate();
@@ -260,7 +259,7 @@ bool SharedMemory::close() noexcept
     if (m_handle != INVALID_HANDLE)
     {
         auto call =
-            posixCall(iox_shm_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
+            IOX_POSIX_CALL(iox_shm_close)(m_handle).failureReturnValue(INVALID_HANDLE).evaluate().or_else([](auto& r) {
                 IOX_LOG(ERROR,
                         "Unable to close SharedMemory filedescriptor (close failed) : " << r.getHumanReadableErrnum());
             });

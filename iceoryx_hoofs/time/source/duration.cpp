@@ -19,7 +19,7 @@
 #include "iceoryx_platform/platform_correction.hpp"
 #include "iox/logging.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/posix_call.hpp"
 
 namespace iox
 {
@@ -53,7 +53,7 @@ struct timespec Duration::timespec(const TimeSpecReference reference) const noex
     // AXIVION Next Construct AutosarC++19_03-M5.0.3: False positive! CLOCK_REALTIME and CLOCK_MONOTONIC are of type clockid_t
     const clockid_t clockId{(reference == TimeSpecReference::Epoch) ? CLOCK_REALTIME : CLOCK_MONOTONIC};
     IOX_ENSURES_WITH_MSG(
-        !posix::posixCall(clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error(),
+        !IOX_POSIX_CALL(clock_gettime)(clockId, &referenceTime).failureReturnValue(-1).evaluate().has_error(),
         "An error which should never happen occured during 'clock_gettime'!");
 
     const auto targetTime = Duration(referenceTime) + *this;

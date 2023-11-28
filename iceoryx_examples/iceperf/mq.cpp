@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "mq.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/fcntl.hpp"
 #include "iceoryx_platform/platform_correction.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/std_string_support.hpp"
 
 #include <chrono>
@@ -34,24 +34,18 @@ MQ::MQ(const std::string& publisherName, const std::string& subscriberName) noex
 void MQ::cleanupOutdatedResources(const std::string& publisherName, const std::string& subscriberName) noexcept
 {
     auto publisherMqName = PREFIX + publisherName;
-    iox::posix::posixCall(mq_unlink)(publisherMqName.c_str())
-        .failureReturnValue(ERROR_CODE)
-        .ignoreErrnos(ENOENT)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "mq_unlink error for " << publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    IOX_POSIX_CALL(mq_unlink)
+    (publisherMqName.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate().or_else([&](auto& r) {
+        std::cout << "mq_unlink error for " << publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
 
     auto subscriberMqName = PREFIX + subscriberName;
-    iox::posix::posixCall(mq_unlink)(subscriberMqName.c_str())
-        .failureReturnValue(ERROR_CODE)
-        .ignoreErrnos(ENOENT)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "mq_unlink error for " << subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    IOX_POSIX_CALL(mq_unlink)
+    (subscriberMqName.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate().or_else([&](auto& r) {
+        std::cout << "mq_unlink error for " << subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
 }
 
 void MQ::initLeader() noexcept
@@ -92,31 +86,23 @@ void MQ::initMqAttributes() noexcept
 
 void MQ::shutdown() noexcept
 {
-    iox::posix::posixCall(mq_close)(m_mqDescriptorSubscriber)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "mq_close error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    IOX_POSIX_CALL(mq_close)
+    (m_mqDescriptorSubscriber).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& r) {
+        std::cout << "mq_close error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
 
-    iox::posix::posixCall(mq_unlink)(m_subscriberMqName.c_str())
-        .failureReturnValue(ERROR_CODE)
-        .ignoreErrnos(ENOENT)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "mq_unlink error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum()
-                      << std::endl;
-            exit(1);
-        });
+    IOX_POSIX_CALL(mq_unlink)
+    (m_subscriberMqName.c_str()).failureReturnValue(ERROR_CODE).ignoreErrnos(ENOENT).evaluate().or_else([&](auto& r) {
+        std::cout << "mq_unlink error for " << m_subscriberMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
 
-    iox::posix::posixCall(mq_close)(m_mqDescriptorPublisher)
-        .failureReturnValue(ERROR_CODE)
-        .evaluate()
-        .or_else([&](auto& r) {
-            std::cout << "mq_close error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
-            exit(1);
-        });
+    IOX_POSIX_CALL(mq_close)
+    (m_mqDescriptorPublisher).failureReturnValue(ERROR_CODE).evaluate().or_else([&](auto& r) {
+        std::cout << "mq_close error for " << m_publisherMqName << ", " << r.getHumanReadableErrnum() << std::endl;
+        exit(1);
+    });
 }
 
 void MQ::sendPerfTopic(const uint32_t payloadSizeInBytes, const RunFlag runFlag) noexcept
@@ -174,7 +160,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
         // the mask will be applied to the permissions, therefore we need to set it to 0
         mode_t umaskSaved = umask(0);
 
-        auto mqCall = iox::posix::posixCall(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
+        auto mqCall = IOX_POSIX_CALL(iox_mq_open4)(name.c_str(), openFlags, m_filemode, &m_attributes)
                           .failureReturnValue(INVALID_DESCRIPTOR)
                           .ignoreErrnos(ENOENT)
                           .evaluate()
@@ -207,7 +193,7 @@ void MQ::open(const std::string& name, const iox::posix::IpcChannelSide channelS
 
 void MQ::send(const char* buffer, uint32_t length) noexcept
 {
-    while (iox::posix::posixCall(mq_send)(m_mqDescriptorPublisher, buffer, length, 1U)
+    while (IOX_POSIX_CALL(mq_send)(m_mqDescriptorPublisher, buffer, length, 1U)
                .failureReturnValue(ERROR_CODE)
                .ignoreErrnos(EAGAIN)
                .evaluate()
@@ -225,7 +211,7 @@ void MQ::send(const char* buffer, uint32_t length) noexcept
 
 void MQ::receive(char* buffer) noexcept
 {
-    while (iox::posix::posixCall(mq_receive)(m_mqDescriptorSubscriber, buffer, MAX_MESSAGE_SIZE, nullptr)
+    while (IOX_POSIX_CALL(mq_receive)(m_mqDescriptorSubscriber, buffer, MAX_MESSAGE_SIZE, nullptr)
                .failureReturnValue(ERROR_CODE)
                .ignoreErrnos(EAGAIN)
                .evaluate()

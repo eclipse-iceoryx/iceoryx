@@ -16,9 +16,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iox/function.hpp"
 #include "iox/logging.hpp"
+#include "iox/posix_call.hpp"
 
 #include <iostream>
 
@@ -63,7 +63,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
     }
 
     // check if acl is valid
-    auto aclCheckCall = posixCall(acl_valid)(workingACL.get()).successReturnValue(0).evaluate();
+    auto aclCheckCall = IOX_POSIX_CALL(acl_valid)(workingACL.get()).successReturnValue(0).evaluate();
 
     if (aclCheckCall.has_error())
     {
@@ -72,7 +72,7 @@ bool AccessController::writePermissionsToFile(const int32_t fileDescriptor) cons
     }
 
     // set acl in the file given by descriptor
-    auto aclSetFdCall = posixCall(acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
+    auto aclSetFdCall = IOX_POSIX_CALL(acl_set_fd)(fileDescriptor, workingACL.get()).successReturnValue(0).evaluate();
     if (aclSetFdCall.has_error())
     {
         IOX_LOG(ERROR, "Error: Could not set file ACL.");
@@ -87,7 +87,7 @@ expected<AccessController::smartAclPointer_t, AccessController::AccessController
 AccessController::createACL(const int32_t numEntries) noexcept
 {
     // allocate memory for a new ACL
-    auto aclInitCall = posixCall(acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
+    auto aclInitCall = IOX_POSIX_CALL(acl_init)(numEntries).failureReturnValue(nullptr).evaluate();
 
     if (aclInitCall.has_error())
     {
@@ -96,7 +96,7 @@ AccessController::createACL(const int32_t numEntries) noexcept
 
     // define how to free the memory (custom deleter for the smart pointer)
     function<void(acl_t)> freeACL = [&](acl_t acl) {
-        auto aclFreeCall = posixCall(acl_free)(acl).successReturnValue(0).evaluate();
+        auto aclFreeCall = IOX_POSIX_CALL(acl_free)(acl).successReturnValue(0).evaluate();
         // We ensure here instead of returning as this lambda will be called by unique_ptr
         /// NOLINTJUSTIFICATION @todo iox-#1032 will be replaced with refactored error handling
         /// NOLINTNEXTLINE(hicpp-no-array-decay,cppcoreguidelines-pro-bounds-array-to-pointer-decay)
@@ -191,7 +191,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
     acl_entry_t newEntry{};
     acl_t l_ACL{ACL};
 
-    auto aclCreateEntryCall = posixCall(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
+    auto aclCreateEntryCall = IOX_POSIX_CALL(acl_create_entry)(&l_ACL, &newEntry).successReturnValue(0).evaluate();
 
     if (aclCreateEntryCall.has_error())
     {
@@ -201,7 +201,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
     // set tag type for new entry (user, group, ...)
     auto tagType = static_cast<acl_tag_t>(entry.m_category);
-    auto aclSetTagTypeCall = posixCall(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
+    auto aclSetTagTypeCall = IOX_POSIX_CALL(acl_set_tag_type)(newEntry, tagType).successReturnValue(0).evaluate();
 
     if (aclSetTagTypeCall.has_error())
     {
@@ -215,7 +215,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
     case ACL_USER:
     {
         auto aclSetQualifierCall =
-            posixCall(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
+            IOX_POSIX_CALL(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
@@ -228,7 +228,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
     case ACL_GROUP:
     {
         auto aclSetQualifierCall =
-            posixCall(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
+            IOX_POSIX_CALL(acl_set_qualifier)(newEntry, &(entry.m_id)).successReturnValue(0).evaluate();
 
         if (aclSetQualifierCall.has_error())
         {
@@ -245,7 +245,8 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
     // get reference to permission set in new entry
     acl_permset_t entryPermissionSet{};
 
-    auto aclGetPermsetCall = posixCall(acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
+    auto aclGetPermsetCall =
+        IOX_POSIX_CALL(acl_get_permset)(newEntry, &entryPermissionSet).successReturnValue(0).evaluate();
 
     if (aclGetPermsetCall.has_error())
     {
@@ -284,7 +285,7 @@ bool AccessController::createACLEntry(const acl_t ACL, const PermissionEntry& en
 
 bool AccessController::addAclPermission(acl_permset_t permset, acl_perm_t perm) noexcept
 {
-    auto aclAddPermCall = posixCall(acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
+    auto aclAddPermCall = IOX_POSIX_CALL(acl_add_perm)(permset, perm).successReturnValue(0).evaluate();
 
     if (aclAddPermCall.has_error())
     {

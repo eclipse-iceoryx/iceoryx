@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_hoofs/posix_wrapper/posix_access_rights.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
+#include "iox/posix_call.hpp"
 #include "test.hpp"
 
 #include <cstdlib>
@@ -37,13 +37,11 @@ class PosixAccessRights_test : public Test
         fileStream.open(TestFileName, std::fstream::out | std::fstream::trunc);
         fileStream.close();
 
-        iox::posix::posixCall(system)(("groups > " + TestFileName).c_str())
-            .failureReturnValue(-1)
-            .evaluate()
-            .or_else([](auto& r) {
-                IOX_LOG(ERROR, "system call failed with error: " << r.getHumanReadableErrnum());
-                std::terminate();
-            });
+        IOX_POSIX_CALL(system)
+        (("groups > " + TestFileName).c_str()).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+            IOX_LOG(ERROR, "system call failed with error: " << r.getHumanReadableErrnum());
+            std::terminate();
+        });
     }
 
     void TearDown() override

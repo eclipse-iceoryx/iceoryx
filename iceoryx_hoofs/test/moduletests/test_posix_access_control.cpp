@@ -17,9 +17,9 @@
 
 #if defined(__linux__)
 #include "iceoryx_hoofs/internal/posix_wrapper/access_control.hpp"
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_platform/pwd.hpp"
 #include "iceoryx_platform/stat.hpp"
+#include "iox/posix_call.hpp"
 #include "test.hpp"
 
 #include <memory>
@@ -63,7 +63,7 @@ std::unique_ptr<PwUidResult> iox_getpwuid(const uid_t uid)
 {
     passwd* resultPtr = nullptr;
     std::unique_ptr<PwUidResult> result = std::make_unique<PwUidResult>();
-    auto call = posixCall(getpwuid_r)(uid, &result->pwd, &result->buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
+    auto call = IOX_POSIX_CALL(getpwuid_r)(uid, &result->pwd, &result->buff[0], PwUidResult::BUFFER_SIZE, &resultPtr)
                     .returnValueMatchesErrno()
                     .evaluate();
     if (call.has_error())

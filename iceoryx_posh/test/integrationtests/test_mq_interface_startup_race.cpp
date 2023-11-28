@@ -18,11 +18,11 @@
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
 #include "test.hpp"
 
-#include "iceoryx_hoofs/posix_wrapper/posix_call.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_message.hpp"
 #include "iceoryx_posh/internal/runtime/ipc_runtime_interface.hpp"
 #include "iox/duration.hpp"
 #include "iox/message_queue.hpp"
+#include "iox/posix_call.hpp"
 #include "iox/std_string_support.hpp"
 
 
@@ -144,7 +144,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMq)
         checkRegRequest(msg);
 
         // simulate the restart of RouDi with the mqueue cleanup
-        posix::posixCall(system)(DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+        IOX_POSIX_CALL(system)
+        (DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
             std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
             exit(EXIT_FAILURE);
         });
@@ -195,7 +196,8 @@ TEST_F(CMqInterfaceStartupRace_test, ObsoleteRouDiMqWithFullMq)
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         // simulate the restart of RouDi with the mqueue cleanup
-        posix::posixCall(system)(DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
+        IOX_POSIX_CALL(system)
+        (DeleteRouDiMessageQueue).failureReturnValue(-1).evaluate().or_else([](auto& r) {
             std::cerr << "system call failed with error: " << r.getHumanReadableErrnum();
             exit(EXIT_FAILURE);
         });

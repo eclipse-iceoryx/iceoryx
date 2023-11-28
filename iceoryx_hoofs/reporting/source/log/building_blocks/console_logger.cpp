@@ -58,7 +58,7 @@ void ConsoleLogger::createLogMessageHeader(const char* file,
                                            LogLevel logLevel) noexcept
 {
     timespec timestamp{0, 0};
-    // intentionally avoid using 'iox::posixCall' here to keep the logger dependency free
+    // intentionally avoid using 'IOX_POSIX_CALL' here to keep the logger dependency free
     if (clock_gettime(CLOCK_REALTIME, &timestamp) != 0)
     {
         timestamp = {0, 0};
