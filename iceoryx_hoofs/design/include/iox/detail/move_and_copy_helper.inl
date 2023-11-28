@@ -22,9 +22,51 @@
 namespace iox
 {
 
+/// @brief MoveAndCopyHelperBase is a template structure used to create or assign objects based on the provided
+/// operation type (Opt). All of methods in this class are general for MoveAndCopyOperations. Any function that depends
+/// on specific MoveAndCopyOperations should move to partial specialization region.
+/// @tparam Opt The operation type that determines how objects are created or assigned.
+template <MoveAndCopyOperations Opt>
+class MoveAndCopyHelperBase
+{
+  public:
+    /// @brief Creates or assigns an object to 'dest' based on the specail operation type.
+    /// @tparam T The type of the object to be created or assigned.
+    /// @tparam V The type of the source object, kept as a universal reference to preserve its lvalue or rvalue nature.
+    /// @param[out] dest The destination object where the new object is created or to which the source object is
+    /// assigned.
+    /// @param[in] src The source object, either for copy or move operations.
+    template <typename T, typename V>
+    static void transfer(T& dest, V&& src) noexcept;
+
+    /// @brief Force to use constructor to create an object at the destination.
+    /// @tparam T The type of the object to be constructed.
+    /// @tparam V The type of the source object, used for move or copy construction.
+    /// @param[out] dest The destination object where the new object is constructed.
+    /// @param[in] src The source object, either for move or copy construction.
+    template <typename T, typename V>
+    static void ctor_create(T& dest, V&& src) noexcept;
+
+    /// @brief Force to use assignment to assign an object to the destination.
+    /// @tparam T The type of the destination object.
+    /// @tparam V The type of the source object, used for move or copy assignment.
+    /// @param dest The destination object where the source object is assigned.
+    /// @param src The source object, either for move or copy assignment.
+    template <typename T, typename V>
+    static void assignment_create(T& dest, V&& src) noexcept;
+
+    /// @brief Checks if the current special operation is a constructor call.
+    /// @return True if the operation is a copy or move constructor, false otherwise.
+    static constexpr bool is_ctor() noexcept;
+
+    /// @brief Checks if the current special operation is a move operation.
+    /// @return True if the operation is a move constructor or move assignment, false otherwise.
+    static constexpr bool is_move() noexcept;
+};
+
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
+inline void MoveAndCopyHelperBase<Opt>::transfer(T& dest, V&& src) noexcept
 {
     if constexpr (is_ctor())
     {
@@ -38,7 +80,7 @@ inline void MoveAndCopyHelper<Opt>::transfer(T& dest, V&& src) noexcept
 
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
+inline void MoveAndCopyHelperBase<Opt>::ctor_create(T& dest, V&& src) noexcept
 {
     if constexpr (is_move())
     {
@@ -57,7 +99,7 @@ inline void MoveAndCopyHelper<Opt>::create_new(T& dest, V&& src) noexcept
 
 template <MoveAndCopyOperations Opt>
 template <typename T, typename V>
-inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
+inline void MoveAndCopyHelperBase<Opt>::assignment_create(T& dest, V&& src) noexcept
 {
     if constexpr (is_move())
     {
@@ -73,16 +115,118 @@ inline void MoveAndCopyHelper<Opt>::assign(T& dest, V&& src) noexcept
 }
 
 template <MoveAndCopyOperations Opt>
-inline constexpr bool MoveAndCopyHelper<Opt>::is_ctor() noexcept
+inline constexpr bool MoveAndCopyHelperBase<Opt>::is_ctor() noexcept
 {
     return Opt == MoveAndCopyOperations::CopyConstructor || Opt == MoveAndCopyOperations::MoveConstructor;
 }
 
 template <MoveAndCopyOperations Opt>
-inline constexpr bool MoveAndCopyHelper<Opt>::is_move() noexcept
+inline constexpr bool MoveAndCopyHelperBase<Opt>::is_move() noexcept
 {
     return Opt == MoveAndCopyOperations::MoveAssignment || Opt == MoveAndCopyOperations::MoveConstructor;
 }
+
+/// @brief The partial specialization region for MoveAndCopyHelper.
+/* partial specialization */
+
+template <>
+struct MoveAndCopyHelper<MoveAndCopyOperations::CopyConstructor>
+    : public MoveAndCopyHelperBase<MoveAndCopyOperations::CopyConstructor>
+{
+    template <typename T>
+    static constexpr auto move_or_copy(const T& value) noexcept -> decltype(value)
+    {
+        return value;
+    }
+
+    template <typename Iterator>
+    static constexpr auto move_or_copy_it(Iterator& it) noexcept -> decltype(*it)
+    {
+        return *it;
+    }
+};
+
+template <>
+struct MoveAndCopyHelper<MoveAndCopyOperations::CopyAssignment>
+    : public MoveAndCopyHelperBase<MoveAndCopyOperations::CopyConstructor>
+{
+    /// @brief This function aims to simplified the constexpr if branches due to the 'transfer' parameters.
+    /// @tparam T
+    /// @param[in] value The target value which is going to transfer
+    /// @return Const lvalue reference of value
+    /// @example
+    /// An example of simplifying the usage of 'if constexpr' branches in a loop.
+    /// The original code:
+    /// \code{.cpp}
+    /// for (uint64_t i = 0; i < rhs.size(); ++i)
+    /// {
+    ///     if constexpr (is_move)
+    ///     {
+    ///         Helper::transfer(m_data[i], std::move(rhs.data[i]));
+    ///     }
+    ///     else
+    ///     {
+    ///         Helper::transfer(m_data[i], rhs.data[i]);
+    ///     }
+    /// }
+    /// \endcode
+    /// can be simplified to:
+    /// \code{.cpp}
+    /// for (uint64_t i = 0; i < rhs.size(); ++i)
+    /// {
+    ///     Helper::transfer(m_data[i], Helper::move_or_copy(rhs.data[i]));
+    /// }
+    /// \endcode
+    template <typename T>
+    static inline constexpr auto move_or_copy(const T& value) noexcept -> decltype(value)
+    {
+        return value;
+    }
+
+    /// @brief The iterator as input version of move_or_copy
+    /// @tparam Iterator The iterator type
+    /// @param[in] it
+    /// @return
+    template <typename Iterator>
+    static inline constexpr auto move_or_copy_it(Iterator& it) noexcept -> decltype(*it)
+    {
+        return *it;
+    }
+};
+
+template <>
+struct MoveAndCopyHelper<MoveAndCopyOperations::MoveConstructor>
+    : public MoveAndCopyHelperBase<MoveAndCopyOperations::MoveConstructor>
+{
+    template <typename T>
+    static inline constexpr auto move_or_copy(T&& value) noexcept -> decltype(std::move(std::forward<T>(value)))
+    {
+        return std::move(std::forward<T>(value));
+    }
+
+    template <typename Iterator>
+    static inline constexpr auto move_or_copy_it(Iterator& it) noexcept -> decltype(std::move(*it))
+    {
+        return std::move(*it);
+    }
+};
+
+template <>
+struct MoveAndCopyHelper<MoveAndCopyOperations::MoveAssignment>
+    : public MoveAndCopyHelperBase<MoveAndCopyOperations::MoveAssignment>
+{
+    template <typename T>
+    static inline constexpr auto move_or_copy(T&& value) noexcept -> decltype(std::move(std::forward<T>(value)))
+    {
+        return std::move(std::forward<T>(value));
+    }
+
+    template <typename Iterator>
+    static inline constexpr auto move_or_copy_it(Iterator& it) noexcept -> decltype(std::move(*it))
+    {
+        return std::move(*it);
+    }
+};
 
 } // namespace iox
 #endif

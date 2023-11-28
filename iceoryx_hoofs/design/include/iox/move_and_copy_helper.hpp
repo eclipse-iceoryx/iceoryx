@@ -31,46 +31,8 @@ enum class MoveAndCopyOperations
     MoveAssignment,
 };
 
-/// @brief MoveAndCopyHelper is a template structure used to create or assign objects based on the provided
-/// operation type (Opt).
-/// @tparam Opt The operation type that determines how objects are created or assigned.
 template <MoveAndCopyOperations Opt>
-class MoveAndCopyHelper final
-{
-  public:
-    /// @brief Creates or assigns an object to 'dest' based on the specail operation type.
-    /// @tparam T The type of the object to be created or assigned.
-    /// @tparam V The type of the source object, kept as a universal reference to preserve its lvalue or rvalue nature.
-    /// @param[out] dest The destination object where the new object is created or to which the source object is
-    /// assigned.
-    /// @param[in] src The source object, either for copy or move operations.
-    template <typename T, typename V>
-    static void transfer(T& dest, V&& src) noexcept;
-
-    /// @brief Force to use constructor to create an object at the destination.
-    /// @tparam T The type of the object to be constructed.
-    /// @tparam V The type of the source object, used for move or copy construction.
-    /// @param[out] dest The destination object where the new object is constructed.
-    /// @param[in] src The source object, either for move or copy construction.
-    template <typename T, typename V>
-    static void create_new(T& dest, V&& src) noexcept;
-
-    /// @brief Force to use assignment to assign an object to the destination.
-    /// @tparam T The type of the destination object.
-    /// @tparam V The type of the source object, used for move or copy assignment.
-    /// @param dest The destination object where the source object is assigned.
-    /// @param src The source object, either for move or copy assignment.
-    template <typename T, typename V>
-    static void assign(T& dest, V&& src) noexcept;
-
-    /// @brief Checks if the current special operation is a constructor call.
-    /// @return True if the operation is a copy or move constructor, false otherwise.
-    static constexpr bool is_ctor() noexcept;
-
-    /// @brief Checks if the current special operation is a move operation.
-    /// @return True if the operation is a move constructor or move assignment, false otherwise.
-    static constexpr bool is_move() noexcept;
-};
+struct MoveAndCopyHelper;
 
 } // namespace iox
 
