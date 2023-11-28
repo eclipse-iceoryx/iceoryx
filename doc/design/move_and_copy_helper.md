@@ -33,6 +33,7 @@ The purpose of the `MoveAndCopyHelper` is:
 
 ### Scenario
 
+#### Transfer
 Presently, there are three functions: `transfer`, `create_new`, and `assign`. The scenarios outlined below briefly describe the appropriate usage for each function.
 
 - `transfer`: This is a general-purpose function for data transfer. It is recommended for use in cases where you are not dealing with potentially uninitialized memory.
@@ -107,7 +108,7 @@ void Test::copy_and_move_impl(RhsType&& rhs)
     // you can set alias to simplify code
     using Helper = MoveAndCopyHelper<Opt>;
 
-    // you can determine the current `Opt` at compile time for compile-time branching decisions.
+    // you can determine the current 'Opt' at compile time for compile-time branching decisions.
     constexpr bool is_ctor = Helper::is_ctor();
     constexpr bool is_move = Helper::is_move();
 
@@ -130,14 +131,18 @@ void Test::copy_and_move_impl(RhsType&& rhs)
     // transfer data example
     for (uint64_t i = 0; i < rhs.size(); ++i)
     {
-        if constexpr (is_move)
-        {
-            Helper::transfer(m_data[i], std::move(rhs.data[i]));
-        }
-        else
-        {
-            Helper::transfer(m_data[i], rhs.data[i]);
-        }
+        // @Method 1
+        // if constexpr (is_move)
+        // {
+        //     Helper::transfer(m_data[i], std::move(rhs.data[i]));
+        // }
+        // else
+        // {
+        //     Helper::transfer(m_data[i], rhs.data[i]);
+        // }
+
+        // @Method 2
+        Helper::transfer(m_data[i], Helper::move_or_copy(rhs.data[i]));
     }
 }
 ```
