@@ -17,10 +17,10 @@
 
 #include "test.hpp"
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/mman.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iceoryx_platform/unistd.hpp"
+#include "iox/detail/posix_shared_memory.hpp"
 #include "iox/posix_call.hpp"
 
 #include <fcntl.h>
@@ -29,14 +29,14 @@ namespace
 {
 using namespace testing;
 using namespace iox;
-using namespace iox::posix;
+using namespace iox::detail;
 
-class SharedMemory_Test : public Test
+class PosixSharedMemory_Test : public Test
 {
   public:
     void SetUp() override
     {
-        auto result = iox::posix::SharedMemory::unlinkIfExist(SUT_SHM_NAME);
+        auto result = iox::detail::PosixSharedMemory::unlinkIfExist(SUT_SHM_NAME);
         ASSERT_FALSE(result.has_error());
     }
 
@@ -47,10 +47,10 @@ class SharedMemory_Test : public Test
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only
     static constexpr const char SUT_SHM_NAME[] = "ignatz";
 
-    static iox::expected<iox::posix::SharedMemory, iox::posix::SharedMemoryError>
-    createSut(const iox::posix::SharedMemory::Name_t& name, const iox::OpenMode openMode)
+    static expected<PosixSharedMemory, PosixSharedMemoryError> createSut(const PosixSharedMemory::Name_t& name,
+                                                                         const iox::OpenMode openMode)
     {
-        return iox::posix::SharedMemoryBuilder()
+        return PosixSharedMemoryBuilder()
             .name(name)
             .accessMode(iox::AccessMode::READ_WRITE)
             .openMode(openMode)
@@ -59,14 +59,13 @@ class SharedMemory_Test : public Test
             .create();
     }
 
-    static std::unique_ptr<int, std::function<void(int*)>>
-    createRawSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    static std::unique_ptr<int, std::function<void(int*)>> createRawSharedMemory(const PosixSharedMemory::Name_t& name)
     {
         // NOLINTBEGIN(hicpp-signed-bitwise) enum types defined by POSIX are required
         auto result = IOX_POSIX_CALL(iox_shm_open)((std::string("/") + name.c_str()).c_str(),
                                                    O_RDWR | O_CREAT,
                                                    S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-                          .failureReturnValue(SharedMemory::INVALID_HANDLE)
+                          .failureReturnValue(PosixSharedMemory::INVALID_HANDLE)
                           .evaluate();
         // NOLINTEND(hicpp-signed-bitwise)
         if (result.has_error())
@@ -81,9 +80,9 @@ class SharedMemory_Test : public Test
         });
     }
 
-    static bool cleanupSharedMemory(const iox::posix::SharedMemory::Name_t& name)
+    static bool cleanupSharedMemory(const PosixSharedMemory::Name_t& name)
     {
-        auto result = iox::posix::SharedMemory::unlinkIfExist(name);
+        auto result = PosixSharedMemory::unlinkIfExist(name);
         if (result.has_error())
         {
             EXPECT_TRUE(false);
@@ -94,30 +93,30 @@ class SharedMemory_Test : public Test
 };
 
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays, hicpp-avoid-c-arrays) test only
-constexpr const char SharedMemory_Test::SUT_SHM_NAME[];
+constexpr const char PosixSharedMemory_Test::SUT_SHM_NAME[];
 
-TEST_F(SharedMemory_Test, CTorWithValidArguments)
+TEST_F(PosixSharedMemory_Test, CTorWithValidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "158f1ee6-cc8c-4e80-a288-6e23a74cd66e");
     auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
     EXPECT_THAT(sut.has_error(), Eq(false));
 }
 
-TEST_F(SharedMemory_Test, CTorWithInvalidMessageQueueNames)
+TEST_F(PosixSharedMemory_Test, CTorWithInvalidMessageQueueNames)
 {
     ::testing::Test::RecordProperty("TEST_ID", "76ed82b1-eef7-4a5a-8794-b333c679e726");
     EXPECT_THAT(createSut("", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
     EXPECT_THAT(createSut("/ignatz", iox::OpenMode::PURGE_AND_CREATE).has_error(), Eq(true));
 }
 
-TEST_F(SharedMemory_Test, CTorWithInvalidArguments)
+TEST_F(PosixSharedMemory_Test, CTorWithInvalidArguments)
 {
     ::testing::Test::RecordProperty("TEST_ID", "53c66249-4f3a-4220-9cc0-001be53546d3");
     auto sut = createSut("/schlomo", iox::OpenMode::OPEN_EXISTING);
     EXPECT_THAT(sut.has_error(), Eq(true));
 }
 
-TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
+TEST_F(PosixSharedMemory_Test, MoveCTorWithValidValues)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2844c9c5-856e-4b51-890d-1418f79f1a80");
 
@@ -125,35 +124,35 @@ TEST_F(SharedMemory_Test, MoveCTorWithValidValues)
     ASSERT_FALSE(sut.has_error());
     int handle = sut->getHandle();
     {
-        iox::posix::SharedMemory sut2(std::move(*sut));
+        PosixSharedMemory sut2(std::move(*sut));
         EXPECT_THAT(handle, Eq(sut2.getHandle()));
     }
 }
 
-TEST_F(SharedMemory_Test, getHandleOfValidObject)
+TEST_F(PosixSharedMemory_Test, getHandleOfValidObject)
 {
     ::testing::Test::RecordProperty("TEST_ID", "1fec2518-70f7-412b-8be2-3174e6ada050");
     auto sut = createSut(SUT_SHM_NAME, iox::OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
 }
 
-TEST_F(SharedMemory_Test, UnlinkNonExistingShmFails)
+TEST_F(PosixSharedMemory_Test, UnlinkNonExistingShmFails)
 {
     ::testing::Test::RecordProperty("TEST_ID", "56951e9d-5dd4-4a44-aa5b-bd369cb963e9");
-    auto result = iox::posix::SharedMemory::unlinkIfExist("/look_there's_a_dead_seagull_flying_its_name_is_dietlbart");
+    auto result = PosixSharedMemory::unlinkIfExist("/look_there's_a_dead_seagull_flying_its_name_is_dietlbart");
     ASSERT_FALSE(result.has_error());
     EXPECT_FALSE(*result);
 }
 
-TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
+TEST_F(PosixSharedMemory_Test, UnlinkExistingShmWorks)
 {
     ::testing::Test::RecordProperty("TEST_ID", "11f0b2f2-b891-41e4-bb82-648a9541582f");
     // NOLINTNEXTLINE(hicpp-avoid-c-arrays, cppcoreguidelines-avoid-c-arrays) test only
     constexpr const char SHM_NAME[] = "its_a_mee_monukulius";
     auto rawSharedMemory = createRawSharedMemory(SHM_NAME);
     ASSERT_TRUE(static_cast<bool>(rawSharedMemory));
-    auto result = iox::posix::SharedMemory::unlinkIfExist(SHM_NAME);
+    auto result = PosixSharedMemory::unlinkIfExist(SHM_NAME);
     ASSERT_FALSE(result.has_error());
     EXPECT_TRUE(*result);
 
@@ -162,16 +161,16 @@ TEST_F(SharedMemory_Test, UnlinkExistingShmWorks)
     delete rawSharedMemory.release();
 }
 
-TEST_F(SharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
+TEST_F(PosixSharedMemory_Test, ExclusiveCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "bfc44656-ef23-49ef-be96-0d4bfb592030");
     auto sut = createSut(SUT_SHM_NAME, OpenMode::EXCLUSIVE_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
 }
 
-TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
+TEST_F(PosixSharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "19eca662-4f01-453b-9ae3-5cb2090e46ce");
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
@@ -181,19 +180,19 @@ TEST_F(SharedMemory_Test, ExclusiveCreateFailsWhenShmExists)
     ASSERT_TRUE(sut.has_error());
 }
 
-TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
+TEST_F(PosixSharedMemory_Test, PurgeAndCreateWorksWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "611694b6-d877-43a1-a6e3-dfef3f8a174b");
     auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
 }
 
 // Windows does not support this since the named semaphore is automatically deleted
 // as soon as the last handle was closed with CloseHandle
 #if !defined(_WIN32)
-TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
+TEST_F(PosixSharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
 {
     ::testing::Test::RecordProperty("TEST_ID", "21d620f0-af45-46ad-a5b7-1c18026fb9a8");
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
@@ -202,22 +201,22 @@ TEST_F(SharedMemory_Test, PurgeAndCreateWorksWhenShmExists)
     auto sut = createSut(SUT_SHM_NAME, OpenMode::PURGE_AND_CREATE);
     ASSERT_FALSE(sut.has_error());
     EXPECT_TRUE(sut->hasOwnership());
-    EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+    EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
 }
 #endif
 
-TEST_F(SharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
+TEST_F(PosixSharedMemory_Test, CreateOrOpenCreatesShmWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "574b0b16-2458-49b0-8b37-3999e9b56072");
     {
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_TRUE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
     }
 }
 
-TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
+TEST_F(PosixSharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "2413ddda-9d2e-4429-adba-81fe848a6a06");
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
@@ -226,11 +225,11 @@ TEST_F(SharedMemory_Test, CreateOrOpenOpensShmWhenShmDoesExist)
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_OR_CREATE);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
     }
 }
 
-TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
+TEST_F(PosixSharedMemory_Test, OpenWorksWhenShmExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "59ba1e1c-ec1c-45fb-bc85-c6256f9176fd");
     auto rawSharedMemory = createRawSharedMemory(SUT_SHM_NAME);
@@ -239,21 +238,21 @@ TEST_F(SharedMemory_Test, OpenWorksWhenShmExist)
         auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
         ASSERT_FALSE(sut.has_error());
         EXPECT_FALSE(sut->hasOwnership());
-        EXPECT_THAT(sut->getHandle(), Ne(SharedMemory::INVALID_HANDLE));
+        EXPECT_THAT(sut->getHandle(), Ne(PosixSharedMemory::INVALID_HANDLE));
     }
 }
 
-TEST_F(SharedMemory_Test, OpenFailsWhenShmDoesNotExist)
+TEST_F(PosixSharedMemory_Test, OpenFailsWhenShmDoesNotExist)
 {
     ::testing::Test::RecordProperty("TEST_ID", "5b1878b9-d292-479c-bfe7-9826561152ee");
     auto sut = createSut(SUT_SHM_NAME, OpenMode::OPEN_EXISTING);
     ASSERT_TRUE(sut.has_error());
 }
 
-TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
+TEST_F(PosixSharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
 {
     ::testing::Test::RecordProperty("TEST_ID", "80684160-b243-4ca1-b285-118d2ef36108");
-    auto sut = iox::posix::SharedMemoryBuilder()
+    auto sut = PosixSharedMemoryBuilder()
                    .name("readOnlyShmMem")
                    .size(100)
                    .accessMode(iox::AccessMode::READ_ONLY)
@@ -261,7 +260,7 @@ TEST_F(SharedMemory_Test, OpenFailsWhenCreatingShmInReadOnlyMode)
                    .create();
 
     ASSERT_TRUE(sut.has_error());
-    ASSERT_THAT(sut.error(), Eq(SharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
+    ASSERT_THAT(sut.error(), Eq(PosixSharedMemoryError::INCOMPATIBLE_OPEN_AND_ACCESS_MODE));
 }
 
 

@@ -27,7 +27,6 @@
 
 namespace iox
 {
-using posix::SharedMemory;
 using posix::SharedMemoryObject;
 using posix::SharedMemoryObjectBuilder;
 
@@ -190,7 +189,7 @@ expected<void, PosixIpcChannelError> NamedPipe::destroy() noexcept
 
 expected<bool, PosixIpcChannelError> NamedPipe::unlinkIfExists(const PosixIpcChannelName_t& name) noexcept
 {
-    auto result = SharedMemory::unlinkIfExist(mapToSharedMemoryName(NAMED_PIPE_PREFIX, name));
+    auto result = detail::PosixSharedMemory::unlinkIfExist(mapToSharedMemoryName(NAMED_PIPE_PREFIX, name));
     if (result.has_error())
     {
         return err(PosixIpcChannelError::INTERNAL_LOGIC_ERROR);

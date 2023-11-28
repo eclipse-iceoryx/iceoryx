@@ -14,31 +14,27 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
+
+#ifndef IOX_HOOFS_POSIX_IPC_POSIX_SHARED_MEMORY_HPP
+#define IOX_HOOFS_POSIX_IPC_POSIX_SHARED_MEMORY_HPP
 
 #include "iox/builder.hpp"
-#include "iox/detail/deprecation_marker.hpp"
 #include "iox/expected.hpp"
 #include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
-#include "iox/optional.hpp"
 #include "iox/string.hpp"
 
 #include <cstdint>
 
 namespace iox
 {
-namespace posix
+/// @brief Shared memory file descriptor type
+using shm_handle_t = int;
+
+namespace detail
 {
 
-using AccessMode IOX_DEPRECATED_SINCE(3,
-                                      "Please use 'iox::AccessMode' from 'iox/filesystem.hpp' instead.") = AccessMode;
-
-using OpenMode IOX_DEPRECATED_SINCE(3, "Please use 'iox::OpenMode' from 'iox/filesystem.hpp' instead.") = OpenMode;
-
-class SharedMemoryObject;
-enum class SharedMemoryError
+enum class PosixSharedMemoryError
 {
     EMPTY_NAME,
     INVALID_FILE_NAME,
@@ -58,25 +54,22 @@ enum class SharedMemoryError
     UNKNOWN_ERROR
 };
 
-/// @brief Shared memory file descriptor type
-using shm_handle_t = int;
-
 /// @brief Creates a bare metal shared memory object with the posix functions
 ///        shm_open, shm_unlink etc.
-///        It must be used in combination with MemoryMap (or manual mmap calls)
+///        It must be used in combination with 'PosixMemoryMap' (or manual mmap calls)
 ///        to gain access to the created/opened shared memory
-class SharedMemory : public FileManagementInterface<SharedMemory>
+class PosixSharedMemory : public FileManagementInterface<PosixSharedMemory>
 {
   public:
     static constexpr uint64_t NAME_SIZE = platform::IOX_MAX_SHM_NAME_LENGTH;
     static constexpr int INVALID_HANDLE = -1;
     using Name_t = string<NAME_SIZE>;
 
-    SharedMemory(const SharedMemory&) = delete;
-    SharedMemory& operator=(const SharedMemory&) = delete;
-    SharedMemory(SharedMemory&&) noexcept;
-    SharedMemory& operator=(SharedMemory&&) noexcept;
-    ~SharedMemory() noexcept;
+    PosixSharedMemory(const PosixSharedMemory&) = delete;
+    PosixSharedMemory& operator=(const PosixSharedMemory&) = delete;
+    PosixSharedMemory(PosixSharedMemory&&) noexcept;
+    PosixSharedMemory& operator=(PosixSharedMemory&&) noexcept;
+    ~PosixSharedMemory() noexcept;
 
     /// @brief returns the file handle of the shared memory
     shm_handle_t getHandle() const noexcept;
@@ -92,21 +85,21 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     /// @param[in] name name of the shared memory
     /// @return true if the shared memory was removed, false if the shared memory did not exist and
     ///         SharedMemoryError when the underlying shm_unlink call failed.
-    static expected<bool, SharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
+    static expected<bool, PosixSharedMemoryError> unlinkIfExist(const Name_t& name) noexcept;
 
-    friend class SharedMemoryBuilder;
+    friend class PosixSharedMemoryBuilder;
 
   private:
-    SharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept;
+    PosixSharedMemory(const Name_t& name, const shm_handle_t handle, const bool hasOwnership) noexcept;
 
     bool unlink() noexcept;
     bool close() noexcept;
     void destroy() noexcept;
     void reset() noexcept;
 
-    static SharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
+    static PosixSharedMemoryError errnoToEnum(const int32_t errnum) noexcept;
 
-    friend struct FileManagementInterface<SharedMemory>;
+    friend struct FileManagementInterface<PosixSharedMemory>;
     shm_handle_t get_file_handle() const noexcept;
 
     Name_t m_name;
@@ -114,12 +107,12 @@ class SharedMemory : public FileManagementInterface<SharedMemory>
     bool m_hasOwnership{false};
 };
 
-class SharedMemoryBuilder
+class PosixSharedMemoryBuilder
 {
     /// @brief A valid file name for the shared memory with the restriction that
     ///        no leading dot is allowed since it is not compatible with every
     ///        file system
-    IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+    IOX_BUILDER_PARAMETER(PosixSharedMemory::Name_t, name, "")
 
     /// @brief Defines if the memory should be mapped read only or with write access.
     ///        A read only memory section will cause a segmentation fault when written to.
@@ -138,10 +131,10 @@ class SharedMemoryBuilder
     /// @brief creates a valid SharedMemory object. If the construction failed the expected
     ///        contains an enum value describing the error.
     /// @return expected containing SharedMemory on success otherwise SharedMemoryError
-    expected<SharedMemory, SharedMemoryError> create() noexcept;
+    expected<PosixSharedMemory, PosixSharedMemoryError> create() noexcept;
 };
 
-} // namespace posix
+} // namespace detail
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_SHARED_MEMORY_HPP
+#endif // IOX_HOOFS_POSIX_IPC_POSIX_SHARED_MEMORY_HPP

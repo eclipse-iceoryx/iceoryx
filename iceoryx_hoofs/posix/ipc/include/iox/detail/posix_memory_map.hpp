@@ -18,9 +18,10 @@
 #ifndef IOX_HOOFS_POSIX_IPC_POSIX_MEMORY_MAP_HPP
 #define IOX_HOOFS_POSIX_IPC_POSIX_MEMORY_MAP_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/mman.hpp"
 #include "iox/builder.hpp"
+#include "iox/expected.hpp"
+#include "iox/filesystem.hpp"
 
 #include <cstdint>
 

@@ -17,11 +17,11 @@
 #ifndef IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 #define IOX_HOOFS_POSIX_WRAPPER_SHARED_MEMORY_OBJECT_HPP
 
-#include "iceoryx_hoofs/internal/posix_wrapper/shared_memory_object/shared_memory.hpp"
 #include "iceoryx_platform/stat.hpp"
 #include "iox/builder.hpp"
 #include "iox/bump_allocator.hpp"
 #include "iox/detail/posix_memory_map.hpp"
+#include "iox/detail/posix_shared_memory.hpp"
 #include "iox/file_management_interface.hpp"
 #include "iox/filesystem.hpp"
 #include "iox/optional.hpp"
@@ -82,13 +82,13 @@ class SharedMemoryObject : public FileManagementInterface<SharedMemoryObject>
     friend class SharedMemoryObjectBuilder;
 
   private:
-    SharedMemoryObject(SharedMemory&& sharedMemory, detail::PosixMemoryMap&& memoryMap) noexcept;
+    SharedMemoryObject(detail::PosixSharedMemory&& sharedMemory, detail::PosixMemoryMap&& memoryMap) noexcept;
 
     friend struct FileManagementInterface<SharedMemoryObject>;
     shm_handle_t get_file_handle() const noexcept;
 
   private:
-    SharedMemory m_sharedMemory;
+    detail::PosixSharedMemory m_sharedMemory;
     detail::PosixMemoryMap m_memoryMap;
 };
 
@@ -97,7 +97,7 @@ class SharedMemoryObjectBuilder
     /// @brief A valid file name for the shared memory with the restriction that
     ///        no leading dot is allowed since it is not compatible with every
     ///        file system
-    IOX_BUILDER_PARAMETER(SharedMemory::Name_t, name, "")
+    IOX_BUILDER_PARAMETER(detail::PosixSharedMemory::Name_t, name, "")
 
     /// @brief Defines the size of the shared memory
     IOX_BUILDER_PARAMETER(uint64_t, memorySizeInBytes, 0U)

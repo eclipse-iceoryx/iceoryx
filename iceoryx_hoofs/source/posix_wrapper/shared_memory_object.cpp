@@ -78,7 +78,7 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
                     << ", permissions = " << iox::log::oct(m_permissions.value()) << " ]");
     };
 
-    auto sharedMemory = SharedMemoryBuilder()
+    auto sharedMemory = detail::PosixSharedMemoryBuilder()
                             .name(m_name)
                             .accessMode(m_accessMode)
                             .openMode(m_openMode)
@@ -171,7 +171,8 @@ expected<SharedMemoryObject, SharedMemoryObjectError> SharedMemoryObjectBuilder:
     return ok(SharedMemoryObject(std::move(*sharedMemory), std::move(*memoryMap)));
 }
 
-SharedMemoryObject::SharedMemoryObject(SharedMemory&& sharedMemory, detail::PosixMemoryMap&& memoryMap) noexcept
+SharedMemoryObject::SharedMemoryObject(detail::PosixSharedMemory&& sharedMemory,
+                                       detail::PosixMemoryMap&& memoryMap) noexcept
     : m_sharedMemory(std::move(sharedMemory))
     , m_memoryMap(std::move(memoryMap))
 {
