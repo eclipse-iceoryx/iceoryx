@@ -15,14 +15,14 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
+#include "iox/detail/system_configuration.hpp"
 
 #include "iox/logging.hpp"
 #include "iox/posix_call.hpp"
 
 namespace iox
 {
-namespace internal
+namespace detail
 {
 uint64_t pageSize() noexcept
 {
@@ -38,5 +38,5 @@ uint64_t pageSize() noexcept
                                      .value()
                                      .value);
 }
-} // namespace internal
+} // namespace detail
 } // namespace iox

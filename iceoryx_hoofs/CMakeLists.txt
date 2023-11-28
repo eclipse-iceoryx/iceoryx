@@ -111,7 +111,6 @@ iox_add_library(
         source/posix_wrapper/shared_memory_object/memory_map.cpp
         source/posix_wrapper/shared_memory_object/shared_memory.cpp
         source/posix_wrapper/signal_handler.cpp
-        source/posix_wrapper/system_configuration.cpp
         source/error_reporting/custom/default/default_error_handler.cpp
         time/source/duration.cpp
         utility/source/unique_id.cpp
@@ -131,6 +130,7 @@ iox_add_library(
         posix/time/source/adaptive_wait.cpp
         posix/time/source/deadline_timer.cpp
         posix/utility/source/posix_scheduler.cpp
+        posix/utility/source/system_configuration.cpp
         posix/vocabulary/source/file_name.cpp
         posix/vocabulary/source/file_path.cpp
         posix/vocabulary/source/group_name.cpp

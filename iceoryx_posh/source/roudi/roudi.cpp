@@ -17,13 +17,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_posh/internal/roudi/roudi.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/system_configuration.hpp"
 #include "iceoryx_posh/internal/runtime/node_property.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
 #include "iceoryx_posh/popo/wait_set.hpp"
 #include "iceoryx_posh/roudi/introspection_types.hpp"
 #include "iceoryx_posh/runtime/port_config_info.hpp"
 #include "iox/detail/convert.hpp"
+#include "iox/detail/system_configuration.hpp"
 #include "iox/logging.hpp"
 #include "iox/posix_user.hpp"
 #include "iox/std_string_support.hpp"
@@ -53,7 +53,7 @@ RouDi::RouDi(RouDiMemoryInterface& roudiMemoryInterface,
     , m_processTerminationDelay(roudiStartupParameters.m_processTerminationDelay)
     , m_processKillDelay(roudiStartupParameters.m_processKillDelay)
 {
-    if (internal::isCompiledOn32BitSystem())
+    if (detail::isCompiledOn32BitSystem())
     {
         IOX_LOG(WARN, "Runnning RouDi on 32-bit architectures is not supported! Use at your own risk!");
     }
