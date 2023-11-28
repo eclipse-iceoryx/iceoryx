@@ -330,11 +330,11 @@
                         .expect("Oh no I couldn't create the lock file");
 
     // after
-    auto fileLock = iox::posix::FileLockBuilder().name("lockFileName")
-                                                 .path("/Now/I/Can/Add/A/Path")
-                                                 .permission(iox::perms::owner_all)
-                                                 .create()
-                                                 .expect("Oh no I couldn't create the lock file");
+    auto fileLock = iox::FileLockBuilder().name("lockFileName")
+                                          .path("/Now/I/Can/Add/A/Path")
+                                          .permission(iox::perms::owner_all)
+                                          .create()
+                                          .expect("Oh no I couldn't create the lock file");
     ```
 
 10. `isValidFilePath` is removed use `isValidPathToFile` instead.

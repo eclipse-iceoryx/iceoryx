@@ -13,8 +13,9 @@
 // limitations under the License.
 //
 // SPDX-License-Identifier: Apache-2.0
-#ifndef IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
-#define IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
+
+#ifndef IOX_HOOFS_POSIX_FILESYSTEM_FILE_LOCK_HPP
+#define IOX_HOOFS_POSIX_FILESYSTEM_FILE_LOCK_HPP
 
 #include "iceoryx_platform/file.hpp"
 #include "iox/builder.hpp"
@@ -23,8 +24,6 @@
 #include "iox/string.hpp"
 
 namespace iox
-{
-namespace posix
 {
 enum class FileLockError
 {
@@ -50,11 +49,11 @@ enum class FileLockError
 ///        if the process crashes with a segfault or using SIGKILL. 'lslocks' can be used to display all system-wide
 ///        locks (see man page)
 /// @code
-///   auto fileLock = iox::posix::FileLockBuilder().name("myLockName")
-///                                                .path("/tmp")
-///                                                .permission(iox::perms::owner_all)
-///                                                .create()
-///                                                .expect("Oh no I couldn't create the lock");
+///   auto fileLock = iox::FileLockBuilder().name("myLockName")
+///                                         .path("/tmp")
+///                                         .permission(iox::perms::owner_all)
+///                                         .create()
+///                                         .expect("Oh no I couldn't create the lock");
 /// @endcode
 class FileLock
 {
@@ -128,7 +127,6 @@ class FileLockBuilder
     /// @return a valid file lock or an FileLockError describing the error
     expected<FileLock, FileLockError> create() noexcept;
 };
-} // namespace posix
 } // namespace iox
 
-#endif // IOX_HOOFS_POSIX_WRAPPER_FILE_LOCK_HPP
+#endif // IOX_HOOFS_POSIX_FILESYSTEM_FILE_LOCK_HPP

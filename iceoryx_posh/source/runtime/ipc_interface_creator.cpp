@@ -28,12 +28,12 @@ IpcInterfaceCreator::IpcInterfaceCreator(const RuntimeName_t& runtimeName,
                                          const uint64_t messageSize) noexcept
     : IpcInterfaceBase(runtimeName, maxMessages, messageSize)
     , m_fileLock(std::move(
-          posix::FileLockBuilder()
+          FileLockBuilder()
               .name(runtimeName)
               .permission(iox::perms::owner_read | iox::perms::owner_write)
               .create()
               .or_else([&runtimeName](auto& error) {
-                  if (error == posix::FileLockError::LOCKED_BY_OTHER_PROCESS)
+                  if (error == FileLockError::LOCKED_BY_OTHER_PROCESS)
                   {
                       IOX_LOG(FATAL,
                               "An application with the name " << runtimeName
