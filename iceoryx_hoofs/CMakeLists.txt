@@ -104,7 +104,6 @@ iox_add_library(
         source/cxx/requires.cpp
         source/error_handling/error_handler.cpp
         source/error_handling/error_handling.cpp
-        source/posix_wrapper/mutex.cpp
         source/posix_wrapper/scheduler.cpp
         source/posix_wrapper/shared_memory_object.cpp
         source/posix_wrapper/shared_memory_object/memory_map.cpp
@@ -122,6 +121,7 @@ iox_add_library(
         posix/filesystem/source/file.cpp
         posix/filesystem/source/file_lock.cpp
         posix/filesystem/source/posix_acl.cpp
+        posix/sync/source/mutex.cpp
         posix/sync/source/named_semaphore.cpp
         posix/sync/source/semaphore_interface.cpp
         posix/sync/source/thread.cpp

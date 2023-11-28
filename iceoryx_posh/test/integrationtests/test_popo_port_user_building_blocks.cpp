@@ -40,7 +40,6 @@ using namespace iox::capro;
 using namespace iox::cxx;
 using namespace iox;
 using namespace iox::mepoo;
-using namespace iox::posix;
 
 struct DummySample
 {

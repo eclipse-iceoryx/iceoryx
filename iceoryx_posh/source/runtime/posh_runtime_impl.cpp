@@ -45,9 +45,9 @@ PoshRuntimeImpl::PoshRuntimeImpl(optional<const RuntimeName_t*> name, const Runt
                                                  m_ipcChannelInterface.getSegmentManagerAddressOffset()});
     }())
 {
-    posix::MutexBuilder()
+    MutexBuilder()
         .isInterProcessCapable(false)
-        .mutexType(posix::MutexType::NORMAL)
+        .mutexType(MutexType::NORMAL)
         .create(m_appIpcRequestMutex)
         .expect("Failed to create Mutex");
 
@@ -684,7 +684,7 @@ popo::ConditionVariableData* PoshRuntimeImpl::getMiddlewareConditionVariable() n
 bool PoshRuntimeImpl::sendRequestToRouDi(const IpcMessage& msg, IpcMessage& answer) noexcept
 {
     // runtime must be thread safe
-    std::lock_guard<posix::mutex> g(m_appIpcRequestMutex.value());
+    std::lock_guard<mutex> g(m_appIpcRequestMutex.value());
     return m_ipcChannelInterface.sendRequestToRouDi(msg, answer);
 }
 

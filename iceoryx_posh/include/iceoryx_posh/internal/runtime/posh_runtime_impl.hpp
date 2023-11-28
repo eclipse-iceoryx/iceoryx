@@ -18,11 +18,11 @@
 #define IOX_POSH_RUNTIME_POSH_RUNTIME_IMPL_HPP
 
 #include "iceoryx_hoofs/internal/concurrent/periodic_task.hpp"
-#include "iceoryx_hoofs/internal/posix_wrapper/mutex.hpp"
 #include "iceoryx_posh/internal/runtime/heartbeat.hpp"
 #include "iceoryx_posh/internal/runtime/shared_memory_user.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/function.hpp"
+#include "iox/mutex.hpp"
 #include "iox/optional.hpp"
 
 namespace iox
@@ -106,7 +106,7 @@ class PoshRuntimeImpl : public PoshRuntime
     expected<popo::ConditionVariableData*, IpcMessageErrorType>
     requestConditionVariableFromRoudi(const IpcMessage& sendBuffer) noexcept;
 
-    mutable optional<posix::mutex> m_appIpcRequestMutex;
+    mutable optional<mutex> m_appIpcRequestMutex;
 
     IpcRuntimeInterface m_ipcChannelInterface;
     optional<SharedMemoryUser> m_ShmInterface;
