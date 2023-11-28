@@ -93,8 +93,8 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
     // alias helper struct
     using Helper = MoveAndCopyHelper<Opt>;
 
-    constexpr bool is_ctor = Helper::is_ctor();
-    constexpr bool is_move = Helper::is_move();
+    constexpr bool is_ctor = Helper::is_ctor;
+    constexpr bool is_move = Helper::is_move;
 
     // status array is not yet initialized for constructor creation
     if constexpr (is_ctor)
@@ -114,27 +114,13 @@ inline void FixedPositionContainer<T, CAPACITY>::copy_and_move_impl(RhsType&& rh
         {
             // When the slot is in the 'USED' state, it is safe to proceed with either construction (ctor) or assignment
             // operation. Therefore, creation can be carried out according to the option specified by Opt.
-            if constexpr (is_move)
-            {
-                Helper::transfer(m_data[i], std::move(*rhs_it));
-            }
-            else
-            {
-                Helper::transfer(m_data[i], *rhs_it);
-            }
+            Helper::transfer(m_data[i], Helper::move_or_copy_it(rhs_it));
         }
         else
         {
             // When the slot is in the 'FREE' state, it is unsafe to proceed with assignment operation.
             // Therefore, we need to force helper to use ctor create to make sure that the 'FREE' slots get initialized.
-            if constexpr (is_move)
-            {
-                Helper::create_new(m_data[i], std::move(*rhs_it));
-            }
-            else
-            {
-                Helper::create_new(m_data[i], *rhs_it);
-            }
+            Helper::create_new(m_data[i], Helper::move_or_copy_it(rhs_it));
         }
 
         m_status[i] = SlotStatus::USED;
